@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const { createCustomStorage } = require('../../utils/multerStorage');
 const authMiddleware = require('../../middleware/authMiddleware');
 const roleMiddleware = require('../../middleware/roleMiddleware');
 const engineeringController = require('../../controllers/engineering/engineeringController');
@@ -8,7 +9,7 @@ const engineeringController = require('../../controllers/engineering/engineering
 const router = express.Router();
 
 const upload = multer({
-  dest: path.join(__dirname, '../../uploads/engineering'),
+  storage: createCustomStorage(path.join(__dirname, '../../uploads/engineering')),
   limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedMimes = [
@@ -30,15 +31,12 @@ const upload = multer({
 });
 
 router.use(authMiddleware);
-router.use(roleMiddleware('Admin', 'Engineering', 'Management'));
+
+router.get('/documents', roleMiddleware('Admin', 'Engineering', 'engineering', 'Management', 'Design Engineer', 'design_engineer', 'design.engineer', 'Production', 'production_manager'), engineeringController.getDocuments);
+
+router.use(roleMiddleware('Admin', 'Engineering', 'engineering', 'Management', 'Design Engineer', 'design_engineer', 'design.engineer'));
 
 router.post('/documents/upload', upload.single('document'), engineeringController.uploadDocument);
-router.get('/documents', engineeringController.getDocuments);
 router.patch('/documents/:id/approve', engineeringController.approveDocument);
-
-router.post('/bom/generate', engineeringController.generateBOM);
-router.get('/bom/:id', engineeringController.getBOMDetails);
-router.get('/bom', engineeringController.getSalesOrderBOMs);
-router.patch('/bom/:id/status', engineeringController.updateBOMStatus);
 
 module.exports = router;

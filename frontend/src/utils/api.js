@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Configure axios defaults
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+axios.defaults.baseURL = baseURL.endsWith('/api') ? baseURL : baseURL + '/api';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // Request interceptor for auth token
@@ -10,6 +11,19 @@ axios.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      
+      // For demo users, add a special header to help the backend identify the simulated user
+      if (token === 'demo-token') {
+        const demoUser = localStorage.getItem('demoUser');
+        if (demoUser) {
+          try {
+            const parsedUser = JSON.parse(demoUser);
+            config.headers['X-Demo-User'] = parsedUser.username;
+          } catch (e) {
+            console.warn('Error parsing demo user for header', e);
+          }
+        }
+      }
     } else {
       delete config.headers.Authorization;
     }

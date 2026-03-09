@@ -9,8 +9,8 @@ class ProductionStage {
         `INSERT INTO production_stages 
          (production_plan_id, stage_sequence, stage_name, stage_type, execution_type, 
           assigned_employee_id, assigned_vendor_id, planned_start_date, planned_end_date, 
-          estimated_duration_days, delay_tolerance_days, status, notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          estimated_duration_days, delay_tolerance_days, status, target_warehouse, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           data.productionPlanId,
           data.stageSequence,
@@ -24,6 +24,7 @@ class ProductionStage {
           data.estimatedDurationDays || null,
           data.delayToleranceDays || null,
           data.status || 'pending',
+          data.targetWarehouse || null,
           data.notes || null
         ]
       );
@@ -47,15 +48,30 @@ class ProductionStage {
               u.username as assigned_employee_name,
               v.name as assigned_vendor_name,
               pp.plan_name,
-              so.customer
+              so.customer,
+              sod.product_details
        FROM production_stages ps
        LEFT JOIN users u ON u.id = ps.assigned_employee_id
        LEFT JOIN vendors v ON v.id = ps.assigned_vendor_id
        LEFT JOIN production_plans pp ON pp.id = ps.production_plan_id
        LEFT JOIN sales_orders so ON so.id = pp.sales_order_id
+       LEFT JOIN sales_order_details sod ON sod.sales_order_id = so.id
        WHERE ps.id = ?`,
       [id]
     );
+    
+    if (rows[0] && rows[0].product_details) {
+      try {
+        const productDetails = typeof rows[0].product_details === 'string'
+          ? JSON.parse(rows[0].product_details)
+          : rows[0].product_details;
+        rows[0].product_name = productDetails?.itemName || null;
+      } catch (e) {
+        console.error('Error parsing product_details in ProductionStage.findById:', e);
+      }
+      delete rows[0].product_details;
+    }
+    
     return rows[0] || null;
   }
 
@@ -63,15 +79,32 @@ class ProductionStage {
     const [rows] = await pool.execute(
       `SELECT ps.*, 
               u.username as assigned_employee_name,
-              v.name as assigned_vendor_name
+              v.name as assigned_vendor_name,
+              sod.product_details
        FROM production_stages ps
        LEFT JOIN users u ON u.id = ps.assigned_employee_id
        LEFT JOIN vendors v ON v.id = ps.assigned_vendor_id
+       LEFT JOIN production_plans pp ON pp.id = ps.production_plan_id
+       LEFT JOIN sales_order_details sod ON sod.sales_order_id = pp.sales_order_id
        WHERE ps.production_plan_id = ?
        ORDER BY ps.stage_sequence ASC`,
       [productionPlanId]
     );
-    return rows || [];
+    
+    return (rows || []).map(row => {
+      if (row.product_details) {
+        try {
+          const productDetails = typeof row.product_details === 'string'
+            ? JSON.parse(row.product_details)
+            : row.product_details;
+          row.product_name = productDetails?.itemName || null;
+        } catch (e) {
+          console.error('Error parsing product_details in findByProductionPlan:', e);
+        }
+        delete row.product_details;
+      }
+      return row;
+    });
   }
 
   static async findAll(filters = {}) {
@@ -79,12 +112,14 @@ class ProductionStage {
                         u.username as assigned_employee_name,
                         v.name as assigned_vendor_name,
                         pp.plan_name,
-                        so.customer
+                        so.customer,
+                        sod.product_details
                  FROM production_stages ps
                  LEFT JOIN users u ON u.id = ps.assigned_employee_id
                  LEFT JOIN vendors v ON v.id = ps.assigned_vendor_id
                  LEFT JOIN production_plans pp ON pp.id = ps.production_plan_id
                  LEFT JOIN sales_orders so ON so.id = pp.sales_order_id
+                 LEFT JOIN sales_order_details sod ON sod.sales_order_id = so.id
                  WHERE 1=1`;
     const params = [];
 
@@ -111,7 +146,21 @@ class ProductionStage {
     query += ' ORDER BY ps.production_plan_id, ps.stage_sequence ASC';
 
     const [rows] = await pool.execute(query, params);
-    return rows || [];
+    
+    return (rows || []).map(row => {
+      if (row.product_details) {
+        try {
+          const productDetails = typeof row.product_details === 'string'
+            ? JSON.parse(row.product_details)
+            : row.product_details;
+          row.product_name = productDetails?.itemName || null;
+        } catch (e) {
+          console.error('Error parsing product_details in ProductionStage.findAll:', e);
+        }
+        delete row.product_details;
+      }
+      return row;
+    });
   }
 
   static async update(id, data) {
@@ -157,6 +206,10 @@ class ProductionStage {
     if (data.status !== undefined) {
       updates.push('status = ?');
       params.push(data.status);
+    }
+    if (data.targetWarehouse !== undefined) {
+      updates.push('target_warehouse = ?');
+      params.push(data.targetWarehouse);
     }
     if (data.notes !== undefined) {
       updates.push('notes = ?');

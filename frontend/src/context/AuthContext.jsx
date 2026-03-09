@@ -1,19 +1,26 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from "react";
+import { createContext, useState, useContext, useEffect, useCallback } from "react";
 import axios from "../utils/api";
 
 const DEMO_USERS = {
-  admin: { password: "password", role: "admin", name: "System Admin" },
-  sales: { password: "password", role: "sales", name: "Sales Manager" },
-  engineering: { password: "password", role: "engineering", name: "Design Lead" },
-  procurement: { password: "password", role: "procurement", name: "Procurement Lead" },
-  qc: { password: "password", role: "qc", name: "Quality Head" },
-  inventory: { password: "password", role: "inventory", name: "Stores Supervisor" },
-  production: { password: "password", role: "production", name: "Production Planner" },
-  mes: { password: "password", role: "mes", name: "MES Controller" },
-  challan: { password: "password", role: "challan", name: "Logistics Coordinator" },
-  "john.doe": { password: "password", role: "employee", name: "John Doe", designation: "Senior Engineer", department: "Engineering" },
-  "jane.smith": { password: "password", role: "supervisor", name: "Jane Smith", designation: "Project Supervisor", department: "Production" },
-  "rajesh.kumar": { password: "password", role: "employee", name: "Rajesh Kumar", designation: "Engineer", department: "Engineering" },
+  admin: { password: "password", role: "Admin", name: "System Admin" },
+  sales: { password: "password", role: "Sales", name: "Sales Manager" },
+  engineering: { password: "password", role: "Engineering", name: "Design Lead" },
+  procurement: { password: "password", role: "Procurement", name: "Procurement Lead" },
+  qc: { password: "password", role: "QC", name: "Quality Head" },
+  inventory: { password: "password", role: "Inventory", name: "Stores Supervisor" },
+  production: { password: "password", role: "Production", name: "Production Planner", department: "Production", departmentId: 2 },
+  mes: { password: "password", role: "MES", name: "MES Controller" },
+  challan: { password: "password", role: "Challan", name: "Logistics Coordinator" },
+  "john.doe": { password: "password", role: "Employee", type: "employee", name: "John Doe", designation: "Senior Engineer", department: "Engineering", departmentId: 1 },
+  "jane.smith": { password: "password", role: "Supervisor", type: "employee", name: "Jane Smith", designation: "Project Supervisor", department: "Production", departmentId: 2 },
+  "rajesh.kumar": { password: "password", role: "Employee", type: "employee", name: "Rajesh Kumar", designation: "Engineer", department: "Engineering", departmentId: 1 },
+  "sudarshan.kale": { password: "password", role: "Supervisor", type: "employee", name: "Sudarshan Kale", designation: "Supervisor", department: "Production", departmentId: 2, id: 21 },
+  "inventory.manager": { password: "password", role: "Inventory Manager", type: "user", name: "Inventory Manager", department: "Inventory", departmentId: 5 },
+  "design_engineer": { password: "password", role: "Design Engineer", type: "user", name: "Design Engineer", designation: "Design Engineer", department: "Engineering", departmentId: 1, id: 11 },
+  "design.engineer": { password: "password", role: "Design Engineer", type: "user", name: "Design Engineer", designation: "Design Engineer", department: "Engineering", departmentId: 1, id: 11 },
+  "qc.manager": { password: "password", role: "QC Manager", type: "user", name: "QC Manager", department: "Quality Control", departmentId: 3 },
+  "production.manager": { password: "password", role: "Production Manager", type: "user", name: "Production Manager", department: "Production", departmentId: 2 },
+  "accountant": { password: "password", role: "Admin", type: "user", name: "Accountant", department: "Finance", departmentId: 8 },
 };
 
 const AuthContext = createContext();
@@ -58,7 +65,7 @@ export const AuthProvider = ({ children }) => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     try {
-      const response = await axios.get("/api/auth/me", { __sessionGuard: true });
+      const response = await axios.get("/auth/me", { __sessionGuard: true });
       setUser(response.data.user);
     } catch (error) {
       if (error.response?.status === 401) {
@@ -75,7 +82,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post("/api/auth/login", {
+      const response = await axios.post("/auth/login", {
         username,
         password,
       });
@@ -93,13 +100,14 @@ export const AuthProvider = ({ children }) => {
 
       if (demoEntry && password === demoEntry.password) {
         const userData = {
-          id: `demo-${normalizedUsername}`,
+          id: demoEntry.id || `demo-${normalizedUsername}`,
           username: normalizedUsername,
           role: demoEntry.role,
           name: demoEntry.name,
-          type: demoEntry.role === 'employee' ? 'employee' : 'user',
+          type: demoEntry.type || (demoEntry.role === 'employee' || demoEntry.role === 'Employee' ? 'employee' : 'user'),
           designation: demoEntry.designation,
           department: demoEntry.department,
+          departmentId: demoEntry.departmentId,
         };
         localStorage.setItem("token", "demo-token");
         localStorage.setItem("demoUser", JSON.stringify(userData));
@@ -118,7 +126,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, password, roleId, email) => {
     try {
-      const response = await axios.post("/api/auth/register", {
+      const response = await axios.post("/auth/register", {
         username,
         password,
         roleId,

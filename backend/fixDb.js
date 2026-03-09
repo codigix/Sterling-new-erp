@@ -1,12 +1,15 @@
 const mysql = require('mysql2/promise');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 (async () => {
   try {
     const pool = mysql.createPool({
-      host: 'localhost',
-      user: 'root',
-      password: 'Kale@1234',
-      database: 'sterling_erp'
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 3306,
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'sterling_erp'
     });
 
     const conn = await pool.getConnection();
@@ -147,7 +150,7 @@ const mysql = require('mysql2/promise');
         assigned_employee_id INT,
         assigned_facility_id INT,
         assigned_vendor_id INT,
-        status ENUM('pending', 'in_progress', 'completed', 'on_hold', 'cancelled') DEFAULT 'pending',
+        status ENUM('pending', 'in_progress', 'completed', 'on_hold', 'cancelled', 'outward_challan_generated', 'inward_challan_generated') DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (production_plan_id) REFERENCES production_plans(id) ON DELETE CASCADE,

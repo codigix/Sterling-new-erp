@@ -1,4 +1,5 @@
 const AlertsNotification = require('../../models/AlertsNotification');
+const pool = require('../../config/database');
 
 const alertsNotificationController = {
   async createAlert(req, res) {
@@ -47,8 +48,11 @@ const alertsNotificationController = {
 
   async getUserAlerts(req, res) {
     try {
-      const { userId } = req.params;
+      const { userId: inputId } = req.params;
       const { isRead, alertType, priority, limit } = req.query;
+
+      // Resolve userId using robust model logic
+      let userId = await AlertsNotification.resolveUserId(inputId);
 
       const filters = {};
       if (isRead !== undefined) {
@@ -64,8 +68,33 @@ const alertsNotificationController = {
         filters.limit = parseInt(limit);
       }
 
+      // If userId resolution failed and it's not numeric, return empty
+      if (!userId || (isNaN(userId) && String(userId).includes('.'))) {
+        return res.json([]);
+      }
+
       const alerts = await AlertsNotification.findByUserId(userId, filters);
-      res.json(alerts);
+      
+      // Transform raw alerts to match frontend expectations (especially for NotificationBell)
+      const transformedAlerts = alerts.map(alert => ({
+        ...alert,
+        id: alert.id,
+        title: alert.alert_type ? alert.alert_type.replace(/_/g, ' ').toUpperCase() : 'Notification',
+        message: alert.message,
+        type: alert.priority === 'high' ? 'error' : alert.priority === 'medium' ? 'warning' : 'info',
+        alertType: alert.alert_type,
+        timestamp: alert.created_at,
+        created_at: alert.created_at, // Keep original for groupNotifications
+        read: !!alert.is_read,
+        is_read: !!alert.is_read, // Keep original for filter(n => !n.is_read)
+        priority: alert.priority,
+        link: alert.link,
+        relatedTable: alert.related_table,
+        relatedId: alert.related_id,
+        sender: alert.sender_name || 'System'
+      }));
+
+      res.json(transformedAlerts);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Error fetching alerts', error: error.message });
@@ -120,7 +149,9 @@ const alertsNotificationController = {
 
   async getUnreadCount(req, res) {
     try {
-      const { userId } = req.params;
+      const { userId: inputId } = req.params;
+      let userId = await AlertsNotification.resolveUserId(inputId);
+
       const unreadCount = await AlertsNotification.getUnreadCount(userId);
       res.json({ unreadCount });
     } catch (error) {
@@ -131,7 +162,9 @@ const alertsNotificationController = {
 
   async getAlertStats(req, res) {
     try {
-      const { userId } = req.params;
+      const { userId: inputId } = req.params;
+      let userId = await AlertsNotification.resolveUserId(inputId);
+
       const stats = await AlertsNotification.getStats(userId);
       res.json(stats);
     } catch (error) {
