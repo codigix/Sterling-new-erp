@@ -10,7 +10,7 @@ const TaskDetailPage = () => {
   const taskPageMap = {
     'Enter Project Details': '/design-engineer/root-cards',
     'Prepare Design Documents': '/design-engineer/documents/designs',
-    'Create and Validate BOM': '/design-engineer/bom/create',
+    'Create and Validate BOM': '/department/production/bom/create',
     'Submit Design for Review': '/design-engineer/reviews/pending',
     'Follow up on Pending Reviews': '/design-engineer/reviews/pending',
     'Document Approved Designs': '/design-engineer/reviews/approved',

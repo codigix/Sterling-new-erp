@@ -67,7 +67,7 @@ const MyDesignsPage = () => {
       const projectsList = orders.map((order) => ({
         value: String(order.id),
         id: String(order.id),
-        label: `${order.po_number} - ${order.project_name}`,
+        label: order.project_name || order.po_number || String(order.id),
         projectName: order.project_name,
         productName: order.po_number,
         customer: order.customer,
@@ -373,16 +373,6 @@ const MyDesignsPage = () => {
       sortable: true,
       render: (value) => (
         <span className="font-medium text-slate-900 dark:text-white text-xs">
-          {value}
-        </span>
-      ),
-    },
-    {
-      key: "designId",
-      label: "Root Card ID",
-      sortable: true,
-      render: (value) => (
-        <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
           {value}
         </span>
       ),

@@ -1,4 +1,6 @@
 import { useEffect, lazy, Suspense } from "react";
+const DesignDrawingManagement = lazy(() => import("./pages/design-engineer/DesignDrawingManagement"));
+const ProductionDesignDrawings = lazy(() => import("./pages/production/ProductionDesignDrawings"));
 import {
   BrowserRouter as Router,
   Routes,
@@ -14,11 +16,17 @@ import DepartmentLayout from "./components/layout/DepartmentLayout";
 import DesignEngineerLayout from "./components/layout/DesignEngineerLayout";
 
 // Lazy load role-based dashboards for better performance
-const InventoryManagerDashboard = lazy(() => import("./pages/roles/InventoryManagerDashboard"));
+const InventoryDepartmentDashboard = lazy(() => import("./pages/roles/InventoryDepartmentDashboard"));
+const ProcurementDashboard = lazy(() => import("./pages/roles/ProcurementDashboard"));
 const QCManagerDashboard = lazy(() => import("./pages/roles/QCManagerDashboard"));
 const AccountantDashboard = lazy(() => import("./pages/roles/AccountantDashboard"));
 const WorkerDashboard = lazy(() => import("./pages/roles/WorkerDashboard"));
 const ProductionManagerDashboard = lazy(() => import("./pages/roles/ProductionManagerDashboard"));
+
+// BOM Pages (Production)
+const CreateBOMPage = lazy(() => import("./pages/production/bom/CreateBOMPage"));
+const ViewBOMsPage = lazy(() => import("./pages/production/bom/ViewBOMsPage"));
+const BOMDetailsPage = lazy(() => import("./pages/production/bom/BOMDetailsPage"));
 
 // Admin Components
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -43,6 +51,9 @@ import SalesOrderPage from "./pages/admin/SalesOrderPage";
 
 // Sales Pages
 import RootCardDashboard from "./pages/sales/RootCardDashboard";
+import UniversalRootCardsPage from "./pages/shared/UniversalRootCardsPage";
+import UniversalRootCardDetailPage from "./pages/shared/UniversalRootCardDetailPage";
+import UniversalNewRootCardPage from "./pages/shared/UniversalNewRootCardPage";
 
 // Engineering Pages
 import EngineeringTasksPage from "./pages/engineering/EngineeringTasksPage";
@@ -63,22 +74,7 @@ import RootCardBuilderPage from "./pages/production/RootCardBuilderPage";
 import ProductionRootCardDetailPage from "./pages/production/RootCardDetailPage";
 import ProductionPlansPage from "./pages/production/ProductionPlansPage";
 import ProductionPlanDetailPage from "./pages/production/ProductionPlanDetailPage";
-import SchedulingPage from "./pages/production/SchedulingPage";
-import ResourceAllocationPage from "./pages/production/ResourceAllocationPage";
-import AssignTasksPage from "./pages/production/AssignTasksPage";
-import ActiveStagesPage from "./pages/production/ActiveStagesPage";
-import MESTasksPage from "./pages/production/MESTasksPage";
-import StageProgressPage from "./pages/production/StageProgressPage";
-import TaskTrackingPage from "./pages/production/TaskTrackingPage";
-import StageDetailsPage from "./pages/production/StageDetailsPage";
-import ProductionSpecificationsPage from "./pages/production/ProductionSpecificationsPage";
-import ChallanListPage from "./pages/production/ChallanListPage";
-import GenerateChallanPage from "./pages/production/GenerateChallanPage";
-import TrackChallanPage from "./pages/production/TrackChallanPage";
-import PerformancePage from "./pages/production/PerformancePage";
-import PerformanceMetricsPage from "./pages/production/PerformanceMetricsPage";
 import ProductionPlanFormPage from "./pages/production/ProductionPlanFormPage";
-import OutsourceTasksPage from "./pages/production/OutsourceTasksPage";
 import WorkOrdersPage from "./pages/production/WorkOrdersPage";
 import WorkOrderFormPage from "./pages/production/WorkOrderFormPage";
 import WorkOrderDetailPage from "./pages/production/WorkOrderDetailPage";
@@ -86,6 +82,7 @@ import JobCardsPage from "./pages/production/JobCardsPage";
 import WorkstationsPage from "./pages/production/WorkstationsPage";
 import WorkstationFormPage from "./pages/production/WorkstationFormPage";
 import ProductionEntryPage from "./pages/production/ProductionEntryPage";
+import MaterialRequestsPage from "./pages/production/MaterialRequestsPage";
 import ProductionDepartmentTasksPage from "./pages/production/ProductionDepartmentTasksPage";
 import ProductionWorkflowTasksPage from "./pages/production/ProductionWorkflowTasksPage";
 
@@ -149,10 +146,10 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>
                 <Route path="dashboard" element={<AdminDashboard />} />
-                <Route path="root-cards" element={<RootCardsPage />} />
-                <Route path="root-cards/new-root-card" element={<NewRootCardPage />} />
-                <Route path="root-cards/:id" element={<AdminRootCardDetailPage />} />
-                <Route path="root-cards/:id/assign" element={<AdminRootCardDetailPage />} />
+                <Route path="root-cards" element={<UniversalRootCardsPage />} />
+                <Route path="root-cards/new-root-card" element={<UniversalNewRootCardPage />} />
+                <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
+                <Route path="root-cards/:id/assign" element={<UniversalRootCardDetailPage />} />
                 <Route path="projects" element={<ProjectsPage />} />
                 <Route path="departments" element={<DepartmentsPage />} />
                 <Route path="vendors" element={<VendorsPage />} />
@@ -172,16 +169,27 @@ function App() {
               
               {/* Department Routes - Task-Oriented Pages */}
               <Route path="/department" element={<DepartmentLayout />}>
-                <Route path="root-cards" element={<RootCardDashboard />} />
+                <Route path="root-cards" element={<UniversalRootCardsPage />} />
+                <Route path="root-cards/new-root-card" element={<UniversalNewRootCardPage />} />
+                <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
                 <Route path="engineering" element={<EngineeringTasksPage />} />
-                <Route path="procurement" element={<ProcurementTasksPage />} />
+                <Route path="engineering/drawings" element={<DesignDrawingManagement />} />
+                <Route path="procurement/*" element={<ProcurementDashboard />} />
                 <Route path="qc" element={<QCTasksPage />} />
-                <Route path="inventory" element={<InventoryTasksPage />} />
+                <Route path="inventory/*" element={<InventoryDepartmentDashboard />} />
                 <Route path="production" element={<ProductionDashboard />} />
                 
                 {/* Production Flow Routes */}
-                <Route path="production/root-cards" element={<RootCardBuilderPage />} />
-                <Route path="production/root-cards/:id" element={<ProductionRootCardDetailPage />} />
+                <Route path="production/root-cards" element={<UniversalRootCardsPage />} />
+                <Route path="production/root-cards/:id" element={<UniversalRootCardDetailPage />} />
+                <Route path="production/design-drawings" element={<ProductionDesignDrawings />} />
+                <Route path="production/material-requests" element={<MaterialRequestsPage />} />
+                
+                {/* BOM Routes */}
+                <Route path="production/bom/create" element={<CreateBOMPage />} />
+                <Route path="production/bom/view" element={<ViewBOMsPage />} />
+                <Route path="production/bom/view/:id" element={<BOMDetailsPage />} />
+
                 <Route path="production/plans" element={<ProductionPlansPage />} />
                 <Route path="production/plans/new" element={<ProductionPlanFormPage />} />
                 <Route path="production/plans/:id" element={<ProductionPlanFormPage />} />
@@ -193,21 +201,6 @@ function App() {
                 <Route path="production/workstations" element={<WorkstationsPage />} />
                 <Route path="production/workstations/new" element={<WorkstationFormPage />} />
                 <Route path="production/workstations/edit/:id" element={<WorkstationFormPage />} />
-                <Route path="production/scheduling" element={<SchedulingPage />} />
-                <Route path="production/resources" element={<ResourceAllocationPage />} />
-                <Route path="production/assign-tasks" element={<AssignTasksPage />} />
-                <Route path="production/active-stages" element={<ActiveStagesPage />} />
-                <Route path="production/mes-tasks" element={<MESTasksPage />} />
-                <Route path="production/stage-progress" element={<StageProgressPage />} />
-                <Route path="production/task-tracking" element={<TaskTrackingPage />} />
-                <Route path="production/stage-details" element={<StageDetailsPage />} />
-                <Route path="production/specifications" element={<ProductionSpecificationsPage />} />
-                <Route path="production/challans" element={<ChallanListPage />} />
-                <Route path="production/challans/new" element={<GenerateChallanPage />} />
-                <Route path="production/challans/track" element={<TrackChallanPage />} />
-                <Route path="production/performance" element={<PerformancePage />} />
-                <Route path="production/performance/metrics" element={<PerformanceMetricsPage />} />
-                <Route path="production/outsource-tasks" element={<OutsourceTasksPage />} />
                 <Route path="production/department-tasks" element={<ProductionDepartmentTasksPage />} />
                 <Route path="production/workflow-tasks" element={<ProductionWorkflowTasksPage />} />
                 <Route path="production/operations/:id/entry" element={<ProductionEntryPage />} />
@@ -247,7 +240,6 @@ function App() {
               <Route path="/notifications" element={<NotificationsPage />} />
               
               {/* Role-Based Dashboards */}
-              <Route path="/inventory-manager/*" element={<InventoryManagerDashboard />} />
               <Route path="/design-engineer/*" element={<DesignEngineerLayout />} />
               <Route path="/qc-manager/*" element={<QCManagerDashboard />} />
               <Route path="/accountant/*" element={<AccountantDashboard />} />

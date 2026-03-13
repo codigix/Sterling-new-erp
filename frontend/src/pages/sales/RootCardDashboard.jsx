@@ -138,18 +138,17 @@ const RootCardDashboard = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-4">PO Number</th>
-                    <th className="text-left py-3 px-4">Client</th>
-                    <th className="text-left py-3 px-4">Amount</th>
+                    <th className="text-left py-3 px-4">PO Number & Project</th>
                     <th className="text-left py-3 px-4">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRootCards.map(rootCard => (
                     <tr key={rootCard.id} className="border-b hover:bg-slate-50 dark:hover:bg-slate-700">
-                      <td className="py-3 px-4">{rootCard.poNumber}</td>
-                      <td className="py-3 px-4">{rootCard.clientName}</td>
-                      <td className="py-3 px-4">{rootCard.currency} {parseFloat(rootCard.total).toFixed(2)}</td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium">{rootCard.poNumber || rootCard.po_number}</div>
+                        <div className="text-xs text-slate-500">{rootCard.projectName || rootCard.project_name}</div>
+                      </td>
                       <td className="py-3 px-4"><span className={`px-2 py-1 rounded text-xs ${getStatusColor(rootCard.status)}`}>{rootCard.status}</span></td>
                     </tr>
                   ))}

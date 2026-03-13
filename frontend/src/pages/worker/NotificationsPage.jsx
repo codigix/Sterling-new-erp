@@ -86,7 +86,7 @@ const NotificationsPage = () => {
       title: "Department Request",
       message:
         "Inventory Department needs your help with count verification. Can you assist this week?",
-      sender: "Inventory Manager",
+      sender: "Inventory",
       senderRole: "Manager",
       timestamp: "2025-12-14T11:20:00",
       read: true,

@@ -1,29 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../../utils/api";
-import {
-  sendAssignmentNotifications,
-  sendOrderCreatedNotification,
-} from "../../../utils/notificationService";
+import { useAuth } from "../../../context/AuthContext";
 import { RootCardProvider } from "./context";
 import { useFormUI } from "./hooks";
 import { useRootCardContext } from "./hooks";
 import {
-  updateDraftWithStepData,
   saveAllStepsToRootCard,
-  saveStepDataToAPI,
-  deleteDraft,
 } from "./stepDataHandler";
 import WizardHeader from "./shared/WizardHeader";
 import FormActions from "./shared/FormActions";
 import Step1_ClientPO from "./steps/Step1_ClientPO";
 import Step2_DesignEngineering from "./steps/Step2_DesignEngineering";
-import Step3_MaterialRequirement from "./steps/Step3_MaterialRequirement";
-import Step4_ProductionPlan from "./steps/Step4_ProductionPlan";
-import Step5_QualityCheck from "./steps/Step5_QualityCheck";
-import Step6_Shipment from "./steps/Step6_Shipment";
-import Step7_Delivery from "./steps/Step7_Delivery";
+import Step3_ProductionPlan from "./steps/Step3_ProductionPlan";
+import Step4_MaterialRequirement from "./steps/Step4_MaterialRequirement";
+import Step5_Inventory from "./steps/Step5_Inventory";
+import Step6_QualityCheck from "./steps/Step6_QualityCheck";
 import RootCardViewOnly from "./RootCardViewOnly";
-import { History, X } from "lucide-react";
 import "./RootCardForm.css";
 import { showSuccess, showError } from "../../../utils/toastUtils";
 import Swal from "sweetalert2";
@@ -69,17 +61,46 @@ function RootCardFormContent({
     reset,
   } = useRootCardContext();
   const { currentStep, loading, error, successMessage } = useFormUI();
+  const { user } = useAuth();
   const { formData } = state;
 
-  const [pendingDraft, setPendingDraft] = useState(null);
-  const [showResumeModal, setShowResumeModal] = useState(false);
+  const isAdmin = user?.role?.toLowerCase() === 'admin';
+  const userDept = (user?.department || "").toLowerCase();
+
+  const isStepDisabled = (stepNumber) => {
+    if (isAdmin) return false;
+    
+    // Step 1: Client PO (Sales/Admin)
+    if (stepNumber === 1) return !userDept.includes("sales") && !userDept.includes("admin");
+    // Step 2: Design Engineering
+    if (stepNumber === 2) return !userDept.includes("engineering") && !userDept.includes("design");
+    // Step 3: Production Plan
+    if (stepNumber === 3) return !userDept.includes("production");
+    // Step 4: Material Requirement (Procurement)
+    if (stepNumber === 4) return !userDept.includes("procurement");
+    // Step 5: Inventory
+    if (stepNumber === 5) return !userDept.includes("inventory");
+    // Step 6: Quality Check
+    if (stepNumber === 6) return !userDept.includes("quality") && !userDept.includes("qc");
+    
+    return true;
+  };
 
   const formatDateForInput = (dateStr) => {
     if (!dateStr) return "";
     try {
+      if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr.trim())) {
+        return dateStr.trim();
+      }
+      
       const d = new Date(dateStr);
       if (isNaN(d.getTime())) return "";
-      return d.toISOString().split("T")[0];
+      
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}`;
     } catch {
       return "";
     }
@@ -91,40 +112,35 @@ function RootCardFormContent({
         setLoading(true);
 
         const clientPOResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/client-po`)
+          .get(`/root-cards/steps/${rootCardId}/client_po`)
           .catch(() => null);
         const designResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/design-engineering`)
-          .catch(() => null);
-        const materialsResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/material-requirements`)
+          .get(`/root-cards/steps/${rootCardId}/design_engineering`)
           .catch(() => null);
         const productionResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/production-plan`)
+          .get(`/root-cards/steps/${rootCardId}/production`)
           .catch(() => null);
-        const qcResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/quality-check`)
+        const procurementResponse = await axios
+          .get(`/root-cards/steps/${rootCardId}/procurement`)
           .catch(() => null);
-        const shipmentResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/shipment`)
+        const inventoryResponse = await axios
+          .get(`/root-cards/steps/${rootCardId}/inventory`)
           .catch(() => null);
-        const deliveryResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/delivery`)
+        const qualityResponse = await axios
+          .get(`/root-cards/steps/${rootCardId}/quality`)
           .catch(() => null);
         const allStepsResponse = await axios
           .get(`/root-cards/steps/${rootCardId}/steps`)
           .catch(() => null);
 
-        // Set assignees from all steps
         if (allStepsResponse?.data?.data?.steps) {
           const steps = allStepsResponse.data.data.steps;
           const stepKeyMapping = {
             design_engineering: "designEngineering",
-            material_requirement: "materialRequirements",
-            production_plan: "productionPlan",
-            quality_check: "qualityCheck",
-            shipment: "shipment",
-            delivery: "delivery",
+            production: "productionPlan",
+            procurement: "materialRequirements",
+            inventory: "inventory",
+            quality: "qualityCheck",
           };
           steps.forEach((step) => {
             if (step.assignedTo) {
@@ -139,14 +155,8 @@ function RootCardFormContent({
           const poData = clientPOResponse.data.data;
           updateField("poNumber", poData.poNumber || "");
           updateField("poDate", formatDateForInput(poData.poDate));
-          updateField("clientName", poData.clientName || "");
-          updateField("clientEmail", poData.clientEmail || "");
-          updateField("clientPhone", poData.clientPhone || "");
           updateField("projectName", poData.projectName || "");
           updateField("projectCode", poData.projectCode || "");
-          updateField("billingAddress", poData.billingAddress || "");
-          updateField("shippingAddress", poData.shippingAddress || "");
-          updateField("clientAddress", poData.clientAddress || "");
           updateField("projectRequirements", poData.projectRequirements || {});
           updateField("notes", poData.notes || null);
 
@@ -154,7 +164,6 @@ function RootCardFormContent({
             setPoDocuments(poData.attachments);
           }
 
-          // Merged from Step 2 fields that might be in productDetails
           if (poData.productDetails) {
             updateField("productDetails", poData.productDetails);
             if (poData.productDetails.estimatedEndDate) {
@@ -171,14 +180,13 @@ function RootCardFormContent({
           updateField("designEngineering", designData);
         }
 
-        if (materialsResponse?.data?.data) {
-          const materialsData = materialsResponse.data.data;
+        if (procurementResponse?.data?.data) {
+          const materialsData = procurementResponse.data.data;
           updateField("materialProcurement", materialsData);
           updateField(
             "procurementStatus",
             materialsData.procurementStatus || "pending",
           );
-          // Ensure materials array is also available at the root for Step 3
           if (materialsData.materials) {
             updateField("materials", materialsData.materials);
           } else if (materialsData.materialProcurement?.materials) {
@@ -199,7 +207,6 @@ function RootCardFormContent({
 
         if (productionResponse?.data?.data) {
           const productionData = productionResponse.data.data;
-          console.log("[loadAllStepData] Step 4 Loaded:", productionData);
           updateField("productionPlan", productionData);
           
           const startDate = productionData.productionStartDate || productionData.timeline?.productionStartDate || productionData.timeline?.startDate;
@@ -222,10 +229,14 @@ function RootCardFormContent({
           }
         }
 
-        if (qcResponse?.data?.data) {
-          const qcData = qcResponse.data.data;
+        if (inventoryResponse?.data?.data) {
+          const inventoryData = inventoryResponse.data.data;
+          updateField("inventory", inventoryData || {});
+        }
 
-          // Format dates in inspections
+        if (qualityResponse?.data?.data) {
+          const qcData = qualityResponse.data.data;
+
           if (
             qcData.qualityCheck?.inspections &&
             Array.isArray(qcData.qualityCheck.inspections)
@@ -237,10 +248,8 @@ function RootCardFormContent({
               }));
           }
 
-          // Set the qualityCheck sub-object directly to match the form structure
           updateField("qualityCheck", qcData.qualityCheck || {});
 
-          // Load quality and economics fields from Step 5
           if (qcData.qualityCompliance)
             updateField("qualityCompliance", qcData.qualityCompliance);
           if (qcData.warrantySupport)
@@ -260,50 +269,6 @@ function RootCardFormContent({
             updateField("internalProjectOwner", qcData.internalProjectOwner);
         }
 
-        if (shipmentResponse?.data?.data) {
-          const shipmentData = shipmentResponse.data.data;
-
-          // Format date in shipment
-          if (shipmentData.shipment?.estimatedDeliveryDate) {
-            shipmentData.shipment.estimatedDeliveryDate = formatDateForInput(
-              shipmentData.shipment.estimatedDeliveryDate,
-            );
-          }
-
-          updateField("shipment", shipmentData.shipment || {});
-          if (shipmentData.deliveryTerms)
-            updateField("deliveryTerms", shipmentData.deliveryTerms);
-        }
-
-        if (deliveryResponse?.data?.data) {
-          const deliveryData = deliveryResponse.data.data;
-
-          // Format dates in delivery
-          if (deliveryData.delivery?.actualDeliveryDate) {
-            deliveryData.delivery.actualDeliveryDate = formatDateForInput(
-              deliveryData.delivery.actualDeliveryDate,
-            );
-          }
-          if (deliveryData.delivery?.deliveryDate) {
-            deliveryData.delivery.deliveryDate = formatDateForInput(
-              deliveryData.delivery.deliveryDate,
-            );
-          }
-
-          updateField("delivery", deliveryData.delivery || {});
-          if (deliveryData.deliveryTerms)
-            updateField("deliveryTerms", deliveryData.deliveryTerms);
-          if (deliveryData.warrantySupport)
-            updateField("warrantySupport", deliveryData.warrantySupport);
-          if (deliveryData.projectRequirements)
-            updateField(
-              "projectRequirements",
-              deliveryData.projectRequirements,
-            );
-          if (deliveryData.internalInfo)
-            updateField("internalInfo", deliveryData.internalInfo);
-        }
-
         setLoading(false);
       } catch (error) {
         console.error("Error loading step data:", error);
@@ -318,55 +283,6 @@ function RootCardFormContent({
       setProductionPhaseDetails,
     ],
   );
-
-  const loadDraft = React.useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get("/root-cards/drafts/latest");
-      if (response.data?.draft) {
-        setPendingDraft(response.data.draft);
-        setShowResumeModal(true);
-      }
-      setLoading(false);
-    } catch (err) {
-      console.error("Error loading draft:", err);
-      setLoading(false);
-    }
-  }, [setLoading]);
-
-  const handleResume = () => {
-    if (pendingDraft) {
-      setDraftData({
-        id: pendingDraft.id,
-        currentStep: pendingDraft.current_step,
-        formData: pendingDraft.formData,
-        materialDetailsTable: pendingDraft.formData?.materialDetailsTable,
-        productionPhaseDetails: pendingDraft.formData?.productionPhaseDetails,
-        poDocuments: pendingDraft.poDocuments,
-      });
-      showSuccess(
-        `Resumed draft from ${new Date(pendingDraft.updated_at).toLocaleString()}`,
-      );
-    }
-    setShowResumeModal(false);
-    setPendingDraft(null);
-  };
-
-  const handleStartFresh = async () => {
-    try {
-      if (pendingDraft?.id) {
-        await deleteDraft(pendingDraft.id);
-      }
-      reset();
-      showSuccess("Started with a fresh root card.");
-    } catch (err) {
-      console.error("Error clearing draft:", err);
-      showError("Failed to clear draft");
-    } finally {
-      setShowResumeModal(false);
-      setPendingDraft(null);
-    }
-  };
 
   useEffect(() => {
     const fetchConfigData = async () => {
@@ -414,14 +330,15 @@ function RootCardFormContent({
       initialData
     ) {
       updateField("poNumber", initialData.po_number || "");
-      updateField("clientName", initialData.customer || "");
       updateField("projectName", initialData.project_name || "");
-      updateField("orderDate", formatDateForInput(initialData.order_date));
-      updateField("poDate", formatDateForInput(initialData.order_date));
-      updateField("estimatedEndDate", formatDateForInput(initialData.due_date));
-      updateField("projectPriority", initialData.priority || "medium");
-      updateField("status", initialData.status || "pending");
-      updateField("totalAmount", initialData.total?.toString() || "");
+      updateField("projectCode", initialData.project_code || "");
+      updateField("quantity", initialData.quantity || 1);
+      updateField("poDate", formatDateForInput(initialData.po_date));
+      updateField("deliveryDate", formatDateForInput(initialData.delivery_date));
+      updateField("inspection", initialData.inspection || "");
+      updateField("inspectionAuthority", initialData.inspection_authority || "");
+      updateField("ld", initialData.ld || "");
+      updateField("status", initialData.status || "RC_CREATED");
 
       if (initialData.project_scope) {
         updateField("projectRequirements", {
@@ -432,48 +349,48 @@ function RootCardFormContent({
 
       loadAllStepData(initialData.id);
     } else if (mode === "create") {
-      loadDraft();
+      reset();
     }
-  }, [mode, initialData, updateField, loadAllStepData, loadDraft]);
+  }, [mode, initialData, updateField, loadAllStepData, reset]);
 
   const renderStep = () => {
+    const isStepReadOnly = (stepNumber) => {
+      return mode === "view" || mode === "assign" || isStepDisabled(stepNumber);
+    };
+
     switch (currentStep) {
       case 1:
         return (
-          <Step1_ClientPO readOnly={mode === "view" || mode === "assign"} />
+          <Step1_ClientPO readOnly={isStepReadOnly(1)} />
         );
       case 2:
         return (
           <Step2_DesignEngineering
-            readOnly={mode === "view" || mode === "assign"}
+            readOnly={isStepReadOnly(2)}
           />
         );
       case 3:
         return (
-          <Step3_MaterialRequirement
-            readOnly={mode === "view" || mode === "assign"}
+          <Step3_ProductionPlan
+            readOnly={isStepReadOnly(3)}
           />
         );
       case 4:
         return (
-          <Step4_ProductionPlan
-            readOnly={mode === "view" || mode === "assign"}
+          <Step4_MaterialRequirement
+            readOnly={isStepReadOnly(4)}
           />
         );
       case 5:
         return (
-          <Step5_QualityCheck
-            readOnly={mode === "view"}
-            isAssignMode={mode === "assign"}
-          />
+          <Step5_Inventory readOnly={isStepReadOnly(5)} />
         );
       case 6:
         return (
-          <Step6_Shipment readOnly={mode === "view" || mode === "assign"} />
-        );
-      case 7:
-        return (
-          <Step7_Delivery readOnly={mode === "view" || mode === "assign"} />
+          <Step6_QualityCheck
+            readOnly={mode === "view" || isStepDisabled(6)}
+            isAssignMode={mode === "assign"}
+          />
         );
       default:
         return null;
@@ -486,189 +403,14 @@ function RootCardFormContent({
       return;
     }
 
-    if (mode === "edit") {
-      setLoading(true);
-      try {
-        const mergedFormData = {
-          ...formData,
-          materialDetailsTable: state.materialDetailsTable,
-          productionPhaseDetails: state.productionPhaseDetails,
-        };
-        await saveStepDataToAPI(
-          currentStep,
-          initialData.id,
-          mergedFormData,
-          state.poDocuments,
-        );
-        setStep(currentStep + 1);
-      } catch (err) {
-        console.error("Error saving step:", err);
-        showError(err.message || `Failed to save step ${currentStep}`);
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
-    /* Removing validation as requested to allow jumping between steps
-    const errors = validateCurrentStep();
-    if (errors.length > 0) {
-      setError(errors[0]);
-      return;
-    }
-    */
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const draftId =
-        state.createdOrderId || initialData?.id || initialData?._id;
-
-      if (!draftId && mode === "create") {
-        await createDraft();
-      } else {
-        await updateDraft();
-        setStep(currentStep + 1);
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      showError(err.message || "An error occurred");
-    } finally {
-      setLoading(false);
-    }
+    setStep(currentStep + 1);
   };
 
   const handlePrev = async () => {
-    if (mode === "edit") {
-      setLoading(true);
-      try {
-        const mergedFormData = {
-          ...formData,
-          materialDetailsTable: state.materialDetailsTable,
-          productionPhaseDetails: state.productionPhaseDetails,
-        };
-        await saveStepDataToAPI(
-          currentStep,
-          initialData.id,
-          mergedFormData,
-          state.poDocuments,
-        );
-        setStep(currentStep - 1);
-      } catch (err) {
-        console.error("Error saving step:", err);
-        showError(err.message || `Failed to save step ${currentStep}`);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setStep(currentStep - 1);
-    }
-  };
-
-  const createDraft = async () => {
-    try {
-      const mergedFormData = {
-        ...formData,
-        materialDetailsTable: state.materialDetailsTable,
-        productionPhaseDetails: state.productionPhaseDetails,
-      };
-
-      const response = await axios.post("/root-cards/drafts", {
-        formData: mergedFormData,
-        currentStep: currentStep,
-        poDocuments: state.poDocuments || [],
-      });
-
-      const draftId = response.data.id || response.data._id;
-      setOrderId(draftId);
-      showSuccess(`Step ${currentStep} saved as draft successfully!`);
-      setStep(currentStep + 1);
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Failed to create draft");
-    }
-  };
-
-  const updateDraft = async () => {
-    try {
-      const draftId =
-        state.createdOrderId || initialData?.id || initialData?._id;
-
-      if (!draftId) {
-        console.error(
-          "Draft ID not found. State:",
-          state,
-          "InitialData:",
-          initialData,
-        );
-        throw new Error(`Draft ID not found. Current Step: ${currentStep}`);
-      }
-
-      const mergedFormData = {
-        ...formData,
-        materialDetailsTable: state.materialDetailsTable,
-        productionPhaseDetails: state.productionPhaseDetails,
-      };
-
-      await updateDraftWithStepData(
-        draftId,
-        mergedFormData,
-        currentStep,
-        state.poDocuments || [],
-      );
-      showSuccess(`Step ${currentStep} saved successfully!`);
-    } catch (err) {
-      console.error("updateDraft error:", err);
-      throw new Error(err.message || `Failed to save step ${currentStep}`);
-    }
+    setStep(currentStep - 1);
   };
 
   const handleSubmit = async () => {
-    if (mode === "edit") {
-      setLoading(true);
-      try {
-        const mergedFormData = {
-          ...formData,
-          materialDetailsTable: state.materialDetailsTable,
-          productionPhaseDetails: state.productionPhaseDetails,
-        };
-        await saveStepDataToAPI(
-          currentStep,
-          initialData.id,
-          mergedFormData,
-          state.poDocuments,
-        );
-
-        await axios.put(`/root-cards/${initialData.id}`, {
-          clientName: formData.clientName || formData.customer,
-          poNumber: formData.poNumber,
-          projectName: formData.projectName || "",
-          orderDate: formData.orderDate?.split("T")[0] || formData.orderDate,
-          dueDate:
-            formData.estimatedEndDate?.split("T")[0] ||
-            formData.estimatedEndDate,
-          total: parseFloat(formData.totalAmount || 0),
-          currency: "INR",
-          priority: formData.projectPriority || "medium",
-          status: formData.status || "pending",
-        });
-
-        Swal.fire({
-          title: "Updated!",
-          text: "Root Card has been updated successfully.",
-          icon: "success",
-          confirmButtonColor: "#3085d6",
-        }).then(() => {
-          if (onSubmit) onSubmit();
-        });
-      } catch (err) {
-        showError(err.response?.data?.message || "Failed to update root card");
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
     if (mode === "assign") {
       setLoading(true);
       try {
@@ -695,102 +437,51 @@ function RootCardFormContent({
 
     setLoading(true);
     try {
-      const orderDate =
-        formData.poDate ||
-        formData.orderDate ||
-        new Date().toISOString().split("T")[0];
-      const estimatedDate =
-        formData.estimatedEndDate ||
-        formData.deliveryTimeline ||
-        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0];
-
       const rootCardData = {
-        clientName: formData.clientName || formData.customer,
         poNumber: formData.poNumber,
-        projectName: formData.projectName || "",
-        orderDate: orderDate,
-        dueDate: estimatedDate,
-        total: parseFloat(formData.totalAmount || 0),
-        currency: "INR",
-        priority: formData.projectPriority || "medium",
-        status: formData.status || "pending",
-        items: [
-          {
-            name:
-              formData.productDetails?.itemName ||
-              formData.projectName ||
-              "Project Item",
-            description:
-              formData.productDetails?.itemDescription ||
-              formData.projectRequirements?.specifications ||
-              "",
-            quantity: 1,
-            unitPrice: parseFloat(formData.totalAmount || 0),
-          },
-        ],
+        poDate: formData.poDate,
+        projectName: formData.projectName,
+        projectCode: formData.projectCode,
+        quantity: parseInt(formData.quantity || 1),
+        deliveryDate: formData.deliveryDate || formData.estimatedEndDate,
+        status: formData.status || "RC_CREATED",
+        inspection: formData.inspection,
+        inspectionAuthority: formData.inspectionAuthority,
+        ld: formData.ld,
+        items: formData.items || [],
         documents: state.poDocuments || [],
-        notes: formData.specialInstructions || "",
-        projectScope: {
-          application: formData.projectRequirements?.application || "",
-          dimensions: formData.projectRequirements?.dimensions || "",
-          specifications: formData.projectRequirements?.specifications || "",
-        },
+        notes: formData.notes || formData.specialInstructions || "",
+        projectScope: formData.projectRequirements || {},
       };
 
-      const response = await axios.post("/root-cards", rootCardData);
-      const createdOrderId = response.data.rootCard?.id;
+      let response;
+      if (mode === "edit" && initialData?.id) {
+        response = await axios.put(`/root-cards/${initialData.id}`, rootCardData);
+      } else {
+        response = await axios.post("/root-cards", rootCardData);
+      }
+      
+      const rootCardId = response.data.rootCard?.id || response.data.id || initialData?.id;
 
-      if (!createdOrderId) {
-        throw new Error("Failed to create root card - no ID returned");
+      if (!rootCardId) {
+        throw new Error("Failed to process root card - no ID returned");
       }
 
-      console.log("Root Card created with ID:", createdOrderId);
+      const mergedFormData = {
+        ...formData,
+        materialDetailsTable: state.materialDetailsTable,
+        productionPhaseDetails: state.productionPhaseDetails,
+      };
 
-      try {
-        const mergedFormData = {
-          ...formData,
-          materialDetailsTable: state.materialDetailsTable,
-          productionPhaseDetails: state.productionPhaseDetails,
-        };
-        const summary = await saveAllStepsToRootCard(
-          createdOrderId,
-          mergedFormData,
-          state.poDocuments || [],
-        );
-        console.log("All step data saved successfully:", summary);
-      } catch (err) {
-        console.warn("Could not save some step data:", err.message);
-      }
-
-      try {
-        const ordersData = { ...rootCardData, id: createdOrderId };
-        const notifications = await sendAssignmentNotifications(
-          ordersData,
-          formData,
-        );
-        await sendOrderCreatedNotification(ordersData, formData);
-        console.log(
-          "Notifications sent successfully:",
-          notifications.length,
-          "notifications",
-        );
-      } catch (err) {
-        console.warn("Could not send notifications:", err.message);
-      }
-
-      try {
-        if (state.createdOrderId) {
-          await deleteDraft(state.createdOrderId);
-        }
-      } catch (err) {
-        console.warn("Could not delete draft:", err.message);
-      }
+      await saveAllStepsToRootCard(
+        rootCardId,
+        mergedFormData,
+        state.poDocuments || []
+      );
 
       Swal.fire({
         title: "Success!",
-        text: "Root Card created and all steps saved successfully.",
+        text: `Root Card ${mode === "edit" ? "updated" : "created"} successfully.`,
         icon: "success",
         confirmButtonColor: "#3085d6",
       }).then(() => {
@@ -798,11 +489,7 @@ function RootCardFormContent({
       });
     } catch (err) {
       console.error("Error:", err);
-      showError(
-        err.response?.data?.message ||
-          err.message ||
-          "Failed to create root card",
-      );
+      showError(err.response?.data?.message || err.message || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -836,72 +523,6 @@ function RootCardFormContent({
           mode={mode}
         />
       </div>
-
-      {/* Resume Draft Modal */}
-      {showResumeModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform animate-in zoom-in-95 duration-200">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                  <History size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    Resume Progress?
-                  </h3>
-                  <p className="text-sm text-slate-500">
-                    We found an unfinished root card draft.
-                  </p>
-                </div>
-              </div>
-
-              {pendingDraft && (
-                <div className="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-100">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Project:</span>
-                      <span className="font-medium text-slate-700">
-                        {pendingDraft.formData?.projectName ||
-                          "Unnamed Project"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Last Saved Step:</span>
-                      <span className="font-medium text-slate-700">
-                        Step {pendingDraft.current_step}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Saved On:</span>
-                      <span className="font-medium text-slate-700">
-                        {new Date(pendingDraft.updated_at).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={handleResume}
-                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
-                >
-                  <History size={18} />
-                  Resume Last Draft
-                </button>
-                <button
-                  onClick={handleStartFresh}
-                  className="w-full py-3 px-4 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
-                >
-                  <X size={18} />
-                  Start Fresh
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

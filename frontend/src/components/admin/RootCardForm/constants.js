@@ -9,12 +9,11 @@ import {
 
 export const WIZARD_STEPS = [
   { number: 1, name: "PO Details", icon: FileText },
-  { number: 2, name: "Design Engineering", icon: FileText },
-  { number: 3, name: "Material Requirement", icon: Package },
-  { number: 4, name: "Production Plan", icon: Zap },
-  { number: 5, name: "Quality Check", icon: Check },
-  { number: 6, name: "Shipment", icon: Truck },
-  { number: 7, name: "Delivery", icon: CheckCircle },
+  { number: 2, name: "Design Engineering", icon: Zap },
+  { number: 3, name: "Production", icon: Zap },
+  { number: 4, name: "Procurement", icon: Truck },
+  { number: 5, name: "Inventory", icon: Package },
+  { number: 6, name: "Quality", icon: Check },
 ];
 
 export const PRODUCTION_PHASES = {
@@ -89,13 +88,22 @@ export const PRIORITY_LEVELS = [
 ];
 
 export const STATUS_LEVELS = [
-  { value: "pending", label: "Pending" },
-  { value: "ready_to_start", label: "Ready to Start" },
-  { value: "assigned", label: "Assigned" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "on_hold", label: "On Hold" },
-  { value: "critical", label: "Critical" },
-  { value: "completed", label: "Completed" },
+  { value: "pending", label: "Root Card Created" },
+  { value: "RC_CREATED", label: "Root Card Created" },
+  { value: "DESIGN_IN_PROGRESS", label: "Design In Progress" },
+  { value: "DESIGN_APPROVED", label: "Design Approved" },
+  { value: "BOM_PREPARATION", label: "BOM Preparation" },
+  { value: "PROCUREMENT_IN_PROGRESS", label: "Procurement In Progress" },
+  { value: "MATERIAL_RECEIVED", label: "Material Received" },
+  { value: "MATERIAL_QC_PENDING", label: "Material QC Pending" },
+  { value: "MATERIAL_QC_APPROVED", label: "Material QC Approved" },
+  { value: "PRODUCTION_IN_PROGRESS", label: "Production In Progress" },
+  { value: "DIMENSIONAL_QC_PENDING", label: "Dimensional QC Pending" },
+  { value: "DIMENSIONAL_QC_APPROVED", label: "Dimensional QC Approved" },
+  { value: "PAINTING_IN_PROGRESS", label: "Painting In Progress" },
+  { value: "FINAL_QC_PENDING", label: "Final QC Pending" },
+  { value: "FINAL_QC_APPROVED", label: "Final QC Approved" },
+  { value: "READY_FOR_DELIVERY", label: "Ready for Delivery" },
 ];
 
 export const DELIVERY_MODES = [

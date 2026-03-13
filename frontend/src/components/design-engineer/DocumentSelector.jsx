@@ -330,11 +330,16 @@ const DocumentSelector = ({ documentType, title, description }) => {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
         >
           <option value="">-- Choose a Root Card --</option>
-          {rootCards.map((card) => (
-            <option key={card.id} value={card.id}>
-              {card.po_number} - {card.project_name} ({card.customer})
-            </option>
-          ))}
+          {rootCards.map((card) => {
+            const baseName = card.project_name || card.po_number || "";
+            // Remove RC-XXXX pattern from the start of the string if it exists
+            const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
+            return (
+              <option key={card.id} value={card.id}>
+                {displayName || baseName || `Root Card ${card.id}`} {card.customer ? `(${card.customer})` : ''}
+              </option>
+            );
+          })}
         </select>
         {loading && <p className="text-sm text-blue-600 mt-2">Loading...</p>}
       </div>

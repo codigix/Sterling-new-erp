@@ -128,14 +128,14 @@ const ProjectCard = ({
       taskTitle.includes("create bom") ||
       taskTitle.includes("bill of materials")
     ) {
-      return `/design-engineer/bom/create?${baseParams}`;
+      return `/department/production/bom/create?${baseParams}`;
     }
     // Step 4: Send BOM to Admin
     else if (
       taskTitle.includes("send bom") ||
       taskTitle.includes("submit bom")
     ) {
-      return `/design-engineer/bom/view?${baseParams}`;
+      return `/department/production/bom/view?${baseParams}`;
     }
     // Step 4: Submit Design for Review
     else if (

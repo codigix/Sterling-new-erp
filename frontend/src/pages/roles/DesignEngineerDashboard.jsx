@@ -434,7 +434,7 @@ const DesignEngineerDashboard = () => {
               </div>
             </Link>
             <Link
-              to="/design-engineer/bom/create"
+              to="/department/production/bom/create"
               className="flex items-center gap-3 p-3.5 rounded-lg border-2 border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 hover:border-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all group"
             >
               <BarChart3

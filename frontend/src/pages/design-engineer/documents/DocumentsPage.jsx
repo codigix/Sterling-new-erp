@@ -321,7 +321,10 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               className="w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white flex items-center justify-between hover:border-slate-400"
             >
               <span>
-                {selectedRootCard ? (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Root Card ${selectedRootCard.id}`) : "Select a root card"}
+                {selectedRootCard ? (
+                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Root Card ${selectedRootCard.id}`).replace(/^RC-\d{4}\s*[-:]\s*/i, '') || 
+                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Root Card ${selectedRootCard.id}`)
+                ) : "Select a root card"}
               </span>
               <ChevronDown size={18} />
             </button>
@@ -333,18 +336,22 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                     No root cards available
                   </div>
                 ) : (
-                  rootCards.map((rc) => (
-                    <button
-                      key={rc.id}
-                      onClick={() => {
-                        setRootCardId(rc.filteringId);
-                        setShowRootCardDropdown(false);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-600 first:border-t-0"
-                    >
-                      {rc.title || rc.project_name || rc.po_number || `Root Card ${rc.id}`}
-                    </button>
-                  ))
+                  rootCards.map((rc) => {
+                    const baseName = rc.title || rc.project_name || rc.po_number || "";
+                    const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
+                    return (
+                      <button
+                        key={rc.id}
+                        onClick={() => {
+                          setRootCardId(rc.filteringId);
+                          setShowRootCardDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-600 first:border-t-0"
+                      >
+                        {displayName || baseName || `Root Card ${rc.id}`}
+                      </button>
+                    );
+                  })
                 )}
               </div>
             )}

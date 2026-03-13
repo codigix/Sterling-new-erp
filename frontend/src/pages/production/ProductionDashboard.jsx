@@ -387,7 +387,7 @@ const ProductionDashboard = () => {
               >
                 {rootCards.map((rc) => (
                   <option key={rc.id} value={rc.id}>
-                    {rc.title} ({rc.code || 'No Code'})
+                    {(rc.title || rc.project_name || '').replace(/^RC-\d{4}\s*[-:]\s*/i, '') || rc.title || rc.project_name || rc.id} ({rc.code || 'No Code'})
                   </option>
                 ))}
               </select>

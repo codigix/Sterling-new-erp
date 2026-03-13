@@ -244,11 +244,16 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     required
                   >
                     <option value="">Select a Root Card</option>
-                    {rootCards.map(rc => (
-                      <option key={rc.id} value={rc.id}>
-                        {rc.po_number} - {rc.customer} {rc.project_name ? `(${rc.project_name})` : ''}
-                      </option>
-                    ))}
+                    {rootCards.map(rc => {
+                      const baseName = rc.project_name || rc.po_number || "";
+                      // Remove RC-XXXX pattern from the start of the string if it exists
+                      const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
+                      return (
+                        <option key={rc.id} value={rc.id}>
+                          {displayName || baseName || rc.id} {rc.customer ? `- ${rc.customer}` : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 

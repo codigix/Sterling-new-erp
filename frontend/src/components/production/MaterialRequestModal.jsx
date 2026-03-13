@@ -90,7 +90,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
       };
       console.log('Payload:', JSON.stringify(payload, null, 2));
 
-      await axios.post('/inventory/material-requests', payload);
+      await axios.post('/department/inventory/material-requests', payload);
       
       Swal.fire({
         icon: 'success',
@@ -101,10 +101,10 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
         // Only redirect to inventory manager page if user is admin or inventory manager
         // Production users should stay on their current page (production plan)
         const isProductionUser = user?.role?.toLowerCase().includes('production');
-        const canViewInventory = ['Admin', 'Inventory Manager', 'Inventory', 'Procurement'].includes(user?.role);
+        const canViewInventory = ['Admin', 'Inventory', 'Procurement'].includes(user?.role);
         
         if (canViewInventory && !isProductionUser) {
-          navigate('/inventory-manager/material-requests');
+          navigate('/department/inventory/material-requests');
         }
       });
       

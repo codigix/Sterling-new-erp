@@ -36,9 +36,9 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
     const fetchData = async () => {
       try {
         const [whRes, matRes, grnRes] = await Promise.all([
-          axios.get("/inventory/warehouses"),
-          axios.get("/inventory/materials"),
-          axios.get("/inventory/grns?status=completed") // Or whatever status is relevant
+          axios.get("/department/inventory/warehouses"),
+          axios.get("/department/inventory/materials"),
+          axios.get("/department/inventory/grns?status=completed") // Or whatever status is relevant
         ]);
         setWarehouses(whRes.data || []);
         setMaterials(matRes.data.materials || matRes.data || []);
@@ -120,7 +120,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
         status: isDraft ? 'draft' : 'submitted'
       };
       
-      await axios.post("/inventory/stock-entries", payload);
+      await axios.post("/department/inventory/stock-entries", payload);
       
       toastUtils.success(`Stock Entry ${isDraft ? 'Saved' : 'Created'} Successfully`);
       if (onEntryCreated) onEntryCreated();

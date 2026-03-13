@@ -88,26 +88,15 @@ const NotificationBell = () => {
   };
 
   const fetchNotifications = async () => {
-    console.log('[NotificationBell] fetchNotifications called, user:', user);
-    if (!user?.id) {
-      console.warn('[NotificationBell] No user.id found!');
-      return;
-    }
+    if (!user?.id) return;
     try {
-      console.log(`[NotificationBell] Fetching from /alerts/user/${user.id}`);
-      const response = await axios.get(`/alerts/user/${user.id}`);
-      const notifs = response.data || [];
-      console.log('[NotificationBell] API Response status:', response.status);
-      console.log('[NotificationBell] Fetched notifications:', notifs);
-      console.log('[NotificationBell] Response data type:', typeof response.data);
+      const response = await axios.get(`/notifications?userId=${user.id}&department=${user.department}`);
+      const notifs = response.data.notifications || [];
       setNotifications(notifs);
-      const unread = notifs.filter(n => !n.is_read);
-      console.log('[NotificationBell] Unread count:', unread.length, 'Total:', notifs.length);
+      const unread = notifs.filter(n => !n.read_status);
       setUnreadCount(unread.length);
     } catch (error) {
-      console.error('[NotificationBell] Error fetching notifications:', error);
-      console.error('[NotificationBell] Error response:', error.response?.data);
-      console.error('[NotificationBell] Error status:', error.response?.status);
+      console.error('Error fetching notifications:', error);
     }
   };
 
@@ -115,7 +104,7 @@ const NotificationBell = () => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 60000);
     return () => clearInterval(interval);
-  }, [user?.id]);
+  }, [user?.id, user?.department]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -129,11 +118,11 @@ const NotificationBell = () => {
   }, []);
 
   const handleNotificationClick = async (notif) => {
-    if (!notif.is_read) {
+    if (!notif.read_status) {
       try {
-        await axios.patch(`/alerts/${notif.id}/read`);
+        await axios.put(`/notifications/${notif.id}/read`);
         setNotifications(notifications.map(n => 
-          n.id === notif.id ? { ...n, is_read: true } : n
+          n.id === notif.id ? { ...n, read_status: true } : n
         ));
         setUnreadCount(prev => Math.max(0, prev - 1));
       } catch (err) {
@@ -150,8 +139,14 @@ const NotificationBell = () => {
   const markAllAsRead = async () => {
     if (unreadCount === 0) return;
     try {
-      await axios.patch(`/alerts/user/${user.id}/read-all`);
-      setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+      // Assuming a generic bulk mark-as-read or just marking each unread one by one for now
+      // since the current backend controller markAsRead is for a single ID.
+      // Alternatively, I should add a mark-all-read endpoint to backend.
+      
+      const unread = notifications.filter(n => !n.read_status);
+      await Promise.all(unread.map(n => axios.put(`/notifications/${n.id}/read`)));
+      
+      setNotifications(notifications.map(n => ({ ...n, read_status: true })));
       setUnreadCount(0);
     } catch (error) {
       console.error('Error marking all as read:', error);
@@ -161,10 +156,10 @@ const NotificationBell = () => {
   const deleteNotification = async (e, id) => {
     e.stopPropagation();
     try {
-      await axios.delete(`/alerts/${id}`);
+      await axios.delete(`/notifications/${id}`);
       const deletedNotif = notifications.find(n => n.id === id);
       setNotifications(notifications.filter(n => n.id !== id));
-      if (deletedNotif && !deletedNotif.is_read) {
+      if (deletedNotif && !deletedNotif.read_status) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
     } catch (error) {
@@ -248,10 +243,10 @@ const NotificationBell = () => {
                           key={notif.id}
                           onClick={() => handleNotificationClick(notif)}
                           className={`group px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all cursor-pointer relative ${
-                            !notif.is_read ? 'bg-blue-50/30 dark:bg-blue-900/5' : ''
+                            !notif.read_status ? 'bg-blue-50/30 dark:bg-blue-900/5' : ''
                           }`}
                         >
-                          {!notif.is_read && (
+                          {!notif.read_status && (
                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-full" />
                           )}
                           <div className="flex gap-4">
@@ -260,7 +255,7 @@ const NotificationBell = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <p className={`text-sm ${!notif.is_read ? 'font-bold text-slate-900 dark:text-white' : 'font-medium text-slate-600 dark:text-slate-400'}`}>
+                                <p className={`text-sm ${!notif.read_status ? 'font-bold text-slate-900 dark:text-white' : 'font-medium text-slate-600 dark:text-slate-400'}`}>
                                   {notif.message}
                                 </p>
                                 <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap mt-1">

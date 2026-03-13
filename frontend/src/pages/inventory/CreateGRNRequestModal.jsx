@@ -23,9 +23,9 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     const fetchData = async () => {
       try {
         const [whRes, poRes, matRes] = await Promise.all([
-          axios.get("/inventory/warehouses"),
-          axios.get("/inventory/purchase-orders?status=approved"),
-          axios.get("/inventory/materials")
+          axios.get("/department/inventory/warehouses"),
+          axios.get("/department/inventory/purchase-orders?status=approved"),
+          axios.get("/department/inventory/materials")
         ]);
         setWarehouses(whRes.data);
         setAllPOs(poRes.data.purchaseOrders || poRes.data || []);
@@ -85,7 +85,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     try {
       const selectedPO = allPOs.find(p => p.id === parseInt(poId));
       if (selectedPO) {
-        const response = await axios.get(`/inventory/purchase-orders/${selectedPO.id}`);
+        const response = await axios.get(`/department/inventory/purchase-orders/${selectedPO.id}`);
         const poDetails = response.data;
         
         const initialItems = (poDetails.items || []).map(item => ({
@@ -167,7 +167,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
 
     setLoading(true);
     try {
-      await axios.post("/inventory/grns", {
+      await axios.post("/department/inventory/grns", {
         po_id: formData.po_id,
         items: formData.items,
         receipt_date: formData.receipt_date,

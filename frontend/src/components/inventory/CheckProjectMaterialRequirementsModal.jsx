@@ -34,7 +34,7 @@ const CheckProjectMaterialRequirementsModal = ({
       const effectiveRootCardId = materialRequest?.root_card_id || materialRequest?.rootCardId;
       
       const attempts = [
-        () => effectiveMRId ? axios.get(`/inventory/material-requests/${effectiveMRId}/items`) : Promise.reject(),
+        () => effectiveMRId ? axios.get(`/department/procurement/material-requests/${effectiveMRId}/items`) : Promise.reject(),
         () => effectiveRootCardId ? axios.get(`/root-cards/requirements/${effectiveRootCardId}`) : Promise.reject(),
         () => projectId ? axios.get(`/root-cards/requirements/${projectId}`) : Promise.reject(),
       ];
@@ -133,7 +133,7 @@ const CheckProjectMaterialRequirementsModal = ({
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       navigate(
-        `/inventory-manager/quotations/sent?${navigationParams.toString()}`,
+        `/department/procurement/quotations/sent?${navigationParams.toString()}`,
         {
           state: {
             selectedMaterials: selectedMaterialsList,

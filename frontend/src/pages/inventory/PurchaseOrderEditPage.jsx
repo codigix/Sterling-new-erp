@@ -76,7 +76,7 @@ const PurchaseOrderEditPage = () => {
       
       if (data.status !== 'draft') {
         toastUtils.warning("Cannot edit a submitted Purchase Order.");
-        navigate(`/inventory-manager/purchase-orders/${id}`);
+        navigate(`/inventory/purchase-orders/${id}`);
         return;
       }
       if (data.items && typeof data.items === 'string') {
@@ -162,7 +162,7 @@ const PurchaseOrderEditPage = () => {
     try {
       await axios.put(`/inventory/purchase-orders/${id}`, formData);
       toastUtils.success("Purchase Order updated successfully");
-      navigate(`/inventory-manager/purchase-orders/${id}`);
+      navigate(`/inventory/purchase-orders/${id}`);
     } catch (error) {
       console.error("Error updating PO:", error);
       toastUtils.error(error.response?.data?.message || "Failed to update Purchase Order");

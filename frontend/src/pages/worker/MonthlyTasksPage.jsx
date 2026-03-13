@@ -58,7 +58,7 @@ const MonthlyTasksPage = () => {
       assignedDate: "2025-11-01",
       dueDate: "2025-11-30",
       progress: 100,
-      assignedBy: "Inventory Manager",
+      assignedBy: "Inventory",
       month: "November 2025",
     },
     {

@@ -33,7 +33,7 @@ const WeeklyTasksPage = () => {
       assignedDate: "2025-12-15",
       dueDate: "2025-12-20",
       progress: 0,
-      assignedBy: "Inventory Manager",
+      assignedBy: "Inventory",
       week: "Dec 15-19, 2025",
     },
     {

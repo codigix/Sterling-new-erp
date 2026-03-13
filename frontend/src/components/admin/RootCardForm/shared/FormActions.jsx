@@ -76,6 +76,17 @@ export default function FormActions({ mode = 'create', onNext, onPrev, onSubmit,
         </span>
 
         <div className="flex gap-2">
+          {currentStep === 1 && !actualIsLastStep && (
+            <Button
+              onClick={onSubmit}
+              disabled={!canSubmit || loading}
+              className="flex items-center text-xs gap-1 text-xs bg-emerald-600 hover:bg-emerald-700"
+            >
+              <Save size={14} />
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
+          )}
+
           {actualIsLastStep ? (
             <Button
               onClick={onSubmit}
@@ -144,25 +155,38 @@ export default function FormActions({ mode = 'create', onNext, onPrev, onSubmit,
         Step {currentStep} of {WIZARD_STEPS.length}
       </span>
 
-      {actualIsLastStep ? (
-        <Button
-          onClick={onSubmit}
-          disabled={!canSubmit || loading}
-          className="flex items-center text-xs gap-1 text-xs bg-purple-600 hover:bg-purple-700"
-        >
-          <Save size={14} />
-          {loading ? "Submitting..." : "Submit Root Card"}
-        </Button>
-      ) : (
-        <Button
-          onClick={onNext}
-          disabled={loading}
-          className="flex items-center text-xs gap-1 text-xs"
-        >
-          Next
-          <ChevronRight size={14} />
-        </Button>
-      )}
+      <div className="flex gap-2">
+        {currentStep === 1 && !actualIsLastStep && (
+          <Button
+            onClick={onSubmit}
+            disabled={!canSubmit || loading}
+            className="flex items-center text-xs gap-1 text-xs bg-purple-600 hover:bg-purple-700"
+          >
+            <Save size={14} />
+            {loading ? "Submitting..." : "Submit"}
+          </Button>
+        )}
+
+        {actualIsLastStep ? (
+          <Button
+            onClick={onSubmit}
+            disabled={!canSubmit || loading}
+            className="flex items-center text-xs gap-1 text-xs bg-purple-600 hover:bg-purple-700"
+          >
+            <Save size={14} />
+            {loading ? "Submitting..." : "Submit Root Card"}
+          </Button>
+        ) : (
+          <Button
+            onClick={onNext}
+            disabled={loading}
+            className="flex items-center text-xs gap-1 text-xs"
+          >
+            Next
+            <ChevronRight size={14} />
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

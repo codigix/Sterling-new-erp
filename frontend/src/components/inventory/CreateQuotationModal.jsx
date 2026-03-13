@@ -147,7 +147,7 @@ const CreateQuotationModal = ({
 
     try {
       setAnalyzing(true);
-      const response = await axios.post("/inventory/quotations/analyze", analysisFormData, {
+      const response = await axios.post("/department/procurement/quotations/analyze", analysisFormData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -224,7 +224,7 @@ const CreateQuotationModal = ({
         setAnalysisMode(true);
       } else {
         const quotesResponse = await axios.get(
-          `/inventory/quotations/root-card/${selectedRootCardId}`
+          `/department/procurement/quotations/root-card/${selectedRootCardId}`
         );
         setRootCardQuotations(quotesResponse.data);
       }
@@ -250,7 +250,7 @@ const CreateQuotationModal = ({
 
     try {
       setLoadingMaterials(true);
-      const response = await axios.get(`/inventory/material-requests/${mrId}`);
+      const response = await axios.get(`/department/procurement/material-requests/${mrId}`);
       const mr = response.data.materialRequest;
 
       if (mr) {
@@ -272,8 +272,8 @@ const CreateQuotationModal = ({
           items: (Array.isArray(items) ? items : []).map((item) => ({
             item_code: item.item_code || item.material_code || "",
             description: item.item_name || item.material_name || item.description || item.itemName || "",
-            quantity: item.quantity || 0,
-            unit: item.unit || "",
+            quantity: item.required_quantity || item.quantity || 0,
+            unit: item.uom || item.unit || "",
             unit_price: 0,
           })),
         }));
@@ -392,7 +392,7 @@ const CreateQuotationModal = ({
         items: formData.items || [],
       };
 
-      await axios.post("/inventory/quotations", payload);
+      await axios.post("/department/procurement/quotations", payload);
 
       if (formData.type === "inbound") {
         await completeCurrentTask("Vendor quotation response recorded");
@@ -636,8 +636,7 @@ const CreateQuotationModal = ({
                         </option>
                         {materialRequests.map((mr) => (
                           <option key={mr.id} value={mr.id}>
-                            {mr.mr_number} - {mr.department} (
-                            {formatDate(mr.created_at)})
+                            {mr.request_number || mr.mr_number} - {mr.department} ({formatDate(mr.created_at)})
                           </option>
                         ))}
                       </select>

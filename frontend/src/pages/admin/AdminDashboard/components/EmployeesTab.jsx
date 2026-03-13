@@ -67,7 +67,7 @@ const EmployeesTab = () => {
     {
       name: "Vikram Rao",
       department: "Warehouse",
-      role: "Inventory Manager",
+      role: "Inventory",
       tasksCompleted: 28,
       totalTasks: 30,
       efficiency: 93,

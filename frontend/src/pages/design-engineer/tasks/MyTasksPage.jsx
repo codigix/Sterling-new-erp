@@ -133,7 +133,7 @@ const MyTasksPage = () => {
       taskTitle.includes("bom") ||
       taskTitle.includes("bill of materials")
     ) {
-      return `/design-engineer/bom/create?${baseParams}`;
+      return `/department/production/bom/create?${baseParams}`;
     }
     // Step 4: Submit Design for Review
     else if (

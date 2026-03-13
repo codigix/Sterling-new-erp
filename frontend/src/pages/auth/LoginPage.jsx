@@ -1,37 +1,16 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Lock, User, Eye, EyeOff, Zap } from "lucide-react";
-import "./LoginPage.css";
+import { Lock, Mail, Eye, EyeOff, Shield } from "lucide-react";
 
 const ROLE_MAP = {
   admin: "/admin/dashboard",
-  management: "/admin/dashboard",
-  sales: "/department/root-cards",
-  engineering: "/department/engineering",
-  procurement: "/department/procurement",
-  qc: "/department/qc",
-  inventory: "/department/inventory",
-  production: "/department/production",
-  mes: "/department/mes",
-  challan: "/department/challan",
-  worker: "/worker/dashboard",
-  inventory_manager: "/inventory-manager/dashboard",
   design_engineer: "/design-engineer/dashboard",
-  qc_manager: "/qc-manager/dashboard",
-  production_manager: "/production-manager/dashboard",
-  accountant: "/admin/dashboard",
-  employee: "/employee/dashboard",
-  supervisor: "/department/production",
-};
-
-const DEPARTMENT_USERS = {
-  admin: { username: "admin", password: "password", label: "Admin" },
-  inventory: { username: "inventory.manager", password: "password", label: "Inventory" },
-  design_engineer: { username: "design_engineer", password: "password", label: "Design Engineer" },
-  production: { username: "production", password: "password", label: "Production" },
-  engineering: { username: "john.doe", password: "password", label: "Engineering" },
-  qc: { username: "qc.manager", password: "password", label: "QC" },
+  production: "/department/production",
+  procurement: "/department/procurement",
+  quality: "/department/qc",
+  inventory: "/department/inventory",
+  inventory_management: "/department/inventory",
 };
 
 const LoginPage = () => {
@@ -39,7 +18,6 @@ const LoginPage = () => {
     username: "",
     password: "",
   });
-  const [selectedDept, setSelectedDept] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -47,29 +25,13 @@ const LoginPage = () => {
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
-  const handleDepartmentSelect = (deptKey) => {
-    const deptUser = DEPARTMENT_USERS[deptKey];
-    if (deptUser) {
-      setSelectedDept(deptKey);
-      setFormData({
-        username: deptUser.username,
-        password: deptUser.password,
-      });
-    }
-  };
-
   const normalizeRoleName = (role) => {
     if (!role) return "";
-    return role
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, "_");
+    return role.trim().toLowerCase().replace(/\s+/g, "_");
   };
 
   const getRolePath = useCallback((userData = {}) => {
-    if (userData.type === 'employee') {
-      return "/employee/dashboard";
-    }
+    if (userData.type === 'employee') return "/employee/dashboard";
     const role = userData.role || "";
     const normalizedRole = normalizeRoleName(role);
     return ROLE_MAP[normalizedRole] || "/department/root-cards";
@@ -105,197 +67,117 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-background">
-        <div className="gradient-blob blob-1"></div>
-        <div className="gradient-blob blob-2"></div>
-        <div className="gradient-blob blob-3"></div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-2 font-sans overflow-hidden">
+      <div className="text-center mb-4">
+        <img src="/logo.png" alt="Sterling Logo" className="h-10 w-auto mx-auto mb-1" />
       </div>
 
-      <div className="login-container">
-        {/* Left Side - Branding */}
-        <div className="login-branding">
-          <div className="branding-content">
-            <div className="branding-header">
-              <div className="branding-logo">
-                <Zap className="logo-icon" size={40} />
-              </div>
-              <div>
-                <h1>Sterling</h1>
-                <p className="tagline">Enterprise Resource Planning</p>
-              </div>
-            </div>
-
-            <div className="branding-features">
-              <div className="feature">
-                <div className="feature-icon">📊</div>
-                <div>
-                  <div className="feature-title">Real-time Analytics</div>
-                  <div className="feature-desc">Track operations as they happen</div>
-                </div>
-              </div>
-              <div className="feature">
-                <div className="feature-icon">🔒</div>
-                <div>
-                  <div className="feature-title">Secure Access</div>
-                  <div className="feature-desc">Role-based permissions & control</div>
-                </div>
-              </div>
-              <div className="feature">
-                <div className="feature-icon">⚡</div>
-                <div>
-                  <div className="feature-title">Seamless Operations</div>
-                  <div className="feature-desc">Integrated workflows & automation</div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-slate-200 p-5">
+        <div className="flex bg-slate-100 p-1 rounded-md mb-4">
+          <button className="flex-1 py-1.5 text-xs font-medium rounded bg-white text-blue-600 shadow-sm">
+            Sign In
+          </button>
+          <Link to="/register" className="flex-1 py-1.5 text-xs font-medium rounded text-slate-500 hover:text-slate-700 text-center">
+            Register
+          </Link>
         </div>
 
-        {/* Right Side - Form */}
-        <div className="login-form-container">
-          <div className="form-wrapper">
-            <div className="form-header">
-              <h2>Welcome Back</h2>
-              <p>Sign in to your account</p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <div className="flex flex-col">
+            <label htmlFor="username" className="text-xs font-medium text-slate-900 mb-0.5">
+              Email Address
+            </label>
+            <div className="relative flex items-center">
+              <Mail className="absolute left-3 text-slate-400" size={14} />
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                placeholder="test@example.com"
+                className="w-full py-1.5 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
+              />
             </div>
+          </div>
 
-            {/* Quick Access Demo */}
-            <div className="quick-access">
-              <div className="quick-label">
-                <span>Quick Access</span>
-                <code className="badge">Demo</code>
-              </div>
-              <div className="quick-buttons">
-                <button 
-                  type="button" 
-                  className="quick-btn"
-                  onClick={() => setFormData({ username: "admin", password: "password" })}
-                >
-                  Admin
-                </button>
-                <button 
-                  type="button" 
-                  className="quick-btn"
-                  onClick={() => setFormData({ username: "inventory.manager", password: "password" })}
-                >
-                  Inventory
-                </button>
-                <button 
-                  type="button" 
-                  className="quick-btn"
-                  onClick={() => setFormData({ username: "production", password: "password" })}
-                >
-                  Production
-                </button>
-                <button 
-                  type="button" 
-                  className="quick-btn"
-                  onClick={() => setFormData({ username: "design.engineer", password: "password" })}
-                >
-                  Design Eng.
-                </button>
-                <button 
-                  type="button" 
-                  className="quick-btn"
-                  onClick={() => setFormData({ username: "qc.manager", password: "password" })}
-                >
-                  QC
-                </button>
-              </div>
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center mb-0.5">
+              <label htmlFor="password" title="Password" className="text-xs font-medium text-slate-900">
+                Password
+              </label>
+              <a href="#forgot" className="text-xs text-blue-600 hover:underline">
+                Forgot?
+              </a>
             </div>
-
-            {error && (
-              <div className="error-message">
-                <div className="error-icon">⚠️</div>
-                <div className="error-content">
-                  <div className="error-title">Authentication Failed</div>
-                  <div className="error-text">{error}</div>
-                </div>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="login-form">
-              {/* Username Field */}
-              <div className="form-group">
-                <label htmlFor="username">
-                  <span>Username</span>
-                  <span className="required">*</span>
-                </label>
-                <div className="input-wrapper">
-                  <User className="input-icon" size={20} />
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter your username"
-                    className="form-input"
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div className="form-group">
-                <div className="label-row">
-                  <label htmlFor="password">
-                    <span>Password</span>
-                    <span className="required">*</span>
-                  </label>
-                </div>
-                <div className="input-wrapper">
-                  <Lock className="input-icon" size={20} />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter your password"
-                    className="form-input"
-                  />
-                  <button
-                    type="button"
-                    className="toggle-password"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex="-1"
-                    title={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit Button */}
+            <div className="relative flex items-center">
+              <Lock className="absolute left-3 text-slate-400" size={14} />
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                placeholder="••••••••••••"
+                className="w-full py-1.5 pl-9 pr-9 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
+              />
               <button
-                type="submit"
-                disabled={loading}
-                className="login-button"
+                type="button"
+                className="absolute right-3 text-slate-400 hover:text-blue-600"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex="-1"
               >
-                {loading ? (
-                  <>
-                    <span className="spinner"></span>
-                    <span>Signing in...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Sign In</span>
-                    <span className="arrow">→</span>
-                  </>
-                )}
+                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
-            </form>
+            </div>
+          </div>
 
-            {/* Footer */}
-            <div className="form-footer">
-              <span>New user?</span>
-              <Link to="/register">Create account</Link>
+          {error && (
+            <div className="p-1.5 bg-red-50 text-red-700 rounded-md text-[10px] border border-red-100">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {loading ? "Signing in..." : (
+              <>
+                Sign In <span className="text-base">→</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="mt-3 p-3 bg-slate-50 rounded-md">
+          <div className="flex items-center gap-2 text-slate-500 text-[10px] mb-2">
+            <Shield size={12} />
+            <span>Demo Access</span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="text-slate-500">Email</span>
+              <button 
+                className="text-blue-600 font-mono hover:underline" 
+                onClick={() => setFormData({ username: "test@example.com", password: "password123" })}
+              >
+                test@example.com
+              </button>
+            </div>
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="text-slate-500">Key</span>
+              <span className="text-blue-600 font-mono">password123</span>
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-4 text-center opacity-60">
+        <p className="text-[11px] text-slate-500">© 2026 Sterling Manufacturing. Secure Enterprise Access.</p>
       </div>
     </div>
   );

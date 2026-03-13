@@ -3,7 +3,7 @@ import axios from 'axios';
 // Configure axios defaults
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 axios.defaults.baseURL = baseURL.endsWith('/api') ? baseURL : baseURL + '/api';
-axios.defaults.headers.common['Content-Type'] = 'application/json';
+// axios.defaults.headers.common['Content-Type'] = 'application/json'; // Remove this global default to allow FormData to work correctly
 
 // Request interceptor for auth token
 axios.interceptors.request.use(

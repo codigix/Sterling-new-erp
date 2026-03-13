@@ -25,11 +25,10 @@ import './RootCardWizard.css';
 const WORKFLOW_STEPS = [
   { number: 1, name: 'PO Details', type: 'po_details', icon: FileText },
   { number: 2, name: 'Design Engineering', type: 'design_engineering', icon: Zap },
-  { number: 3, name: 'Material Requirements', type: 'material_requirement', icon: Package },
-  { number: 4, name: 'Production Plan', type: 'production_plan', icon: Zap },
-  { number: 5, name: 'Quality Check', type: 'quality_check', icon: Check },
-  { number: 6, name: 'Shipment', type: 'shipment', icon: Truck },
-  { number: 7, name: 'Delivery', type: 'delivery', icon: CheckCircle2 },
+  { number: 3, name: 'Production', type: 'production', icon: Zap },
+  { number: 4, name: 'Procurement', type: 'procurement', icon: Truck },
+  { number: 5, name: 'Inventory', type: 'inventory', icon: Package },
+  { number: 6, name: 'Quality', type: 'quality', icon: Check },
 ];
 
 const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
@@ -119,7 +118,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
 
         if (result.isConfirmed) {
           // Redirect to Create BOM page with context
-          window.open(`/design-engineer/bom/create?rootCardId=${rootCardId}`, '_blank');
+          window.open(`/department/production/bom/create?rootCardId=${rootCardId}`, '_blank');
         }
       } else {
         setError('Failed to update step status');

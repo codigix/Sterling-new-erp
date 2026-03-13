@@ -301,7 +301,7 @@ const ProductionManagerDashboard = () => {
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
-                      {task.rootCard?.title || task.title}
+                      {(task.rootCard?.title || task.title || '').replace(/^RC-\d{4}\s*[-:]\s*/i, '') || task.rootCard?.title || task.title}
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       {task.rootCard?.customer || task.salesOrder?.customer || "No Customer"}
@@ -440,7 +440,7 @@ const ProductionManagerDashboard = () => {
               >
                 {rootCards.map((rc) => (
                   <option key={rc.id} value={rc.id}>
-                    {rc.title} ({rc.code || 'No Code'})
+                    {(rc.title || rc.project_name || '').replace(/^RC-\d{4}\s*[-:]\s*/i, '') || rc.title || rc.project_name || rc.id} ({rc.code || 'No Code'})
                   </option>
                 ))}
               </select>

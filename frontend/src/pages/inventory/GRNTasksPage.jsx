@@ -150,38 +150,38 @@ const GRNTasksPage = () => {
       taskTitle.includes("processing") ||
       taskTitle.includes("receiving")
     ) {
-      navigate(`/inventory-manager/grn-processing?${baseParams}`);
+      navigate(`/inventory/grn-processing?${baseParams}`);
     } else if (
       taskTitle.includes("qc") ||
       taskTitle.includes("inspection") ||
       taskTitle.includes("inspect")
     ) {
-      navigate(`/inventory-manager/grn-processing?${baseParams}`);
+      navigate(`/inventory/grn-processing?${baseParams}`);
     } else if (
       taskTitle.includes("stock") ||
       taskTitle.includes("add") ||
       taskTitle.includes("inventory")
     ) {
-      navigate(`/inventory-manager/stock/view?${baseParams}`);
+      navigate(`/inventory/stock/view?${baseParams}`);
     } else if (
       taskTitle.includes("batch") ||
       taskTitle.includes("management")
     ) {
-      navigate(`/inventory-manager/tracking/batches?${baseParams}`);
+      navigate(`/inventory/tracking/batches?${baseParams}`);
     } else if (
       taskTitle.includes("location") ||
       taskTitle.includes("rack") ||
       taskTitle.includes("shelf")
     ) {
-      navigate(`/inventory-manager/tracking/location?${baseParams}`);
+      navigate(`/inventory/tracking/location?${baseParams}`);
     } else if (
       taskTitle.includes("vendor") ||
       taskTitle.includes("po") ||
       taskTitle.includes("order")
     ) {
-      navigate(`/inventory-manager/purchase-orders?${baseParams}`);
+      navigate(`/inventory/purchase-orders?${baseParams}`);
     } else {
-      navigate(`/inventory-manager/grn-processing?${baseParams}`);
+      navigate(`/inventory/grn-processing?${baseParams}`);
     }
   };
 

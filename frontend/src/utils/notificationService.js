@@ -5,36 +5,31 @@ const DEPARTMENT_MANAGERS = {
     department: 'Design Engineering',
     manager: 'Design Engineer'
   },
-  materialRequirements: {
-    department: 'Inventory Management',
-    manager: 'Inventory Manager'
-  },
   productionPlan: {
     department: 'Production',
     manager: 'Production Manager'
   },
+  materialRequirements: {
+    department: 'Inventory Management',
+    manager: 'Inventory'
+  },
+  inventory: {
+    department: 'Inventory Management',
+    manager: 'Inventory'
+  },
   qualityCheck: {
     department: 'Quality Control',
     manager: 'QC Manager'
-  },
-  shipment: {
-    department: 'Logistics',
-    manager: 'Logistics Manager'
-  },
-  delivery: {
-    department: 'Delivery',
-    manager: 'Logistics Manager'
   }
 };
 
 const STEP_DESCRIPTIONS = {
-  1: 'Client PO',
+  1: 'PO Details',
   2: 'Design Engineering',
-  3: 'Material Requirements',
-  4: 'Production Plan',
-  5: 'Quality Check',
-  6: 'Shipment',
-  7: 'Delivery'
+  3: 'Production',
+  4: 'Procurement',
+  5: 'Inventory',
+  6: 'Quality'
 };
 
 export const sendAssignmentNotifications = async (rootCardData, formData) => {
@@ -43,11 +38,10 @@ export const sendAssignmentNotifications = async (rootCardData, formData) => {
 
     const stepAssignees = [
       { stepType: 'designEngineering', assignee: formData.designEngineeringAssignedTo },
-      { stepType: 'materialRequirements', assignee: formData.materialRequirementsAssignedTo },
       { stepType: 'productionPlan', assignee: formData.productionPlanAssignedTo },
-      { stepType: 'qualityCheck', assignee: formData.qualityCheckAssignedTo },
-      { stepType: 'shipment', assignee: formData.shipmentAssignedTo },
-      { stepType: 'delivery', assignee: formData.deliveryAssignedTo }
+      { stepType: 'materialRequirements', assignee: formData.materialRequirementsAssignedTo },
+      { stepType: 'inventory', assignee: formData.inventoryAssignedTo },
+      { stepType: 'qualityCheck', assignee: formData.qualityCheckAssignedTo }
     ];
 
     stepAssignees.forEach(({ stepType, assignee }) => {

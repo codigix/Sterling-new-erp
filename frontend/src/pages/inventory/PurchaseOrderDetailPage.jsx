@@ -230,7 +230,7 @@ const PurchaseOrderDetailPage = () => {
       poNumber: po.po_number,
       email: po.vendor_email || "",
       subject: `Purchase Order ${po.po_number} from Sterling`,
-      message: `Dear ${po.vendor_name || 'Vendor'},\n\nPlease find attached the Purchase Order ${po.po_number}.\n\nBest regards,\nNobal Casting`,
+      message: `Dear ${po.vendor_name || 'Vendor'},\n\nPlease find attached the Purchase Order ${po.po_number}.\n\nBest regards,\nSterling`,
       po: po // Store the whole po object to generate PDF later
     });
     setShowEmailModal(true);
@@ -346,7 +346,7 @@ const PurchaseOrderDetailPage = () => {
             {po.status === 'draft' && (
               <button 
                 onClick={() => {
-                  navigate(`/inventory-manager/purchase-orders/edit/${po.id}`);
+                  navigate(`/inventory/purchase-orders/edit/${po.id}`);
                 }}
                 className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-blue-600 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 shadow-sm"
               >
@@ -687,7 +687,7 @@ const PurchaseOrderDetailPage = () => {
                   <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-600" />
                 </button>
                 <button 
-                  onClick={() => navigate('/inventory-manager/purchase-receipt', { state: { po_number: po.po_number } })}
+                  onClick={() => navigate('/inventory/purchase-receipt', { state: { po_number: po.po_number } })}
                   className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 transition-colors text-left group"
                 >
                   <span className="text-xs font-bold text-slate-600 group-hover:text-blue-600">Related Receipts</span>
@@ -725,7 +725,7 @@ const PurchaseOrderDetailPage = () => {
         po={po}
         onGRNCreated={() => {
           fetchPODetails();
-          navigate('/inventory-manager/grn-processing');
+          navigate('/inventory/grn-processing');
         }}
       />
 

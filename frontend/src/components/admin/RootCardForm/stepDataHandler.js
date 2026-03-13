@@ -30,21 +30,13 @@ export const buildStepPayload = (stepNumber, formData, poDocuments = []) => {
   const payloads = {
     1: {
       poNumber: formData.poNumber,
-      poDate: formData.poDate,
-      clientName: formData.clientName,
-      clientEmail: formData.clientEmail,
-      clientPhone: formData.clientPhone,
       projectName: formData.projectName,
       projectCode: formData.projectCode,
-      billingAddress: formData.billingAddress,
-      shippingAddress: formData.shippingAddress,
-      clientAddress: formData.clientAddress || '',
       projectRequirements: formData.projectRequirements || {},
       notes: formData.notes || null,
       attachments: poDocuments,
       productDetails: {
         ...(formData.productDetails || {}),
-        estimatedEndDate: formData.estimatedEndDate
       }
     },
     
@@ -55,13 +47,6 @@ export const buildStepPayload = (stepNumber, formData, poDocuments = []) => {
     },
     
     3: {
-      materials: formData.materials || [],
-      materialDetailsTable: formData.materialDetailsTable || {},
-      procurementStatus: formData.procurementStatus || 'pending',
-      assignedTo: formData.materialRequirementsAssignedTo || null
-    },
-    
-    4: {
       productionStartDate: formData.productionStartDate,
       estimatedCompletionDate: formData.estimatedCompletionDate,
       procurementStatus: formData.procurementStatus,
@@ -71,7 +56,19 @@ export const buildStepPayload = (stepNumber, formData, poDocuments = []) => {
       assignedTo: formData.productionPlanAssignedTo || null
     },
     
+    4: {
+      materials: formData.materials || [],
+      materialDetailsTable: formData.materialDetailsTable || {},
+      procurementStatus: formData.procurementStatus || 'pending',
+      assignedTo: formData.materialRequirementsAssignedTo || null
+    },
+    
     5: {
+      inventory: formData.inventory || {},
+      assignedTo: formData.inventoryAssignedTo || null
+    },
+    
+    6: {
       ...formData.qualityCheck,
       qualityCompliance: {
         qualityStandards: formData.qualityCompliance?.qualityStandards || '',
@@ -86,46 +83,15 @@ export const buildStepPayload = (stepNumber, formData, poDocuments = []) => {
         serviceSupport: formData.warrantySupport?.serviceSupport || ''
       },
       paymentTerms: formData.paymentTerms || null,
-      totalAmount: formData.totalAmount || null,
-      projectPriority: formData.projectPriority || null,
       status: formData.status || 'pending',
       internalInfo: formData.internalInfo || {},
       specialInstructions: formData.specialInstructions || null,
       internalProjectOwner: formData.internalProjectOwner || null,
       assignedTo: formData.qualityCheckAssignedTo || null
     },
-    
-    6: {
-      deliveryTerms: formData.deliveryTerms || {},
-      shipment: formData.shipment || {},
-      assignedTo: formData.shipmentAssignedTo || null
-    },
-    
-    7: {
-      delivery: formData.delivery || {},
-      deliveryTerms: formData.deliveryTerms || {},
-      warrantySupport: formData.warrantySupport || {},
-      projectRequirements: formData.projectRequirements || {},
-      internalInfo: formData.internalInfo || {},
-      assignedTo: formData.deliveryAssignedTo || null
-    }
   };
 
   return payloads[stepNumber] || {};
-};
-
-export const getStepEndpoint = (stepNumber, rootCardId) => {
-  const endpoints = {
-    1: `/root-cards/steps/${rootCardId}/client-po`,
-    2: `/root-cards/steps/${rootCardId}/design-engineering`,
-    3: `/root-cards/steps/${rootCardId}/material-requirements`,
-    4: `/root-cards/steps/${rootCardId}/production-plan`,
-    5: `/root-cards/steps/${rootCardId}/quality-check`,
-    6: `/root-cards/steps/${rootCardId}/shipment`,
-    7: `/root-cards/steps/${rootCardId}/delivery`
-  };
-
-  return endpoints[stepNumber];
 };
 
 export const updateDraftWithStepData = async (draftId, formData, currentStep, poDocuments = []) => {
@@ -155,32 +121,6 @@ export const deleteDraft = async (draftId) => {
     return response.data;
   } catch (err) {
     console.error('Error deleting draft:', err);
-    throw err;
-  }
-};
-
-export const saveStepDataToAPI = async (stepNumber, rootCardId, formData, poDocuments = []) => {
-  try {
-    if (!rootCardId) {
-      throw new Error('Root Card ID is required');
-    }
-
-    const payload = buildStepPayload(stepNumber, formData, poDocuments);
-    const endpoint = getStepEndpoint(stepNumber, rootCardId);
-
-    if (!endpoint) {
-      throw new Error(`No endpoint configured for step ${stepNumber}`);
-    }
-
-    if (stepNumber === 2) {
-      console.log(`[saveStepDataToAPI] Step 2 payload being sent:`, JSON.stringify(payload, null, 2));
-    }
-
-    const response = await axios.post(endpoint, payload);
-    console.log(`Step ${stepNumber} data saved successfully`, response.data);
-    return response.data;
-  } catch (err) {
-    console.error(`Error saving step ${stepNumber} data:`, err);
     throw err;
   }
 };
@@ -287,31 +227,40 @@ export const saveAllStepsToRootCard = async (rootCardId, formData, poDocuments =
       throw new Error('Root Card ID is required');
     }
 
-    console.log(`[saveAllStepsToRootCard] Starting for root card ${rootCardId}, FormData.designEngineering:`, formData.designEngineering);
+    const getStepKeyFromNumber = (num) => {
+      const keys = {
+        1: "client_po",
+        2: "design_engineering",
+        3: "production",
+        4: "procurement",
+        5: "inventory",
+        6: "quality",
+      };
+      return keys[num];
+    };
 
-    const stepPromises = [];
-    for (let step = 1; step <= 7; step++) {
-      stepPromises.push(saveStepDataToAPI(step, rootCardId, formData, poDocuments));
+    const steps = [];
+    for (let i = 1; i <= 6; i++) {
+      const stepData = buildStepPayload(i, formData, poDocuments);
+      steps.push({
+        stepKey: getStepKeyFromNumber(i),
+        stepData: stepData,
+        assignedTo: stepData.assignedTo || null,
+        status: 'pending' // Default status
+      });
     }
 
-    const results = await Promise.allSettled(stepPromises);
-    const summary = {
-      successful: results.filter(r => r.status === 'fulfilled').length,
-      failed: results.filter(r => r.status === 'rejected').length,
-      details: results
-    };
+    const response = await axios.post(`/root-cards/${rootCardId}/steps/all`, { steps });
+    console.log('All steps saved successfully via batch API:', response.data);
     
-    console.log('All steps saved to root card:', summary);
-    
-    // Upload buffered wizard attachments
+    // Upload buffered wizard attachments (Step 2)
     try {
-      console.log(`[saveAllStepsToRootCard] Calling uploadWizardAttachments for root card ${rootCardId}`);
       await uploadWizardAttachments(rootCardId, formData);
     } catch (attachErr) {
       console.warn('Warning: Could not upload wizard attachments:', attachErr.message);
     }
     
-    return summary;
+    return { successful: 6, failed: 0, response: response.data };
   } catch (err) {
     console.error('Error saving all steps to root card:', err);
     throw err;

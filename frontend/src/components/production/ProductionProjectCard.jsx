@@ -70,9 +70,7 @@ const ProductionProjectCard = ({
         taskTitle.includes("material request") ||
         taskTitle.includes("work order") ||
         taskTitle.includes("job card") ||
-        taskTitle.includes("quality check") ||
-        taskTitle.includes("shipment") ||
-        taskTitle.includes("delivery")
+        taskTitle.includes("quality check")
       );
     });
     setWorkflowTasks(patternMatchedTasks);
@@ -96,12 +94,6 @@ const ProductionProjectCard = ({
     }
     else if (taskTitle.includes("quality check") || taskTitle.includes("qc")) {
       return `/department/qc?${baseParams}`;
-    }
-    else if (taskTitle.includes("shipment") || taskTitle.includes("packaging")) {
-      return `/department/production/challans/new?${baseParams}`;
-    }
-    else if (taskTitle.includes("delivery")) {
-      return `/department/production/challans/track?${baseParams}`;
     }
     else {
       return `/department/production?rootCardId=${project.id}`;

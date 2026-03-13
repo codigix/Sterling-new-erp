@@ -1,50 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { Lock, User, Mail, Shield, Eye, EyeOff, Check, AlertCircle, Loader } from 'lucide-react';
-import './RegisterPage.css';
+import { Lock, User, Mail, Eye, EyeOff, Boxes, Factory, UserCog, PenTool, ShoppingCart, ClipboardCheck } from 'lucide-react';
+
+const DEPARTMENTS = [
+  { id: 'admin', name: 'Admin', icon: UserCog },
+  { id: 'design_engineer', name: 'Design Engineer', icon: PenTool },
+  { id: 'production', name: 'Production', icon: Factory },
+  { id: 'procurement', name: 'Procurement', icon: ShoppingCart },
+  { id: 'quality', name: 'Quality', icon: ClipboardCheck },
+  { id: 'inventory', name: 'Inventory', icon: Boxes },
+];
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    fullName: '',
+    email: '',
+    department: 'production',
     password: '',
     confirmPassword: '',
-    email: '',
-    roleId: ''
   });
-  const [roles, setRoles] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [rolesLoading, setRolesLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [validations, setValidations] = useState({
-    username: false,
-    password: false,
-    match: false,
-  });
 
   const { register } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        setRolesLoading(true);
-        const response = await axios.get('/auth/roles/active');
-        setRoles(response.data.roles || []);
-      } catch (error) {
-        console.error('Failed to fetch roles:', error);
-        setRoles([]);
-      } finally {
-        setRolesLoading(false);
-      }
-    };
-
-    fetchRoles();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,307 +35,181 @@ const RegisterPage = () => {
       ...formData,
       [name]: value
     });
-
-    // Real-time validation
-    if (name === 'username') {
-      setValidations(prev => ({
-        ...prev,
-        username: value.length >= 3
-      }));
-    }
-    if (name === 'password') {
-      setValidations(prev => ({
-        ...prev,
-        password: value.length >= 6,
-        match: value === formData.confirmPassword && value.length >= 6
-      }));
-    }
-    if (name === 'confirmPassword') {
-      setValidations(prev => ({
-        ...prev,
-        match: value === formData.password && value.length >= 6
-      }));
-    }
   };
 
-  const validateForm = () => {
-    if (!formData.username.trim()) {
-      setError('Username is required');
-      return false;
-    }
-    if (formData.username.length < 3) {
-      setError('Username must be at least 3 characters');
-      return false;
-    }
-    if (!formData.password) {
-      setError('Password is required');
-      return false;
-    }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return false;
-    }
-    if (!formData.roleId) {
-      setError('Please select a role');
-      return false;
-    }
-    return true;
+  const handleDeptSelect = (deptId) => {
+    setFormData({
+      ...formData,
+      department: deptId
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess(false);
-
-    if (!validateForm()) {
+    
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
     setLoading(true);
-
-    const result = await register(formData.username, formData.password, formData.roleId, formData.email);
+    const result = await register(formData.fullName, formData.password, formData.department, formData.email);
 
     if (result.success) {
       setSuccess(true);
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      setTimeout(() => navigate('/login'), 2000);
     } else {
       setError(result.message);
     }
-
     setLoading(false);
   };
 
   return (
-    <div className="register-page">
-      <div className="register-content">
-        {/* Header Section */}
-        <div className="register-header">
-          <div className="header-logo">
-            <div className="logo-badge">SE</div>
-          </div>
-          <div className="header-text">
-            <h1>Sterling ERP</h1>
-            <p>Enterprise Resource Planning System</p>
-          </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-2 font-sans overflow-hidden">
+      <div className="text-center mb-4">
+        <img src="/logo.png" alt="Sterling Logo" className="h-10 w-auto mx-auto mb-1" />
+      </div>
+
+      <div className="w-full max-w-lg bg-white rounded-lg shadow-sm border border-slate-200 p-5">
+        <div className="flex bg-slate-100 p-1 rounded-md mb-4">
+          <Link to="/login" className="flex-1 py-1.5 text-xs font-medium rounded text-slate-500 hover:text-slate-700 text-center">
+            Sign In
+          </Link>
+          <button className="flex-1 py-1.5 text-xs font-medium rounded bg-white text-blue-600 shadow-sm">
+            Register
+          </button>
         </div>
 
-        {/* Main Form Container */}
-        <div className="register-form-container">
-          <div className="form-wrapper">
-            <div className="form-header">
-              <h2>Create Account</h2>
-              <p>Join Sterling ERP and manage your operations efficiently</p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <div className="flex flex-col">
+            <label htmlFor="fullName" className="text-xs font-medium text-slate-900 mb-0.5">Full Name</label>
+            <div className="relative flex items-center">
+              <User className="absolute left-3 text-slate-400" size={14} />
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+                placeholder="Enter your name"
+                className="w-full py-1.5 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
+              />
             </div>
+          </div>
 
-            {success && (
-              <div className="success-message">
-                <Check size={20} />
-                <span>Registration successful! Redirecting to login...</span>
-              </div>
-            )}
+          <div className="flex flex-col">
+            <label htmlFor="email" className="text-xs font-medium text-slate-900 mb-0.5">Email Address</label>
+            <div className="relative flex items-center">
+              <Mail className="absolute left-3 text-slate-400" size={14} />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="test@example.com"
+                className="w-full py-1.5 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
+              />
+            </div>
+          </div>
 
-            {error && (
-              <div className="error-message">
-                <AlertCircle size={20} />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="register-form">
-              {/* Username Field */}
-              <div className="form-group">
-                <label htmlFor="username">Username *</label>
-                <div className="input-wrapper">
-                  <User className="input-icon" size={18} />
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                    placeholder="Choose a username"
-                    className={`form-input ${formData.username && !validations.username ? 'invalid' : ''}`}
-                  />
-                  {formData.username && (
-                    validations.username ? (
-                      <Check className="validation-icon valid" size={18} />
-                    ) : (
-                      <AlertCircle className="validation-icon invalid" size={18} />
-                    )
-                  )}
-                </div>
-                {formData.username && !validations.username && (
-                  <p className="validation-message">Username must be at least 3 characters</p>
-                )}
-              </div>
-
-              {/* Email Field */}
-              <div className="form-group">
-                <label htmlFor="email">Email <span className="optional">(optional)</span></label>
-                <div className="input-wrapper">
-                  <Mail className="input-icon" size={18} />
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="your.email@company.com"
-                    className="form-input"
-                  />
-                </div>
-              </div>
-
-              {/* Role Selection */}
-              <div className="form-group">
-                <label htmlFor="roleId">Select Role *</label>
-                <div className="role-selector">
-                  {rolesLoading ? (
-                    <div className="roles-loading">
-                      <Loader size={18} className="spinner" />
-                      <span>Loading roles...</span>
-                    </div>
-                  ) : roles.length > 0 ? (
-                    <div className="roles-grid">
-                      {roles.map((role) => (
-                        <label key={role.id} className={`role-option ${formData.roleId === String(role.id) ? 'selected' : ''}`}>
-                          <input
-                            type="radio"
-                            name="roleId"
-                            value={role.id}
-                            onChange={handleChange}
-                            required
-                          />
-                          <div className="role-card">
-                            <Shield size={20} />
-                            <span>{role.name}</span>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  ) : (
-                    <select
-                      id="roleId"
-                      name="roleId"
-                      value={formData.roleId}
-                      onChange={handleChange}
-                      required
-                      className="form-input"
-                    >
-                      <option value="">Select a role</option>
-                    </select>
-                  )}
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div className="form-group">
-                <label htmlFor="password">Password *</label>
-                <div className="input-wrapper">
-                  <Lock className="input-icon" size={18} />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    placeholder="Minimum 6 characters"
-                    className={`form-input ${formData.password && !validations.password ? 'invalid' : ''}`}
-                  />
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-slate-900 mb-0.5">Department</label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {DEPARTMENTS.map((dept) => {
+                const Icon = dept.icon;
+                const isActive = formData.department === dept.id;
+                return (
                   <button
+                    key={dept.id}
                     type="button"
-                    className="toggle-password"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex="-1"
+                    className={`flex flex-col items-center justify-center gap-1 p-1.5 border rounded-md transition-all h-14 ${
+                      isActive 
+                        ? 'border-blue-600 bg-blue-50 text-blue-600 ring-1 ring-blue-600' 
+                        : 'border-slate-200 bg-white text-slate-500 hover:border-blue-400 hover:bg-slate-50'
+                    }`}
+                    onClick={() => handleDeptSelect(dept.id)}
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    <Icon size={14} />
+                    <span className="text-[10px] font-medium text-center leading-tight">{dept.name}</span>
                   </button>
-                  {formData.password && (
-                    validations.password ? (
-                      <Check className="validation-icon valid" size={18} />
-                    ) : (
-                      <AlertCircle className="validation-icon invalid" size={18} />
-                    )
-                  )}
-                </div>
-                {formData.password && !validations.password && (
-                  <p className="validation-message">Password must be at least 6 characters</p>
-                )}
-              </div>
+                );
+              })}
+            </div>
+          </div>
 
-              {/* Confirm Password Field */}
-              <div className="form-group">
-                <label htmlFor="confirmPassword">Confirm Password *</label>
-                <div className="input-wrapper">
-                  <Lock className="input-icon" size={18} />
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    placeholder="Re-enter your password"
-                    className={`form-input ${formData.confirmPassword && !validations.match ? 'invalid' : ''}`}
-                  />
-                  <button
-                    type="button"
-                    className="toggle-password"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    tabIndex="-1"
-                  >
-                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                  {formData.confirmPassword && (
-                    validations.match ? (
-                      <Check className="validation-icon valid" size={18} />
-                    ) : (
-                      <AlertCircle className="validation-icon invalid" size={18} />
-                    )
-                  )}
-                </div>
-                {formData.confirmPassword && !validations.match && (
-                  <p className="validation-message">Passwords do not match</p>
-                )}
-              </div>
-
-              {/* Submit Button */}
+          <div className="flex flex-col">
+            <label htmlFor="password" title="Password" className="text-xs font-medium text-slate-900 mb-0.5">Password</label>
+            <div className="relative flex items-center">
+              <Lock className="absolute left-3 text-slate-400" size={14} />
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                placeholder="••••••••••••"
+                className="w-full py-1.5 pl-9 pr-9 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
+              />
               <button
-                type="submit"
-                disabled={loading || rolesLoading}
-                className="register-button"
+                type="button"
+                className="absolute right-3 text-slate-400 hover:text-blue-600"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex="-1"
               >
-                {loading ? (
-                  <>
-                    <Loader size={18} className="spinner" />
-                    Creating Account...
-                  </>
-                ) : (
-                  "Create Account"
-                )}
+                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
-            </form>
-
-            {/* Footer */}
-            <div className="form-footer">
-              <span>Already have an account?</span>
-              <Link to="/login">Sign in here</Link>
-            </div>
-
-            {/* Terms */}
-            <div className="terms-notice">
-              <p>By registering, you agree to our <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a></p>
             </div>
           </div>
-        </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="confirmPassword" title="Confirm Password" className="text-xs font-medium text-slate-900 mb-0.5">Confirm Password</label>
+            <div className="relative flex items-center">
+              <Lock className="absolute left-3 text-slate-400" size={14} />
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                placeholder="••••••••"
+                className="w-full py-1.5 pl-9 pr-9 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
+              />
+              <button
+                type="button"
+                className="absolute right-3 text-slate-400 hover:text-blue-600"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                tabIndex="-1"
+              >
+                {showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
+
+          {error && <div className="p-1.5 bg-red-50 text-red-700 rounded-md text-[10px] border border-red-100">{error}</div>}
+          {success && <div className="p-1.5 bg-green-50 text-green-700 rounded-md text-[10px] border border-green-100">Account created successfully!</div>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {loading ? "Creating Account..." : (
+              <>
+                Create Account <span className="text-base">→</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+
+      <div className="mt-4 text-center opacity-60">
+        <p className="text-[11px] text-slate-500">© 2026 Sterling Manufacturing. Secure Enterprise Access.</p>
       </div>
     </div>
   );

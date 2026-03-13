@@ -73,7 +73,7 @@ const MaterialRequestDetailModal = ({
               query += `&warehouse=${encodeURIComponent(warehouseName)}`;
             }
 
-            const response = await axios.get(`/inventory/materials?${query}`);
+            const response = await axios.get(`/department/inventory/materials?${query}`);
             const materials = response.data.materials || [];
 
             if (materials.length > 0) {
@@ -160,7 +160,7 @@ const MaterialRequestDetailModal = ({
       // If there's an approved quotation, use its rates and vendor
       if (request.approved_quotation_id) {
         const quoteResponse = await axios.get(
-          `/inventory/quotations/${request.approved_quotation_id}`,
+          `/department/inventory/quotations/${request.approved_quotation_id}`,
         );
         const quote = quoteResponse.data;
         vendorId = quote.vendor_id;
@@ -192,10 +192,10 @@ const MaterialRequestDetailModal = ({
         notes: `Created from Material Request: ${request.mr_number}${request.approved_quotation_id ? ` and Approved Quotation` : ""}`,
       };
 
-      const response = await axios.post("/inventory/purchase-orders", payload);
+      const response = await axios.post("/department/inventory/purchase-orders", payload);
 
       // Update status to ordered
-      await axios.patch(`/inventory/material-requests/${request.id}/status`, {
+      await axios.patch(`/department/inventory/material-requests/${request.id}/status`, {
         status: "ordered",
       });
 
@@ -204,7 +204,7 @@ const MaterialRequestDetailModal = ({
       );
       onClose();
       if (onStatusUpdate) onStatusUpdate();
-      navigate(`/inventory-manager/purchase-orders/${response.data.id}`);
+      navigate(`/department/procurement/purchase-orders/${response.data.id}`);
     } catch (error) {
       console.error("Error auto-creating PO:", error);
       showError("Failed to create Purchase Order");
@@ -238,7 +238,7 @@ const MaterialRequestDetailModal = ({
     }
 
     const performNavigation = () => {
-      navigate("/inventory-manager/quotations/sent", {
+      navigate("/department/procurement/quotations/sent", {
         state: {
           openModal: true,
           preFilledMaterials: itemsToQuote.map((item) => ({
@@ -290,7 +290,7 @@ const MaterialRequestDetailModal = ({
 
       if (result.isConfirmed) {
         setApproving(true);
-        await axios.patch(`/inventory/material-requests/${request.id}/status`, {
+        await axios.patch(`/department/inventory/material-requests/${request.id}/status`, {
           status: "approved",
         });
 
@@ -326,7 +326,7 @@ const MaterialRequestDetailModal = ({
       if (result.isConfirmed) {
         setReleasing(true);
         const response = await axios.post(
-          `/inventory/material-requests/${request.id}/release`,
+          `/department/inventory/material-requests/${request.id}/release`,
           {
             warehouseName: warehouseName,
           },
@@ -357,7 +357,7 @@ const MaterialRequestDetailModal = ({
       });
 
       if (result.isConfirmed) {
-        await axios.delete(`/inventory/material-requests/${request.id}`);
+        await axios.delete(`/department/inventory/material-requests/${request.id}`);
         showSuccess("Material request has been deleted.");
         if (onStatusUpdate) onStatusUpdate();
         onClose();
@@ -876,7 +876,7 @@ const MaterialRequestsPage = () => {
               ? `itemCode=${encodeURIComponent(item.material_code)}`
               : `itemName=${encodeURIComponent(item.material_name)}`;
 
-            const res = await axios.get(`/inventory/materials?${query}`);
+            const res = await axios.get(`/department/inventory/materials?${query}`);
             const materials = res.data.materials || [];
             const stockQty =
               materials.length > 0
@@ -905,7 +905,7 @@ const MaterialRequestsPage = () => {
               confirmButtonText: "Yes, Proceed",
             }).then((result) => {
               if (result.isConfirmed) {
-                navigate("/inventory-manager/quotations/sent", {
+                navigate("/department/inventory/quotations/sent", {
                   state: {
                     openModal: true,
                     preFilledMaterials: itemsToProcess.map((item) => ({
@@ -941,7 +941,7 @@ const MaterialRequestsPage = () => {
       }
 
       const routes = {
-        grn: "/inventory-manager/grn-processing",
+        grn: "/department/inventory/grn-processing",
       };
 
       const route = routes[stepId];
@@ -1024,7 +1024,7 @@ const MaterialRequestsPage = () => {
 
   const fetchWarehouses = useCallback(async () => {
     try {
-      const response = await axios.get("/inventory/warehouses");
+      const response = await axios.get("/department/inventory/warehouses");
       setWarehouses(response.data || []);
     } catch (error) {
       console.error("Error fetching warehouses:", error);
@@ -1064,7 +1064,7 @@ const MaterialRequestsPage = () => {
 
   const fetchRequestDetails = async (id) => {
     try {
-      const response = await axios.get(`/inventory/material-requests/${id}`);
+      const response = await axios.get(`/department/inventory/material-requests/${id}`);
       setViewingRequest(response.data.materialRequest);
       setShowDetailModal(true);
     } catch (error) {
@@ -1086,7 +1086,7 @@ const MaterialRequestsPage = () => {
       });
 
       if (result.isConfirmed) {
-        await axios.delete(`/inventory/material-requests/${id}`);
+        await axios.delete(`/department/inventory/material-requests/${id}`);
         showSuccess("Material request has been deleted.");
         fetchMaterialRequests();
       }
@@ -1119,7 +1119,7 @@ const MaterialRequestsPage = () => {
               ? `itemCode=${encodeURIComponent(item.material_code)}`
               : `itemName=${encodeURIComponent(item.material_name)}`;
 
-            const response = await axios.get(`/inventory/materials?${query}`);
+            const response = await axios.get(`/department/inventory/materials?${query}`);
             const materials = response.data.materials || [];
 
             if (materials.length > 0) {
@@ -1164,7 +1164,7 @@ const MaterialRequestsPage = () => {
   const fetchMaterialRequests = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/inventory/material-requests", {
+      const response = await axios.get("/department/inventory/material-requests", {
         params: {
           search: searchQuery,
           status:
@@ -1289,7 +1289,7 @@ const MaterialRequestsPage = () => {
         })),
       };
 
-      await axios.post("/inventory/material-requests", payload);
+      await axios.post("/department/inventory/material-requests", payload);
 
       showSuccess("Your material requests have been submitted successfully.");
 
@@ -1720,11 +1720,16 @@ const MaterialRequestsPage = () => {
                           required
                         >
                           <option value="">Select Sales Order</option>
-                          {rootCards.map((so) => (
-                            <option key={so.id} value={so.id}>
-                              SO-{so.id} ({so.customer})
-                            </option>
-                          ))}
+                          {rootCards.map((so) => {
+                            const baseName = so.project_name || so.customer || "";
+                            // Remove RC-XXXX pattern from the start of the string if it exists
+                            const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
+                            return (
+                              <option key={so.id} value={so.id}>
+                                {displayName || baseName || `Order ${so.id}`}
+                              </option>
+                            );
+                          })}
                         </select>
                       </div>
 

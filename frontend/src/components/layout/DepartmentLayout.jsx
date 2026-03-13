@@ -25,6 +25,10 @@ import {
   ClipboardList,
   FileText,
   Monitor,
+  RefreshCw,
+  Warehouse,
+  Clock,
+  FileCheck,
 } from "lucide-react";
 
 const DepartmentLayout = () => {
@@ -141,28 +145,33 @@ const DepartmentLayout = () => {
             {/* User Menu */}
             <div className="relative">
               <button
-                className="flex items-center text-xs space-x-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                className="flex items-center text-xs space-x-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center text-xs justify-center">
-                  <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">
-                    {user?.username?.charAt(0).toUpperCase()}
+                <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center text-xs justify-center shadow-sm">
+                  <span className="text-white font-bold text-base">
+                    {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <span className="hidden md:block text-slate-700 dark:text-slate-300">
-                  {user?.username}
-                </span>
-                <ChevronDown size={16} />
+                <div className="hidden md:flex flex-col items-start text-left leading-tight">
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                    {user?.fullName || user?.username}
+                  </span>
+                  <span className="text-[11px] text-slate-600 dark:text-slate-300 font-semibold capitalize">
+                    {user?.department || user?.role}
+                  </span>
+                </div>
+                <ChevronDown size={14} className="text-slate-400 ml-1" />
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-1 z-50">
-                  <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
-                    <p className="text-sm font-medium  dark:">
-                      {user?.username}
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
+                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                      {user?.fullName || user?.username}
                     </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
-                      {getCurrentPageTitle()}
+                    <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      {user?.email}
                     </p>
                   </div>
                   <div className="border-t border-slate-200 dark:border-slate-700 my-1"></div>
@@ -235,6 +244,34 @@ const DepartmentLayout = () => {
               </div>
             )}
 
+            {/* Design Drawings Menu - Only show for Engineering department */}
+            {getDepartmentRole().title === "Engineering" && (
+              <div>
+                <h6
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                    sidebarCollapsed ? "text-center" : ""
+                  }`}
+                >
+                  {!sidebarCollapsed && "Design Control"}
+                </h6>
+                <ul className="space-y-1">
+                  <li>
+                    <Link
+                      to="/department/engineering/drawings"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/engineering/drawings")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <FileText size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Design Drawings</span>}
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
+
             {/* Production Flow Menu - Only show for Production department */}
             {getDepartmentRole().title === "Production" && (
               <div>
@@ -272,6 +309,88 @@ const DepartmentLayout = () => {
                       {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      to="/department/production/design-drawings"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/production/design-drawings")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <FileCheck size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Design Drawings</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/production/material-requests"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/production/material-requests")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <ShoppingCart size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Material Requests</span>}
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            {/* BOM Menu - Only show for Production department */}
+            {getDepartmentRole().title === "Production" && (
+              <div>
+                <h6
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                    sidebarCollapsed ? "text-center" : ""
+                  }`}
+                >
+                  {!sidebarCollapsed && "Bill of Materials"}
+                </h6>
+                <ul className="space-y-1">
+                  <li>
+                    <Link
+                      to="/department/production/bom/create"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/production/bom/create")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <FileText size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Create BOM</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/production/bom/view"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/production/bom/view")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <BarChart3 size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">View BOMs</span>}
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            {/* Production Flow Menu - Only show for Production department */}
+            {getDepartmentRole().title === "Production" && (
+              <div>
+                <h6
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                    sidebarCollapsed ? "text-center" : ""
+                  }`}
+                >
+                  {!sidebarCollapsed && "Production Flow"}
+                </h6>
+                <ul className="space-y-1">
                   <li>
                     <Link
                       to="/department/production/plans"
@@ -326,45 +445,6 @@ const DepartmentLayout = () => {
                   </li>
                   <li>
                     <Link
-                      to="/department/production/scheduling"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/scheduling")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <Calendar size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Scheduling</span>}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/department/production/resources"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/resources")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <Users size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Resource Allocation</span>}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/department/production/assign-tasks"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/assign-tasks")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <CheckSquare size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Assign Tasks</span>}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
                       to="/department/production/workflow-tasks"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                         isActive("/department/production/workflow-tasks")
@@ -389,151 +469,266 @@ const DepartmentLayout = () => {
                       {!sidebarCollapsed && <span className="ml-3">Department Tasks</span>}
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      to="/department/production/outsource-tasks"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/outsource-tasks")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <Package size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Outsource Tasks</span>}
-                    </Link>
-                  </li>
                 </ul>
               </div>
             )}
 
-            {/* Production Execution Menu - Only show for Production department */}
+            {/* Production Tools Menu - Only show for Production department */}
             {getDepartmentRole().title === "Production" && (
+              <div className="hidden">
+                {/* Hidden until needed */}
+              </div>
+            )}
+
+            {/* Procurement Menu - Only show for Procurement department */}
+            {getDepartmentRole().title === "Procurement" && (
               <div>
                 <h6
                   className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
-                  {!sidebarCollapsed && "Execution & Tracking"}
+                  {!sidebarCollapsed && "Procurement"}
                 </h6>
                 <ul className="space-y-1">
                   <li>
                     <Link
-                      to="/department/production/active-stages"
+                      to="/department/procurement"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/active-stages")
+                        isActive("/department/procurement") || isActive("/department/procurement/dashboard")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Home size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/procurement/root-cards"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/procurement/root-cards")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
                       <Layers size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Active Stages</span>}
+                      {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/department/production/mes-tasks"
+                      to="/department/procurement/material-requests"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/mes-tasks")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <Activity size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">MES Tasks</span>}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/department/production/stage-progress"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/stage-progress")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <BarChart3 size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Stage Progress</span>}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/department/production/task-tracking"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/task-tracking")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <Activity size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Task Tracking</span>}
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            {/* Production Completion Menu - Only show for Production department */}
-            {getDepartmentRole().title === "Production" && (
-              <div>
-                <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
-                    sidebarCollapsed ? "text-center" : ""
-                  }`}
-                >
-                  {!sidebarCollapsed && "Completion & Delivery"}
-                </h6>
-                <ul className="space-y-1">
-                  <li>
-                    <Link
-                      to="/department/production/stage-details"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/stage-details")
+                        isActive("/department/procurement/material-requests")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
                       <ClipboardList size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Stage Details</span>}
+                      {!sidebarCollapsed && <span className="ml-3">Material Requests</span>}
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/department/production/specifications"
+                      to="/department/procurement/quotations"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/specifications")
+                        isActive("/department/procurement/quotations")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Layers size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Specifications</span>}
+                      <FileText size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Quotations</span>}
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/department/production/challans"
+                      to="/department/procurement/purchase-orders"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/challans")
+                        isActive("/department/procurement/purchase-orders")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <ShoppingCart size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Purchase Orders</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/procurement/vendors"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/procurement/vendors")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
                       <Truck size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Challans</span>}
+                      {!sidebarCollapsed && <span className="ml-3">Vendors</span>}
                     </Link>
                   </li>
+                </ul>
+              </div>
+            )}
+
+            {/* Inventory Stock Management Menu */}
+            {getDepartmentRole().title === "Inventory" && (
+              <div>
+                <h6
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                    sidebarCollapsed ? "text-center" : ""
+                  }`}
+                >
+                  {!sidebarCollapsed && "Stock Management"}
+                </h6>
+                <ul className="space-y-1">
                   <li>
                     <Link
-                      to="/department/production/performance"
+                      to="/department/inventory/stock/entries"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        isActive("/department/production/performance")
+                        isActive("/department/inventory/stock/entries")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <BarChart3 size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Performance</span>}
+                      <ClipboardList size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Stock Entries</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/inventory/stock/balance"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/inventory/stock/balance")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Package size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Stock Balance</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/inventory/stock/movements"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/inventory/stock/movements")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <RefreshCw size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Stock Movements</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/inventory/stock/reorder"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/inventory/stock/reorder")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <AlertCircle size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Reorder Levels</span>}
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            {/* Inventory Receiving & Quality Menu */}
+            {getDepartmentRole().title === "Inventory" && (
+              <div>
+                <h6
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                    sidebarCollapsed ? "text-center" : ""
+                  }`}
+                >
+                  {!sidebarCollapsed && "Receiving & Quality"}
+                </h6>
+                <ul className="space-y-1">
+                  <li>
+                    <Link
+                      to="/department/inventory/purchase-receipt"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/inventory/purchase-receipt")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Truck size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Purchase Receipt</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/inventory/grn-processing"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/inventory/grn-processing")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <CheckSquare size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">GRN Processing</span>}
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            {/* Inventory Logistics & Tasks Menu */}
+            {getDepartmentRole().title === "Inventory" && (
+              <div>
+                <h6
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                    sidebarCollapsed ? "text-center" : ""
+                  }`}
+                >
+                  {!sidebarCollapsed && "Logistics & Tasks"}
+                </h6>
+                <ul className="space-y-1">
+                  <li>
+                    <Link
+                      to="/department/inventory/warehouses"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/inventory/warehouses")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Warehouse size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Warehouses</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/inventory/tracking/inventory"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/inventory/tracking/inventory")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Activity size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Track Inventory</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/inventory/department-tasks"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        isActive("/department/inventory/department-tasks")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <ClipboardList size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Department Tasks</span>}
                     </Link>
                   </li>
                 </ul>

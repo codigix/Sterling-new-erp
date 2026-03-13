@@ -135,7 +135,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
 
   const fetchVendors = async () => {
     try {
-      const response = await axios.get("/inventory/vendors");
+      const response = await axios.get("/department/procurement/vendors");
       setVendors(response.data.vendors || response.data || []);
     } catch (error) {
       console.error("Error fetching vendors:", error);
@@ -144,7 +144,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
 
   const fetchMaterialRequests = async () => {
     try {
-      const response = await axios.get("/inventory/material-requests");
+      const response = await axios.get("/department/procurement/material-requests");
       // Filter for pending/approved but not fully ordered MRs
       const mrs = response.data.materialRequests || response.data || [];
       setMaterialRequests(mrs.filter(mr => mr.status !== 'ordered' && mr.status !== 'closed'));
@@ -155,7 +155,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
 
   const fetchQuotations = async () => {
     try {
-      const response = await axios.get("/inventory/quotations");
+      const response = await axios.get("/department/procurement/quotations");
       // Filter for approved quotations
       const qts = response.data.quotations || response.data || [];
       setQuotations(qts.filter(q => q.status === 'approved' || q.status === 'pending'));
@@ -265,11 +265,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       let response;
       if (editData) {
         // Update existing PO
-        response = await axios.put(`/inventory/purchase-orders/${editData.id}`, formData);
+        response = await axios.put(`/department/procurement/purchase-orders/${editData.id}`, formData);
         toastUtils.success("Purchase Order updated successfully");
       } else {
         // Create new PO
-        response = await axios.post("/inventory/purchase-orders", formData);
+        response = await axios.post("/department/procurement/purchase-orders", formData);
         toastUtils.success("Purchase Order created successfully");
 
         // If we are coming from workflow tasks, complete the "Create Purchase Order" task
@@ -286,7 +286,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       onClose();
       
       if (!editData) {
-        navigate(`/inventory-manager/purchase-orders/${response.data.id || response.data.po_number}`);
+        navigate(`/department/procurement/purchase-orders/${response.data.id || response.data.po_number}`);
       }
     } catch (error) {
       console.error("Error saving PO:", error);

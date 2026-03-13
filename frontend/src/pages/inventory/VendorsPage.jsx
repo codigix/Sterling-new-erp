@@ -54,7 +54,7 @@ const VendorsPage = () => {
       }
 
       const response = await axios.get(
-        `inventory/vendors?${params}`
+        `department/procurement/vendors?${params}`
       );
       setVendors(response.data);
       setError(null);
@@ -68,7 +68,7 @@ const VendorsPage = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await axios.get(`inventory/vendors/stats`);
+      const response = await axios.get(`department/procurement/vendors/stats`);
       setStats(response.data);
     } catch (err) {
       console.error("Error fetching stats:", err);
@@ -78,7 +78,7 @@ const VendorsPage = () => {
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(
-        `inventory/vendors/categories`
+        `department/procurement/vendors/categories`
       );
       const categoryData = response.data
         .map((cat) => cat.category)
@@ -92,7 +92,7 @@ const VendorsPage = () => {
   const fetchVendorById = useCallback(
     async (id) => {
       try {
-        const response = await axios.get(`inventory/vendors/${id}`);
+        const response = await axios.get(`department/procurement/vendors/${id}`);
         return response.data;
       } catch (err) {
         console.error("Error fetching vendor:", err);
@@ -111,7 +111,7 @@ const VendorsPage = () => {
   const handleDeleteVendor = async (id) => {
     if (window.confirm("Are you sure you want to delete this vendor?")) {
       try {
-        await axios.delete(`inventory/vendors/${id}`);
+        await axios.delete(`department/procurement/vendors/${id}`);
         toastUtils.success("Vendor deleted successfully");
         fetchVendors();
       } catch (err) {
@@ -152,7 +152,7 @@ const VendorsPage = () => {
         rating: formData.rating ? parseFloat(formData.rating) : 0,
       };
 
-      await axios.post(`inventory/vendors`, payload);
+      await axios.post(`department/procurement/vendors`, payload);
 
       setShowAddModal(false);
       setFormData({
@@ -213,7 +213,7 @@ const VendorsPage = () => {
       };
 
       await axios.put(
-        `inventory/vendors/${editingVendor.id}`,
+        `department/procurement/vendors/${editingVendor.id}`,
         payload
       );
 

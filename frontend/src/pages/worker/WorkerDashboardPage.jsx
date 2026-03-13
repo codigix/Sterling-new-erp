@@ -75,7 +75,7 @@ const WorkerDashboardPage = () => {
       dueDate: "2025-12-19",
       priority: "medium",
       status: "completed",
-      assignedBy: "Inventory Manager",
+      assignedBy: "Inventory",
     },
   ];
 

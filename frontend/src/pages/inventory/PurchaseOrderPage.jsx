@@ -118,7 +118,7 @@ const KanbanView = ({
                         <button
                           onClick={() =>
                             navigate(
-                              `/inventory-manager/purchase-orders/${po.id}`,
+                              `/department/procurement/purchase-orders/${po.id}`,
                             )
                           }
                           className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight"
@@ -129,7 +129,7 @@ const KanbanView = ({
                           <button
                             onClick={() =>
                               navigate(
-                                `/inventory-manager/purchase-orders/${po.id}`,
+                                `/department/procurement/purchase-orders/${po.id}`,
                               )
                             }
                             className="p-1 text-slate-400 hover:text-blue-600 rounded transition-all"
@@ -183,7 +183,7 @@ const KanbanView = ({
                             po.status === "delivered") && (
                             <button
                               onClick={() =>
-                                navigate("/inventory-manager/grn-processing", {
+                                navigate("/department/inventory/grn-processing", {
                                   state: { po_number: po.po_number },
                                 })
                               }
@@ -300,7 +300,7 @@ const PurchaseOrderPage = () => {
   const fetchPurchaseOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/inventory/purchase-orders");
+      const response = await axios.get("/department/procurement/purchase-orders");
       setPurchaseOrders(response.data.purchaseOrders || response.data);
     } catch (error) {
       console.error("Error fetching purchase orders:", error);
@@ -313,7 +313,7 @@ const PurchaseOrderPage = () => {
   const fetchStats = async () => {
     try {
       const response = await axios.get(
-        "/inventory/purchase-orders/stats/summary",
+        "/department/procurement/purchase-orders/stats/summary",
       );
       setStats(response.data);
     } catch (error) {
@@ -421,7 +421,7 @@ const PurchaseOrderPage = () => {
       poNumber: po.po_number,
       email: po.vendor_email || "",
       subject: `Purchase Order ${po.po_number} from Sterling`,
-      message: `Dear ${po.vendor_name || "Vendor"},\n\nPlease find attached the Purchase Order ${po.po_number}.\n\nBest regards,\nNobal Casting`,
+      message: `Dear ${po.vendor_name || "Vendor"},\n\nPlease find attached the Purchase Order ${po.po_number}.\n\nBest regards,\nSterling`,
       po: po, // Store the whole po object to generate PDF later
     });
     setShowEmailModal(true);
@@ -445,7 +445,7 @@ const PurchaseOrderPage = () => {
     try {
       setFetchingCommunications(true);
       const response = await axios.get(
-        `/inventory/purchase-orders/${poId}/communications`,
+        `/department/procurement/purchase-orders/${poId}/communications`,
       );
       setCommunications(response.data);
     } catch (error) {
@@ -458,7 +458,7 @@ const PurchaseOrderPage = () => {
   const downloadAttachment = async (attachmentId, fileName) => {
     try {
       const response = await axios.get(
-        `/inventory/purchase-orders/attachments/${attachmentId}/download`,
+        `/department/procurement/purchase-orders/attachments/${attachmentId}/download`,
         {
           responseType: "blob",
         },
@@ -484,7 +484,7 @@ const PurchaseOrderPage = () => {
       const doc = await generatePOPDF(emailData.po);
       const pdfBase64 = doc.output("datauristring");
 
-      await axios.post(`/inventory/purchase-orders/${emailData.poId}/email`, {
+      await axios.post(`/department/procurement/purchase-orders/${emailData.poId}/email`, {
         ...emailData,
         pdfBase64,
       });
@@ -492,7 +492,7 @@ const PurchaseOrderPage = () => {
       // Update status to submitted if it was draft
       if (emailData.po.status === "draft") {
         await axios.patch(
-          `/inventory/purchase-orders/${emailData.poId}/status`,
+          `/department/procurement/purchase-orders/${emailData.poId}/status`,
           { status: "submitted" },
         );
       }
@@ -521,7 +521,7 @@ const PurchaseOrderPage = () => {
   });
 
   const handleEditPO = (po) => {
-    navigate(`/inventory-manager/purchase-orders/edit/${po.id}`);
+    navigate(`/department/procurement/purchase-orders/edit/${po.id}`);
   };
 
   const handleApprovePO = async (po) => {
@@ -537,7 +537,7 @@ const PurchaseOrderPage = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.patch(`/inventory/purchase-orders/${po.id}/status`, {
+        await axios.patch(`/department/procurement/purchase-orders/${po.id}/status`, {
           status: "approved",
         });
         toastUtils.success("Purchase order has been approved and GRN created.");
@@ -636,7 +636,7 @@ const PurchaseOrderPage = () => {
                   onClick={() => {
                     toastUtils.info("Redirecting to Material Requests page...");
                     setTimeout(() => {
-                      navigate("/inventory-manager/material-requests");
+                      navigate("/inventory/material-requests");
                     }, 1500);
                     setShowCreateOptions(false);
                   }}
@@ -862,7 +862,7 @@ const PurchaseOrderPage = () => {
                         <button
                           onClick={() =>
                             navigate(
-                              `/inventory-manager/purchase-orders/${po.id}`,
+                              `/department/procurement/purchase-orders/${po.id}`,
                             )
                           }
                           className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight block mb-0.5"
@@ -976,7 +976,7 @@ const PurchaseOrderPage = () => {
                           <button
                             onClick={() =>
                               navigate(
-                                `/inventory-manager/purchase-orders/${po.id}`,
+                                `/department/procurement/purchase-orders/${po.id}`,
                               )
                             }
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
@@ -1032,7 +1032,7 @@ const PurchaseOrderPage = () => {
                             po.status === "delivered") && (
                             <button
                               onClick={() =>
-                                navigate("/inventory-manager/grn-processing", {
+                                navigate("/department/inventory/grn-processing", {
                                   state: { po_number: po.po_number },
                                 })
                               }

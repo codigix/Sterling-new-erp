@@ -261,7 +261,7 @@ const ProductionTasksPage = () => {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h4 className="text-lg font-bold text-slate-900 dark:text-white">
-                        {productDetails.itemName || rc.title || 'Untitled Card'}
+                        {(productDetails.itemName || rc.title || 'Untitled Card').replace(/^RC-\d{4}\s*[-:]\s*/i, '')}
                       </h4>
                       <p className="text-sm text-slate-600 dark:text-slate-400">
                         {step1.projectName || rc.projectDetails?.name || rc.project_name || 'N/A'}

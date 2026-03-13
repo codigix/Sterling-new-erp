@@ -184,16 +184,6 @@ const RootCardBuilderPage = () => {
       ),
     },
     {
-      key: 'customer',
-      label: 'Customer',
-      sortable: true,
-      render: (value, row) => (
-        <span className="text-slate-600 dark:text-slate-400">
-          {value || row.steps?.step1_clientPO?.clientName || row.rootCardDetails?.customer || row.customer_name || '-'}
-        </span>
-      ),
-    },
-    {
       key: 'assignedSteps',
       label: 'Assigned Steps',
       sortable: false,
@@ -215,17 +205,6 @@ const RootCardBuilderPage = () => {
       ),
     },
     {
-      key: 'total',
-      label: 'Amount',
-      sortable: true,
-      render: (value, row) => (
-        <div className="flex items-center gap-1 text-slate-900 dark:text-white font-medium">
-          <IndianRupee size={12} className="text-green-600 dark:text-green-400" />
-          <span>{formatIndianCurrency(value || row.rootCardDetails?.total)}</span>
-        </div>
-      ),
-    },
-    {
       key: 'status',
       label: 'Status',
       sortable: true,
@@ -233,16 +212,6 @@ const RootCardBuilderPage = () => {
         <Badge className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(value)}`}>
           {getStatusLabel(value)}
         </Badge>
-      ),
-    },
-    {
-      key: 'priority',
-      label: 'Priority',
-      sortable: true,
-      render: (value) => (
-        <span className={`text-[10px] font-bold ${getPriorityColor(value)}`}>
-          {value ? value.toUpperCase() : '-'}
-        </span>
       ),
     },
   ];

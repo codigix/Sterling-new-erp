@@ -6,6 +6,7 @@ import DataTable from '../../ui/DataTable/DataTable';
 import { STATUS_LEVELS } from '../RootCardForm/constants';
 import Swal from 'sweetalert2';
 import { showSuccess, showError } from '../../../utils/toastUtils';
+import { useAuth } from '../../../context/AuthContext';
 import {
   Plus,
   Eye,
@@ -16,31 +17,18 @@ import {
   AlertCircle,
   CheckCircle2,
   Filter,
-  IndianRupee,
   ChevronDown,
   Loader2,
 } from 'lucide-react';
 
-const formatIndianCurrency = (value) => {
-  const num = parseInt(value);
-  if (num < 1000) return num.toString();
-  if (num < 100000) {
-    const k = (num / 1000).toFixed(num % 1000 === 0 ? 0 : 1);
-    return `${k}K`;
-  }
-  if (num < 10000000) {
-    const lc = (num / 100000).toFixed(num % 100000 === 0 ? 0 : 1);
-    return `${lc}Lc`;
-  }
-  const cr = (num / 10000000).toFixed(num % 10000000 === 0 ? 0 : 1);
-  return `${cr}Cr`;
-};
-
-const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDesignEngineering, refreshTrigger = 0 }) => {
+const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDesignEngineering, onSendToProduction, refreshTrigger = 0 }) => {
   const [rootCards, setRootCards] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const { user } = useAuth();
+
+  const isAdmin = user?.role?.toLowerCase() === 'admin';
 
   useEffect(() => {
     const fetchRootCards = async () => {
@@ -89,32 +77,16 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
   };
 
   const handleDownload = (rootCard) => {
-    const formatDate = (dateString) => {
-      const date = new Date(dateString);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    };
-
     const data = {
       poNumber: rootCard.po_number,
-      clientName: rootCard.customer,
-      orderDate: formatDate(rootCard.order_date),
-      dueDate: formatDate(rootCard.due_date),
-      total: `₹ ${formatIndianCurrency(rootCard.total)}`,
+      projectName: rootCard.project_name,
       status: rootCard.status,
-      priority: rootCard.priority,
     };
 
     const csvContent = [
       ['PO Number', data.poNumber],
-      ['Client Name', data.clientName],
-      ['Order Date', data.orderDate],
-      ['Due Date', data.dueDate],
-      ['Total Amount', data.total],
+      ['Project Name', data.projectName],
       ['Status', data.status],
-      ['Priority', data.priority],
     ]
       .map((row) => row.join(','))
       .join('\n');
@@ -149,73 +121,57 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
 
   const columns = [
     {
-      key: 'po_number',
-      label: 'PO No & Project',
+      key: 'project_name',
+      label: 'Project Name & Code',
       sortable: true,
       render: (value, row) => (
         <div className="flex flex-col gap-1">
           <span className="font-semibold text-slate-900 dark:text-white">
-            {value}
+            {value || '-'}
           </span>
           <span className="text-xs text-slate-600 dark:text-slate-400">
-            {row.project_name || '-'}
+            {row.project_code || '-'}
           </span>
         </div>
       ),
     },
     {
-      key: 'customer',
-      label: 'Client',
+      key: 'po_number',
+      label: 'PO Number',
       sortable: true,
     },
     {
-      key: 'order_date',
-      label: 'Order Date',
+      key: 'po_date',
+      label: 'PO Date',
       sortable: true,
       render: (value) => {
-        const date = new Date(value);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return (
-          <span className="text-slate-600 dark:text-slate-400 text-xs">
-            {`${day}/${month}/${year}`}
-          </span>
-        );
+        if (!value) return '-';
+        const d = new Date(value);
+        if (isNaN(d.getTime())) return '-';
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${day}-${month}-${year}`;
       },
     },
     {
-      key: 'due_date',
-      label: 'Est. Date',
+      key: 'delivery_date',
+      label: 'Delivery Date',
       sortable: true,
       render: (value) => {
-        const date = new Date(value);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return (
-          <span className="text-slate-600 dark:text-slate-400 text-xs">
-            {`${day}/${month}/${year}`}
-          </span>
-        );
+        if (!value) return '-';
+        const d = new Date(value);
+        if (isNaN(d.getTime())) return '-';
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${day}-${month}-${year}`;
       },
     },
     {
-      key: 'priority',
-      label: 'Priority',
+      key: 'quantity',
+      label: 'QTY',
       sortable: true,
-      render: (value) => {
-        const priorityBg = {
-          low: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100',
-          medium: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100',
-          high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100',
-        };
-        return (
-          <span className={`inline-block p-1 rounded text-xxs font-medium ${priorityBg[value] || 'bg-slate-100 text-slate-800'}`}>
-            {value?.charAt(0).toUpperCase() + value?.slice(1)}
-          </span>
-        );
-      },
     },
     {
       key: 'status',
@@ -223,43 +179,53 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
       sortable: true,
       render: (value, row) => {
         const statusColors = {
-          draft: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100',
-          pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100',
-          ready_to_start: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100',
-          assigned: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-100',
-          approved: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100',
-          in_progress: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100',
-          on_hold: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100',
-          critical: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100',
-          completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100',
-          delivered: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100',
+          pending: 'bg-slate-100 text-slate-900 border-slate-300',
+          RC_CREATED: 'bg-slate-100 text-slate-900 border-slate-300',
+          DESIGN_IN_PROGRESS: 'bg-blue-50 text-blue-700 border-blue-200',
+          DESIGN_APPROVED: 'bg-green-50 text-green-700 border-green-200',
+          BOM_PREPARATION: 'bg-purple-50 text-purple-700 border-purple-200',
+          PROCUREMENT_IN_PROGRESS: 'bg-orange-50 text-orange-700 border-orange-200',
+          MATERIAL_RECEIVED: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+          MATERIAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+          MATERIAL_QC_APPROVED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          PRODUCTION_IN_PROGRESS: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+          DIMENSIONAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+          DIMENSIONAL_QC_APPROVED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          PAINTING_IN_PROGRESS: 'bg-pink-50 text-pink-700 border-pink-200',
+          FINAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+          FINAL_QC_APPROVED: 'bg-green-50 text-green-700 border-green-200',
+          READY_FOR_DELIVERY: 'bg-teal-50 text-teal-700 border-teal-200',
         };
+
+        const colorClass = statusColors[value] || statusColors.RC_CREATED;
+
+        if (!isAdmin) {
+          const level = STATUS_LEVELS.find(l => l.value === (value || 'RC_CREATED'));
+          return (
+            <span className={`px-2 py-1 rounded text-xxs font-bold border ${colorClass}`}>
+              {level ? level.label : (value || 'Created')}
+            </span>
+          );
+        }
+
         return (
-          <select
-            value={value || 'pending'}
-            onChange={(e) => handleStatusChange(row.id, e.target.value)}
-            disabled={updatingStatus === row.id}
-            className={`px-2 py-1 rounded text-xxs font-medium border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${statusColors[value] || statusColors.pending} disabled:opacity-50`}
-          >
-            {STATUS_LEVELS.map((level) => (
-              <option key={level.value} value={level.value}>
-                {level.label}
-              </option>
-            ))}
-          </select>
+          <div className={`px-2 py-0.5 rounded border ${colorClass}`}>
+            <select
+              value={value || 'RC_CREATED'}
+              onChange={(e) => handleStatusChange(row.id, e.target.value)}
+              disabled={updatingStatus === row.id}
+              className="bg-transparent text-xxs font-bold focus:outline-none cursor-pointer disabled:opacity-50 w-full appearance-none outline-none border-none py-0.5"
+              style={{ color: 'inherit' }}
+            >
+              {STATUS_LEVELS.map((level) => (
+                <option key={level.value} value={level.value} className="text-slate-900 bg-white">
+                  {level.label}
+                </option>
+              ))}
+            </select>
+          </div>
         );
       },
-    },
-    {
-      key: 'total',
-      label: 'Amount',
-      sortable: true,
-      render: (value, row) => (
-        <div className="flex items-center gap-1 text-slate-900 dark:text-white font-medium text-xs">
-          <IndianRupee className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-          <span> {formatIndianCurrency(value)}</span>
-        </div>
-      ),
     },
     {
       key: 'id',
@@ -297,26 +263,42 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
           >
             <Download className="w-3 h-3 text-purple-600" />
           </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onSendToDesignEngineering(row);
-            }}
-            title="Send to Design Engineering"
-            className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
-          >
-            <Send className="w-3 h-3 text-purple-600" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(row.id);
-            }}
-            title="Delete"
-            className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition"
-          >
-            <Trash2 className="w-3 h-3 text-red-600" />
-          </button>
+          {onSendToProduction && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSendToProduction(row);
+              }}
+              title="Send to Production"
+              className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition"
+            >
+              <Send className="w-3 h-3 text-green-600" />
+            </button>
+          )}
+          {isAdmin && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSendToDesignEngineering(row);
+                }}
+                title="Send to Design Engineering"
+                className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
+              >
+                <Send className="w-3 h-3 text-purple-600" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(row.id);
+                }}
+                title="Delete"
+                className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition"
+              >
+                <Trash2 className="w-3 h-3 text-red-600" />
+              </button>
+            </>
+          )}
         </div>
       ),
     },
@@ -334,30 +316,38 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
             Manage and track all root cards
           </p>
         </div>
-        <Button
-          onClick={onCreateNew}
-          className="flex items-center text-xs gap-1 text-sm px-3 py-2 h-auto"
-        >
-          <Plus className="w-3 h-3" />
-          New Root Card
-        </Button>
+        {isAdmin && (
+          <Button
+            onClick={onCreateNew}
+            className="flex items-center text-xs gap-1 text-sm px-3 py-2 h-auto"
+          >
+            <Plus className="w-3 h-3" />
+            New Root Card
+          </Button>
+        )}
       </div>
 
       {/* Filter Pills */}
       <div className="flex items-center text-xs gap-2">
         <Filter className="w-3 h-3 text-slate-500 flex-shrink-0" />
         <div className="flex gap-1 flex-wrap">
-          {['all', 'pending', 'approved', 'completed'].map((status) => (
+          {[
+            { value: 'all', label: 'All Root Cards' },
+            { value: 'RC_CREATED', label: 'Created' },
+            { value: 'DESIGN_IN_PROGRESS', label: 'In Design' },
+            { value: 'PRODUCTION_IN_PROGRESS', label: 'In Production' },
+            { value: 'READY_FOR_DELIVERY', label: 'Ready' }
+          ].map((status) => (
             <button
-              key={status}
-              onClick={() => setFilter(status)}
+              key={status.value}
+              onClick={() => setFilter(status.value)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                filter === status
+                filter === status.value
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
               }`}
             >
-              {status === 'all' ? 'All Root Cards' : status.charAt(0).toUpperCase() + status.slice(1)}
+              {status.label}
             </button>
           ))}
         </div>

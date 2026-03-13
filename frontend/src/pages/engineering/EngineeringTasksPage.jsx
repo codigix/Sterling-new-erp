@@ -113,7 +113,7 @@ const EngineeringTasksPage = () => {
   const handleCreateBOMRedirect = () => {
     if (!selectedRootCard) return;
     const rc = rootCards.find(r => r.id === selectedRootCard);
-    navigate(`/design-engineer/bom/create?rootCardId=${selectedRootCard}&projectId=${rc?.project_id || ''}`);
+    navigate(`/department/production/bom/create?rootCardId=${selectedRootCard}&projectId=${rc?.project_id || ''}`);
   };
 
   const getDocumentTypeLabel = (type) => {
@@ -182,11 +182,16 @@ const EngineeringTasksPage = () => {
           onChange={(e) => setSelectedRootCard(Number(e.target.value))}
           className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
         >
-          {rootCards.map(order => (
-            <option key={order.id} value={order.id}>
-              RC-{String(order.id).padStart(4, '0')} - {order.customer}
-            </option>
-          ))}
+          {rootCards.map(order => {
+            const baseName = order.project_name || order.po_number || order.customer || "";
+            // Remove RC-XXXX pattern from the start of the string if it exists
+            const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
+            return (
+              <option key={order.id} value={order.id}>
+                {displayName || baseName || `Root Card ${order.id}`}
+              </option>
+            );
+          })}
         </select>
       </div>
 
@@ -384,7 +389,7 @@ const EngineeringTasksPage = () => {
                       <td className="p-1">
                         <div className="flex gap-2">
                           <Link 
-                            to={`/design-engineer/bom/view?bomId=${bom.id}`}
+                            to={`/department/production/bom/view?bomId=${bom.id}`}
                             className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors"
                           >
                             <Eye size={16} />

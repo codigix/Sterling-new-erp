@@ -25,8 +25,8 @@ const InventoryTasksPage = () => {
       try {
         setLoading(true);
         const [stockRes, issuanceRes] = await Promise.all([
-          axios.get("/inventory/portal/stock"),
-          axios.get("/inventory/portal/issuances"),
+          axios.get("/department/inventory/portal/stock"),
+          axios.get("/department/inventory/portal/issuances"),
         ]);
         setStock(stockRes.data.stock || []);
         setIssuances(issuanceRes.data || []);

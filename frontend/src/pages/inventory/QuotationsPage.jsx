@@ -51,7 +51,13 @@ const QuotationsPage = ({ defaultTab }) => {
   }, [defaultTab]);
 
   useEffect(() => {
-    if (location.state?.openModal && location.state?.preFilledMaterials) {
+    if (location.state?.openModal) {
+      if (location.state.initialData) {
+        setInitialData(location.state.initialData);
+      }
+      if (location.state.preFilledMaterials) {
+        // Handle pre-filled materials if needed separately
+      }
       setShowAddModal(true);
     } else {
       const mrId = searchParams.get("materialRequestId") || searchParams.get("mrId");
@@ -60,7 +66,7 @@ const QuotationsPage = ({ defaultTab }) => {
       if (mrId && activeTab === "outbound" && action !== "record") {
         if (action === "send") {
           // Find existing quotation for this MR and open send modal
-          axios.get(`/inventory/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
+          axios.get(`/department/procurement/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
             const existingQuotes = response.data;
             if (existingQuotes && existingQuotes.length > 0) {
               const quote = existingQuotes[0]; // Take the latest or first
@@ -76,7 +82,7 @@ const QuotationsPage = ({ defaultTab }) => {
       } else if (mrId && activeTab === "inbound" && action === "record") {
         // Find existing quotation for this MR and open record response modal
         // We filter for outbound (RFQs) that are either 'pending' or 'sent'
-        axios.get(`/inventory/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
+        axios.get(`/department/procurement/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
           const existingQuotes = response.data;
           if (existingQuotes && existingQuotes.length > 0) {
             // Try to find the first one that is 'sent', otherwise take the latest
@@ -92,7 +98,7 @@ const QuotationsPage = ({ defaultTab }) => {
   }, [location.state, searchParams, activeTab]);
 
   const fetchMRAndOpenAddModal = (mrId, type = "outbound") => {
-    axios.get(`/inventory/material-requests/${mrId}`).then(response => {
+    axios.get(`/department/procurement/material-requests/${mrId}`).then(response => {
       const mr = response.data.materialRequest;
       if (mr && mr.items) {
         const items = Array.isArray(mr.items) ? mr.items : JSON.parse(mr.items || "[]");
@@ -120,9 +126,9 @@ const QuotationsPage = ({ defaultTab }) => {
     setActiveTab(tab);
     const searchString = location.search;
     if (tab === "outbound") {
-      navigate(`/inventory-manager/quotations/sent${searchString}`);
+      navigate(`/department/procurement/quotations/sent${searchString}`);
     } else {
-      navigate(`/inventory-manager/quotations/received${searchString}`);
+      navigate(`/department/procurement/quotations/received${searchString}`);
     }
   };
   const [stats, setStats] = useState({});
@@ -160,7 +166,7 @@ const QuotationsPage = ({ defaultTab }) => {
       
       params.append("type", activeTab);
 
-      const response = await axios.get(`/inventory/quotations?${params}`);
+      const response = await axios.get(`/department/procurement/quotations?${params}`);
       setQuotations(response.data);
       setError(null);
     } catch (err) {
@@ -173,7 +179,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await axios.get("/inventory/quotations/stats");
+      const response = await axios.get("/department/procurement/quotations/stats");
       setStats(response.data);
     } catch (err) {
       console.error("Error fetching quotation stats:", err);
@@ -182,7 +188,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const fetchVendors = useCallback(async () => {
     try {
-      const response = await axios.get("/inventory/vendors");
+      const response = await axios.get("/department/procurement/vendors");
       setVendors(response.data);
     } catch (err) {
       console.error("Error fetching vendors:", err);
@@ -200,7 +206,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const fetchMaterialRequests = useCallback(async () => {
     try {
-      const response = await axios.get("/inventory/material-requests");
+      const response = await axios.get("/department/procurement/material-requests");
       setMaterialRequests(response.data.materialRequests || response.data || []);
     } catch (err) {
       console.error("Error fetching material requests:", err);
@@ -232,8 +238,8 @@ const QuotationsPage = ({ defaultTab }) => {
           params.append("type", activeTab);
 
           const [qRes, sRes] = await Promise.all([
-            axios.get(`/inventory/quotations?${params}`),
-            axios.get("/inventory/quotations/stats")
+            axios.get(`/department/procurement/quotations?${params}`),
+            axios.get("/department/procurement/quotations/stats")
           ]);
           setQuotations(qRes.data);
           setStats(sRes.data);
@@ -253,7 +259,7 @@ const QuotationsPage = ({ defaultTab }) => {
       interval = setInterval(async () => {
         try {
           const response = await axios.get(
-            `/inventory/quotations/${selectedQuotationForComms.id}/communications`
+            `/department/procurement/quotations/${selectedQuotationForComms.id}/communications`
           );
           setCommunications(response.data || []);
         } catch (error) {
@@ -280,12 +286,12 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const handleViewQuotation = async (quotation) => {
     try {
-      const response = await axios.get(`/inventory/quotations/${quotation.id}`);
-      const doc = await generateQuotationPDF(response.data);
-      window.open(doc.output("bloburl"), "_blank");
+      const response = await axios.get(`/department/procurement/quotations/${quotation.id}`);
+      setSelectedQuotation(response.data);
+      setShowViewModal(true);
     } catch (err) {
-      console.error("Error viewing quotation PDF:", err);
-      Swal.fire("Error", "Failed to generate quotation PDF", "error");
+      console.error("Error viewing quotation detail:", err);
+      Swal.fire("Error", "Failed to load quotation details", "error");
     }
   };
 
@@ -414,7 +420,7 @@ const QuotationsPage = ({ defaultTab }) => {
     setLoadingCommunications(true);
     try {
       const response = await axios.get(
-        `/inventory/quotations/${quotation.id}/communications`
+        `/department/inventory/quotations/${quotation.id}/communications`
       );
       setCommunications(response.data || []);
     } catch (error) {
@@ -433,7 +439,7 @@ const QuotationsPage = ({ defaultTab }) => {
   const handleDownloadAttachment = async (attachmentId, fileName) => {
     try {
       const response = await axios.get(
-        `/inventory/quotations/attachments/${attachmentId}/download`,
+        `/department/inventory/quotations/attachments/${attachmentId}/download`,
         {
           responseType: "blob",
         }
@@ -467,14 +473,14 @@ const QuotationsPage = ({ defaultTab }) => {
       const doc = await generateQuotationPDF(quotation);
       const pdfBase64 = doc.output("datauristring");
 
-      await axios.post(`/inventory/quotations/${quotation.id}/email`, {
+      await axios.post(`/department/inventory/quotations/${quotation.id}/email`, {
         email: emailData.email,
         subject: emailData.subject,
         message: emailData.message,
         pdfBase64,
       });
 
-      await axios.patch(`/inventory/quotations/${quotation.id}/status`, {
+      await axios.patch(`/department/inventory/quotations/${quotation.id}/status`, {
         status: "sent",
       });
 
@@ -510,7 +516,7 @@ const QuotationsPage = ({ defaultTab }) => {
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`/inventory/quotations/${id}`);
+      await axios.delete(`/department/inventory/quotations/${id}`);
       fetchQuotations();
       fetchStats();
       Swal.fire("Deleted!", "Quotation deleted successfully.", "success");
@@ -523,7 +529,7 @@ const QuotationsPage = ({ defaultTab }) => {
   const handleInlineStatusUpdate = async (quoteId, newStatus) => {
     try {
       setUpdatingStatusId(quoteId);
-      await axios.patch(`/inventory/quotations/${quoteId}/status`, {
+      await axios.patch(`/department/inventory/quotations/${quoteId}/status`, {
         status: newStatus,
       });
       
@@ -592,7 +598,7 @@ const QuotationsPage = ({ defaultTab }) => {
         notes: `Created from Quotation: ${quote.quotation_number}`,
       };
 
-      const response = await axios.post("/inventory/purchase-orders", payload);
+      const response = await axios.post("/department/inventory/purchase-orders", payload);
 
       // If we are coming from workflow tasks, complete the "Create Purchase Order" task
       if (isFromDepartmentTasks()) {
@@ -610,7 +616,7 @@ const QuotationsPage = ({ defaultTab }) => {
         text: `Purchase Order ${response.data.po_number} has been created successfully.`,
         confirmButtonColor: "#2563eb",
       }).then(() => {
-        navigate(`/inventory-manager/purchase-orders/${response.data.id}${location.search}`);
+        navigate(`/department/inventory/purchase-orders/${response.data.id}${location.search}`);
       });
     } catch (error) {
       console.error("Error creating PO from quote:", error);
@@ -1231,11 +1237,18 @@ const QuotationsPage = ({ defaultTab }) => {
             </div>
 
             <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-8 py-4 flex justify-end gap-3">
+              <button
+                onClick={() => handleViewQuotationPDF(selectedQuotation)}
+                className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium flex items-center gap-2"
+              >
+                <Download size={18} />
+                Download PDF
+              </button>
               {selectedQuotation.type !== "outbound" && (
                 <button
                   onClick={() => {
                     setShowViewModal(false);
-                    navigate(`/inventory-manager/purchase-orders${location.search}`, {
+                    navigate(`/department/inventory/purchase-orders${location.search}`, {
                       state: { quotation: selectedQuotation },
                     });
                   }}

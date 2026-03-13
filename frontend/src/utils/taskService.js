@@ -82,7 +82,7 @@ export const taskService = {
         return null;
       }
       const response = await axios.patch(
-        `/inventory/root-card-tasks/root-card/${rootCardId}/task/${taskId}/complete`,
+        `/department/procurement/root-card-tasks/root-card/${rootCardId}/task/${taskId}/complete`,
         { notes }
       );
       return response.data;
@@ -101,7 +101,7 @@ export const taskService = {
         throw new Error("Invalid status value");
       }
       const response = await axios.patch(
-        `/inventory/root-card-tasks/root-card/${rootCardId}/task/${taskId}/status`,
+        `/department/procurement/root-card-tasks/root-card/${rootCardId}/task/${taskId}/status`,
         { status }
       );
       return response.data;
@@ -124,7 +124,7 @@ export const taskService = {
         // from the task details or MR if this is an MR-based workflow
         if (!finalRootCardId && mrId) {
           try {
-            const response = await axios.get(`/inventory/material-requests/${mrId}`);
+            const response = await axios.get(`/department/procurement/material-requests/${mrId}`);
             const mr = response.data.materialRequest;
             finalRootCardId = mr?.sales_order_id || mr?.root_card_id;
           } catch (e) {
@@ -268,7 +268,7 @@ export const taskService = {
         throw new Error("Material Request ID is required");
       }
       const response = await axios.post(
-        `/inventory/root-card-tasks/mr/${mrId}/initialize`
+        `/department/inventory/root-card-tasks/mr/${mrId}/initialize`
       );
       return response.data;
     } catch (error) {

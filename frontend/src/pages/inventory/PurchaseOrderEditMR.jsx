@@ -144,7 +144,7 @@ const PurchaseOrderEditMR = () => {
     try {
       await axios.put(`/inventory/purchase-orders/${id}`, formData);
       toastUtils.success("Purchase Order updated successfully");
-      navigate(`/inventory-manager/purchase-orders/${id}`);
+      navigate(`/inventory/purchase-orders/${id}`);
     } catch (error) {
       console.error("Error updating PO:", error);
       toastUtils.error(error.response?.data?.message || "Failed to update Purchase Order");

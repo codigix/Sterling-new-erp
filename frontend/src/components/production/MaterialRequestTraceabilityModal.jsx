@@ -17,7 +17,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`/inventory/material-requests/production-plan/${planId}`);
+      const response = await axios.get(`/department/inventory/material-requests/production-plan/${planId}`);
       setRequests(response.data.materialRequests || []);
     } catch (err) {
       console.error("Error fetching material requests for plan:", err);

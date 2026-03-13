@@ -7,8 +7,8 @@ export const DEPARTMENT_MANAGERS = {
   },
   materialRequirements: {
     department: 'Inventory Management',
-    manager: 'Inventory Manager',
-    defaultManager: 'inventory.manager',
+    manager: 'Inventory',
+    defaultManager: 'inventory',
     color: 'bg-blue-50 border-blue-200'
   },
   productionPlan: {
@@ -23,16 +23,4 @@ export const DEPARTMENT_MANAGERS = {
     defaultManager: 'qc.manager',
     color: 'bg-green-50 border-green-200'
   },
-  shipment: {
-    department: 'Logistics',
-    manager: 'Logistics Manager',
-    defaultManager: 'inventory.manager',
-    color: 'bg-yellow-50 border-yellow-200'
-  },
-  delivery: {
-    department: 'Delivery',
-    manager: 'Logistics Manager',
-    defaultManager: 'inventory.manager',
-    color: 'bg-red-50 border-red-200'
-  }
 };

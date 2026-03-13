@@ -44,7 +44,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
 
   const fetchVendors = async () => {
     try {
-      const response = await axios.get('/inventory/vendors');
+      const response = await axios.get('/department/inventory/vendors');
       setVendors(response.data || []);
     } catch (err) {
       console.error('Error fetching vendors:', err);

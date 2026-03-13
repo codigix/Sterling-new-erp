@@ -1,54 +1,29 @@
 const jwt = require('jsonwebtoken');
-const pool = require('../config/database');
 
-const authMiddleware = async (req, res, next) => {
+const auth = (req, res, next) => {
+  // Get token from header
   const authHeader = req.header('Authorization');
+  const token = authHeader && authHeader.split(' ')[1];
 
-  if (!authHeader) {
-    return res.status(401).json({ message: 'No token provided' });
+  // Check if no token
+  if (!token) {
+    return res.status(401).json({ message: 'No token, authorization denied' });
   }
 
-  const token = authHeader.replace('Bearer ', '');
-
+  // Handle demo token
   if (token === 'demo-token') {
-    const demoUsername = req.header('X-Demo-User');
-    
-    if (demoUsername) {
-      try {
-        const [users] = await pool.execute(`
-          SELECT u.id, u.username, r.name as role 
-          FROM users u 
-          JOIN roles r ON u.role_id = r.id 
-          WHERE u.username = ? OR u.username = ?
-        `, [demoUsername, demoUsername.replace(/\./g, '_')]);
-        
-        if (users.length > 0) {
-          req.user = { 
-            id: users[0].id, 
-            username: users[0].username, 
-            role: users[0].role, 
-            type: 'user', 
-            isDemo: true 
-          };
-          return next();
-        }
-      } catch (err) {
-        console.error('Error resolving demo user:', err);
-      }
-    }
-    
-    // Default fallback if header missing or user not found
-    req.user = { id: 1, role: 'Admin', type: 'user', isDemo: true };
+    // In a real implementation, you'd populate req.user from demo data
+    // but here we just pass it for compatibility with the frontend context
     return next();
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'sterling_secret');
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ message: 'Token is not valid' });
   }
 };
 
-module.exports = authMiddleware;
+module.exports = auth;

@@ -40,7 +40,7 @@ const GRNProcessingPage = () => {
 
   const fetchGRNs = useCallback(async () => {
     try {
-      const response = await axios.get("/inventory/grns");
+      const response = await axios.get("/department/inventory/grns");
       const formattedData = response.data.map((grn) => ({
         id: grn.id,
         grnNo: `GRN-${String(grn.id).padStart(3, "0")}-${new Date(grn.created_at).getFullYear()}`,
@@ -71,7 +71,7 @@ const GRNProcessingPage = () => {
         existingInspection = inspectionRes.data;
       } catch (e) {}
 
-      const grnRes = await axios.get(`/inventory/grns/${grn.id}`);
+      const grnRes = await axios.get(`/department/inventory/grns/${grn.id}`);
       const targetGRN = grnRes.data;
       const items = targetGRN.items || [];
 
@@ -192,7 +192,7 @@ const GRNProcessingPage = () => {
 
       if (result.isConfirmed) {
         setApprovingGRN(grn.id);
-        await axios.post(`/inventory/grns/${grn.id}/approve`);
+        await axios.post(`/department/inventory/grns/${grn.id}/approve`);
         showSuccess("GRN approved successfully and moved to inspection phase!");
         fetchGRNs();
       }
@@ -225,7 +225,7 @@ const GRNProcessingPage = () => {
         setProcessingStock(grn.id);
 
         // Use the grn.status which reflects the QC result (shortage, overage, etc.)
-        await axios.post(`/inventory/grns/${grn.id}/add-to-stock`, { status: grn.status });
+        await axios.post(`/department/inventory/grns/${grn.id}/add-to-stock`, { status: grn.status });
         if (taskId) await taskService.autoCompleteTaskByAction(taskId, "add");
         
         showSuccess(isShortage ? "Vendor notified and items added to warehouse stock." : "Material added to inventory successfully!");

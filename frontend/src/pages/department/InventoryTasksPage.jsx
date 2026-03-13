@@ -47,7 +47,7 @@ const InventoryTasksPage = () => {
   const fetchMaterialRequests = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/inventory/material-requests");
+      const response = await axios.get("/department/procurement/material-requests");
       const data = response.data?.materialRequests || response.data || [];
       setMaterialRequests(data);
       if (data && data.length > 0) {
@@ -68,7 +68,7 @@ const InventoryTasksPage = () => {
           setTasks([]);
           return;
         }
-        const response = await axios.get(`/inventory/root-card-tasks/mr/${mr.id}/tasks`);
+        const response = await axios.get(`/department/procurement/root-card-tasks/mr/${mr.id}/tasks`);
         setTasks(response.data.tasks || []);
       } catch (err) {
         console.error("Error fetching tasks:", err);
@@ -103,67 +103,67 @@ const InventoryTasksPage = () => {
     )}&materialRequestId=${selectedMR?.id}&projectId=${selectedMR?.project_id || selectedMR?.sales_order_id || selectedMR?.root_card_id || selectedMR?.root_card?.project_id}`;
 
     if (taskTitle.includes("material") && taskTitle.includes("requirement")) {
-      navigate(`/inventory-manager/material-requests?${baseParams}`);
+      navigate(`/department/procurement/material-requests?${baseParams}`);
     } else if (
       taskTitle.includes("rfq") ||
       (taskTitle.includes("quotation") && taskTitle.includes("create"))
     ) {
-      navigate(`/inventory-manager/quotations/sent?${baseParams}&action=create`);
+      navigate(`/department/procurement/quotations/sent?${baseParams}&action=create`);
     } else if (taskTitle.includes("send") && taskTitle.includes("quotation")) {
-      navigate(`/inventory-manager/quotations/sent?${baseParams}`);
+      navigate(`/department/procurement/quotations/sent?${baseParams}`);
     } else if (
       taskTitle.includes("receive") &&
       taskTitle.includes("quotation")
     ) {
-      navigate(`/inventory-manager/quotations/received?${baseParams}&action=record`);
+      navigate(`/department/procurement/quotations/received?${baseParams}&action=record`);
     } else if (
       taskTitle.includes("create") &&
       taskTitle.includes("purchase order")
     ) {
-      navigate(`/inventory-manager/quotations/received?${baseParams}`);
+      navigate(`/department/procurement/quotations/received?${baseParams}`);
     } else if (taskTitle.includes("send") && taskTitle.includes("po")) {
       if (task.reference_id && task.reference_type === 'purchase_order') {
-        navigate(`/inventory-manager/purchase-orders/${task.reference_id}?${baseParams}`);
+        navigate(`/department/procurement/purchase-orders/${task.reference_id}?${baseParams}`);
       } else {
-        navigate(`/inventory-manager/purchase-orders?${baseParams}`);
+        navigate(`/department/procurement/purchase-orders?${baseParams}`);
       }
     } else if (
       taskTitle.includes("receive") &&
       taskTitle.includes("material")
     ) {
       if (task.reference_id && task.reference_type === 'purchase_order') {
-        navigate(`/inventory-manager/purchase-orders/${task.reference_id}?${baseParams}`);
+        navigate(`/department/procurement/purchase-orders/${task.reference_id}?${baseParams}`);
       } else {
         // Fallback to purchase orders list
-        navigate(`/inventory-manager/purchase-orders?${baseParams}`);
+        navigate(`/department/procurement/purchase-orders?${baseParams}`);
       }
     } else if (
       taskTitle.includes("approve") &&
       taskTitle.includes("purchase order")
     ) {
       if (task.reference_id && task.reference_type === 'purchase_order') {
-        navigate(`/inventory-manager/purchase-orders/${task.reference_id}?${baseParams}`);
+        navigate(`/department/procurement/purchase-orders/${task.reference_id}?${baseParams}`);
       } else {
-        navigate(`/inventory-manager/purchase-orders?${baseParams}`);
+        navigate(`/department/procurement/purchase-orders?${baseParams}`);
       }
     } else if (taskTitle.includes("grn") || taskTitle.includes("processing")) {
-      navigate(`/inventory-manager/grn-processing?${baseParams}`);
+      navigate(`/department/inventory/grn-processing?${baseParams}`);
     } else if (taskTitle.includes("qc") || taskTitle.includes("inspection")) {
-      navigate(`/inventory-manager/grn-processing?${baseParams}`);
+      navigate(`/department/inventory/grn-processing?${baseParams}`);
     } else if (taskTitle.includes("stock") && taskTitle.includes("add")) {
-      navigate(`/inventory-manager/grn-processing?${baseParams}`);
+      navigate(`/department/inventory/grn-processing?${baseParams}`);
     } else if (taskTitle.includes("batch") || taskTitle.includes("location")) {
-      navigate(`/inventory-manager/tracking/batches?${baseParams}`);
+      navigate(`/department/inventory/tracking/batches?${baseParams}`);
     } else if (taskTitle.includes("view") && taskTitle.includes("stock")) {
-      navigate(`/inventory-manager/stock/view?${baseParams}`);
+      navigate(`/department/inventory/stock/view?${baseParams}`);
     } else if (taskTitle.includes("stock") && taskTitle.includes("movement")) {
-      navigate(`/inventory-manager/stock/movements?${baseParams}`);
+      navigate(`/department/inventory/stock/movements?${baseParams}`);
     } else if (taskTitle.includes("release") && taskTitle.includes("material")) {
-      navigate(`/inventory-manager/material-requests?${baseParams}`);
+      navigate(`/department/procurement/material-requests?${baseParams}`);
     } else if (taskTitle.includes("reorder")) {
-      navigate(`/inventory-manager/stock/reorder?${baseParams}`);
+      navigate(`/department/inventory/stock/reorder?${baseParams}`);
     } else {
-      navigate(`/inventory-manager/grn-processing?${baseParams}`);
+      navigate(`/department/inventory/grn-processing?${baseParams}`);
     }
   };
 
@@ -224,7 +224,7 @@ const InventoryTasksPage = () => {
 
     setIsDeletingMR(true);
     try {
-      await axios.delete(`/inventory/material-requests/${mrId}`);
+      await axios.delete(`/department/procurement/material-requests/${mrId}`);
       await fetchMaterialRequests();
       alert("Material request and all associated tasks deleted successfully");
     } catch (err) {

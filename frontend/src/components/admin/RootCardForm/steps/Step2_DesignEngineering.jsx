@@ -1,84 +1,52 @@
-import React, { useState, useCallback } from "react";
-import { FileText, Upload, X, File, Loader2 } from "lucide-react";
+import React, { useState, useCallback, useEffect } from "react";
+import { FileText, Eye, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import FormSection from "../shared/FormSection";
 import AssigneeField from "../shared/AssigneeField";
 import { useRootCardContext } from "../hooks";
 import axios from "../../../../utils/api";
-import { showError } from "../../../../utils/toastUtils";
 
 export default function Step2_DesignEngineering({ readOnly = false }) {
-  const { state, updateDeepNestedField, updateField, initialData } = useRootCardContext();
+  const { state, updateField, initialData } = useRootCardContext();
   const rootCardId = initialData?.id || state.createdOrderId;
-  const designEng = state.formData.designEngineering || {};
   
-  const drawings = React.useMemo(() => designEng.attachments?.drawings || [], [designEng.attachments]);
-  const documents = React.useMemo(() => designEng.attachments?.documents || [], [designEng.attachments]);
-  
-  const [uploading, setUploading] = useState(false);
+  const [drawings, setDrawings] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const updateDesignField = useCallback((subsection, field, value) => {
-    updateDeepNestedField("designEngineering", subsection, field, value);
-  }, [updateDeepNestedField]);
-
-  const handleFileUpload = useCallback(async (e, type) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-
-    if (!rootCardId) {
-      const newFilesData = files.map((f) => ({ 
-        name: f.name, 
-        size: f.size, 
-        type: f.type, 
-        isLocal: true, 
-        file: f 
-      }));
-      
-      const currentFiles = type === "drawings" ? (designEng.attachments?.drawings || []) : (designEng.attachments?.documents || []);
-      const updatedFiles = [...currentFiles, ...newFilesData];
-
-      updateDesignField("attachments", type, updatedFiles);
-      return;
-    }
-
-    setUploading(true);
+  const fetchApprovedDrawings = useCallback(async () => {
+    if (!rootCardId) return;
     try {
-      const formData = new FormData();
-      files.forEach(file => {
-        formData.append('documents', file);
-      });
-      formData.append('type', type);
+      setLoading(true);
+      const response = await axios.get(`/design-drawings/root-card/${rootCardId}`);
+      const allDocs = response.data.drawings || response.data.documents || [];
+      
+      // Group by name and type to get latest version
+      const latestVersions = allDocs.reduce((acc, doc) => {
+        const key = `${doc.name}-${doc.type}`;
+        if (!acc[key] || doc.version > acc[key].version) {
+          acc[key] = doc;
+        }
+        return acc;
+      }, {});
 
-      const response = await axios.post(`/root-cards/steps/${rootCardId}/design-engineering/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      console.log(`[Step2] Upload response for type "${type}":`, JSON.stringify(response.data, null, 2));
-
-      if (response.data?.success) {
-        const newlyUploaded = response.data.data.uploaded;
-        console.log(`[Step2] Newly uploaded files (${type}):`, JSON.stringify(newlyUploaded, null, 2));
-        
-        const currentFiles = type === "drawings" ? (designEng.attachments?.drawings || []) : (designEng.attachments?.documents || []);
-        console.log(`[Step2] Current files before update:`, JSON.stringify(currentFiles, null, 2));
-        
-        const updatedFiles = [...currentFiles, ...newlyUploaded];
-        console.log(`[Step2] Updated files after merge:`, JSON.stringify(updatedFiles, null, 2));
-
-        updateDesignField("attachments", type, updatedFiles);
-      }
-    } catch (err) {
-      console.error("Upload failed:", err);
-      showError("Failed to upload files. Please try again.");
+      // Filter for approved only
+      const approved = Object.values(latestVersions).filter(doc => doc.status === "Approved");
+      setDrawings(approved);
+    } catch (error) {
+      console.error("Error fetching approved drawings:", error);
     } finally {
-      setUploading(false);
+      setLoading(false);
     }
-  }, [rootCardId, designEng.attachments, updateDesignField]);
+  }, [rootCardId]);
 
-  const removeFile = useCallback((index, type) => {
-    const currentFiles = type === "drawings" ? (designEng.attachments?.drawings || []) : (designEng.attachments?.documents || []);
-    const updatedFiles = currentFiles.filter((_, i) => i !== index);
-    updateDesignField("attachments", type, updatedFiles);
-  }, [designEng.attachments, updateDesignField]);
+  useEffect(() => {
+    fetchApprovedDrawings();
+  }, [fetchApprovedDrawings]);
+
+  const getFileUrl = (filePath) => {
+    if (!filePath) return "#";
+    const base = axios.defaults.baseURL.split("/api")[0];
+    return `${base}/${filePath}`;
+  };
 
   const content = React.useMemo(() => (
     <div className="space-y-6">
@@ -89,144 +57,90 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
         employees={state.employees}
         readOnly={readOnly}
       />
+      
       <FormSection
-        title="Design Documentation"
-        subtitle="Upload raw design and required technical documents"
+        title="Approved Design Drawings"
+        subtitle="View and access approved design revisions for this root card"
         icon={FileText}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-900 text-left mb-3">
-              Raw Design Drawings *
-            </label>
-            <div className={`border-2 border-dashed border-slate-300 bg-slate-50 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-purple-50 transition cursor-pointer relative ${uploading || readOnly ? 'opacity-50 pointer-events-none' : ''}`}>
-              <input
-                type="file"
-                multiple
-                onChange={(e) => handleFileUpload(e, "drawings")}
-                className="hidden"
-                id="drawingsUpload"
-                accept=".pdf,.dwg,.dxf,.step,.stp,.igs,.iges,.png,.jpg,.jpeg,.zip,.rar"
-                disabled={uploading || readOnly}
-              />
-              <label htmlFor="drawingsUpload" className="cursor-pointer block">
-                {uploading ? (
-                  <Loader2 className="mx-auto mb-2 text-purple-500 animate-spin" size={32} />
-                ) : (
-                  <Upload className="mx-auto mb-2 text-purple-500" size={32} />
-                )}
-                <p className="text-slate-900 font-medium">
-                  {uploading ? "Uploading..." : "Click to upload or drag design files"}
-                </p>
-                <p className="text-slate-500 text-xs mt-1">
-                  PDF, DWG, DXF, STEP, IGS, PNG, JPG, ZIP, RAR
-                </p>
-              </label>
-            </div>
-            {drawings.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <h4 className="text-sm font-medium text-slate-900 text-left">
-                  Uploaded Drawings:
-                </h4>
-                {drawings.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center text-xs justify-between bg-purple-50 border border-purple-200 p-3 rounded-lg"
-                  >
-                    <div className="flex items-center text-xs gap-2">
-                      <File size={16} className="text-purple-600" />
-                      <span className="text-sm text-slate-900">
-                        {file.name}
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Drawing Name</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Version</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-10 text-center text-slate-500">
+                    <Loader2 className="animate-spin inline-block mr-2" /> Loading approved drawings...
+                  </td>
+                </tr>
+              ) : drawings.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-10 text-center text-slate-500">
+                    {rootCardId ? "No approved drawings found for this root card" : "Root card ID not found"}
+                  </td>
+                </tr>
+              ) : (
+                drawings.map((doc) => (
+                  <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div>
+                        <div className="font-bold text-slate-900">{doc.name}</div>
+                        <div className="text-[11px] text-slate-500 truncate max-w-xs">{doc.description}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">{doc.type}</span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="text-xs font-bold text-blue-600">v{doc.version}</span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
+                        <CheckCircle2 size={10} /> {doc.status}
                       </span>
-                    </div>
-                    {!readOnly && (
-                      <button
-                        onClick={() => removeFile(idx, "drawings")}
-                        className="text-red-500 hover:text-red-700"
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <a
+                        href={getFileUrl(doc.file_path)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold rounded-lg transition-colors border border-blue-100"
                       >
-                        <X size={16} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-900 text-left mb-3">
-              Required Documents *
-            </label>
-            <div className={`border-2 border-dashed border-slate-300 bg-slate-50 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-purple-50 transition cursor-pointer relative ${uploading || readOnly ? 'opacity-50 pointer-events-none' : ''}`}>
-              <input
-                type="file"
-                multiple
-                onChange={(e) => handleFileUpload(e, "documents")}
-                className="hidden"
-                id="documentsUpload"
-                accept=".pdf,.doc,.docx,.xlsx,.xls,.txt,.csv,.zip,.rar,.ppt,.pptx"
-                disabled={uploading || readOnly}
-              />
-              <label htmlFor="documentsUpload" className="cursor-pointer block">
-                {uploading ? (
-                  <Loader2 className="mx-auto mb-2 text-purple-500 animate-spin" size={32} />
-                ) : (
-                  <Upload className="mx-auto mb-2 text-purple-500" size={32} />
-                )}
-                <p className="text-slate-900 font-medium">
-                  {uploading ? "Uploading..." : "Click to upload or drag documents"}
-                </p>
-                <p className="text-slate-500 text-xs mt-1">
-                  PDF, DOC, DOCX, XLSX, TXT, CSV, ZIP, PPTX
-                </p>
-              </label>
-            </div>
-            {documents.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <h4 className="text-sm font-medium text-slate-900 text-left">
-                  Uploaded Documents:
-                </h4>
-                {documents.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center text-xs justify-between bg-purple-50 border border-purple-200 p-3 rounded-lg"
-                  >
-                    <div className="flex items-center text-xs gap-2">
-                      <File size={16} className="text-purple-600" />
-                      <span className="text-sm text-slate-900">
-                        {file.name}
-                      </span>
-                    </div>
-                    {!readOnly && (
-                      <button
-                        onClick={() => removeFile(idx, "documents")}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <X size={16} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                        <Eye size={14} /> View Drawing
+                      </a>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-900">
-            <strong>Note:</strong> Complete project specifications, dimensions, materials requirements, and manufacturing details will be available in the Design Engineer Dashboard for detailed work.
-          </p>
-        </div>
+        
+        {drawings.length > 0 && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="text-blue-500 shrink-0 mt-0.5" size={18} />
+            <p className="text-sm text-blue-900">
+              Only approved drawings are shown here. These are the final revisions that should be used for production.
+            </p>
+          </div>
+        )}
       </FormSection>
     </div>
   ), [
     state.formData, 
     state.employees, 
     readOnly, 
-    uploading, 
+    loading, 
     drawings, 
-    documents, 
-    handleFileUpload, 
-    removeFile, 
+    rootCardId,
     updateField
   ]);
 

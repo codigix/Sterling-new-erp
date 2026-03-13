@@ -7,7 +7,6 @@ const DEMO_USERS = {
   engineering: { password: "password", role: "Engineering", name: "Design Lead" },
   procurement: { password: "password", role: "Procurement", name: "Procurement Lead" },
   qc: { password: "password", role: "QC", name: "Quality Head" },
-  inventory: { password: "password", role: "Inventory", name: "Stores Supervisor" },
   production: { password: "password", role: "Production", name: "Production Planner", department: "Production", departmentId: 2 },
   mes: { password: "password", role: "MES", name: "MES Controller" },
   challan: { password: "password", role: "Challan", name: "Logistics Coordinator" },
@@ -15,7 +14,7 @@ const DEMO_USERS = {
   "jane.smith": { password: "password", role: "Supervisor", type: "employee", name: "Jane Smith", designation: "Project Supervisor", department: "Production", departmentId: 2 },
   "rajesh.kumar": { password: "password", role: "Employee", type: "employee", name: "Rajesh Kumar", designation: "Engineer", department: "Engineering", departmentId: 1 },
   "sudarshan.kale": { password: "password", role: "Supervisor", type: "employee", name: "Sudarshan Kale", designation: "Supervisor", department: "Production", departmentId: 2, id: 21 },
-  "inventory.manager": { password: "password", role: "Inventory Manager", type: "user", name: "Inventory Manager", department: "Inventory", departmentId: 5 },
+  "inventory": { password: "password", role: "Inventory", type: "user", name: "Inventory", department: "Inventory", departmentId: 5 },
   "design_engineer": { password: "password", role: "Design Engineer", type: "user", name: "Design Engineer", designation: "Design Engineer", department: "Engineering", departmentId: 1, id: 11 },
   "design.engineer": { password: "password", role: "Design Engineer", type: "user", name: "Design Engineer", designation: "Design Engineer", department: "Engineering", departmentId: 1, id: 11 },
   "qc.manager": { password: "password", role: "QC Manager", type: "user", name: "QC Manager", department: "Quality Control", departmentId: 3 },
@@ -124,12 +123,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (username, password, roleId, email) => {
+  const register = async (fullName, password, department, email) => {
     try {
       const response = await axios.post("/auth/register", {
-        username,
+        fullName,
         password,
-        roleId,
+        department,
         email,
       });
 

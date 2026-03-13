@@ -71,16 +71,10 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
       };
 
       if (initialData?.po_number || formData?.poNumber) {
-        addSection('Step 1: Client PO', {
+        addSection('Step 1: Project Information', {
           'PO Number': initialData?.po_number || formData?.poNumber,
-          'Client Name': initialData?.customer || formData?.clientName,
-          'Client Email': formData?.clientEmail,
-          'Client Phone': formData?.clientPhone,
           'Project Name': initialData?.project_name || formData?.projectName,
           'Project Code': formData?.projectCode,
-          'PO Date': formData?.poDate,
-          'Billing Address': formData?.billingAddress,
-          'Shipping Address': formData?.shippingAddress,
           'Project Owner': getEmployeeName(formData?.internalProjectOwner),
           'Project Requirements': formData?.projectRequirements,
         });
@@ -103,10 +97,20 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
         });
       }
 
+      if (formData?.productionPlan) {
+        const prodData = formData.productionPlan;
+        addSection('Step 3: Production', {
+          'Selected Phases': prodData.selectedPhases ? Object.keys(prodData.selectedPhases).join(', ') : 'N/A',
+          'Assigned To': getEmployeeName(formData?.productionPlanAssignedTo),
+          'Production Notes': prodData.productionNotes,
+          'Estimated Completion': prodData.estimatedCompletionDate,
+        });
+      }
+
       if (formData?.materialProcurement) {
         const matData = formData.materialProcurement;
         const materialsDetails = Array.isArray(matData.materials) ? matData.materials.map((mat, idx) => `${idx + 1}. ${mat.name || mat.type || 'Material'} - Qty: ${mat.quantity || 'N/A'}`).join('; ') : 'None';
-        addSection('Step 3: Material Requirements', {
+        addSection('Step 4: Procurement', {
           'Total Material Cost': matData.totalMaterialCost,
           'Procurement Status': matData.procurementStatus,
           'Assigned To': getEmployeeName(formData?.materialRequirementsAssignedTo),
@@ -116,20 +120,17 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
         });
       }
 
-      if (formData?.productionPlan) {
-        const prodData = formData.productionPlan;
-        addSection('Step 4: Production Plan', {
-          'Selected Phases': prodData.selectedPhases ? Object.keys(prodData.selectedPhases).join(', ') : 'N/A',
-          'Assigned To': getEmployeeName(formData?.productionPlanAssignedTo),
-          'Production Notes': prodData.productionNotes,
-          'Estimated Completion': prodData.estimatedCompletionDate,
+      if (formData?.inventory) {
+        addSection('Step 5: Inventory', {
+          'Status': 'Tracking inventory data',
+          'Assigned To': getEmployeeName(formData?.inventoryAssignedTo),
         });
       }
 
       if (formData?.qualityCheck || formData?.qualityCompliance || formData?.paymentTerms) {
         const qcData = formData.qualityCheck || {};
         const inspectionsDetails = Array.isArray(qcData.inspections) ? qcData.inspections.map((insp, idx) => `${idx + 1}. ${insp.type || 'Inspection'} - ${insp.result || 'N/A'}`).join('; ') : 'None';
-        addSection('Step 5: Quality Check & Economics', {
+        addSection('Step 6: Quality Check & Economics', {
           'Inspection Type': qcData.inspectionType,
           'QC Status': qcData.qcStatus,
           'Project Owner': getEmployeeName(formData?.internalProjectOwner),
@@ -147,54 +148,9 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
           'Warranty Period': formData.warrantySupport?.warrantyPeriod,
           'Service Support': formData.warrantySupport?.serviceSupport,
           'Payment Terms': formData.paymentTerms,
-          'Total Amount': initialData?.total || formData.totalAmount,
           'Estimated Costing': formData.internalInfo?.estimatedCosting,
           'Estimated Profit': formData.internalInfo?.estimatedProfit,
-          'Priority': initialData?.priority || formData.projectPriority,
           'Special Instructions': formData.specialInstructions,
-        });
-      }
-
-      if (formData?.shipment || formData?.deliveryTerms) {
-        addSection('Step 6: Shipment & Logistics', {
-          'Delivery Schedule': formData.deliveryTerms?.deliverySchedule,
-          'Packaging Info': formData.deliveryTerms?.packagingInfo,
-          'Dispatch Mode': formData.deliveryTerms?.dispatchMode,
-          'Installation Required': formData.deliveryTerms?.installationRequired,
-          'Site Commissioning': formData.deliveryTerms?.siteCommissioning,
-          'Assigned To': getEmployeeName(formData?.shipmentAssignedTo),
-          'Marking': formData.shipment?.marking,
-          'Dismantling': formData.shipment?.dismantling,
-          'Packing': formData.shipment?.packing,
-          'Dispatch': formData.shipment?.dispatch,
-          'Shipment Method': formData.shipment?.shipmentMethod,
-          'Carrier Name': formData.shipment?.carrierName,
-          'Tracking Number': formData.shipment?.trackingNumber,
-          'Estimated Delivery Date': formData.shipment?.estimatedDeliveryDate,
-          'Shipment Cost': formData.shipment?.shipmentCost,
-          'Shipping Address': formData.shipment?.shippingAddress,
-          'Shipping Notes': formData.shipment?.notes,
-        });
-      }
-
-      if (formData?.delivery) {
-        const delData = formData.delivery;
-        addSection('Step 7: Delivery & Handover', {
-          'Actual Delivery Date': delData.actualDeliveryDate,
-          'Delivered To': delData.deliveredTo,
-          'Customer Contact': delData.customerContact,
-          'Assigned To': getEmployeeName(formData?.deliveryAssignedTo),
-          'Delivery Date': delData.deliveryDate,
-          'POD Number': delData.podNumber,
-          'Delivered Quantity': delData.deliveredQuantity,
-          'Delivery Cost': delData.deliveryCost,
-          'Installation Completed': delData.installationCompleted,
-          'Site Commissioning Completed': delData.siteCommissioningCompleted,
-          'Warranty Terms Acceptance': delData.warrantyTermsAcceptance,
-          'Completion Remarks': delData.completionRemarks,
-          'Project Manager': delData.projectManager,
-          'Production Supervisor': delData.productionSupervisor,
-          'Delivery Notes': delData.deliveryNotes,
         });
       }
 
@@ -270,42 +226,24 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
           </div>
         )}
 
-        {/* Step 1: Client PO */}
+        {/* Step 1: Project Information */}
         {(initialData?.po_number || formData?.poNumber) && (
           <section>
-            <SectionHeader number="1" title="Client PO" />
+            <SectionHeader number="1" title="Project Information" />
             <div className="space-y-6">
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">PO & Order Information</h3>
+                <h3 className="text-md font-semibold text-slate-900 mb-2">PO & Project Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="PO Number" value={initialData?.po_number || formData?.poNumber} />
-                  <DetailField label="PO Date" value={formData?.poDate} />
-                  <DetailField label="Order Date" value={initialData?.order_date || formData?.orderDate} />
-                  <DetailField label="Estimated End Date" value={initialData?.due_date || formData?.estimatedEndDate} />
+                  <DetailField label="Project Name" value={initialData?.project_name || formData?.projectName} />
+                  <DetailField label="Project Code" value={formData?.projectCode} />
                   <DetailField label="Project Owner" value={getEmployeeName(formData?.internalProjectOwner)} />
                 </div>
               </div>
 
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Client Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Client Name" value={initialData?.customer || formData?.clientName} />
-                  <DetailField label="Client Email" value={formData?.clientEmail} />
-                  <DetailField label="Client Phone" value={formData?.clientPhone} />
-                  <DetailField label="Client Address" value={formData?.clientAddress} />
-                </div>
-              </div>
-
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Project Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Project Name" value={initialData?.project_name || formData?.projectName} />
-                  <DetailField label="Project Code" value={formData?.projectCode} />
-                  <DetailField label="Billing Address" value={formData?.billingAddress} />
-                  <DetailField label="Shipping Address" value={formData?.shippingAddress} />
-                </div>
                 {formData?.projectRequirements && Object.keys(formData.projectRequirements).length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-slate-200">
+                  <div className="mt-0">
                     <h4 className="text-sm font-semibold text-slate-700 mb-3">Project Requirements</h4>
                     <div className="space-y-2">
                       {Object.entries(formData.projectRequirements).map(([key, value]) => {
@@ -420,10 +358,51 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
           </section>
         )}
 
-        {/* Step 3: Material Requirements */}
+        {/* Step 3: Production */}
+        {formData?.productionPlan && (
+          <section>
+            <SectionHeader number="3" title="Production" />
+            <div className="space-y-6">
+              <div className="bg-white border-b border-slate-200  p-2 mb-0">
+                <h3 className="text-md font-semibold text-slate-900 mb-2">Production Timeline</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <DetailField label="Production Start Date" value={formData.productionPlan.timeline?.startDate} />
+                  <DetailField label="Production End Date" value={formData.productionPlan.timeline?.endDate} />
+                  <DetailField label="Estimated Completion Date" value={formData.productionPlan.estimatedCompletionDate} />
+                  <DetailField label="Assigned To" value={getEmployeeName(formData?.productionPlanAssignedTo)} />
+                </div>
+              </div>
+
+              {formData.productionPlan.productionNotes && (
+                <div className="bg-white border-b border-slate-200  p-2 mb-0">
+                  <h3 className="text-md font-semibold text-slate-900 mb-2">Production Notes</h3>
+                  <p className="text-slate-700 text-sm">{formData.productionPlan.productionNotes}</p>
+                </div>
+              )}
+
+              {formData.productionPlan.selectedPhases && Object.keys(formData.productionPlan.selectedPhases).length > 0 && (
+                <div className="bg-white border-b border-slate-200  p-2 mb-0">
+                  <h3 className="text-md font-semibold text-slate-900 mb-2">Production Phases</h3>
+                  <div className="space-y-2">
+                    {Object.entries(formData.productionPlan.selectedPhases).map(([phase, selected]) =>
+                      selected ? (
+                        <div key={phase} className="flex items-center gap-2 text-slate-700 text-sm">
+                          <CheckCircle2 size={16} className="text-green-500" />
+                          {phase}
+                        </div>
+                      ) : null
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Step 4: Procurement */}
         {formData?.materialProcurement && (
           <section>
-            <SectionHeader number="3" title="Material Requirements" />
+            <SectionHeader number="4" title="Procurement" />
             <div className="space-y-6">
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
                 <h3 className="text-md font-semibold text-slate-900 mb-2">Procurement Overview</h3>
@@ -472,74 +451,27 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                   </table>
                 </div>
               )}
-
-              {Array.isArray(formData.materialProcurement.materials) && formData.materialProcurement.materials.length > 0 && (
-                <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Materials List</h3>
-                  <div className="flex flex-wrap gap-4">
-                    {formData.materialProcurement.materials.map((material, idx) => (
-                      <div key={idx} className="bg-slate-50 rounded p-4 border border-slate-200 w-fit">
-                        <p className="text-sm text-slate-900 font-medium mb-2 w-fit">{material.name || material.type || 'Material ' + (idx + 1)}</p>
-                        <div className="flex flex-wrap gap-3 text-xs">
-                          {material.quantity && <p className="text-slate-600"><span className="text-slate-700">Qty:</span> {material.quantity} {material.unit || ''}</p>}
-                          {material.cost && <p className="text-slate-600"><span className="text-slate-700">Cost:</span> {material.cost}</p>}
-                          {material.source && <p className="text-slate-600"><span className="text-slate-700">Source:</span> {material.source}</p>}
-                          {material.status && <p className="text-slate-600"><span className="text-slate-700">Status:</span> {material.status}</p>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </section>
         )}
 
-        {/* Step 4: Production Plan */}
-        {formData?.productionPlan && (
+        {/* Step 5: Inventory */}
+        {formData?.inventory && (
           <section>
-            <SectionHeader number="4" title="Production Plan" />
-            <div className="space-y-6">
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Production Timeline</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Production Start Date" value={formData.productionPlan.timeline?.startDate} />
-                  <DetailField label="Production End Date" value={formData.productionPlan.timeline?.endDate} />
-                  <DetailField label="Estimated Completion Date" value={formData.productionPlan.estimatedCompletionDate} />
-                  <DetailField label="Assigned To" value={getEmployeeName(formData?.productionPlanAssignedTo)} />
-                </div>
+            <SectionHeader number="5" title="Inventory" />
+            <div className="bg-white border-b border-slate-200 p-2 mb-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <DetailField label="Assigned To" value={getEmployeeName(formData?.inventoryAssignedTo)} />
+                <DetailField label="Inventory Status" value="In implementation" />
               </div>
-
-              {formData.productionPlan.productionNotes && (
-                <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Production Notes</h3>
-                  <p className="text-slate-700 text-sm">{formData.productionPlan.productionNotes}</p>
-                </div>
-              )}
-
-              {formData.productionPlan.selectedPhases && Object.keys(formData.productionPlan.selectedPhases).length > 0 && (
-                <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Production Phases</h3>
-                  <div className="space-y-2">
-                    {Object.entries(formData.productionPlan.selectedPhases).map(([phase, selected]) =>
-                      selected ? (
-                        <div key={phase} className="flex items-center gap-2 text-slate-700 text-sm">
-                          <CheckCircle2 size={16} className="text-green-500" />
-                          {phase}
-                        </div>
-                      ) : null
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </section>
         )}
 
-        {/* Step 5: Quality Check */}
+        {/* Step 6: Quality Check */}
         {(formData?.qualityCheck || formData?.qualityCompliance || formData?.paymentTerms) && (
           <section>
-            <SectionHeader number="5" title="Quality Check & Economics" />
+            <SectionHeader number="6" title="Quality" />
             <div className="space-y-6">
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
                 <h3 className="text-md font-semibold text-slate-900 mb-2">QC Status & Inspections</h3>
@@ -599,8 +531,6 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                 <h3 className="text-md font-semibold text-slate-900 mb-2">Payment & Project Economics</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="Payment Terms" value={formData?.paymentTerms} />
-                  <DetailField label="Total Amount" value={initialData?.total || formData?.totalAmount} />
-                  <DetailField label="Priority" value={initialData?.priority || formData?.projectPriority} />
                   <DetailField label="Status" value={formData?.status} />
                 </div>
               </div>
@@ -608,107 +538,6 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
               {formData?.specialInstructions && (
                 <div className="bg-white border-b border-slate-200  p-2 mb-0">
                   <DetailField label="Special Instructions" value={formData?.specialInstructions} />
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Step 6: Shipment */}
-        {formData?.shipment && (
-          <section>
-            <SectionHeader number="6" title="Shipment & Logistics" />
-            <div className="space-y-6">
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Delivery Terms</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Delivery Schedule" value={formData.deliveryTerms?.deliverySchedule} />
-                  <DetailField label="Packaging Information" value={formData.deliveryTerms?.packagingInfo} />
-                  <DetailField label="Dispatch Mode" value={formData.deliveryTerms?.dispatchMode} />
-                  <DetailField label="Installation Required" value={formData.deliveryTerms?.installationRequired} />
-                  <DetailField label="Site Commissioning" value={formData.deliveryTerms?.siteCommissioning} />
-                  <DetailField label="Assigned To" value={getEmployeeName(formData?.shipmentAssignedTo)} />
-                </div>
-              </div>
-
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Shipment Process</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Marking" value={formData.shipment?.marking} />
-                  <DetailField label="Dismantling" value={formData.shipment?.dismantling} />
-                  <DetailField label="Packing" value={formData.shipment?.packing} />
-                  <DetailField label="Dispatch" value={formData.shipment?.dispatch} />
-                </div>
-              </div>
-
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Shipping Logistics</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Shipment Method" value={formData.shipment?.shipmentMethod} />
-                  <DetailField label="Carrier Name" value={formData.shipment?.carrierName} />
-                  <DetailField label="Tracking Number" value={formData.shipment?.trackingNumber} />
-                  <DetailField label="Estimated Delivery Date" value={formData.shipment?.estimatedDeliveryDate} />
-                  <DetailField label="Shipment Cost (₹)" value={formData.shipment?.shipmentCost} />
-                </div>
-                <div className="mt-4">
-                  <DetailField label="Shipping Address" value={formData.shipment?.shippingAddress} />
-                  <DetailField label="Shipping Notes" value={formData.shipment?.notes} />
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Step 7: Delivery */}
-        {formData?.delivery && (
-          <section>
-            <SectionHeader number="7" title="Delivery & Handover" />
-            <div className="space-y-6">
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Delivery Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Actual Delivery Date" value={formData.delivery?.actualDeliveryDate} />
-                  <DetailField label="Delivered To" value={formData.delivery?.deliveredTo} />
-                  <DetailField label="Customer Contact Person" value={formData.delivery?.customerContact} />
-                  <DetailField label="Assigned To" value={getEmployeeName(formData?.deliveryAssignedTo)} />
-                </div>
-              </div>
-
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Logistics & Proof of Delivery</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Delivery Date" value={formData.delivery?.deliveryDate} />
-                  <DetailField label="POD / LR Number" value={formData.delivery?.podNumber} />
-                  <DetailField label="Delivered Quantity" value={formData.delivery?.deliveredQuantity} />
-                  <DetailField label="Delivery Cost (₹)" value={formData.delivery?.deliveryCost} />
-                </div>
-                <div className="mt-4">
-                  <DetailField label="Delivery Notes" value={formData.delivery?.deliveryNotes} />
-                </div>
-              </div>
-
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Installation & Commissioning</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Installation Completed" value={formData.delivery.installationCompleted} />
-                  <DetailField label="Site Commissioning Completed" value={formData.delivery.siteCommissioningCompleted} />
-                  <DetailField label="Warranty Terms Acceptance" value={formData.delivery.warrantyTermsAcceptance} />
-                </div>
-              </div>
-
-              <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Internal Info</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <DetailField label="Project Manager" value={formData.delivery?.projectManager} />
-                  <DetailField label="Production Supervisor" value={formData.delivery?.productionSupervisor} />
-                  <DetailField label="Customer Contact" value={formData.customerContact} />
-                </div>
-              </div>
-
-              {formData.delivery?.completionRemarks && (
-                <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Completion Remarks</h3>
-                  <p className="text-slate-700 text-sm">{formData.delivery.completionRemarks}</p>
                 </div>
               )}
             </div>
