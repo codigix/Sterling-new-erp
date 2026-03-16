@@ -57,13 +57,15 @@ const createBOM = async (req, res) => {
           m.quantity || 0,
           m.uom || '',
           0, // Rate removed from logic
-          0  // Total removed from logic
+          0, // Total removed from logic
+          m.warehouse || null,
+          m.operation || null
         ];
       });
 
       await connection.query(
         `INSERT INTO bom_materials 
-        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount) 
+        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation) 
         VALUES ?`,
         [materialValues]
       );
@@ -268,6 +270,8 @@ const getBOMById = async (req, res) => {
         make: m.make,
         quantity: m.quantity,
         uom: m.uom,
+        warehouse: m.warehouse,
+        operation: m.operation,
         rate: 0,
         totalAmount: 0
       };

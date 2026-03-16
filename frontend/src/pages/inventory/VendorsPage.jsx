@@ -8,11 +8,14 @@ import {
   Mail,
   Phone,
   MapPin,
-  Star,
   Edit,
   Trash2,
-  TrendingUp,
   X,
+  ChevronDown,
+  ChevronUp,
+  Building2,
+  UserCheck,
+  Loader2,
 } from "lucide-react";
 import axios from "../../utils/api";
 import toastUtils from "../../utils/toastUtils";
@@ -21,37 +24,56 @@ const VendorsPage = () => {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [ratingFilter, setRatingFilter] = useState("all");
   const [stats, setStats] = useState({});
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState({
+    vendor_code: "",
     name: "",
-    contact: "",
     email: "",
-    phone: "",
     address: "",
-    category: "",
+    city: "",
+    state: "",
+    pincode: "",
+    category: [], // Multi-select
     vendor_type: "material_supplier",
-    rating: "",
     status: "active",
+    contact_person_name: "",
+    designation: "",
+    mobile_number: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
-  const [showPerformanceModal, setShowPerformanceModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [expandedSections, setExpandedSections] = useState({
+    basic: true,
+    contact: true,
+  });
+
+  const toggleSection = (section) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  const VENDOR_CATEGORIES = [
+    "Raw Material Supplier",
+    "Fabrication Vendor",
+    "Machining Vendor",
+    "Electrical Vendor",
+    "Paint Vendor",
+    "Transport Vendor",
+    "Service Provider",
+  ];
 
   const fetchVendors = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
       if (searchQuery) params.append("search", searchQuery);
-      if (ratingFilter !== "all") {
-        if (ratingFilter === "4+") params.append("minRating", "4");
-        else if (ratingFilter === "3+") params.append("minRating", "3");
-      }
 
       const response = await axios.get(
         `department/procurement/vendors?${params}`
@@ -64,7 +86,7 @@ const VendorsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, ratingFilter]);
+  }, [searchQuery]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -80,27 +102,27 @@ const VendorsPage = () => {
       const response = await axios.get(
         `department/procurement/vendors/categories`
       );
-      const categoryData = response.data
-        .map((cat) => cat.category)
-        .filter(Boolean);
-      setCategories(categoryData);
+      // Backend returns [{category: "cat1"}, {category: "cat2"}]
+      // But some might be JSON strings if they were saved as arrays
+      let uniqueCategories = new Set();
+      response.data.forEach((item) => {
+        if (!item.category) return;
+        try {
+          const parsed = JSON.parse(item.category);
+          if (Array.isArray(parsed)) {
+            parsed.forEach((c) => uniqueCategories.add(c));
+          } else {
+            uniqueCategories.add(item.category);
+          }
+        } catch (e) {
+          uniqueCategories.add(item.category);
+        }
+      });
+      setCategories(Array.from(uniqueCategories));
     } catch (err) {
       console.error("Error fetching categories:", err);
     }
   }, []);
-
-  const fetchVendorById = useCallback(
-    async (id) => {
-      try {
-        const response = await axios.get(`department/procurement/vendors/${id}`);
-        return response.data;
-      } catch (err) {
-        console.error("Error fetching vendor:", err);
-        return null;
-      }
-    },
-    []
-  );
 
   useEffect(() => {
     fetchVendors();
@@ -108,33 +130,93 @@ const VendorsPage = () => {
     fetchCategories();
   }, [fetchVendors, fetchStats, fetchCategories]);
 
-  const handleDeleteVendor = async (id) => {
-    if (window.confirm("Are you sure you want to delete this vendor?")) {
-      try {
-        await axios.delete(`department/procurement/vendors/${id}`);
-        toastUtils.success("Vendor deleted successfully");
-        fetchVendors();
-      } catch (err) {
-        console.error("Error deleting vendor:", err);
-        toastUtils.error("Failed to delete vendor");
-      }
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  const fetchVendorById = async (id) => {
+    try {
+      const response = await axios.get(`department/procurement/vendors/${id}`);
+      return response.data;
+    } catch (err) {
+      console.error("Error fetching vendor details:", err);
+      toastUtils.error("Failed to load vendor details");
+      return null;
     }
   };
 
-  const handleSearch = (value) => {
-    setSearchQuery(value);
-  };
-
-  const handleRatingFilter = (value) => {
-    setRatingFilter(value);
-  };
-
   const handleFormChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      vendor_code: "",
+      name: "",
+      email: "",
+      address: "",
+      city: "",
+      state: "",
+      pincode: "",
+      category: [],
+      vendor_type: "material_supplier",
+      status: "active",
+      contact_person_name: "",
+      designation: "",
+      mobile_number: "",
+    });
+    setExpandedSections({
+      basic: true,
+      contact: true,
+    });
+  };
+
+  const handleOpenAddModal = async () => {
+    resetForm();
+    try {
+      // Auto-generate code on load
+      const response = await axios.get("department/procurement/vendors/stats");
+      const nextNum = (response.data.totalVendors + 1).toString().padStart(4, "0");
+      setFormData(prev => ({ ...prev, vendor_code: `VEN-${nextNum}` }));
+    } catch (err) {
+      console.error("Error generating vendor code:", err);
+    }
+    setShowAddModal(true);
+  };
+
+  const handleEditVendor = async (vendor) => {
+    const vendorData = await fetchVendorById(vendor.id);
+    if (vendorData) {
+      let parsedCategory = [];
+      try {
+        parsedCategory = JSON.parse(vendorData.category);
+        if (!Array.isArray(parsedCategory)) parsedCategory = [vendorData.category];
+      } catch (e) {
+        parsedCategory = vendorData.category ? [vendorData.category] : [];
+      }
+
+      setEditingVendor(vendorData);
+      setFormData({
+        vendor_code: vendorData.vendor_code || "",
+        name: vendorData.name || "",
+        email: vendorData.email || "",
+        address: vendorData.address || "",
+        city: vendorData.city || "",
+        state: vendorData.state || "",
+        pincode: vendorData.pincode || "",
+        category: parsedCategory,
+        vendor_type: vendorData.vendor_type || "material_supplier",
+        status: vendorData.status || "active",
+        contact_person_name: vendorData.contact_person_name || "",
+        designation: vendorData.designation || "",
+        mobile_number: vendorData.mobile_number || "",
+      });
+      setShowEditModal(true);
+    }
   };
 
   const handleAddVendor = async (e) => {
@@ -149,24 +231,13 @@ const VendorsPage = () => {
     try {
       const payload = {
         ...formData,
-        rating: formData.rating ? parseFloat(formData.rating) : 0,
+        category: JSON.stringify(formData.category),
       };
 
       await axios.post(`department/procurement/vendors`, payload);
 
       setShowAddModal(false);
-      setFormData({
-        name: "",
-        contact: "",
-        email: "",
-        phone: "",
-        address: "",
-        category: "",
-        vendor_type: "material_supplier",
-        rating: "",
-        status: "active",
-      });
-
+      resetForm();
       fetchVendors();
       fetchStats();
       toastUtils.success("Vendor added successfully");
@@ -175,25 +246,6 @@ const VendorsPage = () => {
       toastUtils.error("Failed to add vendor");
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const handleEditVendor = async (vendor) => {
-    const vendorData = await fetchVendorById(vendor.id);
-    if (vendorData) {
-      setEditingVendor(vendorData);
-      setFormData({
-        name: vendorData.name || "",
-        contact: vendorData.contact || "",
-        email: vendorData.email || "",
-        phone: vendorData.phone || "",
-        address: vendorData.address || "",
-        category: vendorData.category || "",
-        vendor_type: vendorData.vendor_type || "material_supplier",
-        rating: vendorData.rating || "",
-        status: vendorData.status || "active",
-      });
-      setShowEditModal(true);
     }
   };
 
@@ -209,7 +261,7 @@ const VendorsPage = () => {
     try {
       const payload = {
         ...formData,
-        rating: formData.rating ? parseFloat(formData.rating) : 0,
+        category: JSON.stringify(formData.category),
       };
 
       await axios.put(
@@ -219,18 +271,7 @@ const VendorsPage = () => {
 
       setShowEditModal(false);
       setEditingVendor(null);
-      setFormData({
-        name: "",
-        contact: "",
-        email: "",
-        phone: "",
-        address: "",
-        category: "",
-        vendor_type: "material_supplier",
-        rating: "",
-        status: "active",
-      });
-
+      resetForm();
       fetchVendors();
       fetchStats();
       toastUtils.success("Vendor updated successfully");
@@ -242,56 +283,24 @@ const VendorsPage = () => {
     }
   };
 
-  const handleShowPerformance = async (vendor) => {
-    const vendorData = await fetchVendorById(vendor.id);
-    if (vendorData) {
-      setSelectedVendor(vendorData);
-      setShowPerformanceModal(true);
+  const handleDeleteVendor = async (id) => {
+    if (window.confirm("Are you sure you want to delete this vendor?")) {
+      try {
+        await axios.delete(`department/procurement/vendors/${id}`);
+        toastUtils.success("Vendor deleted successfully");
+        fetchVendors();
+        fetchStats();
+      } catch (err) {
+        console.error("Error deleting vendor:", err);
+        toastUtils.error("Failed to delete vendor");
+      }
     }
-  };
-
-  const renderStars = (rating) => {
-    const numRating = parseFloat(rating);
-    if (!rating || isNaN(numRating))
-      return (
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          No rating
-        </span>
-      );
-    const fullStars = Math.floor(numRating);
-    const hasHalfStar = numRating % 1 !== 0;
-
-    return (
-      <div className="flex items-center text-xs gap-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            size={16}
-            className={
-              i < fullStars
-                ? "fill-yellow-400 text-yellow-400"
-                : hasHalfStar && i === fullStars
-                ? "fill-yellow-400 text-yellow-400"
-                : "text-gray-300"
-            }
-          />
-        ))}
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">
-          {numRating.toFixed(1)}
-        </span>
-      </div>
-    );
   };
 
   const getStatusColor = (status) => {
     return status === "active"
       ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
       : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
-  };
-
-  const formatCurrency = (value) => {
-    if (!value) return "₹0";
-    return `₹${(value / 100000).toFixed(2)}L`;
   };
 
   const formatDate = (dateString) => {
@@ -331,7 +340,7 @@ const VendorsPage = () => {
       {/* Filters */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
+          <div className="relative md:col-span-2">
             <Search
               size={18}
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
@@ -344,16 +353,6 @@ const VendorsPage = () => {
               className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
             />
           </div>
-
-          <select
-            value={ratingFilter}
-            onChange={(e) => handleRatingFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
-          >
-            <option value="all">All Vendors</option>
-            <option value="4+">Rating 4+ Stars</option>
-            <option value="3+">Rating 3+ Stars</option>
-          </select>
 
           <button className="flex items-center text-xs justify-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             <Filter size={18} />
@@ -392,9 +391,33 @@ const VendorsPage = () => {
                     {vendor.name}
                   </h3>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
-                      {vendor.category || "No category"}
-                    </span>
+                    {(() => {
+                      let categories = [];
+                      try {
+                        if (typeof vendor.category === 'string') {
+                          const parsed = JSON.parse(vendor.category);
+                          categories = Array.isArray(parsed) ? parsed : [vendor.category];
+                        } else if (Array.isArray(vendor.category)) {
+                          categories = vendor.category;
+                        } else if (vendor.category) {
+                          categories = [vendor.category];
+                        }
+                      } catch (e) {
+                        categories = [vendor.category];
+                      }
+
+                      return categories.length > 0 ? (
+                        categories.map((cat, idx) => (
+                          <span key={idx} className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                            {cat}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
+                          No category
+                        </span>
+                      );
+                    })()}
                     <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded capitalize">
                       {(vendor.vendor_type || "material_supplier").replace(
                         /_/g,
@@ -408,12 +431,10 @@ const VendorsPage = () => {
                     vendor.status
                   )}`}
                 >
-                  {vendor.status.charAt(0).toUpperCase() +
-                    vendor.status.slice(1)}
+                  {(vendor.status || "active").charAt(0).toUpperCase() +
+                    (vendor.status || "active").slice(1)}
                 </span>
               </div>
-
-              <div className="mb-4">{renderStars(vendor.rating)}</div>
 
               <div className="space-y-2 mb-4 text-sm">
                 {vendor.email && (
@@ -427,50 +448,23 @@ const VendorsPage = () => {
                     </a>
                   </div>
                 )}
-                {vendor.phone && (
+                {vendor.mobile_number && (
                   <div className="flex items-center text-xs gap-2 text-slate-600 dark:text-slate-400">
                     <Phone size={16} />
                     <a
-                      href={`tel:${vendor.phone}`}
+                      href={`tel:${vendor.mobile_number}`}
                       className="hover:text-blue-600 dark:hover:text-blue-400"
                     >
-                      {vendor.phone}
+                      {vendor.mobile_number}
                     </a>
                   </div>
                 )}
-                {vendor.address && (
+                {(vendor.city || vendor.state) && (
                   <div className="flex items-center text-xs gap-2 text-slate-600 dark:text-slate-400">
                     <MapPin size={16} />
-                    <span>{vendor.address}</span>
+                    <span>{[vendor.city, vendor.state].filter(Boolean).join(", ")}</span>
                   </div>
                 )}
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg mb-4">
-                <div className="text-center">
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Total Orders
-                  </p>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white text-xs">
-                    {vendor.total_orders || 0}
-                  </p>
-                </div>
-                <div className="text-center border-l border-r border-slate-200 dark:border-slate-600">
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Total Value
-                  </p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white text-xs">
-                    {formatCurrency(vendor.total_value)}
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Last Order
-                  </p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white text-xs">
-                    {formatDate(vendor.last_order_date)}
-                  </p>
-                </div>
               </div>
 
               <div className="flex gap-2">
@@ -480,13 +474,6 @@ const VendorsPage = () => {
                 >
                   <Edit size={16} />
                   Edit
-                </button>
-                <button
-                  onClick={() => handleShowPerformance(vendor)}
-                  className="flex-1 flex items-center text-xs justify-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium text-sm"
-                >
-                  <TrendingUp size={16} />
-                  Performance
                 </button>
                 <button
                   onClick={() => handleDeleteVendor(vendor.id)}
@@ -501,7 +488,7 @@ const VendorsPage = () => {
       </div>
 
       {/* Vendor Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-blue-200 dark:border-slate-600">
           <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
             Total Vendors
@@ -518,28 +505,16 @@ const VendorsPage = () => {
             {stats.active_count || 0}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-yellow-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-            Avg. Rating
-          </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
-            {stats.avg_rating ? parseFloat(stats.avg_rating).toFixed(1) : "0"}
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-purple-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-            Total Orders
-          </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
-            {stats.total_orders_sum || 0}
-          </p>
-        </div>
       </div>
 
-      {showAddModal && (
+      {(showAddModal || showEditModal) && (
         <div
           className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowAddModal(false)}
+          onClick={() => {
+            setShowAddModal(false);
+            setShowEditModal(false);
+            setEditingVendor(null);
+          }}
         >
           <div
             className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col"
@@ -549,14 +524,18 @@ const VendorsPage = () => {
             <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-800 flex justify-between items-center px-8 py-6 border-b border-slate-200 dark:border-slate-600">
               <div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white text-xs">
-                  Add New Vendor
+                  {editingVendor ? "Edit Vendor" : "Add New Vendor"}
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 text-xs">
-                  Fill in the vendor details below
+                  {editingVendor ? `Updating: ${editingVendor.vendor_code}` : "Fill in the vendor details below"}
                 </p>
               </div>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setShowEditModal(false);
+                  setEditingVendor(null);
+                }}
                 className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
               >
                 <X size={24} className="text-slate-600 dark:text-slate-400" />
@@ -565,574 +544,241 @@ const VendorsPage = () => {
 
             {/* Form Content */}
             <form
-              onSubmit={handleAddVendor}
-              className="overflow-y-auto flex-1 px-8 py-6"
+              onSubmit={editingVendor ? handleUpdateVendor : handleAddVendor}
+              className="overflow-y-auto flex-1 px-8 py-6 space-y-4"
             >
-              {/* Basic Information */}
-              <div className="mb-8">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">
-                  Basic Information
-                </h4>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Vendor Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleFormChange}
-                      placeholder="Enter vendor name"
-                      required
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
+              {/* Section: Basic Information */}
+              <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection("basic")}
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider">
+                    <Building2 size={16} className="text-blue-500" />
+                    Basic Information
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Contact Person
-                    </label>
-                    <input
-                      type="text"
-                      name="contact"
-                      value={formData.contact}
-                      onChange={handleFormChange}
-                      placeholder="Contact person name"
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
+                  {expandedSections.basic ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                
+                {expandedSections.basic && (
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Category
-                      </label>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendor Code</label>
                       <input
                         type="text"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleFormChange}
-                        placeholder="e.g., Electronics"
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        name="vendor_code"
+                        value={formData.vendor_code}
+                        disabled
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900 font-bold text-blue-600"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Vendor Type <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        name="vendor_type"
-                        value={formData.vendor_type}
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendor Name *</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
                         onChange={handleFormChange}
                         required
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      >
-                        <option value="material_supplier">
-                          Material Supplier
-                        </option>
-                        <option value="manufacturer">Manufacturer</option>
-                        <option value="outsourcing_partner">
-                          Outsourcing Partner
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Status
-                    </label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleFormChange}
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Information */}
-              <div className="mb-8">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">
-                  Contact Information
-                </h4>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleFormChange}
-                        placeholder="vendor@example.com"
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        placeholder="Enter vendor name"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Phone
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleFormChange}
-                        placeholder="+91 XXXXXXXXXX"
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Address
-                    </label>
-                    <textarea
-                      name="address"
-                      value={formData.address}
-                      onChange={handleFormChange}
-                      placeholder="Enter vendor address"
-                      rows="3"
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Performance */}
-              <div className="mb-8">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">
-                  Performance
-                </h4>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Initial Rating (0-5)
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="number"
-                      name="rating"
-                      value={formData.rating}
-                      onChange={handleFormChange}
-                      placeholder="0.0"
-                      min="0"
-                      max="5"
-                      step="0.1"
-                      className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={20}
-                          className={
-                            i < Math.floor(formData.rating || 0)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </form>
-
-            {/* Footer */}
-            <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-8 py-4 flex gap-3 justify-end">
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                onClick={handleAddVendor}
-                disabled={submitting}
-                className="px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
-              >
-                {submitting ? "Adding Vendor..." : "Add Vendor"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showEditModal && editingVendor && (
-        <div
-          className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowEditModal(false)}
-        >
-          <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-800 flex justify-between items-center px-8 py-6 border-b border-slate-200 dark:border-slate-600">
-              <div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white text-xs">
-                  Edit Vendor
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 text-xs">
-                  Update vendor information
-                </p>
-              </div>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
-              >
-                <X size={24} className="text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
-
-            {/* Form Content */}
-            <form
-              onSubmit={handleUpdateVendor}
-              className="overflow-y-auto flex-1 px-8 py-6"
-            >
-              {/* Basic Information */}
-              <div className="mb-8">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">
-                  Basic Information
-                </h4>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Vendor Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleFormChange}
-                      placeholder="Enter vendor name"
-                      required
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Contact Person
-                    </label>
-                    <input
-                      type="text"
-                      name="contact"
-                      value={formData.contact}
-                      onChange={handleFormChange}
-                      placeholder="Contact person name"
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Category
-                      </label>
-                      <input
-                        type="text"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleFormChange}
-                        placeholder="e.g., Electronics"
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Vendor Type
-                      </label>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendor Type *</label>
                       <select
                         name="vendor_type"
                         value={formData.vendor_type}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       >
-                        <option value="material_supplier">
-                          Material Supplier
-                        </option>
-                        <option value="manufacturer">Manufacturer</option>
-                        <option value="outsourcing_partner">
-                          Outsourcing Partner
-                        </option>
+                        <option value="material_supplier">Material Supplier</option>
+                        <option value="service_vendor">Service Vendor</option>
+                        <option value="contractor">Contractor</option>
                       </select>
                     </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status</label>
+                      <select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendor Category (Multi-select)</label>
+                      <div className="flex flex-wrap gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900">
+                        {VENDOR_CATEGORIES.map(cat => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => {
+                              const current = Array.isArray(formData.category) ? formData.category : [];
+                              const updated = current.includes(cat) 
+                                ? current.filter(c => c !== cat)
+                                : [...current, cat];
+                              setFormData(prev => ({ ...prev, category: updated }));
+                            }}
+                            className={`px-2 py-1 text-[10px] font-bold rounded-full transition-all ${
+                              Array.isArray(formData.category) && formData.category.includes(cat)
+                                ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Status
-                    </label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleFormChange}
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-                </div>
+                )}
               </div>
 
-              {/* Contact Information */}
-              <div className="mb-8">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">
-                  Contact Information
-                </h4>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+              {/* Section: Contact Information */}
+              <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection("contact")}
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider">
+                    <UserCheck size={16} className="text-emerald-500" />
+                    Contact Information
+                  </div>
+                  {expandedSections.contact ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                
+                {expandedSections.contact && (
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Email
-                      </label>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Contact Person Name</label>
+                      <input
+                        type="text"
+                        name="contact_person_name"
+                        value={formData.contact_person_name}
+                        onChange={handleFormChange}
+                        placeholder="Full Name"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Designation</label>
+                      <input
+                        type="text"
+                        name="designation"
+                        value={formData.designation}
+                        onChange={handleFormChange}
+                        placeholder="e.g. Sales Manager"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Mobile Number</label>
+                      <input
+                        type="text"
+                        name="mobile_number"
+                        value={formData.mobile_number}
+                        onChange={handleFormChange}
+                        placeholder="+91 XXXXXXXXXX"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email</label>
                       <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleFormChange}
                         placeholder="vendor@example.com"
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Address</label>
+                      <input
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleFormChange}
+                        placeholder="Plot No, Industrial Area..."
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Phone
-                      </label>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">City</label>
                       <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
+                        type="text"
+                        name="city"
+                        value={formData.city}
                         onChange={handleFormChange}
-                        placeholder="+91 XXXXXXXXXX"
-                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">State</label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pincode</label>
+                      <input
+                        type="text"
+                        name="pincode"
+                        value={formData.pincode}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Address
-                    </label>
-                    <textarea
-                      name="address"
-                      value={formData.address}
-                      onChange={handleFormChange}
-                      placeholder="Enter vendor address"
-                      rows="3"
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Performance */}
-              <div className="mb-8">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">
-                  Performance
-                </h4>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Rating (0-5)
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="number"
-                      name="rating"
-                      value={formData.rating}
-                      onChange={handleFormChange}
-                      placeholder="0.0"
-                      min="0"
-                      max="5"
-                      step="0.1"
-                      className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={20}
-                          className={
-                            i < Math.floor(formData.rating || 0)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             </form>
 
             {/* Footer */}
-            <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-8 py-4 flex gap-3 justify-end">
+            <div className="sticky bottom-0 bg-white dark:bg-slate-800 px-8 py-4 border-t border-slate-200 dark:border-slate-600 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setShowEditModal(false)}
-                className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium"
+                onClick={() => {
+                  setShowAddModal(false);
+                  setShowEditModal(false);
+                  setEditingVendor(null);
+                }}
+                className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-bold text-xs uppercase"
               >
                 Cancel
               </button>
               <button
-                type="submit"
-                onClick={handleUpdateVendor}
+                type="button"
+                onClick={editingVendor ? handleUpdateVendor : handleAddVendor}
                 disabled={submitting}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
+                className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-bold text-xs uppercase shadow-lg shadow-blue-500/20 disabled:opacity-50 flex items-center gap-2"
               >
-                {submitting ? "Updating..." : "Update Vendor"}
+                {submitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  editingVendor ? "Update Vendor" : "Add Vendor"
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {showPerformanceModal && selectedVendor && (
-        <div
-          className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowPerformanceModal(false)}
-        >
-          <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-slate-700 dark:to-slate-800 flex justify-between items-center px-8 py-6 border-b border-slate-200 dark:border-slate-600">
-              <div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white text-xs">
-                  {selectedVendor.name}
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 text-xs">
-                  Performance Metrics
-                </p>
-              </div>
-              <button
-                onClick={() => setShowPerformanceModal(false)}
-                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
-              >
-                <X size={24} className="text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
 
-            {/* Content */}
-            <div className="px-8 py-6">
-              <div className="grid grid-cols-2 gap-6 mb-8">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-800 rounded-xl p-6 border border-blue-200 dark:border-slate-600">
-                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    Total Orders
-                  </p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white text-xs mt-2">
-                    {selectedVendor.total_orders || 0}
-                  </p>
-                </div>
-                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-700 dark:to-slate-800 rounded-xl p-6 border border-green-200 dark:border-slate-600">
-                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    Total Value
-                  </p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white text-xs mt-2">
-                    {formatCurrency(selectedVendor.total_value)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-700 dark:to-slate-800 rounded-xl p-6 border border-yellow-200 dark:border-slate-600">
-                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    Rating
-                  </p>
-                  <div className="mt-3">
-                    {renderStars(selectedVendor.rating)}
-                  </div>
-                </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-slate-700 dark:to-slate-800 rounded-xl p-6 border border-purple-200 dark:border-slate-600">
-                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    Status
-                  </p>
-                  <p
-                    className={`text-sm font-bold mt-2 ${
-                      selectedVendor.status === "active"
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-gray-600 dark:text-gray-400"
-                    }`}
-                  >
-                    {selectedVendor.status.charAt(0).toUpperCase() +
-                      selectedVendor.status.slice(1)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">
-                  Contact Information
-                </h4>
-                <div className="space-y-3">
-                  {selectedVendor.email && (
-                    <div className="flex items-center gap-3">
-                      <Mail
-                        size={18}
-                        className="text-blue-600 dark:text-blue-400"
-                      />
-                      <a
-                        href={`mailto:${selectedVendor.email}`}
-                        className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
-                      >
-                        {selectedVendor.email}
-                      </a>
-                    </div>
-                  )}
-                  {selectedVendor.phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone
-                        size={18}
-                        className="text-green-600 dark:text-green-400"
-                      />
-                      <a
-                        href={`tel:${selectedVendor.phone}`}
-                        className="text-slate-700 dark:text-slate-300 hover:text-green-600 dark:hover:text-green-400"
-                      >
-                        {selectedVendor.phone}
-                      </a>
-                    </div>
-                  )}
-                  {selectedVendor.address && (
-                    <div className="flex items-start gap-3">
-                      <MapPin
-                        size={18}
-                        className="text-orange-600 dark:text-orange-400 mt-1"
-                      />
-                      <p className="text-slate-700 dark:text-slate-300">
-                        {selectedVendor.address}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-8 py-4 flex justify-end">
-              <button
-                onClick={() => setShowPerformanceModal(false)}
-                className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

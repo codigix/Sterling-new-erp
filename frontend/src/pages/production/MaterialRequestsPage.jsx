@@ -172,32 +172,59 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                   <table className="w-full text-sm text-left">
                     <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-[10px] uppercase font-black tracking-widest">
                       <tr>
-                        <th className="px-4 py-3">Material Details</th>
-                        <th className="px-4 py-3 text-right">Required Qty</th>
-                        <th className="px-4 py-3 text-right">Received Qty</th>
+                        <th className="px-4 py-3 w-12 text-center">#</th>
+                        <th className="px-4 py-3">Item Name / Group</th>
+                        <th className="px-4 py-3">Part Detail / Grade</th>
+                        <th className="px-4 py-3">Remark / Make</th>
+                        <th className="px-4 py-3 text-center">Qty</th>
+                        <th className="px-4 py-3 text-center">UOM</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                       {request.items?.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/30 transition-colors">
-                          <td className="px-4 py-3">
+                        <tr key={idx} className="hover:bg-slate-50/30 transition-colors group">
+                          <td className="px-4 py-4 text-center text-xs font-medium text-slate-400">
+                            {idx + 1}
+                          </td>
+                          <td className="px-4 py-4">
                             <div className="flex flex-col">
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{item.item_name}</span>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded uppercase font-medium">
-                                  {item.item_group || "NO-GROUP"}
-                                </span>
-                                {item.material_grade && (
-                                  <span className="text-[10px] text-slate-400">Grade: {item.material_grade}</span>
-                                )}
-                              </div>
+                              <span className="font-bold text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors">
+                                {item.item_name}
+                              </span>
+                              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-tight mt-0.5">
+                                {item.item_group || "NO-GROUP"}
+                              </span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-right font-bold text-slate-700 dark:text-slate-200">
-                            {item.required_quantity} {item.uom}
+                          <td className="px-4 py-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-700 dark:text-slate-300">
+                                {item.part_detail || "-"}
+                              </span>
+                              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tight">
+                                {item.material_grade || "-"}
+                              </span>
+                            </div>
                           </td>
-                          <td className="px-4 py-3 text-right font-bold text-emerald-600">
-                            {item.received_quantity || 0} {item.uom}
+                          <td className="px-4 py-4">
+                            <div className="flex flex-col">
+                              <span className="text-[10px] text-slate-500 italic">
+                                {item.remark || "-"}
+                              </span>
+                              <span className="text-xs text-slate-600 dark:text-slate-400">
+                                {item.make || "-"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <span className="font-black text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-800">
+                              {item.required_quantity}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                              {item.uom}
+                            </span>
                           </td>
                         </tr>
                       ))}

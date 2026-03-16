@@ -7,6 +7,17 @@ const createMaterialRequest = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Fetch BOM details for snapshot
+    const [bomRows] = await connection.query('SELECT bom_number FROM boms WHERE id = ?', [bomId]);
+    const bomNumberSnapshot = bomRows.length > 0 ? bomRows[0].bom_number : 'N/A';
+
+    // Fetch Project Name snapshot
+    let projectNameSnapshot = 'N/A';
+    if (rootCardId) {
+      const [rcRows] = await connection.query('SELECT project_name FROM root_cards WHERE id = ?', [rootCardId]);
+      if (rcRows.length > 0) projectNameSnapshot = rcRows[0].project_name;
+    }
+
     // Generate Request Number
     const year = new Date().getFullYear();
     const [countRows] = await connection.query('SELECT COUNT(*) as count FROM material_requests');
@@ -16,9 +27,9 @@ const createMaterialRequest = async (req, res) => {
     // 1. Insert into material_requests
     const [requestResult] = await connection.query(
       `INSERT INTO material_requests 
-      (bom_id, request_number, status, department, project_id, root_card_id, created_by, remarks) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [bomId, requestNumber, 'pending', 'Production', projectId || null, rootCardId || null, req.user?.id || null, remarks || '']
+      (bom_id, request_number, status, department, project_id, root_card_id, created_by, remarks, bom_number, project_name) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [bomId, requestNumber, 'pending', 'Production', projectId || null, rootCardId || null, req.user?.id || null, remarks || '', bomNumberSnapshot, projectNameSnapshot]
     );
 
     const requestId = requestResult.insertId;
@@ -37,12 +48,14 @@ const createMaterialRequest = async (req, res) => {
         item.make || null,
         item.quantity || 0,
         item.uom || '',
-        item.remark || ''
+        item.remark || '',
+        item.warehouse || null,
+        item.operation || null
       ]);
 
       await connection.query(
         `INSERT INTO material_request_items 
-        (material_request_id, item_name, item_group, material_grade, part_detail, make, required_quantity, uom, remark) 
+        (material_request_id, item_name, item_group, material_grade, part_detail, make, required_quantity, uom, remark, warehouse, operation) 
         VALUES ?`,
         [itemValues]
       );
@@ -75,9 +88,11 @@ const getMaterialRequests = async (req, res) => {
   try {
     const { department, status, projectId } = req.query;
     let query = `
-      SELECT mr.*, b.bom_number, rc.project_name 
+      SELECT mr.*, 
+             COALESCE(mr.bom_number, b.bom_number) as bom_number, 
+             COALESCE(mr.project_name, rc.project_name) as project_name 
       FROM material_requests mr
-      JOIN boms b ON mr.bom_id = b.id
+      LEFT JOIN boms b ON mr.bom_id = b.id
       LEFT JOIN root_cards rc ON mr.root_card_id = rc.id
       WHERE 1=1
     `;
@@ -110,9 +125,12 @@ const getMaterialRequestById = async (req, res) => {
   const { id } = req.params;
   try {
     const [requestRows] = await db.query(`
-      SELECT mr.*, b.bom_number, rc.project_name, rc.po_number
+      SELECT mr.*, 
+             COALESCE(mr.bom_number, b.bom_number) as bom_number, 
+             COALESCE(mr.project_name, rc.project_name) as project_name, 
+             rc.po_number
       FROM material_requests mr
-      JOIN boms b ON mr.bom_id = b.id
+      LEFT JOIN boms b ON mr.bom_id = b.id
       LEFT JOIN root_cards rc ON mr.root_card_id = rc.id
       WHERE mr.id = ?
     `, [id]);

@@ -137,7 +137,6 @@ const QuotationsPage = ({ defaultTab }) => {
   const [rootCards, setRootCards] = useState([]);
   const [materialRequests, setMaterialRequests] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedQuotation, setSelectedQuotation] = useState(null);
   const [initialData, setInitialData] = useState(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -153,6 +152,8 @@ const QuotationsPage = ({ defaultTab }) => {
   const [selectedQuotationForComms, setSelectedQuotationForComms] = useState(null);
   const [communications, setCommunications] = useState([]);
   const [loadingCommunications, setLoadingCommunications] = useState(false);
+  const [replyMessage, setReplyMessage] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
 
   const fetchQuotations = useCallback(async () => {
     try {
@@ -287,8 +288,9 @@ const QuotationsPage = ({ defaultTab }) => {
   const handleViewQuotation = async (quotation) => {
     try {
       const response = await axios.get(`/department/procurement/quotations/${quotation.id}`);
-      setSelectedQuotation(response.data);
-      setShowViewModal(true);
+      const fullQuotation = response.data;
+      const doc = await generateQuotationPDF(fullQuotation);
+      window.open(doc.output("bloburl"), "_blank");
     } catch (err) {
       console.error("Error viewing quotation detail:", err);
       Swal.fire("Error", "Failed to load quotation details", "error");
@@ -330,25 +332,45 @@ const QuotationsPage = ({ defaultTab }) => {
       doc.text(`Material Request: ${quotation.mr_number}`, 14, 60);
     }
 
+    if (quotation.rfq_number) {
+      doc.text(`Reference RFQ: ${quotation.rfq_number}`, 14, quotation.mr_number ? 65 : 60);
+    }
+
     if (quotation.valid_until) {
+      let yPos = 60;
+      if (quotation.mr_number && quotation.rfq_number) yPos = 70;
+      else if (quotation.mr_number || quotation.rfq_number) yPos = 65;
+      
       doc.text(
         `Valid Until: ${new Date(quotation.valid_until).toLocaleDateString()}`,
         14,
-        quotation.mr_number ? 65 : 60
+        yPos
       );
     }
 
-    const tableColumn = ["Item Code", "Description", "Category", "Quantity", "Unit"];
+    const tableColumn = [
+      "Item Name",
+      "Group",
+      "Grade",
+      "Part Detail",
+      "Make",
+      "Remark",
+      "Qty",
+      "Unit",
+    ];
     if (quotation.type === "inbound") {
-      tableColumn.push("Unit Price", "Total");
+      tableColumn.push("Rate", "Total");
     }
 
     const tableRows = (quotation.items || []).map((item) => {
       const row = [
-        item.item_code || item.material_code || "N/A",
-        item.description,
-        item.category || item.materialType || "",
-        item.quantity,
+        item.item_name || item.description || "N/A",
+        item.item_group || "N/A",
+        item.material_grade || "N/A",
+        item.part_detail || "N/A",
+        item.make || "N/A",
+        item.remark || "N/A",
+        item.quantity ? parseFloat(item.quantity).toString() : "0",
         item.unit || "N/A",
       ];
       if (quotation.type === "inbound") {
@@ -360,12 +382,28 @@ const QuotationsPage = ({ defaultTab }) => {
       return row;
     });
 
+    let startY = 70;
+    if (quotation.valid_until && quotation.mr_number && quotation.rfq_number) startY = 80;
+    else if (quotation.valid_until && (quotation.mr_number || quotation.rfq_number)) startY = 75;
+    else if (quotation.mr_number && quotation.rfq_number) startY = 75;
+
     autoTable(doc, {
-      startY: quotation.valid_until || quotation.mr_number ? 75 : 70,
+      startY: startY,
       head: [tableColumn],
       body: tableRows,
       theme: "grid",
       headStyles: { fillColor: [66, 139, 202] },
+      styles: { fontSize: 7, cellPadding: 2 }, // Even smaller font to fit 8-10 columns
+      columnStyles: {
+        0: { cellWidth: "auto" }, // Description
+        1: { cellWidth: 20 }, // Group
+        2: { cellWidth: 15 }, // Grade
+        3: { cellWidth: 20 }, // Part Detail
+        4: { cellWidth: 15 }, // Make
+        5: { cellWidth: 20 }, // Remark
+        6: { cellWidth: 12 }, // Qty
+        7: { cellWidth: 12 }, // Unit
+      },
     });
 
     const finalY = doc.lastAutoTable.finalY + 10;
@@ -379,23 +417,25 @@ const QuotationsPage = ({ defaultTab }) => {
       );
     }
 
+    // Add Notes if present, filtering out Root Card references as requested
     if (quotation.notes) {
-      doc.setFontSize(10);
-      doc.text("Notes:", 14, finalY + (quotation.type === "inbound" ? 10 : 0));
-      doc.text(quotation.notes, 14, finalY + (quotation.type === "inbound" ? 15 : 5));
+      const filteredNotes = quotation.notes
+        .split('\n')
+        .filter(line => !line.toLowerCase().includes('root card'))
+        .join('\n')
+        .trim();
+
+      if (filteredNotes) {
+        const nextY = (quotation.type === "inbound" && quotation.total_amount) ? finalY + 15 : finalY;
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("Notes:", 14, nextY);
+        doc.setFont("helvetica", "normal");
+        doc.text(filteredNotes, 14, nextY + 7);
+      }
     }
 
     return doc;
-  };
-
-  const handleViewQuotationPDF = async (quotation) => {
-    try {
-      const doc = await generateQuotationPDF(quotation);
-      window.open(doc.output("bloburl"), "_blank");
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      Swal.fire("Error", "Failed to generate quotation PDF", "error");
-    }
   };
 
   const handleSendEmail = (quotation) => {
@@ -433,13 +473,49 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const handleCloseCommunications = () => {
     setShowCommunicationsModal(false);
+    setReplyMessage("");
     fetchQuotations();
+  };
+
+  const handleSendReply = async () => {
+    if (!replyMessage.trim()) return;
+
+    try {
+      setSendingReply(true);
+      const vendor = vendors.find((v) => v.id === selectedQuotationForComms.vendor_id);
+      
+      await axios.post(`/department/inventory/quotations/${selectedQuotationForComms.id}/email`, {
+        email: vendor?.email,
+        subject: `RE: Quotation Request ${selectedQuotationForComms.quotation_number}`,
+        message: replyMessage,
+      });
+
+      setReplyMessage("");
+      // Refresh communications
+      const response = await axios.get(
+        `/department/inventory/quotations/${selectedQuotationForComms.id}/communications`
+      );
+      setCommunications(response.data || []);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Reply Sent',
+        text: 'Your reply has been sent to the vendor via email.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error("Error sending reply:", error);
+      Swal.fire("Error", "Failed to send reply", "error");
+    } finally {
+      setSendingReply(false);
+    }
   };
 
   const handleDownloadAttachment = async (attachmentId, fileName) => {
     try {
       const response = await axios.get(
-        `/department/inventory/quotations/attachments/${attachmentId}/download`,
+        `/department/inventory/quotations/communications/attachment/${attachmentId}`,
         {
           responseType: "blob",
         }
@@ -467,20 +543,23 @@ const QuotationsPage = ({ defaultTab }) => {
 
     setSendingEmail(true);
     try {
-      const quotation = quotations.find((q) => q.id === emailData.quotationId);
-      if (!quotation) throw new Error("Quotation not found");
+      // Fetch full quotation details including items
+      const response = await axios.get(`/department/inventory/quotations/${emailData.quotationId}`);
+      const fullQuotation = response.data;
+      
+      if (!fullQuotation) throw new Error("Quotation not found");
 
-      const doc = await generateQuotationPDF(quotation);
+      const doc = await generateQuotationPDF(fullQuotation);
       const pdfBase64 = doc.output("datauristring");
 
-      await axios.post(`/department/inventory/quotations/${quotation.id}/email`, {
+      await axios.post(`/department/inventory/quotations/${fullQuotation.id}/email`, {
         email: emailData.email,
         subject: emailData.subject,
         message: emailData.message,
         pdfBase64,
       });
 
-      await axios.patch(`/department/inventory/quotations/${quotation.id}/status`, {
+      await axios.patch(`/department/inventory/quotations/${fullQuotation.id}/status`, {
         status: "sent",
       });
 
@@ -557,75 +636,10 @@ const QuotationsPage = ({ defaultTab }) => {
     }
   };
 
-  const handleCreatePOFromQuote = async (quote) => {
-    try {
-      const result = await Swal.fire({
-        title: "Create Purchase Order?",
-        text: `This will create a draft PO for ${quote.vendor_name} based on quote ${quote.quotation_number}.`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#2563eb",
-        confirmButtonText: "Yes, Create PO",
-      });
-
-      if (!result.isConfirmed) return;
-
-      // Parse items if they are a string
-      let items = quote.items || [];
-      if (typeof items === "string") {
-        try {
-          items = JSON.parse(items);
-        } catch (e) {
-          console.error("Error parsing quote items:", e);
-          items = [];
-        }
-      }
-
-      const payload = {
-        quotation_id: quote.id,
-        material_request_id: quote.material_request_id || null,
-        vendor_id: quote.vendor_id,
-        items: items.map((item) => ({
-          material_name: item.description || item.material_name || "Unknown",
-          material_code: item.item_code || item.material_code || "",
-          quantity: item.quantity || 0,
-          unit: item.unit || "Nos",
-          rate: item.unit_price || 0,
-          amount: (item.quantity || 0) * (item.unit_price || 0),
-        })),
-        subtotal: quote.total_amount || 0,
-        total_amount: quote.total_amount || 0,
-        notes: `Created from Quotation: ${quote.quotation_number}`,
-      };
-
-      const response = await axios.post("/department/inventory/purchase-orders", payload);
-
-      // If we are coming from workflow tasks, complete the "Create Purchase Order" task
-      if (isFromDepartmentTasks()) {
-        try {
-          await completeCurrentTask("Purchase Order created from approved quotation");
-        } catch (taskError) {
-          console.error("Error completing workflow task:", taskError);
-          // Don't fail the whole process if task completion fails
-        }
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "PO Created",
-        text: `Purchase Order ${response.data.po_number} has been created successfully.`,
-        confirmButtonColor: "#2563eb",
-      }).then(() => {
-        navigate(`/department/inventory/purchase-orders/${response.data.id}${location.search}`);
-      });
-    } catch (error) {
-      console.error("Error creating PO from quote:", error);
-      Swal.fire(
-        "Error",
-        error.response?.data?.message || "Failed to create Purchase Order",
-        "error"
-      );
-    }
+  const handleCreatePOFromQuote = (quote) => {
+    navigate("/department/procurement/purchase-orders", { 
+      state: { quotation: quote } 
+    });
   };
 
   const handleRecordResponse = (quote) => {
@@ -646,6 +660,8 @@ const QuotationsPage = ({ defaultTab }) => {
       notes: `Response to ${quote.quotation_number}`,
       type: "inbound",
       reference_id: quote.id,
+      rfq_id: quote.id,
+      rfq_number: quote.quotation_number,
     });
     setShowAddModal(true);
   };
@@ -884,6 +900,11 @@ const QuotationsPage = ({ defaultTab }) => {
                           MR: {quote.mr_number}
                         </p>
                       )}
+                      {quote.rfq_number && (
+                        <p className="text-xs text-purple-600 font-bold uppercase mt-0.5">
+                          RFQ: {quote.rfq_number}
+                        </p>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-slate-700 dark:text-slate-300 font-medium">
                       {quote.vendor_name}
@@ -1013,7 +1034,7 @@ const QuotationsPage = ({ defaultTab }) => {
                                 className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-lg transition-colors"
                                 title="Create Purchase Order"
                               >
-                                <PlusCircle size={16} />
+                                <Plus size={16} />
                               </button>
                             )}
                           </>
@@ -1103,171 +1124,7 @@ const QuotationsPage = ({ defaultTab }) => {
         }}
       />
 
-      {/* View Quotation Modal */}
-      {showViewModal && selectedQuotation && (
-        <div
-          className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowViewModal(false)}
-        >
-          <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-slate-700 dark:to-slate-800 flex justify-between items-center px-8 py-6 border-b border-slate-200 dark:border-slate-600">
-              <div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  {selectedQuotation.quotation_number}
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                  {selectedQuotation.vendor_name}
-                  {selectedQuotation.mr_number && (
-                    <span className="ml-2 text-blue-600 font-bold">
-                      | MR: {selectedQuotation.mr_number}
-                    </span>
-                  )}
-                </p>
-              </div>
-              <button
-                onClick={() => setShowViewModal(false)}
-                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
-              >
-                <X size={24} className="text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
-
-            <div className="px-8 py-6 space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                {selectedQuotation.type !== "outbound" && (
-                  <div className="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg">
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      Total Amount
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white text-xs mt-1">
-                      ₹{selectedQuotation.total_amount?.toLocaleString()}
-                    </p>
-                  </div>
-                )}
-                <div className="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Valid Until
-                  </p>
-                  <p className="text-2xl font-bold text-slate-900 dark:text-white text-xs mt-1">
-                    {formatDate(selectedQuotation.valid_until)}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Status
-                </p>
-                <span
-                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(
-                    selectedQuotation.status
-                  )}`}
-                >
-                  {selectedQuotation.status.charAt(0).toUpperCase() +
-                    selectedQuotation.status.slice(1)}
-                </span>
-              </div>
-
-              {selectedQuotation.items &&
-                Array.isArray(selectedQuotation.items) &&
-                selectedQuotation.items.length > 0 && (
-                  <div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                      Line Items
-                    </p>
-                    <div className="space-y-2">
-                      {selectedQuotation.items.map((item, index) => (
-                        <div
-                          key={index}
-                          className="border border-slate-300 dark:border-slate-600 rounded-lg p-3 bg-slate-50 dark:bg-slate-700/50"
-                        >
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <span className="font-medium text-slate-900 dark:text-white text-xs block">
-                                {item.description || "Item " + (index + 1)}
-                              </span>
-                              {(item.category || item.materialType) && (
-                                <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-600 px-2 py-0.5 rounded-full mt-1 inline-block">
-                                  {item.category || item.materialType}
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-slate-600 dark:text-slate-400 text-xs">
-                              Qty: {item.quantity}
-                            </span>
-                          </div>
-                          {selectedQuotation.type !== "outbound" && (
-                            <div className="flex justify-between items-center mt-2">
-                              <span className="text-sm text-slate-600 dark:text-slate-400">
-                                Unit Price: ₹
-                                {(item.unit_price || 0).toLocaleString(
-                                  "en-IN",
-                                  { minimumFractionDigits: 2 }
-                                )}
-                              </span>
-                              <span className="font-semibold text-slate-900 dark:text-white">
-                                ₹
-                                {(
-                                  (item.quantity || 0) * (item.unit_price || 0)
-                                ).toLocaleString("en-IN", {
-                                  minimumFractionDigits: 2,
-                                })}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              {selectedQuotation.notes && (
-                <div>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Notes
-                  </p>
-                  <p className="text-slate-600 dark:text-slate-400">
-                    {selectedQuotation.notes}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-8 py-4 flex justify-end gap-3">
-              <button
-                onClick={() => handleViewQuotationPDF(selectedQuotation)}
-                className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium flex items-center gap-2"
-              >
-                <Download size={18} />
-                Download PDF
-              </button>
-              {selectedQuotation.type !== "outbound" && (
-                <button
-                  onClick={() => {
-                    setShowViewModal(false);
-                    navigate(`/department/inventory/purchase-orders${location.search}`, {
-                      state: { quotation: selectedQuotation },
-                    });
-                  }}
-                  className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium flex items-center gap-2"
-                >
-                  Create PO
-                </button>
-              )}
-              <button
-                onClick={() => setShowViewModal(false)}
-                className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* Email Modal */}
       {showEmailModal && (
         <div
           className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -1412,28 +1269,43 @@ const QuotationsPage = ({ defaultTab }) => {
                   </p>
                 </div>
               ) : (
-                communications.map((comm) => (
+                communications
+                  .filter(comm => comm.sender_id === null) // Only show messages received from vendor
+                  .map((comm) => (
                   <div
                     key={comm.id}
-                    className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700"
+                    className={`rounded-xl p-4 border transition-all ${
+                      comm.sender_id 
+                        ? "bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30 ml-8" 
+                        : "bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 mr-8"
+                    }`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <span className="font-semibold text-slate-900 dark:text-white">
-                          {comm.sender_email}
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                          comm.sender_id 
+                            ? "bg-blue-600 text-white" 
+                            : "bg-emerald-600 text-white"
+                        }`}>
+                          {comm.sender_id ? "Sent" : "Received"}
                         </span>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {new Date(comm.received_at).toLocaleString()}
-                        </p>
+                        <div>
+                          <span className="font-bold text-slate-900 dark:text-white text-xs">
+                            {comm.sender_email}
+                          </span>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                            {new Date(comm.received_at).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
                       {comm.has_attachments && (
-                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs px-2 py-1 rounded">
-                          Attachments
+                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-[10px] px-2 py-1 rounded-full font-bold">
+                          PDF Attachment
                         </span>
                       )}
                     </div>
-                    <div className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap font-mono bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-700">
-                      {comm.content_text || "No text content"}
+                    <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap font-medium p-3 rounded-lg bg-white/80 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 shadow-sm">
+                      {comm.content_text || "No message content"}
                     </div>
 
                     {comm.attachments && comm.attachments.length > 0 && (
@@ -1460,11 +1332,6 @@ const QuotationsPage = ({ defaultTab }) => {
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-              <p className="text-xs text-center text-slate-500">
-                The system automatically checks for replies every 30 seconds.
-              </p>
-            </div>
           </div>
         </div>
       )}

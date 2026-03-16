@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { X, Send, AlertCircle, ShoppingCart, Box } from "lucide-react";
+import { X, Send, AlertCircle, ShoppingCart, Box, FileText } from "lucide-react";
 import axios from "../../../utils/api";
 import { toast } from "react-toastify";
 import Button from "../../../components/ui/Button";
 
 const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
+  const [remarks, setRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -16,6 +17,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
         bomId: bom.id,
         projectId: bom.projectId,
         rootCardId: bom.rootCardId,
+        remarks: remarks,
         items: bom.materials
       });
       toast.success("Material request sent successfully");
@@ -125,6 +127,19 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                 </table>
               </div>
             </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <FileText size={14} className="text-slate-300" />
+              Additional Remarks
+            </h4>
+            <textarea
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              placeholder="Enter any additional instructions or remarks for this material request..."
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none min-h-[100px] resize-none"
+            />
           </div>
 
         </div>

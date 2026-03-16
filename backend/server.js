@@ -12,6 +12,8 @@ const designDrawingRoutes = require('./routes/designDrawingRoutes');
 const bomRoutes = require('./routes/bomRoutes');
 const materialRequestRoutes = require('./routes/materialRequestRoutes');
 const quotationRoutes = require('./routes/quotationRoutes');
+const purchaseOrderRoutes = require('./routes/purchaseOrderRoutes');
+const { startEmailMonitor } = require('./utils/emailMonitor');
 
 const app = express();
 
@@ -24,8 +26,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 // Routes
@@ -45,6 +47,11 @@ app.use('/api/production/material-requests', materialRequestRoutes);
 // Multi-path registration for Quotations
 app.use('/api/department/procurement/quotations', quotationRoutes);
 app.use('/api/department/inventory/quotations', quotationRoutes);
+
+// Multi-path registration for Purchase Orders
+app.use('/api/department/procurement/purchase-orders', purchaseOrderRoutes);
+app.use('/api/department/inventory/purchase-orders', purchaseOrderRoutes);
+app.use('/api/inventory/purchase-orders', purchaseOrderRoutes); // Added for PurchaseOrderDetailPage.jsx compatibility
 
 // Multi-path registration for Vendors
 app.use('/api/department/procurement/vendors', quotationRoutes);
@@ -75,11 +82,16 @@ app.get('/api/test', async (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+  console.error('SERVER ERROR:', err);
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err : {}
+  });
 });
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  // Start monitoring vendor email replies
+  startEmailMonitor();
 });

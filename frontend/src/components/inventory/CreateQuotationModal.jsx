@@ -48,6 +48,7 @@ const CreateQuotationModal = ({
     notes: "",
     type: "outbound",
     reference_id: null,
+    rfq_id: null,
     material_request_id: null,
     document_path: "",
   });
@@ -95,7 +96,21 @@ const CreateQuotationModal = ({
   const handleAddItem = () => {
     setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { item_code: "", description: "", quantity: "", unit: "", unit_price: "" }],
+      items: [
+        ...prev.items,
+        {
+          item_code: "",
+          description: "",
+          item_group: "",
+          part_detail: "",
+          material_grade: "",
+          make: "",
+          remark: "",
+          quantity: "",
+          unit: "",
+          unit_price: "",
+        },
+      ],
     }));
   };
 
@@ -110,14 +125,23 @@ const CreateQuotationModal = ({
     setFormData((prev) => {
       const newItems = prev.items.map((item, i) => {
         if (i === index) {
+          const stringFields = [
+            "description",
+            "item_code",
+            "unit",
+            "item_group",
+            "part_detail",
+            "material_grade",
+            "make",
+            "remark",
+          ];
           return {
             ...item,
-            [field]:
-              field === "description" || field === "item_code" || field === "unit"
-                ? value
-                : value === ""
-                ? ""
-                : parseFloat(value) || 0,
+            [field]: stringFields.includes(field)
+              ? value
+              : value === ""
+              ? ""
+              : parseFloat(value) || 0,
           };
         }
         return item;
@@ -275,6 +299,11 @@ const CreateQuotationModal = ({
             quantity: item.required_quantity || item.quantity || 0,
             unit: item.uom || item.unit || "",
             unit_price: 0,
+            item_group: item.item_group || "",
+            material_grade: item.material_grade || "",
+            part_detail: item.part_detail || "",
+            make: item.make || "",
+            remark: item.remark || ""
           })),
         }));
       }
@@ -353,6 +382,11 @@ const CreateQuotationModal = ({
         ),
         unit: m.unit || "",
         unit_price: 0,
+        item_group: m.itemGroupName || m.itemGroup || m.category || "",
+        material_grade: m.materialGrade || m.material_grade || "",
+        part_detail: m.partDetail || m.part_detail || "",
+        make: m.make || "",
+        remark: m.remark || ""
       }));
 
       setFormData((prev) => ({ ...prev, items }));
@@ -375,10 +409,6 @@ const CreateQuotationModal = ({
 
     setSubmitting(true);
     try {
-      const notesWithRef = formData.root_card_id
-        ? `Ref: Root Card ${formData.root_card_id}\n\n${formData.notes}`
-        : formData.notes;
-
       const payload = {
         ...formData,
         root_card_id: formData.root_card_id
@@ -387,7 +417,7 @@ const CreateQuotationModal = ({
         reference_id: (formData.type === "inbound" && formData.reference_id && !isNaN(formData.reference_id))
           ? parseInt(formData.reference_id)
           : null,
-        notes: notesWithRef,
+        notes: formData.notes,
         total_amount: formData.total_amount || 0,
         items: formData.items || [],
       };
@@ -644,33 +674,48 @@ const CreateQuotationModal = ({
                   </div>
                 )}
 
-                {formData.type === "inbound" && formData.root_card_id && (
+                {formData.type === "inbound" && (
                   <div>
-                    {rootCardQuotations.length > 0 ? (
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          Select Outbound Quotation (RFQ){" "}
-                          <span className="text-red-500">*</span>
+                    {formData.rfq_id ? (
+                      <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                        <label className="block text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-1">
+                          Reference RFQ
                         </label>
-                        <select
-                          onChange={handleOutboundQuotationSelect}
-                          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                        >
-                          <option value="">-- Select Quotation --</option>
-                          {rootCardQuotations.map((q) => (
-                            <option key={q.id} value={q.id}>
-                              {q.quotation_number} ({q.vendor_name}) -{" "}
-                              {formatDate(q.created_at)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    ) : (
-                      <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                        <p className="text-sm text-amber-800 dark:text-amber-200">
-                          ℹ️ No RFQs found for this root card. Create an RFQ
-                          from the "Sent Requests" tab first.
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                          <FileText size={16} className="text-purple-500" />
+                          {formData.rfq_number || "Referenced RFQ"}
                         </p>
+                      </div>
+                    ) : formData.root_card_id && (
+                      <div>
+                        {rootCardQuotations.length > 0 ? (
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                              Select Outbound Quotation (RFQ){" "}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                              value={formData.rfq_id || ""}
+                              onChange={handleOutboundQuotationSelect}
+                              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            >
+                              <option value="">-- Select Quotation --</option>
+                              {rootCardQuotations.map((q) => (
+                                <option key={q.id} value={q.id}>
+                                  {q.quotation_number} ({q.vendor_name}) -{" "}
+                                  {formatDate(q.created_at)}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                            <p className="text-sm text-amber-800 dark:text-amber-200">
+                              ℹ️ No RFQs found for this root card. Create an RFQ
+                              from the "Sent Requests" tab first.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -831,17 +876,23 @@ const CreateQuotationModal = ({
                       <table className="w-full">
                         <thead className="bg-slate-50 dark:bg-slate-700/50">
                           <tr>
-                            <th className="px-4 py-3 text-left text-[11px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-64">
-                              Item Code
+                            <th className="px-4 py-3 text-center text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-12">
+                              #
                             </th>
-                            <th className="px-4 py-3 text-left text-[11px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
-                              Description
+                            <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
+                              Item Name / Group
                             </th>
-                            <th className="px-4 py-3 text-center text-[11px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-32">
+                            <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
+                              Part Detail / Grade
+                            </th>
+                            <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
+                              Remark / Make
+                            </th>
+                            <th className="px-4 py-3 text-center text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-24">
                               Qty
                             </th>
-                            <th className="px-4 py-3 text-center text-[11px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-28">
-                              Unit
+                            <th className="px-4 py-3 text-center text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-20">
+                              UOM
                             </th>
                             {formData.type === "inbound" && (
                               <>
@@ -854,7 +905,7 @@ const CreateQuotationModal = ({
                               </>
                             )}
                             {!preFilledMaterials && (
-                              <th className="px-4 py-3 text-center text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-16"></th>
+                              <th className="px-4 py-3 text-center text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-12"></th>
                             )}
                           </tr>
                         </thead>
@@ -864,39 +915,106 @@ const CreateQuotationModal = ({
                               key={index}
                               className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition group"
                             >
-                              <td className="px-4 py-2 w-64">
-                                <input
-                                  type="text"
-                                  value={item.item_code}
-                                  onChange={(e) =>
-                                    handleItemChange(
-                                      index,
-                                      "item_code",
-                                      e.target.value
-                                    )
-                                  }
-                                  placeholder="Item Code"
-                                  disabled={preFilledMaterials}
-                                  className="w-full px-2 py-1.5 text-xs font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all uppercase disabled:opacity-80"
-                                />
+                              <td className="px-4 py-2 text-center text-xs font-medium text-slate-400">
+                                {index + 1}
                               </td>
                               <td className="px-4 py-2">
-                                <input
-                                  type="text"
-                                  value={item.description}
-                                  onChange={(e) =>
-                                    handleItemChange(
-                                      index,
-                                      "description",
-                                      e.target.value
-                                    )
-                                  }
-                                  placeholder="Item name/details"
-                                  disabled={preFilledMaterials}
-                                  className="w-full px-2 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
-                                />
+                                <div className="flex flex-col gap-1">
+                                  <input
+                                    type="text"
+                                    value={item.description}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        "description",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Item name"
+                                    disabled={preFilledMaterials}
+                                    className="w-full px-2 py-1 text-xs font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={item.item_group}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        "item_group",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Group"
+                                    disabled={preFilledMaterials}
+                                    className="w-full px-2 py-0.5 text-[10px] font-medium text-slate-500 uppercase border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
+                                  />
+                                </div>
                               </td>
-                              <td className="px-4 py-2 w-32">
+                              <td className="px-4 py-2">
+                                <div className="flex flex-col gap-1">
+                                  <input
+                                    type="text"
+                                    value={item.part_detail}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        "part_detail",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Part Detail"
+                                    disabled={preFilledMaterials}
+                                    className="w-full px-2 py-1 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={item.material_grade}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        "material_grade",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Grade"
+                                    disabled={preFilledMaterials}
+                                    className="w-full px-2 py-0.5 text-[10px] font-medium text-slate-500 uppercase border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
+                                  />
+                                </div>
+                              </td>
+                              <td className="px-4 py-2">
+                                <div className="flex flex-col gap-1">
+                                  <input
+                                    type="text"
+                                    value={item.remark}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        "remark",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Remark"
+                                    disabled={preFilledMaterials}
+                                    className="w-full px-2 py-1 text-[10px] italic text-slate-500 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={item.make}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        index,
+                                        "make",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Make"
+                                    disabled={preFilledMaterials}
+                                    className="w-full px-2 py-0.5 text-xs text-slate-600 dark:text-slate-400 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
+                                  />
+                                </div>
+                              </td>
+                              <td className="px-4 py-2 w-24">
                                 <input
                                   type="number"
                                   value={item.quantity}
@@ -914,7 +1032,7 @@ const CreateQuotationModal = ({
                                   className="w-full px-2 py-1.5 text-xs font-bold text-center text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
                                 />
                               </td>
-                              <td className="px-4 py-2 w-28">
+                              <td className="px-4 py-2 w-20">
                                 <input
                                   type="text"
                                   value={item.unit}
@@ -927,12 +1045,12 @@ const CreateQuotationModal = ({
                                   }
                                   placeholder="Unit"
                                   disabled={preFilledMaterials}
-                                  className="w-full px-2 py-1.5 text-xs font-bold text-center text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                  className="w-full px-2 py-1.5 text-[10px] font-bold text-center text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-none rounded uppercase disabled:opacity-80"
                                 />
                               </td>
                               {formData.type === "inbound" && (
                                 <>
-                                  <td className="px-4 py-2">
+                                  <td className="px-4 py-2 w-32">
                                     <input
                                       type="number"
                                       value={item.unit_price}
@@ -946,26 +1064,24 @@ const CreateQuotationModal = ({
                                       placeholder="0.00"
                                       min="0"
                                       step="0.01"
-                                      className="w-full px-2 py-1.5 text-xs font-bold text-right text-slate-900 dark:text-white border border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-transparent transition-all"
+                                      className="w-full px-2 py-1.5 text-xs font-bold text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
                                     />
                                   </td>
-                                  <td className="px-4 py-2 text-right">
-                                    <span className="text-xs font-bold text-slate-900 dark:text-white">
-                                      {formatCurrency(
-                                        item.quantity * item.unit_price
-                                      )}
+                                  <td className="px-4 py-2 text-right w-32">
+                                    <span className="text-xs font-black text-emerald-600">
+                                      ₹{(item.quantity * item.unit_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </span>
                                   </td>
                                 </>
                               )}
                               {!preFilledMaterials && (
-                                <td className="px-4 py-2 text-center">
+                                <td className="px-4 py-2 text-center w-12">
                                   <button
                                     type="button"
                                     onClick={() => handleRemoveItem(index)}
                                     className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
                                   >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={14} />
                                   </button>
                                 </td>
                               )}

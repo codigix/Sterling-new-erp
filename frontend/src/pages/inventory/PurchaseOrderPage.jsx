@@ -27,6 +27,8 @@ import {
   Package,
   Edit,
   Paperclip,
+  Upload,
+  Truck,
 } from "lucide-react";
 
 const KanbanView = ({
@@ -36,6 +38,7 @@ const KanbanView = ({
   handleMonitorPO,
   handleSendPO,
   handleDownloadPO,
+  handleSendToInventory,
   formatCurrency,
 }) => {
   const columns = [
@@ -95,15 +98,8 @@ const KanbanView = ({
               data
                 .filter((po) => po.status === col.id)
                 .map((po) => {
-                  const items = po.items || [];
-                  const totalQty = items.reduce(
-                    (sum, item) => sum + (Number(item.quantity) || 0),
-                    0,
-                  );
-                  const receivedQty = items.reduce(
-                    (sum, item) => sum + (Number(item.received) || 0),
-                    0,
-                  );
+                  const totalQty = Number(po.total_qty) || 0;
+                  const receivedQty = Number(po.received_qty) || 0;
                   const fulfillmentPercent =
                     totalQty > 0
                       ? Math.round((receivedQty / totalQty) * 100)
@@ -116,22 +112,14 @@ const KanbanView = ({
                     >
                       <div className="flex items-center justify-between mb-3">
                         <button
-                          onClick={() =>
-                            navigate(
-                              `/department/procurement/purchase-orders/${po.id}`,
-                            )
-                          }
+                          onClick={() => handleViewPO(po)}
                           className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight"
                         >
                           {po.po_number}
                         </button>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() =>
-                              navigate(
-                                `/department/procurement/purchase-orders/${po.id}`,
-                              )
-                            }
+                            onClick={() => handleViewPO(po)}
                             className="p-1 text-slate-400 hover:text-blue-600 rounded transition-all"
                             title="View"
                           >
@@ -170,7 +158,7 @@ const KanbanView = ({
                             className="p-1 text-slate-400 hover:text-blue-600 rounded transition-all"
                             title="Send Email"
                           >
-                            <Mail size={14} />
+                            <Send size={14} />
                           </button>
                           <button
                             onClick={() => handleDownloadPO(po)}
@@ -179,18 +167,13 @@ const KanbanView = ({
                           >
                             <Download size={14} />
                           </button>
-                          {(po.status === "approved" ||
-                            po.status === "delivered") && (
+                          {po.status === "approved" && (
                             <button
-                              onClick={() =>
-                                navigate("/department/inventory/grn-processing", {
-                                  state: { po_number: po.po_number },
-                                })
-                              }
+                              onClick={() => handleSendToInventory(po)}
                               className="p-1 text-slate-400 hover:text-emerald-600 rounded transition-all"
-                              title="Process GRN"
+                              title="Send to Inventory"
                             >
-                              <Package size={14} />
+                              <Truck size={14} />
                             </button>
                           )}
                         </div>
@@ -266,17 +249,31 @@ const PurchaseOrderPage = () => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [modalViewMode, setModalViewMode] = useState(false);
   const [viewMode, setViewMode] = useState("list");
   const [editPO, setEditPO] = useState(null);
   const [preFilledFromQuotation, setPreFilledFromQuotation] = useState(null);
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const qid = params.get('quotationId');
+    if (qid) {
+      axios.get(`/department/procurement/quotations/${qid}`).then(res => {
+        setPreFilledFromQuotation(res.data);
+        setShowCreateModal(true);
+        // Clear the URL parameter after it's been used to avoid reopening on refresh
+        navigate(location.pathname, { replace: true });
+      }).catch(err => console.error("Error fetching quotation for PO:", err));
+    }
+
     if (location.state?.quotation) {
       setPreFilledFromQuotation(location.state.quotation);
       setShowCreateModal(true);
+      // Clear the state after it's been used
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state]);
+  }, [location.state, location.search, location.pathname, navigate]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showMonitorModal, setShowMonitorModal] = useState(false);
   const [selectedPOForMonitor, setSelectedPOForMonitor] = useState(null);
@@ -291,11 +288,36 @@ const PurchaseOrderPage = () => {
     message: "",
   });
   const [showCreateOptions, setShowCreateOptions] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedPOForUpload, setSelectedPOForUpload] = useState(null);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+  const [filesToUpload, setFilesToUpload] = useState([]);
 
   useEffect(() => {
     fetchPurchaseOrders();
     fetchStats();
+
+    // Auto-refresh dashboard every 30 seconds to check for new replies
+    const interval = setInterval(() => {
+      fetchPurchaseOrders();
+      fetchStats();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  // Auto-refresh communications when modal is open
+  useEffect(() => {
+    let interval;
+    if (showMonitorModal && selectedPOForMonitor) {
+      interval = setInterval(() => {
+        fetchCommunications(selectedPOForMonitor.id);
+      }, 30000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [showMonitorModal, selectedPOForMonitor]);
 
   const fetchPurchaseOrders = async () => {
     try {
@@ -343,18 +365,28 @@ const PurchaseOrderPage = () => {
     doc.setFontSize(20);
     doc.text("PURCHASE ORDER", 105, 30, { align: "center" });
 
+    const formatDate = (dateStr) => {
+      if (!dateStr) return "N/A";
+      try {
+        // Handle ISO string or YYYY-MM-DD
+        const date = new Date(dateStr);
+        const d = date.getDate().toString().padStart(2, '0');
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const y = date.getFullYear();
+        return `${d}-${m}-${y}`;
+      } catch (e) {
+        return dateStr;
+      }
+    };
+
     doc.setFontSize(10);
     doc.text(`PO Number: ${po.po_number}`, 14, 45);
-    doc.text(
-      `Date: ${new Date(po.order_date || po.created_at).toLocaleDateString("en-GB")}`,
-      14,
-      50,
-    );
+    doc.text(`Date: ${formatDate(po.order_date || po.created_at)}`, 14, 50);
     doc.text(`Vendor: ${po.vendor_name || "N/A"}`, 14, 55);
 
     if (po.expected_delivery_date) {
       doc.text(
-        `Expected Delivery: ${new Date(po.expected_delivery_date).toLocaleDateString("en-GB")}`,
+        `Expected Delivery: ${formatDate(po.expected_delivery_date)}`,
         14,
         60,
       );
@@ -362,21 +394,27 @@ const PurchaseOrderPage = () => {
 
     const tableColumn = [
       "#",
-      "Item Details",
-      "Item Code",
+      "Item Name / Group",
+      "Part Detail / Grade",
+      "Remark / Make",
       "Quantity",
-      "Unit",
+      "UOM",
       "Rate",
       "Amount",
     ];
+
     const tableRows = (po.items || []).map((item, index) => [
       index + 1,
-      item.material_name || item.description || "N/A",
-      item.material_code || item.item_code || "N/A",
-      item.quantity,
-      item.unit || "N/A",
-      `INR ${item.rate || 0}`,
-      `INR ${(item.amount || item.quantity * (item.rate || 0)).toLocaleString()}`,
+      {
+        content: `${item.material_name || "N/A"}\n${item.item_group || "-"}`,
+        styles: { fontStyle: "bold" },
+      },
+      `${item.part_detail || "-"}\n${item.material_grade || "-"}`,
+      `${item.remark || "-"}\n${item.make || "-"}`,
+      Number(item.quantity).toFixed(4),
+      item.unit || item.uom || "Nos",
+      `INR ${Number(item.rate || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      `INR ${Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     ]);
 
     autoTable(doc, {
@@ -384,15 +422,26 @@ const PurchaseOrderPage = () => {
       head: [tableColumn],
       body: tableRows,
       theme: "grid",
-      headStyles: { fillColor: [59, 130, 246] }, // blue-600
+      headStyles: { fillColor: [59, 130, 246], fontSize: 8 },
+      columnStyles: {
+        0: { cellWidth: 10 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 35 },
+        3: { cellWidth: 35 },
+        4: { cellWidth: 20, halign: "center" },
+        5: { cellWidth: 15, halign: "center" },
+        6: { cellWidth: 20 },
+        7: { cellWidth: 20 },
+      },
+      styles: { fontSize: 8, overflow: "linebreak" },
     });
 
     const finalY = doc.lastAutoTable.finalY + 10;
 
     doc.setFontSize(11);
-    doc.text(`Subtotal: INR ${po.subtotal?.toLocaleString()}`, 140, finalY);
+    doc.text(`Subtotal: INR ${Number(po.subtotal || 0).toFixed(2)}`, 140, finalY);
     doc.text(
-      `Tax Amount: INR ${po.tax_amount?.toLocaleString()}`,
+      `Tax Amount: INR ${Number(po.tax_amount || 0).toFixed(2)}`,
       140,
       finalY + 7,
     );
@@ -400,7 +449,7 @@ const PurchaseOrderPage = () => {
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text(
-      `Total Amount: INR ${po.total_amount?.toLocaleString()}`,
+      `Total Amount: INR ${Number(po.total_amount || 0).toFixed(2)}`,
       140,
       finalY + 15,
     );
@@ -415,16 +464,25 @@ const PurchaseOrderPage = () => {
     return doc;
   };
 
-  const handleSendEmail = (po) => {
-    setEmailData({
-      poId: po.id,
-      poNumber: po.po_number,
-      email: po.vendor_email || "",
-      subject: `Purchase Order ${po.po_number} from Sterling`,
-      message: `Dear ${po.vendor_name || "Vendor"},\n\nPlease find attached the Purchase Order ${po.po_number}.\n\nBest regards,\nSterling`,
-      po: po, // Store the whole po object to generate PDF later
-    });
-    setShowEmailModal(true);
+  const handleSendEmail = async (po) => {
+    try {
+      // Fetch full PO details to get items
+      const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
+      const fullPO = response.data;
+      
+      setEmailData({
+        poId: fullPO.id,
+        poNumber: fullPO.po_number,
+        email: fullPO.vendor_email || "",
+        subject: `Purchase Order ${fullPO.po_number} from Sterling`,
+        message: `Dear ${fullPO.vendor_name || "Vendor"},\n\nPlease find attached the Purchase Order ${fullPO.po_number}.\n\nBest regards,\nSterling`,
+        po: fullPO, // Store the whole po object to generate PDF later
+      });
+      setShowEmailModal(true);
+    } catch (error) {
+      console.error("Error fetching PO details for email:", error);
+      toastUtils.error("Failed to fetch Purchase Order details");
+    }
   };
 
   const handleMonitorReplies = async (po) => {
@@ -455,6 +513,53 @@ const PurchaseOrderPage = () => {
     }
   };
 
+  const handleUploadInvoice = async (po) => {
+    try {
+      const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
+      setSelectedPOForUpload(response.data);
+      setShowUploadModal(true);
+      setFilesToUpload([]);
+    } catch (error) {
+      console.error("Error fetching PO for upload:", error);
+      toastUtils.error("Failed to load PO details");
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (filesToUpload.length === 0) {
+      toastUtils.error("Please select files to upload");
+      return;
+    }
+
+    try {
+      setUploadingFiles(true);
+      const formData = new FormData();
+      filesToUpload.forEach((file) => {
+        formData.append("files", file);
+      });
+      formData.append("poId", selectedPOForUpload.id);
+
+      await axios.post(
+        `/department/procurement/purchase-orders/${selectedPOForUpload.id}/invoices`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      toastUtils.success("Files uploaded successfully");
+      setShowUploadModal(false);
+      fetchPurchaseOrders();
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      toastUtils.error("Failed to upload files");
+    } finally {
+      setUploadingFiles(false);
+    }
+  };
+
   const downloadAttachment = async (attachmentId, fileName) => {
     try {
       const response = await axios.get(
@@ -473,6 +578,29 @@ const PurchaseOrderPage = () => {
     } catch (error) {
       console.error("Error downloading attachment:", error);
       toastUtils.error("Failed to download attachment");
+    }
+  };
+
+  const handleSendToInventory = async (po) => {
+    try {
+      await axios.patch(`/department/procurement/purchase-orders/${po.id}/status`, {
+        status: "delivered",
+      });
+
+      // Send notification to Inventory department
+      await axios.post("/notifications", {
+        department: "Inventory",
+        title: "New Purchase Order Received",
+        message: `Purchase Order ${po.po_number} from ${po.vendor_name || 'Vendor'} has been sent to inventory for processing.`,
+        type: "info"
+      });
+
+      toastUtils.success(`PO ${po.po_number} sent to inventory successfully`);
+      fetchPurchaseOrders();
+      fetchStats();
+    } catch (error) {
+      console.error("Error sending PO to inventory:", error);
+      toastUtils.error("Failed to send Purchase Order to inventory");
     }
   };
 
@@ -520,35 +648,30 @@ const PurchaseOrderPage = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleEditPO = (po) => {
-    navigate(`/department/procurement/purchase-orders/edit/${po.id}`);
+  const handleViewPO = (po) => {
+    setEditPO(po);
+    setModalViewMode(true);
+    setShowCreateModal(true);
   };
 
-  const handleApprovePO = async (po) => {
-    const result = await Swal.fire({
-      title: "Approve Purchase Order?",
-      text: `Are you sure you want to approve PO: ${po.po_number}? This will automatically create a GRN processing record.`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#10b981",
-      cancelButtonColor: "#64748b",
-      confirmButtonText: "Yes, Approve",
-    });
+  const handleEditPO = (po) => {
+    setEditPO(po);
+    setModalViewMode(false);
+    setShowCreateModal(true);
+  };
 
-    if (result.isConfirmed) {
-      try {
-        await axios.patch(`/department/procurement/purchase-orders/${po.id}/status`, {
-          status: "approved",
-        });
-        toastUtils.success("Purchase order has been approved and GRN created.");
-        fetchPurchaseOrders();
-        fetchStats();
-      } catch (error) {
-        console.error("Error approving PO:", error);
-        toastUtils.error("Failed to approve purchase order");
-      }
+  const handleDownloadPO = async (po) => {
+    try {
+      const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
+      const fullPO = response.data;
+      const doc = await generatePOPDF(fullPO);
+      doc.save(`PurchaseOrder-${fullPO.po_number}.pdf`);
+    } catch (error) {
+      console.error("Error downloading PO:", error);
+      toastUtils.error("Failed to generate Purchase Order PDF");
     }
   };
+
 
   return (
     <div className="p-6 bg-slate-50/50 dark:bg-slate-950 min-h-screen">
@@ -576,28 +699,7 @@ const PurchaseOrderPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex bg-white dark:bg-slate-900 rounded-lg p-1 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <button
-              onClick={() => setViewMode("kanban")}
-              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
-                viewMode === "kanban"
-                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 shadow-sm border border-blue-100 dark:border-blue-800/50"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              Kanban
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
-                viewMode === "list"
-                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 shadow-sm border border-blue-100 dark:border-blue-800/50"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              List
-            </button>
-          </div>
+          
           <button
             onClick={fetchPurchaseOrders}
             className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 shadow-sm transition-all"
@@ -686,11 +788,12 @@ const PurchaseOrderPage = () => {
             color: "indigo",
           },
           {
-            label: "Partial",
-            value: stats?.partial || 0,
-            subValue: "Incomplete receipts",
-            icon: CheckCircle,
-            color: "red",
+            label: "Replies",
+            value: stats?.unread_replies_count || 0,
+            subValue: "New communications",
+            icon: MessageSquare,
+            color: "blue",
+            isNew: (stats?.unread_replies_count || 0) > 0,
           },
           {
             label: "Fulfilled",
@@ -712,7 +815,7 @@ const PurchaseOrderPage = () => {
           return (
             <div
               key={idx}
-              className={`bg-white dark:bg-slate-900 p-4 rounded-xl border ${card.active ? "border-blue-500 ring-2 ring-blue-500/10 shadow-lg shadow-blue-500/5" : "border-slate-100 dark:border-slate-800 shadow-sm"} relative overflow-hidden group transition-all hover:shadow-md`}
+              className={`bg-white dark:bg-slate-900 p-4 rounded-xl border ${card.active ? "border-blue-500 ring-2 ring-blue-500/10 shadow-lg shadow-blue-500/5" : "border-slate-100 dark:border-slate-800 shadow-sm"} relative overflow-hidden group transition-all hover:shadow-md ${card.isNew ? "ring-2 ring-blue-400 animate-blink" : ""}`}
             >
               <div
                 className={`absolute top-0 right-0 p-4 opacity-5 transform rotate-12 transition-transform group-hover:rotate-6`}
@@ -803,9 +906,6 @@ const PurchaseOrderPage = () => {
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Amount
                 </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Fulfillment
-                </th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
                   Status
                 </th>
@@ -817,7 +917,7 @@ const PurchaseOrderPage = () => {
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center">
+                  <td colSpan="6" className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -828,7 +928,7 @@ const PurchaseOrderPage = () => {
                 </tr>
               ) : filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center">
+                  <td colSpan="6" className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-3 opacity-20">
                       <ShoppingCart size={48} className="text-slate-400" />
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -839,20 +939,6 @@ const PurchaseOrderPage = () => {
                 </tr>
               ) : (
                 filteredData.map((po) => {
-                  const items = po.items || [];
-                  const totalQty = items.reduce(
-                    (sum, item) => sum + (Number(item.quantity) || 0),
-                    0,
-                  );
-                  const receivedQty = items.reduce(
-                    (sum, item) => sum + (Number(item.received) || 0),
-                    0,
-                  );
-                  const fulfillmentPercent =
-                    totalQty > 0
-                      ? Math.round((receivedQty / totalQty) * 100)
-                      : 0;
-
                   return (
                     <tr
                       key={po.id}
@@ -860,21 +946,11 @@ const PurchaseOrderPage = () => {
                     >
                       <td className="px-6 py-4">
                         <button
-                          onClick={() =>
-                            navigate(
-                              `/department/procurement/purchase-orders/${po.id}`,
-                            )
-                          }
+                          onClick={() => handleViewPO(po)}
                           className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight block mb-0.5"
                         >
                           {po.po_number}
                         </button>
-                        <div className="flex items-center gap-2">
-                          <FileText size={10} className="text-slate-400" />
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                            #{po.mr_number || po.quotation_id || "Direct PO"}
-                          </span>
-                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-0.5 uppercase tracking-tight">
@@ -922,24 +998,6 @@ const PurchaseOrderPage = () => {
                           Net Value
                         </p>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider min-w-[50px]">
-                            {receivedQty}/{totalQty}
-                          </span>
-                          <div className="flex-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden min-w-[80px]">
-                            <div
-                              className={`h-full transition-all duration-500 ${fulfillmentPercent === 100 ? "bg-emerald-500" : "bg-blue-500"}`}
-                              style={{ width: `${fulfillmentPercent}%` }}
-                            ></div>
-                          </div>
-                          <span
-                            className={`text-[10px] font-black tracking-widest min-w-[30px] ${fulfillmentPercent === 100 ? "text-emerald-500" : "text-blue-600"}`}
-                          >
-                            {fulfillmentPercent}%
-                          </span>
-                        </div>
-                      </td>
                       <td className="px-6 py-4 text-center">
                         <span
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[9px] font-black uppercase tracking-widest border shadow-sm ${
@@ -974,41 +1032,46 @@ const PurchaseOrderPage = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-1">
                           <button
-                            onClick={() =>
-                              navigate(
-                                `/department/procurement/purchase-orders/${po.id}`,
-                              )
-                            }
+                            onClick={() => handleViewPO(po)}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
                             title="View"
                           >
                             <Eye size={14} />
                           </button>
                           {po.status === "draft" && (
+                            <>
+                              <button
+                                onClick={() => handleEditPO(po)}
+                                className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
+                                title="Edit"
+                              >
+                                <Edit size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleSendEmail(po)}
+                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition-all"
+                                title="Send"
+                              >
+                                <Send size={14} />
+                              </button>
+                            </>
+                          )}
+                          {po.status !== "draft" && (
                             <button
-                              onClick={() => handleEditPO(po)}
-                              className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
-                              title="Edit"
+                              onClick={() => handleUploadInvoice(po)}
+                              className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded transition-all"
+                              title="Upload Invoice/Files"
                             >
-                              <Edit size={14} />
+                              <Paperclip size={14} />
                             </button>
                           )}
                           <button
-                            onClick={() => handleSendEmail(po)}
-                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition-all"
-                            title="Send"
+                            onClick={() => handleDownloadPO(po)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
+                            title="Download PDF"
                           >
-                            <Send size={14} />
+                            <Download size={14} />
                           </button>
-                          {po.status === "submitted" && (
-                            <button
-                              onClick={() => handleApprovePO(po)}
-                              className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
-                              title="Approve PO"
-                            >
-                              <CheckCircle size={14} />
-                            </button>
-                          )}
                           <button
                             onClick={() => handleMonitorReplies(po)}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all relative group/msg"
@@ -1018,28 +1081,23 @@ const PurchaseOrderPage = () => {
                               size={14}
                               className={
                                 po.unread_communication_count > 0
-                                  ? "text-blue-600 animate-pulse"
+                                  ? "text-blue-600 animate-blink"
                                   : ""
                               }
                             />
                             {po.unread_communication_count > 0 && (
-                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 font-bold">
+                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 font-bold animate-blink">
                                 {po.unread_communication_count}
                               </span>
                             )}
                           </button>
-                          {(po.status === "approved" ||
-                            po.status === "delivered") && (
+                          {po.status === "approved" && (
                             <button
-                              onClick={() =>
-                                navigate("/department/inventory/grn-processing", {
-                                  state: { po_number: po.po_number },
-                                })
-                              }
+                              onClick={() => handleSendToInventory(po)}
                               className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
-                              title="Process GRN / Purchase Receipt"
+                              title="Send to Inventory"
                             >
-                              <Package size={14} />
+                              <Truck size={14} />
                             </button>
                           )}
                         </div>
@@ -1219,9 +1277,15 @@ const PurchaseOrderPage = () => {
                               <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-tight">
                                 {comm.sender_email}
                               </p>
-                              {comm.is_outgoing && (
-                                <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 text-[8px] font-bold uppercase tracking-widest border border-indigo-100">
+                              {comm.is_outgoing ? (
+                                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[8px] font-bold uppercase tracking-widest border border-indigo-100 dark:border-indigo-800/50">
+                                  <Send size={8} />
                                   SENT
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[8px] font-bold uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/50">
+                                  <Mail size={8} />
+                                  RECEIVED
                                 </span>
                               )}
                             </div>
@@ -1314,14 +1378,154 @@ const PurchaseOrderPage = () => {
           setShowCreateModal(false);
           setEditPO(null);
           setPreFilledFromQuotation(null);
+          setModalViewMode(false);
         }}
         editData={editPO}
+        initialViewMode={modalViewMode}
         preFilledFromQuotation={preFilledFromQuotation}
         onPOCreated={() => {
           fetchPurchaseOrders();
           fetchStats();
         }}
       />
+
+      {/* Upload Invoice Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                <Paperclip className="text-blue-600" size={20} />
+                Upload Invoice / Files
+              </h3>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm"
+              >
+                <X size={20} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/50">
+                <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+                  Target PO:
+                </p>
+                <p className="text-sm font-black text-slate-900 dark:text-white uppercase">
+                  {selectedPOForUpload?.po_number}
+                </p>
+              </div>
+
+              {selectedPOForUpload?.attachments && selectedPOForUpload.attachments.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Existing Invoices / Attachments
+                  </p>
+                  <div className="max-h-32 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
+                    {selectedPOForUpload.attachments.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-2 bg-emerald-50/50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800/50"
+                      >
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText size={14} className="text-emerald-600 shrink-0" />
+                          <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 truncate uppercase">
+                            {file.file_name}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => downloadAttachment(file.id, file.file_name)}
+                          className="p-1 text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-800 rounded transition-colors"
+                          title="Download"
+                        >
+                          <Download size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  Select Files
+                </label>
+                <div className="relative group">
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 group-hover:border-blue-500 dark:group-hover:border-blue-500 rounded-xl p-8 flex flex-col items-center justify-center gap-2 transition-all bg-slate-50/30 dark:bg-slate-950/30">
+                    <div className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm text-slate-400 group-hover:text-blue-500 transition-all">
+                      <Upload size={24} />
+                    </div>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-tight">
+                      Click or drag files to upload
+                    </p>
+                    <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">
+                      PDF, Images, or Documents
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {filesToUpload.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Selected Files ({filesToUpload.length})
+                  </p>
+                  <div className="max-h-32 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
+                    {filesToUpload.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700"
+                      >
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText size={14} className="text-blue-500 shrink-0" />
+                          <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 truncate uppercase">
+                            {file.name}
+                          </span>
+                        </div>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase">
+                          {(file.size / 1024).toFixed(1)} KB
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-50 dark:border-slate-800 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 uppercase tracking-widest transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFileUpload}
+                disabled={uploadingFiles || filesToUpload.length === 0}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
+              >
+                {uploadingFiles ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={14} />
+                    Upload Files
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

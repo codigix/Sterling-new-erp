@@ -12,6 +12,7 @@ const TrackInventoryPage = lazy(() => import("../inventory/TrackInventoryPage"))
 const BatchManagementPage = lazy(() => import("../inventory/BatchManagementPage"));
 const RackAndShelfPage = lazy(() => import("../inventory/RackAndShelfPage"));
 const PurchaseReceiptPage = lazy(() => import("../inventory/PurchaseReceiptPage"));
+const PurchaseOrderPage = lazy(() => import("../inventory/PurchaseOrderPage"));
 const GRNProcessingPage = lazy(() => import("../inventory/GRNProcessingPage"));
 const WarehousesPage = lazy(() => import("../inventory/WarehousesPage"));
 const InventoryTasksPage = lazy(() => import("../department/InventoryTasksPage"));
@@ -737,6 +738,7 @@ const InventoryDepartmentDashboard = () => {
           <Route path="tracking/batches" element={<BatchManagementPage />} />
           <Route path="tracking/location" element={<RackAndShelfPage />} />
           <Route path="purchase-receipt" element={<PurchaseReceiptPage />} />
+          <Route path="purchase-orders" element={<PurchaseOrderPage />} />
           <Route path="grn-processing" element={<GRNProcessingPage />} />
           <Route path="department-tasks" element={<InventoryTasksPage />} />
           <Route

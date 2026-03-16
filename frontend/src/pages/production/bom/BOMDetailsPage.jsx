@@ -184,6 +184,12 @@ const BOMDetailsPage = () => {
         <span className="text-[10px] text-slate-500 uppercase">{row.materialGrade || "-"}</span>
       </div>
     )},
+    { key: "warehouse", label: "WH / OPERATION", render: (val, row) => (
+      <div className="flex flex-col">
+        <span className="text-xs text-blue-600 font-bold">{val || "-"}</span>
+        <span className="text-[10px] text-amber-600 font-medium italic">{row.operation || "-"}</span>
+      </div>
+    )},
     { key: "remark", label: "REMARK / MAKE", render: (val, row) => (
       <div className="flex flex-col">
         <span className="text-[10px] text-slate-500 italic">{val || "-"}</span>

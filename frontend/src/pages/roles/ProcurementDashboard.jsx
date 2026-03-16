@@ -25,8 +25,6 @@ import {
 const MaterialRequestsPage = lazy(() => import("../production/MaterialRequestsPage"));
 const QuotationsPage = lazy(() => import("../inventory/QuotationsPage"));
 const PurchaseOrderPage = lazy(() => import("../inventory/PurchaseOrderPage"));
-const PurchaseOrderDetailPage = lazy(() => import("../inventory/PurchaseOrderDetailPage"));
-const PurchaseOrderEditPage = lazy(() => import("../inventory/PurchaseOrderEditPage"));
 const VendorsPage = lazy(() => import("../inventory/VendorsPage"));
 const ProcurementTasksPage = lazy(() => import("../procurement/ProcurementTasksPage"));
 const UniversalRootCardsPage = lazy(() => import("../shared/UniversalRootCardsPage"));
@@ -84,8 +82,6 @@ const ProcurementDashboard = () => {
           <Route path="quotations/sent" element={<QuotationsPage defaultTab="outbound" />} />
           <Route path="quotations/received" element={<QuotationsPage defaultTab="inbound" />} />
           <Route path="purchase-orders" element={<PurchaseOrderPage />} />
-          <Route path="purchase-orders/:id" element={<PurchaseOrderDetailPage />} />
-          <Route path="purchase-orders/edit/:id" element={<PurchaseOrderEditPage />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </Suspense>
