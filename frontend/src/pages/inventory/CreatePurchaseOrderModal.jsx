@@ -36,26 +36,37 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       fetchVendors();
       fetchQuotations();
       
-      // Auto-generate PO number based on current count
+      // Reset form data for new entry or load data for edit
       if (!editData) {
+        // Auto-generate PO number based on current count
         axios.get("/department/procurement/purchase-orders").then(res => {
           const pos = res.data.purchaseOrders || res.data || [];
           const nextNum = (pos.length + 1).toString().padStart(4, '0');
           setFormData(prev => ({
             ...prev,
-            po_number: `PO-${new Date().getFullYear()}-${nextNum}`
+            po_number: `PO-${new Date().getFullYear()}-${nextNum}`,
+            quotation_id: "",
+            vendor_id: "",
+            items: [],
+            subtotal: 0,
+            tax_amount: 0,
+            total_amount: 0,
+            notes: ""
           }));
         }).catch(() => {
-          // Fallback if API fails
           setFormData(prev => ({
             ...prev,
             po_number: `PO-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`
           }));
         });
-      }
 
-      if (editData) {
-        // If we only have basic data, fetch full details with items
+        if (preFilledFromQuotation) {
+          handleQuotationSelect(preFilledFromQuotation.id, preFilledFromQuotation);
+        } else if (source && type === 'quotation') {
+          handleQuotationSelect(source.id, source);
+        }
+      } else {
+        // Load edit data
         const loadFullPO = async () => {
           try {
             const response = await axios.get(`/department/procurement/purchase-orders/${editData.id}`);
@@ -79,7 +90,6 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
             });
           } catch (error) {
             console.error("Error loading full PO:", error);
-            // Fallback to what we have
             setFormData({
               id: editData.id,
               po_number: editData.po_number,
@@ -99,13 +109,9 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           }
         };
         loadFullPO();
-      } else if (preFilledFromQuotation) {
-        handleQuotationSelect(preFilledFromQuotation.id, preFilledFromQuotation);
-      } else if (source && type === 'quotation') {
-        handleQuotationSelect(source.id, source);
       }
     }
-  }, [isOpen, source, type, editData, preFilledFromQuotation, initialViewMode]);
+  }, [isOpen]); // Only run when modal opens/closes
 
   const fetchVendors = async () => {
     try {
@@ -147,8 +153,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       
       if (fullQuote) {
         const initialItems = (fullQuote.items || []).map(item => ({
-          material_name: item.item_name || item.description,
-          material_code: item.item_code || "",
+          material_name: item.vendor_item_name || item.item_name || item.description,
           item_group: item.item_group || "",
           part_detail: item.part_detail || "",
           material_grade: item.material_grade || "",
@@ -156,8 +161,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           make: item.make || "",
           quantity: item.quantity,
           uom: item.unit || item.uom || "Nos",
-          rate: item.rate || item.unit_price,
-          amount: item.amount || (item.quantity * (item.rate || item.unit_price))
+          rate_per_kg: item.rate_per_kg || 0,
+          total_weight: item.total_weight || 0,
+          rate: item.rate || item.unit_price || 0,
+          amount: item.amount || (item.total_weight * (item.rate_per_kg || 0)) || (item.quantity * (item.rate || item.unit_price || 0))
         }));
 
         calculateTotals(initialItems, formData.tax_template);
@@ -192,8 +199,12 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     const newItems = [...formData.items];
     newItems[index][field] = value;
     
-    if (field === 'quantity' || field === 'rate') {
-      newItems[index].amount = (newItems[index].quantity || 0) * (newItems[index].rate || 0);
+    if (field === 'quantity' || field === 'rate' || field === 'rate_per_kg' || field === 'total_weight') {
+      if (newItems[index].rate_per_kg && newItems[index].total_weight) {
+        newItems[index].amount = (newItems[index].rate_per_kg || 0) * (newItems[index].total_weight || 0);
+      } else {
+        newItems[index].amount = (newItems[index].quantity || 0) * (newItems[index].rate || 0);
+      }
     }
     
     calculateTotals(newItems);
@@ -244,11 +255,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       if (editData) {
         // Update existing PO
         response = await axios.put(`/department/procurement/purchase-orders/${editData.id}`, formData);
-        toastUtils.success("Purchase Order updated successfully");
+        toastUtils.success("Purchase Order updated successfully!");
       } else {
         // Create new PO
         response = await axios.post("/department/procurement/purchase-orders", formData);
-        toastUtils.success("Purchase Order created successfully");
+        toastUtils.success("Purchase Order created successfully!");
 
         // If we are coming from workflow tasks, complete the "Create Purchase Order" task
         if (isFromDepartmentTasks()) {
@@ -394,12 +405,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/50 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       <th className="px-6 py-4 text-left">Item Name / Group</th>
-                      <th className="px-6 py-4 text-left">Part Detail / Grade</th>
-                      <th className="px-6 py-4 text-left">Remark / Make</th>
-                      <th className="px-4 py-4 text-center w-32">Quantity</th>
-                      <th className="px-4 py-4 text-center w-24">UOM</th>
-                      <th className="px-4 py-4 text-center w-40">Rate</th>
-                      <th className="px-6 py-4 text-right w-40">Amount</th>
+                      <th className="px-4 py-4 text-center w-24">Qty</th>
+                      <th className="px-4 py-4 text-center w-20">UOM</th>
+                      <th className="px-4 py-4 text-center w-32">Rate/Kg</th>
+                      <th className="px-4 py-4 text-center w-32">Weight (Kg)</th>
+                      <th className="px-6 py-4 text-right w-40">Total</th>
                       {!viewMode && <th className="px-4 py-4 text-center w-16"></th>}
                     </tr>
                   </thead>
@@ -433,64 +443,6 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                               />
                             )}
                           </td>
-                          <td className="px-6 py-4">
-                            {viewMode ? (
-                              <>
-                                <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                                  {item.part_detail || "-"}
-                                </p>
-                                <p className="text-[10px] text-slate-500">
-                                  {item.material_grade || "-"}
-                                </p>
-                              </>
-                            ) : (
-                              <div className="space-y-1">
-                                <input 
-                                  type="text"
-                                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1 px-2 text-xs outline-none focus:ring-1 focus:ring-blue-500"
-                                  placeholder="Detail"
-                                  value={item.part_detail}
-                                  onChange={(e) => handleItemChange(idx, 'part_detail', e.target.value)}
-                                />
-                                <input 
-                                  type="text"
-                                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1 px-2 text-[10px] outline-none focus:ring-1 focus:ring-blue-500"
-                                  placeholder="Grade"
-                                  value={item.material_grade}
-                                  onChange={(e) => handleItemChange(idx, 'material_grade', e.target.value)}
-                                />
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4">
-                            {viewMode ? (
-                              <>
-                                <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                                  {item.remark || "-"}
-                                </p>
-                                <p className="text-[10px] text-slate-500">
-                                  {item.make || "-"}
-                                </p>
-                              </>
-                            ) : (
-                              <div className="space-y-1">
-                                <input 
-                                  type="text"
-                                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1 px-2 text-xs outline-none focus:ring-1 focus:ring-blue-500"
-                                  placeholder="Remark"
-                                  value={item.remark}
-                                  onChange={(e) => handleItemChange(idx, 'remark', e.target.value)}
-                                />
-                                <input 
-                                  type="text"
-                                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1 px-2 text-[10px] outline-none focus:ring-1 focus:ring-blue-500"
-                                  placeholder="Make"
-                                  value={item.make}
-                                  onChange={(e) => handleItemChange(idx, 'make', e.target.value)}
-                                />
-                              </div>
-                            )}
-                          </td>
                           <td className="px-4 py-4 text-center">
                             <input 
                               type="number"
@@ -514,18 +466,28 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                           </td>
                           <td className="px-4 py-4 text-center">
                             <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">₹</span>
                               <input 
                                 type="number"
-                                className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-lg py-1.5 pl-6 pr-3 text-right text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
-                                value={item.rate}
-                                onChange={(e) => handleItemChange(idx, 'rate', parseFloat(e.target.value) || 0)}
+                                className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-lg py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
+                                value={item.rate_per_kg}
+                                onChange={(e) => handleItemChange(idx, 'rate_per_kg', parseFloat(e.target.value) || 0)}
                                 disabled={viewMode}
+                                placeholder="0.00"
                               />
                             </div>
                           </td>
+                          <td className="px-4 py-4 text-center">
+                            <input 
+                              type="number"
+                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-lg py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
+                              value={item.total_weight}
+                              onChange={(e) => handleItemChange(idx, 'total_weight', parseFloat(e.target.value) || 0)}
+                              disabled={viewMode}
+                              placeholder="0.00"
+                            />
+                          </td>
                           <td className="px-6 py-4 text-right">
-                            <span className="font-bold text-slate-900 dark:text-white">₹{(item.amount || 0).toLocaleString()}</span>
+                            <span className="font-bold text-slate-900 dark:text-white text-sm">₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </td>
                           {!viewMode && (
                             <td className="px-4 py-4 text-center">

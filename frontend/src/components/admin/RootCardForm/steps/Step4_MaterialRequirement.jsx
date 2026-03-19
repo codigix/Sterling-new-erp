@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Package, Plus, Trash2, Edit2, Search, Tag, X } from "lucide-react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Package, Plus, Trash2, Edit2, Search, Tag, X, FileText, Send, Receipt, ShoppingCart, List } from "lucide-react";
 import Input from "../../../ui/Input";
 import FormSection from "../shared/FormSection";
 import FormRow from "../shared/FormRow";
@@ -12,6 +12,9 @@ import { useFormData, useRootCardContext } from "../hooks";
 import axios from "../../../../utils/api";
 import Swal from "sweetalert2";
 import { showSuccess, showError } from "../../../../utils/toastUtils";
+import Tabs from "../../../ui/Tabs";
+import DataTable from "../../../ui/DataTable/DataTable";
+import Badge from "../../../ui/Badge";
 
 const UOM_OPTIONS = [
   "Acre", "Acre (US)", "Are", "Area", "Arshin", "Atmosphere", "Bar", "Barleycorn", "Barrel (Oil)", "Barrel(Beer)", 
@@ -46,12 +49,41 @@ const UOM_OPTIONS = [
 
 export default function Step4_MaterialRequirement({ readOnly = false }) {
   const { formData, updateField } = useFormData();
-  const { state } = useRootCardContext();
+  const { state, initialData } = useRootCardContext();
+  const rootCardId = initialData?.id || state.createdOrderId;
   const materials = useMemo(() => formData.materials || [], [formData.materials]);
   
+  // Procurement Data
+  const [materialRequests, setMaterialRequests] = useState([]);
+  const [rfqs, setRfqs] = useState([]);
+  const [quotations, setQuotations] = useState([]);
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [loadingProcurement, setLoadingProcurement] = useState(false);
+
   // Inventory Data
   const [itemGroups, setItemGroups] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
+
+  const fetchProcurementData = useCallback(async () => {
+    if (!rootCardId) return;
+    try {
+      setLoadingProcurement(true);
+      const [mrRes, rfqRes, qtnRes, poRes] = await Promise.all([
+        axios.get("/department/procurement/material-requests", { params: { rootCardId } }),
+        axios.get("/department/procurement/quotations", { params: { root_card_id: rootCardId, type: 'rfq' } }),
+        axios.get("/department/procurement/quotations", { params: { root_card_id: rootCardId, type: 'quotation' } }),
+        axios.get("/department/procurement/purchase-orders", { params: { root_card_id: rootCardId } })
+      ]);
+      setMaterialRequests(mrRes.data.data || []);
+      setRfqs(rfqRes.data || []);
+      setQuotations(qtnRes.data || []);
+      setPurchaseOrders(poRes.data || []);
+    } catch (error) {
+      console.error("Error fetching procurement data:", error);
+    } finally {
+      setLoadingProcurement(false);
+    }
+  }, [rootCardId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +99,8 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
       }
     };
     fetchData();
-  }, []);
+    fetchProcurementData();
+  }, [fetchProcurementData]);
 
   const fetchInventoryData = useCallback(async () => {
     try {
@@ -81,6 +114,46 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
       console.error("Error fetching inventory data:", error);
     }
   }, []);
+
+  const mrColumns = [
+    { key: "request_number", label: "MR NUMBER", render: (val) => <span className="font-bold text-blue-600">{val}</span> },
+    { key: "department", label: "DEPARTMENT" },
+    { key: "priority", label: "PRIORITY", render: (val) => (
+      <Badge variant={val === 'urgent' ? 'danger' : val === 'high' ? 'warning' : 'info'}>{val}</Badge>
+    )},
+    { key: "status", label: "STATUS", render: (val) => (
+      <Badge variant={val === 'pending' ? 'warning' : val === 'approved' ? 'success' : 'secondary'}>{val}</Badge>
+    )},
+    { key: "created_at", label: "DATE", render: (val) => new Date(val).toLocaleDateString() }
+  ];
+
+  const rfqColumns = [
+    { key: "quotation_number", label: "RFQ NUMBER", render: (val) => <span className="font-bold text-blue-600">{val}</span> },
+    { key: "vendor_name", label: "VENDOR" },
+    { key: "status", label: "STATUS", render: (val) => (
+      <Badge variant={val === 'sent' ? 'info' : 'secondary'}>{val}</Badge>
+    )},
+    { key: "valid_until", label: "VALID UNTIL", render: (val) => val ? new Date(val).toLocaleDateString() : '-' }
+  ];
+
+  const quotationColumns = [
+    { key: "quotation_number", label: "QTN NUMBER", render: (val) => <span className="font-bold text-blue-600">{val}</span> },
+    { key: "vendor_name", label: "VENDOR" },
+    { key: "total_amount", label: "TOTAL AMOUNT", render: (val) => `₹${parseFloat(val).toLocaleString()}` },
+    { key: "status", label: "STATUS", render: (val) => (
+      <Badge variant={val === 'approved' ? 'success' : val === 'rejected' ? 'danger' : 'warning'}>{val}</Badge>
+    )}
+  ];
+
+  const poColumns = [
+    { key: "po_number", label: "PO NUMBER", render: (val) => <span className="font-bold text-blue-600">{val}</span> },
+    { key: "vendor_name", label: "VENDOR" },
+    { key: "total_amount", label: "TOTAL AMOUNT", render: (val) => `₹${parseFloat(val).toLocaleString()}` },
+    { key: "status", label: "STATUS", render: (val) => (
+      <Badge variant={val === 'approved' ? 'success' : 'warning'}>{val}</Badge>
+    )},
+    { key: "created_at", label: "DATE", render: (val) => new Date(val).toLocaleDateString() }
+  ];
 
   // Modals
   const [showItemModal, setShowItemModal] = useState(false);
@@ -363,136 +436,208 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
   }, [materials, updateField]);
 
   return (
-    <div className="space-y-6">
-      <AssigneeField
-        stepType="materialRequirements"
-        formData={state.formData}
-        updateField={updateField}
-        employees={state.employees}
-        readOnly={readOnly}
-      />
-      
-      <FormSection
-        title="Material Requirements"
-        subtitle="Specify all raw materials and components needed for production"
-        icon={Package}
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <FormSection 
+        title="Procurement & Material Status" 
+        icon={ShoppingCart}
+        description="Track material requests, RFQs, quotations, and purchase orders for this project"
       >
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-slate-900">Project BOM / Requirements</h3>
-            {!readOnly && (
-              <div className="flex gap-2">
-                <Button 
-                  variant="secondary" 
-                  size="sm" 
-                  onClick={() => setShowGroupModal(true)}
-                  className="flex items-center gap-2"
-                >
-                  Manage Groups
-                </Button>
-                <Button 
-                  variant="primary" 
-                  size="sm" 
-                  onClick={() => {
-                    setEditingItem(null);
-                    setEditingRequirementId(null);
-                    setNewItem({
-                      itemCode: "",
-                      itemName: "",
-                      itemGroupId: "",
-                      category: "Raw Material",
-                      unit: "Nos",
-                      valuationRate: 0,
-                      sellingRate: 0,
-                      noOfCavity: 1,
-                      weightPerUnit: 0,
-                      weightUom: "kg",
-                      gstPercent: 0,
-                      quantity: 1,
-                    });
-                    setShowItemModal(true);
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  <Plus size={16} />
-                  Add Material
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <div className="overflow-x-auto border border-slate-200 rounded-lg">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50 text-slate-700 uppercase text-xs">
-                <tr>
-                  <th className="px-4 py-3 font-semibold">Code</th>
-                  <th className="px-4 py-3 font-semibold">Item Name</th>
-                  <th className="px-4 py-3 font-semibold">Group</th>
-                  <th className="px-4 py-3 font-semibold text-right">Qty</th>
-                  <th className="px-4 py-3 font-semibold">Unit</th>
-                  <th className="px-4 py-3 font-semibold text-right">Est. Cost</th>
-                  {!readOnly && <th className="px-4 py-3 font-semibold text-center">Actions</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {materials.length === 0 ? (
-                  <tr>
-                    <td colSpan={readOnly ? 6 : 7} className="px-4 py-8 text-center text-slate-500 italic">
-                      No materials added yet.
-                    </td>
-                  </tr>
-                ) : (
-                  materials.map((mat) => (
-                    <tr key={mat.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3 font-mono text-xs text-slate-600">{mat.itemCode || mat.item_code || '-'}</td>
-                      <td className="px-4 py-3 font-medium text-slate-900">{mat.itemName || mat.item_name || mat.name}</td>
-                      <td className="px-4 py-3 text-slate-600">
-                        <span className="px-2 py-0.5 bg-slate-100 rounded-full text-[10px] font-medium uppercase">
-                          {mat.itemGroupName || mat.item_group_name || 'Uncategorized'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right font-bold text-blue-600">{mat.quantity}</td>
-                      <td className="px-4 py-3 text-slate-600 uppercase text-xs">{mat.unit || mat.default_uom || mat.defaultUom}</td>
-                      <td className="px-4 py-3 text-right text-slate-600">
-                        ₹{((parseFloat(mat.valuationRate || mat.valuation_rate || 0)) * (parseFloat(mat.quantity))).toLocaleString()}
-                      </td>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <Tabs
+            tabs={[
+              {
+                label: "Material Requirements",
+                icon: List,
+                content: (
+                  <div className="p-4 space-y-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold text-slate-800">Project BOM / Requirements</h3>
                       {!readOnly && (
-                        <td className="px-4 py-3">
-                          <div className="flex justify-center gap-2">
-                            <button 
-                              onClick={() => handleEditRequirement(mat)}
-                              className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                            >
-                              <Edit2 size={14} />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteRequirement(mat.id)}
-                              className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </td>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            onClick={() => setShowGroupModal(true)}
+                            className="flex items-center gap-2"
+                          >
+                            <Tag size={16} />
+                            Manage Groups
+                          </Button>
+                          <Button 
+                            variant="primary" 
+                            size="sm" 
+                            onClick={() => {
+                              setEditingItem(null);
+                              setEditingRequirementId(null);
+                              setNewItem({
+                                itemCode: "",
+                                itemName: "",
+                                itemGroupId: "",
+                                category: "Raw Material",
+                                unit: "Nos",
+                                valuationRate: 0,
+                                sellingRate: 0,
+                                noOfCavity: 1,
+                                weightPerUnit: 0,
+                                weightUom: "kg",
+                                gstPercent: 0,
+                                quantity: 1,
+                              });
+                              setShowItemModal(true);
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <Plus size={16} />
+                            Add Material
+                          </Button>
+                        </div>
                       )}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-              {materials.length > 0 && (
-                <tfoot className="bg-slate-50 font-bold">
-                  <tr>
-                    <td colSpan={5} className="px-4 py-3 text-right text-slate-700">Total Est. Material Cost:</td>
-                    <td className="px-4 py-3 text-right text-blue-700">
-                      ₹{materials.reduce((sum, mat) => sum + (parseFloat(mat.valuationRate || mat.valuation_rate || 0) * parseFloat(mat.quantity)), 0).toLocaleString()}
-                    </td>
-                    {!readOnly && <td></td>}
-                  </tr>
-                </tfoot>
-              )}
-            </table>
-          </div>
+                    </div>
+
+                    <div className="overflow-x-auto border border-slate-200 rounded-lg">
+                      <table className="w-full text-sm text-left">
+                        <thead className="bg-slate-50 text-slate-700 uppercase text-xs">
+                          <tr>
+                            <th className="px-4 py-3 font-semibold">Code</th>
+                            <th className="px-4 py-3 font-semibold">Item Name</th>
+                            <th className="px-4 py-3 font-semibold">Group</th>
+                            <th className="px-4 py-3 font-semibold text-right">Qty</th>
+                            <th className="px-4 py-3 font-semibold">Unit</th>
+                            <th className="px-4 py-3 font-semibold text-right">Est. Cost</th>
+                            {!readOnly && <th className="px-4 py-3 font-semibold text-center">Actions</th>}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {materials.length === 0 ? (
+                            <tr>
+                              <td colSpan={readOnly ? 6 : 7} className="px-4 py-8 text-center text-slate-500 italic">
+                                No materials added yet.
+                              </td>
+                            </tr>
+                          ) : (
+                            materials.map((mat) => (
+                              <tr key={mat.id} className="hover:bg-slate-50 transition-colors">
+                                <td className="px-4 py-3 font-mono text-xs text-slate-600">{mat.itemCode || mat.item_code || '-'}</td>
+                                <td className="px-4 py-3 font-medium text-slate-900">{mat.itemName || mat.item_name || mat.name}</td>
+                                <td className="px-4 py-3 text-slate-600">
+                                  <span className="px-2 py-0.5 bg-slate-100 rounded-full text-[10px] font-medium uppercase">
+                                    {mat.itemGroupName || mat.item_group_name || 'Uncategorized'}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-right font-bold text-blue-600">{mat.quantity}</td>
+                                <td className="px-4 py-3 text-slate-600 uppercase text-xs">{mat.unit || mat.default_uom || mat.defaultUom}</td>
+                                <td className="px-4 py-3 text-right text-slate-600">
+                                  ₹{((parseFloat(mat.valuationRate || mat.valuation_rate || 0)) * (parseFloat(mat.quantity))).toLocaleString()}
+                                </td>
+                                {!readOnly && (
+                                  <td className="px-4 py-3">
+                                    <div className="flex justify-center gap-2">
+                                      <button 
+                                        onClick={() => handleEditRequirement(mat)}
+                                        className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
+                                      >
+                                        <Edit2 size={14} />
+                                      </button>
+                                      <button 
+                                        onClick={() => handleDeleteRequirement(mat.id)}
+                                        className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                                      >
+                                        <Trash2 size={14} />
+                                      </button>
+                                    </div>
+                                  </td>
+                                )}
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                        {materials.length > 0 && (
+                          <tfoot className="bg-slate-50 font-bold">
+                            <tr>
+                              <td colSpan={5} className="px-4 py-3 text-right text-slate-700">Total Est. Material Cost:</td>
+                              <td className="px-4 py-3 text-right text-blue-700">
+                                ₹{materials.reduce((sum, mat) => sum + (parseFloat(mat.valuationRate || mat.valuation_rate || 0) * parseFloat(mat.quantity)), 0).toLocaleString()}
+                              </td>
+                              {!readOnly && <td></td>}
+                            </tr>
+                          </tfoot>
+                        )}
+                      </table>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                label: "Material Requests",
+                icon: FileText,
+                content: (
+                  <div className="p-4">
+                    <DataTable 
+                      columns={mrColumns} 
+                      data={materialRequests} 
+                      loading={loadingProcurement}
+                      emptyMessage="No material requests found for this project"
+                    />
+                  </div>
+                )
+              },
+              {
+                label: "RFQs (Sent)",
+                icon: Send,
+                content: (
+                  <div className="p-4">
+                    <DataTable 
+                      columns={rfqColumns} 
+                      data={rfqs} 
+                      loading={loadingProcurement}
+                      emptyMessage="No RFQs sent for this project"
+                    />
+                  </div>
+                )
+              },
+              {
+                label: "Quotations",
+                icon: Receipt,
+                content: (
+                  <div className="p-4">
+                    <DataTable 
+                      columns={quotationColumns} 
+                      data={quotations} 
+                      loading={loadingProcurement}
+                      emptyMessage="No quotations received for this project"
+                    />
+                  </div>
+                )
+              },
+              {
+                label: "Purchase Orders",
+                icon: ShoppingCart,
+                content: (
+                  <div className="p-4">
+                    <DataTable 
+                      columns={poColumns} 
+                      data={purchaseOrders} 
+                      loading={loadingProcurement}
+                      emptyMessage="No purchase orders issued for this project"
+                    />
+                  </div>
+                )
+              }
+            ]}
+          />
         </div>
       </FormSection>
+
+      <div className="mt-8">
+        <AssigneeField 
+          label="Assign to Inventory Manager"
+          department="Inventory Management"
+          value={formData.inventoryManager || "Inventory (Default)"}
+          onChange={(val) => updateField("inventoryManager", val)}
+          description="This person will receive notifications for all materialRequirements updates"
+          readOnly={readOnly}
+        />
+      </div>
 
       {/* Item Add/Edit Modal */}
       <Modal 

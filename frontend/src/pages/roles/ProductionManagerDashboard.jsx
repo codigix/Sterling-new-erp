@@ -6,21 +6,7 @@ import axios from "../../utils/api";
 import { Loader2, Package } from "lucide-react";
 import ProductionPlansPage from "../production/ProductionPlansPage";
 import ProductionPlanFormPage from "../production/ProductionPlanFormPage";
-import SchedulingPage from "../production/SchedulingPage";
-import ResourceAllocationPage from "../production/ResourceAllocationPage";
-import ProductionSpecificationsPage from "../production/ProductionSpecificationsPage";
-import ActiveStagesPage from "../production/ActiveStagesPage";
-import StageProgressPage from "../production/StageProgressPage";
-import StageDetailsPage from "../production/StageDetailsPage";
-import AssignTasksPage from "../production/AssignTasksPage";
-import TaskTrackingPage from "../production/TaskTrackingPage";
-import PerformancePage from "../production/PerformancePage";
-import GenerateChallanPage from "../production/GenerateChallanPage";
-import ChallanListPage from "../production/ChallanListPage";
-import TrackChallanPage from "../production/TrackChallanPage";
-import PerformanceMetricsPage from "../production/PerformanceMetricsPage";
 import ProductionTasksPage from "../department/ProductionTasksPage";
-import OutsourceTasksPage from "../production/OutsourceTasksPage";
 import WorkstationsPage from "../production/WorkstationsPage";
 import WorkstationFormPage from "../production/WorkstationFormPage";
 import {
@@ -627,30 +613,8 @@ const ProductionManagerDashboard = () => {
         <Route path="/dashboard" element={<DashboardContent />} />
         <Route path="/planning/plans" element={<ProductionPlansPage />} />
         <Route path="/planning/plans/new" element={<ProductionPlanFormPage />} />
-        <Route
-          path="/planning/specifications"
-          element={<ProductionSpecificationsPage />}
-        />
-        <Route path="/planning/schedule" element={<SchedulingPage />} />
-        <Route
-          path="/planning/resources"
-          element={<ResourceAllocationPage />}
-        />
-        <Route path="/stages/active" element={<ActiveStagesPage />} />
-        <Route path="/stages/progress" element={<StageProgressPage />} />
-        <Route path="/stages/details" element={<StageDetailsPage />} />
-        <Route path="/workers/assign" element={<AssignTasksPage />} />
-        <Route path="/workers/tracking" element={<TaskTrackingPage />} />
-        <Route path="/workers/performance" element={<PerformancePage />} />
-        <Route path="/challan/generate" element={<GenerateChallanPage />} />
-        <Route path="/challan/list" element={<ChallanListPage />} />
-        <Route path="/challan/track" element={<TrackChallanPage />} />
-        <Route path="/metrics" element={<PerformanceMetricsPage />} />
-        <Route path="/workstations" element={<WorkstationsPage />} />
-        <Route path="/workstations/new" element={<WorkstationFormPage />} />
-        <Route path="/workstations/edit/:id" element={<WorkstationFormPage />} />
+        {/* Incomplete Missing Routes */}
         <Route path="/department-tasks" element={<ProductionTasksPage />} />
-        <Route path="/outsource-tasks" element={<OutsourceTasksPage />} />
         <Route
           path="*"
           element={<Navigate to="/production-manager/dashboard" replace />}

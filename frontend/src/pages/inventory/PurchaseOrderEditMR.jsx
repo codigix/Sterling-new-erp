@@ -114,8 +114,12 @@ const PurchaseOrderEditMR = () => {
     const newItems = [...formData.items];
     newItems[index][field] = value;
     
-    if (field === 'quantity' || field === 'rate') {
-      newItems[index].amount = (Number(newItems[index].quantity) || 0) * (Number(newItems[index].rate) || 0);
+    if (field === 'quantity' || field === 'rate' || field === 'rate_per_kg' || field === 'total_weight') {
+      if (newItems[index].rate_per_kg && newItems[index].total_weight) {
+        newItems[index].amount = (Number(newItems[index].rate_per_kg) || 0) * (Number(newItems[index].total_weight) || 0);
+      } else {
+        newItems[index].amount = (Number(newItems[index].quantity) || 0) * (Number(newItems[index].rate) || 0);
+      }
     }
     
     calculateTotals(newItems, formData.tax_rate, formData.advance_paid);
@@ -124,9 +128,11 @@ const PurchaseOrderEditMR = () => {
   const handleAddItem = () => {
     const newItem = {
       material_name: "",
-      material_code: "",
+      vendor_material_name: "",
       quantity: 0,
       unit: "Nos",
+      rate_per_kg: 0,
+      total_weight: 0,
       rate: 0,
       amount: 0
     };
@@ -365,9 +371,10 @@ const PurchaseOrderEditMR = () => {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b border-slate-50 dark:border-slate-800">
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Item</th>
+                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Item / Vendor Name</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Quantity</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Unit Rate</th>
+                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Rate/Kg</th>
+                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Weight (Kg)</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Row Total</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center w-20"></th>
                     </tr>
@@ -380,10 +387,16 @@ const PurchaseOrderEditMR = () => {
                             type="text"
                             value={item.material_name}
                             onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
-                            placeholder="Enter item name..."
+                            placeholder="Internal name..."
                             className="w-full bg-transparent border-none text-[11px] font-bold text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-0 outline-none uppercase"
                           />
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{item.material_code || "No Code"}</p>
+                          <input 
+                            type="text"
+                            value={item.vendor_material_name}
+                            onChange={(e) => handleItemChange(idx, 'vendor_material_name', e.target.value)}
+                            placeholder="Vendor alternative name..."
+                            className="w-full bg-transparent border-none text-[9px] font-bold text-slate-400 placeholder:text-slate-200 focus:ring-0 outline-none uppercase"
+                          />
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
@@ -391,24 +404,33 @@ const PurchaseOrderEditMR = () => {
                               type="number"
                               value={item.quantity}
                               onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
-                              className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                              className="w-20 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.unit || "Nos"}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₹</span>
                             <input 
                               type="number"
-                              value={item.rate}
-                              onChange={(e) => handleItemChange(idx, 'rate', e.target.value)}
-                              className="w-32 pl-7 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                              value={item.rate_per_kg}
+                              onChange={(e) => handleItemChange(idx, 'rate_per_kg', e.target.value)}
+                              placeholder="0.00"
+                              className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-[11px] font-black text-slate-900 dark:text-white tracking-tight">₹{(item.amount || 0).toLocaleString()}</span>
+                          <input 
+                            type="number"
+                            value={item.total_weight}
+                            onChange={(e) => handleItemChange(idx, 'total_weight', e.target.value)}
+                            placeholder="0.00"
+                            className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                          />
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-[11px] font-black text-slate-900 dark:text-white tracking-tight">₹{(Number(item.amount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                         </td>
                         <td className="px-6 py-4 text-center">
                           <button 

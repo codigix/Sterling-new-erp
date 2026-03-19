@@ -27,8 +27,8 @@ const createBOMTables = async () => {
       CREATE TABLE IF NOT EXISTS bom_materials (
         id INT AUTO_INCREMENT PRIMARY KEY,
         bom_id INT NOT NULL,
-        item_code VARCHAR(100),
         item_name VARCHAR(255) NOT NULL,
+        vendor_item_name TEXT,
         item_group VARCHAR(100),
         material_grade VARCHAR(100),
         part_detail VARCHAR(255),
@@ -37,6 +37,8 @@ const createBOMTables = async () => {
         quantity DECIMAL(15, 4) DEFAULT 0,
         uom VARCHAR(50),
         rate DECIMAL(15, 2) DEFAULT 0,
+        rate_per_kg DECIMAL(15, 2) DEFAULT 0,
+        total_weight DECIMAL(15, 4) DEFAULT 0,
         total_amount DECIMAL(15, 2) DEFAULT 0,
         FOREIGN KEY (bom_id) REFERENCES boms(id) ON DELETE CASCADE
       )

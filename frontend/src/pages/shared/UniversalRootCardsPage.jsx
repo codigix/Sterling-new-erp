@@ -11,6 +11,7 @@ const UniversalRootCardsPage = () => {
   // Determine base path based on current location (admin, department, design-engineer)
   const getBasePath = () => {
     if (location.pathname.startsWith('/admin')) return '/admin/root-cards';
+    if (location.pathname.startsWith('/department/quality')) return '/department/quality/root-cards';
     if (location.pathname.startsWith('/department')) return '/department/root-cards';
     if (location.pathname.startsWith('/design-engineer')) return '/design-engineer/root-cards';
     return '/department/root-cards'; // default

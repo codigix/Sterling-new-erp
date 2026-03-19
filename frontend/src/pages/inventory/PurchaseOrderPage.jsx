@@ -28,7 +28,6 @@ import {
   Edit,
   Paperclip,
   Upload,
-  Truck,
 } from "lucide-react";
 
 const KanbanView = ({
@@ -40,12 +39,14 @@ const KanbanView = ({
   handleDownloadPO,
   handleSendToInventory,
   formatCurrency,
+  isInventoryView = false,
 }) => {
   const columns = [
     { id: "draft", title: "Draft", color: "orange" },
     { id: "submitted", title: "Submitted", color: "blue" },
     { id: "approved", title: "Approved", color: "emerald" },
     { id: "goods arrival", title: "Goods Arrival", color: "amber" },
+    { id: "sent to inventory", title: "Sent to Inventory", color: "purple" },
     { id: "fulfilled", title: "Fulfilled", color: "emerald" },
   ];
 
@@ -59,6 +60,8 @@ const KanbanView = ({
         return "bg-emerald-500";
       case "goods arrival":
         return "bg-amber-500";
+      case "sent to inventory":
+        return "bg-purple-500";
       case "fulfilled":
         return "bg-emerald-600";
       default:
@@ -167,13 +170,22 @@ const KanbanView = ({
                           >
                             <Download size={14} />
                           </button>
-                          {po.status === "approved" && (
+                          {po.status === "approved" && !isInventoryView && (
                             <button
                               onClick={() => handleSendToInventory(po)}
                               className="p-1 text-slate-400 hover:text-emerald-600 rounded transition-all"
                               title="Send to Inventory"
                             >
-                              <Truck size={14} />
+                              <Send size={14} />
+                            </button>
+                          )}
+                          {isInventoryView && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received") && (
+                            <button
+                              onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)}
+                              className="p-1 text-slate-400 hover:text-blue-600 rounded transition-all"
+                              title="Create GRN"
+                            >
+                              <FileText size={14} />
                             </button>
                           )}
                         </div>
@@ -183,7 +195,7 @@ const KanbanView = ({
                         {po.vendor_name || "N/A"}
                       </h4>
 
-                      <div className="flex items-center gap-3 mb-4">
+                      <div className="flex flex-wrap items-center gap-2 mb-4">
                         <div className="flex items-center gap-1">
                           <Calendar size={10} className="text-slate-400" />
                           <span className="text-[9px] font-bold text-slate-400 uppercase">
@@ -201,6 +213,14 @@ const KanbanView = ({
                             #{po.mr_number || po.quotation_id || "Direct"}
                           </span>
                         </div>
+                        {po.root_card_id && (
+                          <div className="flex items-center gap-1">
+                            <Layers size={10} className="text-blue-600 flex-shrink-0" />
+                            <span className="text-[9px] font-black text-blue-600 uppercase tracking-tight break-words">
+                              Project: {po.root_card_project_name || "N/A"}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between mb-3">
@@ -241,7 +261,7 @@ const KanbanView = ({
   );
 };
 
-const PurchaseOrderPage = () => {
+const PurchaseOrderPage = ({ isInventoryView = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -395,12 +415,11 @@ const PurchaseOrderPage = () => {
     const tableColumn = [
       "#",
       "Item Name / Group",
-      "Part Detail / Grade",
-      "Remark / Make",
-      "Quantity",
+      "Qty",
       "UOM",
-      "Rate",
-      "Amount",
+      "Rate/Kg",
+      "Weight (Kg)",
+      "Total",
     ];
 
     const tableRows = (po.items || []).map((item, index) => [
@@ -409,11 +428,10 @@ const PurchaseOrderPage = () => {
         content: `${item.material_name || "N/A"}\n${item.item_group || "-"}`,
         styles: { fontStyle: "bold" },
       },
-      `${item.part_detail || "-"}\n${item.material_grade || "-"}`,
-      `${item.remark || "-"}\n${item.make || "-"}`,
-      Number(item.quantity).toFixed(4),
+      item.quantity ? parseFloat(item.quantity).toString() : "0",
       item.unit || item.uom || "Nos",
-      `INR ${Number(item.rate || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      item.total_weight ? parseFloat(item.total_weight).toString() : "0",
       `INR ${Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     ]);
 
@@ -425,13 +443,12 @@ const PurchaseOrderPage = () => {
       headStyles: { fillColor: [59, 130, 246], fontSize: 8 },
       columnStyles: {
         0: { cellWidth: 10 },
-        1: { cellWidth: 40 },
-        2: { cellWidth: 35 },
-        3: { cellWidth: 35 },
-        4: { cellWidth: 20, halign: "center" },
-        5: { cellWidth: 15, halign: "center" },
-        6: { cellWidth: 20 },
-        7: { cellWidth: 20 },
+        1: { cellWidth: 60 },
+        2: { cellWidth: 20, halign: "center" },
+        3: { cellWidth: 20, halign: "center" },
+        4: { cellWidth: 25 },
+        5: { cellWidth: 25, halign: "center" },
+        6: { cellWidth: 30 },
       },
       styles: { fontSize: 8, overflow: "linebreak" },
     });
@@ -584,7 +601,8 @@ const PurchaseOrderPage = () => {
   const handleSendToInventory = async (po) => {
     try {
       await axios.patch(`/department/procurement/purchase-orders/${po.id}/status`, {
-        status: "delivered",
+        status: "sent to inventory",
+        inventory_status: "pending receipt",
       });
 
       // Send notification to Inventory department
@@ -644,8 +662,22 @@ const PurchaseOrderPage = () => {
     const matchesSearch =
       (po.po_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (po.vendor_name || "").toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (isInventoryView) {
+      if (statusFilter === "all") {
+        return matchesSearch && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received" || po.inventory_status === "fulfilled" || po.inventory_status === "delivered");
+      }
+      if (statusFilter === "pending receipt") {
+        return matchesSearch && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received");
+      }
+      return matchesSearch && po.inventory_status === statusFilter;
+    }
+    
     const matchesStatus = statusFilter === "all" || po.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesProject = (po.root_card_project_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (String(po.root_card_id || "")).toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return (matchesSearch || matchesProject) && matchesStatus;
   });
 
   const handleViewPO = (po) => {
@@ -684,17 +716,17 @@ const PurchaseOrderPage = () => {
             </div>
             <div>
               <nav className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-0.5">
-                <span>Buying</span>
+                <span>{isInventoryView ? "Inventory" : "Buying"}</span>
                 <ChevronRight size={10} />
-                <span className="text-blue-600">Procurement</span>
+                <span className="text-blue-600">{isInventoryView ? "Incoming Material" : "Procurement"}</span>
               </nav>
               <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                Purchase Orders
+                {isInventoryView ? "Received Purchase Orders" : "Purchase Orders"}
               </h1>
             </div>
           </div>
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-            Manage procurement cycles and supplier orders
+            {isInventoryView ? "Process incoming material from suppliers" : "Manage procurement cycles and supplier orders"}
           </p>
         </div>
 
@@ -706,147 +738,151 @@ const PurchaseOrderPage = () => {
           >
             <RefreshCw size={18} />
           </button>
-          <div className="relative">
-            <button
-              onClick={() => setShowCreateOptions(!showCreateOptions)}
-              className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
-            >
-              <Plus size={16} /> Create Order
-            </button>
+          {!isInventoryView && (
+            <div className="relative">
+              <button
+                onClick={() => setShowCreateOptions(!showCreateOptions)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
+              >
+                <Plus size={16} /> Create Order
+              </button>
 
-            {showCreateOptions && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="px-4 py-2 border-b border-slate-50 dark:border-slate-800 mb-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Select PO Type
-                  </p>
+              {showCreateOptions && (
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="px-4 py-2 border-b border-slate-50 dark:border-slate-800 mb-1">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      Select PO Type
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setEditPO(null);
+                      setShowCreateModal(true);
+                      setShowCreateOptions(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
+                  >
+                    <div className="p-1.5 bg-blue-50 dark:bg-blue-900/50 text-blue-600 rounded-md">
+                      <FileText size={14} />
+                    </div>
+                    From Quotation
+                  </button>
+                  <button
+                    onClick={() => {
+                      toastUtils.info("Redirecting to Material Requests page...");
+                      setTimeout(() => {
+                        navigate("/inventory/material-requests");
+                      }, 1500);
+                      setShowCreateOptions(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
+                  >
+                    <div className="p-1.5 bg-purple-50 dark:bg-purple-900/50 text-purple-600 rounded-md">
+                      <Package size={14} />
+                    </div>
+                    From Material Request
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    setEditPO(null);
-                    setShowCreateModal(true);
-                    setShowCreateOptions(false);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
-                >
-                  <div className="p-1.5 bg-blue-50 dark:bg-blue-900/50 text-blue-600 rounded-md">
-                    <FileText size={14} />
-                  </div>
-                  From Quotation
-                </button>
-                <button
-                  onClick={() => {
-                    toastUtils.info("Redirecting to Material Requests page...");
-                    setTimeout(() => {
-                      navigate("/inventory/material-requests");
-                    }, 1500);
-                    setShowCreateOptions(false);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
-                >
-                  <div className="p-1.5 bg-purple-50 dark:bg-purple-900/50 text-purple-600 rounded-md">
-                    <Package size={14} />
-                  </div>
-                  From Material Request
-                </button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-        {[
-          {
-            label: "Total Orders",
-            value: stats?.total || 0,
-            subValue: `Total: ₹${formatCurrency(stats?.total_amount)}`,
-            icon: FileText,
-            color: "blue",
-            active: true,
-          },
-          {
-            label: "Draft",
-            value: stats?.draft || 0,
-            subValue: "Pending submission",
-            icon: FileText,
-            color: "orange",
-          },
-          {
-            label: "Submitted",
-            value: stats?.submitted || 0,
-            subValue: "Active orders",
-            icon: Mail,
-            color: "blue",
-          },
-          {
-            label: "To Receive",
-            value: stats?.to_receive || 0,
-            subValue: "Awaiting delivery",
-            icon: Download,
-            color: "indigo",
-          },
-          {
-            label: "Replies",
-            value: stats?.unread_replies_count || 0,
-            subValue: "New communications",
-            icon: MessageSquare,
-            color: "blue",
-            isNew: (stats?.unread_replies_count || 0) > 0,
-          },
-          {
-            label: "Fulfilled",
-            value: stats?.fulfilled || 0,
-            subValue: "Fully received",
-            icon: CheckCircle,
-            color: "emerald",
-          },
-        ].map((card, idx) => {
-          const Icon = card.icon;
-          const colors = {
-            blue: "border-blue-200 bg-blue-50 text-blue-600",
-            orange: "border-orange-200 bg-orange-50 text-orange-600",
-            indigo: "border-indigo-200 bg-indigo-50 text-indigo-600",
-            red: "border-red-200 bg-red-50 text-red-600",
-            emerald: "border-emerald-200 bg-emerald-50 text-emerald-600",
-          };
+      {!isInventoryView && (
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+          {[
+            {
+              label: "Total Orders",
+              value: stats?.total || 0,
+              subValue: `Total: ₹${formatCurrency(stats?.total_amount)}`,
+              icon: FileText,
+              color: "blue",
+              active: true,
+            },
+            {
+              label: "Draft",
+              value: stats?.draft || 0,
+              subValue: "Pending submission",
+              icon: FileText,
+              color: "orange",
+            },
+            {
+              label: "Submitted",
+              value: stats?.submitted || 0,
+              subValue: "Active orders",
+              icon: Mail,
+              color: "blue",
+            },
+            {
+              label: "To Receive",
+              value: stats?.to_receive || 0,
+              subValue: "Awaiting delivery",
+              icon: Download,
+              color: "indigo",
+            },
+            {
+              label: "Replies",
+              value: stats?.unread_replies_count || 0,
+              subValue: "New communications",
+              icon: MessageSquare,
+              color: "blue",
+              isNew: (stats?.unread_replies_count || 0) > 0,
+            },
+            {
+              label: "Fulfilled",
+              value: stats?.fulfilled || 0,
+              subValue: "Fully received",
+              icon: CheckCircle,
+              color: "emerald",
+            },
+          ].map((card, idx) => {
+            const Icon = card.icon;
+            const colors = {
+              blue: "border-blue-200 bg-blue-50 text-blue-600",
+              orange: "border-orange-200 bg-orange-50 text-orange-600",
+              indigo: "border-indigo-200 bg-indigo-50 text-indigo-600",
+              red: "border-red-200 bg-red-50 text-red-600",
+              emerald: "border-emerald-200 bg-emerald-50 text-emerald-600",
+            };
 
-          return (
-            <div
-              key={idx}
-              className={`bg-white dark:bg-slate-900 p-4 rounded-xl border ${card.active ? "border-blue-500 ring-2 ring-blue-500/10 shadow-lg shadow-blue-500/5" : "border-slate-100 dark:border-slate-800 shadow-sm"} relative overflow-hidden group transition-all hover:shadow-md ${card.isNew ? "ring-2 ring-blue-400 animate-blink" : ""}`}
-            >
+            return (
               <div
-                className={`absolute top-0 right-0 p-4 opacity-5 transform rotate-12 transition-transform group-hover:rotate-6`}
+                key={idx}
+                className={`bg-white dark:bg-slate-900 p-4 rounded-xl border ${card.active ? "border-blue-500 ring-2 ring-blue-500/10 shadow-lg shadow-blue-500/5" : "border-slate-100 dark:border-slate-800 shadow-sm"} relative overflow-hidden group transition-all hover:shadow-md ${card.isNew ? "ring-2 ring-blue-400 animate-blink" : ""}`}
               >
-                <Icon size={48} />
-              </div>
-              <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    {card.label}
-                  </p>
-                  <div
-                    className={`w-6 h-6 rounded-md flex items-center justify-center border ${colors[card.color]}`}
-                  >
-                    <Icon size={12} />
-                  </div>
+                <div
+                  className={`absolute top-0 right-0 p-4 opacity-5 transform rotate-12 transition-transform group-hover:rotate-6`}
+                >
+                  <Icon size={48} />
                 </div>
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-0.5 tracking-tight">
-                  {card.value}
-                </h2>
-                <p className="text-[10px] font-medium text-slate-500 uppercase tracking-tight italic">
-                  {card.subValue}
-                </p>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      {card.label}
+                    </p>
+                    <div
+                      className={`w-6 h-6 rounded-md flex items-center justify-center border ${colors[card.color]}`}
+                    >
+                      <Icon size={12} />
+                    </div>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-0.5 tracking-tight">
+                    {card.value}
+                  </h2>
+                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-tight italic">
+                    {card.subValue}
+                  </p>
+                </div>
+                {card.active && (
+                  <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></div>
+                )}
               </div>
-              {card.active && (
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Search & Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -874,12 +910,26 @@ const PurchaseOrderPage = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="bg-transparent border-none text-[10px] font-bold uppercase tracking-wider text-blue-600 focus:ring-0 cursor-pointer"
             >
-              <option value="all">All Orders</option>
-              <option value="draft">Draft</option>
-              <option value="submitted">Submitted</option>
-              <option value="approved">Approved</option>
-              <option value="delivered">Delivered</option>
-              <option value="fulfilled">Fulfilled</option>
+              {isInventoryView ? (
+                <>
+                  <option value="all">All Received</option>
+                  <option value="pending receipt">Pending Receipt</option>
+                  <option value="material received">Awaiting GRN</option>
+                  <option value="partially received">Partially Received</option>
+                  <option value="fulfilled">Fulfilled</option>
+                </>
+              ) : (
+                <>
+                  <option value="all">All Orders</option>
+                  <option value="draft">Draft</option>
+                  <option value="submitted">Submitted</option>
+                  <option value="approved">Approved</option>
+                  <option value="sent to inventory">Sent to Inventory</option>
+                  <option value="material received">Material Received</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="fulfilled">Fulfilled</option>
+                </>
+              )}
             </select>
           </div>
           <button className="p-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all">
@@ -899,6 +949,9 @@ const PurchaseOrderPage = () => {
                 </th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Supplier
+                </th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  Project
                 </th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Order -- Expected
@@ -961,6 +1014,20 @@ const PurchaseOrderPage = () => {
                           Active Vendor
                         </p>
                       </td>
+                      <td className="px-6 py-4 min-w-[200px]">
+                        {po.root_card_project_name ? (
+                          <div className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>
+                            <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest break-words leading-relaxed">
+                              {po.root_card_project_name}
+                            </p>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">
+                            Direct PO
+                          </span>
+                        )}
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-700">
@@ -1009,24 +1076,39 @@ const PurchaseOrderPage = () => {
                                   ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                   : po.status === "goods arrival"
                                     ? "bg-amber-50 text-amber-600 border-amber-100"
-                                    : po.status === "fulfilled" ||
-                                        po.status === "delivered"
-                                      ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                                      : "bg-slate-50 text-slate-500 border-slate-200"
+                                    : po.status === "sent to inventory"
+                                      ? "bg-purple-50 text-purple-600 border-purple-100"
+                                      : po.status === "material received"
+                                        ? "bg-indigo-50 text-indigo-600 border-indigo-100"
+                                        : po.status === "fulfilled" ||
+                                          po.status === "delivered"
+                                        ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                                        : "bg-slate-50 text-slate-500 border-slate-200"
                           }`}
                         >
                           <div
                             className={`w-1 h-1 rounded-full ${
-                              po.status === "draft"
-                                ? "bg-orange-500"
-                                : po.status === "submitted"
-                                  ? "bg-blue-500"
-                                  : po.status === "goods arrival"
-                                    ? "bg-amber-500"
-                                    : "bg-emerald-500"
+                              isInventoryView ? (
+                                po.inventory_status === "pending receipt" ? "bg-purple-500" :
+                                po.inventory_status === "material received" ? "bg-indigo-500" :
+                                po.inventory_status === "partially received" ? "bg-amber-500" :
+                                "bg-emerald-500"
+                              ) : (
+                                po.status === "draft" ? "bg-orange-500" :
+                                po.status === "submitted" ? "bg-blue-500" :
+                                po.status === "goods arrival" ? "bg-amber-500" :
+                                po.status === "sent to inventory" ? "bg-purple-500" :
+                                po.status === "material received" ? "bg-indigo-500" :
+                                "bg-emerald-500"
+                              )
                             }`}
                           ></div>
-                          {po.status}
+                          {isInventoryView ? (
+                            po.inventory_status === "pending receipt" ? "Pending Receipt" :
+                            po.inventory_status === "material received" ? "Awaiting GRN" :
+                            po.inventory_status === "partially received" ? "Partially Received" :
+                            po.inventory_status
+                          ) : po.status}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -1038,7 +1120,7 @@ const PurchaseOrderPage = () => {
                           >
                             <Eye size={14} />
                           </button>
-                          {po.status === "draft" && (
+                          {po.status === "draft" && !isInventoryView && (
                             <>
                               <button
                                 onClick={() => handleEditPO(po)}
@@ -1056,7 +1138,9 @@ const PurchaseOrderPage = () => {
                               </button>
                             </>
                           )}
-                          {po.status !== "draft" && (
+                          {po.status !== "draft" && 
+                           !["sent to inventory", "material received", "fulfilled", "delivered"].includes(po.status) && 
+                           !isInventoryView && (
                             <button
                               onClick={() => handleUploadInvoice(po)}
                               className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded transition-all"
@@ -1065,39 +1149,52 @@ const PurchaseOrderPage = () => {
                               <Paperclip size={14} />
                             </button>
                           )}
-                          <button
-                            onClick={() => handleDownloadPO(po)}
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
-                            title="Download PDF"
-                          >
-                            <Download size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleMonitorReplies(po)}
-                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all relative group/msg"
-                            title="Monitor Replies"
-                          >
-                            <MessageSquare
-                              size={14}
-                              className={
-                                po.unread_communication_count > 0
-                                  ? "text-blue-600 animate-blink"
-                                  : ""
-                              }
-                            />
-                            {po.unread_communication_count > 0 && (
-                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 font-bold animate-blink">
-                                {po.unread_communication_count}
-                              </span>
-                            )}
-                          </button>
-                          {po.status === "approved" && (
+                          {!isInventoryView && (
+                            <button
+                              onClick={() => handleDownloadPO(po)}
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
+                              title="Download PDF"
+                            >
+                              <Download size={14} />
+                            </button>
+                          )}
+                          {!["sent to inventory", "material received", "fulfilled", "delivered"].includes(po.status) && !isInventoryView && (
+                            <button
+                              onClick={() => handleMonitorReplies(po)}
+                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all relative group/msg"
+                              title="Monitor Replies"
+                            >
+                              <MessageSquare
+                                size={14}
+                                className={
+                                  po.unread_communication_count > 0
+                                    ? "text-blue-600 animate-blink"
+                                    : ""
+                                }
+                              />
+                              {po.unread_communication_count > 0 && (
+                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 font-bold animate-blink">
+                                  {po.unread_communication_count}
+                                </span>
+                              )}
+                            </button>
+                          )}
+                          {po.status === "approved" && !isInventoryView && (
                             <button
                               onClick={() => handleSendToInventory(po)}
                               className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
                               title="Send to Inventory"
                             >
-                              <Truck size={14} />
+                              <Send size={14} />
+                            </button>
+                          )}
+                          {isInventoryView && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received") && (
+                            <button
+                              onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)}
+                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
+                              title="Create GRN"
+                            >
+                              <FileText size={14} />
                             </button>
                           )}
                         </div>

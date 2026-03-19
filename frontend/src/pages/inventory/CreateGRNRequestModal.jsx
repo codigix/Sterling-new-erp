@@ -59,7 +59,9 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
           transporter_notes: "",
           items: initialItems,
           vendor_id: po.vendor_id,
-          vendor_name: po.vendor_name || "Active Vendor"
+          vendor_name: po.vendor_name || "Active Vendor",
+          root_card_id: po.root_card_id,
+          root_card_project_name: po.root_card_project_name
         });
       } else {
         // Reset for manual entry
@@ -105,7 +107,9 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
           po_number: selectedPO.po_number,
           items: initialItems,
           vendor_id: selectedPO.vendor_id,
-          vendor_name: selectedPO.vendor_name || "Active Vendor"
+          vendor_name: selectedPO.vendor_name || "Active Vendor",
+          root_card_id: selectedPO.root_card_id,
+          root_card_project_name: selectedPO.root_card_project_name
         }));
       }
     } catch (error) {
@@ -167,16 +171,24 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
 
     setLoading(true);
     try {
-      await axios.post("/department/inventory/grns", {
-        po_id: formData.po_id,
-        items: formData.items,
-        receipt_date: formData.receipt_date,
-        transporter_notes: formData.transporter_notes,
-        vendor_id: formData.vendor_id,
-        qc_status: "pending"
+      // Map frontend keys to backend expected keys
+      const mappedItems = formData.items.map(item => ({
+        po_item_id: item.id || item.po_item_id, // Get the original line item ID
+        material_name: item.material_name || item.itemName || item.item_name || item.name || item.description,
+        received_qty: item.received_quantity,
+        unit: item.unit,
+        generate_st: true // Trigger backend to auto-generate ST numbers for each unit received
+      }));
+
+      await axios.post("/department/inventory/purchase-orders/receipts", {
+        purchase_order_id: formData.po_id,
+        items: mappedItems,
+        posting_date: formData.receipt_date,
+        notes: formData.transporter_notes,
+        vendor_id: formData.vendor_id
       });
 
-      toastUtils.success("Purchase Receipt created successfully");
+      toastUtils.success("Purchase Receipt created successfully with ST Numbers");
       if (onGRNCreated) onGRNCreated();
       onClose();
     } catch (error) {
@@ -253,6 +265,23 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                   </div>
                 </div>
               </div>
+
+              {formData.root_card_project_name && (
+                <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
+                  <div className="flex items-center gap-2 text-indigo-600">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <LayoutGrid size={18} />
+                    </div>
+                    <span className="text-xs font-bold uppercase tracking-wider">Project Context</span>
+                  </div>
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Project Name</p>
+                      <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight leading-relaxed break-words">
+                        {formData.root_card_project_name}
+                      </h4>
+                  </div>
+                </div>
+              )}
 
               <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
                 <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">

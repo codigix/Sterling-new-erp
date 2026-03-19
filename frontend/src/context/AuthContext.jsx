@@ -6,6 +6,7 @@ const DEMO_USERS = {
   sales: { password: "password", role: "Sales", name: "Sales Manager" },
   engineering: { password: "password", role: "Engineering", name: "Design Lead" },
   procurement: { password: "password", role: "Procurement", name: "Procurement Lead" },
+  quality: { password: "password", role: "Quality", name: "Quality Head", department: "Quality", departmentId: 3 },
   qc: { password: "password", role: "QC", name: "Quality Head" },
   production: { password: "password", role: "Production", name: "Production Planner", department: "Production", departmentId: 2 },
   mes: { password: "password", role: "MES", name: "MES Controller" },

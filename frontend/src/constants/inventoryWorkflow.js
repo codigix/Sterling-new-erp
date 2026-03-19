@@ -21,12 +21,6 @@ export const INVENTORY_WORKFLOW = {
       color: 'indigo'
     },
     {
-      id: 'quality',
-      name: 'Quality Phase',
-      description: 'GRN processing and QC inspection',
-      color: 'amber'
-    },
-    {
       id: 'storage',
       name: 'Storage Phase',
       description: 'Stock storage and reorder management',
@@ -127,39 +121,6 @@ export const INVENTORY_WORKFLOW = {
       icon: 'TrendingDown',
       priority: 'high',
       order: 8,
-    },
-    {
-      id: 9,
-      title: 'GRN Processing',
-      description: 'Process Goods Receipt Note (GRN) for received material',
-      phase: 'quality',
-      category: 'Quality Control',
-      page: '/department/inventory/grn-processing',
-      icon: 'CheckCircle',
-      priority: 'high',
-      order: 9,
-    },
-    {
-      id: 10,
-      title: 'QC Inspection',
-      description: 'Perform quality control inspection (accept/reject)',
-      phase: 'quality',
-      category: 'Quality Control',
-      page: '/department/inventory/grn-processing',
-      icon: 'CheckCircle',
-      priority: 'high',
-      order: 10,
-    },
-    {
-      id: 11,
-      title: 'Stock Addition',
-      description: 'Add inspected materials to stock inventory',
-      phase: 'storage',
-      category: 'Stock Management',
-      page: '/department/inventory/grn-processing',
-      icon: 'Package',
-      priority: 'high',
-      order: 11,
     },
     {
       id: 12,

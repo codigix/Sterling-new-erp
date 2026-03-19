@@ -5,7 +5,7 @@ const path = require('path');
 
 const getQuotations = async (req, res) => {
     try {
-        const { type, material_request_id, search, status } = req.query;
+        const { type, material_request_id, root_card_id, search, status } = req.query;
         let query = `
             SELECT q.*, v.name as vendor_name, mr.request_number as mr_number, rc.project_name,
             rfq.quotation_number as rfq_number,
@@ -26,6 +26,10 @@ const getQuotations = async (req, res) => {
         if (material_request_id) {
             query += " AND q.material_request_id = ?";
             params.push(material_request_id);
+        }
+        if (root_card_id) {
+            query += " AND q.root_card_id = ?";
+            params.push(root_card_id);
         }
         if (status && status !== 'all') {
             query += " AND q.status = ?";
@@ -66,7 +70,7 @@ const getQuotationById = async (req, res) => {
         }
 
         const quotation = rows[0];
-        const [items] = await db.query('SELECT * FROM quotation_items WHERE quotation_id = ?', [id]);
+        const [items] = await db.query('SELECT *, vendor_item_name FROM quotation_items WHERE quotation_id = ?', [id]);
         quotation.items = items;
 
         res.json(quotation);
@@ -83,6 +87,26 @@ const createQuotation = async (req, res) => {
     try {
         await connection.beginTransaction();
 
+        let finalRootCardId = root_card_id;
+
+        // If root_card_id is missing but we have RFQ, fetch it from the RFQ
+        if (!finalRootCardId && rfq_id) {
+            const [rfqRows] = await connection.query('SELECT root_card_id FROM quotations WHERE id = ?', [rfq_id]);
+            if (rfqRows.length > 0) {
+                finalRootCardId = rfqRows[0].root_card_id;
+                console.log(`Fetched Root Card ID from RFQ: ${finalRootCardId}`);
+            }
+        }
+
+        // If still missing, try Material Request
+        if (!finalRootCardId && material_request_id) {
+            const [mrRows] = await connection.query('SELECT root_card_id FROM material_requests WHERE id = ?', [material_request_id]);
+            if (mrRows.length > 0) {
+                finalRootCardId = mrRows[0].root_card_id;
+                console.log(`Fetched Root Card ID from Material Request: ${finalRootCardId}`);
+            }
+        }
+
         // Generate Quotation Number
         const year = new Date().getFullYear();
         const [countRows] = await connection.query('SELECT COUNT(*) as count FROM quotations');
@@ -94,20 +118,24 @@ const createQuotation = async (req, res) => {
             `INSERT INTO quotations 
             (quotation_number, vendor_id, root_card_id, material_request_id, rfq_id, type, notes, total_amount, valid_until, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [quotationNumber, vendor_id, root_card_id || null, material_request_id || null, rfq_id || null, type, notes || '', total_amount || 0, valid_until || null, 'pending']
+            [quotationNumber, vendor_id, finalRootCardId || null, material_request_id || null, rfq_id || null, type, notes || '', total_amount || 0, valid_until || null, 'pending']
         );
 
         const quotationId = result.insertId;
+        console.log(`Quotation created with ID: ${quotationId}, Type: ${type}, Final Root Card ID: ${finalRootCardId}`);
 
         if (items && items.length > 0) {
+            console.log(`Processing ${items.length} items for quotation...`);
             const itemValues = items.map(item => [
                 quotationId,
-                item.item_code || '',
-                item.description || '',
+                (type === 'inbound' && item.vendor_item_name) ? item.vendor_item_name : (item.item_name || ''),
+                item.vendor_item_name || '',
                 item.category || '',
                 item.quantity || 0,
                 item.unit || '',
                 item.unit_price || 0,
+                item.rate_per_kg || 0,
+                item.total_weight || 0,
                 item.material_grade || '',
                 item.part_detail || '',
                 item.make || '',
@@ -117,10 +145,20 @@ const createQuotation = async (req, res) => {
 
             await connection.query(
                 `INSERT INTO quotation_items 
-                (quotation_id, item_code, description, category, quantity, unit, unit_price, material_grade, part_detail, make, remark, item_group) 
+                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group) 
                 VALUES ?`,
                 [itemValues]
             );
+        }
+
+        // Trigger BOM Versioning if inbound and has root_card_id
+        if (type === 'inbound') {
+            if (finalRootCardId) {
+                console.log(`Triggering BOM versioning for Root Card: ${finalRootCardId}`);
+                await createBOMVersionFromQuotation(connection, finalRootCardId, items);
+            } else {
+                console.log('BOM versioning skipped: No finalRootCardId available');
+            }
         }
 
         await connection.commit();
@@ -462,6 +500,176 @@ const deleteQuotation = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     } finally {
         connection.release();
+    }
+};
+
+const createBOMVersionFromQuotation = async (connection, rootCardId, quotationItems) => {
+    try {
+        console.log(`BOM Versioning check started for Root Card ID: ${rootCardId}`);
+        
+        if (!rootCardId) {
+            console.log('BOM Versioning skipped: No Root Card ID provided');
+            return;
+        }
+
+        // 1. Check if any item has vendor_item_name that is actually different
+        const itemsWithAlternatives = (quotationItems || []).filter(item => 
+            item.vendor_item_name && 
+            item.vendor_item_name.trim() !== '' && 
+            item.vendor_item_name.trim().toLowerCase() !== (item.item_name || "").trim().toLowerCase()
+        );
+        
+        console.log(`Found ${itemsWithAlternatives.length} items with different vendor names among ${quotationItems?.length || 0} items`);
+        
+        if (itemsWithAlternatives.length === 0) {
+            console.log('No different vendor material names found. Skipping BOM versioning.');
+            return;
+        }
+
+        // 2. Find current active BOM for this root card
+        console.log(`Searching for active BOM for Root Card: ${rootCardId}`);
+        const [activeBoms] = await connection.query(
+            'SELECT * FROM boms WHERE root_card_id = ? AND is_active = 1 LIMIT 1',
+            [rootCardId]
+        );
+
+        let currentBom;
+        if (activeBoms.length > 0) {
+            currentBom = activeBoms[0];
+        } else {
+            // Fallback: find latest BOM for this root card
+            const [latestBoms] = await connection.query(
+                'SELECT * FROM boms WHERE root_card_id = ? ORDER BY created_at DESC LIMIT 1',
+                [rootCardId]
+            );
+            if (latestBoms.length > 0) {
+                currentBom = latestBoms[0];
+                console.log(`No active BOM found, using latest BOM: ${currentBom.bom_number}`);
+            }
+        }
+
+        if (!currentBom) {
+            console.log(`CRITICAL: No BOM found for Root Card ID ${rootCardId}. BOM Versioning aborted.`);
+            return;
+        }
+
+        console.log(`Found base BOM: ${currentBom.bom_number} (ID: ${currentBom.id})`);
+
+        // 3. Generate new BOM number base (same base, new suffix)
+        let baseBomNumber = currentBom.bom_number;
+        if (baseBomNumber.includes('-V')) {
+            baseBomNumber = baseBomNumber.split('-V')[0];
+        }
+        
+        // Count existing versions to determine next version number
+        const [versionCount] = await connection.query(
+            'SELECT COUNT(*) as count FROM boms WHERE bom_number LIKE ?',
+            [`${baseBomNumber}%`]
+        );
+        const nextVersion = versionCount[0].count + 1;
+        const newBomNumber = `${baseBomNumber}-V${nextVersion}`;
+        
+        console.log(`Generating new BOM version: ${newBomNumber} (Base: ${baseBomNumber})`);
+
+        // 4. Create new BOM record
+        const [bomResult] = await connection.query(
+            `INSERT INTO boms 
+            (root_card_id, bom_number, description, status, is_active, project_id, total_cost) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+                currentBom.root_card_id,
+                newBomNumber,
+                `${currentBom.description || ''} (Vendor Alternative Revision)`,
+                'approved',
+                1, // Set new version as active
+                currentBom.project_id,
+                currentBom.total_cost
+            ]
+        );
+
+        const newBomId = bomResult.insertId;
+        console.log(`New BOM created with ID: ${newBomId}`);
+
+        // 5. Deactivate ALL other BOMs for this root card
+        await connection.query('UPDATE boms SET is_active = 0 WHERE root_card_id = ? AND id != ?', [currentBom.root_card_id, newBomId]);
+
+        // 6. Copy and update materials
+        const [originalMaterials] = await connection.query('SELECT * FROM bom_materials WHERE bom_id = ?', [currentBom.id]);
+        console.log(`Copying ${originalMaterials.length} materials to new BOM...`);
+        
+        const newMaterialValues = originalMaterials.map(m => {
+            // Check if this material matches any quotation item with alternative
+            // Use fuzzy matching (trim and lowercase)
+            const alternative = itemsWithAlternatives.find(aq => 
+                (aq.item_name || "").trim().toLowerCase() === (m.item_name || "").trim().toLowerCase()
+            );
+            
+            if (alternative) {
+                console.log(`Updating material in BOM Revision: "${m.item_name}" -> "${alternative.vendor_item_name}"`);
+            }
+
+            return [
+                newBomId,
+                alternative ? alternative.vendor_item_name : m.item_name,
+                alternative ? alternative.vendor_item_name : m.vendor_item_name,
+                m.item_group,
+                m.material_grade,
+                m.part_detail,
+                m.remark,
+                m.make,
+                alternative ? alternative.quantity : m.quantity,
+                alternative ? (alternative.unit || alternative.uom || m.uom) : m.uom,
+                m.rate,
+                alternative ? (alternative.total_weight * (alternative.rate_per_kg || 0)) : m.total_amount,
+                m.warehouse,
+                m.operation,
+                alternative ? alternative.rate_per_kg : (m.rate_per_kg || 0),
+                alternative ? alternative.total_weight : (m.total_weight || 0)
+            ];
+        });
+
+        if (newMaterialValues.length > 0) {
+            await connection.query(
+                `INSERT INTO bom_materials 
+                (bom_id, item_name, vendor_item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, rate_per_kg, total_weight) 
+                VALUES ?`,
+                [newMaterialValues]
+            );
+        }
+
+        // 7. Copy operations
+        const [originalOperations] = await connection.query('SELECT * FROM bom_operations WHERE bom_id = ?', [currentBom.id]);
+        if (originalOperations.length > 0) {
+            const operationValues = originalOperations.map(o => [
+                newBomId, o.operation_name, o.workstation, o.cycle_time, o.setup_time, o.hourly_rate, o.cost
+            ]);
+            await connection.query(
+                `INSERT INTO bom_operations 
+                (bom_id, operation_name, workstation, cycle_time, setup_time, hourly_rate, cost) 
+                VALUES ?`,
+                [operationValues]
+            );
+        }
+
+        console.log(`Successfully created new BOM version ${newBomNumber} for Root Card ${rootCardId}`);
+
+        // 8. Notify Production Department
+        // Fetch project name for the notification
+        const [rcRows] = await connection.query('SELECT project_name FROM root_cards WHERE id = ?', [rootCardId]);
+        const projectName = rcRows.length > 0 ? rcRows[0].project_name : rootCardId;
+
+        await connection.query(
+            `INSERT INTO notifications (department, title, message, type) 
+            VALUES (?, ?, ?, ?)`,
+            [
+                'Production',
+                'New BOM Revision Created',
+                `A new revision (${newBomNumber}) has been automatically created for Project "${projectName}" due to vendor material changes. It is now set as the ACTIVE BOM.`,
+                'warning'
+            ]
+        );
+    } catch (error) {
+        console.error('Error creating BOM version from quotation:', error);
     }
 };
 

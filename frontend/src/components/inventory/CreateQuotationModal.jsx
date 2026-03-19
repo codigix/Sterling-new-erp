@@ -16,7 +16,7 @@ import {
   Search,
 } from "lucide-react";
 import axios from "../../utils/api";
-import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
 
 const CreateQuotationModal = ({
@@ -55,11 +55,23 @@ const CreateQuotationModal = ({
 
   useEffect(() => {
     if (isOpen) {
+      // Create initial form data state from props
+      const initialFormState = {
+        vendor_id: "",
+        root_card_id: "",
+        total_amount: 0,
+        valid_until: "",
+        items: [],
+        notes: "",
+        type: "outbound",
+        reference_id: null,
+        rfq_id: null,
+        material_request_id: null,
+        document_path: "",
+      };
+
       if (initialData) {
-        setFormData((prev) => ({
-          ...prev,
-          ...initialData,
-        }));
+        Object.assign(initialFormState, initialData);
 
         // If material_request_id is provided, automatically load its items
         if (initialData.material_request_id && (!initialData.items || initialData.items.length === 0)) {
@@ -68,22 +80,24 @@ const CreateQuotationModal = ({
       }
 
       if (preFilledMaterials) {
-        setFormData((prev) => ({
-          ...prev,
-          items: preFilledMaterials.map((m) => ({
-            description: m.description || m.item_name || m.material_name || m.itemName || "",
-            item_code: m.item_code || m.material_code || "",
-            material_id: m._id || m.id,
-            quantity: m.quantity || m.requiredQuantity || 0,
-            unit_price: 0,
-            unit: m.unit || "",
-          })),
-          root_card_id: preFilledMaterials[0]?.rootCardId || prev.root_card_id,
-          material_request_id: preFilledMaterials[0]?.material_request_id || prev.material_request_id,
+        initialFormState.items = preFilledMaterials.map((m) => ({
+          item_name: m.item_name || m.material_name || m.itemName || "",
+          vendor_item_name: "",
+          material_id: m._id || m.id,
+          quantity: m.quantity || m.requiredQuantity || 0,
+          unit_price: 0,
+          unit: m.unit || "",
         }));
+        initialFormState.root_card_id = preFilledMaterials[0]?.rootCardId || initialFormState.root_card_id;
+        initialFormState.material_request_id = preFilledMaterials[0]?.material_request_id || initialFormState.material_request_id;
       }
+
+      setFormData(initialFormState);
+      setAnalysisMode(false);
+      setRootCardMaterials([]);
+      setUploadedFileName("");
     }
-  }, [isOpen, initialData, preFilledMaterials]);
+  }, [isOpen]); // Only run when modal opens/closes
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -99,8 +113,8 @@ const CreateQuotationModal = ({
       items: [
         ...prev.items,
         {
-          item_code: "",
-          description: "",
+          item_name: "",
+          vendor_item_name: "",
           item_group: "",
           part_detail: "",
           material_grade: "",
@@ -109,6 +123,8 @@ const CreateQuotationModal = ({
           quantity: "",
           unit: "",
           unit_price: "",
+          total_weight: "",
+          rate_per_kg: "",
         },
       ],
     }));
@@ -126,8 +142,8 @@ const CreateQuotationModal = ({
       const newItems = prev.items.map((item, i) => {
         if (i === index) {
           const stringFields = [
-            "description",
-            "item_code",
+            "item_name",
+            "vendor_item_name",
             "unit",
             "item_group",
             "part_detail",
@@ -148,7 +164,13 @@ const CreateQuotationModal = ({
       });
 
       const newTotal = newItems.reduce(
-        (sum, item) => sum + (item.quantity * item.unit_price || 0),
+        (sum, item) => {
+          if (formData.type === "inbound") {
+            // Strictly Weight * Rate per kg for inbound
+            return sum + (item.total_weight * item.rate_per_kg || 0);
+          }
+          return sum + (item.quantity * item.unit_price || 0);
+        },
         0
       );
       return {
@@ -189,18 +211,13 @@ const CreateQuotationModal = ({
 
       const missingPrices = response.data.items.filter(item => item.unit_price === 0).length;
       if (missingPrices > 0) {
-        Swal.fire({
-          title: "Analysis Complete",
-          text: `Prices extracted for most items, but ${missingPrices} items could not be automatically matched. Please enter them manually.`,
-          icon: "info",
-          confirmButtonText: "Ok"
-        });
+        toast.info(`Prices extracted for most items, but ${missingPrices} items could not be automatically matched. Please enter them manually.`);
       } else {
-        Swal.fire("Success", "Prices fetched successfully from the document!", "success");
+        toast.success("Prices fetched successfully from the document!");
       }
     } catch (error) {
       console.error("Error analyzing quotation:", error);
-      Swal.fire("Error", error.response?.data?.message || "Failed to analyze document", "error");
+      toast.error(error.response?.data?.message || "Failed to analyze document");
     } finally {
       setAnalyzing(false);
       // e.target.value = ''; // Keep it if we want to show it's "selected"
@@ -254,7 +271,7 @@ const CreateQuotationModal = ({
       }
     } catch (error) {
       console.error("Error fetching root card data:", error);
-      Swal.fire("Error", "Failed to load root card details", "error");
+      toast.error("Failed to load root card details");
     } finally {
       setLoadingMaterials(false);
     }
@@ -294,8 +311,8 @@ const CreateQuotationModal = ({
           material_request_id: mr.id,
           root_card_id: mr.sales_order_id || prev.root_card_id,
           items: (Array.isArray(items) ? items : []).map((item) => ({
-            item_code: item.item_code || item.material_code || "",
-            description: item.item_name || item.material_name || item.description || item.itemName || "",
+            item_name: item.item_name || item.material_name || item.description || item.itemName || "",
+            vendor_item_name: "",
             quantity: item.required_quantity || item.quantity || 0,
             unit: item.uom || item.unit || "",
             unit_price: 0,
@@ -309,7 +326,7 @@ const CreateQuotationModal = ({
       }
     } catch (error) {
       console.error("Error fetching material request details:", error);
-      Swal.fire("Error", "Failed to load material request details", "error");
+      toast.error("Failed to load material request details");
     } finally {
       setLoadingMaterials(false);
     }
@@ -326,15 +343,23 @@ const CreateQuotationModal = ({
       setFormData((prev) => ({
         ...prev,
         reference_id: selectedQuote.id,
+        rfq_id: selectedQuote.id,
         vendor_id: selectedQuote.vendor_id,
+        root_card_id: selectedQuote.root_card_id,
         material_request_id: selectedQuote.material_request_id,
         items: (selectedQuote.items || []).map((item) => ({
-          item_code: item.item_code || item.material_code || "",
-          description: item.description,
-          category: item.category || item.materialType || "",
+          item_name: item.item_name || item.description,
+          vendor_item_name: item.vendor_item_name || "",
           quantity: item.quantity,
           unit: item.unit || "",
           unit_price: 0,
+          item_group: item.item_group || "",
+          part_detail: item.part_detail || "",
+          material_grade: item.material_grade || "",
+          make: item.make || "",
+          remark: item.remark || "",
+          total_weight: item.total_weight || 0,
+          rate_per_kg: item.rate_per_kg || 0
         })),
         notes: `Response to ${selectedQuote.quotation_number}`,
       }));
@@ -372,9 +397,7 @@ const CreateQuotationModal = ({
 
       const selectedItems = rootCardMaterials.filter((m) => m.selected);
       const items = selectedItems.map((m) => ({
-        item_code: m.itemCode || m.material_code || "",
-        description: m.itemName || m.item_name || "Unnamed Material",
-        category: m.category || m.materialType || "",
+        item_name: m.itemName || m.item_name || "Unnamed Material",
         quantity: Math.max(
           0,
           (parseFloat(m.requiredQuantity) || 0) -
@@ -393,7 +416,7 @@ const CreateQuotationModal = ({
       setAnalysisMode(false);
     } catch (error) {
       console.error("Error saving requirements:", error);
-      Swal.fire("Error", "Failed to save requirements", "error");
+      toast.error("Failed to save requirements");
     } finally {
       setSavingRequirements(false);
     }
@@ -403,7 +426,7 @@ const CreateQuotationModal = ({
     e.preventDefault();
 
     if (!formData.vendor_id) {
-      Swal.fire("Warning", "Please select a vendor", "warning");
+      toast.warning("Please select a vendor");
       return;
     }
 
@@ -411,9 +434,7 @@ const CreateQuotationModal = ({
     try {
       const payload = {
         ...formData,
-        root_card_id: formData.root_card_id
-          ? parseInt(formData.root_card_id)
-          : null,
+        root_card_id: formData.root_card_id || null,
         reference_id: (formData.type === "inbound" && formData.reference_id && !isNaN(formData.reference_id))
           ? parseInt(formData.reference_id)
           : null,
@@ -426,8 +447,10 @@ const CreateQuotationModal = ({
 
       if (formData.type === "inbound") {
         await completeCurrentTask("Vendor quotation response recorded");
+        toast.success("Vendor quote recorded successfully!");
       } else if (formData.type === "outbound") {
         await completeCurrentTask("RFQ Quotation (RFQ) created");
+        toast.success("Quotation request (RFQ) created successfully!");
       }
 
       if (onQuotationCreated) {
@@ -435,10 +458,9 @@ const CreateQuotationModal = ({
       }
       
       onClose();
-      Swal.fire("Success", "Quotation created successfully", "success");
     } catch (err) {
       console.error("Error creating quotation:", err);
-      Swal.fire("Error", "Failed to create quotation", "error");
+      toast.error(err.response?.data?.message || "Failed to create quotation");
     } finally {
       setSubmitting(false);
     }
@@ -882,12 +904,21 @@ const CreateQuotationModal = ({
                             <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
                               Item Name / Group
                             </th>
-                            <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
-                              Part Detail / Grade
-                            </th>
-                            <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
-                              Remark / Make
-                            </th>
+                            {formData.type === "inbound" && (
+                              <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
+                                Vendor Material Name
+                              </th>
+                            )}
+                            {formData.type === "outbound" && (
+                              <>
+                                <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
+                                  Part Detail / Grade
+                                </th>
+                                <th className="px-4 py-3 text-left text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700">
+                                  Remark / Make
+                                </th>
+                              </>
+                            )}
                             <th className="px-4 py-3 text-center text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-24">
                               Qty
                             </th>
@@ -897,7 +928,10 @@ const CreateQuotationModal = ({
                             {formData.type === "inbound" && (
                               <>
                                 <th className="px-4 py-3 text-right text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-32">
-                                  Price
+                                  Rate/Kg
+                                </th>
+                                <th className="px-4 py-3 text-right text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-32">
+                                  Weight (Kg)
                                 </th>
                                 <th className="px-4 py-3 text-right text-[10px] uppercase font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-700 w-32">
                                   Total
@@ -922,17 +956,17 @@ const CreateQuotationModal = ({
                                 <div className="flex flex-col gap-1">
                                   <input
                                     type="text"
-                                    value={item.description}
+                                    value={item.item_name}
                                     onChange={(e) =>
                                       handleItemChange(
                                         index,
-                                        "description",
+                                        "item_name",
                                         e.target.value
                                       )
                                     }
                                     placeholder="Item name"
-                                    disabled={preFilledMaterials}
-                                    className="w-full px-2 py-1 text-xs font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                    disabled
+                                    className="w-full px-2 py-1 text-xs font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-slate-50 dark:bg-slate-900 transition-all disabled:opacity-80"
                                   />
                                   <input
                                     type="text"
@@ -945,75 +979,95 @@ const CreateQuotationModal = ({
                                       )
                                     }
                                     placeholder="Group"
-                                    disabled={preFilledMaterials}
+                                    disabled
                                     className="w-full px-2 py-0.5 text-[10px] font-medium text-slate-500 uppercase border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
                                   />
                                 </div>
                               </td>
-                              <td className="px-4 py-2">
-                                <div className="flex flex-col gap-1">
-                                  <input
-                                    type="text"
-                                    value={item.part_detail}
+                              {formData.type === "inbound" && (
+                                <td className="px-4 py-2">
+                                  <textarea
+                                    value={item.vendor_item_name}
                                     onChange={(e) =>
                                       handleItemChange(
                                         index,
-                                        "part_detail",
+                                        "vendor_item_name",
                                         e.target.value
                                       )
                                     }
-                                    placeholder="Part Detail"
-                                    disabled={preFilledMaterials}
-                                    className="w-full px-2 py-1 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                    placeholder="Vendor Material Name (if different)"
+                                    className="w-full px-2 py-1 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all resize-none h-12"
                                   />
-                                  <input
-                                    type="text"
-                                    value={item.material_grade}
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        "material_grade",
-                                        e.target.value
-                                      )
-                                    }
-                                    placeholder="Grade"
-                                    disabled={preFilledMaterials}
-                                    className="w-full px-2 py-0.5 text-[10px] font-medium text-slate-500 uppercase border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
-                                  />
-                                </div>
-                              </td>
-                              <td className="px-4 py-2">
-                                <div className="flex flex-col gap-1">
-                                  <input
-                                    type="text"
-                                    value={item.remark}
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        "remark",
-                                        e.target.value
-                                      )
-                                    }
-                                    placeholder="Remark"
-                                    disabled={preFilledMaterials}
-                                    className="w-full px-2 py-1 text-[10px] italic text-slate-500 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
-                                  />
-                                  <input
-                                    type="text"
-                                    value={item.make}
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        "make",
-                                        e.target.value
-                                      )
-                                    }
-                                    placeholder="Make"
-                                    disabled={preFilledMaterials}
-                                    className="w-full px-2 py-0.5 text-xs text-slate-600 dark:text-slate-400 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
-                                  />
-                                </div>
-                              </td>
+                                </td>
+                              )}
+                              {formData.type === "outbound" && (
+                                <>
+                                  <td className="px-4 py-2">
+                                    <div className="flex flex-col gap-1">
+                                      <input
+                                        type="text"
+                                        value={item.part_detail}
+                                        onChange={(e) =>
+                                          handleItemChange(
+                                            index,
+                                            "part_detail",
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Part Detail"
+                                        disabled={preFilledMaterials}
+                                        className="w-full px-2 py-1 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                      />
+                                      <input
+                                        type="text"
+                                        value={item.material_grade}
+                                        onChange={(e) =>
+                                          handleItemChange(
+                                            index,
+                                            "material_grade",
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Grade"
+                                        disabled={preFilledMaterials}
+                                        className="w-full px-2 py-0.5 text-[10px] font-medium text-slate-500 uppercase border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-2">
+                                    <div className="flex flex-col gap-1">
+                                      <input
+                                        type="text"
+                                        value={item.remark}
+                                        onChange={(e) =>
+                                          handleItemChange(
+                                            index,
+                                            "remark",
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Remark"
+                                        disabled={preFilledMaterials}
+                                        className="w-full px-2 py-1 text-[10px] italic text-slate-500 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                      />
+                                      <input
+                                        type="text"
+                                        value={item.make}
+                                        onChange={(e) =>
+                                          handleItemChange(
+                                            index,
+                                            "make",
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Make"
+                                        disabled={preFilledMaterials}
+                                        className="w-full px-2 py-0.5 text-xs text-slate-600 dark:text-slate-400 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
+                                      />
+                                    </div>
+                                  </td>
+                                </>
+                              )}
                               <td className="px-4 py-2 w-24">
                                 <input
                                   type="number"
@@ -1053,11 +1107,11 @@ const CreateQuotationModal = ({
                                   <td className="px-4 py-2 w-32">
                                     <input
                                       type="number"
-                                      value={item.unit_price}
+                                      value={item.rate_per_kg}
                                       onChange={(e) =>
                                         handleItemChange(
                                           index,
-                                          "unit_price",
+                                          "rate_per_kg",
                                           e.target.value
                                         )
                                       }
@@ -1067,9 +1121,26 @@ const CreateQuotationModal = ({
                                       className="w-full px-2 py-1.5 text-xs font-bold text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
                                     />
                                   </td>
+                                  <td className="px-4 py-2 w-32">
+                                    <input
+                                      type="number"
+                                      value={item.total_weight}
+                                      onChange={(e) =>
+                                        handleItemChange(
+                                          index,
+                                          "total_weight",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="0.00"
+                                      min="0"
+                                      step="0.001"
+                                      className="w-full px-2 py-1.5 text-xs font-bold text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
+                                    />
+                                  </td>
                                   <td className="px-4 py-2 text-right w-32">
                                     <span className="text-xs font-black text-emerald-600">
-                                      ₹{(item.quantity * item.unit_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                      ₹{(item.total_weight * item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </span>
                                   </td>
                                 </>

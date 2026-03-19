@@ -7,14 +7,9 @@ import RoleDashboardLayout from "../../components/layout/RoleDashboardLayout";
 const StockBalancePage = lazy(() => import("../inventory/StockBalancePage"));
 const StockEntriesPage = lazy(() => import("../inventory/StockEntriesPage"));
 const StockMovementsPage = lazy(() => import("../inventory/StockMovementsPage"));
-const ReorderLevelsPage = lazy(() => import("../inventory/ReorderLevelsPage"));
-const TrackInventoryPage = lazy(() => import("../inventory/TrackInventoryPage"));
-const BatchManagementPage = lazy(() => import("../inventory/BatchManagementPage"));
-const RackAndShelfPage = lazy(() => import("../inventory/RackAndShelfPage"));
-const PurchaseReceiptPage = lazy(() => import("../inventory/PurchaseReceiptPage"));
 const PurchaseOrderPage = lazy(() => import("../inventory/PurchaseOrderPage"));
 const GRNProcessingPage = lazy(() => import("../inventory/GRNProcessingPage"));
-const WarehousesPage = lazy(() => import("../inventory/WarehousesPage"));
+const SerialTagTrackingPage = lazy(() => import("../inventory/SerialTagTrackingPage"));
 const InventoryTasksPage = lazy(() => import("../department/InventoryTasksPage"));
 import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
@@ -46,7 +41,8 @@ import {
   Loader2,
   ClipboardList,
   Warehouse,
-  ShoppingCart
+  ShoppingCart,
+  Barcode
 } from "lucide-react";
 
 ChartJS.register(
@@ -472,54 +468,6 @@ const DashboardContent = React.memo(({
                 </p>
               </div>
             </Link>
-            <Link
-              to="/department/procurement"
-              className="flex items-center text-xs gap-3 p-3 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900 rounded-lg transition-colors border border-purple-100 dark:border-purple-800"
-            >
-              <ShoppingCart
-                size={20}
-                className="text-purple-600 dark:text-purple-400"
-              />
-              <div>
-                <p className="font-medium text-purple-900 dark:text-blue-100">
-                  Procurement
-                </p>
-                <p className="text-xs text-purple-700 dark:text-purple-300">
-                  Manage POs & Quotes
-                </p>
-              </div>
-            </Link>
-            <Link
-              to="/department/inventory/purchase-receipt"
-              className="flex items-center text-xs gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-lg transition-colors border border-emerald-100 dark:border-emerald-800"
-            >
-              <Truck
-                size={20}
-                className="text-emerald-600 dark:text-emerald-400"
-              />
-              <div>
-                <p className="font-medium text-emerald-900 dark:text-emerald-100">
-                  Purchase Receipt
-                </p>
-                <p className="text-xs text-emerald-700 dark:text-emerald-300">
-                  Create new receipt
-                </p>
-              </div>
-            </Link>
-            <Link
-              to="/department/inventory/grn-processing"
-              className="flex items-center text-xs gap-3 p-3 bg-cyan-50 dark:bg-cyan-900/30 hover:bg-cyan-100 dark:hover:bg-cyan-900 rounded-lg transition-colors border border-cyan-100 dark:border-cyan-800"
-            >
-              <CheckCircle size={20} className="text-cyan-600 dark:text-cyan-400" />
-              <div>
-                <p className="font-medium text-cyan-900 dark:text-cyan-100">
-                  GRN Processing
-                </p>
-                <p className="text-xs text-cyan-700 dark:text-cyan-300">
-                  Quality Inspections
-                </p>
-              </div>
-            </Link>
           </div>
         </div>
       </div>
@@ -535,11 +483,6 @@ const InventoryDepartmentDashboard = () => {
       title: "Dashboard",
       path: "/department/inventory/dashboard",
       icon: Package,
-    },
-    {
-      title: "Warehouses",
-      path: "/department/inventory/warehouses",
-      icon: Warehouse,
     },
     {
       title: "Stock Management",
@@ -561,42 +504,16 @@ const InventoryDepartmentDashboard = () => {
           icon: RefreshCw,
         },
         {
-          title: "Reorder Levels",
-          path: "/department/inventory/stock/reorder",
-          icon: AlertTriangle,
+          title: "Serial Tag (ST) Tracking",
+          path: "/department/inventory/stock/serial-tags",
+          icon: Barcode,
         },
       ],
     },
     {
-      title: "Inventory Tracking",
-      icon: TrendingUp,
-      submenu: [
-        {
-          title: "Track Inventory",
-          path: "/department/inventory/tracking/inventory",
-          icon: TrendingUp,
-        },
-        {
-          title: "Batch Management",
-          path: "/department/inventory/tracking/batches",
-          icon: Boxes,
-        },
-        {
-          title: "Rack & Shelf",
-          path: "/department/inventory/tracking/location",
-          icon: Package,
-        },
-      ],
-    },
-    {
-      title: "Purchase Receipt",
-      path: "/department/inventory/purchase-receipt",
-      icon: Truck,
-    },
-    {
-      title: "GRN Processing",
-      path: "/department/inventory/grn-processing",
-      icon: CheckCircle,
+      title: "Purchase Orders",
+      path: "/department/inventory/purchase-orders",
+      icon: ShoppingCart,
     },
     {
       title: "Department Tasks",
@@ -728,18 +645,13 @@ const InventoryDepartmentDashboard = () => {
               />
             }
           />
-          <Route path="warehouses" element={<WarehousesPage />} />
           <Route path="stock/balance" element={<StockBalancePage />} />
           <Route path="stock/entries" element={<StockEntriesPage />} />
           <Route path="stock/view" element={<Navigate to="../balance" replace />} />
           <Route path="stock/movements" element={<StockMovementsPage />} />
-          <Route path="stock/reorder" element={<ReorderLevelsPage />} />
-          <Route path="tracking/inventory" element={<TrackInventoryPage />} />
-          <Route path="tracking/batches" element={<BatchManagementPage />} />
-          <Route path="tracking/location" element={<RackAndShelfPage />} />
-          <Route path="purchase-receipt" element={<PurchaseReceiptPage />} />
-          <Route path="purchase-orders" element={<PurchaseOrderPage />} />
-          <Route path="grn-processing" element={<GRNProcessingPage />} />
+          <Route path="stock/serial-tags" element={<SerialTagTrackingPage />} />
+          <Route path="purchase-orders" element={<PurchaseOrderPage isInventoryView={true} />} />
+          <Route path="grn" element={<GRNProcessingPage />} />
           <Route path="department-tasks" element={<InventoryTasksPage />} />
           <Route
             path="*"

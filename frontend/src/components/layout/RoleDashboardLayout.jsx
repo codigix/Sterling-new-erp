@@ -242,34 +242,17 @@ const RoleDashboardLayout = ({
                 })}
               </ul>
             </div>
-
-            {/* Quick Links */}
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-              <ul className="space-y-1">
-                <li>
-                  <Link
-                    to="/admin/dashboard"
-                    className="flex items-center text-xs px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <Home size={18} className="flex-shrink-0" />
-                    {!sidebarCollapsed && (
-                      <span className="ml-3">Admin Dashboard</span>
-                    )}
-                  </Link>
-                </li>
-              </ul>
-            </div>
           </nav>
         </div>
       </aside>
 
       {/* Main Content */}
       <main
-        className={`transition-all duration-300 ${
-          sidebarCollapsed ? "" : "lg:ml-64"
-        } pt-16`}
+        className={`transition-all duration-300 pt-16 min-h-screen bg-slate-50 dark:bg-slate-900 ${
+          sidebarCollapsed ? "ml-16" : "ml-64"
+        }`}
       >
-        <div className="p-6">
+        <div className="p-0">
           {/* Page Header */}
 
           {/* Page Content */}

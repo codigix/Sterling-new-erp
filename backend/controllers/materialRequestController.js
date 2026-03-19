@@ -86,7 +86,7 @@ const createMaterialRequest = async (req, res) => {
 
 const getMaterialRequests = async (req, res) => {
   try {
-    const { department, status, projectId } = req.query;
+    const { department, status, projectId, rootCardId } = req.query;
     let query = `
       SELECT mr.*, 
              COALESCE(mr.bom_number, b.bom_number) as bom_number, 
@@ -109,6 +109,10 @@ const getMaterialRequests = async (req, res) => {
     if (projectId) {
         query += " AND mr.project_id = ?";
         params.push(projectId);
+    }
+    if (rootCardId) {
+        query += " AND mr.root_card_id = ?";
+        params.push(rootCardId);
     }
 
     query += " ORDER BY mr.created_at DESC";

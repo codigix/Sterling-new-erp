@@ -82,6 +82,7 @@ const ProcurementDashboard = () => {
           <Route path="quotations/sent" element={<QuotationsPage defaultTab="outbound" />} />
           <Route path="quotations/received" element={<QuotationsPage defaultTab="inbound" />} />
           <Route path="purchase-orders" element={<PurchaseOrderPage />} />
+          <Route path="purchase-orders/:id" element={<PurchaseOrderPage />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </Suspense>

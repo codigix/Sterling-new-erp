@@ -34,7 +34,7 @@ const createBOM = async (req, res) => {
         productInfo.bomNumber,
         productInfo.description || '',
         productInfo.status || 'draft',
-        productInfo.isActive !== undefined ? productInfo.isActive : true,
+        1, // Always active on first creation
         productInfo.projectId || null,
         0
       ]
@@ -263,6 +263,7 @@ const getBOMById = async (req, res) => {
       return {
         id: m.id,
         itemName: m.item_name,
+        vendorItemName: m.vendor_item_name,
         itemGroup: m.item_group,
         materialGrade: m.material_grade,
         partDetail: m.part_detail,
@@ -272,6 +273,8 @@ const getBOMById = async (req, res) => {
         uom: m.uom,
         warehouse: m.warehouse,
         operation: m.operation,
+        ratePerKg: m.rate_per_kg,
+        totalWeight: m.total_weight,
         rate: 0,
         totalAmount: 0
       };

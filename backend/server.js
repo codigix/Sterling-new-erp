@@ -13,6 +13,7 @@ const bomRoutes = require('./routes/bomRoutes');
 const materialRequestRoutes = require('./routes/materialRequestRoutes');
 const quotationRoutes = require('./routes/quotationRoutes');
 const purchaseOrderRoutes = require('./routes/purchaseOrderRoutes');
+const qualityRoutes = require('./routes/qualityRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 
 const app = express();
@@ -35,6 +36,7 @@ app.use('/api/design-drawings', designDrawingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/root-cards', rootCardRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/qc', qualityRoutes);
 app.use('/api/engineering/bom/comprehensive', bomRoutes);
 
 // Multi-path registration for Material Requests

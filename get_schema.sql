@@ -1,0 +1,2 @@
+DESCRIBE purchase_order_items;
+DESCRIBE purchase_orders;

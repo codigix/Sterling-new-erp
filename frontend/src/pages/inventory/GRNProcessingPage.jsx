@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import { showSuccess, showError } from "../../utils/toastUtils";
@@ -19,10 +20,18 @@ import {
   Save,
   List,
   Printer,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  Zap,
 } from "lucide-react";
 import taskService from "../../utils/taskService";
 
 const GRNProcessingPage = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const poId = searchParams.get("poId");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [grnData, setGrnData] = useState([]);
@@ -30,24 +39,138 @@ const GRNProcessingPage = () => {
   const [selectedGRN, setSelectedGRN] = useState(null);
   const [taskId, setTaskId] = useState(null);
 
-  // QC Inspection Modal State
-  const [showQCModal, setShowQCModal] = useState(false);
-  const [qcForm, setQCForm] = useState({
+  // New GRN Creation State
+  const [poData, setPoData] = useState(null);
+  const [loadingPO, setLoadingPO] = useState(false);
+  const [grnForm, setGrnForm] = useState({
+    posting_date: new Date().toISOString().split("T")[0],
+    notes: "",
     items: [],
-    status: "pending",
-    remarks: "",
   });
+  const [expandedItem, setExpandedItem] = useState(null);
+
+  useEffect(() => {
+    if (poId) {
+      fetchPODetails(poId);
+    }
+  }, [poId]);
+
+  const generateItemCode = (materialName) => {
+    let typeCode = "GEN";
+    const upperName = (materialName || "").toUpperCase();
+    if (upperName.includes("PLATE")) typeCode = "PLT";
+    else if (upperName.includes("ROUND BAR") || upperName.includes("RB")) typeCode = "RB";
+    else if (upperName.includes("PIPE")) typeCode = "PIPE";
+
+    const sizeMatch = (materialName || "").match(/(\d+)x(\d+)x(\d+)/);
+    let shortSize = "SIZE";
+    if (sizeMatch) {
+      const dims = [sizeMatch[1], sizeMatch[2], sizeMatch[3]].map(d => {
+        const val = parseInt(d);
+        return (val >= 100 && val % 100 === 0) ? (val / 100).toString() : val.toString();
+      });
+      shortSize = dims.join("x");
+    }
+    return `${typeCode}-${shortSize}`;
+  };
+
+  const fetchPODetails = async (id) => {
+    setLoadingPO(true);
+    try {
+      const response = await axios.get(`/department/inventory/purchase-orders/${id}`);
+      setPoData(response.data);
+      
+      const initialItems = (response.data.items || []).map(item => {
+        const matName = item.material_name || item.itemName || item.item_name || item.name || item.description;
+        return {
+          po_item_id: item.id,
+          material_name: matName,
+          item_code: generateItemCode(matName),
+          item_group: item.item_group || "",
+          ordered_qty: parseFloat(item.quantity) || 0,
+          received_qty: parseFloat(item.quantity) || 0, // Default to full receipt
+          unit: item.unit || item.uom || "Units",
+          rate_per_kg: parseFloat(item.rate_per_kg) || 0,
+          total_weight: parseFloat(item.total_weight) || 0,
+          received_weight: parseFloat(item.total_weight) || 0,
+          rate: parseFloat(item.rate) || 0,
+          amount: parseFloat(item.amount) || 0,
+          generate_st: true
+        };
+      });
+
+      setGrnForm(prev => ({ ...prev, items: initialItems }));
+    } catch (error) {
+      console.error("Error fetching PO:", error);
+      showError("Failed to load Purchase Order details");
+    } finally {
+      setLoadingPO(false);
+    }
+  };
+
+  const handleItemChange = (idx, field, value) => {
+    const newItems = [...grnForm.items];
+    newItems[idx][field] = value;
+    
+    // Auto-calculate received weight if rate_per_kg or total_weight is involved
+    if (field === 'received_qty' && newItems[idx].rate_per_kg > 0) {
+      const perUnitWeight = newItems[idx].total_weight / newItems[idx].ordered_qty;
+      newItems[idx].received_weight = parseFloat((value * perUnitWeight).toFixed(4));
+    }
+
+    setGrnForm({ ...grnForm, items: newItems });
+  };
+
+  const handleSubmitGRN = async () => {
+    try {
+      const hasQuantities = grnForm.items.some(item => Number(item.received_qty) > 0);
+      if (!hasQuantities) {
+        return showError("Please enter received quantities for at least one item.");
+      }
+
+      const payload = {
+        purchase_order_id: poData.id,
+        vendor_id: poData.vendor_id,
+        posting_date: grnForm.posting_date,
+        notes: grnForm.notes,
+        items: grnForm.items.filter(item => Number(item.received_qty) > 0).map(item => ({
+          ...item,
+          received_qty: parseFloat(item.received_qty),
+          received_weight: parseFloat(item.received_weight),
+          generate_st: true
+        }))
+      };
+
+      await axios.post("/department/inventory/purchase-orders/receipts", payload);
+      showSuccess("Purchase Receipt created successfully with ST Numbers");
+      navigate("/department/inventory/grn");
+    } catch (error) {
+      console.error("Error submitting GRN:", error);
+      showError(error.response?.data?.message || "Failed to submit Goods Receipt Note");
+    }
+  };
+
+  const handleViewGRN = async (grn) => {
+    try {
+      const response = await axios.get(`/department/procurement/purchase-orders/receipts/${grn.id}`);
+      setSelectedGRN(response.data);
+      setShowViewModal(true);
+    } catch (error) {
+      console.error("Error fetching GRN details:", error);
+      showError("Failed to load GRN details");
+    }
+  };
 
   const fetchGRNs = useCallback(async () => {
     try {
-      const response = await axios.get("/department/inventory/grns");
+      const response = await axios.get("/department/procurement/purchase-orders/receipts/all");
       const formattedData = response.data.map((grn) => ({
         id: grn.id,
-        grnNo: `GRN-${String(grn.id).padStart(3, "0")}-${new Date(grn.created_at).getFullYear()}`,
+        grnNo: grn.grn_number || `GRN-${String(grn.id).padStart(3, "0")}-${new Date(grn.created_at).getFullYear()}`,
         poNo: grn.po_number,
         vendor: grn.vendor_name,
         inspectionStatus: grn.inspection_status || "pending",
-        status: grn.qc_status,
+        status: grn.status || "pending",
         receivedDate: grn.created_at ? new Date(grn.created_at).toISOString().split("T")[0] : null,
         items: grn.items || [],
       }));
@@ -57,112 +180,15 @@ const GRNProcessingPage = () => {
     }
   }, []);
 
+  const getSTPreview = (materialName) => {
+    return `ST-${generateItemCode(materialName)}`;
+  };
+
   useEffect(() => {
     const extractedTaskId = taskService.getTaskIdFromParams();
     if (extractedTaskId) setTaskId(extractedTaskId);
     fetchGRNs();
   }, [fetchGRNs]);
-
-  const handleInspectClick = async (grn) => {
-    try {
-      let existingInspection = null;
-      try {
-        const inspectionRes = await axios.get(`/qc/portal/inspections/grn/${grn.id}`);
-        existingInspection = inspectionRes.data;
-      } catch (e) {}
-
-      const grnRes = await axios.get(`/department/inventory/grns/${grn.id}`);
-      const targetGRN = grnRes.data;
-      const items = targetGRN.items || [];
-
-      let formItems = items.map((item) => ({
-        ...item,
-        material_name: item.material_name || item.description || item.item_name || "N/A",
-        material_code: item.material_code || item.item_code || "N/A",
-        invoice_quantity: item.invoice_quantity || item.quantity || 0,
-        accepted: Number(item.received_quantity || item.quantity || 0),
-        overage: 0,
-        notes: "",
-      }));
-
-      let formStatus = "pending";
-      let formRemarks = "";
-
-      if (existingInspection) {
-        formStatus = existingInspection.status;
-        formRemarks = existingInspection.remarks || "";
-        if (existingInspection.items_results) {
-          formItems = formItems.map((item) => {
-            const savedResult = existingInspection.items_results.find(r => r.description === (item.material_name || item.description));
-            // Ensure the ordered quantity always comes from the actual GRN record, not stale inspection results
-            return savedResult ? { ...item, ...savedResult, quantity: item.quantity } : item;
-          });
-        }
-      }
-
-      setSelectedGRN({ ...grn, ...targetGRN });
-      setQCForm({ items: formItems, status: formStatus, remarks: formRemarks });
-      setShowQCModal(true);
-    } catch (error) {
-      console.error("Error preparing inspection:", error);
-      toastUtils.error("Failed to prepare inspection form");
-    }
-  };
-
-  const handleQCQuantityChange = (index, field, value) => {
-    const newItems = [...qcForm.items];
-    const val = value === "" ? 0 : (field === "notes" ? value : Math.max(0, Number(value)));
-    newItems[index] = { ...newItems[index], [field]: val };
-    
-    // Auto-calculate Overage & Shortage
-    const inv = Number(newItems[index].invoice_quantity) || 0;
-    const rec = Number(newItems[index].accepted) || 0;
-    newItems[index].overage = Math.max(0, rec - inv);
-    newItems[index].shortage = Math.max(0, inv - rec);
-    
-    // Automatically determine overall status
-    let newStatus = "passed";
-    const hasShortage = newItems.some(i => (Number(i.invoice_quantity) || 0) > (Number(i.accepted) || 0));
-    const hasOverage = newItems.some(i => (Number(i.accepted) || 0) > (Number(i.invoice_quantity) || 0));
-    
-    if (hasShortage) newStatus = "shortage";
-    else if (hasOverage) newStatus = "overage";
-    
-    setQCForm({ ...qcForm, items: newItems, status: newStatus });
-  };
-
-  const handleSubmitQC = async () => {
-    try {
-      const payload = {
-        grnId: selectedGRN.id,
-        itemsResults: qcForm.items.map(item => ({
-          description: item.material_name,
-          item_code: item.material_code,
-          quantity: item.quantity,
-          invoice_quantity: item.invoice_quantity,
-          unit: item.unit,
-          accepted: item.accepted,
-          shortage: item.shortage,
-          overage: item.overage,
-          notes: item.notes,
-          warehouse: item.warehouse,
-        })),
-        status: qcForm.status,
-        remarks: qcForm.remarks,
-        inspectorId: 1,
-      };
-
-      await axios.post("/qc/portal/inspections", payload);
-      if (taskId) await taskService.autoCompleteTaskByAction(taskId, "qc-save");
-      
-      showSuccess("QC Inspection saved successfully");
-      setShowQCModal(false);
-      fetchGRNs();
-    } catch (error) {
-      console.error("Error saving QC inspection:", error);
-      showError("Failed to save QC inspection");
-    }
-  };
 
   const handleViewDetails = async (grn) => {
     try {
@@ -177,12 +203,39 @@ const GRNProcessingPage = () => {
 
   const [processingStock, setProcessingStock] = useState(null);
   const [approvingGRN, setApprovingGRN] = useState(null);
+  const [sendingToQC, setSendingToQC] = useState(null);
+
+  const handleSendToQuality = async (grn) => {
+    try {
+      const result = await Swal.fire({
+        title: "Send to Quality?",
+        text: `Do you want to send ${grn.grnNo} for quality inspection?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Send",
+        cancelButtonText: "No, Cancel",
+        confirmButtonColor: "#8b5cf6",
+      });
+
+      if (result.isConfirmed) {
+        setSendingToQC(grn.id);
+        await axios.post(`/qc/grn/${grn.id}/send-to-qc`);
+        showSuccess("GRN sent to Quality department successfully!");
+        fetchGRNs();
+      }
+    } catch (error) {
+      console.error("Error sending to QC:", error);
+      showError(error.response?.data?.message || "Failed to send GRN to Quality");
+    } finally {
+      setSendingToQC(null);
+    }
+  };
 
   const handleApproveGRN = async (grn) => {
     try {
       const result = await Swal.fire({
         title: "Approve GRN?",
-        text: `Do you want to approve ${grn.grnNo} for quality inspection?`,
+        text: `Do you want to approve ${grn.grnNo}?`,
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Yes, Approve",
@@ -193,7 +246,7 @@ const GRNProcessingPage = () => {
       if (result.isConfirmed) {
         setApprovingGRN(grn.id);
         await axios.post(`/department/inventory/grns/${grn.id}/approve`);
-        showSuccess("GRN approved successfully and moved to inspection phase!");
+        showSuccess("GRN approved successfully!");
         fetchGRNs();
       }
     } catch (error) {
@@ -208,8 +261,6 @@ const GRNProcessingPage = () => {
     try {
       if (processingStock === grn.id) return;
       const isShortage = grn.status === 'shortage';
-      const isOverage = grn.status === 'overage';
-      const isDiscrepancy = grn.status === 'discrepancy';
 
       const result = await Swal.fire({
         title: "Add to Warehouse?",
@@ -224,7 +275,6 @@ const GRNProcessingPage = () => {
       if (result.isConfirmed) {
         setProcessingStock(grn.id);
 
-        // Use the grn.status which reflects the QC result (shortage, overage, etc.)
         await axios.post(`/department/inventory/grns/${grn.id}/add-to-stock`, { status: grn.status });
         if (taskId) await taskService.autoCompleteTaskByAction(taskId, "add");
         
@@ -247,25 +297,7 @@ const GRNProcessingPage = () => {
       bgColor: "bg-blue-50 dark:bg-blue-900/20",
       iconColor: "text-blue-600 dark:text-blue-400",
       borderColor: "border-blue-100 dark:border-blue-800",
-      description: "Total processing requests"
-    },
-    {
-      label: "Pending QC",
-      value: grnData.filter((g) => g.inspectionStatus === "pending").length,
-      icon: Clock,
-      bgColor: "bg-amber-50 dark:bg-amber-900/20",
-      iconColor: "text-amber-600 dark:text-amber-400",
-      borderColor: "border-amber-100 dark:border-amber-800",
-      description: "Awaiting initial check"
-    },
-    {
-      label: "QC Review",
-      value: grnData.filter((g) => g.status === "qc_pending").length,
-      icon: ShieldCheck,
-      bgColor: "bg-purple-50 dark:bg-purple-900/20",
-      iconColor: "text-purple-600 dark:text-purple-400",
-      borderColor: "border-purple-100 dark:border-purple-800",
-      description: "Quality check in progress"
+      description: "Total receipts"
     },
     {
       label: "Awaiting Storage",
@@ -274,9 +306,161 @@ const GRNProcessingPage = () => {
       bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
       iconColor: "text-emerald-600 dark:text-emerald-400",
       borderColor: "border-emerald-100 dark:border-emerald-800",
-      description: "Passed & pending entry"
+      description: "Pending warehouse entry"
+    },
+    {
+      label: "Completed",
+      value: grnData.filter((g) => g.status === "completed").length,
+      icon: CheckCircle,
+      bgColor: "bg-purple-50 dark:bg-purple-900/20",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      borderColor: "border-purple-100 dark:border-purple-800",
+      description: "Successfully added to stock"
     },
   ];
+
+  const GRNCreationUI = () => {
+    if (loadingPO) return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <RefreshCw className="animate-spin text-blue-600" size={40} />
+        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Loading PO Details...</p>
+      </div>
+    );
+
+    if (!poData) return null;
+
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => navigate('/department/inventory/purchase-orders')}
+            className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors uppercase tracking-widest"
+          >
+            <ChevronLeft size={16} /> Back to Orders
+          </button>
+          <div className="flex items-center gap-3">
+            <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100">
+              New Goods Receipt (GRN)
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="p-8 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Purchase Order</p>
+                <h2 className="text-xl font-black text-blue-600 uppercase tracking-tight">{poData.po_number}</h2>
+                <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase">Project:</span>
+                    <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 uppercase tracking-tight">
+                        {poData.root_card_project_name || "N/A"}
+                    </span>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Supplier / Vendor</p>
+                <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{poData.vendor_name}</h2>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Posting Date</p>
+                <input 
+                  type="date"
+                  value={grnForm.posting_date}
+                  onChange={(e) => setGrnForm({...grnForm, posting_date: e.target.value})}
+                  className="bg-transparent border-none p-0 text-xl font-black text-slate-900 dark:text-white outline-none focus:ring-0 w-full"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-0">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                  <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Item Name / Group</th>
+                  <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-24">Ordered</th>
+                  <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-20">UOM</th>
+                  <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">Rate/Kg</th>
+                  <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">Weight (Kg)</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">Received</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                {grnForm.items.map((item, idx) => (
+                  <React.Fragment key={idx}>
+                    <tr className="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 flex-shrink-0 mt-1">
+                            <Package size={20} />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight line-clamp-2">{item.material_name}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.item_group || "N/A"}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-6 text-center">
+                        <span className="text-sm font-black text-slate-600 dark:text-slate-400">{parseFloat(item.ordered_qty).toLocaleString()}</span>
+                      </td>
+                      <td className="px-4 py-6 text-center">
+                        <span className="text-sm font-bold text-slate-500 uppercase tracking-tight">{item.unit}</span>
+                      </td>
+                      <td className="px-4 py-6 text-center">
+                        <span className="text-sm font-black text-slate-600 dark:text-slate-400">₹{parseFloat(item.rate_per_kg || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-6 text-center">
+                        <div className="flex flex-col items-center">
+                          <span className="text-sm font-black text-slate-900 dark:text-white">{parseFloat(item.received_weight || 0).toFixed(3)} Kg</span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase">Target: {item.total_weight.toFixed(3)}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-6">
+                        <div className="relative group min-w-[100px]">
+                          <input 
+                            type="number"
+                            step="any"
+                            value={item.received_qty}
+                            onChange={(e) => handleItemChange(idx, 'received_qty', e.target.value)}
+                            className="w-full px-4 py-2 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-xl text-sm font-black text-center text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="p-8 bg-slate-50/30 dark:bg-slate-800/30 border-t border-slate-50 dark:border-slate-800">
+            <div className="flex flex-col md:flex-row items-end gap-6">
+              <div className="flex-1 space-y-2 w-full">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <FileText size={12} /> Remarks / Receiving Notes
+                </label>
+                <textarea 
+                  value={grnForm.notes}
+                  onChange={(e) => setGrnForm({...grnForm, notes: e.target.value})}
+                  rows={2}
+                  placeholder="Any discrepancies or damage reports..."
+                  className="w-full px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                />
+              </div>
+              <button 
+                onClick={handleSubmitGRN}
+                className="px-10 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-3"
+              >
+                <CheckCircle size={18} />
+                Submit Goods Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const StatCard = ({ stat }) => {
     const Icon = stat.icon;
@@ -311,7 +495,11 @@ const GRNProcessingPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+      {poId ? (
+        <GRNCreationUI />
+      ) : (
+        <>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-cyan-600 flex items-center justify-center text-white shadow-lg shadow-cyan-200 dark:shadow-none">
             <ShieldCheck size={24} />
@@ -320,13 +508,13 @@ const GRNProcessingPage = () => {
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Inventory</span>
               <span className="text-slate-300 dark:text-slate-600">›</span>
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Quality Assurance</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Stock Inward</span>
             </div>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              GRN Processing
+              GRN
             </h1>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Quality Inspection & Inventory Entry Management
+              Goods Receipt Management & Material Tracking
             </p>
           </div>
         </div>
@@ -400,45 +588,38 @@ const GRNProcessingPage = () => {
                     grn.status === 'overage' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
                     'bg-cyan-50 text-cyan-600 border border-cyan-100'
                   }`}>
-                    {grn.status.replace('_', ' ')}
+                    {grn.status ? grn.status.replace('_', ' ') : 'UNKNOWN'}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
-                    {grn.status === 'pending_approval' && (
+                    <button 
+                      onClick={() => handleViewGRN(grn)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-xs font-bold hover:bg-blue-100 transition-all"
+                    >
+                      <Eye size={14} />
+                      Details
+                    </button>
+                    {grn.status === 'pending' && (
                       <button 
-                        onClick={() => handleApproveGRN(grn)}
-                        disabled={approvingGRN === grn.id}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold disabled:opacity-50"
+                        onClick={() => handleSendToQuality(grn)}
+                        disabled={sendingToQC === grn.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-bold shadow-md shadow-purple-200 hover:bg-purple-700 disabled:opacity-50 transition-all"
                       >
-                        {approvingGRN === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <CheckCircle size={14} />}
-                        {approvingGRN === grn.id ? "Approving..." : "Approve GRN"}
-                      </button>
-                    )}
-                    {(grn.status === 'qc_pending' || grn.status === 'pending') && (
-                      <button 
-                        onClick={() => handleInspectClick(grn)}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-bold"
-                      >
-                        <ClipboardCheck size={14} /> Inspect
+                        {sendingToQC === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+                        Send to Quality
                       </button>
                     )}
                     {(grn.status === 'approved' || grn.status === 'shortage' || grn.status === 'overage') && (
                       <button 
                         onClick={() => handleAddToStock(grn)}
                         disabled={processingStock === grn.id}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 disabled:opacity-50 transition-all"
                       >
-                        {processingStock === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <Package size={14} />}
-                        {processingStock === grn.id ? "Adding..." : "Add to Stock"}
+                        {processingStock === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <Warehouse size={14} />}
+                        Add to Stock
                       </button>
                     )}
-                    <button 
-                      onClick={() => handleViewDetails(grn)}
-                      className="p-1.5 text-slate-400 hover:text-blue-600"
-                    >
-                      <Eye size={18} />
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -446,151 +627,8 @@ const GRNProcessingPage = () => {
           </tbody>
         </table>
       </div>
-
-      {/* QC Inspection Modal */}
-      {showQCModal && (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
-             <div className="px-6 py-4 flex items-center justify-between border-b bg-slate-50">
-                <div>
-                  <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Quality Control Inspection</h2>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">GRN: {selectedGRN?.grnNo} • PO: {selectedGRN?.poNo}</p>
-                </div>
-                <button onClick={() => setShowQCModal(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
-                  <X size={20} className="text-slate-500" />
-                </button>
-             </div>
-             
-             <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                   <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <ShieldCheck size={12} /> Inspection Status
-                      </label>
-                      <select 
-                        value={qcForm.status}
-                        onChange={(e) => setQCForm({...qcForm, status: e.target.value})}
-                        className="w-full px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                      >
-                        <option value="pending">In Progress</option>
-                        <option value="passed">Passed (Approved)</option>
-                        <option value="failed">Failed (Rejected)</option>
-                        <option value="shortage">Shortage</option>
-                        <option value="overage">Overage</option>
-                      </select>
-                   </div>
-                   <div className="md:col-span-3 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <FileText size={12} /> Overall Remarks
-                      </label>
-                      <input 
-                        type="text"
-                        value={qcForm.remarks}
-                        onChange={(e) => setQCForm({...qcForm, remarks: e.target.value})}
-                        className="w-full px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        placeholder="General inspection notes..."
-                      />
-                   </div>
-                </div>
-
-                <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
-                  <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-50/80 backdrop-blur-md sticky top-0 z-10">
-                        <tr>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">Item Details</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-center w-24">Ordered</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-center w-24">Invoice</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-center w-24">Received Quantity</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-center w-24">Shortage</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-center w-24">Overage</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">Item Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {qcForm.items.map((item, idx) => {
-                          const invQty = Number(item.invoice_quantity) || 0;
-                          const recQty = Number(item.accepted) || 0;
-                          const shortage = Math.max(0, invQty - recQty);
-                          const overage = Math.max(0, recQty - invQty);
-                          
-                          return (
-                          <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                            <td className="px-4 py-4">
-                              <div className="space-y-0.5">
-                                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">{item.material_name}</h4>
-                                <p className="text-[9px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded w-fit">{item.material_code}</p>
-                              </div>
-                            </td>
-                            <td className="px-4 py-4 text-center">
-                              <span className="text-xs font-bold text-slate-400">{item.quantity}</span>
-                            </td>
-                            <td className="px-4 py-4">
-                              <input 
-                                type="number" 
-                                value={item.invoice_quantity}
-                                onChange={(e) => handleQCQuantityChange(idx, "invoice_quantity", e.target.value)}
-                                className="w-full text-center px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none"
-                              />
-                            </td>
-                            <td className="px-4 py-4">
-                              <input 
-                                type="number" 
-                                value={item.accepted}
-                                onChange={(e) => handleQCQuantityChange(idx, "accepted", e.target.value)}
-                                className="w-full text-center px-2 py-1.5 bg-white border border-blue-200 rounded-lg text-xs font-black text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none"
-                              />
-                            </td>
-                            <td className="px-4 py-4 text-center">
-                              <span className={`text-xs font-black ${shortage > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
-                                {shortage}
-                              </span>
-                            </td>
-                            <td className="px-4 py-4 text-center">
-                              <span className={`text-xs font-black ${overage > 0 ? 'text-blue-600' : 'text-slate-400'}`}>
-                                {overage}
-                              </span>
-                            </td>
-                            <td className="px-4 py-4">
-                              <input 
-                                type="text" 
-                                value={item.notes}
-                                onChange={(e) => handleQCQuantityChange(idx, "notes", e.target.value)}
-                                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-medium outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Defects etc..."
-                              />
-                            </td>
-                          </tr>
-                        );})}
-                    </tbody>
-                  </table>
-                </div>
-             </div>
-             
-             <div className="px-6 py-4 border-t bg-slate-50 flex justify-between items-center">
-                <div className="flex gap-8">
-                  <div className="flex flex-col">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Received</span>
-                    <span className="text-sm font-black text-blue-600">{qcForm.items.reduce((s, i) => s + (Number(i.accepted) || 0), 0)} Units</span>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setShowQCModal(false)} 
-                    className="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition-all active:scale-95"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={handleSubmitQC} 
-                    className="px-8 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 flex items-center gap-2"
-                  >
-                    <Save size={16} /> Save Inspection Results
-                  </button>
-                </div>
-             </div>
-          </div>
-        </div>
-      )}
+    </>
+  )}
 
       {/* View Details Modal with Inspection Data */}
       {showViewModal && selectedGRN && (
@@ -599,11 +637,11 @@ const GRNProcessingPage = () => {
             <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  GRN Details - GRN-{selectedGRN.grn?.id}
+                  GRN Details - {selectedGRN.grn?.receipt_number || `GRN-${selectedGRN.grn?.id}`}
                 </h2>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Comprehensive Receipt & Inspection Report</p>
               </div>
-              <button onClick={() => setShowViewModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+              <button onClick={() => { setShowViewModal(false); setExpandedItem(null); }} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                 <X size={20} className="text-slate-400" />
               </button>
             </div>
@@ -657,6 +695,12 @@ const GRNProcessingPage = () => {
                       <span className="text-xs font-bold text-slate-500 uppercase">PO Reference</span>
                       <span className="text-xs font-black text-slate-900">{selectedGRN.grn?.poNumber}</span>
                     </div>
+                    {selectedGRN.grn?.project_name && (
+                      <div className="flex flex-col gap-1 pt-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">Project</span>
+                        <span className="text-xs font-black text-blue-600 uppercase tracking-widest">{selectedGRN.grn?.project_name}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-bold text-slate-500 uppercase">Supplier</span>
                       <span className="text-xs font-black text-slate-900">{selectedGRN.grn?.vendor}</span>
@@ -691,7 +735,7 @@ const GRNProcessingPage = () => {
                   <table className="w-full text-left">
                     <thead className="bg-slate-50">
                       <tr>
-                        <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Item Description</th>
+                        <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Item Name / Group</th>
                         <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Ordered</th>
                         <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Invoice</th>
                         <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Received Qty</th>
@@ -704,29 +748,81 @@ const GRNProcessingPage = () => {
                       {(selectedGRN.items || []).map((item, idx) => {
                         const shortage = Math.max(0, (Number(item.quantity) || 0) - (Number(item.received) || 0));
                         const overage = Number(item.overage) || 0;
+                        const isExpanded = expandedItem === idx;
+
                         return (
-                          <tr key={idx} className="hover:bg-slate-50/30 transition-colors">
-                            <td className="px-4 py-4">
-                              <div className="space-y-0.5">
-                                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">{item.material_name || item.description}</h4>
-                                <p className="text-[9px] font-medium text-slate-400">{item.material_code}</p>
-                              </div>
-                            </td>
-                            <td className="px-4 py-4 text-center text-xs font-bold text-slate-400">{item.quantity}</td>
-                            <td className="px-4 py-4 text-center text-xs font-bold text-slate-900">{item.invoice_quantity}</td>
-                            <td className="px-4 py-4 text-center text-xs font-black text-emerald-600">{item.received}</td>
-                            <td className="px-4 py-4 text-center text-xs font-black text-amber-600">{shortage}</td>
-                            <td className="px-4 py-4 text-center text-xs font-black text-blue-600">{overage}</td>
-                            <td className="px-4 py-4 text-center">
-                              {shortage > 0 ? (
-                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-red-50 text-red-600 uppercase">Shortage</span>
-                              ) : overage > 0 ? (
-                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-blue-50 text-blue-600 uppercase">Overage</span>
-                              ) : (
-                                <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-50 text-emerald-600 uppercase">Verified</span>
-                              )}
-                            </td>
-                          </tr>
+                          <React.Fragment key={idx}>
+                            <tr 
+                              className={`hover:bg-slate-50/30 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/20' : ''}`}
+                              onClick={() => setExpandedItem(isExpanded ? null : idx)}
+                            >
+                              <td className="px-4 py-4">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`}>
+                                    <Package size={16} />
+                                  </div>
+                                  <div className="space-y-0.5">
+                                    <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{item.material_name}</h4>
+                                    <div className="flex flex-col gap-0.5">
+                                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{item.item_group || 'No Group'}</span>
+                                      <div className="flex items-center gap-2 mt-0.5">
+                                        {isExpanded ? <ChevronUp size={12} className="text-blue-500" /> : <ChevronDown size={12} className="text-slate-400" />}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 text-center text-xs font-bold text-slate-400">{item.quantity}</td>
+                              <td className="px-4 py-4 text-center text-xs font-bold text-slate-900">{item.invoice_quantity || item.quantity}</td>
+                              <td className="px-4 py-4 text-center">
+                                <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-xs font-black">
+                                  {item.received}
+                                </span>
+                              </td>
+                              <td className="px-4 py-4 text-center text-xs font-black text-amber-600">{shortage}</td>
+                              <td className="px-4 py-4 text-center text-xs font-black text-blue-600">{overage}</td>
+                              <td className="px-4 py-4 text-center">
+                                {shortage > 0 ? (
+                                  <span className="px-2 py-0.5 rounded text-[9px] font-black bg-red-50 text-red-600 uppercase tracking-widest">Shortage</span>
+                                ) : overage > 0 ? (
+                                  <span className="px-2 py-0.5 rounded text-[9px] font-black bg-amber-50 text-amber-600 uppercase tracking-widest">Overage</span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-50 text-emerald-600 uppercase tracking-widest">Verified</span>
+                                )}
+                              </td>
+                            </tr>
+                            {isExpanded && item.serials && item.serials.length > 0 && (
+                              <tr className="bg-slate-50/50">
+                                <td colSpan="7" className="px-12 py-4">
+                                  <div className="bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden">
+                                    <table className="w-full text-left border-collapse">
+                                      <thead>
+                                        <tr className="bg-slate-50 border-b border-slate-100">
+                                          <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">#</th>
+                                          <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Item Code</th>
+                                          <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Name</th>
+                                          <th className="px-4 py-2 text-[8px] font-black text-indigo-400 uppercase tracking-widest">ST Code</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-slate-50">
+                                        {item.serials.map((st, sIdx) => {
+                                          const itemCode = st.startsWith('ST-') ? st.substring(3) : st;
+                                          return (
+                                            <tr key={sIdx} className="hover:bg-slate-50 transition-colors">
+                                              <td className="px-4 py-2 text-[10px] font-bold text-slate-400 text-center">{sIdx + 1}</td>
+                                              <td className="px-4 py-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">{itemCode}</td>
+                                              <td className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-tight">{item.material_name}</td>
+                                              <td className="px-4 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-tight">{st}</td>
+                                            </tr>
+                                          );
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
                         );
                       })}
                     </tbody>
@@ -743,7 +839,7 @@ const GRNProcessingPage = () => {
                 <Printer size={16} /> Print Inspection Report
               </button>
               <button 
-                onClick={() => setShowViewModal(false)}
+                onClick={() => { setShowViewModal(false); setExpandedItem(null); }}
                 className="px-8 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-slate-800 transition-all active:scale-95"
               >
                 Close Report

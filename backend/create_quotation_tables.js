@@ -59,12 +59,19 @@ const createQuotationTables = async () => {
             CREATE TABLE IF NOT EXISTS quotation_items (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 quotation_id INT NOT NULL,
-                item_code VARCHAR(100),
-                description TEXT,
+                item_name TEXT,
+                vendor_item_name TEXT,
+                item_group VARCHAR(100),
+                material_grade VARCHAR(100),
+                part_detail VARCHAR(255),
+                make VARCHAR(100),
+                remark TEXT,
                 category VARCHAR(100),
                 quantity DECIMAL(15, 4) DEFAULT 0,
                 unit VARCHAR(50),
                 unit_price DECIMAL(15, 2) DEFAULT 0,
+                rate_per_kg DECIMAL(15, 2) DEFAULT 0,
+                total_weight DECIMAL(15, 4) DEFAULT 0,
                 FOREIGN KEY (quotation_id) REFERENCES quotations(id) ON DELETE CASCADE
             )
         `);

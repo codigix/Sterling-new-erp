@@ -14,9 +14,7 @@ const WORKFLOW_STEPS = [
   { step: 2, name: 'Send RFQ to Vendor', description: 'Send requests to vendors' },
   { step: 3, name: 'Receive & Record Quotes', description: 'Record vendor responses' },
   { step: 4, name: 'Create PO', description: 'Create purchase orders' },
-  { step: 5, name: 'Approve PO', description: 'Approve purchases' },
-  { step: 6, name: 'GRN Processing & QC', description: 'Quality control inspection' },
-  { step: 7, name: 'Add to Stock', description: 'Update inventory' }
+  { step: 5, name: 'Approve PO', description: 'Approve purchases' }
 ];
 
 const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {

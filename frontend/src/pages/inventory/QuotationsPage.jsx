@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -51,51 +52,47 @@ const QuotationsPage = ({ defaultTab }) => {
   }, [defaultTab]);
 
   useEffect(() => {
-    if (location.state?.openModal) {
+    const mrId = searchParams.get("materialRequestId") || searchParams.get("mrId");
+    const action = searchParams.get("action");
+    
+    if (location.state?.openModal && !location.state?.modalProcessed) {
       if (location.state.initialData) {
         setInitialData(location.state.initialData);
       }
-      if (location.state.preFilledMaterials) {
-        // Handle pre-filled materials if needed separately
-      }
       setShowAddModal(true);
-    } else {
-      const mrId = searchParams.get("materialRequestId") || searchParams.get("mrId");
-      const action = searchParams.get("action");
       
-      if (mrId && activeTab === "outbound" && action !== "record") {
+      // Mark as processed in local state or navigation state
+      navigate(location.pathname + location.search, { 
+        replace: true, 
+        state: { ...location.state, modalProcessed: true } 
+      });
+    } else if (mrId && !showAddModal && !location.state?.modalProcessed) {
+      if (activeTab === "outbound" && action !== "record") {
         if (action === "send") {
-          // Find existing quotation for this MR and open send modal
           axios.get(`/department/procurement/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
             const existingQuotes = response.data;
             if (existingQuotes && existingQuotes.length > 0) {
-              const quote = existingQuotes[0]; // Take the latest or first
-              handleSendEmail(quote);
+              handleSendEmail(existingQuotes[0]);
             } else {
-              // No quote found, fallback to add mode
               fetchMRAndOpenAddModal(mrId, "outbound");
             }
-          }).catch(err => console.error("Error finding quote for send action:", err));
+          }).catch(err => console.error("Error finding quote:", err));
         } else if (action === "create") {
           fetchMRAndOpenAddModal(mrId, "outbound");
         }
-      } else if (mrId && activeTab === "inbound" && action === "record") {
-        // Find existing quotation for this MR and open record response modal
-        // We filter for outbound (RFQs) that are either 'pending' or 'sent'
+      } else if (activeTab === "inbound" && action === "record") {
         axios.get(`/department/procurement/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
           const existingQuotes = response.data;
           if (existingQuotes && existingQuotes.length > 0) {
-            // Try to find the first one that is 'sent', otherwise take the latest
             const quote = existingQuotes.find(q => q.status === "sent") || existingQuotes[0];
             handleRecordResponse(quote);
           } else {
-            // No quote found, fallback to record mode directly from MR
             fetchMRAndOpenAddModal(mrId, "inbound");
           }
-        }).catch(err => console.error("Error finding quote for record action:", err));
+        }).catch(err => console.error("Error finding quote:", err));
       }
     }
-  }, [location.state, searchParams, activeTab]);
+  }, [searchParams, activeTab, location.pathname, location.search]); // Simplified dependencies
 
   const fetchMRAndOpenAddModal = (mrId, type = "outbound") => {
     axios.get(`/department/procurement/material-requests/${mrId}`).then(response => {
@@ -104,8 +101,7 @@ const QuotationsPage = ({ defaultTab }) => {
         const items = Array.isArray(mr.items) ? mr.items : JSON.parse(mr.items || "[]");
         
         const preFilled = items.map(item => ({
-          item_code: item.item_code || item.material_code || "",
-          description: item.item_name || item.material_name || item.description || "",
+          item_name: item.item_name || item.material_name || item.description || "",
           quantity: item.quantity || 0,
           unit: item.unit || "",
           unit_price: 0,
@@ -293,7 +289,7 @@ const QuotationsPage = ({ defaultTab }) => {
       window.open(doc.output("bloburl"), "_blank");
     } catch (err) {
       console.error("Error viewing quotation detail:", err);
-      Swal.fire("Error", "Failed to load quotation details", "error");
+      toast.error("Failed to load quotation details");
     }
   };
 
@@ -348,7 +344,14 @@ const QuotationsPage = ({ defaultTab }) => {
       );
     }
 
-    const tableColumn = [
+    const tableColumn = quotation.type === "inbound" ? [
+      "Material Name", // Replaced with vendor name if different
+      "Qty",
+      "UOM",
+      "Rate/Kg",
+      "Weight (Kg)",
+      "Total"
+    ] : [
       "Item Name",
       "Group",
       "Grade",
@@ -358,28 +361,29 @@ const QuotationsPage = ({ defaultTab }) => {
       "Qty",
       "Unit",
     ];
-    if (quotation.type === "inbound") {
-      tableColumn.push("Rate", "Total");
-    }
 
     const tableRows = (quotation.items || []).map((item) => {
-      const row = [
-        item.item_name || item.description || "N/A",
-        item.item_group || "N/A",
-        item.material_grade || "N/A",
-        item.part_detail || "N/A",
-        item.make || "N/A",
-        item.remark || "N/A",
-        item.quantity ? parseFloat(item.quantity).toString() : "0",
-        item.unit || "N/A",
-      ];
       if (quotation.type === "inbound") {
-        row.push(
-          `INR ${item.unit_price || 0}`,
-          `INR ${(item.quantity * (item.unit_price || 0)).toFixed(2)}`
-        );
+        return [
+          item.vendor_item_name || item.item_name || "N/A", // Replacement logic
+          item.quantity ? parseFloat(item.quantity).toString() : "0",
+          item.unit || "N/A",
+          `INR ${item.rate_per_kg || 0}`,
+          `${item.total_weight || 0}`,
+          `INR ${(item.total_weight * item.rate_per_kg || 0).toFixed(2)}`
+        ];
+      } else {
+        return [
+          item.item_name || "N/A",
+          item.item_group || "N/A",
+          item.material_grade || "N/A",
+          item.part_detail || "N/A",
+          item.make || "N/A",
+          item.remark || "N/A",
+          item.quantity ? parseFloat(item.quantity).toString() : "0",
+          item.unit || "N/A",
+        ];
       }
-      return row;
     });
 
     let startY = 70;
@@ -387,23 +391,32 @@ const QuotationsPage = ({ defaultTab }) => {
     else if (quotation.valid_until && (quotation.mr_number || quotation.rfq_number)) startY = 75;
     else if (quotation.mr_number && quotation.rfq_number) startY = 75;
 
+    const columnStyles = quotation.type === "inbound" ? {
+      0: { cellWidth: "auto" }, // Material Name
+      1: { cellWidth: 20 }, // Qty
+      2: { cellWidth: 20 }, // UOM
+      3: { cellWidth: 25 }, // Rate/Kg
+      4: { cellWidth: 25 }, // Weight
+      5: { cellWidth: 30 }, // Total
+    } : {
+      0: { cellWidth: "auto" }, // Item Name
+      1: { cellWidth: 20 }, // Group
+      2: { cellWidth: 15 }, // Grade
+      3: { cellWidth: 20 }, // Part Detail
+      4: { cellWidth: 15 }, // Make
+      5: { cellWidth: 20 }, // Remark
+      6: { cellWidth: 12 }, // Qty
+      7: { cellWidth: 12 }, // Unit
+    };
+
     autoTable(doc, {
       startY: startY,
       head: [tableColumn],
       body: tableRows,
       theme: "grid",
       headStyles: { fillColor: [66, 139, 202] },
-      styles: { fontSize: 7, cellPadding: 2 }, // Even smaller font to fit 8-10 columns
-      columnStyles: {
-        0: { cellWidth: "auto" }, // Description
-        1: { cellWidth: 20 }, // Group
-        2: { cellWidth: 15 }, // Grade
-        3: { cellWidth: 20 }, // Part Detail
-        4: { cellWidth: 15 }, // Make
-        5: { cellWidth: 20 }, // Remark
-        6: { cellWidth: 12 }, // Qty
-        7: { cellWidth: 12 }, // Unit
-      },
+      styles: { fontSize: 7, cellPadding: 2 }, 
+      columnStyles: columnStyles,
     });
 
     const finalY = doc.lastAutoTable.finalY + 10;
@@ -497,16 +510,10 @@ const QuotationsPage = ({ defaultTab }) => {
       );
       setCommunications(response.data || []);
       
-      Swal.fire({
-        icon: 'success',
-        title: 'Reply Sent',
-        text: 'Your reply has been sent to the vendor via email.',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      toast.success("Reply sent successfully");
     } catch (error) {
       console.error("Error sending reply:", error);
-      Swal.fire("Error", "Failed to send reply", "error");
+      toast.error("Failed to send reply");
     } finally {
       setSendingReply(false);
     }
@@ -530,14 +537,14 @@ const QuotationsPage = ({ defaultTab }) => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error downloading attachment:", error);
-      Swal.fire("Error", "Failed to download attachment", "error");
+      toast.error("Failed to download attachment");
     }
   };
 
   const submitEmail = async (e) => {
     e.preventDefault();
     if (!emailData.email) {
-      Swal.fire("Warning", "Please enter an email address", "warning");
+      toast.warning("Please enter an email address");
       return;
     }
 
@@ -565,16 +572,14 @@ const QuotationsPage = ({ defaultTab }) => {
 
       await completeCurrentTask("Quotation sent to vendor via email");
 
-      Swal.fire("Success", "Quotation sent successfully!", "success");
+      toast.success("Quotation sent successfully!");
       setShowEmailModal(false);
       fetchQuotations();
     } catch (error) {
       console.error("Error sending email:", error);
-      Swal.fire(
-        "Error",
+      toast.error(
         "Failed to send quotation: " +
-          (error.response?.data?.message || error.message),
-        "error"
+          (error.response?.data?.message || error.message)
       );
     } finally {
       setSendingEmail(false);
@@ -598,10 +603,10 @@ const QuotationsPage = ({ defaultTab }) => {
       await axios.delete(`/department/inventory/quotations/${id}`);
       fetchQuotations();
       fetchStats();
-      Swal.fire("Deleted!", "Quotation deleted successfully.", "success");
+      toast.success("Quotation deleted successfully.");
     } catch (err) {
       console.error("Error deleting quotation:", err);
-      Swal.fire("Error", "Failed to delete quotation", "error");
+      toast.error("Failed to delete quotation");
     }
   };
 
@@ -619,17 +624,11 @@ const QuotationsPage = ({ defaultTab }) => {
       fetchStats();
       
       if (newStatus === "approved") {
-        Swal.fire({
-          icon: "success",
-          title: "Quotation Approved",
-          text: "The quotation has been approved successfully.",
-          timer: 1500,
-          showConfirmButton: false
-        });
+        toast.success("Quotation approved successfully");
       }
     } catch (error) {
       console.error("Error updating status:", error);
-      Swal.fire("Error", "Failed to update status", "error");
+      toast.error("Failed to update status");
       fetchQuotations(); // Revert on error
     } finally {
       setUpdatingStatusId(null);
@@ -650,12 +649,17 @@ const QuotationsPage = ({ defaultTab }) => {
       total_amount: 0,
       valid_until: "",
       items: (quote.items || []).map((item) => ({
-        item_code: item.item_code || item.material_code || "",
-        description: item.description,
+        item_name: item.item_name,
+        vendor_item_name: item.vendor_item_name || "",
         category: item.category || item.materialType || "",
         quantity: item.quantity,
         unit: item.unit || "",
         unit_price: 0,
+        item_group: item.item_group || "",
+        part_detail: item.part_detail || "",
+        material_grade: item.material_grade || "",
+        make: item.make || "",
+        remark: item.remark || "",
       })),
       notes: `Response to ${quote.quotation_number}`,
       type: "inbound",

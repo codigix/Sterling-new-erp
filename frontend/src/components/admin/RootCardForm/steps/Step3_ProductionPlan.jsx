@@ -1,218 +1,242 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { Zap, AlertCircle, Plus, Trash2 } from "lucide-react";
-import Input from "../../../ui/Input";
-import FormSection from "../shared/FormSection";
-import FormRow from "../shared/FormRow";
-import AssigneeField from "../shared/AssigneeField";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { Zap, AlertCircle, Hammer, TrendingUp, PackageCheck, FileText, Loader2, Eye, Send, Edit2, Trash2 } from "lucide-react";
+import axios from "../../../../utils/api";
+import Badge from "../../../ui/Badge";
+import Card, { CardContent, CardHeader } from "../../../ui/Card";
+import DataTable from "../../../ui/DataTable/DataTable";
+import Modal, { ModalBody, ModalHeader } from "../../../ui/Modal";
 import Button from "../../../ui/Button";
-import { useFormData, useRootCardContext } from "../hooks";
-import AddProductionPhaseModal from "./AddProductionPhaseModal";
+import { useRootCardContext } from "../hooks";
 
 export default function Step3_ProductionPlan({ readOnly = false }) {
-  const { formData, updateField } = useFormData();
-  const { state } = useRootCardContext();
+  const { state, initialData } = useRootCardContext();
+  const rootCardId = initialData?.id || state.createdOrderId;
+  
+  const [boms, setBoms] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBOM, setSelectedBOM] = useState(null);
 
-  const availablePhases = useMemo(() => {
-    return Array.isArray(formData.availablePhases) ? formData.availablePhases : [];
-  }, [formData.availablePhases]);
-  const selectedPhases = useMemo(() => formData.selectedPhases || {}, [formData.selectedPhases]);
-
-  const handlePhaseToggle = useCallback((phaseName) => {
-    const newPhases = { ...selectedPhases };
-    if (newPhases[phaseName]) {
-      delete newPhases[phaseName];
-    } else {
-      newPhases[phaseName] = true;
+  const fetchData = useCallback(async () => {
+    if (!rootCardId) return;
+    
+    try {
+      setLoading(true);
+      setError("");
+      
+      // 1. Fetch all BOMs
+      const response = await axios.get("/engineering/bom/comprehensive");
+      const allBoms = response.data.boms || [];
+      
+      // 2. Filter for this root card and only show active BOM
+      const activeBoms = allBoms.filter(b => String(b.rootCardId) === String(rootCardId) && b.isActive);
+      setBoms(activeBoms);
+    } catch (err) {
+      console.error("Failed to fetch BOMs:", err);
+      setError("Failed to load BOM list");
+    } finally {
+      setLoading(false);
     }
-    updateField("selectedPhases", newPhases);
-  }, [selectedPhases, updateField]);
+  }, [rootCardId]);
 
-  const handleDeletePhase = useCallback((phaseName, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Remove from available phases
-    const updatedAvailable = availablePhases.filter(p => p.name !== phaseName);
-    updateField("availablePhases", updatedAvailable);
-    
-    // Remove from selected phases if it was selected
-    if (selectedPhases[phaseName]) {
-      const newSelected = { ...selectedPhases };
-      delete newSelected[phaseName];
-      updateField("selectedPhases", newSelected);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleViewDetails = async (bomId) => {
+    try {
+      setLoading(true);
+      const detailsRes = await axios.get(`/engineering/bom/comprehensive/${bomId}`);
+      setSelectedBOM(detailsRes.data.bom || detailsRes.data);
+      setIsModalOpen(true);
+    } catch (err) {
+      console.error("Failed to fetch BOM details:", err);
+      setError("Failed to load BOM details");
+    } finally {
+      setLoading(false);
     }
-  }, [availablePhases, selectedPhases, updateField]);
-
-  const handleAddPhaseSuccess = (newPhase) => {
-    // Add to local available phases for this root card
-    const updatedAvailable = [...availablePhases, newPhase];
-    updateField("availablePhases", updatedAvailable);
-    
-    // Auto-select the newly added phase
-    const newSelected = { ...selectedPhases, [newPhase.name]: true };
-    updateField("selectedPhases", newSelected);
   };
 
-  const content = useMemo(() => (
+  const materialColumns = [
+    { key: "itemName", label: "ITEM NAME", className: "font-medium" },
+    { key: "itemGroup", label: "GROUP", render: (val) => <Badge variant="gray">{val || "NO-GROUP"}</Badge> },
+    { key: "partDetail", label: "PART DETAIL / GRADE", render: (val, row) => (
+      <div className="flex flex-col">
+        <span className="text-xs">{val || "-"}</span>
+        <span className="text-[10px] text-slate-500 uppercase">{row.materialGrade || "-"}</span>
+      </div>
+    )},
+    { key: "warehouse", label: "WH / OPERATION", render: (val, row) => (
+      <div className="flex flex-col">
+        <span className="text-xs text-blue-600 font-bold">{val || "-"}</span>
+        <span className="text-[10px] text-amber-600 font-medium italic">{row.operation || "-"}</span>
+      </div>
+    )},
+    { key: "quantity", label: "QTY", render: (val, row) => `${val} ${row.uom}` },
+  ];
+
+  const operationColumns = [
+    { key: "operationName", label: "OPERATION", className: "font-medium" },
+    { key: "type", label: "EXECUTION", render: (val) => (
+      <Badge variant={val === 'outsource' ? 'warning' : 'info'} className="capitalize">
+        {val || 'in-house'}
+      </Badge>
+    )},
+    { key: "workstation", label: "WORKSTATION / VENDOR", render: (val, row) => (
+      <div className="flex flex-col">
+        <span className="text-xs font-medium text-slate-700">{row.type === 'outsource' ? (row.vendorName || '-') : (val || '-')}</span>
+        {row.type === 'outsource' && row.subcontractWarehouse && (
+          <span className="text-[10px] text-slate-500 italic">Wh: {row.subcontractWarehouse}</span>
+        )}
+      </div>
+    )},
+    { key: "cycleTime", label: "TIME (MIN)", render: (val, row) => (
+      <div className="flex flex-col text-[10px]">
+        <span>Cycle: {val}m</span>
+        <span>Setup: {row.setupTime}m</span>
+      </div>
+    )},
+    { key: "cost", label: "TOTAL COST", render: (val) => (
+      <span className="font-bold text-slate-900">₹{parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+    )},
+  ];
+
+  if (loading && boms.length === 0) {
+    return (
+      <div className="flex justify-center items-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+        <span className="ml-3 text-slate-600">Loading BOM List...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
+        <AlertCircle size={20} />
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  return (
     <div className="space-y-6">
-      <AssigneeField
-        stepType="productionPlan"
-        formData={state.formData}
-        updateField={updateField}
-        employees={state.employees}
-        readOnly={readOnly}
-      />
-      <FormSection
-        title="Production Plan"
-        subtitle="Define manufacturing timeline and production phases"
-        icon={Zap}
-      >
-        <div className="space-y-6">
-          {/* Manufacturing Timeline */}
-          <div>
-            <h5 className="text-sm font-semibold text-slate-900 mb-3 text-left">
-              Manufacturing Timeline
-            </h5>
-            <FormRow cols={2}>
-              <Input
-                label="Production Start Date"
-                type="date"
-                value={formData.productionStartDate || ""}
-                onChange={(e) =>
-                  updateField("productionStartDate", e.target.value)
-                }
-                disabled={readOnly}
-              />
-              <Input
-                label="Estimated Completion Date"
-                type="date"
-                value={formData.estimatedCompletionDate || ""}
-                onChange={(e) =>
-                  updateField("estimatedCompletionDate", e.target.value)
-                }
-                disabled={readOnly}
-              />
-            </FormRow>
-          </div>
-
-          {/* Material Procurement Status */}
-          <div className="pt-4">
-            <h5 className="text-sm font-semibold text-slate-900 mb-3 text-left">
-              Material Procurement Status
-            </h5>
+      {boms.length > 0 ? (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div>
-              <label className="block text-sm font-medium text-slate-900 text-left mb-2">
-                Procurement Status
-              </label>
-              <select
-                value={formData.procurementStatus || ""}
-                onChange={(e) =>
-                  updateField("procurementStatus", e.target.value)
-                }
-                disabled={readOnly}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-slate-50 disabled:text-slate-500"
-              >
-                <option value="">Select Status</option>
-                <option value="Pending">Pending</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-                <option value="Pending Approval">Pending Approval</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Production Phases */}
-          <div className="pt-4 border-t border-slate-200">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h5 className="text-sm font-semibold text-slate-900 text-left">
-                  Production Phases
-                </h5>
-                <p className="text-sm text-slate-600">
-                  {availablePhases.length === 0 
-                    ? "No phases added yet. Click 'Add Phase' to start." 
-                    : "Select the production phases required for this project"}
-                </p>
+              <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Active BOM</h3>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="text-xl font-bold text-slate-900">{boms[0].bomNumber.split('-V')[0]}</span>
+                <Badge variant="secondary" className="font-mono">
+                  {boms[0].bomNumber.includes('-V') ? `V${boms[0].bomNumber.split('-V')[1]}` : 'V1'}
+                </Badge>
+                <Badge variant="success" className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Active
+                </Badge>
               </div>
-              {!readOnly && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-1"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Phase
-                </Button>
-              )}
             </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {availablePhases.map((phase, index) => (
-                <div key={phase.id || index} className="relative group">
-                  <label
-                    className={`flex flex-col p-3 border border-slate-200 rounded-lg bg-white cursor-pointer hover:bg-purple-50 hover:border-purple-400 transition-colors ${readOnly ? 'pointer-events-none opacity-80' : ''} ${selectedPhases[phase.name] ? 'border-purple-500 bg-purple-50' : ''}`}
-                  >
-                    <div className="flex items-center text-xs gap-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedPhases[phase.name] || false}
-                        onChange={() => !readOnly && handlePhaseToggle(phase.name)}
-                        disabled={readOnly}
-                        className="w-4 h-4 text-purple-600 bg-white border-slate-300 rounded focus:ring-2 focus:ring-purple-500 cursor-pointer disabled:cursor-not-allowed"
-                      />
-                      <span className="text-sm font-bold text-slate-900 text-left">
-                        {phase.name}
-                      </span>
-                    </div>
-                    {phase.hourly_rate > 0 && (
-                      <span className="text-xs text-slate-500 mt-1 ml-6">
-                        Rate: ₹{phase.hourly_rate}/hr
-                      </span>
-                    )}
-                  </label>
-                  {!readOnly && (
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeletePhase(phase.name, e)}
-                      className="absolute -top-1.5 -right-1.5 p-1 bg-white border border-slate-200 text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 rounded-full shadow-sm transition-all z-20 group-hover:text-red-500"
-                      title="Delete Phase"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              ))}
+            <Button 
+              variant="primary" 
+              onClick={() => handleViewDetails(boms[0].id)}
+              className="flex items-center gap-2"
+            >
+              <Eye size={18} />
+              View BOM Details
+            </Button>
+          </div>
+          
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-50/50 border border-amber-100">
+              <div className="p-3 rounded-lg bg-amber-100 text-amber-600">
+                <Hammer size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase">Operation Cost</p>
+                <p className="text-2xl font-bold text-slate-900">₹{parseFloat(boms[0].operationCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-50/50 border border-purple-100">
+              <div className="p-3 rounded-lg bg-purple-100 text-purple-600">
+                <TrendingUp size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase">Total BOM Cost</p>
+                <p className="text-2xl font-bold text-slate-900">₹{parseFloat(boms[0].totalCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+              </div>
             </div>
           </div>
-
-          {/* Production Dashboard Banner */}
-          
         </div>
-      </FormSection>
+      ) : (
+        <div className="p-12 text-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+          <FileText className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+          <h3 className="text-lg font-medium text-slate-900">No Active BOM</h3>
+          <p className="text-slate-500 mt-1">There is currently no active Bill of Materials for this project.</p>
+        </div>
+      )}
 
-      <AddProductionPhaseModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={handleAddPhaseSuccess}
-      />
+      {/* BOM Details Modal */}
+      {selectedBOM && (
+        <Modal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          title={`BOM Details - ${selectedBOM.bomNumber}`}
+          size="xl"
+        >
+          <ModalBody className="p-0">
+            <div className="p-6 bg-slate-50 border-b border-slate-200">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
+                    <div className={`p-2 rounded-lg bg-amber-50 text-amber-600`}>
+                      <Hammer size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-slate-500 uppercase">Operation Cost</p>
+                      <p className="text-lg font-bold text-slate-900">₹{selectedBOM.costs?.operationCost?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
+                    <div className={`p-2 rounded-lg bg-purple-50 text-purple-600`}>
+                      <TrendingUp size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-slate-500 uppercase">Total BOM Cost</p>
+                      <p className="text-lg font-bold text-slate-900">₹{selectedBOM.costs?.totalBOMCost?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <div className="p-6 space-y-8">
+              <section>
+                <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wide mb-4">
+                  <PackageCheck size={18} className="text-purple-600" />
+                  Materials Breakdown
+                </h3>
+                <DataTable
+                  columns={materialColumns}
+                  data={selectedBOM.materials || []}
+                  className="border rounded-xl overflow-hidden"
+                />
+              </section>
+
+              <section>
+                <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wide mb-4">
+                  <FileText size={18} className="text-blue-600" />
+                  Operations & Manufacturing
+                </h3>
+                <DataTable
+                  columns={operationColumns}
+                  data={selectedBOM.operations || []}
+                  className="border rounded-xl overflow-hidden"
+                />
+              </section>
+            </div>
+          </ModalBody>
+        </Modal>
+      )}
     </div>
-  ), [
-    state.formData,
-    state.employees,
-    formData.productionStartDate,
-    formData.estimatedCompletionDate,
-    formData.procurementStatus,
-    selectedPhases,
-    readOnly,
-    handlePhaseToggle,
-    handleDeletePhase,
-    updateField,
-    availablePhases,
-    isModalOpen
-  ]);
-
-  return content;
+  );
 }

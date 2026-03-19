@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   CheckCircle,
   Search,
@@ -14,10 +16,14 @@ import {
   FileText,
   X,
   Save,
+  Layers,
 } from "lucide-react";
 import taskService from "../../utils/taskService";
+import { showSuccess, showError } from "../../utils/toastUtils";
 
 const QCInspectionsPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [inspections, setInspections] = useState([]);
@@ -52,6 +58,17 @@ const QCInspectionsPage = () => {
       toastUtils.error("Failed to load inspections");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTypeChange = async (dbId, type) => {
+    try {
+      await axios.post(`/qc/grn/${dbId}/inspection-type`, { inspection_type: type });
+      showSuccess(`Inspection type updated to ${type}`);
+      fetchInspections();
+    } catch (error) {
+      console.error("Error updating inspection type:", error);
+      showError("Failed to update inspection type");
     }
   };
 
@@ -314,7 +331,7 @@ const QCInspectionsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -372,25 +389,19 @@ const QCInspectionsPage = () => {
                   GRN ID
                 </th>
                 <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                  Project / Root Card
+                </th>
+                <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
                   PO No.
                 </th>
                 <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
                   Vendor
                 </th>
-                <th className="p-2 text-center text-sm font-semibold text-slate-900 dark:text-white">
-                  Items
-                </th>
-                <th className="p-2 text-center text-sm font-semibold text-slate-900 dark:text-white">
-                  Accepted
-                </th>
-                <th className="p-2 text-center text-sm font-semibold text-slate-900 dark:text-white">
-                  Shortage
-                </th>
-                <th className="p-2 text-center text-sm font-semibold text-slate-900 dark:text-white">
-                  Overage
-                </th>
                 <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
                   Status
+                </th>
+                <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                  Inspection Type
                 </th>
                 <th className="p-2 text-center text-sm font-semibold text-slate-900 dark:text-white">
                   Action
@@ -400,13 +411,13 @@ const QCInspectionsPage = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="p-4 text-center text-slate-500">
+                  <td colSpan="10" className="p-4 text-center text-slate-500">
                     Loading...
                   </td>
                 </tr>
               ) : filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="p-4 text-center text-slate-500">
+                  <td colSpan="10" className="p-4 text-center text-slate-500">
                     No inspections found
                   </td>
                 </tr>
@@ -420,26 +431,26 @@ const QCInspectionsPage = () => {
                       {inspection.id}
                     </td>
                     <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                      {inspection.projectName ? (
+                        <Link
+                          to={`/department/quality/root-cards/${inspection.rootCardId}`}
+                          className="text-blue-600 hover:underline font-medium"
+                        >
+                          {inspection.projectName}
+                        </Link>
+                      ) : (
+                        "N/A"
+                      )}
+                    </td>
+                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                       {inspection.poNumber}
                     </td>
                     <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                       {inspection.vendor}
                     </td>
-                    <td className="p-2 text-sm text-center text-slate-600 dark:text-slate-400">
-                      {inspection.items}
-                    </td>
-                    <td className="p-2 text-sm text-center text-green-600">
-                      {inspection.acceptedItems}
-                    </td>
-                    <td className="p-2 text-sm text-center text-red-600">
-                      {inspection.rejectedItems}
-                    </td>
-                    <td className="p-2 text-sm text-center text-orange-600">
-                      {inspection.overageItems || 0}
-                    </td>
                     <td className="p-2 text-sm">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(
                           inspection.qcStatus
                         )}`}
                       >
@@ -448,20 +459,25 @@ const QCInspectionsPage = () => {
                           ? "Approved"
                           : inspection.qcStatus === "completed"
                           ? "Approved"
-                          : inspection.qcStatus.charAt(0).toUpperCase() +
-                            inspection.qcStatus.slice(1)}
+                          : inspection.qcStatus.replace('_', ' ')}
                       </span>
+                    </td>
+                    <td className="p-2 text-sm">
+                      <select
+                        value={inspection.inspectionType || 'Inhouse'}
+                        onChange={(e) => handleTypeChange(inspection.dbId, e.target.value)}
+                        className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="Inhouse">Inhouse</option>
+                        <option value="Outsource">Outsource</option>
+                      </select>
                     </td>
                     <td className="p-2 text-center text-sm">
                       <button
-                        onClick={() => handleInspectClick(inspection)}
-                        className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors"
-                        title="Inspect"
+                        onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${inspection.rootCardId}`)}
+                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shadow-blue-200"
                       >
-                        <FileText
-                          size={16}
-                          className="text-blue-600 dark:text-blue-400"
-                        />
+                        Do Inspection
                       </button>
                     </td>
                   </tr>

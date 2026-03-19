@@ -147,11 +147,11 @@ const InventoryTasksPage = () => {
         navigate(`/department/procurement/purchase-orders?${baseParams}`);
       }
     } else if (taskTitle.includes("grn") || taskTitle.includes("processing")) {
-      navigate(`/department/inventory/grn-processing?${baseParams}`);
+      navigate(`/department/inventory/dashboard?${baseParams}`);
     } else if (taskTitle.includes("qc") || taskTitle.includes("inspection")) {
-      navigate(`/department/inventory/grn-processing?${baseParams}`);
+      navigate(`/department/inventory/dashboard?${baseParams}`);
     } else if (taskTitle.includes("stock") && taskTitle.includes("add")) {
-      navigate(`/department/inventory/grn-processing?${baseParams}`);
+      navigate(`/department/inventory/dashboard?${baseParams}`);
     } else if (taskTitle.includes("batch") || taskTitle.includes("location")) {
       navigate(`/department/inventory/tracking/batches?${baseParams}`);
     } else if (taskTitle.includes("view") && taskTitle.includes("stock")) {
@@ -163,7 +163,7 @@ const InventoryTasksPage = () => {
     } else if (taskTitle.includes("reorder")) {
       navigate(`/department/inventory/stock/reorder?${baseParams}`);
     } else {
-      navigate(`/department/inventory/grn-processing?${baseParams}`);
+      navigate(`/department/inventory/dashboard?${baseParams}`);
     }
   };
 

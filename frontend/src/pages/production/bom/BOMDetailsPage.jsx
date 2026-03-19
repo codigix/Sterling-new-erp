@@ -19,7 +19,8 @@ import {
   Boxes,
   Hammer,
   Trash2,
-  CheckCircle2
+  CheckCircle2,
+  Send
 } from "lucide-react";
 import axios from "../../../utils/api";
 import Badge from "../../../components/ui/Badge";
@@ -298,7 +299,7 @@ const BOMDetailsPage = () => {
           <Button variant="secondary" icon={Download} onClick={handleExportPDF}>Export PDF</Button>
           <Button 
             variant="info" 
-            icon={ShoppingCart} 
+            icon={Send} 
             onClick={() => setIsRequestModalOpen(true)}
           >
             Send Material Request

@@ -19,6 +19,7 @@ import DesignEngineerLayout from "./components/layout/DesignEngineerLayout";
 const InventoryDepartmentDashboard = lazy(() => import("./pages/roles/InventoryDepartmentDashboard"));
 const ProcurementDashboard = lazy(() => import("./pages/roles/ProcurementDashboard"));
 const QCManagerDashboard = lazy(() => import("./pages/roles/QCManagerDashboard"));
+const QualityDepartmentDashboard = lazy(() => import("./pages/roles/QualityDepartmentDashboard"));
 const AccountantDashboard = lazy(() => import("./pages/roles/AccountantDashboard"));
 const WorkerDashboard = lazy(() => import("./pages/roles/WorkerDashboard"));
 const ProductionManagerDashboard = lazy(() => import("./pages/roles/ProductionManagerDashboard"));
@@ -62,7 +63,9 @@ import EngineeringTasksPage from "./pages/engineering/EngineeringTasksPage";
 import ProcurementTasksPage from "./pages/procurement/ProcurementTasksPage";
 
 // QC Pages
-import QCTasksPage from "./pages/qc/QCTasksPage";
+const QCTasksPage = lazy(() => import("./pages/qc/QCTasksPage"));
+const QCInspectionsPage = lazy(() => import("./pages/inventory/QCInspectionsPage"));
+const QualityInspectionDetail = lazy(() => import("./pages/qc/QualityInspectionDetail"));
 
 // Inventory Pages
 import InventoryTasksPage from "./pages/inventory/InventoryTasksPage";
@@ -175,7 +178,8 @@ function App() {
                 <Route path="engineering" element={<EngineeringTasksPage />} />
                 <Route path="engineering/drawings" element={<DesignDrawingManagement />} />
                 <Route path="procurement/*" element={<ProcurementDashboard />} />
-                <Route path="qc" element={<QCTasksPage />} />
+                <Route path="qc" element={<QCInspectionsPage />} />
+                <Route path="qc/inspection/:id" element={<QualityInspectionDetail />} />
                 <Route path="inventory/*" element={<InventoryDepartmentDashboard />} />
                 <Route path="production" element={<ProductionDashboard />} />
                 
@@ -205,6 +209,8 @@ function App() {
                 <Route path="production/workflow-tasks" element={<ProductionWorkflowTasksPage />} />
                 <Route path="production/operations/:id/entry" element={<ProductionEntryPage />} />
               </Route>
+              
+              <Route path="/department/quality/*" element={<QualityDepartmentDashboard />} />
               
               {/* Employee Routes */}
               <Route path="/employee" element={<EmployeeDashboardLayout />}>

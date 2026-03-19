@@ -13,8 +13,7 @@ import {
   TrendingUp,
   Filter,
   MoreVertical,
-  ClipboardList,
-  ShoppingCart
+  ClipboardList
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../../utils/api";
@@ -36,9 +35,7 @@ const ViewBOMsPage = () => {
   const taskTitleFromUrl = searchParams.get("taskTitle") || "";
   const isSendToAdminTask = taskTitleFromUrl.toLowerCase().includes("send bom");
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [rootCardFilter, setRootCardFilter] = useState("all");
+  const [rootCardFilter, setRootCardFilter] = useState(null);
   const [boms, setBoms] = useState([]);
   const [rootCards, setRootCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -176,29 +173,25 @@ const ViewBOMsPage = () => {
   };
 
   const filteredBOMs = useMemo(() => {
+    if (!isSendToAdminTask && !rootCardFilter) return [];
+
     return boms.filter((bom) => {
       // If it's the "Send to Admin" task, show all BOMs for this specific root card
       if (isSendToAdminTask) {
         return String(bom.rootCardId) === String(rootCardIdFromUrl);
       }
 
-      const matchesSearch = 
-        (bom.productName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (bom.bomNumber?.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesRootCard = String(bom.rootCardId) === String(rootCardFilter);
       
-      const matchesStatus = statusFilter === "all" || bom.status === statusFilter;
-      const matchesRootCard = rootCardFilter === "all" || String(bom.rootCardId) === String(rootCardFilter);
-      
-      return matchesSearch && matchesStatus && matchesRootCard;
+      return matchesRootCard;
     });
-  }, [boms, searchTerm, statusFilter, rootCardFilter, isSendToAdminTask]);
+  }, [boms, rootCardFilter, isSendToAdminTask, rootCardIdFromUrl]);
 
   const rootCardOptions = useMemo(() => {
-    const options = (Array.isArray(rootCards) ? rootCards : []).map(rc => ({
+    return (Array.isArray(rootCards) ? rootCards : []).map(rc => ({
       label: rc.project_name || rc.title || 'N/A',
       value: String(rc.id)
     }));
-    return [{ label: "All Root Cards", value: "all" }, ...options];
   }, [rootCards]);
 
   const stats = useMemo(() => {
@@ -225,30 +218,26 @@ const ViewBOMsPage = () => {
 
   const columns = [
     {
-      key: "productName",
-      label: "ITEM",
+      key: "bomNumber",
+      label: "BOM NUMBER",
       render: (val, row) => {
+        const baseNumber = val.includes('-V') ? val.split('-V')[0] : val;
         return (
-          <div className="flex flex-col">
-            <span className="font-semibold text-slate-900 dark:text-white">{val}</span>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">
-                {row.bomNumber}
-              </span>
-            </div>
-          </div>
+          <span className="font-bold text-blue-600 cursor-pointer hover:underline" onClick={() => navigate(`/department/production/bom/view/${row.id}`)}>
+            {baseNumber}
+          </span>
         );
       }
     },
     {
-      key: "rootCardId",
-      label: "PROJECT NAME",
-      render: (val, row) => {
-        const linkedRC = rootCardMap[row.rootCardId];
+      key: "bomNumber",
+      label: "REVISION",
+      render: (val) => {
+        const parts = val.split('-V');
         return (
-          <span className="text-slate-600 dark:text-slate-400 font-medium">
-            {linkedRC?.project_name || linkedRC?.title || "N/A"}
-          </span>
+          <Badge variant="secondary" className="font-mono">
+            {parts.length > 1 ? `V${parts[1]}` : 'V1'}
+          </Badge>
         );
       }
     },
@@ -272,10 +261,34 @@ const ViewBOMsPage = () => {
             val === 'request_sent' ? 'info' : 
             'warning'
           }
-          className="capitalize"
+          className="capitalize text-[10px]"
         >
           {val?.replace('_', ' ')}
         </Badge>
+      )
+    },
+    {
+      key: "isActive",
+      label: "ACTIVE",
+      render: (val) => (
+        <div className="flex items-center justify-center">
+          {val ? (
+            <Badge 
+              variant="success"
+              className="px-3 py-1 bg-emerald-100 text-emerald-700 border-emerald-200 animate-pulse-slow flex items-center gap-1.5"
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+              Active
+            </Badge>
+          ) : (
+            <Badge 
+              variant="secondary"
+              className="px-3 py-1 bg-slate-100 text-slate-500 border-slate-200 opacity-60"
+            >
+              Inactive
+            </Badge>
+          )}
+        </div>
       )
     },
     {
@@ -296,7 +309,7 @@ const ViewBOMsPage = () => {
             className="p-1.5 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
             title="Send Material Request"
           >
-            <ShoppingCart size={16} />
+            <Send size={16} />
           </button>
           <button 
             onClick={() => navigate(`/department/production/bom/create?bomId=${row.id}`)}
@@ -305,15 +318,6 @@ const ViewBOMsPage = () => {
           >
             <Edit2 size={16} />
           </button>
-          {row.status === 'approved' && (row.itemGroup === "Finished Goods" || row.itemGroup === "Finished Good") && (row.itemGroup === "Finished Goods" || row.itemGroup === "Finished Good") && (
-            <button 
-              onClick={() => handleSendToAdmin(row.id)}
-              className="p-1.5 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
-              title="Send to Admin"
-            >
-              <Send size={16} />
-            </button>
-          )}
           <button 
             onClick={() => handleDelete(row.id)}
             className="p-1.5 hover:bg-red-50 rounded-md text-red-600 transition-colors"
@@ -331,12 +335,10 @@ const ViewBOMsPage = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-slate-900">
-            {isSendToAdminTask ? "Send Finished Good BOM to Admin" : "Bill of Materials"}
+            Bill of Materials Revisions
           </h2>
           <p className="text-slate-500 text-xs">
-            {isSendToAdminTask 
-              ? "Select an approved Finished Good BOM to send to the admin for final processing"
-              : "Manage your product structures and assembly definitions"}
+            Select a project to view all its BOM versions and active status
           </p>
         </div>
         {!isSendToAdminTask && (
@@ -381,73 +383,66 @@ const ViewBOMsPage = () => {
         </div>
       )}
 
-      {/* Filters & Search */}
+      {/* Filters */}
       {!isSendToAdminTask && (
         <Card className="border-none shadow-sm">
-          <CardContent className="p-4 flex flex-wrap items-end gap-4">
-            <div className="flex-1 min-w-[250px]">
-              <Input
-                placeholder="Search BOM or product..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                leftIcon={<Search size={18} />}
-                className="mb-0"
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="flex-1 max-w-md">
+              <SearchableSelect
+                label="Filter by Root Card"
+                options={rootCardOptions}
+                value={rootCardFilter}
+                onChange={(val) => setRootCardFilter(val)}
+                placeholder="Select Root Card..."
                 containerClassName="mt-0"
+                icon={<ClipboardList size={16} />}
               />
             </div>
-            <div className="flex-1 min-w-[300px]">
-              <div className="flex items-end gap-2">
-                <div className="flex-1">
-                  <SearchableSelect
-                    label="Filter by Root Card"
-                    options={rootCardOptions}
-                    value={rootCardFilter}
-                    onChange={(val) => setRootCardFilter(val)}
-                    placeholder="Select Root Card..."
-                    containerClassName="mt-0"
-                    icon={<ClipboardList size={16} />}
-                  />
-                </div>
-                {rootCardFilter !== "all" && (
-                  <Button 
-                    variant="ghost" 
-                    className="mb-0.5 text-xs h-9 px-2 text-slate-500 hover:text-red-600"
-                    onClick={() => setRootCardFilter("all")}
-                  >
-                    CLEAR
-                  </Button>
-                )}
-              </div>
-            </div>
-            <div className="w-40">
-              <Select
-                label="Status"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                containerClassName="mt-0"
-                className="mt-0"
-              >
-                <option value="all">All Status</option>
-                <option value="draft">Draft</option>
-                <option value="active">Active</option>
-                <option value="approved">Approved</option>
-              </Select>
+            
+            <div className="flex items-center gap-2 mt-6">
+              {rootCardFilter && (
+                <Button 
+                  variant="ghost" 
+                  className="text-xs h-9 px-2 text-slate-500 hover:text-red-600"
+                  onClick={() => setRootCardFilter(null)}
+                >
+                  CLEAR
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Data Table */}
-      <Card className="border-none shadow-sm overflow-hidden">
-        <CardContent className="p-0">
-          <DataTable 
-            columns={columns}
-            data={filteredBOMs}
-            loading={loading}
-            emptyMessage={isSendToAdminTask ? "No Approved Finished Good BOMs available to send." : "No Bill of Materials found."}
-          />
-        </CardContent>
-      </Card>
+      {/* Data Table / Instructions */}
+      {!rootCardFilter && !isSendToAdminTask ? (
+        <Card className="border-none shadow-sm bg-blue-50/30 border-dashed border-2 border-blue-100">
+          <CardContent className="p-16 text-center">
+            <div className="mx-auto w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <ClipboardList size={40} />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">Project Selection Required</h3>
+            <p className="text-slate-500 max-w-sm mx-auto text-sm leading-relaxed">
+              To view Bill of Materials revisions and active status, please select a **Root Card** from the filter above.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className={`border-none shadow-sm overflow-hidden ${!rootCardFilter && isSendToAdminTask ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+          <CardContent className="p-0">
+            <DataTable 
+              columns={columns}
+              data={filteredBOMs}
+              loading={loading}
+              emptyMessage={
+                !isSendToAdminTask && !rootCardFilter 
+                  ? "Please select a Root Card to view its BOM revisions." 
+                  : (isSendToAdminTask ? "No Approved Finished Good BOMs available to send." : "No Bill of Materials found for this project.")
+              }
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {error && (
         <div className="flex items-center gap-3 p-4 rounded-lg bg-red-50 border border-red-200">

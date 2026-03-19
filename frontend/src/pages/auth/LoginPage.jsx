@@ -8,7 +8,7 @@ const ROLE_MAP = {
   design_engineer: "/design-engineer/dashboard",
   production: "/department/production",
   procurement: "/department/procurement",
-  quality: "/department/qc",
+  quality: "/department/quality",
   inventory: "/department/inventory",
   inventory_management: "/department/inventory",
 };

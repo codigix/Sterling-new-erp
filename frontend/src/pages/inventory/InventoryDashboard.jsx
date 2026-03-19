@@ -477,23 +477,6 @@ const DashboardContent = React.memo(({
               </div>
             </Link>
             <Link
-              to="/department/inventory/purchase-orders"
-              className="flex items-center text-xs gap-3 p-3 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900 rounded-lg transition-colors border border-purple-100 dark:border-purple-800"
-            >
-              <FileText
-                size={20}
-                className="text-purple-600 dark:text-purple-400"
-              />
-              <div>
-                <p className="font-medium text-purple-900 dark:text-blue-100">
-                  Purchase Orders
-                </p>
-                <p className="text-xs text-purple-700 dark:text-purple-300">
-                  Create new PO
-                </p>
-              </div>
-            </Link>
-            <Link
               to="/department/inventory/purchase-receipt"
               className="flex items-center text-xs gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-lg transition-colors border border-emerald-100 dark:border-emerald-800"
             >
@@ -606,11 +589,6 @@ const InventoryDashboard = () => {
       title: "Quotations",
       path: "/department/inventory/quotations",
       icon: FileText,
-    },
-    {
-      title: "Purchase Orders",
-      path: "/department/inventory/purchase-orders",
-      icon: Package,
     },
     {
       title: "Purchase Receipt",
@@ -770,9 +748,6 @@ const InventoryDashboard = () => {
             path="/quotations/new"
             element={<CreateQuotationPage />}
           />
-          <Route path="/purchase-orders" element={<PurchaseOrderPage />} />
-          <Route path="/purchase-orders/:id" element={<PurchaseOrderDetailPage />} />
-          <Route path="/purchase-orders/edit/:id" element={<PurchaseOrderEditPage />} />
           <Route path="/purchase-receipt" element={<PurchaseReceiptPage />} />
           <Route path="/grn-processing" element={<GRNProcessingPage />} />
           <Route path="/department-tasks" element={<InventoryTasksPage />} />

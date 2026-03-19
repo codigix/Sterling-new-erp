@@ -802,13 +802,6 @@ const MaterialRequestsPage = () => {
         hidden: !isProcurementPath && status === "fulfilled",
       },
       {
-        id: "grn",
-        label: "Goods Arrival",
-        icon: Warehouse,
-        subLabel: "GRN & Inspection",
-        hidden: !isProcurementPath && status === "fulfilled",
-      },
-      {
         id: "fulfilled",
         label: "Fulfillment",
         icon: CheckCircle,
@@ -835,12 +828,6 @@ const MaterialRequestsPage = () => {
           return "completed";
         if (request.po_count > 0 || request.approved_quotation_count > 0)
           return "current";
-        return "pending";
-      }
-
-      if (stepId === "grn") {
-        if (s === "received" || s === "fulfilled") return "completed";
-        if (s === "ordered") return "current";
         return "pending";
       }
 
