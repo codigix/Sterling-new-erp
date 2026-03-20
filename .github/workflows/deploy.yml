@@ -23,7 +23,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /var/www/Sterling-erp
+            cd /var/www/Sterling-new-erp
             
             # 1. Pull latest changes
             git pull origin main

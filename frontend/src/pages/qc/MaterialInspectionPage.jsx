@@ -17,61 +17,12 @@ import {
   XCircle,
   Upload,
   AlertTriangle,
-  Eye
+  Eye,
+  Clock
 } from "lucide-react";
 import { showSuccess, showError } from "../../utils/toastUtils";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
-const UploadModal = ({ isOpen, onClose, onUpload, title, description }) => {
-  const [file, setFile] = useState(null);
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50">
-          <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
-            <Upload size={18} className="text-blue-600" />
-            {title}
-          </h3>
-          <button onClick={onClose} className="p-2 hover:bg-white rounded-full transition-colors text-slate-400">
-            <XCircle size={20} />
-          </button>
-        </div>
-        <div className="p-8 text-center">
-          <div className={`p-8 rounded-3xl border-2 border-dashed mb-6 transition-all ${file ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200 hover:border-blue-200'}`}>
-            <label className="flex flex-col items-center justify-center gap-4 cursor-pointer">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm ${file ? 'bg-green-600 text-white' : 'bg-white text-slate-400'}`}>
-                <Upload size={32} />
-              </div>
-              <div>
-                <p className="text-sm font-black text-slate-900 mb-1">
-                  {file ? file.name : 'Click to select document'}
-                </p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{description}</p>
-              </div>
-              <input type="file" className="hidden" onChange={(e) => setFile(e.target.files[0])} />
-            </label>
-          </div>
-          <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
-              Cancel
-            </button>
-            <button 
-              onClick={() => { if (file) { onUpload(file); setFile(null); onClose(); } }}
-              disabled={!file}
-              className={`flex-1 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${file ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
-            >
-              Upload & Process
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const MaterialInspectionPage = () => {
   const navigate = useNavigate();
@@ -83,8 +34,6 @@ const MaterialInspectionPage = () => {
   const [loading, setLoading] = useState(false);
   const [loadingRC, setLoadingRC] = useState(true);
   const [expandedItem, setExpandedItem] = useState(null);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [pendingAction, setPendingAction] = useState(null); // { grnId, serialNumber, status, type: 'single' | 'common' }
 
   useEffect(() => {
     fetchReadyRootCards();
@@ -138,13 +87,7 @@ const MaterialInspectionPage = () => {
   };
 
   const handleQuickStatusUpdate = async (grnId, serialNumber, status, inspectionType) => {
-    // If it's outsource and rejected, we need a document
-    if (inspectionType === 'Outsource' && status === 'Rejected') {
-      setPendingAction({ grnId, serialNumber, status, type: 'single' });
-      setShowUploadModal(true);
-      return;
-    }
-
+    // User wants common documents after all items are done, so no individual modals here
     try {
       setLoading(true);
       await axios.post("/qc/inspection/submit", {
@@ -169,50 +112,28 @@ const MaterialInspectionPage = () => {
     }
   };
 
-  const handleFileUpload = async (file) => {
-    if (!pendingAction) return;
-    const { grnId, serialNumber, status } = pendingAction;
-    
+  const handleConsolidatedUpload = async (file, grnId, type) => {
     try {
       setLoading(true);
-      // Simulating file upload paths since we don't have a real multipart handler here
-      const dummyPath = `uploads/qc_${status}_${serialNumber || 'common'}.pdf`;
-      
-      const payload = {
-        grn_id: grnId,
-        inspection_type: 'Outsource',
-        results: serialNumber ? [
-          {
-            serial_number: serialNumber,
-            status: status,
-            notes: `Quick ${status} with document`,
-            document_path: dummyPath
-          }
-        ] : [],
-        remarks: `ST ${serialNumber || 'Bulk'} marked as ${status} with document`
-      };
+      const formData = new FormData();
+      formData.append(type === 'Accepted' ? 'accepted_doc' : 'rejected_doc', file);
+      formData.append('grn_id', grnId);
+      formData.append('inspection_type', 'Outsource');
+      formData.append('remarks', `Consolidated ${type} items report uploaded`);
+      formData.append('results', JSON.stringify([])); // Header update only
 
-      if (!serialNumber && status === 'Accepted') {
-        payload.common_document_path = dummyPath;
-        // For common doc, we might need to find all accepted but missing doc serials
-        // But for quick action, let's keep it simple and just record the header result
-      }
+      await axios.post("/qc/outsource/submit-results", formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
-      await axios.post("/qc/outsource/submit-results", payload);
-      showSuccess(`${serialNumber ? 'ST ' + serialNumber : 'GRN'} processed successfully with document`);
+      showSuccess(`${type} items report uploaded successfully`);
       fetchMaterials(selectedRootCardId);
     } catch (error) {
-      console.error("Error uploading document:", error);
-      showError("Failed to process with document");
+      console.error("Error uploading consolidated document:", error);
+      showError("Failed to upload report");
     } finally {
       setLoading(false);
-      setPendingAction(null);
     }
-  };
-
-  const handleCommonAcceptedDoc = (grnId) => {
-    setPendingAction({ grnId, status: 'Accepted', type: 'common' });
-    setShowUploadModal(true);
   };
 
   const rootCardOptions = rootCards.map(rc => ({
@@ -405,15 +326,33 @@ const MaterialInspectionPage = () => {
                                                 </td>
                                                 <td className="px-4 py-2">
                                                   <div className="flex items-center justify-center gap-2">
-                                                    {s.document_path && (
-                                                      <button 
-                                                        onClick={(e) => { e.stopPropagation(); window.open(`${axios.defaults.baseURL.replace('/api', '')}/${s.document_path}`, '_blank'); }}
-                                                        className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                                                        title="View Document"
-                                                      >
-                                                        <Eye size={14} />
-                                                      </button>
-                                                    )}
+                                                    {/* Unified Document Viewer for Consolidated Reports */}
+                                                    {(() => {
+                                                      let docPath = s.document_path; // Individual doc if exists
+                                                      
+                                                      // If it's outsource, prefer the consolidated reports based on ST status
+                                                      if (item.inspection_type === 'Outsource') {
+                                                        if (s.inspection_status === 'Accepted' && item.common_document_path) {
+                                                          docPath = item.common_document_path;
+                                                        } else if (s.inspection_status === 'Rejected' && item.rejected_document_path) {
+                                                          docPath = item.rejected_document_path;
+                                                        }
+                                                      }
+
+                                                      if (docPath) {
+                                                        return (
+                                                          <button 
+                                                            onClick={(e) => { e.stopPropagation(); window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${docPath}`, '_blank'); }}
+                                                            className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                                            title="View Quality Report"
+                                                          >
+                                                            <Eye size={14} />
+                                                          </button>
+                                                        );
+                                                      }
+                                                      return null;
+                                                    })()}
+
                                                     {(s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
                                                       <>
                                                         <button 
@@ -446,55 +385,118 @@ const MaterialInspectionPage = () => {
                                       </div>
                                     )}
                                     
-                                    <div className="p-4 bg-blue-50/30 border-t border-slate-100 flex items-center justify-between">
-                                      <div className="flex items-center gap-4">
-                                        <div>
-                                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Vendor</p>
-                                          <p className="text-xs font-bold text-slate-800">{item.vendor_name}</p>
-                                        </div>
-                                        <div className="w-px h-8 bg-slate-200"></div>
-                                        <div>
-                                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Receipt Date</p>
-                                          <p className="text-xs font-bold text-slate-800">{new Date(item.posting_date).toLocaleDateString()}</p>
-                                        </div>
-                                        {item.inspection_type === 'Outsource' && (
-                                          <>
-                                            <div className="w-px h-8 bg-slate-200"></div>
-                                            <div className="flex items-center gap-3">
-                                              <div className="flex flex-col">
-                                                <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-0.5">Outsource Flow</p>
-                                                <div className="flex items-center gap-2">
-                                                  {item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path && (
-                                                    <button 
-                                                      onClick={() => handleCommonAcceptedDoc(item.grn_id)}
-                                                      className="flex items-center gap-1.5 text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight"
-                                                    >
-                                                      <Upload size={10} /> Upload Common Doc
-                                                    </button>
-                                                  )}
-                                                  {item.common_document_path && (
-                                                    <button 
-                                                      onClick={() => window.open(`${axios.defaults.baseURL.replace('/api', '')}/${item.common_document_path}`, '_blank')}
-                                                      className="flex items-center gap-1.5 text-[10px] font-black text-green-600 hover:text-green-700 uppercase tracking-tight"
-                                                    >
-                                                      <Eye size={10} /> View Common Doc
-                                                    </button>
-                                                  )}
+                                    <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                                      <div className="flex-1">
+                                        {item.inspection_type === 'Outsource' ? (
+                                          <div className="flex items-center gap-6">
+                                            {(() => {
+                                              const allProcessed = item.serials?.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
+                                              const hasAccepted = item.serials?.some(s => s.inspection_status === 'Accepted');
+                                              const hasRejected = item.serials?.some(s => s.inspection_status === 'Rejected');
+                                              
+                                              if (!allProcessed) {
+                                                return (
+                                                  <div className="flex items-center gap-2 text-amber-500 bg-amber-50 px-4 py-2 rounded-xl border border-amber-100">
+                                                    <Clock size={14} className="animate-spin-slow" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">
+                                                      Processing: {item.serials?.filter(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected').length} / {item.serials?.length} ST Numbers Done
+                                                    </span>
+                                                  </div>
+                                                );
+                                              }
+
+                                              return (
+                                                <div className="flex flex-col gap-2">
+                                                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                                    <FileText size={14} className="text-blue-500" /> 
+                                                    Required Quality Reports (Outsource)
+                                                  </p>
+                                                  
+                                                  <div className="flex items-center gap-4">
+                                                    {/* Accepted Items Document */}
+                                                    {hasAccepted && (
+                                                      <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.common_document_path ? 'bg-green-50 border-green-200' : 'bg-white border-blue-200 border-dashed hover:border-blue-400'}`}>
+                                                        {item.common_document_path ? (
+                                                          <button 
+                                                            onClick={() => window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.common_document_path}`, '_blank')}
+                                                            className="flex items-center gap-2 text-[10px] font-black text-green-700 uppercase"
+                                                          >
+                                                            <CheckCircle size={14} /> Accepted Items Report
+                                                            <Eye size={14} className="ml-1 opacity-60" />
+                                                          </button>
+                                                        ) : (
+                                                          <label className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase cursor-pointer">
+                                                            <Upload size={14} /> Upload Accepted Report
+                                                            <input 
+                                                              type="file" 
+                                                              className="hidden" 
+                                                              onChange={(e) => handleConsolidatedUpload(e.target.files[0], item.grn_id, 'Accepted')} 
+                                                            />
+                                                          </label>
+                                                        )}
+                                                      </div>
+                                                    )}
+
+                                                    {/* Rejected Items Document */}
+                                                    {hasRejected && (
+                                                      <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.rejected_document_path ? 'bg-red-50 border-red-200' : 'bg-white border-red-200 border-dashed hover:border-red-400'}`}>
+                                                        {item.rejected_document_path ? (
+                                                          <button 
+                                                            onClick={() => window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.rejected_document_path}`, '_blank')}
+                                                            className="flex items-center gap-2 text-[10px] font-black text-red-700 uppercase"
+                                                          >
+                                                            <XCircle size={14} /> Rejected Items Report
+                                                            <Eye size={14} className="ml-1 opacity-60" />
+                                                          </button>
+                                                        ) : (
+                                                          <label className="flex items-center gap-2 text-[10px] font-black text-red-600 uppercase cursor-pointer">
+                                                            <Upload size={14} /> Upload Rejected Report
+                                                            <input 
+                                                              type="file" 
+                                                              className="hidden" 
+                                                              onChange={(e) => handleConsolidatedUpload(e.target.files[0], item.grn_id, 'Rejected')} 
+                                                            />
+                                                          </label>
+                                                        )}
+                                                      </div>
+                                                    )}
+
+                                                    {/* Missing Reports Indicator */}
+                                                    {((hasAccepted && !item.common_document_path) || (hasRejected && !item.rejected_document_path)) && (
+                                                      <div className="flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-[9px] font-black uppercase border border-amber-200 animate-pulse">
+                                                        <AlertTriangle size={12} /> Upload Required
+                                                      </div>
+                                                    )}
+                                                  </div>
                                                 </div>
-                                              </div>
-                                              {item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path && (
-                                                <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded text-[9px] font-black uppercase border border-amber-100 animate-pulse">
-                                                  <AlertTriangle size={10} /> Doc Required
-                                                </div>
-                                              )}
-                                            </div>
-                                          </>
+                                              );
+                                            })()}
+                                          </div>
+                                        ) : (
+                                          <div className="flex items-center gap-2 text-slate-400 italic">
+                                            <CheckCircle size={14} />
+                                            <span className="text-[10px] font-bold uppercase tracking-widest">Inhouse inspection - No documents required</span>
+                                          </div>
                                         )}
                                       </div>
                                       
                                       <button 
-                                        onClick={() => navigate(`/department/quality/inspection/${item.grn_id}`)}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-black shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2"
+                                        onClick={() => {
+                                          const needsAcceptedDoc = item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path;
+                                          const needsRejectedDoc = item.serials?.some(s => s.inspection_status === 'Rejected') && !item.rejected_document_path;
+                                          
+                                          if (item.inspection_type === 'Outsource' && (needsAcceptedDoc || needsRejectedDoc)) {
+                                            showError("Please upload all required quality reports first");
+                                            return;
+                                          }
+                                          navigate(`/department/quality/inspection/${item.grn_id}`);
+                                        }}
+                                        className={`px-4 py-2 rounded-xl text-xs font-black shadow-lg transition-all flex items-center gap-2 ${
+                                          (item.inspection_type === 'Outsource' && (
+                                            (item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path) || 
+                                            (item.serials?.some(s => s.inspection_status === 'Rejected') && !item.rejected_document_path)
+                                          )) ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none' : 'bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'
+                                        }`}
                                       >
                                         <ClipboardCheck size={14} />
                                         RECORD QC RESULT
@@ -515,14 +517,6 @@ const MaterialInspectionPage = () => {
           )}
         </div>
       </div>
-
-      <UploadModal 
-        isOpen={showUploadModal}
-        onClose={() => { setShowUploadModal(false); setPendingAction(null); }}
-        onUpload={handleFileUpload}
-        title={pendingAction?.type === 'common' ? 'Upload Common Document' : `Upload Document for ST: ${pendingAction?.serialNumber}`}
-        description={pendingAction?.type === 'common' ? 'One common document for all accepted ST numbers in this GRN' : `Required document for rejected ST: ${pendingAction?.serialNumber}`}
-      />
     </div>
   );
 };

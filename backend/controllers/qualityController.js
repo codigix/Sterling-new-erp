@@ -104,28 +104,27 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       const [serialRows] = await db.query(
         `SELECT s.*, qir.document_path 
          FROM inventory_serials s 
-         LEFT JOIN quality_inspection_results qir ON s.serial_number = qir.serial_number 
+         LEFT JOIN (
+           SELECT serial_number, document_path, id
+           FROM quality_inspection_results
+           WHERE id IN (
+             SELECT MAX(id)
+             FROM quality_inspection_results
+             GROUP BY serial_number
+           )
+         ) qir ON s.serial_number = qir.serial_number 
          WHERE s.grn_id IN (?)
-         ORDER BY qir.id DESC`,
+         ORDER BY s.id ASC`,
         [grnIds]
       );
-      // Ensure we get the latest result per serial if multiple exist (unlikely but possible)
-      const uniqueSerials = [];
-      const seen = new Set();
-      serialRows.forEach(s => {
-        if (!seen.has(s.serial_number)) {
-          seen.add(s.serial_number);
-          uniqueSerials.push(s);
-        }
-      });
-      serials = uniqueSerials;
+      serials = serialRows;
     }
 
     // Fetch common documents for these GRNs
     let commonDocs = [];
     if (grnIds.length > 0) {
       const [docRows] = await db.query(
-        'SELECT grn_id, common_document_path FROM quality_inspections WHERE grn_id IN (?) AND common_document_path IS NOT NULL',
+        'SELECT grn_id, common_document_path, rejected_document_path FROM quality_inspections WHERE grn_id IN (?)',
         [grnIds]
       );
       commonDocs = docRows;
@@ -136,6 +135,7 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       return {
         ...item,
         common_document_path: grnCommonDoc ? grnCommonDoc.common_document_path : null,
+        rejected_document_path: grnCommonDoc ? grnCommonDoc.rejected_document_path : null,
         serials: serials.filter(s => s.grn_id === item.grn_id && s.item_id === item.po_item_id).map(s => ({
           serial_number: s.serial_number,
           status: s.status,
@@ -357,22 +357,59 @@ exports.updateOutsourceStatus = async (req, res) => {
 };
 
 exports.submitOutsourceResults = async (req, res) => {
-    const { grn_id, results, common_document_path, remarks } = req.body;
+    let { grn_id, results, remarks, common_document_path, rejected_document_path } = req.body;
+    
+    // Handle FormData stringified results
+    if (typeof results === 'string') {
+        try {
+            results = JSON.parse(results);
+        } catch (e) {
+            results = [];
+        }
+    } else if (!results) {
+        results = [];
+    }
+
+    // Process uploaded files from req.files (using upload.any())
+    if (req.files && req.files.length > 0) {
+        req.files.forEach(file => {
+            if (file.fieldname === 'common_doc' || file.fieldname === 'accepted_doc') {
+                common_document_path = file.filename;
+            } else if (file.fieldname === 'rejected_doc') {
+                rejected_document_path = file.filename;
+            } else if (file.fieldname.startsWith('file_')) {
+                // Keep individual file support if still needed, but user wants common
+                const serialNumber = file.fieldname.replace('file_', '');
+                const resultItem = results.find(r => r.serial_number === serialNumber);
+                if (resultItem) {
+                    resultItem.document_path = file.filename;
+                }
+            }
+        });
+    }
+
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
 
-        // 1. Create inspection header
+        // 1. Create or update inspection header
         const [inspResult] = await connection.query(
-            'INSERT INTO quality_inspections (grn_id, inspection_type, status, remarks, common_document_path) VALUES (?, ?, ?, ?, ?)',
-            [grn_id, 'Outsource', 'Completed', remarks, common_document_path]
+            'INSERT INTO quality_inspections (grn_id, inspection_type, status, remarks, common_document_path, rejected_document_path) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE remarks = VALUES(remarks), common_document_path = COALESCE(VALUES(common_document_path), common_document_path), rejected_document_path = COALESCE(VALUES(rejected_document_path), rejected_document_path)',
+            [grn_id, 'Outsource', 'Completed', remarks || 'Outsource inspection update', common_document_path, rejected_document_path]
         );
-        const inspectionId = inspResult.insertId;
+        
+        let inspectionId;
+        if (inspResult.insertId) {
+            inspectionId = inspResult.insertId;
+        } else {
+            const [rows] = await connection.query('SELECT id FROM quality_inspections WHERE grn_id = ?', [grn_id]);
+            inspectionId = rows[0].id;
+        }
 
         // 2. Insert results and update serial status
         for (const item of results) {
             await connection.query(
-                'INSERT INTO quality_inspection_results (inspection_id, serial_number, status, notes, document_path) VALUES (?, ?, ?, ?, ?)',
+                'INSERT INTO quality_inspection_results (inspection_id, serial_number, status, notes, document_path) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status), notes = VALUES(notes), document_path = COALESCE(VALUES(document_path), document_path)',
                 [inspectionId, item.serial_number, item.status, item.notes, item.document_path]
             );
 
@@ -391,7 +428,26 @@ exports.submitOutsourceResults = async (req, res) => {
         );
         
         if (pendingRows[0].count === 0) {
-            await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [grn_id]);
+            // Check if documents are required for outsource
+            const [grnRows] = await connection.query('SELECT inspection_type FROM grns WHERE id = ?', [grn_id]);
+            const isOutsource = grnRows[0]?.inspection_type === 'Outsource';
+            
+            if (isOutsource) {
+                // For outsource, check if docs are present if needed
+                const [acceptedCount] = await connection.query('SELECT COUNT(*) as count FROM inventory_serials WHERE grn_id = ? AND inspection_status = "Accepted"', [grn_id]);
+                const [rejectedCount] = await connection.query('SELECT COUNT(*) as count FROM inventory_serials WHERE grn_id = ? AND inspection_status = "Rejected"', [grn_id]);
+                
+                const [docs] = await connection.query('SELECT common_document_path, rejected_document_path FROM quality_inspections WHERE grn_id = ?', [grn_id]);
+                
+                const needsAcceptedDoc = acceptedCount[0].count > 0 && !docs[0]?.common_document_path;
+                const needsRejectedDoc = rejectedCount[0].count > 0 && !docs[0]?.rejected_document_path;
+                
+                if (!needsAcceptedDoc && !needsRejectedDoc) {
+                    await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [grn_id]);
+                }
+            } else {
+                await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [grn_id]);
+            }
         }
 
         await connection.commit();

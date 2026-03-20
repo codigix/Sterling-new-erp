@@ -206,23 +206,22 @@ const QualityInspectionDetail = () => {
     }
   };
 
+  const [rejectedDoc, setRejectedDoc] = useState(null);
+
   const handleSubmitOutsource = async () => {
     const results = [];
     let hasAccepted = false;
-    let allRejectedDocsPresent = true;
+    let hasRejected = false;
 
     items.forEach(item => {
       item.serials.forEach(s => {
         if (s.tempStatus === 'Accepted' || s.tempStatus === 'Rejected') {
            if (s.tempStatus === 'Accepted') hasAccepted = true;
-           if (s.tempStatus === 'Rejected' && !s.doc) {
-              allRejectedDocsPresent = false;
-           }
+           if (s.tempStatus === 'Rejected') hasRejected = true;
            results.push({
              serial_number: s.serial_number,
              status: s.tempStatus,
-             notes: s.notes,
-             has_doc: !!s.doc
+             notes: s.notes
            });
         }
       });
@@ -234,27 +233,41 @@ const QualityInspectionDetail = () => {
     }
 
     if (hasAccepted && !commonDoc) {
-       toast.error("Common document required for all accepted items");
+       toast.error("Accepted Items Report is required for outsource flow");
        return;
     }
 
-    if (!allRejectedDocsPresent) {
-       toast.error("Document required for each rejected ST number");
+    if (hasRejected && !rejectedDoc) {
+       toast.error("Rejected Items Report is required for outsource flow");
        return;
     }
 
     try {
-      await axios.post("/qc/outsource/submit-results", {
-        grn_id: id,
-        results,
-        common_document_path: "uploads/common_qc.pdf",
-        remarks
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('grn_id', id);
+      formData.append('remarks', remarks);
+      
+      if (commonDoc) {
+        formData.append('accepted_doc', commonDoc);
+      }
+      if (rejectedDoc) {
+        formData.append('rejected_doc', rejectedDoc);
+      }
+
+      formData.append('results', JSON.stringify(results));
+
+      await axios.post("/qc/outsource/submit-results", formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       toast.success("Outsource inspection completed");
       fetchData();
     } catch (error) {
+      console.error("Error submitting outsource results:", error);
       toast.error("Failed to submit outsource results");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -533,14 +546,27 @@ const QualityInspectionDetail = () => {
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Post-Inspection Uploads</h4>
                 
+                {/* Accepted Report */}
                 <div className={`p-4 rounded-2xl border-2 border-dashed transition-all ${commonDoc ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200 hover:border-blue-200'}`}>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Document for All Accepted Items</p>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Accepted Items Report</p>
                    <label className="flex flex-col items-center justify-center gap-2 cursor-pointer">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${commonDoc ? 'bg-green-600 text-white' : 'bg-white text-slate-400 shadow-sm'}`}>
                         {commonDoc ? <CheckCircle size={20} /> : <Upload size={20} />}
                       </div>
-                      <span className="text-[10px] font-bold text-slate-600">{commonDoc ? commonDoc.name : "Click to upload report"}</span>
+                      <span className="text-[10px] font-bold text-slate-600">{commonDoc ? commonDoc.name : "Upload accepted items report"}</span>
                       <input type="file" className="hidden" onChange={(e) => setCommonDoc(e.target.files[0])} />
+                   </label>
+                </div>
+
+                {/* Rejected Report */}
+                <div className={`p-4 rounded-2xl border-2 border-dashed transition-all ${rejectedDoc ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200 hover:border-red-200'}`}>
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Rejected Items Report</p>
+                   <label className="flex flex-col items-center justify-center gap-2 cursor-pointer">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${rejectedDoc ? 'bg-red-600 text-white' : 'bg-white text-slate-400 shadow-sm'}`}>
+                        {rejectedDoc ? <CheckCircle size={20} /> : <Upload size={20} />}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-600">{rejectedDoc ? rejectedDoc.name : "Upload rejected items report"}</span>
+                      <input type="file" className="hidden" onChange={(e) => setRejectedDoc(e.target.files[0])} />
                    </label>
                 </div>
               </div>
