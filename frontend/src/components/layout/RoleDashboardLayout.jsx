@@ -107,11 +107,11 @@ const RoleDashboardLayout = ({
 
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
-                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-                    <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
+                    <p className="text-sm font-bold text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <p className="text-[10px] font-medium text-blue-100 uppercase tracking-wider">
                       {user?.email}
                     </p>
                   </div>

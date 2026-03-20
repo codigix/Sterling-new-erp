@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Lock, Mail, Eye, EyeOff, Shield } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff, Shield, Users } from "lucide-react";
 
 const ROLE_MAP = {
   admin: "/admin/dashboard",
@@ -12,6 +12,15 @@ const ROLE_MAP = {
   inventory: "/department/inventory",
   inventory_management: "/department/inventory",
 };
+
+const QUICK_ACCESS = [
+  { label: "Admin", email: "admin@gmail.com", password: "12345678" },
+  { label: "Design Engineer", email: "design@gmail.com", password: "12345678" },
+  { label: "Production", email: "production@gmail.com", password: "12345678" },
+  { label: "Procurement", email: "procurement@gmail.com", password: "12345678" },
+  { label: "Inventory", email: "inventory@gmail.com", password: "12345678" },
+  { label: "Quality", email: "quality@gmail.com", password: "12345678" },
+];
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -96,7 +105,7 @@ const LoginPage = () => {
                 value={formData.username}
                 onChange={handleChange}
                 required
-                placeholder="test@example.com"
+                placeholder="Enter your email"
                 className="w-full py-1.5 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
               />
             </div>
@@ -153,25 +162,24 @@ const LoginPage = () => {
           </button>
         </form>
 
-        <div className="mt-3 p-3 bg-slate-50 rounded-md">
-          <div className="flex items-center gap-2 text-slate-500 text-[10px] mb-2">
-            <Shield size={12} />
-            <span>Demo Access</span>
+        <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+          <div className="flex items-center gap-2 text-slate-500 text-[10px] font-semibold mb-3 uppercase tracking-wider">
+            <Users size={12} className="text-blue-500" />
+            <span>Quick Access</span>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-center text-[10px]">
-              <span className="text-slate-500">Email</span>
-              <button 
-                className="text-blue-600 font-mono hover:underline" 
-                onClick={() => setFormData({ username: "test@example.com", password: "password123" })}
+          <div className="grid grid-cols-2 gap-2">
+            {QUICK_ACCESS.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setFormData({ username: item.email, password: item.password })}
+                className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-md hover:border-blue-400 hover:shadow-sm transition-all text-center group"
               >
-                test@example.com
+                <span className="text-[10px] font-medium text-slate-700 group-hover:text-blue-600">
+                  {item.label}
+                </span>
               </button>
-            </div>
-            <div className="flex justify-between items-center text-[10px]">
-              <span className="text-slate-500">Key</span>
-              <span className="text-blue-600 font-mono">password123</span>
-            </div>
+            ))}
           </div>
         </div>
       </div>

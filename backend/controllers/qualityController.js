@@ -102,20 +102,48 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
     let serials = [];
     if (grnIds.length > 0) {
       const [serialRows] = await db.query(
-        'SELECT * FROM inventory_serials WHERE grn_id IN (?)',
+        `SELECT s.*, qir.document_path 
+         FROM inventory_serials s 
+         LEFT JOIN quality_inspection_results qir ON s.serial_number = qir.serial_number 
+         WHERE s.grn_id IN (?)
+         ORDER BY qir.id DESC`,
         [grnIds]
       );
-      serials = serialRows;
+      // Ensure we get the latest result per serial if multiple exist (unlikely but possible)
+      const uniqueSerials = [];
+      const seen = new Set();
+      serialRows.forEach(s => {
+        if (!seen.has(s.serial_number)) {
+          seen.add(s.serial_number);
+          uniqueSerials.push(s);
+        }
+      });
+      serials = uniqueSerials;
     }
 
-    const materials = rows.map(item => ({
-      ...item,
-      serials: serials.filter(s => s.grn_id === item.grn_id && s.item_id === item.po_item_id).map(s => ({
-        serial_number: s.serial_number,
-        status: s.status,
-        inspection_status: s.inspection_status || 'Pending'
-      }))
-    }));
+    // Fetch common documents for these GRNs
+    let commonDocs = [];
+    if (grnIds.length > 0) {
+      const [docRows] = await db.query(
+        'SELECT grn_id, common_document_path FROM quality_inspections WHERE grn_id IN (?) AND common_document_path IS NOT NULL',
+        [grnIds]
+      );
+      commonDocs = docRows;
+    }
+
+    const materials = rows.map(item => {
+      const grnCommonDoc = commonDocs.find(cd => cd.grn_id === item.grn_id);
+      return {
+        ...item,
+        common_document_path: grnCommonDoc ? grnCommonDoc.common_document_path : null,
+        serials: serials.filter(s => s.grn_id === item.grn_id && s.item_id === item.po_item_id).map(s => ({
+          serial_number: s.serial_number,
+          status: s.status,
+          inspection_status: s.inspection_status || 'Pending',
+          document_path: s.document_path
+        }))
+      };
+    });
 
     res.json(materials);
   } catch (error) {

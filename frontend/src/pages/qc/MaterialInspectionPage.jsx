@@ -16,7 +16,8 @@ import {
   CheckCircle,
   XCircle,
   Upload,
-  AlertTriangle
+  AlertTriangle,
+  Eye
 } from "lucide-react";
 import { showSuccess, showError } from "../../utils/toastUtils";
 import SearchableSelect from "../../components/ui/SearchableSelect";
@@ -404,6 +405,15 @@ const MaterialInspectionPage = () => {
                                                 </td>
                                                 <td className="px-4 py-2">
                                                   <div className="flex items-center justify-center gap-2">
+                                                    {s.document_path && (
+                                                      <button 
+                                                        onClick={(e) => { e.stopPropagation(); window.open(`${axios.defaults.baseURL.replace('/api', '')}/${s.document_path}`, '_blank'); }}
+                                                        className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                                        title="View Document"
+                                                      >
+                                                        <Eye size={14} />
+                                                      </button>
+                                                    )}
                                                     {(s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
                                                       <>
                                                         <button 
@@ -453,16 +463,26 @@ const MaterialInspectionPage = () => {
                                             <div className="flex items-center gap-3">
                                               <div className="flex flex-col">
                                                 <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-0.5">Outsource Flow</p>
-                                                {item.serials?.some(s => s.inspection_status === 'Accepted') && (
-                                                  <button 
-                                                    onClick={() => handleCommonAcceptedDoc(item.grn_id)}
-                                                    className="flex items-center gap-1.5 text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight"
-                                                  >
-                                                    <Upload size={10} /> Upload Common Doc
-                                                  </button>
-                                                )}
+                                                <div className="flex items-center gap-2">
+                                                  {item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path && (
+                                                    <button 
+                                                      onClick={() => handleCommonAcceptedDoc(item.grn_id)}
+                                                      className="flex items-center gap-1.5 text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight"
+                                                    >
+                                                      <Upload size={10} /> Upload Common Doc
+                                                    </button>
+                                                  )}
+                                                  {item.common_document_path && (
+                                                    <button 
+                                                      onClick={() => window.open(`${axios.defaults.baseURL.replace('/api', '')}/${item.common_document_path}`, '_blank')}
+                                                      className="flex items-center gap-1.5 text-[10px] font-black text-green-600 hover:text-green-700 uppercase tracking-tight"
+                                                    >
+                                                      <Eye size={10} /> View Common Doc
+                                                    </button>
+                                                  )}
+                                                </div>
                                               </div>
-                                              {!item.serials?.every(s => s.inspection_status !== 'Accepted') && (
+                                              {item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path && (
                                                 <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded text-[9px] font-black uppercase border border-amber-100 animate-pulse">
                                                   <AlertTriangle size={10} /> Doc Required
                                                 </div>
