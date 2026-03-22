@@ -6,7 +6,6 @@ import toastUtils from "../../utils/toastUtils";
 
 const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
   const [loading, setLoading] = useState(false);
-  const [warehouses, setWarehouses] = useState([]);
   const [allPOs, setAllPOs] = useState([]);
   const [allMaterials, setAllMaterials] = useState([]);
   const [formData, setFormData] = useState({
@@ -22,12 +21,10 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [whRes, poRes, matRes] = await Promise.all([
-          axios.get("/department/inventory/warehouses"),
+        const [poRes, matRes] = await Promise.all([
           axios.get("/department/inventory/purchase-orders?status=approved"),
           axios.get("/department/inventory/materials")
         ]);
-        setWarehouses(whRes.data);
         setAllPOs(poRes.data.purchaseOrders || poRes.data || []);
         setAllMaterials(matRes.data.materials || matRes.data || []);
       } catch (error) {
@@ -44,7 +41,6 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
         const initialItems = (po.items || []).map(item => ({
           ...item,
           received_quantity: item.quantity,
-          warehouse: warehouses.length > 0 ? warehouses[0].name : "Main Warehouse",
           material_name: item.material_name || item.itemName || item.item_name || item.name || item.description,
           material_code: item.material_code || item.itemCode || item.item_code || item.code,
           rate: item.rate || item.unit_price || item.unitCost || 0,
@@ -76,7 +72,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
         });
       }
     }
-  }, [isOpen, po, warehouses]);
+  }, [isOpen, po]);
 
   const handlePOChange = async (poId) => {
     if (!poId) {
@@ -93,7 +89,6 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
         const initialItems = (poDetails.items || []).map(item => ({
           ...item,
           received_quantity: item.quantity,
-          warehouse: warehouses.length > 0 ? warehouses[0].name : "Main Warehouse",
           material_name: item.material_name || item.itemName || item.item_name || item.name || item.description,
           material_code: item.material_code || item.itemCode || item.item_code || item.code,
           rate: item.rate || item.unit_price || item.unitCost || 0,
@@ -128,7 +123,6 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
           quantity: 0,
           received_quantity: 0,
           rate: 0,
-          warehouse: warehouses.length > 0 ? warehouses[0].name : "Main Warehouse",
           unit: "Units"
         }
       ]
@@ -339,7 +333,6 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                   <thead className="sticky top-0 z-20 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-md">
                     <tr>
                       <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Item Details</th>
-                      <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 text-center">Warehouse</th>
                       <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 text-center w-24">PO Qty</th>
                       <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 text-center w-24">Received</th>
                       <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 text-center w-24">Rate</th>
@@ -381,21 +374,6 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                           )}
                         </td>
                         <td className="px-4 py-4 text-center">
-                          <select 
-                            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
-                            value={item.warehouse}
-                            onChange={(e) => handleItemChange(idx, "warehouse", e.target.value)}
-                          >
-                            {Array.isArray(warehouses) && warehouses.length > 0 ? (
-                              warehouses.map(wh => (
-                                <option key={wh.id} value={wh.name}>{wh.name}</option>
-                              ))
-                            ) : (
-                              <option value="Main Warehouse">Main Warehouse</option>
-                            )}
-                          </select>
-                        </td>
-                        <td className="px-4 py-4 text-center">
                           <span className="text-xs font-bold text-slate-500">{item.quantity}</span>
                         </td>
                         <td className="px-4 py-4 text-center">
@@ -434,7 +412,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                     )})}
                     {formData.items.length === 0 && (
                       <tr>
-                        <td colSpan="7" className="px-4 py-12 text-center">
+                        <td colSpan="6" className="px-4 py-12 text-center">
                           <div className="flex flex-col items-center justify-center space-y-2 opacity-40">
                             <Package size={40} />
                             <p className="text-xs font-bold uppercase tracking-widest">No Items Added Yet</p>

@@ -449,7 +449,7 @@ const createPurchaseReceipt = async (req, res) => {
         const [grnResult] = await connection.query(
             `INSERT INTO grns (grn_number, purchase_order_id, vendor_id, posting_date, notes, status) 
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [grn_number, purchase_order_id, vendor_id, posting_date, notes || '', 'qc_pending']
+            [grn_number, purchase_order_id, vendor_id, posting_date, notes || '', 'awaiting_storage']
         );
         const grnId = grnResult.insertId;
 
@@ -459,37 +459,38 @@ const createPurchaseReceipt = async (req, res) => {
             
             if (parseFloat(received_qty) <= 0) continue;
 
+            // Internal helper to generate item code if missing
+            const generateItemCode = (name) => {
+                let typeCode = "GEN";
+                const upperName = (name || "").toUpperCase();
+                if (upperName.includes("PLATE")) typeCode = "PLT";
+                else if (upperName.includes("ROUND BAR") || upperName.includes("RB")) typeCode = "RB";
+                else if (upperName.includes("PIPE")) typeCode = "PIPE";
+
+                const sizeMatch = (name || "").match(/(\d+)x(\d+)x(\d+)/);
+                let shortSize = "SIZE";
+                if (sizeMatch) {
+                    const dims = [sizeMatch[1], sizeMatch[2], sizeMatch[3]].map(d => {
+                        const val = parseInt(d);
+                        return (val >= 100 && val % 100 === 0) ? (val / 100).toString() : val.toString();
+                    });
+                    shortSize = dims.join("x");
+                }
+                return `${typeCode}-${shortSize}`;
+            };
+
+            const finalItemCode = item.item_code || generateItemCode(material_name);
+
             // Insert GRN item
             await connection.query(
-                `INSERT INTO grn_items (grn_id, po_item_id, material_name, ordered_qty, received_qty, received_weight, rate_per_kg, unit) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [grnId, po_item_id, material_name, item.ordered_qty || 0, received_qty, item.received_weight || 0, item.rate_per_kg || 0, unit]
+                `INSERT INTO grn_items (grn_id, po_item_id, item_code, material_name, ordered_qty, received_qty, received_weight, rate_per_kg, unit) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [grnId, po_item_id, finalItemCode, material_name, item.ordered_qty || 0, received_qty, item.received_weight || 0, item.rate_per_kg || 0, unit]
             );
 
             // Generate ST numbers if requested
             if (generate_st) {
-                // ... existing logic ...
-                let itemCode = item.item_code;
-                
-                if (!itemCode) {
-                    // Fallback logic if for some reason item_code isn't sent
-                    let typeCode = "GEN";
-                    const upperName = material_name.toUpperCase();
-                    if (upperName.includes("PLATE")) typeCode = "PLT";
-                    else if (upperName.includes("ROUND BAR") || upperName.includes("RB")) typeCode = "RB";
-                    else if (upperName.includes("PIPE")) typeCode = "PIPE";
-
-                    const sizeMatch = material_name.match(/(\d+)x(\d+)x(\d+)/);
-                    let shortSize = "SIZE";
-                    if (sizeMatch) {
-                        const dims = [sizeMatch[1], sizeMatch[2], sizeMatch[3]].map(d => {
-                            const val = parseInt(d);
-                            return (val >= 100 && val % 100 === 0) ? (val / 100).toString() : val.toString();
-                        });
-                        shortSize = dims.join("x");
-                    }
-                    itemCode = `${typeCode}-${shortSize}`;
-                }
+                const itemCode = finalItemCode;
 
                 const stPrefix = `ST-${itemCode}`;
 
@@ -505,12 +506,13 @@ const createPurchaseReceipt = async (req, res) => {
                 // 4. Generate ST Numbers for each unit received
                 for (let i = 0; i < parseInt(received_qty); i++) {
                     const sequenceStr = (startSeq + i).toString().padStart(3, '0');
-                    const serial_number = `${stPrefix}-${sequenceStr}`;
+                    const itemCodePerPiece = `${itemCode}-${sequenceStr}`;
+                    const serial_number = `ST-${itemCodePerPiece}`;
                     
                     await connection.query(
-                        `INSERT INTO inventory_serials (serial_number, purchase_order_id, item_id, item_name, grn_id, status) 
-                         VALUES (?, ?, ?, ?, ?, ?)`,
-                        [serial_number, purchase_order_id, po_item_id, material_name, grnId, 'Pending']
+                        `INSERT INTO inventory_serials (serial_number, item_code, purchase_order_id, item_id, item_name, grn_id, status) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                        [serial_number, itemCodePerPiece, purchase_order_id, po_item_id, material_name, grnId, 'Pending']
                     );
                 }
             }
@@ -604,7 +606,10 @@ const getPurchaseReceiptById = async (req, res) => {
             quantity: item.ordered_qty, // compatibility
             received: item.received_qty, // compatibility
             material_code: item.material_name, // fallback
-            serials: serials.filter(s => s.item_id === item.po_item_id).map(s => s.serial_number)
+            serials: serials.filter(s => s.item_id === item.po_item_id).map(s => ({
+                ...s,
+                item_code: s.item_code // Explicitly include stored item_code
+            }))
         }));
 
         // Wrap data for frontend compatibility
@@ -643,6 +648,128 @@ const getInventorySerials = async (req, res) => {
     }
 };
 
+const addGRNToStock = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const connection = await db.getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        // 1. Get GRN details with project and vendor names
+        const [grnRows] = await connection.query(`
+            SELECT g.*, v.name as vendor_name, rc.project_name
+            FROM grns g
+            LEFT JOIN vendors v ON g.vendor_id = v.id
+            LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
+            LEFT JOIN quotations q ON po.quotation_id = q.id
+            LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+            WHERE g.id = ?
+        `, [id]);
+        if (grnRows.length === 0) throw new Error('GRN not found');
+        const grn = grnRows[0];
+
+        // 2. Get GRN items
+        const [items] = await connection.query('SELECT * FROM grn_items WHERE grn_id = ?', [id]);
+
+        // 3. Generate Stock Entry Number (STE-YYYY-XXXX)
+        const year = new Date().getFullYear();
+        const [lastEntry] = await connection.query('SELECT entry_no FROM stock_entries ORDER BY id DESC LIMIT 1');
+        let nextNum = '0001';
+        if (lastEntry.length > 0 && lastEntry[0].entry_no.startsWith(`STE-${year}`)) {
+            const lastNum = parseInt(lastEntry[0].entry_no.split('-').pop());
+            nextNum = (lastNum + 1).toString().padStart(4, '0');
+        }
+        const entry_no = `STE-${year}-${nextNum}`;
+
+        // 4. Create Stock Entry Header
+        const [entryResult] = await connection.query(
+            `INSERT INTO stock_entries (entry_no, entry_type, entry_date, remarks, grn_id, project_name, vendor_name, status) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [entry_no, 'Material Receipt', new Date().toISOString().split('T')[0], `Receipt against ${grn.grn_number}`, id, grn.project_name || null, grn.vendor_name || null, 'submitted']
+        );
+        const stockEntryId = entryResult.insertId;
+
+        // 5. Update serials status and record ledger movements
+        const [serials] = await connection.query(
+            'SELECT serial_number FROM inventory_serials WHERE grn_id = ?',
+            [id]
+        );
+
+        if (serials.length > 0) {
+            const serialNumbers = serials.map(s => s.serial_number);
+            await connection.query(
+                'UPDATE inventory_serials SET status = "Available" WHERE serial_number IN (?)',
+                [serialNumbers]
+            );
+        }
+
+        // 6. Process items for Stock Entry Items and Ledger
+        for (const item of items) {
+            // Insert Stock Entry Item
+            await connection.query(
+                `INSERT INTO stock_entry_items (stock_entry_id, item_code, item_name, quantity, uom, valuation_rate) 
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [stockEntryId, item.item_code, item.material_name, item.received_qty, item.unit || 'Nos', item.rate_per_kg || 0]
+            );
+
+            // Record Movement in Ledger (IN)
+            const [lastBalance] = await connection.query(
+                'SELECT balance_qty FROM stock_ledger WHERE item_code = ? ORDER BY id DESC LIMIT 1',
+                [item.item_code]
+            );
+            const currentBalance = (lastBalance[0]?.balance_qty || 0);
+            const newBalance = parseFloat(currentBalance) + parseFloat(item.received_qty);
+
+            const ledgerSql = `INSERT INTO stock_ledger (item_code, material_name, posting_date, posting_time, voucher_type, voucher_no, actual_qty, uom, balance_qty, project_name, vendor_name, valuation_rate, remarks) 
+                 VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            
+            const ledgerValues = [
+                item.item_code, 
+                item.material_name, 
+                new Date().toISOString().split('T')[0], 
+                'Stock Entry', 
+                entry_no, 
+                item.received_qty, 
+                item.unit || 'Nos', 
+                newBalance, 
+                grn.project_name || null, 
+                grn.vendor_name || null, 
+                item.rate_per_kg || 0, 
+                `Receipt against ${grn.grn_number}`
+            ];
+
+            await connection.query(ledgerSql, ledgerValues);
+        }
+
+        // 7. Update GRN status to 'pending' (Ready for QC)
+        await connection.query(
+            'UPDATE grns SET status = "pending" WHERE id = ?',
+            [id]
+        );
+
+        await connection.commit();
+        res.json({ message: 'Material added to stock and stock entry created successfully', entry_no });
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error adding GRN to stock:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    } finally {
+        connection.release();
+    }
+};
+
+const approveGRN = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await db.query('UPDATE grns SET status = "approved" WHERE id = ?', [id]);
+        res.json({ message: 'GRN approved successfully' });
+    } catch (error) {
+        console.error('Error approving GRN:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     getPurchaseOrders,
     getPurchaseOrderById,
@@ -658,5 +785,7 @@ module.exports = {
     createPurchaseReceipt,
     getPurchaseReceipts,
     getPurchaseReceiptById,
-    getInventorySerials
+    getInventorySerials,
+    addGRNToStock,
+    approveGRN
 };

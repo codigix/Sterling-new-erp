@@ -86,12 +86,13 @@ const MaterialInspectionPage = () => {
     setExpandedItem(null);
   };
 
-  const handleQuickStatusUpdate = async (grnId, serialNumber, status, inspectionType) => {
+  const handleQuickStatusUpdate = async (grnId, poItemId, serialNumber, status, inspectionType) => {
     // User wants common documents after all items are done, so no individual modals here
     try {
       setLoading(true);
       await axios.post("/qc/inspection/submit", {
         grn_id: grnId,
+        po_item_id: poItemId,
         inspection_type: inspectionType || "Inhouse",
         results: [
           {
@@ -112,14 +113,15 @@ const MaterialInspectionPage = () => {
     }
   };
 
-  const handleConsolidatedUpload = async (file, grnId, type) => {
+  const handleConsolidatedUpload = async (file, grnId, poItemId, type) => {
     try {
       setLoading(true);
       const formData = new FormData();
       formData.append(type === 'Accepted' ? 'accepted_doc' : 'rejected_doc', file);
       formData.append('grn_id', grnId);
+      formData.append('po_item_id', poItemId);
       formData.append('inspection_type', 'Outsource');
-      formData.append('remarks', `Consolidated ${type} items report uploaded`);
+      formData.append('remarks', `Consolidated ${type} items report uploaded for item`);
       formData.append('results', JSON.stringify([])); // Header update only
 
       await axios.post("/qc/outsource/submit-results", formData, {
@@ -131,6 +133,21 @@ const MaterialInspectionPage = () => {
     } catch (error) {
       console.error("Error uploading consolidated document:", error);
       showError("Failed to upload report");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFinalizeQC = async (grnId) => {
+    try {
+      setLoading(true);
+      await axios.post(`/qc/grn/${grnId}/finalize`);
+      showSuccess("QC Finalized successfully");
+      fetchMaterials(selectedRootCardId);
+      fetchReadyRootCards(); // Refresh the dropdown list as well
+    } catch (error) {
+      console.error("Error finalizing QC:", error);
+      showError(error.response?.data?.message || "Failed to finalize QC");
     } finally {
       setLoading(false);
     }
@@ -265,8 +282,12 @@ const MaterialInspectionPage = () => {
                               <td className="px-6 py-4 text-center text-xs font-bold text-blue-500">{item.overage || 0}</td>
                               <td className="px-6 py-4 text-right">
                                 <div className="flex items-center justify-end gap-2">
-                                  <span className="px-2 py-1 rounded text-[9px] font-black bg-purple-50 text-purple-600 uppercase tracking-widest border border-purple-100">
-                                    QC PENDING
+                                  <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest border ${
+                                    item.status === 'QC COMPLETED' 
+                                      ? 'bg-green-50 text-green-600 border-green-100' 
+                                      : 'bg-purple-50 text-purple-600 border-purple-100'
+                                  }`}>
+                                    {item.status || 'QC PENDING'}
                                   </span>
                                   {isExpanded ? <ChevronUp size={16} className="text-blue-600" /> : <ChevronDown size={16} className="text-slate-400" />}
                                 </div>
@@ -306,7 +327,7 @@ const MaterialInspectionPage = () => {
                                                   {sIdx + 1}
                                                 </td>
                                                 <td className="px-4 py-2 text-[11px] font-bold text-slate-700">
-                                                  {s.serial_number.replace('ST-', '')}
+                                                  {s.item_code || s.serial_number.replace('ST-', '')}
                                                 </td>
                                                 <td className="px-4 py-2 text-[11px] text-slate-600">
                                                   {item.material_name}
@@ -356,14 +377,14 @@ const MaterialInspectionPage = () => {
                                                     {(s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
                                                       <>
                                                         <button 
-                                                          onClick={(e) => { e.stopPropagation(); handleQuickStatusUpdate(item.grn_id, s.serial_number, 'Accepted', item.inspection_type); }}
+                                                          onClick={(e) => { e.stopPropagation(); handleQuickStatusUpdate(item.grn_id, item.po_item_id, s.serial_number, 'Accepted', item.inspection_type); }}
                                                           className="p-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-600 hover:text-white transition-all shadow-sm group/btn"
                                                           title="Accept"
                                                         >
                                                           <CheckCircle size={14} className="group-hover/btn:scale-110 transition-transform" />
                                                         </button>
                                                         <button 
-                                                          onClick={(e) => { e.stopPropagation(); handleQuickStatusUpdate(item.grn_id, s.serial_number, 'Rejected', item.inspection_type); }}
+                                                          onClick={(e) => { e.stopPropagation(); handleQuickStatusUpdate(item.grn_id, item.po_item_id, s.serial_number, 'Rejected', item.inspection_type); }}
                                                           className="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm group/btn"
                                                           title="Reject"
                                                         >
@@ -430,7 +451,7 @@ const MaterialInspectionPage = () => {
                                                             <input 
                                                               type="file" 
                                                               className="hidden" 
-                                                              onChange={(e) => handleConsolidatedUpload(e.target.files[0], item.grn_id, 'Accepted')} 
+                                                              onChange={(e) => handleConsolidatedUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted')} 
                                                             />
                                                           </label>
                                                         )}
@@ -454,7 +475,7 @@ const MaterialInspectionPage = () => {
                                                             <input 
                                                               type="file" 
                                                               className="hidden" 
-                                                              onChange={(e) => handleConsolidatedUpload(e.target.files[0], item.grn_id, 'Rejected')} 
+                                                              onChange={(e) => handleConsolidatedUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected')} 
                                                             />
                                                           </label>
                                                         )}
@@ -480,27 +501,56 @@ const MaterialInspectionPage = () => {
                                         )}
                                       </div>
                                       
-                                      <button 
-                                        onClick={() => {
-                                          const needsAcceptedDoc = item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path;
-                                          const needsRejectedDoc = item.serials?.some(s => s.inspection_status === 'Rejected') && !item.rejected_document_path;
-                                          
-                                          if (item.inspection_type === 'Outsource' && (needsAcceptedDoc || needsRejectedDoc)) {
-                                            showError("Please upload all required quality reports first");
-                                            return;
+                                      {(() => {
+                                        const allProcessed = item.serials?.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
+                                        const needsAcceptedDoc = item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path;
+                                        const needsRejectedDoc = item.serials?.some(s => s.inspection_status === 'Rejected') && !item.rejected_document_path;
+                                        const isOutsource = item.inspection_type === 'Outsource';
+                                        
+                                        const isFullyDone = allProcessed && (!isOutsource || (!needsAcceptedDoc && !needsRejectedDoc));
+
+                                        if (isFullyDone) {
+                                          if (item.grn_status === 'qc_completed') {
+                                            return (
+                                              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-200">
+                                                <CheckCircle size={14} />
+                                                QC COMPLETED
+                                              </div>
+                                            );
                                           }
-                                          navigate(`/department/quality/inspection/${item.grn_id}`);
-                                        }}
-                                        className={`px-4 py-2 rounded-xl text-xs font-black shadow-lg transition-all flex items-center gap-2 ${
-                                          (item.inspection_type === 'Outsource' && (
-                                            (item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path) || 
-                                            (item.serials?.some(s => s.inspection_status === 'Rejected') && !item.rejected_document_path)
-                                          )) ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none' : 'bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'
-                                        }`}
-                                      >
-                                        <ClipboardCheck size={14} />
-                                        RECORD QC RESULT
-                                      </button>
+                                          return (
+                                            <button 
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleFinalizeQC(item.grn_id);
+                                              }}
+                                              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl text-xs font-black shadow-lg shadow-green-200 hover:bg-green-700 transition-all"
+                                            >
+                                              <CheckCircle size={14} />
+                                              FINALIZE QC
+                                            </button>
+                                          );
+                                        }
+
+                                        return (
+                                          <button 
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (isOutsource && (needsAcceptedDoc || needsRejectedDoc)) {
+                                                showError("Please upload all required quality reports first");
+                                                return;
+                                              }
+                                              navigate(`/department/quality/inspection/${item.grn_id}`);
+                                            }}
+                                            className={`px-4 py-2 rounded-xl text-xs font-black shadow-lg transition-all flex items-center gap-2 ${
+                                              (isOutsource && (needsAcceptedDoc || needsRejectedDoc)) ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none' : 'bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'
+                                            }`}
+                                          >
+                                            <ClipboardCheck size={14} />
+                                            {allProcessed ? 'FINALIZE QC' : 'RECORD QC RESULT'}
+                                          </button>
+                                        );
+                                      })()}
                                     </div>
                                   </div>
                                 </td>

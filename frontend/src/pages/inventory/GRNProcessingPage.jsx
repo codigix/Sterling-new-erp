@@ -260,16 +260,16 @@ const GRNProcessingPage = () => {
   const handleAddToStock = async (grn) => {
     try {
       if (processingStock === grn.id) return;
-      const isShortage = grn.status === 'shortage';
 
       const result = await Swal.fire({
-        title: "Add to Warehouse?",
-        text: "This will update your physical warehouse stock levels and create a stock entry record.",
+        title: "Commit to Stock?",
+        text: "This will add items to inventory and generate unique ST numbers for tracking.",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Yes, add to stock",
         cancelButtonText: "Cancel",
-        reverseButtons: true
+        reverseButtons: true,
+        confirmButtonColor: '#059669'
       });
 
       if (result.isConfirmed) {
@@ -278,7 +278,7 @@ const GRNProcessingPage = () => {
         await axios.post(`/department/inventory/grns/${grn.id}/add-to-stock`, { status: grn.status });
         if (taskId) await taskService.autoCompleteTaskByAction(taskId, "add");
         
-        showSuccess(isShortage ? "Vendor notified and items added to warehouse stock." : "Material added to inventory successfully!");
+        showSuccess("Material committed to stock. Unique ST numbers activated.");
         fetchGRNs();
       }
     } catch (error) {
@@ -301,7 +301,7 @@ const GRNProcessingPage = () => {
     },
     {
       label: "Awaiting Storage",
-      value: grnData.filter((g) => ["approved", "shortage", "overage"].includes(g.status)).length,
+      value: grnData.filter((g) => ["approved", "shortage", "overage", "awaiting_storage"].includes(g.status)).length,
       icon: Warehouse,
       bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
       iconColor: "text-emerald-600 dark:text-emerald-400",
@@ -310,7 +310,7 @@ const GRNProcessingPage = () => {
     },
     {
       label: "Completed",
-      value: grnData.filter((g) => g.status === "completed").length,
+      value: grnData.filter((g) => ["completed", "qc_completed"].includes(g.status)).length,
       icon: CheckCircle,
       bgColor: "bg-purple-50 dark:bg-purple-900/20",
       iconColor: "text-purple-600 dark:text-purple-400",
@@ -549,12 +549,13 @@ const GRNProcessingPage = () => {
               className="px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">ALL REQUESTS</option>
-              <option value="pending">PENDING QC</option>
-              <option value="qc_pending">QC REVIEW</option>
-              <option value="approved">AWAITING STORAGE</option>
-              <option value="shortage">SHORTAGE (READY)</option>
-              <option value="overage">OVERAGE (READY)</option>
+              <option value="awaiting_storage">AWAITING STORAGE</option>
+              <option value="pending">READY FOR QC</option>
+              <option value="qc_pending">QC IN PROGRESS</option>
+              <option value="qc_completed">QC COMPLETED</option>
               <option value="completed">COMPLETED</option>
+              <option value="shortage">SHORTAGE</option>
+              <option value="overage">OVERAGE</option>
             </select>
           </div>
         </div>
@@ -584,11 +585,18 @@ const GRNProcessingPage = () => {
                     grn.status === 'pending_approval' ? 'bg-orange-50 text-orange-600 border border-orange-100' :
                     grn.status === 'pending' ? 'bg-slate-50 text-slate-600 border border-slate-100' :
                     grn.status === 'qc_pending' ? 'bg-purple-50 text-purple-600 border border-purple-100' : 
+                    grn.status === 'qc_completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                    grn.status === 'awaiting_storage' ? 'bg-cyan-50 text-cyan-600 border border-cyan-100' :
                     grn.status === 'shortage' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
                     grn.status === 'overage' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
                     'bg-cyan-50 text-cyan-600 border border-cyan-100'
                   }`}>
-                    {grn.status ? grn.status.replace('_', ' ') : 'UNKNOWN'}
+                    {grn.status === 'completed' ? 'COMPLETED' : 
+                     grn.status === 'pending' ? 'READY FOR QC' :
+                     grn.status === 'qc_pending' ? 'QC IN PROGRESS' :
+                     grn.status === 'qc_completed' ? 'QC COMPLETED' :
+                     grn.status === 'awaiting_storage' ? 'AWAITING STORAGE' :
+                     grn.status ? grn.status.replace('_', ' ') : 'UNKNOWN'}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
@@ -604,19 +612,19 @@ const GRNProcessingPage = () => {
                       <button 
                         onClick={() => handleSendToQuality(grn)}
                         disabled={sendingToQC === grn.id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-bold shadow-md shadow-purple-200 hover:bg-purple-700 disabled:opacity-50 transition-all"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white border border-indigo-700 rounded-lg text-xs font-bold shadow-md shadow-indigo-200 hover:bg-indigo-700 disabled:opacity-50 transition-all"
                       >
                         {sendingToQC === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
                         Send to Quality
                       </button>
                     )}
-                    {(grn.status === 'approved' || grn.status === 'shortage' || grn.status === 'overage') && (
+                    {grn.status === 'awaiting_storage' && (
                       <button 
                         onClick={() => handleAddToStock(grn)}
                         disabled={processingStock === grn.id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 disabled:opacity-50 transition-all"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white border border-emerald-700 rounded-lg text-xs font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 disabled:opacity-50 transition-all"
                       >
-                        {processingStock === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <Warehouse size={14} />}
+                        {processingStock === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <Package size={14} />}
                         Add to Stock
                       </button>
                     )}
@@ -637,7 +645,7 @@ const GRNProcessingPage = () => {
             <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  GRN Details - {selectedGRN.grn?.receipt_number || `GRN-${selectedGRN.grn?.id}`}
+                  GRN Details - {selectedGRN.grn?.grn_number || `GRN-${selectedGRN.grn?.id}`}
                 </h2>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Comprehensive Receipt & Inspection Report</p>
               </div>
@@ -764,7 +772,10 @@ const GRNProcessingPage = () => {
                                   <div className="space-y-0.5">
                                     <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{item.material_name}</h4>
                                     <div className="flex flex-col gap-0.5">
-                                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{item.item_group || 'No Group'}</span>
+                                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                        {item.item_code ? `${item.item_code} • ` : ''}
+                                        {item.item_group || 'No Group'}
+                                      </span>
                                       <div className="flex items-center gap-2 mt-0.5">
                                         {isExpanded ? <ChevronUp size={12} className="text-blue-500" /> : <ChevronDown size={12} className="text-slate-400" />}
                                       </div>
@@ -802,17 +813,30 @@ const GRNProcessingPage = () => {
                                           <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Item Code</th>
                                           <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Name</th>
                                           <th className="px-4 py-2 text-[8px] font-black text-indigo-400 uppercase tracking-widest">ST Code</th>
+                                          <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">QC Status</th>
                                         </tr>
                                       </thead>
                                       <tbody className="divide-y divide-slate-50">
-                                        {item.serials.map((st, sIdx) => {
-                                          const itemCode = st.startsWith('ST-') ? st.substring(3) : st;
+                                        {item.serials.map((stObj, sIdx) => {
+                                          const stCode = typeof stObj === 'string' ? stObj : stObj.serial_number;
+                                          const itemCodePerPiece = typeof stObj === 'string' ? stCode.replace('ST-', '') : (stObj.item_code || stCode.replace('ST-', ''));
+                                          const status = typeof stObj === 'string' ? 'Pending' : (stObj.inspection_status || 'Pending');
+                                          
                                           return (
                                             <tr key={sIdx} className="hover:bg-slate-50 transition-colors">
                                               <td className="px-4 py-2 text-[10px] font-bold text-slate-400 text-center">{sIdx + 1}</td>
-                                              <td className="px-4 py-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">{itemCode}</td>
+                                              <td className="px-4 py-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">{itemCodePerPiece}</td>
                                               <td className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-tight">{item.material_name}</td>
-                                              <td className="px-4 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-tight">{st}</td>
+                                              <td className="px-4 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-tight">{stCode}</td>
+                                              <td className="px-4 py-2 text-right">
+                                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter ${
+                                                  status === 'Accepted' ? 'bg-green-50 text-green-600 border border-green-100' :
+                                                  status === 'Rejected' ? 'bg-red-50 text-red-600 border border-red-100' :
+                                                  'bg-amber-50 text-amber-600 border border-amber-100'
+                                                }`}>
+                                                  {status}
+                                                </span>
+                                              </td>
                                             </tr>
                                           );
                                         })}
@@ -832,6 +856,16 @@ const GRNProcessingPage = () => {
             </div>
 
             <div className="px-6 py-4 border-t bg-slate-50 flex items-center justify-end gap-4">
+              {(selectedGRN.grn?.qcStatus === 'approved' || selectedGRN.grn?.qcStatus === 'shortage' || selectedGRN.grn?.qcStatus === 'overage') && (
+                <button 
+                  onClick={() => handleAddToStock({ id: selectedGRN.grn.id, status: selectedGRN.grn.qcStatus })}
+                  disabled={processingStock === selectedGRN.grn.id}
+                  className="flex items-center gap-1.5 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-md transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {processingStock === selectedGRN.grn.id ? <RefreshCw size={16} className="animate-spin" /> : <Warehouse size={16} />}
+                  Add to Warehouse Stock
+                </button>
+              )}
               <button 
                 onClick={() => window.print()}
                 className="flex items-center gap-1.5 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-md transition-all active:scale-95"

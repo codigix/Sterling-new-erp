@@ -14,6 +14,8 @@ const materialRequestRoutes = require('./routes/materialRequestRoutes');
 const quotationRoutes = require('./routes/quotationRoutes');
 const purchaseOrderRoutes = require('./routes/purchaseOrderRoutes');
 const qualityRoutes = require('./routes/qualityRoutes');
+const grnRoutes = require('./routes/grnRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 
 const app = express();
@@ -54,6 +56,21 @@ app.use('/api/department/inventory/quotations', quotationRoutes);
 app.use('/api/department/procurement/purchase-orders', purchaseOrderRoutes);
 app.use('/api/department/inventory/purchase-orders', purchaseOrderRoutes);
 app.use('/api/inventory/purchase-orders', purchaseOrderRoutes); // Added for PurchaseOrderDetailPage.jsx compatibility
+
+// Multi-path registration for GRNs
+app.use('/api/department/inventory/grn', grnRoutes);
+app.use('/api/department/inventory/grns', grnRoutes);
+app.use('/api/inventory/grn', grnRoutes);
+app.use('/api/inventory/grns', grnRoutes);
+app.use('/api/grn', grnRoutes);
+
+// Multi-path registration for Inventory
+app.use('/api/department/inventory/warehouses', inventoryRoutes);
+app.use('/api/department/inventory/stock-entries', inventoryRoutes);
+app.use('/api/department/inventory/materials', inventoryRoutes);
+app.use('/api/inventory/stock-entries', inventoryRoutes);
+app.use('/api/inventory/materials', inventoryRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 // Multi-path registration for Vendors
 app.use('/api/department/procurement/vendors', quotationRoutes);

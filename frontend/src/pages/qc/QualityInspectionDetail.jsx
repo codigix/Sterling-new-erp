@@ -31,7 +31,6 @@ const QualityInspectionDetail = () => {
   const [vendors, setVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState("");
   const [challanDate, setChallanDate] = useState(new Date().toISOString().split('T')[0]);
-  const [commonDoc, setCommonDoc] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -49,8 +48,11 @@ const QualityInspectionDetail = () => {
       setGrn(grnRes.data.grn);
       setItems(stRes.data.map(item => ({
         ...item,
+        acceptedDoc: item.acceptedDoc || null,
+        rejectedDoc: item.rejectedDoc || null,
         serials: item.serials.map(s => ({
           ...s,
+          item_code: s.item_code,
           tempStatus: s.inspection_status === 'Pending' ? '' : s.inspection_status,
           notes: '',
           doc: null
@@ -206,39 +208,35 @@ const QualityInspectionDetail = () => {
     }
   };
 
-  const [rejectedDoc, setRejectedDoc] = useState(null);
-
-  const handleSubmitOutsource = async () => {
+  const handleSubmitOutsource = async (targetItem) => {
     const results = [];
     let hasAccepted = false;
     let hasRejected = false;
 
-    items.forEach(item => {
-      item.serials.forEach(s => {
-        if (s.tempStatus === 'Accepted' || s.tempStatus === 'Rejected') {
-           if (s.tempStatus === 'Accepted') hasAccepted = true;
-           if (s.tempStatus === 'Rejected') hasRejected = true;
-           results.push({
-             serial_number: s.serial_number,
-             status: s.tempStatus,
-             notes: s.notes
-           });
-        }
-      });
+    targetItem.serials.forEach(s => {
+      if (s.tempStatus === 'Accepted' || s.tempStatus === 'Rejected') {
+         if (s.tempStatus === 'Accepted') hasAccepted = true;
+         if (s.tempStatus === 'Rejected') hasRejected = true;
+         results.push({
+           serial_number: s.serial_number,
+           status: s.tempStatus,
+           notes: s.notes
+         });
+      }
     });
 
     if (results.length === 0) {
-      toast.warning("No results to submit");
+      toast.warning("No results to submit for this item");
       return;
     }
 
-    if (hasAccepted && !commonDoc) {
-       toast.error("Accepted Items Report is required for outsource flow");
+    if (hasAccepted && !targetItem.acceptedDoc) {
+       toast.error("Accepted Items Report is required");
        return;
     }
 
-    if (hasRejected && !rejectedDoc) {
-       toast.error("Rejected Items Report is required for outsource flow");
+    if (hasRejected && !targetItem.rejectedDoc) {
+       toast.error("Rejected Items Report is required");
        return;
     }
 
@@ -246,13 +244,14 @@ const QualityInspectionDetail = () => {
       setLoading(true);
       const formData = new FormData();
       formData.append('grn_id', id);
-      formData.append('remarks', remarks);
+      formData.append('po_item_id', targetItem.po_item_id);
+      formData.append('remarks', remarks || "Outsource inspection results");
       
-      if (commonDoc) {
-        formData.append('accepted_doc', commonDoc);
+      if (targetItem.acceptedDoc instanceof File) {
+        formData.append('accepted_doc', targetItem.acceptedDoc);
       }
-      if (rejectedDoc) {
-        formData.append('rejected_doc', rejectedDoc);
+      if (targetItem.rejectedDoc instanceof File) {
+        formData.append('rejected_doc', targetItem.rejectedDoc);
       }
 
       formData.append('results', JSON.stringify(results));
@@ -261,11 +260,25 @@ const QualityInspectionDetail = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      toast.success("Outsource inspection completed");
+      toast.success(`Inspection completed for ${targetItem.itemName}`);
       fetchData();
     } catch (error) {
       console.error("Error submitting outsource results:", error);
       toast.error("Failed to submit outsource results");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFinalizeQC = async () => {
+    try {
+      setLoading(true);
+      await axios.post(`/qc/grn/${id}/finalize`);
+      toast.success("QC Finalized successfully");
+      navigate("/department/quality/incoming");
+    } catch (error) {
+      console.error("Error finalizing QC:", error);
+      toast.error(error.response?.data?.message || "Failed to finalize QC");
     } finally {
       setLoading(false);
     }
@@ -370,8 +383,9 @@ const QualityInspectionDetail = () => {
               </div>
 
               {expandedItems[item.itemName] && (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                <>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-slate-50/30 border-b border-slate-100 dark:border-slate-700 text-slate-400 text-[10px] font-black uppercase tracking-widest">
                         <th className="px-6 py-3 text-left">ST Number</th>
@@ -498,9 +512,77 @@ const QualityInspectionDetail = () => {
                     </tbody>
                   </table>
                 </div>
-              )}
-            </div>
-          ))}
+                
+                <div className="p-4 bg-slate-50/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                  {inspectionType === 'Outsource' ? (
+                    <div className="flex flex-wrap items-center gap-4">
+                      {/* Accepted Report */}
+                      <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.acceptedDoc ? 'bg-green-50 border-green-200' : 'bg-white dark:bg-slate-800 border-blue-200 border-dashed hover:border-blue-400'}`}>
+                        {item.acceptedDoc && !(item.acceptedDoc instanceof File) ? (
+                          <button 
+                            onClick={() => window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.acceptedDoc}`, '_blank')}
+                            className="flex items-center gap-2 text-[10px] font-black text-green-700 uppercase"
+                          >
+                            <CheckCircle size={14} /> Accepted Report
+                            <Eye size={14} className="ml-1 opacity-60" />
+                          </button>
+                        ) : (
+                          <label className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase cursor-pointer">
+                            <Upload size={14} /> {item.acceptedDoc instanceof File ? item.acceptedDoc.name : "Upload Accepted Report"}
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                setItems(prev => prev.map(it => it.itemName === item.itemName ? { ...it, acceptedDoc: file } : it));
+                              }} 
+                            />
+                          </label>
+                        )}
+                      </div>
+
+                      {/* Rejected Report */}
+                      <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.rejectedDoc ? 'bg-red-50 border-red-200' : 'bg-white dark:bg-slate-800 border-red-200 border-dashed hover:border-red-400'}`}>
+                        {item.rejectedDoc && !(item.rejectedDoc instanceof File) ? (
+                          <button 
+                            onClick={() => window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.rejectedDoc}`, '_blank')}
+                            className="flex items-center gap-2 text-[10px] font-black text-red-700 uppercase"
+                          >
+                            <XCircle size={14} /> Rejected Report
+                            <Eye size={14} className="ml-1 opacity-60" />
+                          </button>
+                        ) : (
+                          <label className="flex items-center gap-2 text-[10px] font-black text-red-600 uppercase cursor-pointer">
+                            <Upload size={14} /> {item.rejectedDoc instanceof File ? item.rejectedDoc.name : "Upload Rejected Report"}
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                setItems(prev => prev.map(it => it.itemName === item.itemName ? { ...it, rejectedDoc: file } : it));
+                              }} 
+                            />
+                          </label>
+                        )}
+                      </div>
+
+                      <button 
+                        onClick={() => handleSubmitOutsource(item)}
+                        className="px-4 py-2 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center gap-2 ml-auto"
+                      >
+                        <Save size={14} /> Complete Item Inspection
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+                      Inhouse inspection - Process each ST number above
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        ))}
         </div>
 
         <div className="space-y-6">
@@ -540,42 +622,12 @@ const QualityInspectionDetail = () => {
                   <FileText size={16} /> Create Challan
                 </button>
               </div>
-
-              <div className="w-full h-px bg-slate-100 dark:bg-slate-700 my-2"></div>
-
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Post-Inspection Uploads</h4>
-                
-                {/* Accepted Report */}
-                <div className={`p-4 rounded-2xl border-2 border-dashed transition-all ${commonDoc ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200 hover:border-blue-200'}`}>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Accepted Items Report</p>
-                   <label className="flex flex-col items-center justify-center gap-2 cursor-pointer">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${commonDoc ? 'bg-green-600 text-white' : 'bg-white text-slate-400 shadow-sm'}`}>
-                        {commonDoc ? <CheckCircle size={20} /> : <Upload size={20} />}
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-600">{commonDoc ? commonDoc.name : "Upload accepted items report"}</span>
-                      <input type="file" className="hidden" onChange={(e) => setCommonDoc(e.target.files[0])} />
-                   </label>
-                </div>
-
-                {/* Rejected Report */}
-                <div className={`p-4 rounded-2xl border-2 border-dashed transition-all ${rejectedDoc ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200 hover:border-red-200'}`}>
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Rejected Items Report</p>
-                   <label className="flex flex-col items-center justify-center gap-2 cursor-pointer">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${rejectedDoc ? 'bg-red-600 text-white' : 'bg-white text-slate-400 shadow-sm'}`}>
-                        {rejectedDoc ? <CheckCircle size={20} /> : <Upload size={20} />}
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-600">{rejectedDoc ? rejectedDoc.name : "Upload rejected items report"}</span>
-                      <input type="file" className="hidden" onChange={(e) => setRejectedDoc(e.target.files[0])} />
-                   </label>
-                </div>
-              </div>
             </div>
           )}
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm space-y-4">
             <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-              <ClipboardCheck size={16} className="text-blue-600" /> Finalize Inspection
+              <CheckCircle size={16} className="text-blue-600" /> Finalize Inspection
             </h3>
             
             <textarea 
@@ -585,13 +637,39 @@ const QualityInspectionDetail = () => {
               onChange={(e) => setRemarks(e.target.value)}
             />
 
-            <button 
-              onClick={inspectionType === 'Inhouse' ? handleSubmitInhouse : handleSubmitOutsource}
-              className="w-full py-4 bg-green-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center justify-center gap-2"
-            >
-              <Save size={18} /> 
-              {inspectionType === 'Inhouse' ? 'Submit Inhouse Results' : 'Submit Outsource Results'}
-            </button>
+            {inspectionType === 'Inhouse' && (
+              <button 
+                onClick={handleSubmitInhouse}
+                className="w-full py-4 bg-green-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+              >
+                <Save size={18} /> 
+                Submit Inhouse Results
+              </button>
+            )}
+
+            {(() => {
+              const allProcessed = items.every(item => item.serials.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected'));
+              const isOutsource = inspectionType === 'Outsource';
+              const needsAcceptedDoc = items.some(item => item.serials.some(s => s.inspection_status === 'Accepted') && !item.acceptedDoc);
+              const needsRejectedDoc = items.some(item => item.serials.some(s => s.inspection_status === 'Rejected') && !item.rejectedDoc);
+              
+              const canFinalize = allProcessed && (!isOutsource || (!needsAcceptedDoc && !needsRejectedDoc));
+              
+              if (grn?.status === 'qc_completed') return null;
+
+              return (
+                <button 
+                  onClick={handleFinalizeQC}
+                  disabled={!canFinalize}
+                  className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${
+                    canFinalize ? 'bg-emerald-600 text-white shadow-emerald-200 hover:bg-emerald-700' : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                  }`}
+                >
+                  <CheckCircle size={18} /> 
+                  Finalize Overall QC
+                </button>
+              );
+            })()}
           </div>
         </div>
       </div>

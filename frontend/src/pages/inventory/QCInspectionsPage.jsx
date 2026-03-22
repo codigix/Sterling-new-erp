@@ -17,6 +17,9 @@ import {
   X,
   Save,
   Layers,
+  Package,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import taskService from "../../utils/taskService";
 import { showSuccess, showError } from "../../utils/toastUtils";
@@ -29,6 +32,12 @@ const QCInspectionsPage = () => {
   const [inspections, setInspections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [taskId, setTaskId] = useState(null);
+
+  // Report Modal State
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportData, setReportData] = useState(null);
+  const [reportSearchQuery, setReportSearchQuery] = useState("");
+  const [expandedReportItems, setExpandedReportItems] = useState({});
 
   // Modal State
   const [showInspectModal, setShowInspectModal] = useState(false);
@@ -55,7 +64,68 @@ const QCInspectionsPage = () => {
       setInspections(response.data.grnInspections);
     } catch (error) {
       console.error("Error fetching inspections:", error);
-      toastUtils.error("Failed to load inspections");
+      showError("Failed to load inspections");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleShowReport = async (inspection) => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/qc/portal/materials-for-inspection", {
+        params: { rootCardId: inspection.rootCardId }
+      });
+      setReportData({
+        ...inspection,
+        materials: response.data.filter(m => Number(m.grn_id) === Number(inspection.dbId))
+      });
+      setExpandedReportItems({});
+      setShowReportModal(true);
+    } catch (error) {
+      console.error("Error fetching report data:", error);
+      showError("Failed to load QC report");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateReport = async () => {
+    try {
+      setLoading(true);
+      const payload = {
+        grn_id: reportData.dbId,
+        grn_number: reportData.id,
+        project_name: reportData.projectName,
+        vendor_name: reportData.vendor,
+        inspection_type: reportData.inspectionType,
+        received_date: reportData.receivedDate,
+        materials: reportData.materials.map(m => ({
+          material_id: m.material_id,
+          material_name: m.material_name,
+          item_code: m.item_code,
+          item_group: m.item_group,
+          received_qty: m.received_qty,
+          unit: m.unit,
+          accepted_qty: m.serials?.filter(s => s.inspection_status === 'Accepted').length || 0,
+          rejected_qty: m.serials?.filter(s => s.inspection_status === 'Rejected').length || 0,
+          accepted_report: m.common_document_path,
+          rejected_report: m.rejected_document_path,
+          st_numbers: m.serials?.map(s => ({
+            st_code: s.serial_number,
+            item_code: s.item_code,
+            status: s.inspection_status?.toUpperCase()
+          })) || []
+        }))
+      };
+
+      await axios.post("/qc/reports/create", payload);
+      showSuccess("QC Report created and saved successfully");
+      setShowReportModal(false);
+      fetchInspections(); // Refresh the list
+    } catch (error) {
+      console.error("Error creating report:", error);
+      showError("Failed to create QC report");
     } finally {
       setLoading(false);
     }
@@ -99,7 +169,7 @@ const QCInspectionsPage = () => {
       const targetGRN = grnRes.data;
 
       if (!targetGRN) {
-        toastUtils.error("GRN details not found");
+        showError("GRN details not found");
         return;
       }
 
@@ -294,12 +364,12 @@ const QCInspectionsPage = () => {
         await taskService.autoCompleteTaskByAction(taskId, "save");
       }
 
-      toastUtils.success("Inspection saved successfully");
+      showSuccess("Inspection saved successfully");
       setShowInspectModal(false);
       fetchInspections();
     } catch (error) {
       console.error("Error saving inspection:", error);
-      toastUtils.error("Failed to save inspection");
+      showError("Failed to save inspection");
     }
   };
 
@@ -374,6 +444,7 @@ const QCInspectionsPage = () => {
             className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
           >
             <option value="all">All Status</option>
+            <option value="completed">Completed</option>
             <option value="passed">Approved</option>
             <option value="shortage">Shortage</option>
             <option value="overage">Overage</option>
@@ -450,14 +521,13 @@ const QCInspectionsPage = () => {
                     </td>
                     <td className="p-2 text-sm">
                       <span
-                        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(
+                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(
                           inspection.qcStatus
                         )}`}
                       >
-                        {inspection.qcStatus === "passed" ||
-                        inspection.qcStatus === "approved"
-                          ? "Approved"
-                          : inspection.qcStatus === "completed"
+                        {inspection.qcStatus === "completed"
+                          ? "QC Completed"
+                          : inspection.qcStatus === "passed" || inspection.qcStatus === "approved"
                           ? "Approved"
                           : inspection.qcStatus.replace('_', ' ')}
                       </span>
@@ -473,12 +543,22 @@ const QCInspectionsPage = () => {
                       </select>
                     </td>
                     <td className="p-2 text-center text-sm">
-                      <button
-                        onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${inspection.rootCardId}`)}
-                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shadow-blue-200"
-                      >
-                        Do Inspection
-                      </button>
+                      {inspection.qcStatus === 'completed' ? (
+                        <button
+                          onClick={() => handleShowReport(inspection)}
+                          className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shadow-emerald-200 flex items-center gap-2 mx-auto"
+                        >
+                          <FileText size={14} />
+                          QC Report
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${inspection.rootCardId}`)}
+                          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shadow-blue-200"
+                        >
+                          Do Inspection
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -487,6 +567,248 @@ const QCInspectionsPage = () => {
           </table>
         </div>
       </div>
+
+      {/* QC Report Modal */}
+      {showReportModal && reportData && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+                  <FileText size={24} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                    QC Inspection Report: {reportData.id}
+                  </h2>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Project: <span className="text-slate-600 dark:text-slate-300">{reportData.projectName}</span>
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Vendor: <span className="text-slate-600 dark:text-slate-300">{reportData.vendor}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowReportModal(false)} 
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+              >
+                <X size={24} className="text-slate-400" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-8 overflow-y-auto space-y-8">
+              {/* Materials Summary Table */}
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Layers size={14} /> Inspected Materials Detail Tracking
+                  </h3>
+                  
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                    <input
+                      type="text"
+                      placeholder="Search Material or ST Number..."
+                      value={reportSearchQuery}
+                      onChange={(e) => setReportSearchQuery(e.target.value)}
+                      className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Material & ST Numbers</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Received Qty</th>
+                        <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Summary Status</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Reports</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                      {reportData.materials?.filter(item => 
+                        item.material_name.toLowerCase().includes(reportSearchQuery.toLowerCase()) ||
+                        item.item_group.toLowerCase().includes(reportSearchQuery.toLowerCase()) ||
+                        item.serials?.some(s => s.serial_number.toLowerCase().includes(reportSearchQuery.toLowerCase()))
+                      ).map((item, idx) => {
+                        const acceptedCount = item.serials?.filter(s => s.inspection_status === 'Accepted').length || 0;
+                        const rejectedCount = item.serials?.filter(s => s.inspection_status === 'Rejected').length || 0;
+                        const isExpanded = expandedReportItems[idx];
+                        
+                        return (
+                          <React.Fragment key={idx}>
+                            <tr 
+                              className={`hover:bg-slate-50/30 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/10' : ''}`}
+                              onClick={() => setExpandedReportItems(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                            >
+                              <td className="px-6 py-5">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600'}`}>
+                                    <Package size={16} />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                                      {item.material_name}
+                                      {isExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
+                                    </p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.item_group}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-5 text-center">
+                                <span className="text-sm font-black text-slate-700 dark:text-slate-300">
+                                  {item.received_qty} {item.unit}
+                                </span>
+                              </td>
+                              <td className="px-4 py-5">
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="flex gap-2">
+                                    {acceptedCount > 0 && (
+                                      <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded text-[9px] font-black uppercase border border-green-100">
+                                        {acceptedCount} Passed
+                                      </span>
+                                    )}
+                                    {rejectedCount > 0 && (
+                                      <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-[9px] font-black uppercase border border-red-100">
+                                        {rejectedCount} Failed
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-5">
+                                <div className="flex flex-col items-end gap-2">
+                                  {item.common_document_path && (
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.common_document_path}`, '_blank');
+                                      }}
+                                      className="flex items-center gap-2 text-[9px] font-black text-green-600 uppercase hover:text-green-700 transition-colors"
+                                    >
+                                      <CheckCircle size={12} /> Accepted <Eye size={12} />
+                                    </button>
+                                  )}
+                                  {item.rejected_document_path && (
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.rejected_document_path}`, '_blank');
+                                      }}
+                                      className="flex items-center gap-2 text-[9px] font-black text-red-600 uppercase hover:text-red-700 transition-colors"
+                                    >
+                                      <AlertTriangle size={12} /> Rejected <Eye size={12} />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                            
+                            {isExpanded && (
+                              <tr>
+                                <td colSpan="4" className="px-8 py-4 bg-slate-50/50 dark:bg-slate-800/20">
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                    {item.serials?.map((s, sIdx) => (
+                                      <div 
+                                        key={sIdx}
+                                        className={`p-3 rounded-xl border flex flex-col gap-1.5 transition-all ${
+                                          s.inspection_status === 'Accepted' 
+                                            ? 'bg-white dark:bg-slate-900 border-green-100 dark:border-green-900/30' 
+                                            : 'bg-white dark:bg-slate-900 border-red-100 dark:border-red-900/30'
+                                        }`}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">ST Number</span>
+                                          <span className={`w-2 h-2 rounded-full ${s.inspection_status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                        </div>
+                                        <p className="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase truncate" title={s.serial_number}>
+                                          {s.serial_number}
+                                        </p>
+                                        <div className={`mt-1 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter w-fit ${
+                                          s.inspection_status === 'Accepted' 
+                                            ? 'bg-green-50 text-green-600' 
+                                            : 'bg-red-50 text-red-600'
+                                        }`}>
+                                          {s.inspection_status}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* General Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-4">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Search size={14} /> Inspection Details
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">Inspection Type</p>
+                      <p className="text-xs font-black text-slate-700 dark:text-slate-200 uppercase">{reportData.inspectionType}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">Received Date</p>
+                      <p className="text-xs font-black text-slate-700 dark:text-slate-200 uppercase">{reportData.receivedDate}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Summary Status</h4>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                      <CheckCircle size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Quality Passed</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">All criteria met for production release</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end gap-4">
+              <button 
+                onClick={() => setShowReportModal(false)}
+                className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm"
+              >
+                Close Report
+              </button>
+              <button 
+                onClick={handleCreateReport}
+                disabled={loading}
+                className="px-8 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2"
+              >
+                <Plus size={14} /> Create Final Report
+              </button>
+              <button 
+                onClick={() => window.print()}
+                className="px-8 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+              >
+                <Download size={14} /> Export PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Inspect Modal */}
       {showInspectModal && selectedGRN && (

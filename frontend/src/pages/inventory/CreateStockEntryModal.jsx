@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { X, Package, Calendar, Trash2, Plus, LayoutGrid, Warehouse, ClipboardList, Info } from "lucide-react";
+import { X, Package, Calendar, Trash2, Plus, LayoutGrid, ClipboardList, Info, Zap, ShieldCheck, User } from "lucide-react";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
 
 const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
   const [loading, setLoading] = useState(false);
-  const [warehouses, setWarehouses] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [grns, setGrns] = useState([]);
   
@@ -15,8 +14,8 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
     grn_id: "",
     entry_date: new Date().toISOString().split('T')[0],
     entry_type: "Material Receipt",
-    from_warehouse: "",
-    to_warehouse: "",
+    project_name: "",
+    vendor_name: "",
     remarks: "",
     items: []
   });
@@ -35,12 +34,10 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [whRes, matRes, grnRes] = await Promise.all([
-          axios.get("/department/inventory/warehouses"),
-          axios.get("/department/inventory/materials"),
-          axios.get("/department/inventory/grns?status=completed") // Or whatever status is relevant
+        const [matRes, grnRes] = await Promise.all([
+          axios.get("/inventory/materials"),
+          axios.get("/inventory/grns?status=awaiting_storage")
         ]);
-        setWarehouses(whRes.data || []);
         setMaterials(matRes.data.materials || matRes.data || []);
         setGrns(grnRes.data.grns || grnRes.data || []);
       } catch (error) {
@@ -53,6 +50,17 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (name === "grn_id" && value) {
+      const selectedGrn = grns.find(g => g.id === parseInt(value));
+      if (selectedGrn) {
+        setFormData(prev => ({
+          ...prev,
+          project_name: selectedGrn.project_name || "",
+          vendor_name: selectedGrn.vendor_name || "",
+        }));
+      }
+    }
   };
 
   const handleCurrentItemChange = (e) => {
@@ -120,7 +128,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
         status: isDraft ? 'draft' : 'submitted'
       };
       
-      await axios.post("/department/inventory/stock-entries", payload);
+      await axios.post("/inventory/stock-entries", payload);
       
       toastUtils.success(`Stock Entry ${isDraft ? 'Saved' : 'Created'} Successfully`);
       if (onEntryCreated) onEntryCreated();
@@ -136,258 +144,287 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] w-full max-w-5xl shadow-2xl overflow-hidden my-8 border border-slate-200 dark:border-slate-700">
         {/* Header */}
-        <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              <Package className="text-blue-600" size={28} />
-              Create Stock Entry
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
-              Record material movements between warehouses or adjust stock levels.
-            </p>
+        <div className="px-10 py-8 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
+              <Package size={30} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                Create Stock Entry
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
+                Record material receipts and issues with project context
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
-            <X size={24} className="text-slate-500" />
+          <button onClick={onClose} className="p-3 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-2xl transition-all group">
+            <X size={24} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
           </button>
         </div>
 
-        <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto">
-          {/* Step 1: Basic Information */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">1</div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Basic Information</h3>
-            </div>
+        <div className="p-10 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
+          {/* Section 1: Transaction Metadata */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="space-y-6 lg:col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reference GRN (Optional)</label>
+                  <div className="relative">
+                    <ClipboardList className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <select 
+                      name="grn_id"
+                      value={formData.grn_id}
+                      onChange={handleInputChange}
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-sm"
+                    >
+                      <option value="">MANUAL ENTRY</option>
+                      {grns.map(grn => (
+                        <option key={grn.id} value={grn.id}>{grn.grn_number} - {grn.vendor_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-1">
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">SELECT GRN REQUEST (OPTIONAL)</label>
-                <select 
-                  name="grn_id"
-                  value={formData.grn_id}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                >
-                  <option value="">-- Manual Entry --</option>
-                  {grns.map(grn => (
-                    <option key={grn.id} value={grn.id}>{grn.grn_number}</option>
-                  ))}
-                </select>
-                <p className="text-[10px] text-slate-400 mt-1 ml-1">Available GRNs: {grns.length} | Processed: 0</p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider text-xs">ENTRY DATE *</label>
-                <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input 
-                    type="date"
-                    name="entry_date"
-                    value={formData.entry_date}
-                    onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Entry Date</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                      type="date"
+                      name="entry_date"
+                      value={formData.entry_date}
+                      onChange={handleInputChange}
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-sm"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider text-xs">ENTRY TYPE *</label>
-                <select 
-                  name="entry_type"
-                  value={formData.entry_type}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  <option value="Material Receipt">Material Receipt</option>
-                  <option value="Material Issue">Material Issue</option>
-                  <option value="Material Transfer">Material Transfer</option>
-                </select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Project Allocation</label>
+                  <div className="relative">
+                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                      type="text"
+                      name="project_name"
+                      placeholder="e.g. Project-2024-X"
+                      value={formData.project_name}
+                      onChange={handleInputChange}
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-sm uppercase"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Supplier / Vendor</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                      type="text"
+                      name="vendor_name"
+                      placeholder="Supplier Name"
+                      value={formData.vendor_name}
+                      onChange={handleInputChange}
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-sm uppercase"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider text-xs">FROM WAREHOUSE</label>
-                <select 
-                  name="from_warehouse"
-                  value={formData.from_warehouse}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  <option value="">Select Source Warehouse</option>
-                  {warehouses.map(wh => (
-                    <option key={wh.id} value={wh.name}>{wh.name}</option>
-                  ))}
-                </select>
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-3xl border border-indigo-100 dark:border-indigo-800/50 space-y-4">
+              <div className="flex items-center gap-3 mb-2">
+                <Zap className="text-indigo-600" size={20} />
+                <h4 className="text-xs font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest">Entry Type</h4>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider text-xs">TO WAREHOUSE</label>
-                <select 
-                  name="to_warehouse"
-                  value={formData.to_warehouse}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  <option value="">Select Destination Warehouse</option>
-                  {warehouses.map(wh => (
-                    <option key={wh.id} value={wh.name}>{wh.name}</option>
-                  ))}
-                </select>
+              <div className="space-y-3">
+                {["Material Receipt", "Material Issue", "Stock Adjustment"].map((type) => (
+                  <label key={type} className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
+                    formData.entry_type === type 
+                      ? 'bg-white border-indigo-500 shadow-sm ring-1 ring-indigo-500' 
+                      : 'bg-indigo-100/30 border-transparent hover:border-indigo-200'
+                  }`}>
+                    <span className="text-xs font-black uppercase tracking-tight text-indigo-900 dark:text-indigo-300">{type}</span>
+                    <input 
+                      type="radio" 
+                      name="entry_type" 
+                      value={type}
+                      checked={formData.entry_type === type}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                    />
+                  </label>
+                ))}
               </div>
             </div>
           </div>
 
-          <hr className="border-slate-100 dark:border-slate-700" />
+          <div className="h-px bg-slate-100 dark:bg-slate-700" />
 
-          {/* Step 2: Add Items */}
+          {/* Section 2: Material Selection */}
           <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">2</div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Add Items</h3>
-            </div>
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+              <LayoutGrid size={14} /> Line Items Selection
+            </h3>
 
-            <div className="bg-slate-50/50 dark:bg-slate-900/30 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 ml-1 tracking-wider text-xs">ITEM CODE *</label>
+            <div className="bg-slate-50/50 dark:bg-slate-900/30 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-700 space-y-6 shadow-inner">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-5 space-y-2">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Material</label>
                   <select 
                     name="material_id"
                     value={currentItem.material_id}
                     onChange={handleCurrentItemChange}
-                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                    className="w-full px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-bold shadow-sm"
                   >
-                    <option value="">Select Item</option>
+                    <option value="">SEARCH MATERIAL...</option>
                     {materials.map(mat => (
                       <option key={mat.id} value={mat.id}>{mat.item_code} - {mat.item_name}</option>
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 ml-1 tracking-wider text-xs">QUANTITY *</label>
+
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Quantity</label>
                   <input 
                     type="number"
                     name="quantity"
                     value={currentItem.quantity}
                     onChange={handleCurrentItemChange}
-                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                    className="w-full px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-black shadow-sm"
                   />
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 ml-1 tracking-wider text-xs">UOM</label>
+
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit (UOM)</label>
                   <input 
                     type="text"
                     name="uom"
                     value={currentItem.uom}
                     readOnly
-                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium"
+                    className="w-full px-5 py-3 bg-slate-100 dark:bg-slate-700 border border-transparent rounded-2xl text-xs font-black text-slate-500 uppercase tracking-widest outline-none shadow-sm"
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 ml-1 tracking-wider text-xs">BATCH NO</label>
-                  <input 
-                    type="text"
-                    name="batch_no"
-                    placeholder="Optional"
-                    value={currentItem.batch_no}
-                    onChange={handleCurrentItemChange}
-                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 ml-1 tracking-wider text-xs">VALUATION RATE (₹)</label>
+
+                <div className="lg:col-span-3 space-y-2">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Rate (₹)</label>
                   <input 
                     type="number"
                     name="valuation_rate"
                     value={currentItem.valuation_rate}
                     onChange={handleCurrentItemChange}
-                    className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                    className="w-full px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-black shadow-sm"
                   />
                 </div>
+              </div>
+
+              <div className="flex justify-end">
                 <button 
                   onClick={addItem}
-                  className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-colors font-bold text-sm h-[40px] flex items-center justify-center gap-2"
+                  className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-3 active:scale-95"
                 >
-                  Add Item
+                  <Plus size={16} /> Add to Transaction
                 </button>
               </div>
             </div>
 
-            {/* Added Items Table */}
-            {formData.items.length > 0 && (
-              <div className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+            {/* Added Items List */}
+            {formData.items.length > 0 ? (
+              <div className="overflow-hidden rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700">
                     <tr>
-                      <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase">Item</th>
-                      <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase">Qty</th>
-                      <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase">Rate</th>
-                      <th className="px-4 py-3 text-right text-[10px] font-bold text-slate-500 uppercase tracking-tight">Total</th>
-                      <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase">Action</th>
+                      <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Material Identity</th>
+                      <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Quantity</th>
+                      <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Unit Rate</th>
+                      <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Aggregate</th>
+                      <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                  <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                     {formData.items.map((item) => (
-                      <tr key={item.id} className="text-sm">
-                        <td className="px-4 py-3">
-                          <p className="font-bold text-slate-900 dark:text-white text-xs">{item.item_code}</p>
-                          <p className="text-xs text-slate-500">{item.item_name}</p>
+                      <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td className="px-8 py-5">
+                          <div className="space-y-0.5">
+                            <p className="text-xs font-black text-indigo-600 font-mono tracking-tight uppercase">{item.item_code}</p>
+                            <p className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tight line-clamp-1">{item.item_name}</p>
+                          </div>
                         </td>
-                        <td className="px-4 py-3 text-center font-bold text-xs">{item.quantity} {item.uom}</td>
-                        <td className="px-4 py-3 text-center text-xs">₹{item.valuation_rate}</td>
-                        <td className="px-4 py-3 text-right font-bold text-xs">₹{(item.quantity * item.valuation_rate).toLocaleString()}</td>
-                        <td className="px-4 py-3 text-center">
-                          <button onClick={() => removeItem(item.id)} className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
-                            <Trash2 size={16} />
+                        <td className="px-6 py-5 text-center">
+                          <span className="text-sm font-black text-slate-900 dark:text-white">{item.quantity}</span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase ml-1.5">{item.uom}</span>
+                        </td>
+                        <td className="px-6 py-5 text-center font-bold text-slate-500 text-xs">₹{parseFloat(item.valuation_rate).toLocaleString()}</td>
+                        <td className="px-6 py-5 text-right font-black text-slate-900 dark:text-white text-xs">₹{(item.quantity * item.valuation_rate).toLocaleString()}</td>
+                        <td className="px-8 py-5 text-right">
+                          <button onClick={() => removeItem(item.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all">
+                            <Trash2 size={18} />
                           </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
+                  <tfoot className="bg-indigo-50/30 dark:bg-indigo-900/10 border-t border-slate-100 dark:border-slate-800">
+                    <tr>
+                      <td colSpan="3" className="px-8 py-4 text-[10px] font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-widest text-right">Transaction Grand Total:</td>
+                      <td className="px-6 py-4 text-sm font-black text-indigo-600 text-right">
+                        ₹{formData.items.reduce((sum, item) => sum + (item.quantity * item.valuation_rate), 0).toLocaleString()}
+                      </td>
+                      <td className="px-8 py-4"></td>
+                    </tr>
+                  </tfoot>
                 </table>
+              </div>
+            ) : (
+              <div className="py-16 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-700">
+                <div className="flex flex-col items-center gap-4 text-slate-300">
+                  <Info size={48} className="opacity-20" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em]">No materials added to this entry</p>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="space-y-4">
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">REMARKS</label>
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Internal Remarks & Notes</label>
             <textarea 
               name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
-              placeholder="Additional notes..."
+              placeholder="Record any details about this movement..."
               rows="3"
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-sm"
             ></textarea>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
+        <div className="px-10 py-8 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
           <button 
             onClick={onClose}
-            className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="px-8 py-4 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-black text-[10px] uppercase tracking-widest transition-all"
           >
-            Cancel
+            Cancel Transaction
           </button>
           <div className="flex gap-4">
             <button 
               onClick={() => handleSubmit(true)}
               disabled={loading}
-              className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 rounded-xl font-bold hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm"
             >
               Save as Draft
             </button>
             <button 
               onClick={() => handleSubmit(false)}
               disabled={loading}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all transform active:scale-95 shadow-lg shadow-blue-500/20"
+              className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
             >
-              {loading ? "Processing..." : "Create Entry"}
+              {loading ? "PROCESSING..." : "Commit Entry"}
             </button>
           </div>
         </div>
