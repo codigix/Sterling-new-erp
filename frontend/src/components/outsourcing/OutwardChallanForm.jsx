@@ -186,14 +186,14 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-400 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4 text-red-700 dark:text-red-400 flex items-center gap-2">
+          <AlertCircle className="w-3 h-3 flex-shrink-0" />
           {error}
         </div>
       )}
 
       {success && (
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-green-700 dark:text-green-400">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-4 text-green-700 dark:text-green-400">
           {success}
         </div>
       )}
@@ -205,7 +205,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
         <select
           value={formData.vendorId}
           onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
-          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           disabled={loading}
           required
         >
@@ -232,7 +232,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
             type="date"
             value={formData.materialSentDate}
             onChange={(e) => setFormData({ ...formData, materialSentDate: e.target.value })}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             disabled={loading}
           />
         </div>
@@ -246,7 +246,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
             required
             value={formData.expectedReturnDate}
             onChange={(e) => setFormData({ ...formData, expectedReturnDate: e.target.value })}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             disabled={loading}
           />
         </div>
@@ -259,7 +259,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
         <textarea
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           rows="2"
           disabled={loading}
         />
@@ -271,7 +271,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
           <button
             type="button"
             onClick={handleAddMaterialRow}
-            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-1 transition-colors"
+            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium flex items-center gap-1 transition-colors"
             disabled={loading}
           >
             <Plus className="w-4 h-4" /> Add Material
@@ -279,8 +279,8 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
         </div>
 
         {selectedItems.length === 0 ? (
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-yellow-800 dark:text-yellow-200">
-            <AlertCircle className="w-5 h-5 inline mr-2" />
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-4 text-yellow-800 dark:text-yellow-200">
+            <AlertCircle className="w-3 h-3 inline mr-2" />
             No materials selected. Click "Add Material" to add material rows.
           </div>
         ) : (
@@ -288,7 +288,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
             {selectedItems.map((item, index) => (
               <div
                 key={index}
-                className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50 dark:bg-slate-800"
+                className="border border-slate-200 dark:border-slate-700 rounded p-4 bg-slate-50 dark:bg-slate-800"
               >
                 {item.materialId === null ? (
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
@@ -304,7 +304,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                             handleSelectMaterial(index, material);
                           }
                         }}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 font-medium"
+                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 font-medium"
                         disabled={loading}
                       >
                         <option value="">Select material...</option>
@@ -326,7 +326,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         step="any"
                         value={item.quantity}
                         onChange={(e) => handleUpdateItem(index, 'quantity', parseFloat(e.target.value))}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-bold"
+                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm font-bold"
                         disabled={loading}
                       />
                     </div>
@@ -339,7 +339,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         type="text"
                         readOnly
                         value={item.unit}
-                        className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-500"
+                        className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm font-medium text-slate-500"
                         disabled={loading}
                       />
                     </div>
@@ -353,7 +353,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         placeholder="Optional remarks"
                         value={item.remarks}
                         onChange={(e) => handleUpdateItem(index, 'remarks', e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm"
+                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm"
                         disabled={loading}
                       />
                     </div>
@@ -362,10 +362,10 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                       <button
                         type="button"
                         onClick={() => handleRemoveMaterial(index)}
-                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                         disabled={loading}
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </div>
@@ -379,7 +379,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
 
                     <div className="md:col-span-2">
                       <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 text-center">Released</p>
-                      <div className="bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-800 text-center">
+                      <div className="bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1.5 rounded border border-indigo-100 dark:border-indigo-800 text-center">
                         <span className="text-sm font-black text-indigo-700 dark:text-indigo-300">
                           {item.availableQuantity} {item.unit}
                         </span>
@@ -397,7 +397,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         value={item.quantity}
                         placeholder="0.00"
                         onChange={(e) => handleUpdateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-black text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm font-black text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                         disabled={loading}
                       />
                     </div>
@@ -411,7 +411,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         placeholder="Add internal notes..."
                         value={item.remarks}
                         onChange={(e) => handleUpdateItem(index, 'remarks', e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
                         disabled={loading}
                       />
                     </div>
@@ -420,11 +420,11 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                       <button
                         type="button"
                         onClick={() => handleRemoveMaterial(index)}
-                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                         disabled={loading}
                         title="Remove material"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </div>
@@ -442,10 +442,10 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
           className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase tracking-widest text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2 group"
         >
           {loading ? (
-            <Loader className="w-5 h-5 animate-spin" />
+            <Loader className="w-3 h-3 animate-spin" />
           ) : (
             <>
-              <CheckCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <CheckCircle className="w-3 h-3 group-hover:scale-110 transition-transform" />
               Create Outward Challan
             </>
           )}

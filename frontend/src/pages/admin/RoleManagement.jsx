@@ -341,7 +341,7 @@ const RoleManagement = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg p-4 border border-blue-100 dark:border-blue-800 shadow-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded p-4 border border-blue-100 dark:border-blue-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
@@ -357,7 +357,7 @@ const RoleManagement = () => {
           </div>
         </div>
 
-        <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg p-4 border border-green-100 dark:border-green-800 shadow-sm">
+        <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded p-4 border border-green-100 dark:border-green-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
@@ -373,7 +373,7 @@ const RoleManagement = () => {
           </div>
         </div>
 
-        <div className="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 rounded-lg p-4 border border-cyan-100 dark:border-cyan-800 shadow-sm">
+        <div className="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 rounded p-4 border border-cyan-100 dark:border-cyan-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
@@ -389,7 +389,7 @@ const RoleManagement = () => {
           </div>
         </div>
 
-        <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg p-4 border border-amber-100 dark:border-amber-800 shadow-sm">
+        <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded p-4 border border-amber-100 dark:border-amber-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
@@ -426,16 +426,16 @@ const RoleManagement = () => {
 
       {/* Success Message */}
       {success && (
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 flex items-center gap-3">
-          <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-3 flex items-center gap-3">
+          <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-green-800 dark:text-green-300">{success}</p>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-3 flex items-center gap-3">
+          <AlertCircle className="w-3 h-3 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
         </div>
       )}
@@ -461,7 +461,7 @@ const RoleManagement = () => {
             onClick={closeModal}
           ></div>
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-lg w-full">
+            <div className="bg-white dark:bg-slate-800 rounded shadow-xl max-w-lg w-full">
               <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="text-md font-semibold dark:text-white">
                   {editingRole ? 'Edit Role' : 'Create New Role'}
@@ -470,7 +470,7 @@ const RoleManagement = () => {
                   onClick={closeModal}
                   className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-3 h-3" />
                 </button>
               </div>
 

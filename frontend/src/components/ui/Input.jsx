@@ -18,7 +18,7 @@ const Input = ({
   };
 
   const inputClasses = `
-  w-full border border-slate-200 rounded-lg bg-white text-slate-900 mb-3 text-xs placeholder-slate-500
+  w-full border border-slate-200 rounded bg-white text-slate-900 mb-3 text-xs placeholder-slate-500
   focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500
   transition-colors duration-200
     ${sizeClasses[size]}

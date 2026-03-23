@@ -330,7 +330,7 @@ const GRNProcessingPage = () => {
     if (!poData) return null;
 
     return (
-      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex items-center justify-between">
           <button 
             onClick={() => navigate('/department/inventory/purchase-orders')}
@@ -383,7 +383,7 @@ const GRNProcessingPage = () => {
                   <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-20">UOM</th>
                   <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">Rate/Kg</th>
                   <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">Weight (Kg)</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">Received</th>
+                  <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">Received</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -423,7 +423,7 @@ const GRNProcessingPage = () => {
                             step="any"
                             value={item.received_qty}
                             onChange={(e) => handleItemChange(idx, 'received_qty', e.target.value)}
-                            className="w-full px-4 py-2 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-xl text-sm font-black text-center text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            className="w-full p-2 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-xl text-sm font-black text-center text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                           />
                         </div>
                       </td>
@@ -445,7 +445,7 @@ const GRNProcessingPage = () => {
                   onChange={(e) => setGrnForm({...grnForm, notes: e.target.value})}
                   rows={2}
                   placeholder="Any discrepancies or damage reports..."
-                  className="w-full px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                  className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
                 />
               </div>
               <button 
@@ -467,7 +467,7 @@ const GRNProcessingPage = () => {
     return (
       <div className={`relative overflow-hidden rounded-xl border p-5 transition-all duration-300 hover:shadow-md ${stat.bgColor} ${stat.borderColor}`}>
         <div className="flex justify-between items-start mb-4">
-          <div className={`p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm ${stat.iconColor}`}>
+          <div className={`p-2 rounded bg-white dark:bg-slate-800 shadow-sm ${stat.iconColor}`}>
             <Icon size={20} />
           </div>
         </div>
@@ -494,7 +494,7 @@ const GRNProcessingPage = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {poId ? (
         <GRNCreationUI />
       ) : (
@@ -530,13 +530,13 @@ const GRNProcessingPage = () => {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-wrap gap-4">
+        <div className="p-2 border-b border-slate-100 flex items-center justify-between flex-wrap gap-4">
           <div className="flex-1 max-w-md relative">
             <Search className="absolute left-3 top-2.5 text-slate-400" size={18} />
             <input 
               type="text"
               placeholder="Search GRN, PO or Supplier..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -546,7 +546,7 @@ const GRNProcessingPage = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 bg-slate-50 border border-slate-100 rounded text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">ALL REQUESTS</option>
               <option value="awaiting_storage">AWAITING STORAGE</option>
@@ -573,14 +573,14 @@ const GRNProcessingPage = () => {
           <tbody className="divide-y divide-slate-100 text-sm">
             {filteredData.map((grn) => (
               <tr key={grn.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-6 py-4">
+                <td className="p-2">
                   <span className="font-bold text-slate-900">{grn.grnNo}</span>
                   <p className="text-[10px] text-slate-500">PO: {grn.poNo}</p>
                 </td>
-                <td className="px-6 py-4 font-medium">{grn.vendor}</td>
-                <td className="px-6 py-4 text-center text-xs">{grn.receivedDate}</td>
-                <td className="px-6 py-4 text-center">
-                  <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                <td className="p-2 font-medium">{grn.vendor}</td>
+                <td className="p-2 text-center text-xs">{grn.receivedDate}</td>
+                <td className="p-2 text-center">
+                  <span className={`px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
                     grn.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
                     grn.status === 'pending_approval' ? 'bg-orange-50 text-orange-600 border border-orange-100' :
                     grn.status === 'pending' ? 'bg-slate-50 text-slate-600 border border-slate-100' :
@@ -599,11 +599,11 @@ const GRNProcessingPage = () => {
                      grn.status ? grn.status.replace('_', ' ') : 'UNKNOWN'}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="p-2 text-right">
                   <div className="flex justify-end gap-2">
                     <button 
                       onClick={() => handleViewGRN(grn)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-xs font-bold hover:bg-blue-100 transition-all"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-xs font-bold hover:bg-blue-100 transition-all"
                     >
                       <Eye size={14} />
                       Details
@@ -612,7 +612,7 @@ const GRNProcessingPage = () => {
                       <button 
                         onClick={() => handleSendToQuality(grn)}
                         disabled={sendingToQC === grn.id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white border border-indigo-700 rounded-lg text-xs font-bold shadow-md shadow-indigo-200 hover:bg-indigo-700 disabled:opacity-50 transition-all"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white border border-indigo-700 rounded text-xs font-bold shadow-md shadow-indigo-200 hover:bg-indigo-700 disabled:opacity-50 transition-all"
                       >
                         {sendingToQC === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
                         Send to Quality
@@ -622,7 +622,7 @@ const GRNProcessingPage = () => {
                       <button 
                         onClick={() => handleAddToStock(grn)}
                         disabled={processingStock === grn.id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white border border-emerald-700 rounded-lg text-xs font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 disabled:opacity-50 transition-all"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white border border-emerald-700 rounded text-xs font-bold shadow-md shadow-emerald-200 hover:bg-emerald-700 disabled:opacity-50 transition-all"
                       >
                         {processingStock === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <Package size={14} />}
                         Add to Stock
@@ -642,14 +642,14 @@ const GRNProcessingPage = () => {
       {showViewModal && selectedGRN && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
+            <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   GRN Details - {selectedGRN.grn?.grn_number || `GRN-${selectedGRN.grn?.id}`}
                 </h2>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Comprehensive Receipt & Inspection Report</p>
               </div>
-              <button onClick={() => { setShowViewModal(false); setExpandedItem(null); }} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+              <button onClick={() => { setShowViewModal(false); setExpandedItem(null); }} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
                 <X size={20} className="text-slate-400" />
               </button>
             </div>
@@ -766,7 +766,7 @@ const GRNProcessingPage = () => {
                             >
                               <td className="px-4 py-4">
                                 <div className="flex items-center gap-3">
-                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`}>
+                                  <div className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`}>
                                     <Package size={16} />
                                   </div>
                                   <div className="space-y-0.5">
@@ -809,11 +809,11 @@ const GRNProcessingPage = () => {
                                     <table className="w-full text-left border-collapse">
                                       <thead>
                                         <tr className="bg-slate-50 border-b border-slate-100">
-                                          <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">#</th>
-                                          <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Item Code</th>
-                                          <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Name</th>
-                                          <th className="px-4 py-2 text-[8px] font-black text-indigo-400 uppercase tracking-widest">ST Code</th>
-                                          <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">QC Status</th>
+                                          <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">#</th>
+                                          <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Item Code</th>
+                                          <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Name</th>
+                                          <th className="p-2 text-[8px] font-black text-indigo-400 uppercase tracking-widest">ST Code</th>
+                                          <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">QC Status</th>
                                         </tr>
                                       </thead>
                                       <tbody className="divide-y divide-slate-50">
@@ -824,11 +824,11 @@ const GRNProcessingPage = () => {
                                           
                                           return (
                                             <tr key={sIdx} className="hover:bg-slate-50 transition-colors">
-                                              <td className="px-4 py-2 text-[10px] font-bold text-slate-400 text-center">{sIdx + 1}</td>
-                                              <td className="px-4 py-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">{itemCodePerPiece}</td>
-                                              <td className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-tight">{item.material_name}</td>
-                                              <td className="px-4 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-tight">{stCode}</td>
-                                              <td className="px-4 py-2 text-right">
+                                              <td className="p-2 text-[10px] font-bold text-slate-400 text-center">{sIdx + 1}</td>
+                                              <td className="p-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">{itemCodePerPiece}</td>
+                                              <td className="p-2 text-[10px] font-bold text-slate-600 uppercase tracking-tight">{item.material_name}</td>
+                                              <td className="p-2 text-[10px] font-black text-indigo-600 uppercase tracking-tight">{stCode}</td>
+                                              <td className="p-2 text-right">
                                                 <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter ${
                                                   status === 'Accepted' ? 'bg-green-50 text-green-600 border border-green-100' :
                                                   status === 'Rejected' ? 'bg-red-50 text-red-600 border border-red-100' :
@@ -855,7 +855,7 @@ const GRNProcessingPage = () => {
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t bg-slate-50 flex items-center justify-end gap-4">
+            <div className="p-2 border-t bg-slate-50 flex items-center justify-end gap-4">
               {(selectedGRN.grn?.qcStatus === 'approved' || selectedGRN.grn?.qcStatus === 'shortage' || selectedGRN.grn?.qcStatus === 'overage') && (
                 <button 
                   onClick={() => handleAddToStock({ id: selectedGRN.grn.id, status: selectedGRN.grn.qcStatus })}

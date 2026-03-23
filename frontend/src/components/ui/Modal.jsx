@@ -57,7 +57,7 @@ const Modal = ({
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-all duration-200 ml-4"
+              className="text-slate-400 hover:text-white p-2 rounded  text-xshover:bg-white/10 transition-all duration-200 ml-4"
               aria-label="Close modal"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

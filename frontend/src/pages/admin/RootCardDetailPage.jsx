@@ -60,11 +60,11 @@ const RootCardDetailPage = () => {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded p-4">
           <p className="text-red-700 dark:text-red-300">{error}</p>
           <button
             onClick={() => navigate('/admin/root-cards')}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            className="mt-4 p-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             Back to Root Cards
           </button>
@@ -76,11 +76,11 @@ const RootCardDetailPage = () => {
   if (!rootCard) {
     return (
       <div className="p-6">
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:yellow-700 rounded-lg p-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:yellow-700 rounded p-4">
           <p className="text-yellow-700 dark:text-yellow-300">Root card not found</p>
           <button
             onClick={() => navigate('/admin/root-cards')}
-            className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+            className="mt-4 p-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
             Back to Root Cards
           </button>

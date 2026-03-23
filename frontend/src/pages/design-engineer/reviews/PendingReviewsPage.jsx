@@ -89,7 +89,7 @@ const PendingReviewsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
           Pending Reviews
@@ -100,7 +100,7 @@ const PendingReviewsPage = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4">
           <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
@@ -110,7 +110,7 @@ const PendingReviewsPage = () => {
           reviews.map((review) => (
             <div
               key={review.id}
-              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow"
+              className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6  transition-shadow"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -145,14 +145,14 @@ const PendingReviewsPage = () => {
               </div>
 
               <div className="flex gap-3">
-                <button className="flex-1 px-4 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
+                <button className="flex-1 p-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
                   <MessageSquare size={18} />
                   View Comments
                 </button>
                 <button 
                   onClick={() => handleApprove(review.id)}
                   disabled={actionLoading === review.id}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center text-xs justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 p-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center text-xs justify-center gap-2 disabled:opacity-50"
                 >
                   {actionLoading === review.id ? (
                     <Loader2 size={18} className="animate-spin" />
@@ -165,7 +165,7 @@ const PendingReviewsPage = () => {
             </div>
           ))
         ) : (
-          <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
+          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-12 text-center">
             <Clock size={48} className="mx-auto text-slate-300 mb-4" />
             <p className="text-slate-500 dark:text-slate-400">No designs pending review</p>
           </div>

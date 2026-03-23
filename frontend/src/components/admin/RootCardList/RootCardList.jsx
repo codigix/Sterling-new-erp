@@ -179,22 +179,22 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
       sortable: true,
       render: (value, row) => {
         const statusColors = {
-          pending: 'bg-slate-100 text-slate-900 border-slate-300',
-          RC_CREATED: 'bg-slate-100 text-slate-900 border-slate-300',
-          DESIGN_IN_PROGRESS: 'bg-blue-50 text-blue-700 border-blue-200',
-          DESIGN_APPROVED: 'bg-green-50 text-green-700 border-green-200',
-          BOM_PREPARATION: 'bg-purple-50 text-purple-700 border-purple-200',
-          PROCUREMENT_IN_PROGRESS: 'bg-orange-50 text-orange-700 border-orange-200',
-          MATERIAL_RECEIVED: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-          MATERIAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-          MATERIAL_QC_APPROVED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-          PRODUCTION_IN_PROGRESS: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-          DIMENSIONAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-          DIMENSIONAL_QC_APPROVED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-          PAINTING_IN_PROGRESS: 'bg-pink-50 text-pink-700 border-pink-200',
-          FINAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-          FINAL_QC_APPROVED: 'bg-green-50 text-green-700 border-green-200',
-          READY_FOR_DELIVERY: 'bg-teal-50 text-teal-700 border-teal-200',
+          pending: ' text-slate-900 border-slate-300',
+          RC_CREATED: ' text-slate-900 border-slate-300',
+          DESIGN_IN_PROGRESS: ' text-blue-700 border-blue-200',
+          DESIGN_APPROVED: ' text-green-700 border-green-200',
+          BOM_PREPARATION: ' text-purple-700 border-purple-200',
+          PROCUREMENT_IN_PROGRESS: ' text-orange-700 border-orange-200',
+          MATERIAL_RECEIVED: ' text-cyan-700 border-cyan-200',
+          MATERIAL_QC_PENDING: ' text-yellow-700 border-yellow-200',
+          MATERIAL_QC_APPROVED: ' text-emerald-700 border-emerald-200',
+          PRODUCTION_IN_PROGRESS: ' text-indigo-700 border-indigo-200',
+          DIMENSIONAL_QC_PENDING: ' text-yellow-700 border-yellow-200',
+          DIMENSIONAL_QC_APPROVED: ' text-emerald-700 border-emerald-200',
+          PAINTING_IN_PROGRESS: ' text-pink-700 border-pink-200',
+          FINAL_QC_PENDING: ' text-yellow-700 border-yellow-200',
+          FINAL_QC_APPROVED: ' text-green-700 border-green-200',
+          READY_FOR_DELIVERY: ' text-teal-700 border-teal-200',
         };
 
         const colorClass = statusColors[value] || statusColors.RC_CREATED;
@@ -202,19 +202,19 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
         if (!isAdmin) {
           const level = STATUS_LEVELS.find(l => l.value === (value || 'RC_CREATED'));
           return (
-            <span className={`px-2 py-1 rounded text-xxs font-bold border ${colorClass}`}>
+            <span className={` rounded text-xxs ${colorClass}`}>
               {level ? level.label : (value || 'Created')}
             </span>
           );
         }
 
         return (
-          <div className={`px-2 py-0.5 rounded border ${colorClass}`}>
+          <div className={` ${colorClass}`}>
             <select
               value={value || 'RC_CREATED'}
               onChange={(e) => handleStatusChange(row.id, e.target.value)}
               disabled={updatingStatus === row.id}
-              className="bg-transparent text-xxs font-bold focus:outline-none cursor-pointer disabled:opacity-50 w-full appearance-none outline-none border-none py-0.5"
+              className=" text-xxs  focus:outline-none cursor-pointer disabled:opacity-50 w-full appearance-none outline-none border-none py-0.5"
               style={{ color: 'inherit' }}
             >
               {STATUS_LEVELS.map((level) => (
@@ -304,58 +304,86 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
     },
   ];
 
+  const getStatusCount = (statusValue) => {
+    if (statusValue === 'all') return rootCards.length;
+    return rootCards.filter(rc => rc.status === statusValue).length;
+  };
+
+  const tabs = [
+    { value: 'all', label: 'All Root Cards', icon: <Filter className="w-3.5 h-3.5" /> },
+    { value: 'RC_CREATED', label: 'Created', icon: <Plus className="w-3.5 h-3.5" /> },
+    { value: 'DESIGN_IN_PROGRESS', label: 'In Design', icon: <Edit2 className="w-3.5 h-3.5" /> },
+    { value: 'PRODUCTION_IN_PROGRESS', label: 'In Production', icon: <Send className="w-3.5 h-3.5" /> },
+    { value: 'READY_FOR_DELIVERY', label: 'Ready', icon: <CheckCircle2 className="w-3.5 h-3.5" /> }
+  ];
+
   return (
     <div className="w-full space-y-4 p-4">
       {/* Header Section */}
-      <div className="flex items-center text-xs justify-between">
+      <div className="flex items-center text-xs justify-between mb-2">
         <div>
-          <h1 className="text-xl font-bold  text-left">
+          <h1 className="text-2xl  text-slate-900 dark:text-white text-left tracking-tight">
             Root Cards
           </h1>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 text-left">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-left">
             Manage and track all root cards
           </p>
         </div>
         {isAdmin && (
           <Button
             onClick={onCreateNew}
-            className="flex items-center text-xs gap-1 text-sm px-3 py-2 h-auto"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all h-10 px-4"
           >
-            <Plus className="w-3 h-3" />
-            New Root Card
+            <Plus className="w-4 h-4" />
+            <span className="font-semibold">New Root Card</span>
           </Button>
         )}
       </div>
 
-      {/* Filter Pills */}
-      <div className="flex items-center text-xs gap-2">
-        <Filter className="w-3 h-3 text-slate-500 flex-shrink-0" />
-        <div className="flex gap-1 flex-wrap">
-          {[
-            { value: 'all', label: 'All Root Cards' },
-            { value: 'RC_CREATED', label: 'Created' },
-            { value: 'DESIGN_IN_PROGRESS', label: 'In Design' },
-            { value: 'PRODUCTION_IN_PROGRESS', label: 'In Production' },
-            { value: 'READY_FOR_DELIVERY', label: 'Ready' }
-          ].map((status) => (
-            <button
-              key={status.value}
-              onClick={() => setFilter(status.value)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                filter === status.value
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
-              }`}
-            >
-              {status.label}
-            </button>
-          ))}
+      {/* Modern Redesigned Tabs */}
+      <div className="border-b border-slate-200 dark:border-slate-700 mb-6">
+        <div className="flex gap-8 overflow-x-auto no-scrollbar">
+          {tabs.map((tab) => {
+            const isActive = filter === tab.value;
+            const count = getStatusCount(tab.value);
+            
+            return (
+              <button
+                key={tab.value}
+                onClick={() => setFilter(tab.value)}
+                className={`flex items-center gap-2 py-3 px-1 relative transition-all duration-200 group whitespace-nowrap ${
+                  isActive 
+                    ? 'text-blue-600 font-semibold' 
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                }`}
+              >
+                <span className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'}`}>
+                  {tab.icon}
+                </span>
+                <span className="text-sm">{tab.label}</span>
+                {count > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full transition-colors duration-200 ${
+                    isActive 
+                      ? 'bg-blue-100 text-blue-600 ' 
+                      : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
+                  }`}>
+                    {count}
+                  </span>
+                )}
+                
+                {/* Active Underline Indicator */}
+                <div className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300 ${
+                  isActive ? 'bg-blue-600 scale-x-100' : 'bg-transparent scale-x-0 group-hover:bg-slate-300 group-hover:scale-x-50'
+                }`} />
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* DataTable */}
-      <Card shadow="md" padding="none" className="bg-white dark:border-slate-700 overflow-hidden">
-        <CardContent className="p-0 min-h-[400px] flex flex-col">
+      <Card shadow="md" padding="none" className=" dark:border-slate-700 overflow-hidden">
+        <CardContent className="p-0  flex flex-col">
           {loading ? (
             <div className="flex-1 flex flex-col items-center justify-center py-20 space-y-4">
               <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />

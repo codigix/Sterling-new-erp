@@ -202,11 +202,11 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
+        <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             Create GRN Request
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
             <X size={20} className="text-slate-400" />
           </button>
         </div>
@@ -214,10 +214,10 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
           <div className="flex flex-col md:flex-row h-full">
             {/* Left Sidebar Info */}
-            <div className="w-full md:w-80 bg-slate-50/50 dark:bg-slate-800/30 p-6 border-r border-slate-100 dark:border-slate-800 space-y-6">
+            <div className="w-full md:w-80 bg-slate-50/50 dark:bg-slate-800/30 p-6 border-r border-slate-100 dark:border-slate-800 space-y-2">
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-blue-600">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded bg-blue-100 flex items-center justify-center">
                     <Package size={18} />
                   </div>
                   <span className="text-xs font-bold uppercase tracking-wider">Receipt Context</span>
@@ -228,14 +228,14 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1"># GRN Number</label>
                     <input 
                       disabled 
-                      className="w-full px-3 py-2 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-500"
+                      className="w-full px-3 py-2 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-500"
                       value={`GRN-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`}
                     />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Purchase Order</label>
                     <select
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                       value={formData.po_id || ""}
                       onChange={(e) => handlePOChange(e.target.value)}
                     >
@@ -250,7 +250,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                     <div className="relative">
                       <input 
                         type="date"
-                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                         value={formData.receipt_date}
                         onChange={(e) => setFormData({ ...formData, receipt_date: e.target.value })}
                       />
@@ -263,7 +263,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
               {formData.root_card_project_name && (
                 <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
                   <div className="flex items-center gap-2 text-indigo-600">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded bg-indigo-100 flex items-center justify-center">
                       <LayoutGrid size={18} />
                     </div>
                     <span className="text-xs font-bold uppercase tracking-wider">Project Context</span>
@@ -279,12 +279,12 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
 
               <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
                 <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                     <User size={18} />
                   </div>
                   <span className="text-xs font-bold uppercase tracking-wider">Supplier Info</span>
                 </div>
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                <div className="border-slate-100 dark:border-slate-700 shadow-sm">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selected Supplier</p>
                     <h4 className="text-xs font-bold text-slate-900 dark:text-white">{formData.vendor_name}</h4>
                     <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider">ID: {formData.vendor_id ? `SUP-${formData.vendor_id}` : 'N/A'}</p>
@@ -293,13 +293,13 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
 
               <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 mb-4">
-                   <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                   <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                     <Truck size={18} />
                   </div>
                   <span className="text-xs font-bold uppercase tracking-wider">Transporter Notes</span>
                 </div>
                 <textarea 
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
                   placeholder="Vehicle number, driver details etc..."
                   value={formData.transporter_notes}
                   onChange={(e) => setFormData({ ...formData, transporter_notes: e.target.value })}
@@ -322,7 +322,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                 <button 
                   type="button"
                   onClick={handleAddLineItem}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-blue-100 transition-all active:scale-95 border border-blue-100 dark:border-blue-800"
+                  className="flex items-center gap-1.5 p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-blue-100 transition-all active:scale-95 border border-blue-100 dark:border-blue-800"
                 >
                   <Plus size={16} /> Add Line Item
                 </button>
@@ -362,7 +362,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                             </div>
                           ) : (
                             <select 
-                              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                               value={item.material_id || ""}
                               onChange={(e) => handleItemSelect(idx, e.target.value)}
                             >
@@ -380,7 +380,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                           <input 
                             type="number"
                             step="any"
-                            className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-black text-blue-600 text-center outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-black text-blue-600 text-center outline-none focus:ring-2 focus:ring-blue-500"
                             value={item.received_quantity}
                             onChange={(e) => handleItemChange(idx, "received_quantity", e.target.value)}
                           />
@@ -389,7 +389,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                            <input 
                             type="number"
                             step="any"
-                            className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-500 text-center outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-bold text-slate-500 text-center outline-none focus:ring-2 focus:ring-blue-500"
                             value={item.rate}
                             onChange={(e) => handleItemChange(idx, "rate", e.target.value)}
                           />
@@ -403,7 +403,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                           <button 
                             type="button"
                             onClick={() => handleRemoveItem(idx)}
-                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -427,7 +427,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col md:flex-row items-center justify-between gap-4 sticky bottom-0 z-20">
+          <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col md:flex-row items-center justify-between gap-4 sticky bottom-0 z-20">
             <div className="flex items-center gap-12">
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Quantity</span>

@@ -168,7 +168,7 @@ const MyTasksPage = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-2">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
             My Tasks
@@ -185,7 +185,7 @@ const MyTasksPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -197,7 +197,7 @@ const MyTasksPage = () => {
         </div>
         <button
           onClick={fetchTasks}
-          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-400 transition"
+          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400 transition"
           title="Refresh tasks"
         >
           <RefreshCw size={20} />
@@ -205,7 +205,7 @@ const MyTasksPage = () => {
       </div>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
         </div>
       )}
@@ -215,7 +215,7 @@ const MyTasksPage = () => {
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`px-4 py-2 rounded-lg transition-colors capitalize ${
+            className={`p-2 rounded transition-colors capitalize ${
               filter === status
                 ? "bg-blue-600 text-white"
                 : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"
@@ -228,7 +228,7 @@ const MyTasksPage = () => {
 
       <div className="space-y-4">
         {filteredTasks.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+          <div className="text-center py-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
             <Clock className="w-12 h-12 text-slate-400 mx-auto mb-3" />
             <p className="text-slate-600 dark:text-slate-400">
               No tasks found for this filter
@@ -238,7 +238,7 @@ const MyTasksPage = () => {
           filteredTasks.map((task) => (
             <div
               key={task.id}
-              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6  transition-shadow cursor-pointer"
               onClick={() => navigate(getTaskNavigationUrl(task))}
             >
               <div className="flex items-start justify-between mb-4">

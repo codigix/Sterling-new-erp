@@ -154,7 +154,7 @@ const QCManagerDashboard = () => {
       roleName="QC Manager"
       roleIcon={CheckCircle}
     >
-      <div className="space-y-6">
+      <div className="space-y-2">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat) => {
@@ -162,7 +162,7 @@ const QCManagerDashboard = () => {
             return (
               <div
                 key={stat.title}
-                className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow"
+                className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700  transition-shadow"
               >
                 <div className="flex items-center text-xs justify-between">
                   <div>
@@ -188,7 +188,7 @@ const QCManagerDashboard = () => {
         </div>
 
         {/* Assigned Root Cards (Quality Check) */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs flex items-center gap-2">
               <Clock size={20} className="text-blue-600" />
@@ -211,7 +211,7 @@ const QCManagerDashboard = () => {
               {departmentTasks.slice(0, 6).map((task) => (
                 <div
                   key={task.id}
-                  className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
+                  className="border border-slate-200 dark:border-slate-700 rounded p-4 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
@@ -247,7 +247,7 @@ const QCManagerDashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
+            <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-700">
               <Package className="mx-auto text-slate-300 mb-2" size={40} />
               <p className="text-slate-500 dark:text-slate-400 font-medium">
                 No active quality check tasks assigned.
@@ -257,7 +257,7 @@ const QCManagerDashboard = () => {
         </div>
 
         {/* QC Metrics */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
             Quality Metrics (This Month)
           </h2>
@@ -284,14 +284,14 @@ const QCManagerDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
             Quick Actions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               to="/qc-manager/qc/pending"
-              className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
+              className="p-4 bg-blue-50 dark:bg-blue-900 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
             >
               <Clock
                 size={24}
@@ -303,7 +303,7 @@ const QCManagerDashboard = () => {
             </Link>
             <Link
               to="/qc-manager/grn/list"
-              className="p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
+              className="p-4 bg-green-50 dark:bg-green-900 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
             >
               <CheckCircle
                 size={24}
@@ -315,7 +315,7 @@ const QCManagerDashboard = () => {
             </Link>
             <Link
               to="/qc-manager/testing/results"
-              className="p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
+              className="p-4 bg-purple-50 dark:bg-purple-900 rounded hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
             >
               <TrendingUp
                 size={24}
@@ -327,7 +327,7 @@ const QCManagerDashboard = () => {
             </Link>
             <Link
               to="/qc-manager/ncr/list"
-              className="p-4 bg-red-50 dark:bg-red-900 rounded-lg hover:bg-red-100 dark:hover:bg-red-800 transition-colors"
+              className="p-4 bg-red-50 dark:bg-red-900 rounded hover:bg-red-100 dark:hover:bg-red-800 transition-colors"
             >
               <AlertCircle
                 size={24}

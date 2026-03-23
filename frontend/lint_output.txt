@@ -292,7 +292,7 @@ Components created during render will reset their state each time they are creat
   167 |
 > 168 |   const DashboardContent = () => (
       |                            ^^^^^^^
-> 169 |     <div className="space-y-6">
+> 169 |     <div className="space-y-2">
       | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > 170 |       {/* Stats Grid */}
       …
@@ -320,7 +320,7 @@ Components created during render will reset their state each time they are creat
   167 |
 > 168 |   const DashboardContent = () => (
       |                            ^^^^^^^
-> 169 |     <div className="space-y-6">
+> 169 |     <div className="space-y-2">
       | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > 170 |       {/* Stats Grid */}
       …

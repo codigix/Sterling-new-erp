@@ -389,7 +389,7 @@ const ProjectDetailViewPage = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center">
               <FileText className="text-white" size={24} />
             </div>
             <div>
@@ -429,7 +429,7 @@ const ProjectDetailViewPage = () => {
                     {tasks.map((task) => (
                       <div
                         key={task.id}
-                        className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700"
+                        className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700"
                       >
                         <div className="flex items-center gap-3 flex-1">
                           <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-100 dark:bg-blue-900">
@@ -452,7 +452,7 @@ const ProjectDetailViewPage = () => {
                           onChange={(e) =>
                             handleTaskStatusUpdate(task.id, e.target.value)
                           }
-                          className="px-3 py-1 text-xs border border-slate-200 dark:border-slate-700 rounded-lg dark:bg-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="px-3 py-1 text-xs border border-slate-200 dark:border-slate-700 rounded dark:bg-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                           <option value="planning">Planning</option>
                           <option value="in_progress">In Progress</option>
@@ -467,7 +467,7 @@ const ProjectDetailViewPage = () => {
             )}
 
             {/* Form */}
-            <div className="space-y-6 pb-32">
+            <div className="space-y-2 pb-32">
               {/* Basic Information */}
               <Card>
                 <CardHeader>
@@ -618,7 +618,7 @@ const ProjectDetailViewPage = () => {
                     Materials Required for Production
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <MultiSelect
@@ -815,7 +815,7 @@ const ProjectDetailViewPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div
-                    className={`border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 rounded-lg p-8 text-center hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition ${
+                    className={`border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 rounded p-8 text-center hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition ${
                       editMode
                         ? "cursor-pointer"
                         : "opacity-60 cursor-not-allowed"
@@ -859,7 +859,7 @@ const ProjectDetailViewPage = () => {
                         {uploadedFiles.references.map((file, idx) => (
                           <div
                             key={idx}
-                            className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-3 rounded-lg hover:shadow-sm transition"
+                            className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-3 rounded hover:shadow-sm transition"
                           >
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               <File
@@ -912,7 +912,7 @@ const ProjectDetailViewPage = () => {
                       placeholder="Detailed technical specifications and design features"
                       rows="3"
                       readOnly={!editMode}
-                      className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
+                      className={`w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
                         !editMode
                           ? "bg-slate-100 opacity-60 cursor-not-allowed"
                           : ""
@@ -934,7 +934,7 @@ const ProjectDetailViewPage = () => {
                       placeholder="Special instructions for fabrication, assembly, and testing"
                       rows="3"
                       readOnly={!editMode}
-                      className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
+                      className={`w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
                         !editMode
                           ? "bg-slate-100 opacity-60 cursor-not-allowed"
                           : ""
@@ -953,7 +953,7 @@ const ProjectDetailViewPage = () => {
                       placeholder="QC checkpoints, safety standards, and testing requirements"
                       rows="3"
                       readOnly={!editMode}
-                      className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
+                      className={`w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
                         !editMode
                           ? "bg-slate-100 opacity-60 cursor-not-allowed"
                           : ""
@@ -972,7 +972,7 @@ const ProjectDetailViewPage = () => {
                       placeholder="Any additional information or special requirements"
                       rows="3"
                       readOnly={!editMode}
-                      className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
+                      className={`w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
                         !editMode
                           ? "bg-slate-100 opacity-60 cursor-not-allowed"
                           : ""
@@ -983,7 +983,7 @@ const ProjectDetailViewPage = () => {
               </Card>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-slate-800 p-4 rounded-lg shadow-lg">
+              <div className="flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-slate-800 p-4 rounded shadow-lg">
                 <Button
                   onClick={() => navigate("/design-engineer/project-details")}
                   variant="secondary"

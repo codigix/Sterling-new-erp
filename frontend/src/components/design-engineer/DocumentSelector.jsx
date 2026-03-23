@@ -319,7 +319,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
         <p className="text-gray-600">{description}</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-white rounded shadow-md p-6 mb-8">
         <label className="block text-sm font-medium text-gray-700 mb-3">
           Select Root Card *
         </label>
@@ -327,7 +327,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
           value={selectedRootCard?.id || ''}
           onChange={(e) => handleRootCardSelect(e.target.value)}
           disabled={loading}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+          className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
         >
           <option value="">-- Choose a Root Card --</option>
           {rootCards.map((card) => {
@@ -345,13 +345,13 @@ const DocumentSelector = ({ documentType, title, description }) => {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-700">
+        <div className="bg-red-50 border border-red-200 rounded p-4 mb-6 text-red-700">
           {error}
         </div>
       )}
 
       {selectedRootCard && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
           <p className="text-sm text-blue-900">
             <strong>Selected Root Card:</strong> {selectedRootCard.poNumber} - {selectedRootCard.projectName}
           </p>
@@ -359,8 +359,8 @@ const DocumentSelector = ({ documentType, title, description }) => {
       )}
 
       {selectedRootCard && documents.length > 0 ? (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div className="bg-white rounded shadow-md overflow-hidden">
+          <div className="p-2 border-b border-gray-200 bg-gray-50">
             <h2 className="text-lg font-semibold text-gray-900">
               {documentType === 'raw-designs' ? 'Raw Design Drawings' : 'Required Documents'} ({documents.length})
             </h2>
@@ -385,28 +385,28 @@ const DocumentSelector = ({ documentType, title, description }) => {
                   
                   return (
                     <tr key={doc.id || index} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="flex items-center">
                           <FileText className="w-4 h-4 text-gray-400 mr-2" />
                           <span className="text-sm text-gray-900 break-words">{fileName}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="p-2 text-sm text-gray-600">
                         {fileFormat}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="p-2 text-sm text-gray-600">
                         {formatFileSize(doc.size)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="p-2 text-sm text-gray-600">
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 text-gray-400 mr-2" />
                           {formatDate(doc.created_at || doc.uploadedAt)}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="p-2 text-sm">
                         {getStatusBadge(doc.status)}
                       </td>
-                      <td className="px-6 py-4 text-sm space-x-2 flex flex-wrap gap-2">
+                      <td className="p-2 text-sm space-x-2 flex flex-wrap gap-2">
                         <button
                           onClick={() => handleDownload(doc)}
                           className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-xs"
@@ -432,20 +432,20 @@ const DocumentSelector = ({ documentType, title, description }) => {
           </div>
         </div>
       ) : selectedRootCard && documents.length === 0 ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+        <div className="bg-gray-50 border border-gray-200 rounded p-8 text-center">
           <FileCode className="w-12 h-12 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-700">
             No {documentType === 'raw-designs' ? 'design drawings' : 'documents'} found for this root card.
           </p>
         </div>
       ) : !selectedRootCard && rootCards.length > 0 ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+        <div className="bg-gray-50 border border-gray-200 rounded p-8 text-center">
           <p className="text-gray-700">
             Select a root card to view {documentType === 'raw-designs' ? 'design drawings' : 'documents'}.
           </p>
         </div>
       ) : !loading && rootCards.length === 0 ? (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+        <div className="bg-yellow-50 border border-yellow-200 rounded p-8 text-center">
           <p className="text-yellow-800">
             No root cards assigned to you yet.
           </p>
@@ -454,7 +454,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
 
       {modalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded shadow-lg p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
                 {modalAction === 'approve' ? '✓ Approve' : '✗ Reject'} Document
@@ -475,7 +475,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
                 value={modalComments}
                 onChange={(e) => setModalComments(e.target.value)}
                 placeholder="Enter any comments about this action..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={4}
               />
             </div>
@@ -483,14 +483,14 @@ const DocumentSelector = ({ documentType, title, description }) => {
             <div className="flex gap-3">
               <button
                 onClick={() => setModalOpen(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 p-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmAction}
                 disabled={actioningId === modalDocId}
-                className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors ${
+                className={`flex-1 p-2 rounded text-white transition-colors ${
                   modalAction === 'approve'
                     ? 'bg-green-600 hover:bg-green-700'
                     : 'bg-red-600 hover:bg-red-700'
@@ -505,7 +505,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
 
       {viewerOpen && viewerFile && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white rounded shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{viewerFile.name}</h3>
@@ -602,7 +602,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
             <div className="flex gap-3 flex-wrap">
               <button
                 onClick={cleanupBlob}
-                className="flex-1 min-w-max px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 min-w-max p-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Close
               </button>
@@ -611,7 +611,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
                   handleDownload(viewerFile);
                   cleanupBlob();
                 }}
-                className="flex-1 min-w-max px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center justify-center gap-2"
+                className="flex-1 min-w-max p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors inline-flex items-center justify-center gap-2"
               >
                 <Download className="w-4 h-4" />
                 Download
@@ -622,7 +622,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
                     handleApproveClick(viewerDocId);
                     cleanupBlob();
                   }}
-                  className="flex-1 min-w-max px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors inline-flex items-center justify-center gap-2"
+                  className="flex-1 min-w-max p-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors inline-flex items-center justify-center gap-2"
                 >
                   <CheckCircle className="w-4 h-4" />
                   Approve
@@ -634,7 +634,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
                     handleRejectClick(viewerDocId);
                     cleanupBlob();
                   }}
-                  className="flex-1 min-w-max px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors inline-flex items-center justify-center gap-2"
+                  className="flex-1 min-w-max p-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors inline-flex items-center justify-center gap-2"
                 >
                   <XCircle className="w-4 h-4" />
                   Reject

@@ -331,7 +331,7 @@ const ViewBOMsPage = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50/50 min-h-screen">
+    <div className="p-6 space-y-2 bg-slate-50/50 min-h-screen">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-slate-900">
@@ -445,7 +445,7 @@ const ViewBOMsPage = () => {
       )}
 
       {error && (
-        <div className="flex items-center gap-3 p-4 rounded-lg bg-red-50 border border-red-200">
+        <div className="flex items-center gap-3 p-4 rounded bg-red-50 border border-red-200">
           <AlertCircle size={20} className="text-red-600" />
           <p className="text-sm font-medium text-red-800">{error}</p>
         </div>

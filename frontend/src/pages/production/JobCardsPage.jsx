@@ -297,7 +297,7 @@ const JobCardsPage = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-4">
-            <div className="p-2 bg-blue-600 rounded-lg text-white shadow-lg shadow-blue-200">
+            <div className="p-2 bg-blue-600 rounded text-white shadow-lg shadow-blue-200">
               <ClipboardList size={24} />
             </div>
             <div>
@@ -320,13 +320,13 @@ const JobCardsPage = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium">
+            <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors text-sm font-medium">
               <Trash2 size={16} />
               Reset Queue
             </button>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white font-bold hover:bg-black transition-all text-sm shadow-sm"
+              className="inline-flex items-center gap-2 p-2 rounded text-xs bg-slate-900 text-white font-bold hover:bg-black transition-all text-sm shadow-sm"
             >
               <Plus size={18} />
               Create Job Card
@@ -404,7 +404,7 @@ const JobCardsPage = () => {
             />
           </div>
           <div className="flex items-center gap-3">
-            <div className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center gap-3">
+            <div className="p-2.5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center gap-3">
               <Filter size={16} className="text-slate-400" />
               <select
                 className="bg-transparent text-sm font-bold text-slate-700 outline-none min-w-[150px]"
@@ -423,7 +423,7 @@ const JobCardsPage = () => {
         {/* Job Cards Table */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-12 items-center px-6 py-4 bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider gap-2">
+            <div className="grid grid-cols-12 items-center p-2 bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider gap-2">
               <div className="col-span-1">Job Card ID</div>
               <div className="col-span-2">Operation</div>
               <div className="col-span-1 whitespace-normal">Status</div>
@@ -536,7 +536,7 @@ const JobCardsPage = () => {
                       {/* Actions */}
                       <div className="col-span-2 flex items-center justify-end gap-1 px-2">
                         <button
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all"
                           title="View Details"
                           onClick={() => {
                             setSelectedOperationForDetails(op);
@@ -552,7 +552,7 @@ const JobCardsPage = () => {
                               <button
                                 onClick={() => op.is_current_op && handleOpenChallanModal(op, { id: op.work_order_id, work_order_no: op.work_order_no, quantity: op.work_order_qty })}
                                 disabled={!op.is_current_op}
-                                className={`p-1.5 rounded-lg transition-all ${
+                                className={`p-1.5 rounded transition-all ${
                                   op.is_current_op 
                                   ? 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50' 
                                   : 'text-slate-200 cursor-not-allowed opacity-50'
@@ -565,7 +565,7 @@ const JobCardsPage = () => {
                               <button
                                 onClick={() => op.is_current_op && handleOpenInwardModal(op, { id: op.work_order_id, work_order_no: op.work_order_no, quantity: op.work_order_qty })}
                                 disabled={!op.is_current_op}
-                                className={`p-1.5 rounded-lg transition-all ${
+                                className={`p-1.5 rounded transition-all ${
                                   op.is_current_op 
                                   ? 'text-emerald-600 hover:bg-emerald-50' 
                                   : 'text-slate-200 cursor-not-allowed opacity-50'
@@ -582,7 +582,7 @@ const JobCardsPage = () => {
                           <button
                             onClick={() => (op.status === 'completed' || op.is_current_op) && navigate(`/department/production/operations/${op.id}/entry`)}
                             disabled={op.status !== 'completed' && !op.is_current_op}
-                            className={`p-2 rounded-lg transition-all ${
+                            className={`p-2 rounded transition-all ${
                               (op.status === 'completed' || op.is_current_op)
                               ? 'text-blue-600 hover:bg-blue-50'
                               : 'text-slate-200 cursor-not-allowed opacity-50'
@@ -595,7 +595,7 @@ const JobCardsPage = () => {
                           <button
                             onClick={() => op.is_material_ready && op.is_current_op && handleStartOperation(op)}
                             disabled={!op.is_material_ready || !op.is_current_op}
-                            className={`p-2 rounded-lg transition-all ${
+                            className={`p-2 rounded transition-all ${
                               op.is_material_ready && op.is_current_op
                                 ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
                                 : 'text-slate-200 cursor-not-allowed opacity-50'
@@ -608,7 +608,7 @@ const JobCardsPage = () => {
 
                         <button
                           onClick={() => setEditingOperationId(op.id)}
-                          className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                          className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-all"
                           title="Edit Operation"
                         >
                           <Edit2 size={18} />
@@ -616,7 +616,7 @@ const JobCardsPage = () => {
                         <button
                           onClick={() => op.is_current_op && handleDeleteOperation(op.id)}
                           disabled={!op.is_current_op && op.status !== 'completed'}
-                          className={`p-2 rounded-lg transition-all ${
+                          className={`p-2 rounded transition-all ${
                             op.is_current_op || op.status === 'completed'
                             ? 'text-slate-400 hover:text-red-600 hover:bg-red-50'
                             : 'text-slate-200 cursor-not-allowed opacity-50'
@@ -646,9 +646,9 @@ const JobCardsPage = () => {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
+            <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
+                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded">
                   <Package className="w-6 h-6" />
                 </div>
                 <div>
@@ -662,18 +662,18 @@ const JobCardsPage = () => {
                 onClick={() => setIsChallanModalOpen(false)}
                 className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-slate-500" />
+                <X className="w-3 h-3 text-slate-500" />
               </button>
             </div>
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto flex-1 bg-slate-50/50 dark:bg-slate-950/50">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="border-slate-200 dark:border-slate-700 shadow-sm">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Operation</p>
                   <p className="text-sm font-black text-slate-900 dark:text-white">{selectedOperation?.operation_name}</p>
                 </div>
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="border-slate-200 dark:border-slate-700 shadow-sm">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Quantity</p>
                   <p className="text-sm font-black text-slate-900 dark:text-white">
                     {parseFloat(selectedWorkOrder?.quantity).toFixed(2)} units
@@ -705,10 +705,10 @@ const JobCardsPage = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
+            <div className="p-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
               <button
                 onClick={() => setIsChallanModalOpen(false)}
-                className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                className="p-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -722,9 +722,9 @@ const JobCardsPage = () => {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
+            <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg">
+                <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded">
                   <Box className="w-6 h-6" />
                 </div>
                 <div>
@@ -738,7 +738,7 @@ const JobCardsPage = () => {
                 onClick={() => setIsInwardModalOpen(false)}
                 className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-slate-500" />
+                <X className="w-3 h-3 text-slate-500" />
               </button>
             </div>
 
@@ -755,10 +755,10 @@ const JobCardsPage = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
+            <div className="p-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
               <button
                 onClick={() => setIsInwardModalOpen(false)}
-                className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                className="p-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
               >
                 Cancel
               </button>

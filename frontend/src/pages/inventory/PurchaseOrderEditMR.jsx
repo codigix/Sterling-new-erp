@@ -272,9 +272,9 @@ const PurchaseOrderEditMR = () => {
           <form className="space-y-8" onSubmit={handleSubmit}>
             {/* FOUNDATION Section */}
             <section id="foundation" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
+              <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400">
+                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded text-slate-600 dark:text-slate-400">
                     <Settings size={18} />
                   </div>
                   <div>
@@ -318,9 +318,9 @@ const PurchaseOrderEditMR = () => {
 
             {/* VENDOR Section */}
             <section id="vendor" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
+              <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg">
+                  <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded">
                     <User size={18} />
                   </div>
                   <div>
@@ -349,9 +349,9 @@ const PurchaseOrderEditMR = () => {
 
             {/* ORDER ITEMS Section */}
             <section id="items" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/20">
+              <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/20">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-lg">
+                  <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded">
                     <Package size={18} />
                   </div>
                   <div>
@@ -362,7 +362,7 @@ const PurchaseOrderEditMR = () => {
                 <button 
                   type="button"
                   onClick={handleAddItem}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg font-bold text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-md shadow-emerald-500/20"
+                  className="flex items-center gap-2 p-2 bg-emerald-500 text-white rounded font-bold text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-md shadow-emerald-500/20"
                 >
                   <Plus size={14} /> Add Item
                 </button>
@@ -371,18 +371,18 @@ const PurchaseOrderEditMR = () => {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b border-slate-50 dark:border-slate-800">
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Item / Vendor Name</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Quantity</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Rate/Kg</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Weight (Kg)</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Row Total</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center w-20"></th>
+                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Item / Vendor Name</th>
+                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Quantity</th>
+                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Rate/Kg</th>
+                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Weight (Kg)</th>
+                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Row Total</th>
+                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center w-20"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                     {formData.items.map((item, idx) => (
                       <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all">
-                        <td className="px-6 py-4 min-w-[250px]">
+                        <td className="p-2 min-w-[250px]">
                           <input 
                             type="text"
                             value={item.material_name}
@@ -398,45 +398,45 @@ const PurchaseOrderEditMR = () => {
                             className="w-full bg-transparent border-none text-[9px] font-bold text-slate-400 placeholder:text-slate-200 focus:ring-0 outline-none uppercase"
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="flex items-center gap-2">
                             <input 
                               type="number"
                               value={item.quantity}
                               onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
-                              className="w-20 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                              className="w-20 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.unit || "Nos"}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="relative">
                             <input 
                               type="number"
                               value={item.rate_per_kg}
                               onChange={(e) => handleItemChange(idx, 'rate_per_kg', e.target.value)}
                               placeholder="0.00"
-                              className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                              className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <input 
                             type="number"
                             value={item.total_weight}
                             onChange={(e) => handleItemChange(idx, 'total_weight', e.target.value)}
                             placeholder="0.00"
-                            className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <span className="text-[11px] font-black text-slate-900 dark:text-white tracking-tight">₹{(Number(item.amount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="p-2 text-center">
                           <button 
                             type="button"
                             onClick={() => handleRemoveItem(idx)}
-                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -450,9 +450,9 @@ const PurchaseOrderEditMR = () => {
 
             {/* LOGISTICS Section */}
             <section id="logistics" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-orange-50/30 dark:bg-orange-800/10">
+              <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-orange-50/30 dark:bg-orange-800/10">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded-lg">
+                  <div className="p-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded">
                     <Truck size={18} />
                   </div>
                   <div>
@@ -463,7 +463,7 @@ const PurchaseOrderEditMR = () => {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-6">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
                       <MapPin size={16} className="text-orange-500" />
                       <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shipping Address</h4>
@@ -480,7 +480,7 @@ const PurchaseOrderEditMR = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
                       <Briefcase size={16} className="text-orange-500" />
                       <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Trade Controls</h4>
@@ -516,9 +516,9 @@ const PurchaseOrderEditMR = () => {
 
             {/* FINANCE & TERMS Section */}
             <section id="finance" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-red-50/30 dark:bg-red-800/10">
+              <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-red-50/30 dark:bg-red-800/10">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 rounded-lg">
+                  <div className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 rounded">
                     <CreditCard size={18} />
                   </div>
                   <div>
@@ -598,7 +598,7 @@ const PurchaseOrderEditMR = () => {
 
                   {/* Purchase Valuation Summary */}
                   <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-full">
-                    <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                    <div className="p-2 border-b border-white/5 flex items-center justify-between">
                       <h4 className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Purchase Valuation</h4>
                       <Calculator size={16} className="text-white/20" />
                     </div>
@@ -633,7 +633,7 @@ const PurchaseOrderEditMR = () => {
                           </div>
                         </div>
                         <div className="p-3 bg-white/5 rounded-xl flex items-center gap-3">
-                          <div className="p-2 bg-white/10 rounded-lg text-emerald-400">
+                          <div className="p-2 bg-white/10 rounded text-emerald-400">
                             <CreditCard size={18} />
                           </div>
                           <div>

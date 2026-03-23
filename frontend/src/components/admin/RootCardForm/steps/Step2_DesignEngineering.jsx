@@ -49,7 +49,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
   };
 
   const content = React.useMemo(() => (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <AssigneeField
         stepType="designEngineering"
         formData={state.formData}
@@ -63,15 +63,15 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
         subtitle="View and access approved design revisions for this root card"
         icon={FileText}
       >
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className=" border border-slate-200">
           <table className="w-full text-left">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Drawing Name</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Version</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Status</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
+                <th className="p-2 text-xs  text-slate-500">Drawing Name</th>
+                <th className="p-2 text-xs  text-slate-500">Type</th>
+                <th className="p-2 text-xs  text-slate-500 text-center">Version</th>
+                <th className="p-2 text-xs  text-slate-500 text-center">Status</th>
+                <th className="p-2 text-xs  text-slate-500 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -90,29 +90,29 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
               ) : (
                 drawings.map((doc) => (
                   <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <div>
                         <div className="font-bold text-slate-900">{doc.name}</div>
                         <div className="text-[11px] text-slate-500 truncate max-w-xs">{doc.description}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">{doc.type}</span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="p-2 text-center">
                       <span className="text-xs font-bold text-blue-600">v{doc.version}</span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="p-2 text-center">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
                         <CheckCircle2 size={10} /> {doc.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="p-2 text-right">
                       <a
                         href={getFileUrl(doc.file_path)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold rounded-lg transition-colors border border-blue-100"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold rounded transition-colors border border-blue-100"
                       >
                         <Eye size={14} /> View Drawing
                       </a>
@@ -125,7 +125,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
         </div>
         
         {drawings.length > 0 && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded flex items-start gap-3">
             <AlertCircle className="text-blue-500 shrink-0 mt-0.5" size={18} />
             <p className="text-sm text-blue-900">
               Only approved drawings are shown here. These are the final revisions that should be used for production.

@@ -217,7 +217,7 @@ const ProductionWorkflowTasksPage = () => {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded p-4">
           <p className="text-red-700 dark:text-red-300">{error}</p>
         </div>
       </div>
@@ -225,7 +225,7 @@ const ProductionWorkflowTasksPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex justify-between items-center p-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -256,7 +256,7 @@ const ProductionWorkflowTasksPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 px-4">
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
           <h3 className="font-semibold text-slate-900 dark:text-white mb-4">
             Root Cards
           </h3>
@@ -270,7 +270,7 @@ const ProductionWorkflowTasksPage = () => {
                 <button
                   key={project.id}
                   onClick={() => setSelectedProject(project)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors text-sm ${
+                  className={`w-full text-left p-3 rounded transition-colors text-sm ${
                     selectedProject?.id === project.id
                       ? "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300"
                       : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
@@ -327,7 +327,7 @@ const ProductionWorkflowTasksPage = () => {
               )}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <div className="text-center py-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
               <p className="text-slate-600 dark:text-slate-400">
                 Select a root card to view workflow
               </p>
@@ -338,7 +338,7 @@ const ProductionWorkflowTasksPage = () => {
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-xl max-w-md w-full p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                 Create New Task
@@ -362,7 +362,7 @@ const ProductionWorkflowTasksPage = () => {
                   value={formData.title}
                   onChange={handleFormChange}
                   placeholder="Enter task title"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
@@ -377,7 +377,7 @@ const ProductionWorkflowTasksPage = () => {
                   onChange={handleFormChange}
                   placeholder="Enter task description"
                   rows="3"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
@@ -390,7 +390,7 @@ const ProductionWorkflowTasksPage = () => {
                     name="priority"
                     value={formData.priority}
                     onChange={handleFormChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -407,7 +407,7 @@ const ProductionWorkflowTasksPage = () => {
                     name="status"
                     value={formData.status}
                     onChange={handleFormChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="pending">Pending</option>
                     <option value="in_progress">In Progress</option>

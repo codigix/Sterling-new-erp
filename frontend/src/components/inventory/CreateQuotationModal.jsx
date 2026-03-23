@@ -520,7 +520,7 @@ const CreateQuotationModal = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
           >
             <X size={24} className="text-slate-600 dark:text-slate-400" />
           </button>
@@ -538,7 +538,7 @@ const CreateQuotationModal = ({
                   No materials found for this root card.
                 </p>
               ) : (
-                <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
+                <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded">
                   <table className="w-full">
                     <thead className="bg-slate-50 dark:bg-slate-700/50">
                       <tr>
@@ -635,14 +635,14 @@ const CreateQuotationModal = ({
             <div className="px-8 py-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3">
               <button
                 onClick={() => setAnalysisMode(false)}
-                className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors font-medium"
+                className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-white dark:hover:bg-slate-800 transition-colors font-medium"
               >
                 Skip Analysis
               </button>
               <button
                 onClick={handleSaveRequirements}
                 disabled={savingRequirements || rootCardMaterials.length === 0}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium flex items-center gap-2 disabled:opacity-50"
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium flex items-center gap-2 disabled:opacity-50"
               >
                 {savingRequirements ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -658,7 +658,7 @@ const CreateQuotationModal = ({
             onSubmit={handleSubmit}
             className="flex-1 overflow-hidden flex flex-col"
           >
-            <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+            <div className="flex-1 overflow-y-auto px-8 py-6 space-y-2">
               <div className="space-y-4">
                 {!preFilledMaterials && (
                   <div>
@@ -681,7 +681,7 @@ const CreateQuotationModal = ({
                         value={formData.material_request_id || ""}
                         onChange={handleMaterialRequestChange}
                         disabled={loadingMaterials}
-                        className="w-full px-4 py-3 pl-11 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full px-4 py-3 pl-11 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                       >
                         <option value="">
                           Select Material Request to Load Items
@@ -699,7 +699,7 @@ const CreateQuotationModal = ({
                 {formData.type === "inbound" && (
                   <div>
                     {formData.rfq_id ? (
-                      <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                      <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded p-4">
                         <label className="block text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-1">
                           Reference RFQ
                         </label>
@@ -719,7 +719,7 @@ const CreateQuotationModal = ({
                             <select
                               value={formData.rfq_id || ""}
                               onChange={handleOutboundQuotationSelect}
-                              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                             >
                               <option value="">-- Select Quotation --</option>
                               {rootCardQuotations.map((q) => (
@@ -731,7 +731,7 @@ const CreateQuotationModal = ({
                             </select>
                           </div>
                         ) : (
-                          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded">
                             <p className="text-sm text-amber-800 dark:text-amber-200">
                               ℹ️ No RFQs found for this root card. Create an RFQ
                               from the "Sent Requests" tab first.
@@ -754,7 +754,7 @@ const CreateQuotationModal = ({
                       onChange={handleFormChange}
                       required
                       disabled={formData.type === "inbound" && formData.reference_id}
-                      className={`w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      className={`w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                         formData.type === "inbound" && formData.reference_id
                           ? "opacity-50 cursor-not-allowed"
                           : ""
@@ -782,13 +782,13 @@ const CreateQuotationModal = ({
                       name="valid_until"
                       value={formData.valid_until}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     />
                   </div>
                 </div>
 
                 {/* {formData.root_card_id && !preFilledMaterials && (
-                  <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
+                  <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-100 dark:border-blue-800">
                     <span className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
                       <Check size={16} />
                       Materials loaded from root card analysis
@@ -821,7 +821,7 @@ const CreateQuotationModal = ({
                           placeholder="0.00"
                           step="0.01"
                           disabled
-                          className="w-full pl-8 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition opacity-75 cursor-not-allowed"
+                          className="w-full pl-8 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition opacity-75 cursor-not-allowed"
                         />
                       </div>
                     </div>
@@ -880,7 +880,7 @@ const CreateQuotationModal = ({
                       <button
                         type="button"
                         onClick={handleAddItem}
-                        className="flex items-center gap-1 text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium whitespace-nowrap"
+                        className="flex items-center gap-1 text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium whitespace-nowrap"
                       >
                         <Plus size={14} />
                         Add Item
@@ -889,12 +889,12 @@ const CreateQuotationModal = ({
                   </div>
 
                   {formData.items.length === 0 ? (
-                    <p className="text-sm text-slate-500 dark:text-slate-400 py-4 text-center bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-dashed border-slate-300 dark:border-slate-600">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 py-4 text-center bg-slate-50 dark:bg-slate-700/50 rounded border border-dashed border-slate-300 dark:border-slate-600">
                       No items added yet. Click "Add Item" to include line
                       items in this quotation.
                     </p>
                   ) : (
-                    <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
+                    <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded">
                       <table className="w-full">
                         <thead className="bg-slate-50 dark:bg-slate-700/50">
                           <tr>
@@ -949,10 +949,10 @@ const CreateQuotationModal = ({
                               key={index}
                               className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition group"
                             >
-                              <td className="px-4 py-2 text-center text-xs font-medium text-slate-400">
+                              <td className="p-2 text-center text-xs font-medium text-slate-400">
                                 {index + 1}
                               </td>
-                              <td className="px-4 py-2">
+                              <td className="p-2">
                                 <div className="flex flex-col gap-1">
                                   <input
                                     type="text"
@@ -985,7 +985,7 @@ const CreateQuotationModal = ({
                                 </div>
                               </td>
                               {formData.type === "inbound" && (
-                                <td className="px-4 py-2">
+                                <td className="p-2">
                                   <textarea
                                     value={item.vendor_item_name}
                                     onChange={(e) =>
@@ -1002,7 +1002,7 @@ const CreateQuotationModal = ({
                               )}
                               {formData.type === "outbound" && (
                                 <>
-                                  <td className="px-4 py-2">
+                                  <td className="p-2">
                                     <div className="flex flex-col gap-1">
                                       <input
                                         type="text"
@@ -1034,7 +1034,7 @@ const CreateQuotationModal = ({
                                       />
                                     </div>
                                   </td>
-                                  <td className="px-4 py-2">
+                                  <td className="p-2">
                                     <div className="flex flex-col gap-1">
                                       <input
                                         type="text"
@@ -1068,7 +1068,7 @@ const CreateQuotationModal = ({
                                   </td>
                                 </>
                               )}
-                              <td className="px-4 py-2 w-24">
+                              <td className="p-2 w-24">
                                 <input
                                   type="number"
                                   value={item.quantity}
@@ -1086,7 +1086,7 @@ const CreateQuotationModal = ({
                                   className="w-full px-2 py-1.5 text-xs font-bold text-center text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
                                 />
                               </td>
-                              <td className="px-4 py-2 w-20">
+                              <td className="p-2 w-20">
                                 <input
                                   type="text"
                                   value={item.unit}
@@ -1104,7 +1104,7 @@ const CreateQuotationModal = ({
                               </td>
                               {formData.type === "inbound" && (
                                 <>
-                                  <td className="px-4 py-2 w-32">
+                                  <td className="p-2 w-32">
                                     <input
                                       type="number"
                                       value={item.rate_per_kg}
@@ -1121,7 +1121,7 @@ const CreateQuotationModal = ({
                                       className="w-full px-2 py-1.5 text-xs font-bold text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
                                     />
                                   </td>
-                                  <td className="px-4 py-2 w-32">
+                                  <td className="p-2 w-32">
                                     <input
                                       type="number"
                                       value={item.total_weight}
@@ -1138,7 +1138,7 @@ const CreateQuotationModal = ({
                                       className="w-full px-2 py-1.5 text-xs font-bold text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
                                     />
                                   </td>
-                                  <td className="px-4 py-2 text-right w-32">
+                                  <td className="p-2 text-right w-32">
                                     <span className="text-xs font-black text-emerald-600">
                                       ₹{(item.total_weight * item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </span>
@@ -1146,7 +1146,7 @@ const CreateQuotationModal = ({
                                 </>
                               )}
                               {!preFilledMaterials && (
-                                <td className="px-4 py-2 text-center w-12">
+                                <td className="p-2 text-center w-12">
                                   <button
                                     type="button"
                                     onClick={() => handleRemoveItem(index)}
@@ -1192,7 +1192,7 @@ const CreateQuotationModal = ({
                     onChange={handleFormChange}
                     rows="3"
                     placeholder="Add any additional notes or terms..."
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   />
                 </div>
               </div>
@@ -1202,14 +1202,14 @@ const CreateQuotationModal = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors font-medium"
+                className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-white dark:hover:bg-slate-800 transition-colors font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting || formData.items.length === 0}
-                className="px-8 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-bold shadow-lg shadow-green-500/20 flex items-center gap-2 disabled:opacity-50"
+                className="px-8 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-bold shadow-lg shadow-green-500/20 flex items-center gap-2 disabled:opacity-50"
               >
                 {submitting ? (
                   <Loader2 size={20} className="animate-spin" />

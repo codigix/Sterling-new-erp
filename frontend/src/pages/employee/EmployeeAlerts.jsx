@@ -62,17 +62,17 @@ const EmployeeAlerts = () => {
 
   const getAlertIcon = (type) => {
     switch (type) {
-      case "error": return <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />;
-      case "warning": return <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />;
-      case "success": return <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />;
-      default: return <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />;
+      case "error": return <AlertCircle className="w-3 h-3 text-red-600 dark:text-red-400" />;
+      case "warning": return <AlertCircle className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />;
+      case "success": return <CheckCircle className="w-3 h-3 text-green-600 dark:text-green-400" />;
+      default: return <Bell className="w-3 h-3 text-blue-600 dark:text-blue-400" />;
     }
   };
 
   const unreadCount = alerts.filter(a => !a.read).length;
 
   return (
-    <div className="w-full min-h-screen bg-white space-y-6">
+    <div className="w-full min-h-screen bg-white space-y-2">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-left dark:text-white mb-2">
@@ -83,14 +83,14 @@ const EmployeeAlerts = () => {
           </p>
         </div>
         {unreadCount > 0 && (
-          <div className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-full font-semibold border border-red-200 dark:border-red-900/50">
+          <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-full font-semibold border border-red-200 dark:border-red-900/50">
             {unreadCount} new
           </div>
         )}
       </div>
 
       {alerts.length === 0 ? (
-        <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-12 text-center hover:shadow-lg transition-all">
+        <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-12 text-center  transition-all">
           <CheckCircle className="w-12 h-12 mx-auto text-green-600 dark:text-green-400 mb-3" />
           <p className="text-slate-600 dark:text-slate-400 font-medium">
             You're all caught up! No new alerts.
@@ -104,7 +104,7 @@ const EmployeeAlerts = () => {
           {alerts.map((alert) => (
             <div 
               key={alert.id} 
-              className={`bg-white border-2 rounded-xl p-4 hover:shadow-lg transition-all ${getAlertColor(alert.type)} ${!alert.read ? 'ring-2 ring-primary-500' : ''}`}
+              className={`bg-white border-2 rounded-xl p-4  transition-all ${getAlertColor(alert.type)} ${!alert.read ? 'ring-2 ring-primary-500' : ''}`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3 flex-1">
@@ -138,7 +138,7 @@ const EmployeeAlerts = () => {
                       className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                       title="Mark as read"
                     >
-                      <CheckCircle className="w-5 h-5" />
+                      <CheckCircle className="w-3 h-3" />
                     </Button>
                   )}
                   <Button
@@ -148,7 +148,7 @@ const EmployeeAlerts = () => {
                     className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                     title="Dismiss"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-3 h-3" />
                   </Button>
                 </div>
               </div>

@@ -173,7 +173,7 @@ const RackAndShelfPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -186,11 +186,11 @@ const RackAndShelfPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium">
             <Plus size={18} />
             Add Location
           </button>
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
             <Download size={18} />
             Export Map
           </button>
@@ -210,14 +210,14 @@ const RackAndShelfPage = () => {
               placeholder="Search location or item..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
             />
           </div>
 
           <select
             value={selectedWing}
             onChange={(e) => setSelectedWing(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
           >
             {wings.map((wing) => (
               <option key={wing} value={wing}>
@@ -226,7 +226,7 @@ const RackAndShelfPage = () => {
             ))}
           </select>
 
-          <button className="flex items-center text-xs justify-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             <Filter size={18} />
             More Filters
           </button>
@@ -256,7 +256,7 @@ const RackAndShelfPage = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">
+            <div className="bg-white dark:bg-slate-800 rounded p-3 mb-3">
               <div className="flex items-center text-xs justify-between mb-2">
                 <div>
                   <p className="text-xs text-slate-600 dark:text-slate-400">

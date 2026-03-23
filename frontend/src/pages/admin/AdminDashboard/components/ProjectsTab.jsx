@@ -11,7 +11,7 @@ const ProjectsTab = ({ projects }) => (
   <div className="w-full space-y-3 overflow-x-hidden">
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
       <div className="lg:col-span-2">
-        <Card className="hover:shadow-lg transition-shadow duration-300">
+        <Card className=" transition-shadow duration-300">
           <CardHeader className="border-b border-slate-200 dark:border-slate-700 pb-2">
             <div className="flex items-center text-xs justify-between">
               <CardTitle className="flex items-center text-xs space-x-1.5">
@@ -79,7 +79,7 @@ const ProjectsTab = ({ projects }) => (
       </div>
 
       <div className="space-y-3">
-        <Card className="hover:shadow-lg transition-shadow duration-300">
+        <Card className=" transition-shadow duration-300">
           <CardHeader className="border-b border-slate-200 dark:border-slate-700 pb-2">
             <CardTitle className="flex items-center text-xs space-x-1.5">
               <div className="p-1 bg-emerald-100 dark:bg-emerald-900 rounded">
@@ -125,7 +125,7 @@ const ProjectsTab = ({ projects }) => (
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow duration-300">
+        <Card className=" transition-shadow duration-300">
           <CardHeader className="border-b border-slate-200 dark:border-slate-700 pb-2">
             <CardTitle className="flex items-center text-xs space-x-1.5">
               <div className="p-1 bg-primary-100 dark:bg-primary-900 rounded">

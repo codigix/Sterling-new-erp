@@ -14,7 +14,7 @@ const GRNEmailModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl w-full max-w-4xl my-8">
+      <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-4xl my-8">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs flex items-center gap-3">
@@ -32,7 +32,7 @@ const GRNEmailModal = ({
         {/* Body */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
           {/* Status Alert */}
-          <div className="mb-6 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+          <div className="mb-6 p-4 rounded bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
               <strong>Discrepancy Status:</strong>{" "}
               <span className="uppercase font-bold text-orange-600 dark:text-orange-400 text-lg ml-2">
@@ -45,7 +45,7 @@ const GRNEmailModal = ({
           </div>
 
           {/* Email Preview Box */}
-          <div className="bg-gradient-to-b from-blue-50 to-white dark:from-slate-700 dark:to-slate-800 border-2 border-blue-300 dark:border-blue-900 rounded-lg overflow-hidden">
+          <div className="bg-gradient-to-b from-blue-50 to-white dark:from-slate-700 dark:to-slate-800 border-2 border-blue-300 dark:border-blue-900 rounded overflow-hidden">
             {/* Email Header */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 text-white p-6">
               <h3 className="text-2xl font-bold mb-2">
@@ -58,9 +58,9 @@ const GRNEmailModal = ({
             </div>
 
             {/* Email Content */}
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-2">
               {/* Key Information Section */}
-              <div className="bg-white dark:bg-slate-700 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
+              <div className="bg-white dark:bg-slate-700 p-4 rounded border border-slate-200 dark:border-slate-600">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
@@ -111,7 +111,7 @@ const GRNEmailModal = ({
               </div>
 
               {/* Items Table */}
-              <div className="border border-slate-200 dark:border-slate-600 rounded-lg overflow-hidden">
+              <div className="border border-slate-200 dark:border-slate-600 rounded overflow-hidden">
                 <h5 className="font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-4 py-3 border-b border-blue-200 dark:border-blue-800">
                   Detailed Item Comparison
                 </h5>
@@ -189,7 +189,7 @@ const GRNEmailModal = ({
               </div>
 
               {/* Action Items */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded p-4">
                 <h5 className="font-bold text-blue-900 dark:text-blue-300 mb-2">
                   Required Action:
                 </h5>
@@ -250,13 +250,13 @@ const GRNEmailModal = ({
         <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 sticky bottom-0 z-10">
           <button
             onClick={() => setEmailModal({ show: false, type: "", data: null })}
-            className="px-6 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded-lg transition-colors"
+            className="px-6 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 rounded transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSendEmailAndAdd}
-            className="flex items-center gap-2 px-6 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-lg transition-colors shadow-lg hover:shadow-xl"
+            className="flex items-center gap-2 px-6 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded transition-colors shadow-lg hover:shadow-xl"
           >
             <Truck size={18} />
             Send Email & Add to Inventory

@@ -216,7 +216,7 @@ const StockMovementsPage = () => {
                       <td className="px-6 py-6 text-center">
                         <button 
                           onClick={() => setExpandedMovement(isExpanded ? null : m.id)}
-                          className={`p-1.5 rounded-lg transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
+                          className={`p-1.5 rounded transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
                         >
                           {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
@@ -257,7 +257,7 @@ const StockMovementsPage = () => {
                         </div>
                       </td>
                       <td className="px-6 py-6 text-center">
-                        <span className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest border ${
+                        <span className={`px-3 py-1.5 rounded font-black text-[10px] uppercase tracking-widest border ${
                           m.type === 'IN' 
                             ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                             : 'bg-red-50 text-red-600 border-red-100'
@@ -321,14 +321,14 @@ const StockMovementsPage = () => {
                                      m.serials.map((st, sIdx) => (
                                        <tr key={sIdx} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors">
                                          <td className="px-8 py-4 text-slate-400 font-bold text-center">{sIdx + 1}</td>
-                                         <td className="px-6 py-4 font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight">
+                                         <td className="p-2 font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight">
                                            {st.serial_number.replace(/^ST-/, "")}
                                          </td>
-                                         <td className="px-6 py-4 text-slate-600 dark:text-slate-400 uppercase tracking-tight">
+                                         <td className="p-2 text-slate-600 dark:text-slate-400 uppercase tracking-tight">
                                            {m.material_name}
                                          </td>
-                                         <td className="px-6 py-4 text-right">
-                                           <span className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-tight border border-indigo-100 dark:border-indigo-800">
+                                         <td className="p-2 text-right">
+                                           <span className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-[10px] font-black uppercase tracking-tight border border-indigo-100 dark:border-indigo-800">
                                              {st.serial_number}
                                            </span>
                                          </td>

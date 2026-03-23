@@ -99,9 +99,9 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+        <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-600 text-white rounded-lg">
+            <div className="p-2 bg-blue-600 text-white rounded">
               <ShoppingCart size={20} />
             </div>
             <div>
@@ -217,7 +217,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                             </div>
                           </td>
                           <td className="px-4 py-4 text-center">
-                            <span className="font-black text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-800">
+                            <span className="font-black text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-800">
                               {item.required_quantity}
                             </span>
                           </td>
@@ -236,7 +236,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+        <div className="p-2 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
           <Button variant="secondary" onClick={onClose} disabled={submitting}>Close</Button>
           {!loading && isProcurement && request?.status === 'approved' && (
             <Button 
@@ -381,7 +381,7 @@ const MaterialRequestsPage = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50/50 min-h-screen">
+    <div className="p-6 space-y-2 bg-slate-50/50 min-h-screen">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -409,7 +409,7 @@ const MaterialRequestsPage = () => {
             <select
               value={rootCardFilter}
               onChange={(e) => setRootCardFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
             >
               <option value="all">All Root Cards</option>
               {rootCards.map(rc => (
@@ -422,7 +422,7 @@ const MaterialRequestsPage = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>

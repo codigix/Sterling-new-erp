@@ -56,7 +56,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
               <ClipboardList size={20} className="text-purple-600 dark:text-purple-400" />
@@ -73,7 +73,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
           </div>
           <button 
             onClick={onClose} 
-            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
           >
             <X size={20} />
           </button>
@@ -92,7 +92,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
               <p className="text-slate-900 dark:text-white font-bold">{error}</p>
               <button 
                 onClick={fetchMaterialRequests}
-                className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-bold"
+                className="mt-4 p-2 bg-purple-600 text-white rounded text-sm font-bold"
               >
                 Retry
               </button>
@@ -155,7 +155,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <div className="p-2 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex justify-end">
           <button 
             onClick={onClose}
             className="px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded-xl font-bold hover:bg-black transition-all text-xs border border-slate-800 shadow-lg shadow-slate-900/20"

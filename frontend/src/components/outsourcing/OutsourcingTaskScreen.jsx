@@ -110,7 +110,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
           <CardContent className="py-8 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <p className="text-slate-600 dark:text-slate-400">Task not found</p>
-            <button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg">
+            <button onClick={onClose} className="mt-4 p-2 bg-slate-200 dark:bg-slate-700 rounded">
               Close
             </button>
           </CardContent>
@@ -134,9 +134,9 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-3 h-3" />
           </button>
         </CardHeader>
 
@@ -146,7 +146,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
           </div>
         )}
 
-        <CardContent className="space-y-6 py-6">
+        <CardContent className="space-y-2 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
@@ -264,7 +264,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
 
             {activeStep === 'complete' && task.status === 'inward_challan_generated' && (
               <div className="space-y-4">
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-4">
                   <p className="text-green-800 dark:text-green-200">
                     All steps completed! Swipe below to finalize the outsourcing task.
                   </p>
@@ -278,7 +278,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
             )}
 
             {task.status === 'completed' && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-4 text-center">
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mx-auto mb-2" />
                 <p className="text-green-800 dark:text-green-200 font-medium">
                   Task Completed Successfully!
@@ -300,16 +300,16 @@ const StepIndicator = ({ title, description, status, isActive, onClick }) => {
   };
 
   const statusIcons = {
-    active: <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />,
-    completed: <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />,
-    disabled: <AlertCircle className="w-5 h-5 text-slate-400" />
+    active: <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />,
+    completed: <CheckCircle className="w-3 h-3 text-green-600 dark:text-green-400" />,
+    disabled: <AlertCircle className="w-3 h-3 text-slate-400" />
   };
 
   return (
     <button
       onClick={onClick}
       disabled={status === 'disabled'}
-      className={`w-full border-2 rounded-lg p-4 text-left transition-all ${statusColors[status]} ${
+      className={`w-full border-2 rounded p-4 text-left transition-all ${statusColors[status]} ${
         status !== 'disabled' ? 'cursor-pointer hover:shadow-md' : 'cursor-not-allowed'
       }`}
     >
@@ -319,7 +319,7 @@ const StepIndicator = ({ title, description, status, isActive, onClick }) => {
           <h4 className="font-semibold text-slate-900 dark:text-white">{title}</h4>
           <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>
         </div>
-        {status !== 'disabled' && <ChevronDown className="w-5 h-5" />}
+        {status !== 'disabled' && <ChevronDown className="w-3 h-3" />}
       </div>
     </button>
   );

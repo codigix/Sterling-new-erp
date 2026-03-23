@@ -291,7 +291,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
   const selectedRootCard = rootCards.find((rc) => String(rc.filteringId || rc.id) === String(rootCardId));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -304,21 +304,21 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
           </div>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
           >
             <Plus size={20} />
             Upload Document
           </button>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Select Root Card
           </label>
           <div className="relative">
             <button
               onClick={() => setShowRootCardDropdown(!showRootCardDropdown)}
-              className="w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white flex items-center justify-between hover:border-slate-400"
+              className="w-full p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white flex items-center justify-between hover:border-slate-400"
             >
               <span>
                 {selectedRootCard ? (
@@ -330,9 +330,9 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
             </button>
 
             {showRootCardDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg z-10">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded shadow-lg z-10">
                 {rootCards.length === 0 ? (
-                  <div className="px-4 py-2 text-slate-600 dark:text-slate-400">
+                  <div className="p-2 text-slate-600 dark:text-slate-400">
                     No root cards available
                   </div>
                 ) : (
@@ -346,7 +346,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           setRootCardId(rc.filteringId);
                           setShowRootCardDropdown(false);
                         }}
-                        className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-600 first:border-t-0"
+                        className="w-full text-left p-2 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-600 first:border-t-0"
                       >
                         {displayName || baseName || `Root Card ${rc.id}`}
                       </button>
@@ -359,7 +359,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
         <div className="border-b border-slate-200 dark:border-slate-700 flex">
           <button
             onClick={() => {
@@ -400,7 +400,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               placeholder="Search documents..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -412,7 +412,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               </p>
             </div>
           ) : error ? (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4">
               <p className="text-red-600 dark:text-red-400">{error}</p>
             </div>
           ) : getTabContent().length === 0 ? (
@@ -453,13 +453,13 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                       key={item.id}
                       className="hover:bg-slate-50 dark:hover:bg-slate-700"
                     >
-                      <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                      <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
                         {item.name || item.title}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                         {item.version}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <span
                           className={`px-3 py-1 text-xs font-medium rounded-full ${
                             item.status === "Final" || item.status === "Approved"
@@ -470,10 +470,10 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           {item.status || "Draft"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                         {new Date(item.createdAt || item.date).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 flex items-center gap-2">
+                      <td className="p-2 flex items-center gap-2">
                         <button
                           onClick={() => handleDownload(item)}
                           className="p-1 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-blue-600 dark:text-blue-400 transition-colors"
@@ -509,7 +509,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
 
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-md w-full mx-4 p-6">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-md w-full mx-4 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Upload Document
@@ -538,7 +538,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           designName: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
@@ -554,7 +554,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           drawingName: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
@@ -570,7 +570,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           drawingNumber: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
@@ -585,7 +585,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           drawingType: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option>2D</option>
                       <option>3D</option>
@@ -608,7 +608,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                         designName: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               )}
@@ -626,7 +626,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                       version: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -637,7 +637,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                 <input
                   type="file"
                   onChange={handleFileChange}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -645,13 +645,13 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(false)}
-                  className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  className="flex-1 p-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                 >
                   Upload
                 </button>
@@ -663,7 +663,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
 
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-sm w-full mx-4 p-6">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-sm w-full mx-4 p-6">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
               Delete Document
             </h3>
@@ -673,14 +673,14 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                className="flex-1 p-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
                 disabled={deleteLoading}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                className="flex-1 p-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 {deleteLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin inline" />
@@ -695,7 +695,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
 
       {showApprovalModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-sm w-full mx-4 p-6">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-sm w-full mx-4 p-6">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
               Approve Document
             </h3>
@@ -710,21 +710,21 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                 value={approvalNotes}
                 onChange={(e) => setApprovalNotes(e.target.value)}
                 placeholder="Add approval notes..."
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                 rows="3"
               />
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowApprovalModal(false)}
-                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                className="flex-1 p-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmApprove}
                 disabled={approving}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                className="flex-1 p-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50"
               >
                 {approving ? (
                   <Loader2 className="w-4 h-4 animate-spin inline" />

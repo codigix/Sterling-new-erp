@@ -162,25 +162,25 @@ const ResourcesTab = () => {
   const getOptimizationIcon = (type) => {
     switch (type) {
       case "optimization":
-        return <TrendingUp className="w-5 h-5" />;
+        return <TrendingUp className="w-3 h-3" />;
       case "preventive":
-        return <Wrench className="w-5 h-5" />;
+        return <Wrench className="w-3 h-3" />;
       case "reallocation":
-        return <Users className="w-5 h-5" />;
+        return <Users className="w-3 h-3" />;
       case "expansion":
-        return <Zap className="w-5 h-5" />;
+        return <Zap className="w-3 h-3" />;
       default:
-        return <Target className="w-5 h-5" />;
+        return <Target className="w-3 h-3" />;
     }
   };
 
   return (
-    <div className="w-full space-y-6 overflow-x-hidden">
+    <div className="w-full space-y-2 overflow-x-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center text-xs">
-              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded">
                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
@@ -198,7 +198,7 @@ const ResourcesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center text-xs">
-              <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded">
                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div className="ml-4">
@@ -216,7 +216,7 @@ const ResourcesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center text-xs">
-              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+              <div className="p-2 bg-red-100 dark:bg-red-900 rounded">
                 <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div className="ml-4">
@@ -234,7 +234,7 @@ const ResourcesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center text-xs">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded">
                 <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
@@ -253,7 +253,7 @@ const ResourcesTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
-            <Zap className="w-5 h-5 mr-2" />
+            <Zap className="w-3 h-3 mr-2" />
             Resource Utilization Status
           </CardTitle>
         </CardHeader>
@@ -262,7 +262,7 @@ const ResourcesTab = () => {
             {resourceData.map((resource, index) => (
               <div
                 key={index}
-                className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg"
+                className="p-4 border border-slate-200 dark:border-slate-700 rounded"
               >
                 <div className="flex items-center text-xs justify-between mb-3">
                   <h4 className="font-medium  dark:">
@@ -331,7 +331,7 @@ const ResourcesTab = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-xs">
-              <Calendar className="w-5 h-5 mr-2" />
+              <Calendar className="w-3 h-3 mr-2" />
               Capacity Planning
             </CardTitle>
           </CardHeader>
@@ -340,7 +340,7 @@ const ResourcesTab = () => {
               {capacityPlanning.map((resource, index) => (
                 <div
                   key={index}
-                  className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg"
+                  className="p-4 border border-slate-200 dark:border-slate-700 rounded"
                 >
                   <div className="flex items-center text-xs justify-between mb-2">
                     <h4 className="font-medium  dark:">
@@ -404,7 +404,7 @@ const ResourcesTab = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-xs">
-              <BarChart3 className="w-5 h-5 mr-2" />
+              <BarChart3 className="w-3 h-3 mr-2" />
               Resource Utilization Trends
             </CardTitle>
           </CardHeader>
@@ -462,7 +462,7 @@ const ResourcesTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
-            <Target className="w-5 h-5 mr-2" />
+            <Target className="w-3 h-3 mr-2" />
             Optimization Insights & Recommendations
           </CardTitle>
         </CardHeader>
@@ -471,11 +471,11 @@ const ResourcesTab = () => {
             {optimizationInsights.map((insight, index) => (
               <div
                 key={index}
-                className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg"
+                className="p-4 border border-slate-200 dark:border-slate-700 rounded"
               >
                 <div className="flex items-start">
                   <div
-                    className={`p-2 rounded-lg mr-3 ${
+                    className={`p-2 rounded mr-3 ${
                       insight.type === "optimization"
                         ? "bg-blue-100 dark:bg-blue-900"
                         : insight.type === "preventive"
@@ -518,7 +518,7 @@ const ResourcesTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
-            <FileText className="w-5 h-5 mr-2" />
+            <FileText className="w-3 h-3 mr-2" />
             Resource Allocation Matrix
           </CardTitle>
         </CardHeader>

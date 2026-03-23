@@ -289,7 +289,7 @@ const QualityInspectionDetail = () => {
   const hasAnyAccepted = items.some(item => item.serials.some(s => s.tempStatus === 'Accepted'));
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div className="p-6 space-y-2 bg-slate-50 dark:bg-slate-900 min-h-screen">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
@@ -309,10 +309,10 @@ const QualityInspectionDetail = () => {
           </div>
         </div>
         
-        <div className="flex items-center bg-white dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="flex items-center bg-white dark:bg-slate-800 p-1 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
           <button
             onClick={() => handleInspectionTypeChange("Inhouse")}
-            className={`px-4 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-all ${
+            className={`p-2 rounded-md text-sm font-black uppercase tracking-widest transition-all ${
               inspectionType === "Inhouse"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -322,7 +322,7 @@ const QualityInspectionDetail = () => {
           </button>
           <button
             onClick={() => handleInspectionTypeChange("Outsource")}
-            className={`px-4 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-all ${
+            className={`p-2 rounded-md text-sm font-black uppercase tracking-widest transition-all ${
               inspectionType === "Outsource"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -361,20 +361,20 @@ const QualityInspectionDetail = () => {
                 <div className="flex gap-2" onClick={e => e.stopPropagation()}>
                    <button 
                     onClick={() => bulkAction(item.itemName, 'Accepted')}
-                    className="px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all border border-green-100"
+                    className="px-3 py-1 bg-green-50 text-green-600 rounded text-[10px] font-black uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all border border-green-100"
                    >
                      Accept All
                    </button>
                    <button 
                     onClick={() => bulkAction(item.itemName, 'Rejected')}
-                    className="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100"
+                    className="px-3 py-1 bg-red-50 text-red-600 rounded text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100"
                    >
                      Reject All
                    </button>
                    {inspectionType === 'Outsource' && (
                      <button 
                       onClick={() => bulkAction(item.itemName, 'Sent for Inspection')}
-                      className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all border border-blue-100"
+                      className="px-3 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all border border-blue-100"
                      >
                        Outsource All
                      </button>
@@ -398,10 +398,10 @@ const QualityInspectionDetail = () => {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                       {item.serials.map((s) => (
                         <tr key={s.serial_number} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/50 transition-colors">
-                          <td className="px-6 py-4 font-bold text-slate-700 dark:text-white">
+                          <td className="p-2 font-bold text-slate-700 dark:text-white">
                             {s.serial_number}
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <span className={`text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest ${
                               s.inspection_status === 'Accepted' ? 'bg-green-100 text-green-700' :
                               s.inspection_status === 'Rejected' ? 'bg-red-100 text-red-700' :
@@ -411,7 +411,7 @@ const QualityInspectionDetail = () => {
                               {s.inspection_status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td className="p-2 text-center">
                             <div className="flex justify-center gap-2">
                               {(s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
                                 <>
@@ -452,7 +452,7 @@ const QualityInspectionDetail = () => {
                             </div>
                           </td>
                           {inspectionType === 'Outsource' && (
-                            <td className="px-6 py-4 text-center">
+                            <td className="p-2 text-center">
                               {s.tempStatus === 'Rejected' ? (
                                 <div className="flex flex-col items-center gap-1">
                                   <label className={`cursor-pointer p-2 rounded-xl transition-all ${s.doc ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}>
@@ -482,10 +482,10 @@ const QualityInspectionDetail = () => {
                               )}
                             </td>
                           )}
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <input 
                               type="text"
-                              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                               placeholder="Add notes..."
                               value={s.notes}
                               onChange={(e) => {
@@ -568,7 +568,7 @@ const QualityInspectionDetail = () => {
 
                       <button 
                         onClick={() => handleSubmitOutsource(item)}
-                        className="px-4 py-2 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center gap-2 ml-auto"
+                        className="p-2 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center gap-2 ml-auto"
                       >
                         <Save size={14} /> Complete Item Inspection
                       </button>
@@ -585,7 +585,7 @@ const QualityInspectionDetail = () => {
         ))}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-2">
           {inspectionType === 'Outsource' && (
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm space-y-4">
               <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
@@ -596,7 +596,7 @@ const QualityInspectionDetail = () => {
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Select Vendor</label>
                   <select 
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                     value={selectedVendor}
                     onChange={(e) => setSelectedVendor(e.target.value)}
                   >
@@ -609,7 +609,7 @@ const QualityInspectionDetail = () => {
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Challan Date</label>
                   <input 
                     type="date"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs font-bold text-slate-700"
                     value={challanDate}
                     onChange={(e) => setChallanDate(e.target.value)}
                   />

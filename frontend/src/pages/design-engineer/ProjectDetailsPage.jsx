@@ -493,7 +493,7 @@ const ProjectDetailsPage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center">
                     <FileText className="text-white" size={24} />
                   </div>
                   <div>
@@ -509,7 +509,7 @@ const ProjectDetailsPage = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 space-y-4">
+            <div className="bg-white dark:bg-slate-800 rounded shadow-sm p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="relative">
                   <Search
@@ -521,14 +521,14 @@ const ProjectDetailsPage = () => {
                     placeholder="Search by name or code..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="p-2 border border-slate-200 dark:border-slate-700 rounded dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Status</option>
                   <option value="planning">Planning</option>
@@ -540,7 +540,7 @@ const ProjectDetailsPage = () => {
                 <select
                   value={filterPriority}
                   onChange={(e) => setFilterPriority(e.target.value)}
-                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="p-2 border border-slate-200 dark:border-slate-700 rounded dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Priority</option>
                   <option value="critical">Critical</option>
@@ -555,7 +555,7 @@ const ProjectDetailsPage = () => {
                     setFilterStatus("all");
                     setFilterPriority("all");
                   }}
-                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition"
+                  className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition"
                 >
                   Reset Filters
                 </button>
@@ -564,7 +564,7 @@ const ProjectDetailsPage = () => {
           </div>
 
           {/* Table */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -614,7 +614,7 @@ const ProjectDetailsPage = () => {
                         >
                           <td className="p-3">
                             <div className="flex items-center gap-3">
-                              <div className="w-5 h-5 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0 p-2">
+                              <div className="w-3 h-3 bg-blue-100 dark:bg-blue-900 rounded flex items-center justify-center flex-shrink-0 p-2">
                                 <FileText
                                   className="text-blue-600 dark:text-blue-400"
                                   size={15}
@@ -663,7 +663,7 @@ const ProjectDetailsPage = () => {
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 onClick={() => handleViewProject(project)}
-                                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-400 transition"
+                                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400 transition"
                                 title="View Details"
                               >
                                 <Eye size={16} />
@@ -704,7 +704,7 @@ const ProjectDetailsPage = () => {
         <div className="sticky top-0 z-40 bg-white dark:bg-slate-800 shadow-sm rounded border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center  justify-between p-3">
             <div className="flex items-center gap-3">
-              <div className="w-fit  h-fit p-2 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-fit  h-fit p-2 bg-blue-600 rounded flex items-center justify-center">
                 <FileText className="text-white" size={15} />
               </div>
               <div>
@@ -721,7 +721,7 @@ const ProjectDetailsPage = () => {
         </div>
 
         {/* Form Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-2">
           {/* Root Card Reference (Read-Only) */}
           <Card className="bg-slate-50 dark:bg-slate-900/50 border-blue-200 dark:border-blue-900">
             <CardHeader className="pb-2">
@@ -933,7 +933,7 @@ const ProjectDetailsPage = () => {
                 Materials Required for Production
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <MultiSelect
@@ -1130,7 +1130,7 @@ const ProjectDetailsPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div
-                className={`border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 rounded-lg p-8 text-center hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition ${
+                className={`border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 rounded p-8 text-center hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition ${
                   editMode ? "cursor-pointer" : "opacity-60 cursor-not-allowed"
                 }`}
               >
@@ -1165,17 +1165,17 @@ const ProjectDetailsPage = () => {
                   <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
                     Uploaded Files ({uploadedFiles.references.length})
                   </h4>
-                  <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
+                  <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded">
                     <table className="w-full">
                       <thead className="bg-slate-100 dark:bg-slate-800">
                         <tr>
-                          <th className="px-4 py-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
+                          <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
                             Document Name
                           </th>
-                          <th className="px-4 py-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
+                          <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
                             File Type
                           </th>
-                          <th className="px-4 py-2 text-center text-xs font-semibold text-slate-900 dark:text-white">
+                          <th className="p-2 text-center text-xs font-semibold text-slate-900 dark:text-white">
                             Action
                           </th>
                         </tr>
@@ -1247,7 +1247,7 @@ const ProjectDetailsPage = () => {
                   rows="3"
                   disabled={!editMode}
                   readOnly={!editMode}
-                  className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
+                  className={`w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
                     !editMode
                       ? "bg-slate-100 opacity-60 cursor-not-allowed"
                       : ""
@@ -1270,7 +1270,7 @@ const ProjectDetailsPage = () => {
                   rows="3"
                   disabled={!editMode}
                   readOnly={!editMode}
-                  className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
+                  className={`w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
                     !editMode
                       ? "bg-slate-100 opacity-60 cursor-not-allowed"
                       : ""
@@ -1290,7 +1290,7 @@ const ProjectDetailsPage = () => {
                   rows="3"
                   disabled={!editMode}
                   readOnly={!editMode}
-                  className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
+                  className={`w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
                     !editMode
                       ? "bg-slate-100 opacity-60 cursor-not-allowed"
                       : ""
@@ -1310,7 +1310,7 @@ const ProjectDetailsPage = () => {
                   rows="3"
                   disabled={!editMode}
                   readOnly={!editMode}
-                  className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
+                  className={`w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-xs ${
                     !editMode
                       ? "bg-slate-100 opacity-60 cursor-not-allowed"
                       : ""
@@ -1321,7 +1321,7 @@ const ProjectDetailsPage = () => {
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-slate-800 p-4 rounded-lg shadow-lg">
+          <div className="flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-slate-800 p-4 rounded shadow-lg">
             <Button
               onClick={() => navigate("/design-engineer/root-cards")}
               variant="secondary"

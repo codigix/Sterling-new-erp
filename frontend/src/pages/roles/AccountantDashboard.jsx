@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
-  <div className="space-y-6">
+  <div className="space-y-2">
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
         <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -38,7 +38,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
       <div className="flex gap-3 flex-wrap">
         <button
           onClick={handleExport}
-          className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+          className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
         >
           <TrendingUp size={18} />
           Export Report
@@ -46,7 +46,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
         <select
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value)}
-          className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white font-medium"
+          className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white font-medium"
         >
           <option value="current-month">Current Month</option>
           <option value="last-quarter">Last Quarter</option>
@@ -62,7 +62,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
         return (
           <div
             key={stat.title}
-            className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow"
+            className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6  transition-shadow"
           >
             <div className="flex items-center text-xs justify-between">
               <div>
@@ -93,14 +93,14 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/accountant/payable/vendor-invoices"
-            className="p-4 bg-blue-50 dark:bg-slate-700 rounded-lg hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors"
+            className="p-4 bg-blue-50 dark:bg-slate-700 rounded hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors"
           >
             <Coins size={24} className="text-blue-600 mb-2" />
             <p className="font-medium text-slate-900 dark:text-white text-xs">
@@ -109,7 +109,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
           </Link>
           <Link
             to="/accountant/receivable/customer-invoices"
-            className="p-4 bg-green-50 dark:bg-slate-700 rounded-lg hover:bg-green-100 dark:hover:bg-slate-600 transition-colors"
+            className="p-4 bg-green-50 dark:bg-slate-700 rounded hover:bg-green-100 dark:hover:bg-slate-600 transition-colors"
           >
             <Coins size={24} className="text-green-600 mb-2" />
             <p className="font-medium text-slate-900 dark:text-white text-xs">
@@ -118,7 +118,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
           </Link>
           <Link
             to="/accountant/reports/income-statement"
-            className="p-4 bg-purple-50 dark:bg-slate-700 rounded-lg hover:bg-purple-100 dark:hover:bg-slate-600 transition-colors"
+            className="p-4 bg-purple-50 dark:bg-slate-700 rounded hover:bg-purple-100 dark:hover:bg-slate-600 transition-colors"
           >
             <FileText size={24} className="text-purple-600 mb-2" />
             <p className="font-medium text-slate-900 dark:text-white text-xs">
@@ -127,7 +127,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
           </Link>
           <Link
             to="/accountant/budget/management"
-            className="p-4 bg-orange-50 dark:bg-slate-700 rounded-lg hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
+            className="p-4 bg-orange-50 dark:bg-slate-700 rounded hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
           >
             <PieChart size={24} className="text-orange-600 mb-2" />
             <p className="font-medium text-slate-900 dark:text-white text-xs">
@@ -137,12 +137,12 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
           Alerts
         </h2>
         <div className="space-y-3">
-          <div className="flex gap-3 p-3 bg-red-50 dark:bg-red-900 rounded-lg">
+          <div className="flex gap-3 p-3 bg-red-50 dark:bg-red-900 rounded">
             <AlertTriangle
               size={20}
               className="text-red-600 flex-shrink-0 mt-0.5"
@@ -156,7 +156,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
               </p>
             </div>
           </div>
-          <div className="flex gap-3 p-3 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
+          <div className="flex gap-3 p-3 bg-yellow-50 dark:bg-yellow-900 rounded">
             <AlertTriangle
               size={20}
               className="text-yellow-600 flex-shrink-0 mt-0.5"
@@ -170,7 +170,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
               </p>
             </div>
           </div>
-          <div className="flex gap-3 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+          <div className="flex gap-3 p-3 bg-blue-50 dark:bg-blue-900 rounded">
             <AlertTriangle
               size={20}
               className="text-blue-600 flex-shrink-0 mt-0.5"

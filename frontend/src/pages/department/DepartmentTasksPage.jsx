@@ -97,7 +97,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white capitalize">{departmentName} Tasks</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">Manage and track department tasks</p>
@@ -206,7 +206,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
               </div>
             ) : (
               tasks.map((task) => (
-                <div key={task.id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
+                <div key={task.id} className="p-4 border border-gray-200 rounded hover:shadow-md transition">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">

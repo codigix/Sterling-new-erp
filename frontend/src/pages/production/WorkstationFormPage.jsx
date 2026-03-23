@@ -115,11 +115,11 @@ const WorkstationFormPage = () => {
     <div className="min-h-screen bg-slate-50/50 pb-20">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 sticky top-16 z-20">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto p-2 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate('/department/production/workstations')}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500"
+              className="p-2 hover:bg-slate-100 rounded transition-colors text-slate-500"
             >
               <ArrowLeft size={20} />
             </button>
@@ -135,7 +135,7 @@ const WorkstationFormPage = () => {
           <div className="flex items-center gap-3">
             <button 
               onClick={() => navigate('/department/production/workstations')}
-              className="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-800"
+              className="p-2 text-sm font-bold text-slate-600 hover:text-slate-800"
             >
               Cancel
             </button>
@@ -177,7 +177,7 @@ const WorkstationFormPage = () => {
                       value={formData.workstation_id}
                       onChange={handleInputChange}
                       placeholder="e.g. WS-001"
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                       required
                     />
                   </div>
@@ -189,7 +189,7 @@ const WorkstationFormPage = () => {
                       value={formData.display_name}
                       onChange={handleInputChange}
                       placeholder="e.g. Precision Assembly Line"
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                       required
                     />
                   </div>
@@ -213,7 +213,7 @@ const WorkstationFormPage = () => {
                       name="responsible_dept"
                       value={formData.responsible_dept}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     >
                       <option value="">Select Department</option>
                       {departments.map(dept => (
@@ -244,7 +244,7 @@ const WorkstationFormPage = () => {
                       name="equipment_class"
                       value={formData.equipment_class}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     >
                       <option value="">Select Class</option>
                       <option value="CNC">CNC Machine</option>
@@ -262,7 +262,7 @@ const WorkstationFormPage = () => {
                       value={formData.equipment_code}
                       onChange={handleInputChange}
                       placeholder="Asset Tag / Serial No."
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -272,7 +272,7 @@ const WorkstationFormPage = () => {
                       name="units_per_hour"
                       value={formData.units_per_hour}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -282,7 +282,7 @@ const WorkstationFormPage = () => {
                       name="target_utilization"
                       value={formData.target_utilization}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     />
                   </div>
                 </div>
@@ -294,7 +294,7 @@ const WorkstationFormPage = () => {
                     onChange={handleInputChange}
                     rows="4"
                     placeholder="Provide technical specs, machine capabilities, or safety guidelines..."
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                   ></textarea>
                 </div>
               </div>
@@ -334,14 +334,14 @@ const WorkstationFormPage = () => {
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Service Schedule</p>
                 </div>
               </div>
-              <div className="p-8 space-y-6">
+              <div className="p-8 space-y-2">
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Schedule Frequency</label>
                   <select 
                     name="maintenance_schedule"
                     value={formData.maintenance_schedule}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                   >
                     <option value="Daily">Daily</option>
                     <option value="Weekly">Weekly</option>

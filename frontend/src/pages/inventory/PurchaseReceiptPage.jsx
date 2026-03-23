@@ -287,7 +287,7 @@ const PurchaseReceiptPage = () => {
     return (
       <div className={`relative overflow-hidden rounded-xl border p-5 transition-all duration-300 ${isActive ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'} ${stat.bgColor} ${stat.borderColor}`}>
         <div className="flex justify-between items-start mb-4">
-          <div className={`p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm ${stat.iconColor}`}>
+          <div className={`p-2 rounded bg-white dark:bg-slate-800 shadow-sm ${stat.iconColor}`}>
             <Icon size={20} />
           </div>
           {isActive && (
@@ -313,7 +313,7 @@ const PurchaseReceiptPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="flex items-center gap-4">
@@ -339,13 +339,13 @@ const PurchaseReceiptPage = () => {
           <div className="flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 rounded-xl shadow-sm">
             <button 
               onClick={() => setViewMode("kanban")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === "kanban" ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-700"}`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-bold transition-all ${viewMode === "kanban" ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-700"}`}
             >
               <LayoutGrid size={14} /> KANBAN
             </button>
             <button 
               onClick={() => setViewMode("list")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === "list" ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-700"}`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-bold transition-all ${viewMode === "list" ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-700"}`}
             >
               <List size={14} /> LIST
             </button>
@@ -386,13 +386,13 @@ const PurchaseReceiptPage = () => {
           <div className="flex gap-1">
             <button 
               onClick={() => setActiveTab("grn_request")}
-              className={`px-4 py-2.5 rounded-t-xl text-xs font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 ${activeTab === "grn_request" ? "border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/20" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+              className={`p-2.5 rounded-t-xl text-xs font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 ${activeTab === "grn_request" ? "border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/20" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
               <FileText size={16} /> GRN Request
             </button>
             <button 
               onClick={() => setActiveTab("available_stocks")}
-              className={`px-4 py-2.5 rounded-t-xl text-xs font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 ${activeTab === "available_stocks" ? "border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/20" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+              className={`p-2.5 rounded-t-xl text-xs font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 ${activeTab === "available_stocks" ? "border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/20" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
               <Package size={16} /> Available Stocks
             </button>
@@ -478,7 +478,7 @@ const PurchaseReceiptPage = () => {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
+                          <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
                             <Warehouse size={14} />
                           </div>
                           <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -487,7 +487,7 @@ const PurchaseReceiptPage = () => {
                         </div>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                           <Calendar size={12} className="text-slate-400" />
                           <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
                             {grn.receivedDate ? new Date(grn.receivedDate).toLocaleDateString() : 'N/A'}
@@ -514,13 +514,13 @@ const PurchaseReceiptPage = () => {
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleViewGRN(grn)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-blue-100 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-blue-100 transition-colors"
                           >
                             <Eye size={14} /> View Details
                           </button>
                           <button 
                             onClick={() => handlePrintGRN(grn)}
-                            className="p-1.5 bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-200 transition-colors"
+                            className="p-1.5 bg-slate-100 text-slate-500 rounded hover:bg-slate-200 transition-colors"
                           >
                             <Printer size={14} />
                           </button>
@@ -580,7 +580,7 @@ const PurchaseReceiptPage = () => {
                         </span>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                           <Warehouse size={12} className="text-slate-400" />
                           <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
                             {stock.warehouse || 'Main Warehouse'}
@@ -606,16 +606,16 @@ const PurchaseReceiptPage = () => {
       {showViewModal && selectedGRN && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
+            <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 GRN Details - {selectedGRN.grnNo}
               </h2>
-              <button onClick={() => setShowViewModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+              <button onClick={() => setShowViewModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
                 <X size={20} className="text-slate-400" />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto space-y-6">
+            <div className="p-6 overflow-y-auto space-y-2">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${selectedGRN.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
@@ -711,7 +711,7 @@ const PurchaseReceiptPage = () => {
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 flex items-center justify-between gap-4">
+            <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 flex items-center justify-between gap-4">
               <button 
                 onClick={() => handlePrintGRN(selectedGRN)}
                 className="flex items-center gap-1.5 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-md transition-all active:scale-95"

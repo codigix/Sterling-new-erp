@@ -122,7 +122,7 @@ const InventoryTasksPage = () => {
         <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab("stock")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "stock"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -132,7 +132,7 @@ const InventoryTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("issuance")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "issuance"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -142,11 +142,11 @@ const InventoryTasksPage = () => {
           </button>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
+          <button className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
             <Filter size={18} />
             Filter
           </button>
-          <button className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+          <button className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors">
             <Plus size={18} />
             {activeTab === "stock" ? "Add Stock" : "Issue Material"}
           </button>
@@ -217,13 +217,13 @@ const InventoryTasksPage = () => {
                     </td>
                     <td className="p-1">
                       <div className="flex gap-2">
-                        <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover: transition-colors">
+                        <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
                           <Eye size={16} />
                         </button>
-                        <button className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
+                        <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
                           <Edit2 size={16} />
                         </button>
-                        <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover: transition-colors">
+                        <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
                           <ArrowRight size={16} />
                         </button>
                       </div>
@@ -299,10 +299,10 @@ const InventoryTasksPage = () => {
                     </td>
                     <td className="p-1">
                       <div className="flex gap-2">
-                        <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover: transition-colors">
+                        <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
                           <Eye size={16} />
                         </button>
-                        <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover: transition-colors">
+                        <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
                           <Download size={16} />
                         </button>
                       </div>

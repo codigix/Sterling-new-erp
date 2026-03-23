@@ -59,13 +59,13 @@ const DashboardHome = () => {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-6">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat) => (
           <div
             key={stat.title}
-            className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700 shadow-sm"
+            className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700 shadow-sm"
           >
             <div className="flex items-center text-xs justify-between">
               <div>

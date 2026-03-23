@@ -2,7 +2,7 @@ import React from "react";
 
 export default function FormSection({ title, subtitle, icon: Icon, children }) {
   return (
-    <div className="bg-gradient-to-br from-white to-purple-50/20 border border-slate-200 rounded-lg p-4 space-y-3">
+    <div className="bg-gradient-to-br from-white to-purple-50/20 border border-slate-200 rounded p-2 space-y-3">
       {(title || Icon) && (
         <div className="flex items-center text-xs gap-2.5 mb-4 pb-3 border-b border-slate-100">
           {Icon && <Icon className="text-purple-600" size={20} />}

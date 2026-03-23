@@ -74,17 +74,17 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-2">
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="bg-red-50 border border-red-200 rounded p-4 text-red-700 flex items-center gap-2">
+          <AlertCircle className="w-3 h-3 flex-shrink-0" />
           {error}
         </div>
       )}
 
       {success && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-emerald-700 flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="bg-emerald-50 border border-emerald-200 rounded p-4 text-emerald-700 flex items-center gap-2">
+          <CheckCircle className="w-3 h-3 flex-shrink-0" />
           {success}
         </div>
       )}
@@ -172,9 +172,9 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
           className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
-            <Loader className="w-5 h-5 animate-spin" />
+            <Loader className="w-3 h-3 animate-spin" />
           ) : (
-            <CheckCircle className="w-5 h-5" />
+            <CheckCircle className="w-3 h-3" />
           )}
           Update Next Operation
         </button>

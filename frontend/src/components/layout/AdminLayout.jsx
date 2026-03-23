@@ -121,7 +121,7 @@ const AdminLayout = () => {
           {/* Left side - Logo and mobile menu */}
           <div className="flex items-center text-xs">
             <button
-              className="lg:hidden mr-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="lg:hidden mr-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
               <Menu size={20} />
@@ -141,10 +141,10 @@ const AdminLayout = () => {
             {/* User Menu */}
             <div className="relative">
               <button
-                className="flex items-center text-xs space-x-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
+                className="flex items-center text-xs space-x-3 p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center text-xs justify-center shadow-sm">
+                <div className="w-9 h-9 bg-indigo-600 rounded flex items-center text-xs justify-center shadow-sm">
                   <span className="text-white font-bold text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
@@ -161,7 +161,7 @@ const AdminLayout = () => {
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
                   <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-indigo-600 rounded-t-lg">
                     <p className="text-sm font-bold text-white">
                       {user?.fullName || user?.username}
@@ -172,14 +172,14 @@ const AdminLayout = () => {
                   </div>
                   <Link
                     to="/profile"
-                    className="flex items-center text-xs px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    className="flex items-center text-xs p-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     <User size={16} className="mr-2" />
                     Profile
                   </Link>
                   <Link
                     to="/settings"
-                    className="flex items-center text-xs px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    className="flex items-center text-xs p-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     <Settings size={16} className="mr-2" />
                     Settings
@@ -187,7 +187,7 @@ const AdminLayout = () => {
                   <div className="border-t border-slate-200 dark:border-slate-700 my-1"></div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center text-xs w-full px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    className="flex items-center text-xs w-full p-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     <LogOut size={16} className="mr-2" />
                     Logout
@@ -209,7 +209,7 @@ const AdminLayout = () => {
           {/* Sidebar Header */}
           <div className="p-4 border-b border-slate-200 dark:border-slate-700">
             <button
-              className="hidden lg:flex items-center text-xs justify-center w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="hidden lg:flex items-center text-xs justify-center w-8 h-8 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
               <Menu size={20} />
@@ -217,7 +217,7 @@ const AdminLayout = () => {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4 space-y-6">
+          <nav className="flex-1 overflow-y-auto p-4 space-y-2">
             {/* Admin Section */}
             <div>
               <h6
@@ -239,7 +239,7 @@ const AdminLayout = () => {
                         <>
                           <button
                             onClick={() => toggleSection(item.title)}
-                            className={`w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                            className={`w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
                               isExpanded
                                 ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -269,7 +269,7 @@ const AdminLayout = () => {
                                   <li key={subitem.path}>
                                     <Link
                                       to={subitem.path}
-                                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
                                         isActive(subitem.path)
                                           ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -292,7 +292,7 @@ const AdminLayout = () => {
                       ) : (
                         <Link
                           to={item.path}
-                          className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                          className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
                             isActive(item.path)
                               ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -323,7 +323,7 @@ const AdminLayout = () => {
                 <li>
                   <Link
                     to="/dashboard"
-                    className="flex items-center text-xs px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    className="flex items-center text-xs px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
                     <Home size={18} className="flex-shrink-0" />
                     {!sidebarCollapsed && (
@@ -343,10 +343,10 @@ const AdminLayout = () => {
           sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
         } pt-16`}
       >
-        <div className="">
+        <div className="p-2">
           {/* Breadcrumbs */}
-          <div className="mb-6">
-            <nav className=" p-4 flex items-center text-xs space-x-2 text-xs text-slate-600 dark:text-slate-400">
+          <div className="">
+            <nav className="  flex items-center text-xs space-x-2 text-xs text-slate-600 dark:text-slate-400">
               <Link
                 to="/admin/dashboard"
                 className="hover: dark:hover: transition-colors"
@@ -361,7 +361,7 @@ const AdminLayout = () => {
           </div>
 
           {/* Page Content */}
-          <div className="space-y-6">
+          <div className="space-y-2">
             <Outlet />
           </div>
         </div>

@@ -714,7 +714,7 @@ const QuotationsPage = ({ defaultTab }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -741,7 +741,7 @@ const QuotationsPage = ({ defaultTab }) => {
               });
               setShowAddModal(true);
             }}
-            className={`flex items-center text-xs gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium ${
+            className={`flex items-center text-xs gap-2 p-2 text-white rounded transition-colors font-medium ${
               activeTab === "outbound"
                 ? "bg-indigo-600 hover:bg-indigo-700"
                 : "bg-green-600 hover:bg-green-700"
@@ -750,7 +750,7 @@ const QuotationsPage = ({ defaultTab }) => {
             {activeTab === "outbound" ? <Send size={18} /> : <Plus size={18} />}
             {activeTab === "outbound" ? "Request Quote" : "Record Quote"}
           </button>
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
             <Download size={18} />
             Export Report
           </button>
@@ -758,7 +758,7 @@ const QuotationsPage = ({ defaultTab }) => {
       </div>
 
       {isFromDepartmentTasks() && (
-        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4 flex items-start gap-3">
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded p-4 flex items-start gap-3">
           <div className="flex-1">
             <p className="text-sm font-semibold text-blue-900 dark:text-blue-300">
               📋 Inventory Task Context
@@ -773,7 +773,7 @@ const QuotationsPage = ({ defaultTab }) => {
       {/* Tabs */}
       <div className="flex border-b border-slate-200 dark:border-slate-700">
         <button
-          className={`px-4 py-2 font-medium text-sm transition-colors relative ${
+          className={`p-2 font-medium text-sm transition-colors relative ${
             activeTab === "outbound"
               ? "text-blue-600 dark:text-blue-400"
               : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
@@ -786,7 +786,7 @@ const QuotationsPage = ({ defaultTab }) => {
           )}
         </button>
         <button
-          className={`px-4 py-2 font-medium text-sm transition-colors relative ${
+          className={`p-2 font-medium text-sm transition-colors relative ${
             activeTab === "inbound"
               ? "text-blue-600 dark:text-blue-400"
               : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
@@ -813,14 +813,14 @@ const QuotationsPage = ({ defaultTab }) => {
               placeholder="Search quote, vendor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
           >
             <option value="all">All Quotations</option>
             <option value="pending">Pending</option>
@@ -828,7 +828,7 @@ const QuotationsPage = ({ defaultTab }) => {
             <option value="rejected">Rejected</option>
           </select>
 
-          <button className="flex items-center text-xs justify-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             <Filter size={18} />
             Advanced Filter
           </button>
@@ -890,7 +890,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         : ""
                     }`}
                   >
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <p className="font-bold text-slate-900 dark:text-white">
                         {quote.quotation_number}
                       </p>
@@ -910,11 +910,11 @@ const QuotationsPage = ({ defaultTab }) => {
                         </p>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300 font-medium">
+                    <td className="p-2 text-slate-700 dark:text-slate-300 font-medium">
                       {quote.vendor_name}
                     </td>
                     {activeTab === "inbound" && (
-                      <td className="px-6 py-4 text-right">
+                      <td className="p-2 text-right">
                         <p className="font-bold text-slate-900 dark:text-white flex items-center justify-end gap-1">
                           <DollarSign size={14} />
                           {quote.total_amount
@@ -923,7 +923,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         </p>
                       </td>
                     )}
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <div className="flex items-center gap-2">
                         <Calendar size={14} className="text-slate-500" />
                         <div>
@@ -946,7 +946,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="p-2 text-center">
                       {activeTab === "inbound" ? (
                         <div className="relative inline-block">
                           <select
@@ -980,12 +980,12 @@ const QuotationsPage = ({ defaultTab }) => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="p-2 text-center">
                       <div className="flex justify-center gap-2">
                         {activeTab === "outbound" && (
                           <button
                             onClick={() => handleRecordResponse(quote)}
-                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded-lg transition-colors"
+                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
                             title="Record Vendor Quote"
                           >
                             <Plus size={16} />
@@ -994,7 +994,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         {activeTab === "outbound" && quote.status !== "sent" && (
                           <button
                             onClick={() => handleSendEmail(quote)}
-                            className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-lg transition-colors"
+                            className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
                             title="Send to Vendor"
                           >
                             <Mail size={16} />
@@ -1003,7 +1003,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         {activeTab === "outbound" && quote.status === "sent" && (
                           <button
                             onClick={() => handleViewCommunications(quote)}
-                            className={`p-2 rounded-lg transition-colors relative ${
+                            className={`p-2 rounded transition-colors relative ${
                               quote.unread_communication_count > 0 
                                 ? "bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 animate-pulse" 
                                 : "hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400"
@@ -1024,7 +1024,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         {activeTab === "inbound" && quote.status === "pending" && (
                           <button
                             onClick={() => handleInlineStatusUpdate(quote.id, "approved")}
-                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded-lg transition-colors"
+                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
                             title="Quick Approve"
                           >
                             <CheckCircle size={16} />
@@ -1035,7 +1035,7 @@ const QuotationsPage = ({ defaultTab }) => {
                             {quote.status === "approved" && (
                               <button
                                 onClick={() => handleCreatePOFromQuote(quote)}
-                                className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-lg transition-colors"
+                                className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
                                 title="Create Purchase Order"
                               >
                                 <Plus size={16} />
@@ -1046,14 +1046,14 @@ const QuotationsPage = ({ defaultTab }) => {
 
                         <button
                           onClick={() => handleViewQuotation(quote)}
-                          className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-lg transition-colors"
+                          className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
                           title="View"
                         >
                           <Eye size={16} />
                         </button>
                         <button
                           onClick={() => handleDeleteQuotation(quote.id)}
-                          className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded-lg transition-colors"
+                          className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
                           title="Delete"
                         >
                           <Trash2 size={16} />
@@ -1149,7 +1149,7 @@ const QuotationsPage = ({ defaultTab }) => {
               </div>
               <button
                 onClick={() => setShowEmailModal(false)}
-                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
               >
                 <X size={24} className="text-slate-600 dark:text-slate-400" />
               </button>
@@ -1167,7 +1167,7 @@ const QuotationsPage = ({ defaultTab }) => {
                     setEmailData({ ...emailData, email: e.target.value })
                   }
                   placeholder="vendor@example.com"
-                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -1182,7 +1182,7 @@ const QuotationsPage = ({ defaultTab }) => {
                     setEmailData({ ...emailData, subject: e.target.value })
                   }
                   placeholder="Email subject"
-                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -1197,7 +1197,7 @@ const QuotationsPage = ({ defaultTab }) => {
                   }
                   placeholder="Email message"
                   rows="5"
-                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
@@ -1205,14 +1205,14 @@ const QuotationsPage = ({ defaultTab }) => {
                 <button
                   type="button"
                   onClick={() => setShowEmailModal(false)}
-                  className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium"
+                  className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={sendingEmail}
-                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors font-medium"
+                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded transition-colors font-medium"
                 >
                   {sendingEmail ? (
                     <>
@@ -1308,7 +1308,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap font-medium p-3 rounded-lg bg-white/80 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap font-medium p-3 rounded bg-white/80 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 shadow-sm">
                       {comm.content_text || "No message content"}
                     </div>
 
@@ -1320,7 +1320,7 @@ const QuotationsPage = ({ defaultTab }) => {
                             onClick={() =>
                               handleDownloadAttachment(att.id, att.file_name)
                             }
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-500 transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 rounded hover:bg-slate-50 dark:hover:bg-slate-500 transition-colors"
                           >
                             <Paperclip size={14} />
                             {att.file_name}

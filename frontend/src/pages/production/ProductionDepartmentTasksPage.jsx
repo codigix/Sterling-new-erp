@@ -95,14 +95,14 @@ const ProductionDepartmentTasksPage = () => {
         </div>
         <button 
           onClick={fetchTasks}
-          className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+          className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm font-medium hover:bg-slate-50 transition-colors"
         >
           Refresh
         </button>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center justify-between">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertCircle size={20} />
             {error}
@@ -118,7 +118,7 @@ const ProductionDepartmentTasksPage = () => {
           <input
             type="text"
             placeholder="Search by title, job card or work order..."
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -126,7 +126,7 @@ const ProductionDepartmentTasksPage = () => {
         <div className="flex items-center gap-2">
           <Filter size={18} className="text-slate-400" />
           <select
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -145,12 +145,12 @@ const ProductionDepartmentTasksPage = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Task Info</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Job Card / Work Order</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Priority</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Assigned By</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Task Info</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Job Card / Work Order</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Priority</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Assigned By</th>
+                <th className="p-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -165,7 +165,7 @@ const ProductionDepartmentTasksPage = () => {
               ) : (
                 filteredTasks.map((task) => (
                   <tr key={task.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <div className="font-medium text-slate-900 dark:text-white">{task.task_title}</div>
                       {task.product_name && (
                         <div className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-0.5 uppercase tracking-tight">
@@ -174,7 +174,7 @@ const ProductionDepartmentTasksPage = () => {
                       )}
                       <div className="text-xs text-slate-500 mt-1 line-clamp-1 italic font-medium">{task.task_description}</div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <div className="text-sm text-slate-900 dark:text-white font-bold">
                         {task.work_order_operation_id 
                           ? `JC-${task.work_order_no?.split('-')?.pop() || task.work_order_id || 'WO'}-${task.work_order_operation_id}` 
@@ -184,7 +184,7 @@ const ProductionDepartmentTasksPage = () => {
                         WO: {task.work_order_no || 'N/A'}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <Badge className={`
                         ${task.priority === 'critical' ? 'bg-red-100 text-red-800' : 
                           task.priority === 'high' ? 'bg-orange-100 text-orange-800' :
@@ -194,20 +194,20 @@ const ProductionDepartmentTasksPage = () => {
                         {task.priority}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <Badge className={getStatusColor(task.status)}>
                         {task.status.replace('_', ' ')}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                       {task.assigned_by_name || 'System'}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="p-2 text-right">
                       <div className="flex justify-end gap-2">
                         {task.link && task.status !== 'completed' && (
                           <button
                             onClick={() => navigate(task.link)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold"
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors flex items-center gap-1 text-xs font-bold"
                             title="Go to Production Entry"
                           >
                             <ArrowRight size={18} />
@@ -217,7 +217,7 @@ const ProductionDepartmentTasksPage = () => {
                         {task.status !== 'completed' && (
                           <button
                             onClick={() => handleUpdateStatus(task.id, 'completed')}
-                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            className="p-2 text-green-600 hover:bg-green-50 rounded transition-colors"
                             title="Mark as Completed"
                           >
                             <CheckCircle size={18} />
@@ -226,7 +226,7 @@ const ProductionDepartmentTasksPage = () => {
                         {task.status === 'pending' && (
                           <button
                             onClick={() => handleUpdateStatus(task.id, 'in_progress')}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                             title="Start Task"
                           >
                             <Clock size={18} />

@@ -111,7 +111,7 @@ const KanbanView = ({
                   return (
                     <div
                       key={po.id}
-                      className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4 shadow-sm hover:shadow-md transition-all group border-l-4 border-l-blue-500"
+                      className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4  transition-all group border-l-4 border-l-blue-500"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <button
@@ -734,7 +734,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
           
           <button
             onClick={fetchPurchaseOrders}
-            className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 shadow-sm transition-all"
+            className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-400 hover:bg-slate-50 shadow-sm transition-all"
           >
             <RefreshCw size={18} />
           </button>
@@ -742,14 +742,14 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             <div className="relative">
               <button
                 onClick={() => setShowCreateOptions(!showCreateOptions)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
+                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded font-bold text-xs uppercase tracking-wider hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
               >
                 <Plus size={16} /> Create Order
               </button>
 
               {showCreateOptions && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-4 py-2 border-b border-slate-50 dark:border-slate-800 mb-1">
+                  <div className="p-2 border-b border-slate-50 dark:border-slate-800 mb-1">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                       Select PO Type
                     </p>
@@ -760,7 +760,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       setShowCreateModal(true);
                       setShowCreateOptions(false);
                     }}
-                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
+                    className="w-full text-left p-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
                   >
                     <div className="p-1.5 bg-blue-50 dark:bg-blue-900/50 text-blue-600 rounded-md">
                       <FileText size={14} />
@@ -775,7 +775,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       }, 1500);
                       setShowCreateOptions(false);
                     }}
-                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
+                    className="w-full text-left p-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
                   >
                     <div className="p-1.5 bg-purple-50 dark:bg-purple-900/50 text-purple-600 rounded-md">
                       <Package size={14} />
@@ -895,12 +895,12 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             placeholder="Search by PO # or supplier..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none shadow-sm"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-500 shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 shadow-sm">
             <Filter size={14} />
             <span className="text-[10px] font-bold uppercase tracking-wider">
               Status:
@@ -932,7 +932,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
               )}
             </select>
           </div>
-          <button className="p-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all">
+          <button className="p-2.5 bg-emerald-500 text-white rounded hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all">
             <Filter size={18} />
           </button>
         </div>
@@ -944,25 +944,25 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   PO Details
                 </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Supplier
                 </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Project
                 </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Order -- Expected
                 </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Amount
                 </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
                   Status
                 </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
                   Actions
                 </th>
               </tr>
@@ -997,7 +997,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       key={po.id}
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group"
                     >
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <button
                           onClick={() => handleViewPO(po)}
                           className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight block mb-0.5"
@@ -1005,7 +1005,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           {po.po_number}
                         </button>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-0.5 uppercase tracking-tight">
                           {po.vendor_name || "N/A"}
                         </p>
@@ -1014,7 +1014,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           Active Vendor
                         </p>
                       </td>
-                      <td className="px-6 py-4 min-w-[200px]">
+                      <td className="p-2 min-w-[200px]">
                         {po.root_card_project_name ? (
                           <div className="flex items-start gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>
@@ -1028,7 +1028,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-700">
                             <Calendar size={10} />
@@ -1057,7 +1057,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <p className="text-[11px] font-bold text-slate-900 dark:text-white mb-0.5 tracking-tight">
                           ₹{formatCurrency(po.total_amount)}
                         </p>
@@ -1065,7 +1065,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           Net Value
                         </p>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="p-2 text-center">
                         <span
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[9px] font-black uppercase tracking-widest border shadow-sm ${
                             po.status === "draft"
@@ -1111,7 +1111,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           ) : po.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => handleViewPO(po)}
@@ -1243,7 +1243,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                     setEmailData({ ...emailData, email: e.target.value })
                   }
                   placeholder="vendor@example.com"
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 />
               </div>
 
@@ -1257,7 +1257,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   onChange={(e) =>
                     setEmailData({ ...emailData, subject: e.target.value })
                   }
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 />
               </div>
 
@@ -1271,7 +1271,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                     setEmailData({ ...emailData, message: e.target.value })
                   }
                   rows={4}
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
                 />
               </div>
 
@@ -1356,7 +1356,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-2">
                   {communications.map((comm) => (
                     <div
                       key={comm.id}
@@ -1429,7 +1429,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                                   onClick={() =>
                                     downloadAttachment(file.id, file.file_name)
                                   }
-                                  className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-lg group hover:border-blue-200 dark:hover:border-blue-800 transition-all text-left"
+                                  className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded group hover:border-blue-200 dark:hover:border-blue-800 transition-all text-left"
                                 >
                                   <div className="flex items-center gap-2 overflow-hidden">
                                     <FileText
@@ -1522,7 +1522,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                     {selectedPOForUpload.attachments.map((file, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-2 bg-emerald-50/50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800/50"
+                        className="flex items-center justify-between p-2 bg-emerald-50/50 dark:bg-emerald-900/20 rounded border border-emerald-100 dark:border-emerald-800/50"
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
                           <FileText size={14} className="text-emerald-600 shrink-0" />
@@ -1577,7 +1577,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                     {filesToUpload.map((file, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700"
+                        className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700"
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
                           <FileText size={14} className="text-blue-500 shrink-0" />
@@ -1598,7 +1598,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             <div className="p-6 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-50 dark:border-slate-800 flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 uppercase tracking-widest transition-colors"
+                className="p-2 text-xs font-bold text-slate-500 hover:text-slate-700 uppercase tracking-widest transition-colors"
               >
                 Cancel
               </button>

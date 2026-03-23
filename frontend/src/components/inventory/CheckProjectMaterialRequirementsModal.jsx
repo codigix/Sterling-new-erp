@@ -202,7 +202,7 @@ const CheckProjectMaterialRequirementsModal = ({
             <>
               {/* Project Details Summary */}
               {projectDetails && (
-                <div className="mb-6 p-4 bg-blue-50 dark:bg-slate-700 rounded-lg border border-blue-200 dark:border-slate-600">
+                <div className="mb-6 p-4 bg-blue-50 dark:bg-slate-700 rounded border border-blue-200 dark:border-slate-600">
                   <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
                     Material Request Details
                   </h3>
@@ -244,7 +244,7 @@ const CheckProjectMaterialRequirementsModal = ({
               )}
 
               {/* Select All Checkbox */}
-              <div className="mb-4 flex items-center gap-3 p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+              <div className="mb-4 flex items-center gap-3 p-3 bg-slate-100 dark:bg-slate-700 rounded">
                 <input
                   type="checkbox"
                   id="selectAll"
@@ -253,7 +253,7 @@ const CheckProjectMaterialRequirementsModal = ({
                     materials.length > 0
                   }
                   onChange={toggleSelectAll}
-                  className="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="w-3 h-3 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
                 <label
                   htmlFor="selectAll"
@@ -271,13 +271,13 @@ const CheckProjectMaterialRequirementsModal = ({
                 {materials.map((material, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                    className="flex items-start gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                   >
                     <input
                       type="checkbox"
                       checked={selectedMaterials.has(idx)}
                       onChange={() => toggleMaterialSelection(idx)}
-                      className="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer mt-1"
+                      className="w-3 h-3 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer mt-1"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -375,14 +375,14 @@ const CheckProjectMaterialRequirementsModal = ({
           <button
             onClick={onClose}
             disabled={isCreating}
-            className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 font-medium"
+            className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 font-medium"
           >
             Cancel
           </button>
           <button
             onClick={handleCreateRFQ}
             disabled={isCreating || selectedMaterials.size === 0 || loading || materials.length === 0}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
             title={materials.length === 0 ? "No materials to select" : selectedMaterials.size === 0 ? "Select at least one material" : "Create RFQ with selected materials"}
           >
             {isCreating ? (

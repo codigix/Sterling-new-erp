@@ -181,11 +181,11 @@ const RootCardDetailPage = () => {
   }
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-2 pb-8">
       <div className="flex items-center gap-4">
         <button
           onClick={() => navigate('/department/production/root-cards')}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
         >
           <ArrowLeft size={24} className="text-slate-600 dark:text-slate-400" />
         </button>
@@ -196,7 +196,7 @@ const RootCardDetailPage = () => {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300 flex items-start gap-3">
+        <div className="rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300 flex items-start gap-3">
           <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-medium">{error}</p>
@@ -207,7 +207,7 @@ const RootCardDetailPage = () => {
       <div className="flex gap-4">
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+          className="flex items-center gap-2 p-2 rounded text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
         >
           <Edit size={18} />
           {isEditing ? 'Cancel' : 'Edit'}
@@ -215,7 +215,7 @@ const RootCardDetailPage = () => {
         {card.status === 'planning' && (
           <button
             onClick={handleStartProduction}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
+            className="flex items-center gap-2 p-2 rounded text-xs bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
           >
             <Play size={18} />
             Start Production
@@ -223,7 +223,7 @@ const RootCardDetailPage = () => {
         )}
         <button
           onClick={handleDelete}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+          className="flex items-center gap-2 p-2 rounded text-xs bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
         >
           <Trash2 size={18} />
           Delete
@@ -231,10 +231,10 @@ const RootCardDetailPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-2">
           <Card className="p-8">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Details</h2>
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -245,7 +245,7 @@ const RootCardDetailPage = () => {
                       type="text"
                       value={formData.title || ''}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     />
                   ) : (
                     <p className="text-slate-900 dark:text-white font-medium">{card.title}</p>
@@ -277,7 +277,7 @@ const RootCardDetailPage = () => {
                     <select
                       value={formData.status || 'planning'}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     >
                       <option value="draft">Draft</option>
                       <option value="planning">Planning</option>
@@ -300,7 +300,7 @@ const RootCardDetailPage = () => {
                     <select
                       value={formData.priority || 'medium'}
                       onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -325,7 +325,7 @@ const RootCardDetailPage = () => {
                       type="date"
                       value={formData.planned_start ? formData.planned_start.split('T')[0] : ''}
                       onChange={(e) => setFormData({ ...formData, planned_start: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     />
                   ) : (
                     <p className="text-slate-900 dark:text-white">
@@ -342,7 +342,7 @@ const RootCardDetailPage = () => {
                       type="date"
                       value={formData.planned_end ? formData.planned_end.split('T')[0] : ''}
                       onChange={(e) => setFormData({ ...formData, planned_end: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     />
                   ) : (
                     <p className="text-slate-900 dark:text-white">
@@ -361,7 +361,7 @@ const RootCardDetailPage = () => {
                     value={formData.notes || ''}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     rows={4}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                   />
                 ) : (
                   <p className="text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{card.notes || '-'}</p>
@@ -372,7 +372,7 @@ const RootCardDetailPage = () => {
                 <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                   <button
                     onClick={handleSave}
-                    className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                    className="px-6 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
                   >
                     Save Changes
                   </button>
@@ -381,7 +381,7 @@ const RootCardDetailPage = () => {
                       setIsEditing(false);
                       setFormData(card);
                     }}
-                    className="px-6 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-medium transition-colors hover:bg-slate-300 dark:hover:bg-slate-600"
+                    className="px-6 py-2 rounded bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-medium transition-colors hover:bg-slate-300 dark:hover:bg-slate-600"
                   >
                     Cancel
                   </button>
@@ -396,7 +396,7 @@ const RootCardDetailPage = () => {
               {!isAddingStage && (
                 <button
                   onClick={() => setIsAddingStage(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors text-sm"
+                  className="flex items-center gap-2 p-2 rounded text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors text-sm"
                 >
                   <Plus size={16} />
                   Add Phase
@@ -405,7 +405,7 @@ const RootCardDetailPage = () => {
             </div>
 
             {isAddingStage && (
-              <div className="mb-6 p-4 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700/50 space-y-4">
+              <div className="mb-6 p-4 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700/50 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -416,7 +416,7 @@ const RootCardDetailPage = () => {
                       value={newStage.stageName}
                       onChange={(e) => setNewStage({ ...newStage, stageName: e.target.value })}
                       placeholder="e.g., Cutting, Welding, Assembly..."
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     />
                   </div>
                   <div>
@@ -426,7 +426,7 @@ const RootCardDetailPage = () => {
                     <select
                       value={newStage.stageType}
                       onChange={(e) => setNewStage({ ...newStage, stageType: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     >
                       <option value="in_house">In-House</option>
                       <option value="outsource">Outsource</option>
@@ -442,7 +442,7 @@ const RootCardDetailPage = () => {
                       type="date"
                       value={newStage.plannedStart}
                       onChange={(e) => setNewStage({ ...newStage, plannedStart: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     />
                   </div>
                   <div>
@@ -453,7 +453,7 @@ const RootCardDetailPage = () => {
                       type="date"
                       value={newStage.plannedEnd}
                       onChange={(e) => setNewStage({ ...newStage, plannedEnd: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     />
                   </div>
                 </div>
@@ -466,13 +466,13 @@ const RootCardDetailPage = () => {
                     onChange={(e) => setNewStage({ ...newStage, notes: e.target.value })}
                     placeholder="Add any notes about this phase..."
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                   />
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={handleAddStage}
-                    className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors text-sm"
+                    className="p-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors text-sm"
                   >
                     Save Phase
                   </button>
@@ -487,7 +487,7 @@ const RootCardDetailPage = () => {
                         notes: ''
                       });
                     }}
-                    className="px-4 py-2 rounded-lg bg-slate-300 dark:bg-slate-600 text-slate-900 dark:text-white font-medium transition-colors text-sm"
+                    className="p-2 rounded bg-slate-300 dark:bg-slate-600 text-slate-900 dark:text-white font-medium transition-colors text-sm"
                   >
                     Cancel
                   </button>
@@ -503,7 +503,7 @@ const RootCardDetailPage = () => {
             ) : (
               <div className="space-y-3">
                 {stages.map((stage, index) => (
-                  <div key={stage.id || index} className="flex items-start justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-700/30 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
+                  <div key={stage.id || index} className="flex items-start justify-between p-4 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-700/30 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">Phase {index + 1}</span>
@@ -532,7 +532,7 @@ const RootCardDetailPage = () => {
                     </div>
                     <button
                       onClick={() => handleDeleteStage(stage.id)}
-                      className="ml-4 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex-shrink-0"
+                      className="ml-4 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex-shrink-0"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -543,7 +543,7 @@ const RootCardDetailPage = () => {
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-2">
           <Card className="p-6">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Information</h3>
             <div className="space-y-4">

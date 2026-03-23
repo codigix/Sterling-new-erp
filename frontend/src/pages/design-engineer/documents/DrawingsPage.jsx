@@ -208,7 +208,7 @@ const DrawingsPage = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -220,14 +220,14 @@ const DrawingsPage = () => {
         </div>
         <button
           onClick={() => setShowUploadModal(true)}
-          className="inline-flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center text-xs gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
         >
           <Plus size={20} />
           Upload Drawing
         </button>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="flex-1 relative">
             <Search
@@ -239,13 +239,13 @@ const DrawingsPage = () => {
               placeholder="Search drawings..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2 rounded transition-colors ${
                 viewMode === "list"
                   ? "bg-blue-100 dark:bg-blue-900 text-blue-600"
                   : "hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -255,7 +255,7 @@ const DrawingsPage = () => {
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2 rounded transition-colors ${
                 viewMode === "grid"
                   ? "bg-blue-100 dark:bg-blue-900 text-blue-600"
                   : "hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -275,7 +275,7 @@ const DrawingsPage = () => {
           </p>
         </div>
       ) : error ? (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4">
           <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       ) : filteredDrawings.length === 0 ? (
@@ -285,7 +285,7 @@ const DrawingsPage = () => {
           </p>
         </div>
       ) : viewMode === "list" ? (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700">
@@ -315,19 +315,19 @@ const DrawingsPage = () => {
                   key={drawing.id}
                   className="hover:bg-slate-50 dark:hover:bg-slate-700"
                 >
-                  <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                  <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
                     {drawing.name}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                     {drawing.format}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                     {drawing.size}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                     {drawing.date}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="p-2">
                     <span
                       className={`px-3 py-1 text-xs font-medium rounded-full ${
                         drawing.status === "Final"
@@ -338,7 +338,7 @@ const DrawingsPage = () => {
                       {drawing.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 flex items-center gap-2">
+                  <td className="p-2 flex items-center gap-2">
                     <button
                       onClick={() => handleViewDrawing(drawing)}
                       className="p-1 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-blue-600 dark:text-blue-400 transition-colors"
@@ -371,9 +371,9 @@ const DrawingsPage = () => {
           {filteredDrawings.map((drawing) => (
             <div
               key={drawing.id}
-              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:shadow-lg transition-shadow"
+              className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4  transition-shadow"
             >
-              <div className="mb-4 h-32 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center text-xs justify-center">
+              <div className="mb-4 h-32 bg-slate-100 dark:bg-slate-700 rounded flex items-center text-xs justify-center">
                 <span className="text-4xl">📄</span>
               </div>
               <h3 className="font-medium text-slate-900 dark:text-white text-xs mb-2">
@@ -410,7 +410,7 @@ const DrawingsPage = () => {
 
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
                 Upload Technical Drawing
@@ -451,10 +451,10 @@ const DrawingsPage = () => {
                         setDesignSearch("");
                       }
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   {showDesignDropdown && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg z-20 max-h-48 overflow-y-auto">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded shadow-lg z-20 max-h-48 overflow-y-auto">
                       {designs.length === 0 ? (
                         <div className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">
                           No designs available
@@ -519,7 +519,7 @@ const DrawingsPage = () => {
                     })
                   }
                   placeholder="e.g., Gearbox Housing – GA Drawing"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -538,7 +538,7 @@ const DrawingsPage = () => {
                     })
                   }
                   placeholder="e.g., DRG-GX120-001"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -556,7 +556,7 @@ const DrawingsPage = () => {
                         drawingType: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="2D">2D</option>
                     <option value="3D">3D</option>
@@ -577,7 +577,7 @@ const DrawingsPage = () => {
                       })
                     }
                     placeholder="e.g., V1.0 or R0"
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -595,7 +595,7 @@ const DrawingsPage = () => {
                       drawingStatus: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Draft">Draft</option>
                   <option value="Approved">Approved</option>
@@ -617,7 +617,7 @@ const DrawingsPage = () => {
                   }
                   placeholder="Optional notes or additional details..."
                   rows="2"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
@@ -630,7 +630,7 @@ const DrawingsPage = () => {
                   type="file"
                   onChange={handleFileChange}
                   accept=".pdf,.dwg,.dxf,.step,.stp,.iges,.igs"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {uploadFormData.file && (
                   <p className="text-xs text-green-600 dark:text-green-400 mt-2">
@@ -643,13 +643,13 @@ const DrawingsPage = () => {
             <div className="flex gap-3 p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 sticky bottom-0">
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUploadSubmit}
-                className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm"
               >
                 Upload Drawing
               </button>
@@ -660,7 +660,7 @@ const DrawingsPage = () => {
 
       {showViewModal && selectedDrawing && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                 {selectedDrawing.name}
@@ -717,7 +717,7 @@ const DrawingsPage = () => {
                   setShowViewModal(false);
                   setSelectedDrawing(null);
                 }}
-                className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
               >
                 Close
               </button>
@@ -727,7 +727,7 @@ const DrawingsPage = () => {
                   setShowViewModal(false);
                   setSelectedDrawing(null);
                 }}
-                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium text-sm"
               >
                 Download
               </button>
@@ -738,7 +738,7 @@ const DrawingsPage = () => {
 
       {showDeleteModal && selectedDrawing && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-sm shadow-2xl border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-sm shadow-2xl border border-slate-200 dark:border-slate-700">
             <div className="p-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
                 Delete Drawing
@@ -753,7 +753,7 @@ const DrawingsPage = () => {
                   setShowDeleteModal(false);
                   setSelectedDrawing(null);
                 }}
-                className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
                 disabled={deleteLoading}
               >
                 Cancel
@@ -761,7 +761,7 @@ const DrawingsPage = () => {
               <button
                 onClick={confirmDeleteDrawing}
                 disabled={deleteLoading}
-                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {deleteLoading && <Loader2 size={16} className="animate-spin" />}
                 Delete

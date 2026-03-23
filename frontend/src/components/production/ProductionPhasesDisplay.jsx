@@ -94,7 +94,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
           <AlertCircle size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-red-800 dark:text-red-300">{error}</p>
@@ -108,7 +108,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
           {editable && (
             <button
               onClick={() => setIsAdding(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
               <Plus size={18} />
               Add Phase
@@ -121,7 +121,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
             {phases.map((phase, index) => (
               <div
                 key={phase.id}
-                className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900"
+                className="p-4 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-3">
@@ -150,7 +150,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                     <button
                       onClick={() => handleDeletePhase(phase.id)}
                       disabled={deleting === phase.id}
-                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
                       title="Delete phase"
                     >
                       <Trash2 size={18} />
@@ -192,7 +192,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
           {editable && !isAdding && (
             <button
               onClick={() => setIsAdding(true)}
-              className="w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               + Add Phase
             </button>
@@ -201,7 +201,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
       )}
 
       {editable && isAdding && (
-        <form onSubmit={handleAddPhase} className="p-4 border-2 border-blue-300 dark:border-blue-700 rounded-lg bg-blue-50 dark:bg-blue-900/20 space-y-4">
+        <form onSubmit={handleAddPhase} className="p-4 border-2 border-blue-300 dark:border-blue-700 rounded bg-blue-50 dark:bg-blue-900/20 space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Phase Name *
@@ -211,7 +211,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               value={newPhase.stageName}
               onChange={(e) => setNewPhase({ ...newPhase, stageName: e.target.value })}
               placeholder="e.g., Cutting, Assembly, Testing"
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -224,7 +224,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               <select
                 value={newPhase.stageType}
                 onChange={(e) => setNewPhase({ ...newPhase, stageType: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="in_house">In-House</option>
                 <option value="outsource">Outsource</option>
@@ -238,7 +238,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               <select
                 disabled
                 value="pending"
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white cursor-not-allowed"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white cursor-not-allowed"
               >
                 <option value="pending">Pending</option>
               </select>
@@ -254,7 +254,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                 type="date"
                 value={newPhase.plannedStart}
                 onChange={(e) => setNewPhase({ ...newPhase, plannedStart: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -266,7 +266,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                 type="date"
                 value={newPhase.plannedEnd}
                 onChange={(e) => setNewPhase({ ...newPhase, plannedEnd: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -280,14 +280,14 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               onChange={(e) => setNewPhase({ ...newPhase, notes: e.target.value })}
               placeholder="Add notes about this phase..."
               rows="3"
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="flex gap-2">
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-1 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
               Add Phase
             </button>
@@ -303,7 +303,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                   notes: ''
                 });
               }}
-              className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="flex-1 p-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </button>

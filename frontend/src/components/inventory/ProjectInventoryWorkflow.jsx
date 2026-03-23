@@ -127,16 +127,16 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600" />
+        <div className="bg-red-50 border border-red-200 rounded p-4 flex items-center gap-3">
+          <AlertCircle className="w-3 h-3 text-red-600" />
           <p className="text-red-800">{error}</p>
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{projectTitle}</h2>
         <p className="text-gray-600">Inventory Workflow Progress</p>
       </div>
@@ -146,7 +146,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
+              <BarChart3 className="w-3 h-3 text-blue-600" />
               <span className="font-semibold text-gray-900">Overall Progress</span>
             </div>
             <span className="text-2xl font-bold text-blue-600">
@@ -188,7 +188,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
               <div key={task.id}>
                 <button
                   onClick={() => setSelectedTask(isSelected ? null : task)}
-                  className={`w-full text-left border-2 rounded-lg p-4 transition-all ${getStatusColor(
+                  className={`w-full text-left border-2 rounded p-4 transition-all ${getStatusColor(
                     task.status
                   )} hover:shadow-md cursor-pointer`}
                 >
@@ -220,7 +220,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                         )}
                       </div>
                       <ChevronRight
-                        className={`w-5 h-5 text-gray-400 transition-transform ${isSelected ? 'rotate-90' : ''}`}
+                        className={`w-3 h-3 text-gray-400 transition-transform ${isSelected ? 'rotate-90' : ''}`}
                       />
                     </div>
                   </div>
@@ -228,7 +228,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
 
                 {/* Task Detail Panel */}
                 {isSelected && task.status !== 'completed' && (
-                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mt-2">
+                  <div className="bg-indigo-50 border border-indigo-200 rounded p-4 mt-2">
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -238,7 +238,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                           value={completionNotes}
                           onChange={(e) => setCompletionNotes(e.target.value)}
                           placeholder="Add any notes about completing this step..."
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           rows="3"
                         />
                       </div>
@@ -248,14 +248,14 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                             setSelectedTask(null);
                             setCompletionNotes('');
                           }}
-                          className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                          className="p-2 text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={() => handleCompleteTask(task.id)}
                           disabled={completingTask === task.id}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center gap-2"
+                          className="p-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 flex items-center gap-2"
                         >
                           {completingTask === task.id ? (
                             <>
@@ -276,9 +276,9 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
 
                 {/* Completed Task Detail */}
                 {isSelected && task.status === 'completed' && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-2">
+                  <div className="bg-green-50 border border-green-200 rounded p-4 mt-2">
                     <div className="flex items-center gap-2 text-green-700">
-                      <CheckCircle2 className="w-5 h-5" />
+                      <CheckCircle2 className="w-3 h-3" />
                       <span className="font-medium">
                         Completed by {task.completed_by_name} on{' '}
                         {new Date(task.completed_at).toLocaleString()}
@@ -298,9 +298,9 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
       </div>
 
       {/* Requirements Note */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-blue-50 border border-blue-200 rounded p-4">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <AlertCircle className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="text-sm text-blue-700">
             <p className="font-semibold mb-1">Project-Specific Tracking</p>
             <p>

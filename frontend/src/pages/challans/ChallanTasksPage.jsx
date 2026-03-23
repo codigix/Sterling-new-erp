@@ -146,7 +146,7 @@ const ChallanTasksPage = () => {
         <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "all"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -156,7 +156,7 @@ const ChallanTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("outward")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "outward"
                 ? "bg-purple-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -166,7 +166,7 @@ const ChallanTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("inward")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "inward"
                 ? "bg-green-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -176,13 +176,13 @@ const ChallanTasksPage = () => {
           </button>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
+          <button className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
             <Filter size={18} />
             Filter
           </button>
           <button
             onClick={() => setShowNewChallan(!showNewChallan)}
-            className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
             <Plus size={18} />
             New Challan
@@ -195,7 +195,7 @@ const ChallanTasksPage = () => {
         <Card className="mb-6 p-6">
           <h3 className="text-lg font-bold  dark: mb-4">Create New Challan</h3>
           <div className="task-form mb-4">
-            <select className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:">
+            <select className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:">
               <option>Select Challan Type...</option>
               <option>Outward (Material sent out)</option>
               <option>Inward (Material received)</option>
@@ -203,35 +203,35 @@ const ChallanTasksPage = () => {
             <input
               type="text"
               placeholder="Stage/Process"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
             />
             <input
               type="text"
               placeholder="Vendor Name"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
             />
             <input
               type="date"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
             />
             <input
               type="number"
               placeholder="Number of Items"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
             />
             <textarea
               placeholder="Items Description"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
               rows="3"
             />
           </div>
           <div className="flex gap-2">
-            <button className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+            <button className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
               Create Challan
             </button>
             <button
               onClick={() => setShowNewChallan(false)}
-              className="px-4 py-2 rounded-lg  dark:bg-slate-600  dark: hover:bg-slate-400 transition-colors"
+              className="p-2 rounded  dark:bg-slate-600  dark: hover:bg-slate-400 transition-colors"
             >
               Cancel
             </button>
@@ -313,13 +313,13 @@ const ChallanTasksPage = () => {
                   </td>
                   <td className="p-1">
                     <div className="flex gap-2">
-                      <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
+                      <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
                         <Eye size={16} />
                       </button>
-                      <button className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
+                      <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
                         <Edit2 size={16} />
                       </button>
-                      <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
+                      <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
                         <Download size={16} />
                       </button>
                     </div>

@@ -45,7 +45,7 @@ const EmployeeUpdates = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white space-y-6">
+    <div className="w-full min-h-screen bg-white space-y-2">
       <div>
         <h1 className="text-3xl font-bold text-left dark:text-white mb-2">
           Company Updates & Announcements
@@ -57,9 +57,9 @@ const EmployeeUpdates = () => {
 
       <div className="space-y-4">
         {updates.map((update) => (
-          <div key={update.id} className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-6 hover:shadow-lg transition-all group">
+          <div key={update.id} className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-6  transition-all group">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/30 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/30 rounded flex items-center justify-center flex-shrink-0">
                 <Megaphone className="w-6 h-6 text-primary-600 dark:text-primary-400" />
               </div>
               <div className="flex-1 min-w-0">
@@ -89,7 +89,7 @@ const EmployeeUpdates = () => {
                 </div>
               </div>
               <div className="flex-shrink-0">
-                <TrendingUp className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-primary-500 transition" />
+                <TrendingUp className="w-3 h-3 text-slate-300 dark:text-slate-600 group-hover:text-primary-500 transition" />
               </div>
             </div>
           </div>

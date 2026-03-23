@@ -71,7 +71,7 @@ const ProductionTasksPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
@@ -121,7 +121,7 @@ const ProductionTasksPage = () => {
         <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab("plans")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "plans"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600"
@@ -131,7 +131,7 @@ const ProductionTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("rootcards")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "rootcards"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600"
@@ -141,7 +141,7 @@ const ProductionTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("stages")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "stages"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600"
@@ -151,19 +151,19 @@ const ProductionTasksPage = () => {
           </button>
           <button
             onClick={() => navigate("/department/production/work-orders")}
-            className="px-4 py-2 rounded-lg font-medium bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors whitespace-nowrap"
+            className="p-2 rounded font-medium bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors whitespace-nowrap"
           >
             Work Orders
           </button>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+          <button className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
             <Filter size={18} />
             Filter
           </button>
           <button
             onClick={() => navigate("/department/production/work-orders/new")}
-            className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
             <Plus size={18} />
             New {activeTab === "rootcards" ? "Root Card" : "Work Order"}
@@ -188,7 +188,7 @@ const ProductionTasksPage = () => {
                   <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
                     Project
                   </label>
-                  <select className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <select className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                     <option>Select Project...</option>
                     <option>PROJ-001 - Motor Assembly Unit</option>
                     <option>PROJ-002 - Control Panel</option>
@@ -209,7 +209,7 @@ const ProductionTasksPage = () => {
                     ].map((stage, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-600 rounded-lg"
+                        className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-600 rounded"
                       >
                         <input type="checkbox" className="w-4 h-4" />
                         <span className="text-sm text-slate-900 dark:text-white">{stage}</span>
@@ -223,19 +223,19 @@ const ProductionTasksPage = () => {
                     Notes
                   </label>
                   <textarea
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     rows="3"
                   />
                 </div>
               </div>
 
               <div className="flex gap-2 pt-6 border-t border-slate-200 dark:border-slate-700">
-                <button className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium">
+                <button className="flex-1 p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium">
                   Create Root Card
                 </button>
                 <button
                   onClick={() => setShowRootCardBuilder(false)}
-                  className="flex-1 px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
+                  className="flex-1 p-2 rounded bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -304,7 +304,7 @@ const ProductionTasksPage = () => {
                     </div>
                   </div>
 
-                <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded">
                   <p className="text-xs text-slate-600 dark:text-slate-400 uppercase mb-2">
                     Timeline
                   </p>
@@ -319,11 +319,11 @@ const ProductionTasksPage = () => {
                 </div>
 
                 <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <button className="flex-1 flex items-center text-xs justify-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-medium">
+                  <button className="flex-1 flex items-center text-xs justify-center gap-2 px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-medium">
                     <Settings size={16} />
                     Manage
                   </button>
-                  <button className="flex-1 flex items-center text-xs justify-center gap-2 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium">
+                  <button className="flex-1 flex items-center text-xs justify-center gap-2 px-3 py-2 rounded bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium">
                     <Eye size={16} />
                     View
                   </button>
@@ -428,10 +428,10 @@ const ProductionTasksPage = () => {
                     </td>
                     <td className="p-1">
                       <div className="flex gap-2">
-                        <button className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                        <button className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
                           <ArrowRight size={16} />
                         </button>
-                        <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover: transition-colors">
+                        <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
                           <Eye size={16} />
                         </button>
                       </div>

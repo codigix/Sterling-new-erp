@@ -115,9 +115,9 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
       {/* Modal Container */}
       <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
         {/* Header */}
-        <div className="bg-white px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+        <div className="bg-white p-2 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded">
               <ClipboardList size={20} />
             </div>
             <div>
@@ -227,7 +227,7 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
                   <input
                     type="text"
                     placeholder="Enter custom operation name"
-                    className="w-full mt-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                    className="w-full mt-2 p-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     onChange={(e) => setFormData({ ...formData, operationName: e.target.value })}
                   />
                 )}
@@ -253,7 +253,7 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
                 <select
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
@@ -268,7 +268,7 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Operation Type</label>
                 <select
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value, operatorId: e.target.value === 'outsource' ? '' : formData.operatorId })}
                 >

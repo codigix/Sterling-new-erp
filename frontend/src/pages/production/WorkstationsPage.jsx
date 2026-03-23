@@ -91,7 +91,7 @@ const WorkstationsPage = () => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-white border border-slate-200 rounded-lg p-1">
+          <div className="flex bg-white border border-slate-200 rounded p-1">
             <button 
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
@@ -153,10 +153,10 @@ const WorkstationsPage = () => {
         viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredWorkstations.map((ws) => (
-              <div key={ws.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all group">
+              <div key={ws.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden  transition-all group">
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
-                    <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-blue-600 border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
+                    <div className="w-10 h-10 bg-slate-50 rounded flex items-center justify-center text-blue-600 border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
                       <Settings size={20} />
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -224,26 +224,26 @@ const WorkstationsPage = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Workstation</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Class</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Building</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Utilization</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                  <th className="p-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Workstation</th>
+                  <th className="p-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Class</th>
+                  <th className="p-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Building</th>
+                  <th className="p-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Utilization</th>
+                  <th className="p-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="p-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {filteredWorkstations.map((ws) => (
                   <tr key={ws.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <div>
                         <p className="text-sm font-bold text-slate-900">{ws.display_name}</p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{ws.workstation_id}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-xs font-bold text-slate-600">{ws.equipment_class || 'N/A'}</td>
-                    <td className="px-6 py-4 text-xs text-slate-600">{ws.building_area || 'N/A'}</td>
-                    <td className="px-6 py-4">
+                    <td className="p-2 text-xs font-bold text-slate-600">{ws.equipment_class || 'N/A'}</td>
+                    <td className="p-2 text-xs text-slate-600">{ws.building_area || 'N/A'}</td>
+                    <td className="p-2">
                       <div className="flex items-center gap-3 w-32">
                         <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div className="h-full bg-blue-500" style={{ width: `${ws.target_utilization}%` }} />
@@ -251,12 +251,12 @@ const WorkstationsPage = () => {
                         <span className="text-xs font-bold text-slate-900">{ws.target_utilization}%</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${ws.operational_status === 'Operational' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                         {ws.operational_status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="p-2 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button 
                           onClick={() => navigate(`edit/${ws.id}`)}

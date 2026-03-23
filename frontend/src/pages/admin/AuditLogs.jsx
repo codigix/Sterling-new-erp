@@ -168,7 +168,7 @@ const AuditLogs = () => {
   });
 
   return (
-    <div className="w-full min-h-screen bg-white space-y-6 p-6">
+    <div className="w-full min-h-screen  space-y-2 p-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -177,7 +177,7 @@ const AuditLogs = () => {
             Track and monitor all system activities and user actions
           </p>
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center text-xs gap-2 transition-colors">
+        <button className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center text-xs gap-2 transition-colors">
           <Download className="w-4 h-4" />
           Export Logs
         </button>
@@ -190,15 +190,15 @@ const AuditLogs = () => {
           const colorBg = { blue: 'bg-blue-50', emerald: 'bg-emerald-50', amber: 'bg-amber-50', red: 'bg-red-50' }[stat.color];
           const colorIcon = { blue: 'text-blue-600', emerald: 'text-emerald-600', amber: 'text-amber-600', red: 'text-red-600' }[stat.color];
           return (
-            <Card key={idx} className="hover:shadow-lg transition-shadow border border-slate-100">
+            <Card key={idx} className=" transition-shadow border border-slate-100">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
                     <p className="text-2xl font-bold ">{stat.value}</p>
                   </div>
-                  <div className={`${colorBg} p-3 rounded-lg flex-shrink-0`}>
-                    <Icon className={`w-5 h-5 ${colorIcon}`} />
+                  <div className={`${colorBg} p-3 rounded flex-shrink-0`}>
+                    <Icon className={`w-3 h-3 ${colorIcon}`} />
                   </div>
                 </div>
               </CardContent>
@@ -208,7 +208,7 @@ const AuditLogs = () => {
       </div>
 
       {/* Filters and Search */}
-      <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+      <Card className=" transition-shadow border border-slate-100">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2">
@@ -220,7 +220,7 @@ const AuditLogs = () => {
                   placeholder="Search by user, action, or details..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -229,7 +229,7 @@ const AuditLogs = () => {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Types</option>
                 <option value="auth">Authentication</option>
@@ -244,7 +244,7 @@ const AuditLogs = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
@@ -257,11 +257,11 @@ const AuditLogs = () => {
       </Card>
 
       {/* Audit Logs Table */}
-      <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+      <Card className=" transition-shadow border border-slate-100">
         <CardHeader className="border-b border-slate-100 pb-4">
           <CardTitle className="flex items-center text-xs gap-2 text-lg">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <Activity className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-blue-50 rounded">
+              <Activity className="w-3 h-3 text-blue-600" />
             </div>
             <span>Activity Logs</span>
             <span className="text-sm font-normal text-slate-500 ml-auto">{filteredLogs.length} entries</span>
@@ -289,7 +289,7 @@ const AuditLogs = () => {
                       <td className="p-2 text-slate-700">{log.action}</td>
                       <td className="p-2">
                         <div className="flex items-center text-xs gap-2">
-                          <div className={`p-2 rounded-lg ${getTypeColor(log.type)}`}>
+                          <div className={`p-2 rounded ${getTypeColor(log.type)}`}>
                             {getTypeIcon(log.type)}
                           </div>
                           <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getTypeColor(log.type)}`}>

@@ -155,7 +155,7 @@ const RequestToManagerPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -167,7 +167,7 @@ const RequestToManagerPage = () => {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+          className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
         >
           <Plus size={18} />
           New Request
@@ -178,7 +178,7 @@ const RequestToManagerPage = () => {
         {requestStats.map((stat) => (
           <div
             key={stat.label}
-            className={`${stat.bgColor} rounded-lg p-6 border border-slate-200 dark:border-slate-700`}
+            className={`${stat.bgColor} rounded p-6 border border-slate-200 dark:border-slate-700`}
           >
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
               {stat.label}
@@ -189,7 +189,7 @@ const RequestToManagerPage = () => {
       </div>
 
       {showForm && (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
               New Request
@@ -214,7 +214,7 @@ const RequestToManagerPage = () => {
                   setFormData({ ...formData, title: e.target.value })
                 }
                 placeholder="Enter request title"
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
               />
             </div>
 
@@ -227,7 +227,7 @@ const RequestToManagerPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, type: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
               >
                 <option value="resource-request">Resource Request</option>
                 <option value="extension-request">Extension Request</option>
@@ -246,7 +246,7 @@ const RequestToManagerPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, priority: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -265,7 +265,7 @@ const RequestToManagerPage = () => {
                 }
                 placeholder="Provide detailed description of your request"
                 rows="4"
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white resize-none"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white resize-none"
               />
             </div>
 
@@ -273,13 +273,13 @@ const RequestToManagerPage = () => {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-slate-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
+                className="p-2 bg-gray-300 dark:bg-gray-600 text-slate-900 dark:text-white rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
               >
                 <Send size={16} />
                 Send Request
@@ -289,7 +289,7 @@ const RequestToManagerPage = () => {
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
           Request History
         </h2>
@@ -306,7 +306,7 @@ const RequestToManagerPage = () => {
             requests.map((request) => (
               <div
                 key={request.id}
-                className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="border border-slate-200 dark:border-slate-700 rounded p-4 hover:shadow-md transition-shadow"
               >
                 <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-3">
                   <div className="flex-1">
@@ -355,7 +355,7 @@ const RequestToManagerPage = () => {
                 </div>
 
                 {request.response && (
-                  <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-3 mb-2">
+                  <div className="bg-slate-50 dark:bg-slate-700 rounded p-3 mb-2">
                     <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Manager Response:
                     </p>

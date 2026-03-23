@@ -159,7 +159,7 @@ const MaterialInspectionPage = () => {
   }));
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -215,7 +215,7 @@ const MaterialInspectionPage = () => {
           ) : (
             <div className="space-y-4">
               <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 flex items-center justify-between">
+                <div className="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 flex items-center justify-between">
                   <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                     <Package size={16} className="text-blue-600" />
                     Pending Materials for {selectedRootCard.projectName}
@@ -229,14 +229,14 @@ const MaterialInspectionPage = () => {
                   <table className="w-full text-left">
                     <thead className="bg-slate-50/30 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                       <tr>
-                        <th className="px-6 py-4">ITEM NAME / GROUP</th>
-                        <th className="px-6 py-4">REFERENCE</th>
-                        <th className="px-6 py-4 text-center">ORDERED</th>
-                        <th className="px-6 py-4 text-center">INVOICE</th>
-                        <th className="px-6 py-4 text-center">RECEIVED QTY</th>
-                        <th className="px-6 py-4 text-center">SHORTAGE</th>
-                        <th className="px-6 py-4 text-center">OVERAGE</th>
-                        <th className="px-6 py-4 text-right">STATUS</th>
+                        <th className="p-2">ITEM NAME / GROUP</th>
+                        <th className="p-2">REFERENCE</th>
+                        <th className="p-2 text-center">ORDERED</th>
+                        <th className="p-2 text-center">INVOICE</th>
+                        <th className="p-2 text-center">RECEIVED QTY</th>
+                        <th className="p-2 text-center">SHORTAGE</th>
+                        <th className="p-2 text-center">OVERAGE</th>
+                        <th className="p-2 text-right">STATUS</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -248,7 +248,7 @@ const MaterialInspectionPage = () => {
                               className={`hover:bg-slate-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/20' : ''}`}
                               onClick={() => setExpandedItem(isExpanded ? null : idx)}
                             >
-                              <td className="px-6 py-4">
+                              <td className="p-2">
                                 <div className="flex items-center gap-3">
                                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
                                     <Package size={20} />
@@ -259,7 +259,7 @@ const MaterialInspectionPage = () => {
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-6 py-4">
+                              <td className="p-2">
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-1.5">
                                     <FileText size={12} className="text-slate-400" />
@@ -271,16 +271,16 @@ const MaterialInspectionPage = () => {
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-6 py-4 text-center text-xs font-bold text-slate-500">{item.ordered_qty}</td>
-                              <td className="px-6 py-4 text-center text-xs font-bold text-slate-500">{item.invoice_quantity || item.received_qty}</td>
-                              <td className="px-6 py-4 text-center">
-                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-black">
+                              <td className="p-2 text-center text-xs font-bold text-slate-500">{item.ordered_qty}</td>
+                              <td className="p-2 text-center text-xs font-bold text-slate-500">{item.invoice_quantity || item.received_qty}</td>
+                              <td className="p-2 text-center">
+                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded text-xs font-black">
                                   {item.received_qty}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 text-center text-xs font-bold text-orange-500">{item.rejected_quantity || 0}</td>
-                              <td className="px-6 py-4 text-center text-xs font-bold text-blue-500">{item.overage || 0}</td>
-                              <td className="px-6 py-4 text-right">
+                              <td className="p-2 text-center text-xs font-bold text-orange-500">{item.rejected_quantity || 0}</td>
+                              <td className="p-2 text-center text-xs font-bold text-blue-500">{item.overage || 0}</td>
+                              <td className="p-2 text-right">
                                 <div className="flex items-center justify-end gap-2">
                                   <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest border ${
                                     item.status === 'QC COMPLETED' 
@@ -312,30 +312,30 @@ const MaterialInspectionPage = () => {
                                         <table className="w-full text-left">
                                           <thead className="bg-slate-50/50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
                                             <tr>
-                                              <th className="px-4 py-2 w-12 text-center">#</th>
-                                              <th className="px-4 py-2">Item Code</th>
-                                              <th className="px-4 py-2">Name</th>
-                                              <th className="px-4 py-2">ST Code</th>
-                                              <th className="px-4 py-2">Status</th>
-                                              <th className="px-4 py-2 text-center">Action</th>
+                                              <th className="p-2 w-12 text-center">#</th>
+                                              <th className="p-2">Item Code</th>
+                                              <th className="p-2">Name</th>
+                                              <th className="p-2">ST Code</th>
+                                              <th className="p-2">Status</th>
+                                              <th className="p-2 text-center">Action</th>
                                             </tr>
                                           </thead>
                                           <tbody className="divide-y divide-slate-50">
                                             {item.serials.map((s, sIdx) => (
                                               <tr key={sIdx} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="px-4 py-2 text-[11px] font-medium text-slate-400 text-center">
+                                                <td className="p-2 text-[11px] font-medium text-slate-400 text-center">
                                                   {sIdx + 1}
                                                 </td>
-                                                <td className="px-4 py-2 text-[11px] font-bold text-slate-700">
+                                                <td className="p-2 text-[11px] font-bold text-slate-700">
                                                   {s.item_code || s.serial_number.replace('ST-', '')}
                                                 </td>
-                                                <td className="px-4 py-2 text-[11px] text-slate-600">
+                                                <td className="p-2 text-[11px] text-slate-600">
                                                   {item.material_name}
                                                 </td>
-                                                <td className="px-4 py-2 text-[11px] font-bold text-blue-600">
+                                                <td className="p-2 text-[11px] font-bold text-blue-600">
                                                   {s.serial_number}
                                                 </td>
-                                                <td className="px-4 py-2">
+                                                <td className="p-2">
                                                   <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
                                                     s.inspection_status === 'Accepted' ? 'bg-green-100 text-green-700' :
                                                     s.inspection_status === 'Rejected' ? 'bg-red-100 text-red-700' :
@@ -345,7 +345,7 @@ const MaterialInspectionPage = () => {
                                                     {s.inspection_status}
                                                   </span>
                                                 </td>
-                                                <td className="px-4 py-2">
+                                                <td className="p-2">
                                                   <div className="flex items-center justify-center gap-2">
                                                     {/* Unified Document Viewer for Consolidated Reports */}
                                                     {(() => {
@@ -364,7 +364,7 @@ const MaterialInspectionPage = () => {
                                                         return (
                                                           <button 
                                                             onClick={(e) => { e.stopPropagation(); window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${docPath}`, '_blank'); }}
-                                                            className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                                            className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                                                             title="View Quality Report"
                                                           >
                                                             <Eye size={14} />
@@ -378,14 +378,14 @@ const MaterialInspectionPage = () => {
                                                       <>
                                                         <button 
                                                           onClick={(e) => { e.stopPropagation(); handleQuickStatusUpdate(item.grn_id, item.po_item_id, s.serial_number, 'Accepted', item.inspection_type); }}
-                                                          className="p-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-600 hover:text-white transition-all shadow-sm group/btn"
+                                                          className="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-600 hover:text-white transition-all shadow-sm group/btn"
                                                           title="Accept"
                                                         >
                                                           <CheckCircle size={14} className="group-hover/btn:scale-110 transition-transform" />
                                                         </button>
                                                         <button 
                                                           onClick={(e) => { e.stopPropagation(); handleQuickStatusUpdate(item.grn_id, item.po_item_id, s.serial_number, 'Rejected', item.inspection_type); }}
-                                                          className="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm group/btn"
+                                                          className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-600 hover:text-white transition-all shadow-sm group/btn"
                                                           title="Reject"
                                                         >
                                                           <XCircle size={14} className="group-hover/btn:scale-110 transition-transform" />
@@ -417,7 +417,7 @@ const MaterialInspectionPage = () => {
                                               
                                               if (!allProcessed) {
                                                 return (
-                                                  <div className="flex items-center gap-2 text-amber-500 bg-amber-50 px-4 py-2 rounded-xl border border-amber-100">
+                                                  <div className="flex items-center gap-2 text-amber-500 bg-amber-50 p-2 rounded-xl border border-amber-100">
                                                     <Clock size={14} className="animate-spin-slow" />
                                                     <span className="text-[10px] font-black uppercase tracking-widest">
                                                       Processing: {item.serials?.filter(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected').length} / {item.serials?.length} ST Numbers Done
@@ -484,7 +484,7 @@ const MaterialInspectionPage = () => {
 
                                                     {/* Missing Reports Indicator */}
                                                     {((hasAccepted && !item.common_document_path) || (hasRejected && !item.rejected_document_path)) && (
-                                                      <div className="flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-[9px] font-black uppercase border border-amber-200 animate-pulse">
+                                                      <div className="flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-700 rounded text-[9px] font-black uppercase border border-amber-200 animate-pulse">
                                                         <AlertTriangle size={12} /> Upload Required
                                                       </div>
                                                     )}
@@ -512,7 +512,7 @@ const MaterialInspectionPage = () => {
                                         if (isFullyDone) {
                                           if (item.grn_status === 'qc_completed') {
                                             return (
-                                              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-200">
+                                              <div className="flex items-center gap-2 p-2 bg-emerald-600 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-200">
                                                 <CheckCircle size={14} />
                                                 QC COMPLETED
                                               </div>
@@ -524,7 +524,7 @@ const MaterialInspectionPage = () => {
                                                 e.stopPropagation();
                                                 handleFinalizeQC(item.grn_id);
                                               }}
-                                              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl text-xs font-black shadow-lg shadow-green-200 hover:bg-green-700 transition-all"
+                                              className="flex items-center gap-2 p-2 bg-green-600 text-white rounded-xl text-xs font-black shadow-lg shadow-green-200 hover:bg-green-700 transition-all"
                                             >
                                               <CheckCircle size={14} />
                                               FINALIZE QC
@@ -542,7 +542,7 @@ const MaterialInspectionPage = () => {
                                               }
                                               navigate(`/department/quality/inspection/${item.grn_id}`);
                                             }}
-                                            className={`px-4 py-2 rounded-xl text-xs font-black shadow-lg transition-all flex items-center gap-2 ${
+                                            className={`p-2 rounded-xl text-xs font-black shadow-lg transition-all flex items-center gap-2 ${
                                               (isOutsource && (needsAcceptedDoc || needsRejectedDoc)) ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none' : 'bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'
                                             }`}
                                           >

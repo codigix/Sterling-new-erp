@@ -157,7 +157,7 @@ const ReorderLevelsPage = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -172,12 +172,12 @@ const ReorderLevelsPage = () => {
         <div className="flex gap-3 flex-wrap">
           <button
             onClick={handleExport}
-            className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+            className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
           >
             <Download size={18} />
             Export
           </button>
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium">
             <Plus size={18} />
             Add Item
           </button>
@@ -200,7 +200,7 @@ const ReorderLevelsPage = () => {
             {criticalItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center text-xs justify-between bg-white dark:bg-slate-800 p-3 rounded-lg"
+                className="flex items-center text-xs justify-between bg-white dark:bg-slate-800 p-3 rounded"
               >
                 <div>
                   <p className="font-semibold text-slate-900 dark:text-white">
@@ -212,7 +212,7 @@ const ReorderLevelsPage = () => {
                 </div>
                 <button
                   onClick={() => handleCreateOrder(item)}
-                  className="flex items-center text-xs gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+                  className="flex items-center text-xs gap-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium"
                 >
                   <ShoppingCart size={16} />
                   Order Now
@@ -234,7 +234,7 @@ const ReorderLevelsPage = () => {
           placeholder="Search items..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+          className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
         />
       </div>
 
@@ -341,13 +341,13 @@ const ReorderLevelsPage = () => {
                         <div className="flex justify-center gap-2">
                           <button
                             onClick={handleSave}
-                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded-lg transition-colors"
+                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
                           >
                             <Save size={16} />
                           </button>
                           <button
                             onClick={handleCancel}
-                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded-lg transition-colors"
+                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
                           >
                             <X size={16} />
                           </button>
@@ -388,13 +388,13 @@ const ReorderLevelsPage = () => {
                         <div className="flex justify-center gap-2">
                           <button
                             onClick={() => handleEdit(item)}
-                            className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-lg transition-colors"
+                            className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
                           >
                             <Edit size={16} />
                           </button>
                           <button
                             onClick={() => handleCreateOrder(item)}
-                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded-lg transition-colors"
+                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
                             disabled={item.status === "optimal"}
                           >
                             <ShoppingCart size={16} />

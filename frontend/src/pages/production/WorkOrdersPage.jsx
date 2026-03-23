@@ -146,7 +146,7 @@ const WorkOrdersPage = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-4">
-            <div className="p-2 bg-indigo-600 rounded-lg text-white">
+            <div className="p-2 bg-indigo-600 rounded text-white">
               <FileText size={24} />
             </div>
             <div>
@@ -167,12 +167,12 @@ const WorkOrdersPage = () => {
           <div className="flex items-center gap-3">
             <button 
               onClick={handleCreateNew}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white font-semibold hover:bg-black transition-all text-sm shadow-sm"
+              className="inline-flex items-center gap-2 p-2 rounded text-xs bg-slate-900 text-white font-semibold hover:bg-black transition-all text-sm shadow-sm"
             >
               <Plus size={18} />
               Create Order
             </button>
-            <button className="p-2 rounded-lg border border-slate-200 text-red-500 hover:bg-red-50 transition-all">
+            <button className="p-2 rounded border border-slate-200 text-red-500 hover:bg-red-50 transition-all">
               <Trash2 size={20} />
             </button>
           </div>
@@ -186,7 +186,7 @@ const WorkOrdersPage = () => {
               <h3 className="text-2xl font-bold text-slate-900">{stats.total}</h3>
               <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight font-medium">Global manufacturing volume</p>
             </div>
-            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded flex items-center justify-center">
               <Layers size={24} />
             </div>
           </div>
@@ -197,7 +197,7 @@ const WorkOrdersPage = () => {
               <h3 className="text-2xl font-bold text-slate-900">{stats.inProgress}</h3>
               <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight font-medium">Active production lines</p>
             </div>
-            <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded flex items-center justify-center">
               <Activity size={24} />
             </div>
           </div>
@@ -208,7 +208,7 @@ const WorkOrdersPage = () => {
               <h3 className="text-2xl font-bold text-slate-900">{stats.completed}</h3>
               <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight font-medium">Ready for delivery</p>
             </div>
-            <div className="w-12 h-12 bg-green-50 text-green-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-green-50 text-green-500 rounded flex items-center justify-center">
               <CheckCircle size={24} />
             </div>
           </div>
@@ -219,7 +219,7 @@ const WorkOrdersPage = () => {
               <h3 className="text-2xl font-bold text-slate-900">{stats.pending}</h3>
               <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight font-medium">Awaiting scheduling</p>
             </div>
-            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded flex items-center justify-center">
               <Timer size={24} />
             </div>
           </div>
@@ -227,7 +227,7 @@ const WorkOrdersPage = () => {
 
         {/* Scheduling Analyzer */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-          <div className="px-6 py-4 border-b border-slate-100 bg-white flex items-center gap-3">
+          <div className="p-2 border-b border-slate-100 bg-white flex items-center gap-3">
             <TrendingUp size={18} className="text-indigo-600" />
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Scheduling Analyzer</h3>
           </div>
@@ -284,7 +284,7 @@ const WorkOrdersPage = () => {
               <input 
                 type="text" 
                 placeholder="Search orders, items, or IDs..."
-                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -343,12 +343,12 @@ const WorkOrdersPage = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-white border-b border-slate-100">
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Order Identity</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Item</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Material Status</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Status & Priority</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Progress</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Order Identity</th>
+                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Item</th>
+                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Material Status</th>
+                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Status & Priority</th>
+                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Progress</th>
+                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -434,7 +434,7 @@ const WorkOrdersPage = () => {
                           <button 
                             onClick={() => order.is_material_ready && navigate(`/department/production/job-cards`, { state: { workOrderId: order.id, workOrderNo: order.work_order_no } })}
                             disabled={!order.is_material_ready}
-                            className={`p-2.5 rounded-lg transition-all shadow-sm flex items-center justify-center ${
+                            className={`p-2.5 rounded transition-all shadow-sm flex items-center justify-center ${
                               order.is_material_ready 
                               ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
                               : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
@@ -446,7 +446,7 @@ const WorkOrdersPage = () => {
                           <button 
                             onClick={() => order.is_material_ready && navigate(`/department/production/work-orders/edit/${order.id}`)}
                             disabled={!order.is_material_ready}
-                            className={`p-2 rounded-lg transition-all ${
+                            className={`p-2 rounded transition-all ${
                               order.is_material_ready 
                               ? 'text-slate-500 hover:text-amber-600 hover:bg-amber-50' 
                               : 'text-slate-300 cursor-not-allowed'
@@ -457,7 +457,7 @@ const WorkOrdersPage = () => {
                           </button>
                           <button 
                             onClick={() => handleDelete(order.id)}
-                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Delete"
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all" title="Delete"
                           >
                             <Trash2 size={18} />
                           </button>
@@ -470,11 +470,11 @@ const WorkOrdersPage = () => {
             </table>
           </div>
           
-          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+          <div className="p-2 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
              <p className="text-xs text-slate-500">Showing {workOrders.length} manufacturing sequences</p>
              <div className="flex items-center gap-2">
                 <button className="px-3 py-1 text-xs font-bold text-slate-400 hover:text-slate-600 disabled:opacity-50">Previous</button>
-                <button className="px-4 py-1.5 bg-white border border-slate-200 text-xs font-bold text-slate-900 rounded-lg shadow-sm hover:bg-slate-50 transition-all">Next</button>
+                <button className="px-4 py-1.5 bg-white border border-slate-200 text-xs font-bold text-slate-900 rounded shadow-sm hover:bg-slate-50 transition-all">Next</button>
              </div>
           </div>
         </div>

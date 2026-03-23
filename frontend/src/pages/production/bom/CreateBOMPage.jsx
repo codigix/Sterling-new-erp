@@ -62,7 +62,7 @@ const AccordionSection = memo(({ title, section, children, itemCount = 0, expand
       onClick={() => toggleSection(section)}
     >
       <div className="flex items-center gap-4">
-        <div className={`p-2 rounded-lg transition-colors ${expandedSections[section] ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-slate-100 dark:bg-slate-800 text-slate-500"}`}>
+        <div className={`p-2 rounded transition-colors ${expandedSections[section] ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "bg-slate-100 dark:bg-slate-800 text-slate-500"}`}>
           <ChevronDown
             size={20}
             className={`transition-transform duration-300 ${expandedSections[section] ? "" : "-rotate-90"}`}
@@ -787,7 +787,7 @@ const CreateBOMPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-2">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -882,11 +882,11 @@ const CreateBOMPage = () => {
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Please select a Root Card in Product Information to start adding materials.</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-2">
                 {/* Quick Add Form */}
                 <div className="p-5 bg-emerald-50/30 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/20">
                   <div className="flex items-center gap-2 mb-4 text-emerald-700 dark:text-emerald-400 font-bold text-[11px] uppercase tracking-wider">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+                    <div className="w-3 h-3 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
                       <Plus size={12} />
                     </div>
                     Add Raw Material
@@ -1018,7 +1018,7 @@ const CreateBOMPage = () => {
                                     value={row.itemName}
                                     onChange={(e) => updateTableRow("materials", row.id, "itemName", e.target.value)}
                                     placeholder="Item name"
-                                    className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                    className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
                                   />
                                   <SearchableSelect
                                     options={itemGroupSelectOptions}
@@ -1104,7 +1104,7 @@ const CreateBOMPage = () => {
                                     }
                                   }}
                                   onFocus={(e) => e.target.select()}
-                                  className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                  className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-emerald-500/20 outline-none"
                                 />
                               ) : (
                                 <span className="font-semibold text-slate-600 dark:text-slate-400">{row.quantity}</span>
@@ -1132,14 +1132,14 @@ const CreateBOMPage = () => {
                                   <>
                                     <button
                                       onClick={() => setEditingMaterialId(null)}
-                                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors"
                                       title="Save"
                                     >
                                       <Check size={16} />
                                     </button>
                                     <button
                                       onClick={() => setEditingMaterialId(null)}
-                                      className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
+                                      className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
                                       title="Cancel"
                                     >
                                       <X size={16} />
@@ -1149,14 +1149,14 @@ const CreateBOMPage = () => {
                                   <>
                                     <button
                                       onClick={() => setEditingMaterialId(row.id)}
-                                      className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                      className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                                       title="Edit Row"
                                     >
                                       <Edit2 size={16} />
                                     </button>
                                     <button
                                       onClick={() => removeTableRow("materials", row.id)}
-                                      className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
+                                      className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
                                       title="Delete Row"
                                     >
                                       <Trash2 size={16} />
@@ -1197,11 +1197,11 @@ const CreateBOMPage = () => {
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Please select a Root Card in Product Information to start adding operations.</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-2">
                 {/* Quick Add Form */}
                 <div className="p-5 bg-purple-50/30 dark:bg-purple-900/10 rounded-2xl border border-purple-100/50 dark:border-purple-900/20">
                   <div className="flex items-center gap-2 mb-4 text-purple-700 dark:text-purple-400 font-bold text-[10px] uppercase tracking-wider">
-                    <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center">
+                    <div className="w-3 h-3 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center">
                       <Plus size={12} />
                     </div>
                     Add Manufacturing Operation
@@ -1423,16 +1423,16 @@ const CreateBOMPage = () => {
                   <table className="w-full text-[10px] text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 dark:bg-slate-800/50">
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-10">#</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Operation</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Mode</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Workstation/Vendor</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-center">Cycle (min)</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-center">Setup (min)</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-right">Rate (₹)</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-right">Cost (₹)</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Warehouse</th>
-                        <th className="px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-center">Del</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider w-10">#</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Operation</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Mode</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Workstation/Vendor</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-center">Cycle (min)</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-center">Setup (min)</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-right">Rate (₹)</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-right">Cost (₹)</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Warehouse</th>
+                        <th className="p-2.5 font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-center">Del</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1545,7 +1545,7 @@ const CreateBOMPage = () => {
                                       }
                                     }}
                                     onFocus={(e) => e.target.select()}
-                                    className="w-16 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-purple-500/20 outline-none"
+                                    className="w-16 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-purple-500/20 outline-none"
                                   />
                                 ) : (
                                   <span className="text-slate-600 dark:text-slate-400">{row.cycleTime}</span>
@@ -1570,7 +1570,7 @@ const CreateBOMPage = () => {
                                       }
                                     }}
                                     onFocus={(e) => e.target.select()}
-                                    className="w-16 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-purple-500/20 outline-none"
+                                    className="w-16 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-purple-500/20 outline-none"
                                   />
                                 ) : (
                                   <span className="text-slate-600 dark:text-slate-400">{row.setupTime}</span>
@@ -1595,7 +1595,7 @@ const CreateBOMPage = () => {
                                       }
                                     }}
                                     onFocus={(e) => e.target.select()}
-                                    className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-xs text-right focus:ring-2 focus:ring-purple-500/20 outline-none"
+                                    className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-right focus:ring-2 focus:ring-purple-500/20 outline-none"
                                   />
                                 ) : (
                                   <input
@@ -1617,7 +1617,7 @@ const CreateBOMPage = () => {
                                       }
                                     }}
                                     onFocus={(e) => e.target.select()}
-                                    className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-xs text-right focus:ring-2 focus:ring-purple-500/20 outline-none"
+                                    className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-right focus:ring-2 focus:ring-purple-500/20 outline-none"
                                   />
                                 )
                               ) : (
@@ -1635,7 +1635,7 @@ const CreateBOMPage = () => {
                                   aria-label="Operation Cost"
                                   value={row.cost}
                                   onChange={(e) => updateTableRow("operations", row.id, "cost", parseFloat(e.target.value) || 0)}
-                                  className="w-24 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 text-xs text-right focus:ring-2 focus:ring-purple-500/20 outline-none"
+                                  className="w-24 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-right focus:ring-2 focus:ring-purple-500/20 outline-none"
                                 />
                               ) : (
                                 <span className="font-bold text-slate-900 dark:text-white">₹{(parseFloat(row.cost) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
@@ -1665,14 +1665,14 @@ const CreateBOMPage = () => {
                                   <>
                                     <button
                                       onClick={() => setEditingOperationId(null)}
-                                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors"
                                       title="Save"
                                     >
                                       <Check size={16} />
                                     </button>
                                     <button
                                       onClick={() => setEditingOperationId(null)}
-                                      className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
+                                      className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
                                       title="Cancel"
                                     >
                                       <X size={16} />
@@ -1682,14 +1682,14 @@ const CreateBOMPage = () => {
                                   <>
                                     <button
                                       onClick={() => setEditingOperationId(row.id)}
-                                      className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                      className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                                       title="Edit Row"
                                     >
                                       <Edit2 size={16} />
                                     </button>
                                     <button
                                       onClick={() => removeTableRow("operations", row.id)}
-                                      className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
+                                      className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
                                       title="Delete Row"
                                     >
                                       <Trash2 size={16} />

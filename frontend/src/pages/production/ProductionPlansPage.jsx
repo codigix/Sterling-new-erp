@@ -243,7 +243,7 @@ const ProductionPlansPage = () => {
 
           <div className="flex items-center gap-3">
             <button
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
+              className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
               onClick={() => {
                 fetchPlans();
                 showSuccess("Cache reset successfully");
@@ -367,7 +367,7 @@ const ProductionPlansPage = () => {
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded">
                 <ClipboardList size={20} />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-white">
@@ -403,19 +403,19 @@ const ProductionPlansPage = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-700">
-                    <th className="px-6 py-4 text-xs font-medium text-slate-400">
+                    <th className="p-2 text-xs font-medium text-slate-400">
                       Plan ID
                     </th>
-                    <th className="px-6 py-4 text-xs font-medium text-slate-400">
+                    <th className="p-2 text-xs font-medium text-slate-400">
                       Origin & Status
                     </th>
-                    <th className="px-6 py-4 text-xs font-medium text-slate-400">
+                    <th className="p-2 text-xs font-medium text-slate-400">
                       Timeline
                     </th>
-                    <th className="px-6 py-4 text-xs font-medium text-slate-400">
+                    <th className="p-2 text-xs font-medium text-slate-400">
                       Production Progress
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-medium text-slate-400">
+                    <th className="p-2 text-right text-xs font-medium text-slate-400">
                       Operations
                     </th>
                   </tr>
@@ -428,7 +428,7 @@ const ProductionPlansPage = () => {
                     >
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-slate-900 dark:bg-slate-800 text-white rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-slate-900 dark:bg-slate-800 text-white rounded flex items-center justify-center">
                             <Layers size={16} />
                           </div>
                           <div 
@@ -543,7 +543,7 @@ const ProductionPlansPage = () => {
                               key={idx}
                               onClick={action.onClick}
                               title={action.tooltip}
-                              className={`p-2 rounded-lg transition-all relative ${
+                              className={`p-2 rounded transition-all relative ${
                                 action.variant === "danger"
                                   ? "text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                                   : "text-slate-300 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"

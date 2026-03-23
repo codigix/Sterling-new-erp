@@ -9,16 +9,16 @@ export default function Step1_ClientPO({ readOnly = false }) {
   const { formData, updateField } = useFormData();
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <FormSection
         title="Sales Order Details"
         subtitle="Enter SO details for this root card"
         icon={FileText}
       >
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Project & PO Information */}
           <div>
-            <h5 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2 text-left">
+            <h5 className="text-sm  text-slate-900 mb-3 flex items-center gap-2 text-left">
               <ClipboardList size={16} className="text-blue-600" />
               Project & PO Information
             </h5>
@@ -80,7 +80,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
 
           {/* Inspection & Additional Details */}
           <div className="border-t border-slate-100 pt-6">
-            <h5 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2 text-left">
+            <h5 className="text-sm  text-slate-900 mb-3 flex items-center gap-2 text-left">
               <ShieldCheck size={16} className="text-green-600" />
               Inspection & Additional Details
             </h5>

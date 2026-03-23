@@ -310,7 +310,7 @@ const VendorsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -325,12 +325,12 @@ const VendorsPage = () => {
         <div className="flex gap-3 flex-wrap">
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center text-xs gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
+            className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium"
           >
             <Plus size={18} />
             Add Vendor
           </button>
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
             <Download size={18} />
             Export List
           </button>
@@ -350,11 +350,11 @@ const VendorsPage = () => {
               placeholder="Search vendor or category..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
             />
           </div>
 
-          <button className="flex items-center text-xs justify-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             <Filter size={18} />
             Advanced Filter
           </button>
@@ -370,7 +370,7 @@ const VendorsPage = () => {
             </p>
           </div>
         ) : error ? (
-          <div className="col-span-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="col-span-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4">
             <p className="text-red-600 dark:text-red-400">{error}</p>
           </div>
         ) : vendors.length === 0 ? (
@@ -383,7 +383,7 @@ const VendorsPage = () => {
           vendors.map((vendor) => (
             <div
               key={vendor.id}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 hover:shadow-lg transition-shadow"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6  transition-shadow"
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -470,14 +470,14 @@ const VendorsPage = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEditVendor(vendor)}
-                  className="flex-1 flex items-center text-xs justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm"
+                  className="flex-1 flex items-center text-xs justify-center gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm"
                 >
                   <Edit size={16} />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDeleteVendor(vendor.id)}
-                  className="px-4 py-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded-lg transition-colors"
+                  className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -536,7 +536,7 @@ const VendorsPage = () => {
                   setShowEditModal(false);
                   setEditingVendor(null);
                 }}
-                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
               >
                 <X size={24} className="text-slate-600 dark:text-slate-400" />
               </button>
@@ -754,7 +754,7 @@ const VendorsPage = () => {
                   setShowEditModal(false);
                   setEditingVendor(null);
                 }}
-                className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-bold text-xs uppercase"
+                className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-bold text-xs uppercase"
               >
                 Cancel
               </button>
@@ -762,7 +762,7 @@ const VendorsPage = () => {
                 type="button"
                 onClick={editingVendor ? handleUpdateVendor : handleAddVendor}
                 disabled={submitting}
-                className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-bold text-xs uppercase shadow-lg shadow-blue-500/20 disabled:opacity-50 flex items-center gap-2"
+                className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all font-bold text-xs uppercase shadow-lg shadow-blue-500/20 disabled:opacity-50 flex items-center gap-2"
               >
                 {submitting ? (
                   <>

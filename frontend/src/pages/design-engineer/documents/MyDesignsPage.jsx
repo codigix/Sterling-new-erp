@@ -402,14 +402,14 @@ const MyDesignsPage = () => {
         <div className="flex gap-1 justify-center">
           <button
             onClick={() => handleViewDesign(design)}
-            className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors text-blue-600 dark:text-blue-400"
+            className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors text-blue-600 dark:text-blue-400"
             title="View"
           >
             <Eye size={16} />
           </button>
           <button
             onClick={() => handleDownload(design)}
-            className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors text-green-600 dark:text-green-400"
+            className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition-colors text-green-600 dark:text-green-400"
             title="Download"
           >
             <Download size={16} />
@@ -417,7 +417,7 @@ const MyDesignsPage = () => {
           {design.status === "In Progress" && (
             <button
               onClick={() => handleSubmitForReview(design)}
-              className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors text-purple-600 dark:text-purple-400"
+              className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition-colors text-purple-600 dark:text-purple-400"
               title="Submit for Review"
             >
               <Send size={16} />
@@ -425,14 +425,14 @@ const MyDesignsPage = () => {
           )}
           <button
             onClick={() => handleEdit(design)}
-            className="p-1 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-lg transition-colors text-amber-600 dark:text-amber-400"
+            className="p-1 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded transition-colors text-amber-600 dark:text-amber-400"
             title="Edit"
           >
             <Edit size={16} />
           </button>
           <button
             onClick={() => handleDeleteDesign(design)}
-            className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-red-600 dark:text-red-400"
+            className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors text-red-600 dark:text-red-400"
             title="Delete"
           >
             <Trash2 size={16} />
@@ -443,14 +443,14 @@ const MyDesignsPage = () => {
   ];
 
   return (
-    <div className="space-y-6 pb-6">
+    <div className="space-y-2 pb-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           {projectId && (
             <button
               onClick={() => navigate("/design-engineer/root-cards")}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-400 transition"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400 transition"
               title="Back to Projects"
             >
               <ChevronLeft size={20} />
@@ -471,7 +471,7 @@ const MyDesignsPage = () => {
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="inline-flex items-center justify-center gap-2 py-2 px-4  bg-blue-600 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors font-medium shadow-md text-xs"
+          className="inline-flex items-center justify-center gap-2 py-2 px-4  bg-blue-600 dark:bg-blue-600 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors font-medium shadow-md text-xs"
         >
           <Plus size={18} />
           New Design
@@ -490,7 +490,7 @@ const MyDesignsPage = () => {
             placeholder="Search by name, project..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -524,7 +524,7 @@ const MyDesignsPage = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="fixed top-4 right-4 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-4 max-w-md z-50">
+        <div className="fixed top-4 right-4 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded p-4 max-w-md z-50">
           <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
         </div>
       )}
@@ -532,7 +532,7 @@ const MyDesignsPage = () => {
       {/* Create Design Modal */}
       {showCreateForm && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center text-xs justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
                 Create New Design
@@ -555,7 +555,7 @@ const MyDesignsPage = () => {
                   value={formData.designName}
                   onChange={handleDesignNameChange}
                   placeholder="e.g., Component Assembly Drawing"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -578,7 +578,7 @@ const MyDesignsPage = () => {
                     type="text"
                     value={formData.customerName}
                     disabled
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-sm opacity-60 cursor-not-allowed"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-sm opacity-60 cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -598,7 +598,7 @@ const MyDesignsPage = () => {
                     })
                   }
                   placeholder="e.g., Heavy Duty Conveyor Assembly"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -613,7 +613,7 @@ const MyDesignsPage = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, designType: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="New Design">New Design</option>
                     <option value="Modification">Modification</option>
@@ -634,7 +634,7 @@ const MyDesignsPage = () => {
                         designCategory: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Part">Part</option>
                     <option value="Sub-Assembly">Sub-Assembly</option>
@@ -653,7 +653,7 @@ const MyDesignsPage = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, priority: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Normal">Normal</option>
                   <option value="High">High</option>
@@ -666,7 +666,7 @@ const MyDesignsPage = () => {
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Reference Documents
                 </label>
-                <div className="border border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4">
+                <div className="border border-dashed border-slate-300 dark:border-slate-600 rounded p-4">
                   <input
                     type="file"
                     multiple
@@ -711,7 +711,7 @@ const MyDesignsPage = () => {
                   }
                   placeholder="Add design details..."
                   rows="3"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
             </div>
@@ -719,14 +719,14 @@ const MyDesignsPage = () => {
               <button
                 onClick={() => setShowCreateForm(false)}
                 disabled={creating}
-                className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm disabled:opacity-50"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateDesign}
                 disabled={creating}
-                className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {creating && <Loader2 size={16} className="animate-spin" />}
                 {creating ? "Creating..." : "Create Design"}
@@ -739,9 +739,9 @@ const MyDesignsPage = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedDesign && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center text-xs justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700">
             <div className="p-6">
-              <div className="flex items-center text-xs justify-center w-12 h-12 rounded-lg bg-red-100 dark:bg-red-900/30 mb-4">
+              <div className="flex items-center text-xs justify-center w-12 h-12 rounded bg-red-100 dark:bg-red-900/30 mb-4">
                 <AlertCircle
                   size={24}
                   className="text-red-600 dark:text-red-400"
@@ -758,13 +758,13 @@ const MyDesignsPage = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium text-sm"
+                  className="flex-1 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm"
+                  className="flex-1 p-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm"
                 >
                   Delete
                 </button>
@@ -777,7 +777,7 @@ const MyDesignsPage = () => {
       {/* View Design Modal */}
       {selectedDesign && !showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center text-xs justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[80vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[80vh] overflow-y-auto">
             <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-6 flex items-center text-xs justify-between">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
                 {selectedDesign.name}
@@ -850,7 +850,7 @@ const MyDesignsPage = () => {
                     {selectedDesign.documents.map((doc, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600"
+                        className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-200 dark:border-slate-600"
                       >
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">

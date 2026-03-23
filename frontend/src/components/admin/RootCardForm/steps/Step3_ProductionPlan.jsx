@@ -113,7 +113,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
+      <div className="p-4 bg-red-50 border border-red-200 rounded flex items-center gap-3 text-red-700">
         <AlertCircle size={20} />
         <p>{error}</p>
       </div>
@@ -121,9 +121,9 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {boms.length > 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="">
           <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div>
               <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Active BOM</h3>
@@ -150,7 +150,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
           
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-50/50 border border-amber-100">
-              <div className="p-3 rounded-lg bg-amber-100 text-amber-600">
+              <div className="p-3 rounded bg-amber-100 text-amber-600">
                 <Hammer size={24} />
               </div>
               <div>
@@ -159,7 +159,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
               </div>
             </div>
             <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-50/50 border border-purple-100">
-              <div className="p-3 rounded-lg bg-purple-100 text-purple-600">
+              <div className="p-3 rounded bg-purple-100 text-purple-600">
                 <TrendingUp size={24} />
               </div>
               <div>
@@ -189,7 +189,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
             <div className="p-6 bg-slate-50 border-b border-slate-200">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
-                    <div className={`p-2 rounded-lg bg-amber-50 text-amber-600`}>
+                    <div className={`p-2 rounded bg-amber-50 text-amber-600`}>
                       <Hammer size={20} />
                     </div>
                     <div>
@@ -198,7 +198,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
-                    <div className={`p-2 rounded-lg bg-purple-50 text-purple-600`}>
+                    <div className={`p-2 rounded bg-purple-50 text-purple-600`}>
                       <TrendingUp size={20} />
                     </div>
                     <div>

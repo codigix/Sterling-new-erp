@@ -69,7 +69,7 @@ const SerialTagTrackingPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -83,7 +83,7 @@ const SerialTagTrackingPage = () => {
         </div>
         <button 
           onClick={fetchSerials}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 transition-all font-bold text-sm"
+          className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 transition-all font-bold text-sm"
         >
           <Clock size={18} /> Refresh
         </button>
@@ -124,14 +124,14 @@ const SerialTagTrackingPage = () => {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-600 outline-none"
+          className="p-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-600 outline-none"
         >
           <option value="all">All Statuses</option>
           <option value="available">Available</option>
           <option value="issued">Issued</option>
           <option value="consumed">Consumed</option>
         </select>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+        <button className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
           <Download size={18} /> Export List
         </button>
       </div>
@@ -148,29 +148,29 @@ const SerialTagTrackingPage = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                     <div className="flex items-center gap-1">ST Number <ArrowUpDown size={12} /></div>
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Material Name</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Source Document</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Receipt Date</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                  <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Material Name</th>
+                  <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Source Document</th>
+                  <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Receipt Date</th>
+                  <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                  <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                 {filteredData.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <span className="px-2 py-1 bg-blue-600 text-white rounded text-[10px] font-black uppercase tracking-widest shadow-sm">
                         {item.serial_number}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <p className="font-bold text-slate-900 dark:text-white">{item.item_name}</p>
                       <p className="text-[10px] text-slate-500 font-medium">ID: {item.id}</p>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="p-2">
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
                           <FileText size={12} /> {item.po_number || 'Internal Transfer'}
@@ -180,19 +180,19 @@ const SerialTagTrackingPage = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="p-2 text-center">
                       <div className="flex flex-col items-center">
                         <span className="text-xs font-bold text-slate-700">{new Date(item.receipt_date || item.created_at).toLocaleDateString()}</span>
                         <span className="text-[10px] text-slate-400 font-medium">{new Date(item.receipt_date || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="p-2 text-center">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusColor(item.status)}`}>
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-blue-600">
+                    <td className="p-2 text-right">
+                      <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-blue-600">
                         <FileText size={18} />
                       </button>
                     </td>

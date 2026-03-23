@@ -203,7 +203,7 @@ const NotificationBell = () => {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors flex items-center gap-1.5"
+                  className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded transition-colors flex items-center gap-1.5"
                   title="Mark all as read"
                 >
                   <CheckCheck size={16} />
@@ -212,7 +212,7 @@ const NotificationBell = () => {
               )}
               <button 
                 onClick={() => setShowDropdown(false)}
-                className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg lg:hidden"
+                className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded lg:hidden"
               >
                 <X size={18} />
               </button>
@@ -269,7 +269,7 @@ const NotificationBell = () => {
                                 </div>
                                 <button
                                   onClick={(e) => deleteNotification(e, notif.id)}
-                                  className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                  className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all opacity-0 group-hover:opacity-100"
                                   title="Delete"
                                 >
                                   <Trash2 size={14} />

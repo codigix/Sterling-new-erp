@@ -252,7 +252,7 @@ const BOMDetailsPage = () => {
   if (error || !bom) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg flex items-center gap-3">
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded flex items-center gap-3">
           <AlertCircle size={20} />
           <p>{error || "BOM not found"}</p>
         </div>
@@ -269,7 +269,7 @@ const BOMDetailsPage = () => {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50/50 min-h-screen">
+    <div className="p-6 space-y-2 bg-slate-50/50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
@@ -340,7 +340,7 @@ const BOMDetailsPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: BOM Info & Summary */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-2">
           <Card className="border-none shadow-sm">
             <CardHeader className="border-b border-slate-100 bg-white p-4">
               <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm">
@@ -369,7 +369,7 @@ const BOMDetailsPage = () => {
               </div>
               <div>
                 <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Description</p>
-                <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 italic">
+                <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded border border-slate-100 italic">
                   {bom.description || "No description provided."}
                 </p>
               </div>
@@ -408,7 +408,7 @@ const BOMDetailsPage = () => {
         </div>
 
         {/* Right Column: Tables */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-2">
           {/* Materials Table */}
           <Card className="border-none shadow-sm">
             <CardHeader className="border-b border-slate-100 bg-white p-4 flex justify-between items-center">

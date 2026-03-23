@@ -327,7 +327,7 @@ const EmployeeManagement = () => {
         <button
           onClick={() => handleRegister(row)}
           title="Send Registration Email"
-          className="inline-flex items-center gap-1 p-1 text-xs font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+          className="inline-flex items-center gap-1 p-1 text-xs font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded transition-all duration-200 "
         >
           <Mail className="w-4 h-4" />
           Register
@@ -342,7 +342,7 @@ const EmployeeManagement = () => {
         <button
           onClick={() => handleLogin(row)}
           title="Login as this employee"
-          className="inline-flex items-center gap-1 p-1 text-xs font-medium bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+          className="inline-flex items-center gap-1 p-1 text-xs font-medium bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded transition-all duration-200 "
         >
           <LogIn className="w-4 h-4" />
           Login
@@ -426,7 +426,7 @@ const EmployeeManagement = () => {
           placeholder="Search by name, email, or designation..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800  dark: placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800  dark: placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -457,7 +457,7 @@ const EmployeeManagement = () => {
                       onChange={handleInputChange}
                       required
                       placeholder="John"
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
@@ -471,7 +471,7 @@ const EmployeeManagement = () => {
                       onChange={handleInputChange}
                       required
                       placeholder="Doe"
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -493,7 +493,7 @@ const EmployeeManagement = () => {
                     onChange={handleInputChange}
                     required
                     placeholder="john.doe@sterling.com"
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -513,7 +513,7 @@ const EmployeeManagement = () => {
                       value={formData.designation}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select Designation</option>
                       {designations.map((d) => (
@@ -542,7 +542,7 @@ const EmployeeManagement = () => {
                         });
                       }}
                       required
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select Department</option>
                       {departments.map((d) => (
@@ -571,7 +571,7 @@ const EmployeeManagement = () => {
                     })
                   }
                   required
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Role</option>
                   {availableRoles.map((role) => (
@@ -609,7 +609,7 @@ const EmployeeManagement = () => {
                       }
                       onChange={handleInputChange}
                       readOnly={editingEmployee}
-                      className={`w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm ${
+                      className={`w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded text-sm ${
                         editingEmployee
                           ? "bg-slate-50 dark:bg-slate-800"
                           : "bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -630,7 +630,7 @@ const EmployeeManagement = () => {
                       placeholder={
                         editingEmployee ? "Enter new password" : "Enter password"
                       }
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -668,7 +668,7 @@ const EmployeeManagement = () => {
           <Card className="w-full max-w-md m-4">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <CheckCircle2 className="w-3 h-3 text-green-600" />
                 Employee Created Successfully
               </CardTitle>
             </CardHeader>
@@ -754,12 +754,12 @@ const EmployeeManagement = () => {
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-blue-600" />
+                <Mail className="w-3 h-3 text-blue-600" />
                 Register Employee
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700/50">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-200 dark:border-blue-700/50">
                 <p className="text-sm text-blue-900 dark:text-blue-300">
                   Send registration credentials to{" "}
                   <strong>
@@ -782,7 +782,7 @@ const EmployeeManagement = () => {
                 <p className="text-xs text-slate-600 dark:text-slate-400">
                   Login ID
                 </p>
-                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2 rounded  text-xsborder border-slate-200 dark:border-slate-700">
                   <p className="font-mono text-sm text-slate-900 dark:text-slate-100">
                     {registeringEmployee.loginId}
                   </p>
@@ -799,7 +799,7 @@ const EmployeeManagement = () => {
                 <p className="text-xs text-slate-600 dark:text-slate-400">
                   Temporary Password
                 </p>
-                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2 rounded  text-xsborder border-slate-200 dark:border-slate-700">
                   <p className="font-mono text-sm text-slate-900 dark:text-slate-100">
                     {registeringEmployee.password}
                   </p>

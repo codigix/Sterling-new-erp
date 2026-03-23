@@ -172,7 +172,7 @@ const DailyTasksPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
           Daily Tasks
@@ -186,7 +186,7 @@ const DailyTasksPage = () => {
         {taskStats.map((stat) => (
           <div
             key={stat.label}
-            className={`${stat.bgColor} rounded-lg p-6 border border-slate-200 dark:border-slate-700`}
+            className={`${stat.bgColor} rounded p-6 border border-slate-200 dark:border-slate-700`}
           >
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
               {stat.label}
@@ -196,7 +196,7 @@ const DailyTasksPage = () => {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
             Task List
@@ -204,7 +204,7 @@ const DailyTasksPage = () => {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white font-medium"
+            className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white font-medium"
           >
             <option value="all">All Tasks</option>
             <option value="pending">Pending</option>
@@ -217,7 +217,7 @@ const DailyTasksPage = () => {
           {filteredTasks.map((task) => (
             <div
               key={task.id}
-              className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="border border-slate-200 dark:border-slate-700 rounded p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
@@ -292,19 +292,19 @@ const DailyTasksPage = () => {
                       onChange={(e) =>
                         setEditProgress(parseInt(e.target.value))
                       }
-                      className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                       placeholder="Enter progress %"
                     />
                     <button
                       onClick={() => handleProgressUpdate(task.id)}
-                      className="flex items-center text-xs gap-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                      className="flex items-center text-xs gap-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
                     >
                       <Save size={16} />
                       Save
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
-                      className="flex items-center text-xs gap-1 px-3 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-colors"
+                      className="flex items-center text-xs gap-1 px-3 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded transition-colors"
                     >
                       <X size={16} />
                       Cancel
@@ -317,7 +317,7 @@ const DailyTasksPage = () => {
                       onChange={(e) =>
                         handleStatusChange(task.id, e.target.value)
                       }
-                      className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-medium"
+                      className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-medium"
                     >
                       <option value="pending">Pending</option>
                       <option value="in-progress">In Progress</option>
@@ -328,14 +328,14 @@ const DailyTasksPage = () => {
                         setEditingId(task.id);
                         setEditProgress(task.progress);
                       }}
-                      className="flex items-center text-xs gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      className="flex items-center text-xs gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
                     >
                       <Edit2 size={16} />
                       Update Progress
                     </button>
                     <button
                       onClick={() => handleNotificationClick(task)}
-                      className="flex items-center text-xs gap-1 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                      className="flex items-center text-xs gap-1 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors"
                     >
                       <MessageSquare size={16} />
                       Notify
@@ -350,7 +350,7 @@ const DailyTasksPage = () => {
 
       {showNotification && notificationTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center text-xs justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full">
+          <div className="bg-white dark:bg-slate-800 rounded p-6 max-w-md w-full">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
               Send Notification
             </h2>
@@ -385,19 +385,19 @@ const DailyTasksPage = () => {
             </div>
             <textarea
               placeholder="Add a message (optional)..."
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white mb-4 resize-none"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white mb-4 resize-none"
               rows="3"
             />
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setShowNotification(false)}
-                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-slate-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
+                className="p-2 bg-gray-300 dark:bg-gray-600 text-slate-900 dark:text-white rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendNotification}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
               >
                 Send Notification
               </button>

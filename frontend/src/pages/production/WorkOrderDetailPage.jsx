@@ -150,14 +150,14 @@ const WorkOrderDetailPage = () => {
           <div className="flex items-center gap-3">
             <Link
               to={`/department/production/work-orders/edit/${id}`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg font-bold hover:bg-slate-50 transition-all text-sm shadow-sm"
+              className="inline-flex items-center gap-2 p-2 bg-white border border-slate-200 text-slate-700 rounded font-bold hover:bg-slate-50 transition-all text-sm shadow-sm"
             >
               <Edit size={16} className="text-slate-500" />
               Edit Order
             </Link>
             <button
               onClick={handleDelete}
-              className="p-2 bg-white border border-slate-200 text-red-500 rounded-lg hover:bg-red-50 transition-all shadow-sm"
+              className="p-2 bg-white border border-slate-200 text-red-500 rounded hover:bg-red-50 transition-all shadow-sm"
             >
               <Trash2 size={20} />
             </button>
@@ -186,7 +186,7 @@ const WorkOrderDetailPage = () => {
                         value={order.status}
                         onChange={(e) => handleUpdateStatus(e.target.value)}
                         disabled={updatingStatus}
-                        className="text-xs font-bold border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        className="text-xs font-bold border border-slate-200 rounded px-3 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500/20"
                       >
                         <option value="planning">Planning</option>
                         <option value="in_progress">In Progress</option>
@@ -211,7 +211,7 @@ const WorkOrderDetailPage = () => {
 
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
-                  <div className="space-y-6">
+                  <div className="space-y-2">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Production Item</label>
                       <div className="flex items-center gap-3">
@@ -237,7 +237,7 @@ const WorkOrderDetailPage = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-2">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Target Quantity</label>
@@ -258,7 +258,7 @@ const WorkOrderDetailPage = () => {
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Bill of Materials</label>
                       <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
                         <div className="flex items-center gap-3">
-                          <div className="p-1.5 bg-white rounded-lg text-indigo-600 shadow-sm">
+                          <div className="p-1.5 bg-white rounded text-indigo-600 shadow-sm">
                             <ListChecks size={16} />
                           </div>
                           <span className="text-sm font-bold text-slate-700">Standard BOM Rev 1.0</span>
@@ -310,18 +310,18 @@ const WorkOrderDetailPage = () => {
                     {order.operations?.length > 0 ? (
                       order.operations.map((op, idx) => (
                         <tr key={op.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <span className="text-sm font-bold text-slate-400">#{(op.sequence || idx + 1).toString().padStart(2, '0')}</span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <p className="text-sm font-bold text-slate-900">{op.operation_name}</p>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded uppercase tracking-tighter">
                               <Settings size={12} /> {op.workstation || 'General'}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
                               op.status === 'completed' ? 'bg-green-50 text-green-700 border-green-100' :
                               op.status === 'in_progress' ? 'bg-blue-50 text-blue-700 border-blue-100' :
@@ -330,7 +330,7 @@ const WorkOrderDetailPage = () => {
                               {(op.status || 'pending').toUpperCase()}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="p-2 text-right">
                             <button className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-wider">Manage</button>
                           </td>
                         </tr>
@@ -352,9 +352,9 @@ const WorkOrderDetailPage = () => {
 
             {/* Inventory Requirements */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className="p-2 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-amber-50 text-amber-600 rounded-lg border border-amber-100">
+                  <div className="p-2 bg-amber-50 text-amber-600 rounded border border-amber-100">
                     <Package size={18} />
                   </div>
                   <h3 className="text-sm font-bold text-slate-900">Required Materials</h3>
@@ -376,22 +376,22 @@ const WorkOrderDetailPage = () => {
                     {order.inventory?.length > 0 ? (
                       order.inventory.map((item) => (
                         <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div>
                               <p className="text-sm font-bold text-slate-900 uppercase">{item.item_name}</p>
                               <p className="text-[10px] text-slate-400 font-mono font-medium">{item.item_code}</p>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <p className="text-sm font-bold text-slate-700">{item.required_qty} <span className="text-[10px] font-bold text-slate-400 uppercase ml-0.5">{item.unit || 'Nos'}</span></p>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div className="flex items-center gap-1.5 text-slate-600">
                               <Truck size={14} className="text-slate-400" />
                               <span className="text-xs font-medium uppercase tracking-tight">{item.source_warehouse || 'Main Store'}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <span className="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold rounded-full border border-green-100">
                               AVAILABLE
                             </span>
@@ -415,9 +415,9 @@ const WorkOrderDetailPage = () => {
           </div>
 
           {/* Right Sidebar Column */}
-          <div className="space-y-6">
+          <div className="space-y-2">
             {/* Timeline & Progress Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-2">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Calendar size={18} className="text-indigo-600" />
                 Production Timeline

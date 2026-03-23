@@ -79,7 +79,7 @@ const ProductionPlanFormPage = () => {
   };
 
   const renderStrategicSection = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
       <SectionHeader 
         title="STRATEGIC PARAMETERS" 
         subtitle="Core planning identities and source selection"
@@ -92,7 +92,7 @@ const ProductionPlanFormPage = () => {
       />
       
       {expandedSections.strategic && (
-        <div className="p-6 border-t border-slate-100 dark:border-slate-700/50 space-y-6 animate-in slide-in-from-top-4 duration-300">
+        <div className="p-6 border-t border-slate-100 dark:border-slate-700/50 space-y-2 animate-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -103,7 +103,7 @@ const ProductionPlanFormPage = () => {
                 name="planName"
                 value={formData.planName}
                 readOnly
-                className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed transition-all outline-none text-sm font-mono"
+                className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed transition-all outline-none text-sm font-mono"
                 placeholder="Auto Generated"
               />
             </div>
@@ -118,7 +118,7 @@ const ProductionPlanFormPage = () => {
                 value={formData.namingSeries}
                 onChange={handleInputChange}
                 disabled={isViewMode}
-                className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
+                className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
                 placeholder="e.g. PP"
               />
             </div>
@@ -132,7 +132,7 @@ const ProductionPlanFormPage = () => {
                 value={formData.procurementStatus}
                 onChange={handleInputChange}
                 disabled={isViewMode}
-                className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
+                className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
               >
                 <option value="Draft">Draft</option>
                 <option value="In Progress">In Progress</option>
@@ -151,7 +151,7 @@ const ProductionPlanFormPage = () => {
                 value={formData.salesOrderId}
                 onChange={handleInputChange}
                 disabled={isViewMode || id}
-                className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${(isViewMode || id) ? 'cursor-not-allowed opacity-75' : ''}`}
+                className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${(isViewMode || id) ? 'cursor-not-allowed opacity-75' : ''}`}
               >
                 <option value="">Select Sales Order</option>
                 {salesOrders.map(so => (
@@ -173,10 +173,10 @@ const ProductionPlanFormPage = () => {
                   value={formData.targetQuantity}
                   onChange={handleInputChange}
                   disabled={isViewMode}
-                  className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-l bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
+                  className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded-l bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
                   placeholder="1"
                 />
-                <span className="px-4 py-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r text-xs font-bold text-slate-500 uppercase">
+                <span className="p-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r text-xs font-bold text-slate-500 uppercase">
                   UNIT
                 </span>
               </div>
@@ -195,7 +195,7 @@ const ProductionPlanFormPage = () => {
                 value={formData.productionStartDate}
                 onChange={handleInputChange}
                 disabled={isViewMode}
-                className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
+                className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
               />
             </div>
 
@@ -210,7 +210,7 @@ const ProductionPlanFormPage = () => {
                 value={formData.estimatedCompletionDate}
                 onChange={handleInputChange}
                 disabled={isViewMode}
-                className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
+                className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
               />
             </div>
           </div>
@@ -226,7 +226,7 @@ const ProductionPlanFormPage = () => {
                 value={formData.supervisorId}
                 onChange={handleInputChange}
                 disabled={isViewMode}
-                className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
+                className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
               >
                 <option value="">Select Supervisor (Optional)</option>
                 {employees.map(emp => (
@@ -246,7 +246,7 @@ const ProductionPlanFormPage = () => {
                 value={formData.notes}
                 onChange={handleInputChange}
                 disabled={isViewMode}
-                className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
+                className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
                 placeholder="Additional notes"
                 rows="1"
               />
@@ -258,7 +258,7 @@ const ProductionPlanFormPage = () => {
   );
 
   const renderFinishedGoodsSection = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
       <SectionHeader 
         title="FINISHED GOODS" 
         subtitle="Finished goods and target fulfillment"
@@ -277,13 +277,13 @@ const ProductionPlanFormPage = () => {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
-                  <th className="px-6 py-4">No.</th>
-                  <th className="px-6 py-4">Item Code</th>
-                  <th className="px-6 py-4">Bom No.</th>
-                  <th className="px-6 py-4 text-center">Planned Qty</th>
-                  <th className="px-6 py-4 text-center">Uom</th>
-                  <th className="px-6 py-4">Finished Goods Warehouse</th>
-                  <th className="px-6 py-4">Planned Start Date</th>
+                  <th className="p-2">No.</th>
+                  <th className="p-2">Item Code</th>
+                  <th className="p-2">Bom No.</th>
+                  <th className="p-2 text-center">Planned Qty</th>
+                  <th className="p-2 text-center">Uom</th>
+                  <th className="p-2">Finished Goods Warehouse</th>
+                  <th className="p-2">Planned Start Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -295,8 +295,8 @@ const ProductionPlanFormPage = () => {
                         onClick={() => toggleRow(`fg-${idx}`)}
                         className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer ${isRowExpanded ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''}`}
                       >
-                        <td className="px-6 py-4 text-slate-400 font-medium">{idx + 1}</td>
-                        <td className="px-6 py-4">
+                        <td className="p-2 text-slate-400 font-medium">{idx + 1}</td>
+                        <td className="p-2">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
                               <Package size={14} className="text-blue-500" />
@@ -314,7 +314,7 @@ const ProductionPlanFormPage = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
                             <div className="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded flex items-center gap-1 border border-blue-100 dark:border-blue-800">
                               <Settings size={10} />
@@ -322,21 +322,21 @@ const ProductionPlanFormPage = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="p-2 text-center">
                           <span className="text-sm font-black text-blue-600 dark:text-blue-400">
                             {fg.plannedQty}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center text-[10px] font-bold text-slate-400 uppercase">
+                        <td className="p-2 text-center text-[10px] font-bold text-slate-400 uppercase">
                           {fg.uom || 'Nos'}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-xs font-medium">
                             <Package size={14} className="text-slate-400" />
                             {fg.warehouse}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-xs font-medium">
                             <Calendar size={14} className="text-slate-400" />
                             {fg.startDate}
@@ -345,8 +345,8 @@ const ProductionPlanFormPage = () => {
                       </tr>
                       {isRowExpanded && fg.rawMaterials?.length > 0 && (
                         <tr className="bg-slate-50/30 dark:bg-slate-900/10">
-                          <td colSpan="7" className="px-6 py-4">
-                            <div className="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm animate-in zoom-in-95 duration-200">
+                          <td colSpan="7" className="p-2">
+                            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm animate-in zoom-in-95 duration-200">
                               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-50 dark:border-slate-700">
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded">
                                   <Layers size={14} className="text-blue-500" />
@@ -471,7 +471,7 @@ const ProductionPlanFormPage = () => {
     const explodedComponents = consolidateMaterials(materials.filter(m => !(m.isCore || m.is_core || m.isCore == 1 || m.is_core == 1)));
 
     return (
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6 transition-all duration-300">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6 transition-all duration-300">
         <SectionHeader 
           title="MATERIALS" 
           subtitle="Consolidated material explosion across all levels"
@@ -489,7 +489,7 @@ const ProductionPlanFormPage = () => {
             {/* Core Materials Section - Only visible when materials exist */}
             {coreMaterials.length > 0 && (
               <>
-                <div className="px-6 py-4 bg-orange-50/50 dark:bg-orange-900/10 flex items-center gap-3 border-b border-orange-100 dark:border-orange-900/20">
+                <div className="p-2 bg-orange-50/50 dark:bg-orange-900/10 flex items-center gap-3 border-b border-orange-100 dark:border-orange-900/20">
                   <div className="w-2 h-2 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50" />
                   <h4 className="text-[11px] font-black text-orange-700 dark:text-orange-400 uppercase tracking-widest">Core Materials</h4>
                 </div>
@@ -497,41 +497,41 @@ const ProductionPlanFormPage = () => {
                   <table className="w-full text-sm text-left">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
-                        <th className="px-6 py-4">Item</th>
-                        <th className="px-6 py-4 text-center">Required Qty</th>
-                        <th className="px-6 py-4">Warehouse</th>
-                        <th className="px-6 py-4">BOM Ref</th>
-                        <th className="px-6 py-4 text-center">Status</th>
+                        <th className="p-2">Item</th>
+                        <th className="p-2 text-center">Required Qty</th>
+                        <th className="p-2">Warehouse</th>
+                        <th className="p-2">BOM Ref</th>
+                        <th className="p-2 text-center">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                       {coreMaterials.map((m, idx) => (
                         <tr key={`core-${idx}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div className="font-black text-black dark:text-white uppercase text-[13px] tracking-tight">{m.specification || m.itemName || 'Unnamed Material'}</div>
                             {(m.itemName && m.itemName !== m.specification) && (
                               <div className="text-[11px] text-slate-600 dark:text-slate-400 font-bold mt-0.5 italic">{m.itemName}</div>
                             )}
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td className="p-2 text-center">
                             <div className="flex flex-col items-center">
                               <span className="text-sm font-black text-orange-600 dark:text-orange-400">{m.requiredQty}</span>
                               <span className="text-[10px] text-slate-400 font-black uppercase">{m.uom || 'KG'}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 text-xs font-bold">
                               <Package size={14} className="text-slate-400" />
                               <span>{m.warehouse || m.location || '-'}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-[10px] font-black text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 w-fit">
+                          <td className="p-2">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 rounded text-[10px] font-black text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 w-fit">
                               <Layers size={10} className="text-orange-500" />
                               {m.bomRef || 'N/A'}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td className="p-2 text-center">
                             <span className="text-slate-300 font-bold">--</span>
                           </td>
                         </tr>
@@ -543,7 +543,7 @@ const ProductionPlanFormPage = () => {
             )}
 
             {/* Exploded Components Section */}
-            <div className="px-6 py-4 bg-red-50/50 dark:bg-red-900/10 flex items-center gap-3 border-y border-red-100 dark:border-red-900/20">
+            <div className="p-2 bg-red-50/50 dark:bg-red-900/10 flex items-center gap-3 border-y border-red-100 dark:border-red-900/20">
               <div className="w-2 h-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
               <h4 className="text-[11px] font-black text-red-700 dark:text-red-400 uppercase tracking-widest">Exploded Components</h4>
             </div>
@@ -551,16 +551,16 @@ const ProductionPlanFormPage = () => {
               <table className="w-full text-sm text-left">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
-                    <th className="px-6 py-4">Component Specification</th>
-                    <th className="px-6 py-4 text-center">Required Qty</th>
-                    <th className="px-6 py-4">Source Assembly</th>
-                    <th className="px-6 py-4">BOM Ref</th>
+                    <th className="p-2">Component Specification</th>
+                    <th className="p-2 text-center">Required Qty</th>
+                    <th className="p-2">Source Assembly</th>
+                    <th className="p-2">BOM Ref</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                   {explodedComponents.map((m, idx) => (
                     <tr key={`exp-${idx}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="font-black text-black dark:text-white uppercase text-[13px] tracking-tight">
                           {m.specification || m.itemName || 'Unnamed Component'}
                         </div>
@@ -568,7 +568,7 @@ const ProductionPlanFormPage = () => {
                           <div className="text-[11px] text-slate-600 dark:text-slate-400 font-bold mt-0.5 italic">{m.itemName}</div>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="p-2 text-center">
                         <div className="flex flex-col items-center">
                           <span className="text-sm font-black text-red-600 dark:text-red-400">
                             {m.requiredQty}
@@ -576,14 +576,14 @@ const ProductionPlanFormPage = () => {
                           <span className="text-[10px] text-slate-400 font-black uppercase">{m.uom || 'KG'}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-[10px] font-black text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 w-fit">
+                      <td className="p-2">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-black text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 w-fit">
                           <Activity size={10} className="text-red-500" />
                           {m.sourceAssemblyCode || 'ROOT'}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-[10px] font-black text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-800 w-fit">
+                      <td className="p-2">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-[10px] font-black text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-800 w-fit">
                           <FileText size={10} className="text-blue-500" />
                           {m.bomRef || 'N/A'}
                         </div>
@@ -610,7 +610,7 @@ const ProductionPlanFormPage = () => {
   };
 
   const renderSubAssembliesSection = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
       <SectionHeader 
         title="SUB ASSEMBLIES" 
         subtitle="Manufacturing breakdown of intermediate components"
@@ -629,13 +629,13 @@ const ProductionPlanFormPage = () => {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
-                  <th className="px-6 py-4">No.</th>
-                  <th className="px-6 py-4">Sub Assembly Item Code</th>
-                  <th className="px-6 py-4">Target Warehouse</th>
-                  <th className="px-6 py-4">Scheduled Date</th>
-                  <th className="px-6 py-4 text-center">Required Qty</th>
-                  <th className="px-6 py-4">Bom No</th>
-                  <th className="px-6 py-4 text-center">Manufacturing Type</th>
+                  <th className="p-2">No.</th>
+                  <th className="p-2">Sub Assembly Item Code</th>
+                  <th className="p-2">Target Warehouse</th>
+                  <th className="p-2">Scheduled Date</th>
+                  <th className="p-2 text-center">Required Qty</th>
+                  <th className="p-2">Bom No</th>
+                  <th className="p-2 text-center">Manufacturing Type</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -647,8 +647,8 @@ const ProductionPlanFormPage = () => {
                         onClick={() => toggleRow(`sa-${idx}`)}
                         className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer ${isRowExpanded ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''}`}
                       >
-                        <td className="px-6 py-4 text-slate-400 font-medium">{idx + 1}</td>
-                        <td className="px-6 py-4">
+                        <td className="p-2 text-slate-400 font-medium">{idx + 1}</td>
+                        <td className="p-2">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
                               <Package size={14} className="text-red-500" />
@@ -666,19 +666,19 @@ const ProductionPlanFormPage = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                             <Package size={14} className="text-slate-400" />
                             <span className="font-medium">{sa.targetWarehouse}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-xs">
                             <Calendar size={14} className="text-slate-400" />
                             <span className="font-medium">{sa.scheduledDate}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="p-2 text-center">
                           <div className="flex flex-col items-center">
                             <span className="text-md font-bold text-slate-900 dark:text-white">
                               {sa.requiredQty}
@@ -688,13 +688,13 @@ const ProductionPlanFormPage = () => {
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-xs font-medium text-slate-500">
+                        <td className="p-2 text-xs font-medium text-slate-500">
                           <div className="flex items-center gap-2">
                             <FileText size={14} className="text-red-400" />
                             {sa.bomNo}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="p-2 text-center">
                           <span className="px-2 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-[10px] font-bold uppercase tracking-wider border border-red-100 dark:border-red-800">
                             {sa.manufacturingType || 'In House'}
                           </span>
@@ -702,8 +702,8 @@ const ProductionPlanFormPage = () => {
                       </tr>
                       {isRowExpanded && sa.rawMaterials?.length > 0 && (
                         <tr className="bg-slate-50/30 dark:bg-slate-900/10">
-                          <td colSpan="7" className="px-6 py-4">
-                            <div className="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm animate-in zoom-in-95 duration-200">
+                          <td colSpan="7" className="p-2">
+                            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm animate-in zoom-in-95 duration-200">
                               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-50 dark:border-slate-700">
                                 <div className="p-1.5 bg-red-50 dark:bg-red-900/20 rounded">
                                   <Layers size={14} className="text-red-500" />
@@ -788,7 +788,7 @@ const ProductionPlanFormPage = () => {
       />
       
       {expandedSections.phases && (
-        <div className="p-6 border-t border-slate-100 dark:border-slate-700/50 space-y-6 animate-in slide-in-from-top-4 duration-300">
+        <div className="p-6 border-t border-slate-100 dark:border-slate-700/50 space-y-2 animate-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between">
             <div>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">Active Production Phases</h4>
@@ -798,7 +798,7 @@ const ProductionPlanFormPage = () => {
               <button
                 type="button"
                 onClick={() => setShowStageForm(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition-all text-xs shadow-sm hover:shadow-purple-500/20"
+                className="inline-flex items-center gap-2 p-2 bg-purple-600 hover:bg-purple-700 text-white rounded font-bold transition-all text-xs shadow-sm hover:shadow-purple-500/20"
               >
                 <Plus size={16} />
                 Add Phase
@@ -817,7 +817,7 @@ const ProductionPlanFormPage = () => {
                     name="stageName"
                     value={newStage.stageName}
                     onChange={handleStageInputChange}
-                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
                     placeholder="e.g., Machining, Assembly"
                   />
                 </div>
@@ -827,7 +827,7 @@ const ProductionPlanFormPage = () => {
                     name="stageType"
                     value={newStage.stageType}
                     onChange={handleStageInputChange}
-                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
                   >
                     <option value="in_house">🏭 In House</option>
                     <option value="outsource">🚚 Outsource</option>
@@ -843,7 +843,7 @@ const ProductionPlanFormPage = () => {
                       name="assignedEmployeeId"
                       value={newStage.assignedEmployeeId}
                       onChange={handleStageInputChange}
-                      className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
+                      className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
                     >
                       <option value="">Select Employee</option>
                       {employees.map(emp => (
@@ -859,7 +859,7 @@ const ProductionPlanFormPage = () => {
                       name="facilityId"
                       value={newStage.facilityId}
                       onChange={handleStageInputChange}
-                      className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
+                      className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
                     >
                       <option value="">Select Facility</option>
                       {facilities.map(fac => (
@@ -873,7 +873,7 @@ const ProductionPlanFormPage = () => {
                       name="targetWarehouse"
                       value={newStage.targetWarehouse}
                       onChange={handleStageInputChange}
-                      className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
+                      className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
                     >
                       <option value="">Select Warehouse</option>
                       {warehouses.map(wh => (
@@ -893,7 +893,7 @@ const ProductionPlanFormPage = () => {
                       name="plannedStartDate"
                       value={newStage.plannedStartDate}
                       onChange={handleStageInputChange}
-                      className="flex-1 px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
+                      className="flex-1 p-2 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
                     />
                     <span className="text-slate-400">→</span>
                     <input
@@ -901,7 +901,7 @@ const ProductionPlanFormPage = () => {
                       name="plannedEndDate"
                       value={newStage.plannedEndDate}
                       onChange={handleStageInputChange}
-                      className="flex-1 px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
+                      className="flex-1 p-2 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
                     />
                   </div>
                 </div>
@@ -912,7 +912,7 @@ const ProductionPlanFormPage = () => {
                     name="notes"
                     value={newStage.notes}
                     onChange={handleStageInputChange}
-                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
+                    className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none"
                     placeholder="Operation notes..."
                   />
                 </div>
@@ -922,14 +922,14 @@ const ProductionPlanFormPage = () => {
                 <button
                   type="button"
                   onClick={addStage}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg font-bold text-sm hover:bg-purple-700 transition-colors"
+                  className="p-2 bg-purple-600 text-white rounded font-bold text-sm hover:bg-purple-700 transition-colors"
                 >
                   Confirm Phase
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowStageForm(false)}
-                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
                   Cancel
                 </button>
@@ -1011,14 +1011,14 @@ const ProductionPlanFormPage = () => {
                         <button
                           type="button"
                           onClick={() => startEditStage(stage)}
-                          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-600 transition-colors"
                         >
                           <Edit2 size={16} />
                         </button>
                         <button
                           type="button"
                           onClick={() => removeStage(stage.id)}
-                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-slate-400 hover:text-red-500 transition-colors"
+                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-slate-400 hover:text-red-500 transition-colors"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -1032,12 +1032,12 @@ const ProductionPlanFormPage = () => {
                           type="text"
                           value={editedStage.stageName}
                           onChange={(e) => setEditedStage({...editedStage, stageName: e.target.value})}
-                          className="px-4 py-2 border border-purple-300 dark:border-purple-700 rounded-lg bg-white dark:bg-slate-900 text-sm"
+                          className="p-2 border border-purple-300 dark:border-purple-700 rounded bg-white dark:bg-slate-900 text-sm"
                         />
                         <select
                           value={editedStage.stageType}
                           onChange={(e) => setEditedStage({...editedStage, stageType: e.target.value})}
-                          className="px-4 py-2 border border-purple-300 dark:border-purple-700 rounded-lg bg-white dark:bg-slate-900 text-sm"
+                          className="p-2 border border-purple-300 dark:border-purple-700 rounded bg-white dark:bg-slate-900 text-sm"
                         >
                           <option value="in_house">In House</option>
                           <option value="outsource">Outsource</option>
@@ -1047,14 +1047,14 @@ const ProductionPlanFormPage = () => {
                         <button
                           type="button"
                           onClick={saveEditedStage}
-                          className="px-4 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700"
+                          className="px-4 py-1.5 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
                         >
                           Save Changes
                         </button>
                         <button
                           type="button"
                           onClick={cancelEditStage}
-                          className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-lg text-xs font-bold"
+                          className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded text-xs font-bold"
                         >
                           Cancel
                         </button>
@@ -2022,7 +2022,7 @@ const ProductionPlanFormPage = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded bg-slate-900 dark:bg-slate-700 text-white font-bold hover:bg-black dark:hover:bg-slate-800 disabled:bg-slate-400 transition-all text-xs border border-slate-800 dark:border-slate-600 shadow-sm"
+                  className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs bg-slate-900 dark:bg-slate-700 text-white font-bold hover:bg-black dark:hover:bg-slate-800 disabled:bg-slate-400 transition-all text-xs border border-slate-800 dark:border-slate-600 shadow-sm"
                 >
                   {loading ? (
                     <Loader2 size={14} className="animate-spin" />
@@ -2065,7 +2065,7 @@ const ProductionPlanFormPage = () => {
                   const el = document.getElementById(`section-${tab.id}`);
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className="flex items-center gap-2 px-4 py-2 text-[10px] font-black transition-all border-b-2 border-transparent hover:text-purple-600 text-slate-500 uppercase tracking-widest"
+                className="flex items-center gap-2 p-2 text-[10px] font-black transition-all border-b-2 border-transparent hover:text-purple-600 text-slate-500 uppercase tracking-widest"
               >
                 <span className="opacity-40">{tab.num}</span>
                 <tab.icon size={14} />
@@ -2098,7 +2098,7 @@ const ProductionPlanFormPage = () => {
         />
 
         {/* Footer Bar */}
-        <div className="mt-12 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
+        <div className="mt-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
             <div className="flex items-center gap-8 w-full md:w-auto">
               <div className="flex flex-col">
@@ -2123,7 +2123,7 @@ const ProductionPlanFormPage = () => {
               <button 
                 onClick={handleCreateWorkOrderAction}
                 disabled={loading || generatingWorkOrders || (!formData.salesOrderId && !formData.rootCardId)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs font-bold hover:bg-black transition-all shadow-md disabled:bg-slate-400"
+                className="inline-flex items-center gap-2 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs font-bold hover:bg-black transition-all shadow-md disabled:bg-slate-400"
               >
                 {generatingWorkOrders ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -2140,7 +2140,7 @@ const ProductionPlanFormPage = () => {
                   console.log('planId:', id || planId);
                   setShowMaterialRequestModal(true);
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-300 text-xs font-bold  transition-all shadow-sm"
+                className="inline-flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-300 text-xs font-bold  transition-all shadow-sm"
               >
                 <Package size={14} className="text-blue-500" />
                 Material Request

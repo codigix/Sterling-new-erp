@@ -63,7 +63,7 @@ const RoleDashboardLayout = ({
           {/* Left side */}
           <div className="flex items-center text-xs">
             <button
-              className="lg:hidden mr-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="lg:hidden mr-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
               <Menu size={20} />
@@ -86,10 +86,10 @@ const RoleDashboardLayout = ({
             {/* User Menu */}
             <div className="relative">
               <button
-                className="flex items-center text-xs space-x-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
+                className="flex items-center text-xs space-x-3 p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center text-xs justify-center shadow-sm">
+                <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center shadow-sm">
                   <span className="text-white font-bold text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
@@ -106,7 +106,7 @@ const RoleDashboardLayout = ({
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
                   <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
                     <p className="text-sm font-bold text-white">
                       {user?.fullName || user?.username}
@@ -118,7 +118,7 @@ const RoleDashboardLayout = ({
                   <div className="border-t border-slate-200 dark:border-slate-700 my-1"></div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center text-xs w-full px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    className="flex items-center text-xs w-full p-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     <LogOut size={16} className="mr-2" />
                     Logout
@@ -140,7 +140,7 @@ const RoleDashboardLayout = ({
           {/* Sidebar Header */}
           <div className="p-4 border-b border-slate-200 dark:border-slate-700">
             <button
-              className="hidden lg:flex items-center text-xs justify-center w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="hidden lg:flex items-center text-xs justify-center w-8 h-8 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
               <Menu size={20} />
@@ -148,7 +148,7 @@ const RoleDashboardLayout = ({
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4 space-y-6">
+          <nav className="flex-1 overflow-y-auto p-4 space-y-2">
             {/* Role Navigation */}
             <div>
               <h6
@@ -170,7 +170,7 @@ const RoleDashboardLayout = ({
                         <>
                           <button
                             onClick={() => toggleSection(item.title)}
-                            className={`w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                            className={`w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
                               isExpanded
                                 ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -202,7 +202,7 @@ const RoleDashboardLayout = ({
                                   <li key={subitem.path}>
                                     <Link
                                       to={subitem.path}
-                                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
                                         isActive(subitem.path)
                                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -225,7 +225,7 @@ const RoleDashboardLayout = ({
                       ) : (
                         <Link
                           to={item.path}
-                          className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                          className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
                             isActive(item.path)
                               ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -256,7 +256,7 @@ const RoleDashboardLayout = ({
           {/* Page Header */}
 
           {/* Page Content */}
-          <div className="space-y-6">{children || <Outlet />}</div>
+          <div className="space-y-2">{children || <Outlet />}</div>
         </div>
       </main>
     </div>

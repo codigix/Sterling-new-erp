@@ -123,7 +123,7 @@ const WorkerDashboardPage = () => {
   const completionPercentage = (15 / 23) * 100;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -136,7 +136,7 @@ const WorkerDashboardPage = () => {
         <select
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value)}
-          className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white font-medium"
+          className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white font-medium"
         >
           <option value="today">Today</option>
           <option value="week">This Week</option>
@@ -149,7 +149,7 @@ const WorkerDashboardPage = () => {
         {taskStats.map((stat) => (
           <div
             key={stat.label}
-            className={`${stat.bgColor} rounded-lg p-6 border border-slate-200 dark:border-slate-700`}
+            className={`${stat.bgColor} rounded p-6 border border-slate-200 dark:border-slate-700`}
           >
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
               {stat.label}
@@ -159,7 +159,7 @@ const WorkerDashboardPage = () => {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
           Task Completion Progress
         </h2>
@@ -201,7 +201,7 @@ const WorkerDashboardPage = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
           Upcoming Tasks
         </h2>

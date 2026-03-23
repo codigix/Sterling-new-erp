@@ -162,7 +162,7 @@ const ProductionProjectCard = ({
             </div>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition"
+              className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition"
             >
               {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </button>
@@ -195,7 +195,7 @@ const ProductionProjectCard = ({
               return (
                 <div 
                   key={task.id}
-                  className={`flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20 ${!isTaskEnabled ? 'opacity-50 grayscale' : ''}`}
+                  className={`flex items-center justify-between p-3 rounded border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20 ${!isTaskEnabled ? 'opacity-50 grayscale' : ''}`}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusColor(task.status)}`}>

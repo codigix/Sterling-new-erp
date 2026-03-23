@@ -177,13 +177,13 @@ const JobCardDetailsModal = ({ isOpen, onClose, operation }) => {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+        <div className="p-2 border-b border-slate-100 flex items-center justify-between bg-white">
           <h3 className="text-lg font-bold text-slate-900">Operational Intelligence</h3>
           <button 
             onClick={onClose}
             className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500"
           >
-            <X className="w-5 h-5" />
+            <X className="w-3 h-3" />
           </button>
         </div>
 
@@ -264,7 +264,7 @@ const JobCardDetailsModal = ({ isOpen, onClose, operation }) => {
           {/* Three Middle Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {/* Timeline */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white rounded-xl p-5 border border-slate-200  transition-shadow">
                   <div className="flex items-center gap-2 mb-4">
                       <div className="p-1.5 bg-blue-50 text-blue-600 rounded-md">
                           <Clock size={16} />
@@ -284,7 +284,7 @@ const JobCardDetailsModal = ({ isOpen, onClose, operation }) => {
               </div>
 
               {/* Costing */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white rounded-xl p-5 border border-slate-200  transition-shadow">
                   <div className="flex items-center gap-2 mb-4">
                       <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-md">
                           <TrendingUp size={16} />
@@ -304,7 +304,7 @@ const JobCardDetailsModal = ({ isOpen, onClose, operation }) => {
               </div>
 
               {/* Assignment */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white rounded-xl p-5 border border-slate-200  transition-shadow">
                   <div className="flex items-center gap-2 mb-4">
                       <div className="p-1.5 bg-purple-50 text-purple-600 rounded-md">
                           <User size={16} />
@@ -453,24 +453,24 @@ const JobCardDetailsModal = ({ isOpen, onClose, operation }) => {
               </div>
           </div>
 
-          <div className="bg-amber-50/50 border border-amber-100 rounded-lg p-4 flex items-center gap-3">
-              <Layers className="text-amber-500 w-5 h-5 flex-shrink-0" />
+          <div className="bg-amber-50/50 border border-amber-100 rounded p-4 flex items-center gap-3">
+              <Layers className="text-amber-500 w-3 h-3 flex-shrink-0" />
               <p className="text-sm font-medium text-amber-700">No supplemental operational data recorded for this phase.</p>
           </div>
 
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-slate-100 bg-white flex justify-between items-center gap-3">
+        <div className="p-2 border-t border-slate-100 bg-white flex justify-between items-center gap-3">
            <button
              onClick={onClose}
-             className="px-4 py-2 font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1 text-sm"
+             className="p-2 font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors flex items-center gap-1 text-sm"
            >
              <X size={16} /> Terminate View
            </button>
            <button
              onClick={onClose}
-             className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5"
+             className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded shadow-lg flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5"
            >
              <Zap size={16} className="text-indigo-400" />
              Transition to completed

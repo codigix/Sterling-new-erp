@@ -32,7 +32,7 @@ const AssigneeField = ({ stepType, formData, updateField, employees = [], readOn
   const assigneeValue = formData[assigneeKey] || defaultValue;
 
   return (
-    <div className={`p-4 rounded-lg border ${deptConfig.color} mb-4`}>
+    <div className={`p-4 rounded border ${deptConfig.color} mb-4`}>
       <div className="flex items-center gap-2 mb-3">
         <Users size={18} className="text-slate-700" />
         <h4 className="text-sm font-semibold text-slate-900">
@@ -48,14 +48,14 @@ const AssigneeField = ({ stepType, formData, updateField, employees = [], readOn
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-900 text-left mb-2">
+          <label className="block text-xs  text-slate-900 text-left mb-2">
             {deptConfig.manager} *
           </label>
           <select
             value={assigneeValue}
             onChange={(e) => updateField(assigneeKey, e.target.value)}
             disabled={readOnly}
-            className="w-full p-2 text-xs border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-50 disabled:text-slate-500"
+            className="w-full p-2 text-xs border border-slate-300 rounded bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-50 disabled:text-slate-500"
           >
             <option value="">Select {deptConfig.manager}</option>
             {departmentEmployees.length > 0 ? (

@@ -114,7 +114,7 @@ const SystemSettings = () => {
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        className="w-full p-2.5 bg-white border border-slate-300 rounded  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
       />
     </div>
   );
@@ -125,7 +125,7 @@ const SystemSettings = () => {
       <select
         value={value}
         onChange={onChange}
-        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        className="w-full p-2.5 bg-white border border-slate-300 rounded  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
       >
         {options.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -135,7 +135,7 @@ const SystemSettings = () => {
   );
 
   const SettingToggle = ({ label, checked, onChange }) => (
-    <label className="flex items-center text-xs gap-3 cursor-pointer p-4 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
+    <label className="flex items-center text-xs gap-3 cursor-pointer p-4 rounded border border-slate-200 hover:bg-slate-50 transition-colors">
       <div className="relative inline-flex w-10 h-6  rounded-full">
         <input
           type="checkbox"
@@ -159,7 +159,7 @@ const SystemSettings = () => {
   }
 
   return (
-    <div className="w-full min-h-screen bg-white space-y-6 p-6">
+    <div className="w-full min-h-screen  space-y-2 p-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -171,7 +171,7 @@ const SystemSettings = () => {
         <button
           onClick={saveSettings}
           disabled={saving}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center text-xs gap-2"
+          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium rounded transition-colors flex items-center text-xs gap-2"
         >
           {saving ? (
             <>
@@ -215,13 +215,13 @@ const SystemSettings = () => {
       <div>
         {/* General Settings */}
         {activeTab === 'general' && (
-          <div className="space-y-6">
+          <div className="space-y-2">
             {/* Company Information */}
-            <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+            <Card className=" transition-shadow border border-slate-100">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Building2 className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-blue-50 rounded">
+                    <Building2 className="w-3 h-3 text-blue-600" />
                   </div>
                   <span>Company Information</span>
                 </CardTitle>
@@ -252,18 +252,18 @@ const SystemSettings = () => {
                     value={settings.general.companyAddress}
                     onChange={(e) => updateSetting('general', 'companyAddress', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full p-2.5 bg-white border border-slate-300 rounded  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   ></textarea>
                 </div>
               </CardContent>
             </Card>
 
             {/* Regional Settings */}
-            <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+            <Card className=" transition-shadow border border-slate-100">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                  <div className="p-2 bg-cyan-50 rounded-lg">
-                    <Globe className="w-5 h-5 text-cyan-600" />
+                  <div className="p-2 bg-cyan-50 rounded">
+                    <Globe className="w-3 h-3 text-cyan-600" />
                   </div>
                   <span>Regional Settings</span>
                 </CardTitle>
@@ -308,13 +308,13 @@ const SystemSettings = () => {
 
         {/* Security Settings */}
         {activeTab === 'security' && (
-          <div className="space-y-6">
+          <div className="space-y-2">
             {/* Authentication */}
-            <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+            <Card className=" transition-shadow border border-slate-100">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Lock className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-blue-50 rounded">
+                    <Lock className="w-3 h-3 text-blue-600" />
                   </div>
                   <span>Authentication Settings</span>
                 </CardTitle>
@@ -349,11 +349,11 @@ const SystemSettings = () => {
             </Card>
 
             {/* Password Policy */}
-            <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+            <Card className=" transition-shadow border border-slate-100">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                  <div className="p-2 bg-purple-50 rounded-lg">
-                    <Lock className="w-5 h-5 text-purple-600" />
+                  <div className="p-2 bg-purple-50 rounded">
+                    <Lock className="w-3 h-3 text-purple-600" />
                   </div>
                   <span>Password Policy</span>
                 </CardTitle>
@@ -386,11 +386,11 @@ const SystemSettings = () => {
 
         {/* Notifications Settings */}
         {activeTab === 'notifications' && (
-          <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+          <Card className=" transition-shadow border border-slate-100">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                <div className="p-2 bg-amber-50 rounded-lg">
-                  <Bell className="w-5 h-5 text-amber-600" />
+                <div className="p-2 bg-amber-50 rounded">
+                  <Bell className="w-3 h-3 text-amber-600" />
                 </div>
                 <span>Notification Preferences</span>
               </CardTitle>
@@ -434,16 +434,16 @@ const SystemSettings = () => {
 
         {/* Workflow Settings */}
         {activeTab === 'workflow' && (
-          <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+          <Card className=" transition-shadow border border-slate-100">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                <div className="p-2 bg-emerald-50 rounded-lg">
-                  <Zap className="w-5 h-5 text-emerald-600" />
+                <div className="p-2 bg-emerald-50 rounded">
+                  <Zap className="w-3 h-3 text-emerald-600" />
                 </div>
                 <span>Workflow Configuration</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="p-6 space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <SettingInput
                   label="Small Order Threshold (₹)"
@@ -481,11 +481,11 @@ const SystemSettings = () => {
 
         {/* Integrations Settings */}
         {activeTab === 'integrations' && (
-          <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+          <Card className=" transition-shadow border border-slate-100">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                <div className="p-2 bg-indigo-50 rounded-lg">
-                  <Link className="w-5 h-5 text-indigo-600" />
+                <div className="p-2 bg-indigo-50 rounded">
+                  <Link className="w-3 h-3 text-indigo-600" />
                 </div>
                 <span>Integration Settings</span>
               </CardTitle>

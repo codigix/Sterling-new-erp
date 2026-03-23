@@ -266,7 +266,7 @@ const SalesOrderPage = () => {
               setEditingOrder(null);
               setIsModalVisible(true);
             }}
-            className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+            className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white p-2 rounded transition-colors font-medium"
           >
             <Plus size={20} />
             Create Sales Order
@@ -333,7 +333,7 @@ const SalesOrderPage = () => {
                           {order.status?.toLowerCase() === 'pending' && (
                             <button 
                               onClick={() => handleApprove(order)}
-                              className="p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
+                              className="p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-colors"
                               title="Approve Order"
                             >
                               <CheckCircle2 size={18} />
@@ -342,7 +342,7 @@ const SalesOrderPage = () => {
                           {order.status?.toLowerCase() === 'approved' && (
                             <button 
                               onClick={() => handleSendToProduction(order)}
-                              className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                              className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
                               title="Send to Production"
                             >
                               <Send size={18} />
@@ -350,21 +350,21 @@ const SalesOrderPage = () => {
                           )}
                           <button 
                             onClick={() => handleDownloadPDF(order)}
-                            className="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
+                            className="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition-colors"
                             title="Download PDF"
                           >
                             <Download size={18} />
                           </button>
                           <button 
                             onClick={() => handleEdit(order)}
-                            className="p-1.5 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
+                            className="p-1.5 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded transition-colors"
                             title="Edit Order"
                           >
                             <Edit size={18} />
                           </button>
                           <button 
                             onClick={() => handleDelete(order.id)}
-                            className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                            className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
                             title="Delete Order"
                           >
                             <Trash2 size={18} />
@@ -490,7 +490,7 @@ const SalesOrderPage = () => {
                 <div>
                   <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">Current Status</h3>
                   <div className="flex flex-col gap-3">
-                    <div className={`inline-flex px-4 py-2 rounded-xl text-xs font-bold border self-start shadow-sm ${getStatusColor(selectedOrder.status)}`}>
+                    <div className={`inline-flex p-2 rounded-xl text-xs font-bold border self-start shadow-sm ${getStatusColor(selectedOrder.status)}`}>
                       {selectedOrder.status?.toUpperCase() || 'PENDING'}
                     </div>
                     <p className="text-[11px] text-slate-400 italic">Last updated: {new Date().toLocaleDateString()}</p>
@@ -531,7 +531,7 @@ const SalesOrderPage = () => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                        <div className="w-8 h-8 rounded bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
                           <Plus size={16} />
                         </div>
                         <span className="text-sm font-medium text-slate-500">Order Created</span>
@@ -540,7 +540,7 @@ const SalesOrderPage = () => {
                     </div>
                     <div className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-500">
+                        <div className="w-8 h-8 rounded bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-500">
                           <Download size={16} />
                         </div>
                         <span className="text-sm font-medium text-slate-500">Target Delivery</span>

@@ -130,7 +130,7 @@ const ProcurementTasksPage = () => {
         <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab("material-requests")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "material-requests"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -140,7 +140,7 @@ const ProcurementTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("pr")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "pr"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -150,7 +150,7 @@ const ProcurementTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("po")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "po"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -160,7 +160,7 @@ const ProcurementTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("quotes")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "quotes"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -170,13 +170,13 @@ const ProcurementTasksPage = () => {
           </button>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
+          <button className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
             <Filter size={18} />
             Filter
           </button>
           <button
             onClick={() => setShowNewForm(!showNewForm)}
-            className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
             <Plus size={18} />
             New{" "}
@@ -244,10 +244,10 @@ const ProcurementTasksPage = () => {
                     </td>
                     <td className="p-1">
                       <div className="flex gap-2">
-                        <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover: transition-colors">
+                        <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
                           <Eye size={16} />
                         </button>
-                        <button className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
+                        <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
                           <Edit2 size={16} />
                         </button>
                       </div>
@@ -314,10 +314,10 @@ const ProcurementTasksPage = () => {
                     </td>
                     <td className="p-1">
                       <div className="flex gap-2">
-                        <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover: transition-colors">
+                        <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
                           <Eye size={16} />
                         </button>
-                        <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover: transition-colors">
+                        <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
                           <Download size={16} />
                         </button>
                       </div>
@@ -349,7 +349,7 @@ const ProcurementTasksPage = () => {
                   </Badge>
                 </div>
 
-                <div className="space-y-2 mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                <div className="space-y-2 mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600 dark:text-slate-400">
                       Amount:
@@ -371,10 +371,10 @@ const ProcurementTasksPage = () => {
                 </div>
 
                 <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <button className="flex-1 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm font-medium">
+                  <button className="flex-1 px-3 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition-colors text-sm font-medium">
                     Accept
                   </button>
-                  <button className="flex-1 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors text-sm font-medium">
+                  <button className="flex-1 px-3 py-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors text-sm font-medium">
                     View Details
                   </button>
                 </div>

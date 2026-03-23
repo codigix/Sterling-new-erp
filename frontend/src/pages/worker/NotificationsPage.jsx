@@ -163,7 +163,7 @@ const NotificationsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -178,14 +178,14 @@ const NotificationsPage = () => {
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllAsRead}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+            className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
           >
             Mark All as Read
           </button>
         )}
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="flex-1">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -194,7 +194,7 @@ const NotificationsPage = () => {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="w-full sm:w-auto px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+              className="w-full sm:w-auto p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
             >
               <option value="all">All Notifications</option>
               <option value="alert">Alerts</option>
@@ -229,7 +229,7 @@ const NotificationsPage = () => {
           filteredNotifications.map((notif) => (
             <div
               key={notif.id}
-              className={`rounded-lg border p-4 transition-all ${
+              className={`rounded border p-4 transition-all ${
                 notif.read
                   ? "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
                   : "bg-blue-50 dark:bg-slate-700 border-blue-300 dark:border-blue-600"

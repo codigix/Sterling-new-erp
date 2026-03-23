@@ -37,7 +37,7 @@ const MultiSelect = ({
       <div className="relative">
         <div
           className={`
-            w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2
+            w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2
             focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent
             disabled:opacity-50 disabled:cursor-not-allowed
             transition-all duration-200 min-h-[40px] flex items-center text-xs justify-between cursor-pointer
@@ -91,7 +91,7 @@ const MultiSelect = ({
 
         {isOpen && !disabled && (
           <div
-            className="absolute z-50 w-full mt-1 border border-slate-600 dark:border-slate-500 rounded-lg bg-white dark:bg-slate-800 shadow-lg"
+            className="absolute z-50 w-full mt-1 border border-slate-600 dark:border-slate-500 rounded bg-white dark:bg-slate-800 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="max-h-60 overflow-y-auto">

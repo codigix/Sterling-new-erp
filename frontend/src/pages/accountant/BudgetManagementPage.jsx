@@ -80,7 +80,7 @@ const BudgetManagementPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -91,11 +91,11 @@ const BudgetManagementPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
             <Plus size={18} />
             New Budget
           </button>
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
             <Download size={18} />
             Export
           </button>
@@ -103,7 +103,7 @@ const BudgetManagementPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
             Total Budgeted
           </p>
@@ -111,7 +111,7 @@ const BudgetManagementPage = () => {
             ₹{totalBudgeted.toLocaleString("en-IN")}
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
             Total Spent
           </p>
@@ -119,7 +119,7 @@ const BudgetManagementPage = () => {
             ₹{totalSpent.toLocaleString("en-IN")}
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
             Remaining
           </p>
@@ -127,7 +127,7 @@ const BudgetManagementPage = () => {
             ₹{totalRemaining.toLocaleString("en-IN")}
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
             Overall Utilization
           </p>
@@ -137,7 +137,7 @@ const BudgetManagementPage = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <div className="mb-6">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Budget Year
@@ -145,7 +145,7 @@ const BudgetManagementPage = () => {
           <select
             value={budgetYear}
             onChange={(e) => setBudgetYear(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
           >
             <option value="2023">2023</option>
             <option value="2024">2024</option>
@@ -154,7 +154,7 @@ const BudgetManagementPage = () => {
           </select>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-2">
           {budgets.map((budget) => (
             <div
               key={budget.id}
@@ -201,7 +201,7 @@ const BudgetManagementPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
             <TrendingUp size={20} className="text-blue-600" />
             Budget Utilization Trend
@@ -235,13 +235,13 @@ const BudgetManagementPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
             <AlertTriangle size={20} className="text-orange-600" />
             Budget Alerts
           </h3>
           <div className="space-y-3">
-            <div className="p-4 bg-red-50 dark:bg-red-900 rounded-lg border border-red-200 dark:border-red-700">
+            <div className="p-4 bg-red-50 dark:bg-red-900 rounded border border-red-200 dark:border-red-700">
               <p className="font-medium text-red-900 dark:text-red-200">
                 Critical Alert
               </p>
@@ -249,7 +249,7 @@ const BudgetManagementPage = () => {
                 Administration budget at 99% utilization
               </p>
             </div>
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg border border-yellow-200 dark:border-yellow-700">
+            <div className="p-4 bg-yellow-50 dark:bg-yellow-900 rounded border border-yellow-200 dark:border-yellow-700">
               <p className="font-medium text-yellow-900 dark:text-yellow-200">
                 Warning
               </p>
@@ -257,7 +257,7 @@ const BudgetManagementPage = () => {
                 Sales & Marketing budget at 97% utilization
               </p>
             </div>
-            <div className="p-4 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
+            <div className="p-4 bg-green-50 dark:bg-green-900 rounded border border-green-200 dark:border-green-700">
               <p className="font-medium text-green-900 dark:text-green-200">
                 On Track
               </p>

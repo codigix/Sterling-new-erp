@@ -50,7 +50,7 @@ const FinancialOverviewPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -61,14 +61,14 @@ const FinancialOverviewPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
             <Download size={18} />
             Export
           </button>
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
           >
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
@@ -81,7 +81,7 @@ const FinancialOverviewPage = () => {
         {financialMetrics.map((metric) => (
           <div
             key={metric.label}
-            className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6"
+            className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6"
           >
             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
               {metric.label}
@@ -97,7 +97,7 @@ const FinancialOverviewPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
               Monthly Trends
@@ -126,7 +126,7 @@ const FinancialOverviewPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
               Expense Distribution
@@ -156,12 +156,12 @@ const FinancialOverviewPage = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
           Year-to-Date Summary
         </h2>
         <div className="grid grid-cols-3 gap-4">
-          <div className="p-4 bg-blue-50 dark:bg-slate-700 rounded-lg">
+          <div className="p-4 bg-blue-50 dark:bg-slate-700 rounded">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Total Revenue
             </p>
@@ -169,7 +169,7 @@ const FinancialOverviewPage = () => {
               ₹2,34,56,000
             </p>
           </div>
-          <div className="p-4 bg-red-50 dark:bg-slate-700 rounded-lg">
+          <div className="p-4 bg-red-50 dark:bg-slate-700 rounded">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Total Expenses
             </p>
@@ -177,7 +177,7 @@ const FinancialOverviewPage = () => {
               ₹1,12,34,000
             </p>
           </div>
-          <div className="p-4 bg-green-50 dark:bg-slate-700 rounded-lg">
+          <div className="p-4 bg-green-50 dark:bg-slate-700 rounded">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Net Profit
             </p>

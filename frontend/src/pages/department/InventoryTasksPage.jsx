@@ -465,7 +465,7 @@ const InventoryTasksPage = () => {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded p-4">
           <p className="text-red-700 dark:text-red-300">{error}</p>
         </div>
       </div>
@@ -473,7 +473,7 @@ const InventoryTasksPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h2 className="text-md font-bold text-slate-900 dark:text-white text-xs">
           Inventory Task Management
@@ -485,7 +485,7 @@ const InventoryTasksPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar - Material Requests */}
-        <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[calc(100vh-200px)]">
+        <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[calc(100vh-200px)]">
           <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
             <h2 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
               <Package size={18} className="text-blue-600" />
@@ -493,7 +493,7 @@ const InventoryTasksPage = () => {
             </h2>
             <button
               onClick={fetchMaterialRequests}
-              className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
               title="Refresh requests"
             >
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
@@ -506,7 +506,7 @@ const InventoryTasksPage = () => {
                 <div
                   key={mr.id}
                   onClick={() => setSelectedMR(mr)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                  className={`p-3 rounded border cursor-pointer transition-all ${
                     selectedMR?.id === mr.id
                       ? "bg-blue-50 dark:bg-blue-900/30 border-blue-500 shadow-sm"
                       : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-300"
@@ -551,7 +551,7 @@ const InventoryTasksPage = () => {
         {/* Main Content - Tasks */}
         <div className="lg:col-span-3">
           {selectedMR ? (
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                   <div className="flex items-center gap-4">
@@ -588,7 +588,7 @@ const InventoryTasksPage = () => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
                     <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
                       Request Date
                     </p>
@@ -596,7 +596,7 @@ const InventoryTasksPage = () => {
                       {new Date(selectedMR.created_at).toLocaleDateString()}
                     </p>
                   </div>
-                  <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
                     <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
                       Workflow Steps
                     </p>
@@ -604,7 +604,7 @@ const InventoryTasksPage = () => {
                       {tasks.length} Created
                     </p>
                   </div>
-                  <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
                     <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
                       Completion
                     </p>
@@ -612,7 +612,7 @@ const InventoryTasksPage = () => {
                       {tasks.length > 0 ? Math.round((tasks.filter(t => t.status === 'completed').length / tasks.length) * 100) : 0}%
                     </p>
                   </div>
-                  <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
                     <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
                       Workflow Status
                     </p>
@@ -645,7 +645,7 @@ const InventoryTasksPage = () => {
                         <button
                           onClick={handleInitializeWorkflow}
                           disabled={isInitiatingWorkflow}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 transition-all disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold uppercase bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 transition-all disabled:opacity-50"
                           title="Initialize or missing workflow tasks"
                         >
                           <RefreshCw size={12} className={isInitiatingWorkflow ? "animate-spin" : ""} />
@@ -655,7 +655,7 @@ const InventoryTasksPage = () => {
                           <button
                             onClick={handleBulkDelete}
                             disabled={isDeleting}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold uppercase bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all disabled:opacity-50"
                           >
                             <Trash2 size={12} />
                             Delete ({selectedTasks.size})
@@ -664,7 +664,7 @@ const InventoryTasksPage = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-2">
                       {INVENTORY_WORKFLOW.phases.map((phase) => {
                         const phaseTasks = getTasksByPhase()[phase.id] || [];
                         if (phaseTasks.length === 0) return null;
@@ -732,11 +732,11 @@ const InventoryTasksPage = () => {
                                                 e.stopPropagation();
                                                 handleDeleteTask(task.id);
                                               }}
-                                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"
                                             >
                                               <Trash2 size={14} />
                                             </button>
-                                            <div className="p-1.5 text-blue-600 bg-blue-50 rounded-lg">
+                                            <div className="p-1.5 text-blue-600 bg-blue-50 rounded">
                                               <Play size={14} />
                                             </div>
                                           </div>
@@ -777,7 +777,7 @@ const InventoryTasksPage = () => {
               </div>
             </div>
           ) : (
-            <div className="h-[calc(100vh-200px)] flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 p-12">
+            <div className="h-[calc(100vh-200px)] flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded border-2 border-dashed border-slate-200 dark:border-slate-700 p-12">
               <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900/50 rounded-full flex items-center justify-center mb-6">
                 <Package size={40} className="text-slate-300" />
               </div>
@@ -814,7 +814,7 @@ const InventoryTasksPage = () => {
                   value={formData.title}
                   onChange={handleFormChange}
                   placeholder="e.g., GRN Processing, QC Inspection, Stock Addition"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
@@ -829,7 +829,7 @@ const InventoryTasksPage = () => {
                   onChange={handleFormChange}
                   placeholder="Enter task description"
                   rows="3"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -842,7 +842,7 @@ const InventoryTasksPage = () => {
                     name="priority"
                     value={formData.priority}
                     onChange={handleFormChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -859,7 +859,7 @@ const InventoryTasksPage = () => {
                     name="status"
                     value={formData.status}
                     onChange={handleFormChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="pending">Pending</option>
                     <option value="in_progress">In Progress</option>
@@ -873,14 +873,14 @@ const InventoryTasksPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  className="flex-1 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded transition-colors flex items-center justify-center gap-2"
                 >
                   {isCreating ? (
                     <>

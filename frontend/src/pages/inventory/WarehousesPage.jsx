@@ -143,7 +143,7 @@ const WarehousesPage = () => {
       {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg">
+          <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded">
             <Warehouse className="text-amber-600 dark:text-amber-400" size={24} />
           </div>
           <div>
@@ -156,13 +156,13 @@ const WarehousesPage = () => {
         <div className="flex items-center gap-3">
           <button 
             onClick={fetchWarehouses}
-            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-colors"
           >
             <RefreshCw size={18} />
           </button>
           <button 
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm font-medium"
+            className="flex items-center gap-2 p-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors shadow-sm font-medium"
           >
             <Plus size={18} />
             Create Warehouse
@@ -177,7 +177,7 @@ const WarehousesPage = () => {
           <input
             type="text"
             placeholder="Search by name, code, or location..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -185,7 +185,7 @@ const WarehousesPage = () => {
         <div className="flex gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-48">
             <select
-              className="w-full appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-600 dark:text-slate-300"
+              className="w-full appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-600 dark:text-slate-300"
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
             >
@@ -195,7 +195,7 @@ const WarehousesPage = () => {
             </select>
             <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
           </div>
-          <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-white dark:bg-slate-800">
+          <div className="flex border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800">
             <button 
               onClick={() => setViewMode("list")}
               className={`p-2 ${viewMode === "list" ? "bg-amber-50 text-amber-600" : "text-slate-400"}`}
@@ -209,7 +209,7 @@ const WarehousesPage = () => {
               <LayoutGrid size={20} />
             </button>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50">
+          <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50">
             <LayoutGrid size={18} />
             Columns
           </button>
@@ -225,24 +225,24 @@ const WarehousesPage = () => {
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Code</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Location</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Capacity</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Code</th>
+                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
+                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Type</th>
+                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Location</th>
+                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Capacity</th>
+                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
               {filteredWarehouses.length > 0 ? (
                 filteredWarehouses.map((wh) => (
                   <tr key={wh.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white uppercase">{wh.code}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">{wh.name}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{wh.type}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{wh.location}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{wh.storage_capacity}</td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="p-2 text-sm font-medium text-slate-900 dark:text-white uppercase">{wh.code}</td>
+                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400 font-medium">{wh.name}</td>
+                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">{wh.type}</td>
+                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">{wh.location}</td>
+                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">{wh.storage_capacity}</td>
+                    <td className="p-2 text-right">
                       <div className="flex justify-end gap-2">
                         <button 
                           onClick={() => handleOpenModal(wh)}
@@ -276,7 +276,7 @@ const WarehousesPage = () => {
           <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg">
+                <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded">
                   <Warehouse className="text-amber-600 dark:text-amber-400" size={20} />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -301,7 +301,7 @@ const WarehousesPage = () => {
                     required
                     type="text"
                     placeholder="e.g., WH001"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={formData.code}
                     onChange={(e) => setFormData({...formData, code: e.target.value})}
                   />
@@ -314,7 +314,7 @@ const WarehousesPage = () => {
                     required
                     type="text"
                     placeholder="e.g., Main Warehouse"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                   />
@@ -324,7 +324,7 @@ const WarehousesPage = () => {
                     Warehouse Type *
                   </label>
                   <select
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={formData.type}
                     onChange={(e) => setFormData({...formData, type: e.target.value})}
                   >
@@ -341,7 +341,7 @@ const WarehousesPage = () => {
                     Department *
                   </label>
                   <select
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={formData.department}
                     onChange={(e) => setFormData({...formData, department: e.target.value})}
                   >
@@ -359,7 +359,7 @@ const WarehousesPage = () => {
                   <input
                     type="text"
                     placeholder="e.g., Mumbai"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={formData.location}
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
                   />
@@ -371,7 +371,7 @@ const WarehousesPage = () => {
                   <input
                     type="number"
                     placeholder="e.g., 1000"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={formData.storage_capacity}
                     onChange={(e) => setFormData({...formData, storage_capacity: e.target.value})}
                   />
@@ -383,7 +383,7 @@ const WarehousesPage = () => {
                   <input
                     type="number"
                     placeholder="Leave empty if no parent"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={formData.parent_warehouse_id}
                     onChange={(e) => setFormData({...formData, parent_warehouse_id: e.target.value})}
                   />
@@ -394,13 +394,13 @@ const WarehousesPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-6 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 transition-colors font-medium"
+                  className="px-6 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-200 transition-colors font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium shadow-sm"
+                  className="px-6 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors font-medium shadow-sm"
                 >
                   {editingId ? "Update Warehouse" : "Create Warehouse"}
                 </button>

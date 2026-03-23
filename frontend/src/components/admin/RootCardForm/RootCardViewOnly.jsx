@@ -168,8 +168,8 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
     if (!value && value !== 0) return null;
     return (
       <div className="space-y-1">
-        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{label}</label>
-        <p className="text-sm text-slate-700">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</p>
+        <label className="text-xs  text-slate-600  ">{label}</label>
+        <p className="text-sm text-black">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</p>
       </div>
     );
   };
@@ -179,28 +179,28 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
         {number}
       </span>
-      <h2 className="text-lg font-bold">{title}</h2>
+      <h2 className="text-md font-bold">{title}</h2>
     </div>
   );
 
   return (
-    <div className="w-full bg-white min-h-screen">
+    <div className="w-full p-2 bg-white min-h-screen">
       {/* Header */}
       <div className="border-b border-slate-200 bg-slate-50 sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto p-1">
+        <div className=" mx-auto p-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-100 rounded transition-colors"
                 title="Back"
               >
                 <ArrowLeft size={20} className="text-slate-600" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Root Card Details
+                <h1 className="text-xl font-bold text-slate-900">Root Card Details
 </h1>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs text-slate-600">
                   {initialData?.po_number || formData?.poNumber || 'New Root Card'}
                 </p>
               </div>
@@ -208,10 +208,10 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
             <button
               onClick={generatePDF}
               disabled={isGenerating}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg font-medium transition-colors"
+              className="flex items-center gap-2 p-2 bg-blue-600 text-xs hover:bg-blue-700 disabled:bg-slate-300 text-white rounded  transition-colors"
               title="Download as PDF"
             >
-              <Download size={18} />
+              <Download size={15} />
               {isGenerating ? 'Generating...' : 'PDF'}
             </button>
           </div>
@@ -219,7 +219,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto  p-2 space-y-2">
+      <div className=" mx-auto  p-2 space-y-2">
         {!formData?.poNumber && !initialData?.po_number && (
           <div className="text-center py-12">
             <p className="text-slate-600">No data filled in this root card yet.</p>
@@ -230,9 +230,9 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
         {(initialData?.po_number || formData?.poNumber) && (
           <section>
             <SectionHeader number="1" title="Project Information" />
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">PO & Project Information</h3>
+                <h3 className="text-md  text-slate-900 mb-2">PO & Project Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="PO Number" value={initialData?.po_number || formData?.poNumber} />
                   <DetailField label="Project Name" value={initialData?.project_name || formData?.projectName} />
@@ -244,13 +244,13 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
                 {formData?.projectRequirements && Object.keys(formData.projectRequirements).length > 0 && (
                   <div className="mt-0">
-                    <h4 className="text-sm font-semibold text-slate-700 mb-3">Project Requirements</h4>
+                    <h4 className="text-sm  text-slate-700 mb-3">Project Requirements</h4>
                     <div className="space-y-2">
                       {Object.entries(formData.projectRequirements).map(([key, value]) => {
                         const hasValue = value && (typeof value !== 'object' || Object.keys(value).length > 0);
                         return hasValue ? (
                           <p key={key} className="text-sm text-slate-600">
-                            <span className="text-slate-700 font-medium">{key}:</span> {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                            <span className="text-slate-700 ">{key}:</span> {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                           </p>
                         ) : null;
                       })}
@@ -262,7 +262,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
 
               {formData?.attachments?.length > 0 && (
                 <div className="bg-white border-b border-slate-200 p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Project Attachments</h3>
+                  <h3 className="text-md  text-slate-900 mb-2">Project Attachments</h3>
                   <div className="flex flex-wrap gap-2">
                     {formData.attachments.map((file, idx) => (
                       <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-700">
@@ -281,9 +281,9 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
         {formData?.designEngineering && (
           <section>
             <SectionHeader number="2" title="Design Engineering" />
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Design Overview</h3>
+                <h3 className="text-md  text-slate-900 mb-2">Design Overview</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="Design ID" value={formData.designEngineering.generalDesignInfo?.designId} />
                   <DetailField label="Product Name" value={formData.designEngineering.productSpecification?.productName} />
@@ -293,7 +293,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
               </div>
 
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Product Dimensions & Specifications</h3>
+                <h3 className="text-md  text-slate-900 mb-2">Product Dimensions & Specifications</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="Length (mm)" value={formData.designEngineering.productSpecification?.systemLength} />
                   <DetailField label="Width (mm)" value={formData.designEngineering.productSpecification?.systemWidth} />
@@ -306,7 +306,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
               </div>
 
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Materials Required for Production</h3>
+                <h3 className="text-md  text-slate-900 mb-2">Materials Required for Production</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="Steel Sections" value={formData.designEngineering.materialsRequired?.steelSections?.length > 0 ? formData.designEngineering.materialsRequired.steelSections.join(', ') : 'None selected'} />
                   <DetailField label="Plates" value={formData.designEngineering.materialsRequired?.plates?.length > 0 ? formData.designEngineering.materialsRequired.plates.join(', ') : 'None selected'} />
@@ -319,7 +319,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
 
               {formData.designEngineering.attachments?.drawings?.length > 0 && (
                 <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Design Drawings</h3>
+                  <h3 className="text-md  text-slate-900 mb-2">Design Drawings</h3>
                   <ul className="space-y-2">
                     {formData.designEngineering.attachments.drawings.map((file, idx) => (
                       <li key={idx} className="text-sm text-slate-700 flex items-center gap-2">
@@ -333,7 +333,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
 
               {formData.designEngineering.attachments?.documents?.length > 0 && (
                 <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Supporting Documents</h3>
+                  <h3 className="text-md  text-slate-900 mb-2">Supporting Documents</h3>
                   <ul className="space-y-2">
                     {formData.designEngineering.attachments.documents.map((file, idx) => (
                       <li key={idx} className="text-sm text-slate-700 flex items-center gap-2">
@@ -346,7 +346,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
               )}
 
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Design Notes & Special Requirements</h3>
+                <h3 className="text-md  text-slate-900 mb-2">Design Notes & Special Requirements</h3>
                 <div className="space-y-4">
                   <DetailField label="Design Specifications Summary" value={formData.designEngineering.commentsNotes?.designSpecifications} />
                   <DetailField label="Manufacturing Instructions" value={formData.designEngineering.commentsNotes?.manufacturingInstructions} />
@@ -362,9 +362,9 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
         {formData?.productionPlan && (
           <section>
             <SectionHeader number="3" title="Production" />
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Production Timeline</h3>
+                <h3 className="text-md  text-slate-900 mb-2">Production Timeline</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="Production Start Date" value={formData.productionPlan.timeline?.startDate} />
                   <DetailField label="Production End Date" value={formData.productionPlan.timeline?.endDate} />
@@ -375,14 +375,14 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
 
               {formData.productionPlan.productionNotes && (
                 <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Production Notes</h3>
+                  <h3 className="text-md  text-slate-900 mb-2">Production Notes</h3>
                   <p className="text-slate-700 text-sm">{formData.productionPlan.productionNotes}</p>
                 </div>
               )}
 
               {formData.productionPlan.selectedPhases && Object.keys(formData.productionPlan.selectedPhases).length > 0 && (
                 <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Production Phases</h3>
+                  <h3 className="text-md  text-slate-900 mb-2">Production Phases</h3>
                   <div className="space-y-2">
                     {Object.entries(formData.productionPlan.selectedPhases).map(([phase, selected]) =>
                       selected ? (
@@ -403,9 +403,9 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
         {formData?.materialProcurement && (
           <section>
             <SectionHeader number="4" title="Procurement" />
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Procurement Overview</h3>
+                <h3 className="text-md  text-slate-900 mb-2">Procurement Overview</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="Procurement Status" value={formData.materialProcurement.procurementStatus || 'Not specified'} />
                   <DetailField label="Total Material Cost" value={formData.materialProcurement.totalMaterialCost || '0'} />
@@ -422,29 +422,29 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
 
               {Array.isArray(formData.materialDetailsTable) && formData.materialDetailsTable.length > 0 && (
                 <div className="bg-white border-b border-slate-200 p-2 mb-0 overflow-x-auto">
-                  <h3 className="text-md font-semibold text-slate-900 mb-4">Material Details Table</h3>
-                  <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg">
+                  <h3 className="text-md  text-slate-900 mb-4">Material Details Table</h3>
+                  <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded">
                     <thead className="bg-slate-50">
                       <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Sr. No.</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Description</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Spec/Size</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Qty</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">UOM</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Source</th>
+                        <th className="p-2 text-left text-xs  text-slate-500  r">Sr. No.</th>
+                        <th className="p-2 text-left text-xs  text-slate-500  r">Description</th>
+                        <th className="p-2 text-left text-xs  text-slate-500  r">Spec/Size</th>
+                        <th className="p-2 text-left text-xs  text-slate-500  r">Qty</th>
+                        <th className="p-2 text-left text-xs  text-slate-500  r">UOM</th>
+                        <th className="p-2 text-left text-xs  text-slate-500  r">Category</th>
+                        <th className="p-2 text-left text-xs  text-slate-500  r">Source</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-slate-200">
                       {formData.materialDetailsTable.map((row, idx) => (
                         <tr key={idx}>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm text-slate-900">{idx + 1}</td>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm text-slate-900">{row.materialDescription}</td>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm text-slate-900">{row.specification}</td>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm text-slate-900">{row.quantity}</td>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm text-slate-900">{row.uom}</td>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm text-slate-900">{row.category}</td>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm text-slate-900">{row.source}</td>
+                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{idx + 1}</td>
+                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.materialDescription}</td>
+                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.specification}</td>
+                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.quantity}</td>
+                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.uom}</td>
+                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.category}</td>
+                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.source}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -472,9 +472,9 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
         {(formData?.qualityCheck || formData?.qualityCompliance || formData?.paymentTerms) && (
           <section>
             <SectionHeader number="6" title="Quality" />
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div className="bg-white border-b border-slate-200  p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">QC Status & Inspections</h3>
+                <h3 className="text-md  text-slate-900 mb-2">QC Status & Inspections</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <DetailField label="Inspection Type" value={formData.qualityCheck?.inspectionType} />
                   <DetailField label="QC Status" value={formData.qualityCheck?.qcStatus} />
@@ -492,11 +492,11 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
 
                 {Array.isArray(formData.qualityCheck?.inspections) && formData.qualityCheck.inspections.length > 0 && (
                   <div className="border-t border-slate-200 pt-6">
-                    <h4 className="text-sm font-semibold text-slate-700 mb-4">Inspection Details</h4>
+                    <h4 className="text-sm  text-slate-700 mb-4">Inspection Details</h4>
                     <div className="space-y-3">
                       {formData.qualityCheck.inspections.map((inspection, idx) => (
                         <div key={idx} className="bg-slate-50 rounded p-4 border border-slate-200">
-                          <p className="font-medium text-slate-900 mb-2">{inspection.type || 'Inspection ' + (idx + 1)}</p>
+                          <p className=" text-slate-900 mb-2">{inspection.type || 'Inspection ' + (idx + 1)}</p>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             {inspection.date && <p className="text-slate-600"><span className="text-slate-700">Date:</span> {inspection.date}</p>}
                             {inspection.inspector && <p className="text-slate-600"><span className="text-slate-700">Inspector:</span> {inspection.inspector}</p>}
@@ -512,7 +512,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
               {/* Quality & Compliance Requirements moved from Step 1 */}
               {(formData?.qualityCompliance || formData?.warrantySupport) && (
                 <div className="bg-white border-b border-slate-200 p-2 mb-0">
-                  <h3 className="text-md font-semibold text-slate-900 mb-2">Quality & Compliance Requirements</h3>
+                  <h3 className="text-md  text-slate-900 mb-2">Quality & Compliance Requirements</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <DetailField label="Quality Standards" value={formData.qualityCompliance?.qualityStandards} />
                     <DetailField label="Welding Standards" value={formData.qualityCompliance?.weldingStandards} />
@@ -528,7 +528,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
 
               {/* Payment & Economics moved from Step 1 */}
               <div className="bg-white border-b border-slate-200 p-2 mb-0">
-                <h3 className="text-md font-semibold text-slate-900 mb-2">Payment & Project Economics</h3>
+                <h3 className="text-md  text-slate-900 mb-2">Payment & Project Economics</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DetailField label="Payment Terms" value={formData?.paymentTerms} />
                   <DetailField label="Status" value={formData?.status} />

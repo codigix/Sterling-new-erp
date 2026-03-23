@@ -108,7 +108,7 @@ const ProjectListPage = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center">
                   <FileText className="text-white" size={24} />
                 </div>
                 <div>
@@ -141,7 +141,7 @@ const ProjectListPage = () => {
           </div>
 
           {/* Filters */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 space-y-4">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-sm p-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
                 <Search
@@ -153,14 +153,14 @@ const ProjectListPage = () => {
                   placeholder="Search by name or code..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-2 border border-slate-200 dark:border-slate-700 rounded dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Status</option>
                 <option value="planning">Planning</option>
@@ -172,7 +172,7 @@ const ProjectListPage = () => {
               <select
                 value={filterPriority}
                 onChange={(e) => setFilterPriority(e.target.value)}
-                className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-2 border border-slate-200 dark:border-slate-700 rounded dark:bg-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Priority</option>
                 <option value="critical">Critical</option>
@@ -187,7 +187,7 @@ const ProjectListPage = () => {
                   setFilterStatus("all");
                   setFilterPriority("all");
                 }}
-                className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition"
+                className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition"
               >
                 Reset Filters
               </button>
@@ -196,7 +196,7 @@ const ProjectListPage = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded shadow-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -245,7 +245,7 @@ const ProjectListPage = () => {
                     >
                       <td className="p-2">
                         <div className="flex items-center gap-3">
-                          <div className=" bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0 p-2">
+                          <div className=" bg-blue-100 dark:bg-blue-900 rounded flex items-center justify-center flex-shrink-0 p-2">
                             <FileText
                               className="text-blue-600 dark:text-blue-400"
                               size={10}
@@ -303,7 +303,7 @@ const ProjectListPage = () => {
                                 `/design-engineer/project-details/view?projectId=${project.id}`
                               )
                             }
-                            className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg text-blue-600 dark:text-blue-400 transition"
+                            className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 rounded text-blue-600 dark:text-blue-400 transition"
                             title="View Details"
                           >
                             <Eye size={10} />
@@ -314,14 +314,14 @@ const ProjectListPage = () => {
                                 `/design-engineer/project-details/view?projectId=${project.id}&mode=edit`
                               )
                             }
-                            className="p-2 hover:bg-amber-100 dark:hover:bg-amber-900 rounded-lg text-amber-600 dark:text-amber-400 transition"
+                            className="p-2 hover:bg-amber-100 dark:hover:bg-amber-900 rounded text-amber-600 dark:text-amber-400 transition"
                             title="Edit"
                           >
                             <Edit2 size={10} />
                           </button>
                           <button
                             onClick={() => setDeleteConfirm(project)}
-                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg text-red-600 dark:text-red-400 transition"
+                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900 rounded text-red-600 dark:text-red-400 transition"
                             title="Delete"
                           >
                             <Trash2 size={10} />
@@ -349,7 +349,7 @@ const ProjectListPage = () => {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
                 Delete Project
@@ -371,14 +371,14 @@ const ProjectListPage = () => {
             <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+                className="p-2 text-sm font-medium text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDeleteProject(deleteConfirm.id)}
                 disabled={deleting}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition"
+                className="p-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 disabled:opacity-50 transition"
               >
                 {deleting ? "Deleting..." : "Delete"}
               </button>

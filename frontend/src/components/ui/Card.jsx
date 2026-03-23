@@ -7,21 +7,21 @@ const Card = ({
   shadow = 'sm',
   ...props
 }) => {
-  const baseClasses = 'bg-white rounded-lg transition-shadow duration-200';
+  const baseClasses = 'bg-white rounded transition-shadow duration-200';
 
   const shadows = {
     none: '',
     xs: 'shadow-xs',
-    sm: 'shadow-sm hover:shadow-md',
-    md: 'shadow-md hover:shadow-lg',
+    sm: '',
+    md: 'shadow-md ',
     lg: 'shadow-lg hover:shadow-xl',
   };
 
   const paddings = {
     none: '',
-    sm: 'p-4',
-    default: 'p-4',
-    lg: 'p-8'
+    sm: 'p-2',
+    default: 'p-2',
+    lg: 'p-2'
   };
 
   const classes = `${baseClasses} ${shadows[shadow]} ${paddings[padding]} ${className}`;
@@ -34,7 +34,7 @@ const Card = ({
 };
 
 const CardHeader = ({ children, className = '', ...props }) => (
-  <div className={`mb-4 pb-4 border-b border-slate-200 ${className}`} {...props}>
+  <div className={` pb-2 border-b border-slate-200 ${className}`} {...props}>
     {children}
   </div>
 );

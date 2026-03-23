@@ -116,7 +116,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
   }, []);
 
   const mrColumns = [
-    { key: "request_number", label: "MR NUMBER", render: (val) => <span className="font-bold text-blue-600">{val}</span> },
+    { key: "request_number", label: "MR NUMBER", render: (val) => <span className=" text-blue-600">{val}</span> },
     { key: "department", label: "DEPARTMENT" },
     { key: "priority", label: "PRIORITY", render: (val) => (
       <Badge variant={val === 'urgent' ? 'danger' : val === 'high' ? 'warning' : 'info'}>{val}</Badge>
@@ -128,7 +128,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
   ];
 
   const rfqColumns = [
-    { key: "quotation_number", label: "RFQ NUMBER", render: (val) => <span className="font-bold text-blue-600">{val}</span> },
+    { key: "quotation_number", label: "RFQ NUMBER", render: (val) => <span className=" text-blue-600">{val}</span> },
     { key: "vendor_name", label: "VENDOR" },
     { key: "status", label: "STATUS", render: (val) => (
       <Badge variant={val === 'sent' ? 'info' : 'secondary'}>{val}</Badge>
@@ -137,7 +137,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
   ];
 
   const quotationColumns = [
-    { key: "quotation_number", label: "QTN NUMBER", render: (val) => <span className="font-bold text-blue-600">{val}</span> },
+    { key: "quotation_number", label: "QTN NUMBER", render: (val) => <span className=" text-blue-600">{val}</span> },
     { key: "vendor_name", label: "VENDOR" },
     { key: "total_amount", label: "TOTAL AMOUNT", render: (val) => `₹${parseFloat(val).toLocaleString()}` },
     { key: "status", label: "STATUS", render: (val) => (
@@ -146,7 +146,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
   ];
 
   const poColumns = [
-    { key: "po_number", label: "PO NUMBER", render: (val) => <span className="font-bold text-blue-600">{val}</span> },
+    { key: "po_number", label: "PO NUMBER", render: (val) => <span className=" text-blue-600">{val}</span> },
     { key: "vendor_name", label: "VENDOR" },
     { key: "total_amount", label: "TOTAL AMOUNT", render: (val) => `₹${parseFloat(val).toLocaleString()}` },
     { key: "status", label: "STATUS", render: (val) => (
@@ -436,22 +436,22 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
   }, [materials, updateField]);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-2 animate-in fade-in duration-500">
       <FormSection 
         title="Procurement & Material Status" 
         icon={ShoppingCart}
         description="Track material requests, RFQs, quotations, and purchase orders for this project"
       >
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="">
           <Tabs
             tabs={[
               {
                 label: "Material Requirements",
                 icon: List,
                 content: (
-                  <div className="p-4 space-y-4">
+                  <div className="p-2 space-y-4">
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-bold text-slate-800">Project BOM / Requirements</h3>
+                      <h3 className="text-xs  text-slate-800">Project BOM / Requirements</h3>
                       {!readOnly && (
                         <div className="flex gap-2">
                           <Button 
@@ -494,7 +494,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
                       )}
                     </div>
 
-                    <div className="overflow-x-auto border border-slate-200 rounded-lg">
+                    <div className="overflow-x-auto border border-slate-200 rounded">
                       <table className="w-full text-sm text-left">
                         <thead className="bg-slate-50 text-slate-700 uppercase text-xs">
                           <tr>
@@ -524,7 +524,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
                                     {mat.itemGroupName || mat.item_group_name || 'Uncategorized'}
                                   </span>
                                 </td>
-                                <td className="px-4 py-3 text-right font-bold text-blue-600">{mat.quantity}</td>
+                                <td className="px-4 py-3 text-right  text-blue-600">{mat.quantity}</td>
                                 <td className="px-4 py-3 text-slate-600 uppercase text-xs">{mat.unit || mat.default_uom || mat.defaultUom}</td>
                                 <td className="px-4 py-3 text-right text-slate-600">
                                   ₹{((parseFloat(mat.valuationRate || mat.valuation_rate || 0)) * (parseFloat(mat.quantity))).toLocaleString()}
@@ -552,7 +552,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
                           )}
                         </tbody>
                         {materials.length > 0 && (
-                          <tfoot className="bg-slate-50 font-bold">
+                          <tfoot className="bg-slate-50 ">
                             <tr>
                               <td colSpan={5} className="px-4 py-3 text-right text-slate-700">Total Est. Material Cost:</td>
                               <td className="px-4 py-3 text-right text-blue-700">
@@ -782,9 +782,9 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
         }}
         title="Manage Item Groups"
       >
-        <div className="space-y-6">
-          <form onSubmit={handleCreateGroup} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-            <h4 className="text-sm font-bold text-slate-900 mb-3">
+        <div className="space-y-2">
+          <form onSubmit={handleCreateGroup} className="p-4 bg-slate-50 rounded border border-slate-200">
+            <h4 className="text-sm  text-slate-900 mb-3">
               {editingGroup ? "Edit Group" : "Create New Group"}
             </h4>
             <div className="space-y-3">
@@ -823,7 +823,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
 
           <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
             {itemGroups.map(group => (
-              <div key={group.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg">
+              <div key={group.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded">
                 <div>
                   <p className="font-medium text-slate-900">{group.name}</p>
                   {group.description && <p className="text-xs text-slate-500">{group.description}</p>}

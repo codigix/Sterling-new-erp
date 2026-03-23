@@ -508,7 +508,7 @@ function RootCardFormContent({
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-50">
-      <div className="w-full mx-auto p-4">
+      <div className="w-full mx-auto p-2">
         <WizardHeader currentStep={currentStep} mode={mode} />
 
         <div className="mt-6">{renderStep()}</div>

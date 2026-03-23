@@ -126,7 +126,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+        <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
               <Send size={20} className="text-green-600" />
@@ -139,13 +139,13 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
             <X size={20} className="text-slate-400" />
           </button>
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto text-slate-900 dark:text-slate-100">
+        <div className="p-6 space-y-2 max-h-[70vh] overflow-y-auto text-slate-900 dark:text-slate-100">
           {/* Metadata Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
@@ -183,7 +183,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                   {consolidatedMaterials && consolidatedMaterials.map((m, idx) => (
                     <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div>
                           <p className="font-bold text-slate-900 dark:text-white text-xs">
                             {m.itemName || m.specification}
@@ -195,10 +195,10 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
                           </p>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="p-2 text-center">
                         <span className="font-bold text-slate-900 dark:text-white">{m.requiredQty}</span>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="p-2 text-center">
                         <span className="text-[10px] text-slate-400 font-bold uppercase">{m.uom || 'KG'}</span>
                       </td>
                     </tr>
@@ -210,7 +210,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
+        <div className="p-2 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
           <button 
             onClick={onClose} 
             disabled={isSubmitting}

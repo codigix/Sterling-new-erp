@@ -34,7 +34,7 @@ const MaterialsTab = () => {
                 } rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
               ></div>
               <Card
-                className="h-full hover:shadow-lg transition-all duration-300 border-l-4"
+                className="h-full  transition-all duration-300 border-l-4"
                 style={{
                   borderLeftColor:
                     material.status === "Optimal"
@@ -47,7 +47,7 @@ const MaterialsTab = () => {
                 <CardHeader className="pb-3 border-b border-slate-200 dark:border-slate-700">
                   <CardTitle className="text-base flex items-center text-xs justify-between">
                     <span className="flex items-center text-xs space-x-2">
-                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded group-hover:scale-110 transition-transform duration-300">
                         <Package className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <span className="truncate">{material.name}</span>
@@ -128,11 +128,11 @@ const MaterialsTab = () => {
 
       {/* Material Movement Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="hover:shadow-lg transition-shadow duration-300">
+        <Card className=" transition-shadow duration-300">
           <CardHeader className="border-b border-slate-200 dark:border-slate-700 pb-4">
             <CardTitle className="flex items-center text-xs space-x-2">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded">
+                <BarChart3 className="w-3 h-3 text-blue-600 dark:text-blue-400" />
               </div>
               <span>Stock Level Distribution</span>
             </CardTitle>
@@ -171,11 +171,11 @@ const MaterialsTab = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow duration-300">
+        <Card className=" transition-shadow duration-300">
           <CardHeader className="border-b border-slate-200 dark:border-slate-700 pb-4">
             <CardTitle className="flex items-center text-xs space-x-2">
-              <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
-                <PieChart className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded">
+                <PieChart className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               </div>
               <span>Material Categories</span>
             </CardTitle>
@@ -232,7 +232,7 @@ const MaterialsTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
-            <FileText className="w-5 h-5 mr-2" />
+            <FileText className="w-3 h-3 mr-2" />
             Recent Material Movements
           </CardTitle>
         </CardHeader>
@@ -315,7 +315,7 @@ const MaterialsTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
-            <AlertTriangle className="w-5 h-5 mr-2" />
+            <AlertTriangle className="w-3 h-3 mr-2" />
             Inventory Alerts & Recommendations
           </CardTitle>
         </CardHeader>
@@ -326,8 +326,8 @@ const MaterialsTab = () => {
                 Critical Stock Alerts
               </h4>
               <div className="space-y-3">
-                <div className="flex items-center text-xs p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-red-600 mr-3" />
+                <div className="flex items-center text-xs p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                  <AlertTriangle className="w-3 h-3 text-red-600 mr-3" />
                   <div>
                     <p className="font-medium text-red-900 dark:text-red-100">
                       Titanium Grade 5 - Critical Stock
@@ -337,8 +337,8 @@ const MaterialsTab = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center text-xs p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
+                <div className="flex items-center text-xs p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
+                  <AlertTriangle className="w-3 h-3 text-yellow-600 mr-3" />
                   <div>
                     <p className="font-medium text-yellow-900 dark:text-yellow-100">
                       Aluminum 6061 - Low Stock
@@ -356,7 +356,7 @@ const MaterialsTab = () => {
                 Recommendations
               </h4>
               <div className="space-y-3">
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
                   <p className="font-medium text-blue-900 dark:text-blue-100">
                     Reorder Alert
                   </p>
@@ -364,7 +364,7 @@ const MaterialsTab = () => {
                     Place order for Titanium Grade 5 (25kg needed)
                   </p>
                 </div>
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
                   <p className="font-medium text-green-900 dark:text-green-100">
                     Optimization
                   </p>

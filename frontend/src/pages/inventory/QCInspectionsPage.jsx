@@ -401,7 +401,7 @@ const QCInspectionsPage = () => {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-2 p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -412,18 +412,18 @@ const QCInspectionsPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          {/* <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+          {/* <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
             <Plus size={18} />
             New Inspection
           </button> */}
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
             <Download size={18} />
             Export
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
             <Search
@@ -435,13 +435,13 @@ const QCInspectionsPage = () => {
               placeholder="Search inspection, GRN or vendor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
           >
             <option value="all">All Status</option>
             <option value="completed">Completed</option>
@@ -626,10 +626,10 @@ const QCInspectionsPage = () => {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Material & ST Numbers</th>
+                        <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Material & ST Numbers</th>
                         <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Received Qty</th>
                         <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Summary Status</th>
-                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Reports</th>
+                        <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Reports</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -650,7 +650,7 @@ const QCInspectionsPage = () => {
                             >
                               <td className="px-6 py-5">
                                 <div className="flex items-center gap-3">
-                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600'}`}>
+                                  <div className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600'}`}>
                                     <Package size={16} />
                                   </div>
                                   <div>
@@ -813,7 +813,7 @@ const QCInspectionsPage = () => {
       {/* Inspect Modal */}
       {showInspectModal && selectedGRN && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                 QC Inspection - {selectedGRN.id}
@@ -826,8 +826,8 @@ const QCInspectionsPage = () => {
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-700/30 p-4 rounded-lg border border-slate-100 dark:border-slate-700">
+            <div className="p-6 space-y-2">
+              <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-700/30 p-4 rounded border border-slate-100 dark:border-slate-700">
                 <div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-1">
                     PO Number
@@ -851,7 +851,7 @@ const QCInspectionsPage = () => {
                   <CheckCircle size={18} className="text-blue-600" />
                   Items Inspection
                 </h3>
-                <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm">
+                <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded shadow-sm">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
@@ -898,7 +898,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center font-medium transition-all shadow-sm"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center font-medium transition-all shadow-sm"
                                 value={item.invoice_quantity}
                                 onChange={(e) =>
                                   handleQuantityChange(
@@ -914,7 +914,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center font-medium transition-all shadow-sm"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center font-medium transition-all shadow-sm"
                                 value={
                                   item.total_received_val !== undefined
                                     ? item.total_received_val
@@ -934,7 +934,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center font-medium cursor-not-allowed"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center font-medium cursor-not-allowed"
                                 value={item.rejected}
                                 readOnly
                               />
@@ -944,7 +944,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center font-medium cursor-not-allowed"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center font-medium cursor-not-allowed"
                                 value={item.overage}
                                 readOnly
                               />
@@ -964,7 +964,7 @@ const QCInspectionsPage = () => {
                   </label>
                   <div className="relative">
                     <select
-                      className="w-full pl-4 pr-10 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none shadow-sm font-medium"
+                      className="w-full pl-4 pr-10 py-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none shadow-sm font-medium"
                       value={inspectionForm.status}
                       onChange={(e) =>
                         setInspectionForm({
@@ -1000,7 +1000,7 @@ const QCInspectionsPage = () => {
                     General Remarks
                   </label>
                   <textarea
-                    className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+                    className="w-full p-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
                     rows="2"
                     placeholder="Enter any overall comments or observations..."
                     value={inspectionForm.remarks}
@@ -1018,13 +1018,13 @@ const QCInspectionsPage = () => {
             <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-b-lg">
               <button
                 onClick={() => setShowInspectModal(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-transparent hover:border-slate-300 dark:hover:border-slate-600 rounded-lg transition-all"
+                className="p-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-transparent hover:border-slate-300 dark:hover:border-slate-600 rounded transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmitInspection}
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm hover:shadow transition-all"
+                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded shadow-sm hover:shadow transition-all"
               >
                 <Save size={18} />
                 Save Inspection

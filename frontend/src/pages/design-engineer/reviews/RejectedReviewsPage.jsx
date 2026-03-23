@@ -20,7 +20,7 @@ const RejectedReviewsPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
           Rejected Reviews
@@ -34,7 +34,7 @@ const RejectedReviewsPage = () => {
         {reviews.map((review) => (
           <div
             key={review.id}
-            className="bg-white dark:bg-slate-800 rounded-lg border border-red-200 dark:border-red-800 p-6"
+            className="bg-white dark:bg-slate-800 rounded border border-red-200 dark:border-red-800 p-6"
           >
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -69,15 +69,15 @@ const RejectedReviewsPage = () => {
             </div>
 
             <div className="flex gap-3">
-              <button className="flex-1 px-4 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
+              <button className="flex-1 p-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
                 <MessageSquare size={18} />
                 View Feedback
               </button>
-              <button className="flex-1 px-4 py-2 bg-orange-50 dark:bg-orange-900 text-orange-600 dark:text-orange-400 rounded hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors flex items-center text-xs justify-center gap-2">
+              <button className="flex-1 p-2 bg-orange-50 dark:bg-orange-900 text-orange-600 dark:text-orange-400 rounded hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors flex items-center text-xs justify-center gap-2">
                 <Edit size={18} />
                 Create Revision
               </button>
-              <button className="px-4 py-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
+              <button className="p-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
                 <Download size={18} />
               </button>
             </div>

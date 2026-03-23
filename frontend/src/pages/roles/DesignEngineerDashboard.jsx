@@ -226,7 +226,7 @@ const DesignEngineerDashboard = () => {
   }
 
   return (
-    <div className="space-y-6 pb-6">
+    <div className="space-y-2 pb-6">
       <div className="bg-blue-600 dark:bg-blue-700 rounded-xl p-3 text-white shadow-lg">
         <div className="max-w-2xl">
           <h1 className="text-xl font-bold mb-1">Design Engineering Hub</h1>
@@ -242,11 +242,11 @@ const DesignEngineerDashboard = () => {
           return (
             <div
               key={stat.title}
-              className={`group relative overflow-hidden rounded-xl border ${stat.borderColor} bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg transition-all duration-300`}
+              className={`group relative overflow-hidden rounded-xl border ${stat.borderColor} bg-white dark:bg-slate-800 shadow-sm  transition-all duration-300`}
             >
               <div className="relative p-3">
                 <div className="flex items-center text-xs justify-between mb-3">
-                  <div className={`${stat.bgColor} p-2.5 rounded-lg`}>
+                  <div className={`${stat.bgColor} p-2.5 rounded`}>
                     <Icon size={15} className={stat.iconColor} />
                   </div>
                   <div
@@ -362,7 +362,7 @@ const DesignEngineerDashboard = () => {
             {departmentTasks.slice(0, 5).map((task) => (
               <div
                 key={task.id}
-                className="group border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all"
+                className="group border border-slate-200 dark:border-slate-700 rounded p-4 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -421,7 +421,7 @@ const DesignEngineerDashboard = () => {
           <div className="space-y-2.5">
             <Link
               to="/design-engineer/documents/designs"
-              className="flex items-center gap-3 p-3.5 rounded-lg border-2 border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all group"
+              className="flex items-center gap-3 p-3.5 rounded border-2 border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all group"
             >
               <Wrench size={18} className="text-blue-600 dark:text-blue-400" />
               <div>
@@ -435,7 +435,7 @@ const DesignEngineerDashboard = () => {
             </Link>
             <Link
               to="/department/production/bom/create"
-              className="flex items-center gap-3 p-3.5 rounded-lg border-2 border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 hover:border-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all group"
+              className="flex items-center gap-3 p-3.5 rounded border-2 border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 hover:border-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all group"
             >
               <BarChart3
                 size={18}
@@ -452,7 +452,7 @@ const DesignEngineerDashboard = () => {
             </Link>
             <Link
               to="/design-engineer/department-tasks"
-              className="flex items-center gap-3 p-3.5 rounded-lg border-2 border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-900/20 hover:border-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all group"
+              className="flex items-center gap-3 p-3.5 rounded border-2 border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-900/20 hover:border-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all group"
             >
               <CheckCircle
                 size={18}

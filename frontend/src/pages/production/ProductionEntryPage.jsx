@@ -283,10 +283,10 @@ const ProductionEntryPage = () => {
       <div className="flex items-center gap-4">
         <span className="text-xs font-bold text-slate-500">Page 1 of 0 <span className="text-[10px] opacity-60">(0 total)</span></span>
         <div className="flex items-center gap-1">
-          <button className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 transition-all disabled:opacity-50" disabled>
+          <button className="p-1.5 rounded border border-slate-200 text-slate-400 hover:bg-slate-50 transition-all disabled:opacity-50" disabled>
             <ChevronLeft size={16} />
           </button>
-          <button className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all">
+          <button className="px-3 py-1.5 rounded border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all">
             Next
           </button>
         </div>
@@ -298,7 +298,7 @@ const ProductionEntryPage = () => {
     <div className="min-h-screen bg-[#F8FAFC] pb-20">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div className="max-w-[1600px] mx-auto px-6 py-4">
+        <div className="max-w-[1600px] mx-auto p-2">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <div className="flex items-center gap-2 mb-1">
@@ -320,7 +320,7 @@ const ProductionEntryPage = () => {
             
             <button 
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-bold transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded text-xs font-bold transition-all"
             >
               <ChevronLeft size={18} />
               Back
@@ -329,7 +329,7 @@ const ProductionEntryPage = () => {
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-6 py-6 space-y-6">
+      <div className="max-w-[1600px] mx-auto px-6 py-6 space-y-2">
         {/* Main Stats Header */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -410,7 +410,7 @@ const ProductionEntryPage = () => {
         {/* Add Time Log */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
-            <div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg">
+            <div className="p-1.5 bg-blue-100 text-blue-600 rounded">
               <Plus size={18} />
             </div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">Add Time Log</h2>
@@ -424,7 +424,7 @@ const ProductionEntryPage = () => {
                   <div className="flex gap-1.5">
                     <input 
                       type="number" 
-                      className="w-14 h-11 px-2 bg-white border border-slate-200 rounded-lg text-sm font-black text-center text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                      className="w-14 h-11 px-2 bg-white border border-slate-200 rounded text-sm font-black text-center text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                       value={timeLogForm.day}
                       onChange={(e) => setTimeLogForm({...timeLogForm, day: e.target.value})}
                     />
@@ -432,7 +432,7 @@ const ProductionEntryPage = () => {
                       <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                       <input 
                         type="date" 
-                        className="w-full h-11 pl-8 pr-2 bg-white border border-slate-200 rounded-lg text-[11px] font-black text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                        className="w-full h-11 pl-8 pr-2 bg-white border border-slate-200 rounded text-[11px] font-black text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                         value={timeLogForm.date}
                         onChange={(e) => setTimeLogForm({...timeLogForm, date: e.target.value})}
                       />
@@ -443,7 +443,7 @@ const ProductionEntryPage = () => {
                 <div className="md:col-span-3">
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Operator <span className="text-red-500">*</span></label>
                   <select 
-                    className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-sm font-black text-slate-700 appearance-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
+                    className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm font-black text-slate-700 appearance-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                     value={timeLogForm.operatorId}
                     onChange={(e) => setTimeLogForm({...timeLogForm, operatorId: e.target.value})}
                     required
@@ -459,7 +459,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Workstation <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <select 
-                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-sm font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
+                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                       value={timeLogForm.workstationId}
                       onChange={(e) => setTimeLogForm({...timeLogForm, workstationId: e.target.value})}
                       required
@@ -477,7 +477,7 @@ const ProductionEntryPage = () => {
                 <div className="md:col-span-2">
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest text-center">Shift <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-1.5 h-11">
-                    <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                    <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <select 
                         className="flex-1 px-3 text-sm font-black text-slate-700 outline-none bg-transparent appearance-none cursor-pointer"
                         value={timeLogForm.shift}
@@ -492,7 +492,7 @@ const ProductionEntryPage = () => {
                       type="button"
                       onClick={() => handleNextShift('timeLog')}
                       title="Next Shift"
-                      className="h-full w-10 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
+                      className="h-full w-10 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
                     >
                       <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
@@ -501,7 +501,7 @@ const ProductionEntryPage = () => {
 
                 <div className="md:col-span-1">
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest text-center">Qty <span className="text-red-500">*</span></label>
-                  <div className="flex focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 rounded-lg transition-all overflow-hidden border border-slate-200 h-11">
+                  <div className="flex focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 rounded transition-all overflow-hidden border border-slate-200 h-11">
                     <input 
                       type="number" 
                       className="flex-1 px-2 bg-white text-sm font-black text-slate-900 border-none outline-none text-center"
@@ -517,7 +517,7 @@ const ProductionEntryPage = () => {
                 <div className="md:col-span-5">
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Production Period <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-3">
-                    <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                    <div className="flex bg-white border border-slate-200 rounded overflow-hidden flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <input 
                         type="text" 
                         className="w-full px-2 py-2.5 text-sm font-black text-center border-none outline-none text-slate-900"
@@ -537,7 +537,7 @@ const ProductionEntryPage = () => {
                       </div>
                     </div>
                     <ArrowRightLeft size={16} className="text-slate-300" />
-                    <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                    <div className="flex bg-white border border-slate-200 rounded overflow-hidden flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <input 
                         type="text" 
                         className="w-full px-2 py-2.5 text-sm font-black text-center border-none outline-none text-slate-900"
@@ -563,7 +563,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Total Mins <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
-                    className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-black text-red-500 focus:outline-none"
+                    className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded text-sm font-black text-red-500 focus:outline-none"
                     value={timeLogForm.totalMins}
                     readOnly
                   />
@@ -573,7 +573,7 @@ const ProductionEntryPage = () => {
                   <button 
                     type="submit"
                     disabled={submitting}
-                    className="w-full h-11 bg-indigo-600 text-white rounded-lg text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 disabled:opacity-50 active:scale-[0.98]"
+                    className="w-full h-11 bg-indigo-600 text-white rounded text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 disabled:opacity-50 active:scale-[0.98]"
                   >
                     <FileText size={18} />
                     Record Time
@@ -592,7 +592,7 @@ const ProductionEntryPage = () => {
         {/* Quality & Rejection Entry */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
-            <div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg">
+            <div className="p-1.5 bg-blue-100 text-blue-600 rounded">
               <ShieldCheck size={18} />
             </div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">Quality & Rejection Entry</h2>
@@ -605,7 +605,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest text-center">Day <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
-                    className="w-full h-11 px-2 bg-white border border-slate-200 rounded-lg text-sm font-black text-center text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                    className="w-full h-11 px-2 bg-white border border-slate-200 rounded text-sm font-black text-center text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                     value={qualityForm.day}
                     onChange={(e) => setQualityForm({...qualityForm, day: e.target.value})}
                   />
@@ -616,7 +616,7 @@ const ProductionEntryPage = () => {
                     <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                     <input 
                       type="date" 
-                      className="w-full h-11 pl-8 pr-2 bg-white border border-slate-200 rounded-lg text-[11px] font-black text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                      className="w-full h-11 pl-8 pr-2 bg-white border border-slate-200 rounded text-[11px] font-black text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                       value={qualityForm.date}
                       onChange={(e) => setQualityForm({...qualityForm, date: e.target.value})}
                     />
@@ -625,7 +625,7 @@ const ProductionEntryPage = () => {
                 <div className="md:col-span-2">
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest text-center">Shift <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-1.5 h-11">
-                    <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                    <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <select 
                         className="flex-1 px-3 text-sm font-black text-slate-700 outline-none bg-transparent appearance-none cursor-pointer"
                         value={qualityForm.shift}
@@ -640,7 +640,7 @@ const ProductionEntryPage = () => {
                       type="button"
                       onClick={() => handleNextShift('quality')}
                       title="Next Shift"
-                      className="h-full w-10 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
+                      className="h-full w-10 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
                     >
                       <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
@@ -650,7 +650,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block text-center tracking-widest">Produce <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
-                    className="w-full h-11 px-2 bg-blue-50/50 border border-blue-100 rounded-lg text-sm font-black text-blue-600 text-center focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                    className="w-full h-11 px-2 bg-blue-50/50 border border-blue-100 rounded text-sm font-black text-blue-600 text-center focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                     value={qualityForm.produceQty}
                     onChange={(e) => setQualityForm({...qualityForm, produceQty: e.target.value})}
                   />
@@ -659,7 +659,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest text-center">Reason</label>
                   <div className="relative">
                     <select 
-                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
+                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-xs font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                       value={qualityForm.rejectionReason}
                       onChange={(e) => setQualityForm({...qualityForm, rejectionReason: e.target.value})}
                     >
@@ -675,7 +675,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block text-center tracking-widest text-emerald-600">Accepted <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
-                    className="w-full h-11 px-2 bg-emerald-50 border border-emerald-100 rounded-lg text-sm font-black text-emerald-600 text-center focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                    className="w-full h-11 px-2 bg-emerald-50 border border-emerald-100 rounded text-sm font-black text-emerald-600 text-center focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                     value={qualityForm.acceptedQty}
                     onChange={(e) => setQualityForm({...qualityForm, acceptedQty: e.target.value})}
                   />
@@ -684,7 +684,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block text-center tracking-widest text-red-500">Rejected <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
-                    className="w-full h-11 px-2 bg-red-50 border border-red-100 rounded-lg text-sm font-black text-red-600 text-center focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
+                    className="w-full h-11 px-2 bg-red-50 border border-red-100 rounded text-sm font-black text-red-600 text-center focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
                     value={qualityForm.rejectedQty}
                     onChange={(e) => setQualityForm({...qualityForm, rejectedQty: e.target.value})}
                   />
@@ -693,7 +693,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block text-center tracking-widest text-amber-500">Scrap <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
-                    className="w-full h-11 px-2 bg-amber-50 border border-amber-100 rounded-lg text-sm font-black text-amber-600 text-center focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all"
+                    className="w-full h-11 px-2 bg-amber-50 border border-amber-100 rounded text-sm font-black text-amber-600 text-center focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all"
                     value={qualityForm.scrapQty}
                     onChange={(e) => setQualityForm({...qualityForm, scrapQty: e.target.value})}
                   />
@@ -702,7 +702,7 @@ const ProductionEntryPage = () => {
                   <button 
                     type="submit"
                     disabled={submitting}
-                    className="w-full h-11 bg-emerald-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-md shadow-emerald-200 disabled:opacity-50 active:scale-[0.95] text-xs font-black uppercase tracking-widest"
+                    className="w-full h-11 bg-emerald-600 text-white rounded flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-md shadow-emerald-200 disabled:opacity-50 active:scale-[0.95] text-xs font-black uppercase tracking-widest"
                   >
                     <Save size={18} />
                     Save Entry
@@ -711,7 +711,7 @@ const ProductionEntryPage = () => {
               </div>
             </form>
             <div className="mt-6 bg-amber-50/50 border border-amber-100 rounded-xl p-3 flex gap-3">
-              <div className="p-1.5 bg-white rounded-lg text-amber-500 h-fit shadow-sm">
+              <div className="p-1.5 bg-white rounded text-amber-500 h-fit shadow-sm">
                 <Info size={16} />
               </div>
               <p className="text-[11px] font-medium text-amber-700 leading-normal">
@@ -730,7 +730,7 @@ const ProductionEntryPage = () => {
         {/* Operational Downtime */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
-            <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg">
+            <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded">
               <AlertCircle size={18} />
             </div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">Operational Downtime</h2>
@@ -744,7 +744,7 @@ const ProductionEntryPage = () => {
                   <div className="flex gap-1.5">
                     <input 
                       type="number" 
-                      className="w-14 h-11 px-2 bg-white border border-slate-200 rounded-lg text-sm font-black text-center text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                      className="w-14 h-11 px-2 bg-white border border-slate-200 rounded text-sm font-black text-center text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                       value={downtimeForm.day}
                       onChange={(e) => setDowntimeForm({...downtimeForm, day: e.target.value})}
                     />
@@ -752,7 +752,7 @@ const ProductionEntryPage = () => {
                       <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                       <input 
                         type="date" 
-                        className="w-full h-11 pl-8 pr-2 py-2.5 bg-white border border-slate-200 rounded-lg text-[11px] font-black text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                        className="w-full h-11 pl-8 pr-2 py-2.5 bg-white border border-slate-200 rounded text-[11px] font-black text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                         value={downtimeForm.date}
                         onChange={(e) => setDowntimeForm({...downtimeForm, date: e.target.value})}
                       />
@@ -763,7 +763,7 @@ const ProductionEntryPage = () => {
                 <div className="md:col-span-1">
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest text-center">Shift <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-1.5 h-11">
-                    <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                    <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <select 
                         className="flex-1 px-1.5 text-sm font-black text-slate-700 outline-none bg-transparent appearance-none cursor-pointer"
                         value={downtimeForm.shift}
@@ -778,7 +778,7 @@ const ProductionEntryPage = () => {
                       type="button"
                       onClick={() => handleNextShift('downtime')}
                       title="Next Shift"
-                      className="h-full w-8 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
+                      className="h-full w-8 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
                     >
                       <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
@@ -789,7 +789,7 @@ const ProductionEntryPage = () => {
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Downtime Type <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <select 
-                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
+                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-xs font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                       value={downtimeForm.downtimeType}
                       onChange={(e) => setDowntimeForm({...downtimeForm, downtimeType: e.target.value})}
                     >
@@ -804,7 +804,7 @@ const ProductionEntryPage = () => {
 
                 <div className="md:col-span-2">
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Start Time <span className="text-red-500">*</span></label>
-                  <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden h-11 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                  <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-11 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                     <input 
                       type="text" 
                       className="flex-1 px-2 text-sm font-black text-center text-slate-900 border-none outline-none"
@@ -824,7 +824,7 @@ const ProductionEntryPage = () => {
 
                 <div className="md:col-span-2">
                   <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">End Time <span className="text-red-500">*</span></label>
-                  <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden h-11 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                  <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-11 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                     <input 
                       type="text" 
                       className="flex-1 px-2 text-sm font-black text-center text-slate-900 border-none outline-none"
@@ -845,7 +845,7 @@ const ProductionEntryPage = () => {
                 <div className="md:col-span-2">
                   <button 
                     type="button"
-                    className="w-full h-11 bg-orange-500 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-md shadow-orange-200 active:scale-[0.95] text-xs font-black uppercase tracking-widest"
+                    className="w-full h-11 bg-orange-500 text-white rounded flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-md shadow-orange-200 active:scale-[0.95] text-xs font-black uppercase tracking-widest"
                   >
                     <FileText size={18} />
                     Record Downtime
@@ -888,7 +888,7 @@ const ProductionEntryPage = () => {
                 <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Next Operation <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <select 
-                    className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-sm font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
+                    className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                     value={nextStageForm.nextOperation}
                     onChange={(e) => setNextStageForm({...nextStageForm, nextOperation: e.target.value})}
                   >
@@ -906,7 +906,7 @@ const ProductionEntryPage = () => {
                 <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Assign Operator</label>
                 <div className="relative">
                   <select 
-                    className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-sm font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
+                    className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                     value={nextStageForm.assignOperator}
                     onChange={(e) => setNextStageForm({...nextStageForm, assignOperator: e.target.value})}
                   >
@@ -923,7 +923,7 @@ const ProductionEntryPage = () => {
                 <label className="text-[10px] font-bold text-slate-600 uppercase mb-2 block tracking-widest">Target Warehouse <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <select 
-                    className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-sm font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
+                    className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm font-black text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                     value={nextStageForm.targetWarehouse}
                     onChange={(e) => setNextStageForm({...nextStageForm, targetWarehouse: e.target.value})}
                   >
@@ -940,7 +940,7 @@ const ProductionEntryPage = () => {
                 <label className="text-[10px] font-bold text-slate-600 uppercase mb-3 block text-center tracking-widest">Execution Mode:</label>
                 <div className="flex justify-center gap-6 pb-2.5">
                   <label className="flex items-center gap-2.5 cursor-pointer group">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${nextStageForm.executionMode === 'in-house' ? 'border-indigo-500 bg-indigo-500 shadow-md shadow-indigo-100' : 'border-slate-300 group-hover:border-slate-400'}`}>
+                    <div className={`w-3 h-3 rounded-full border-2 flex items-center justify-center transition-all ${nextStageForm.executionMode === 'in-house' ? 'border-indigo-500 bg-indigo-500 shadow-md shadow-indigo-100' : 'border-slate-300 group-hover:border-slate-400'}`}>
                       {nextStageForm.executionMode === 'in-house' && <div className="w-2 h-2 bg-white rounded-full" />}
                     </div>
                     <input 
@@ -954,7 +954,7 @@ const ProductionEntryPage = () => {
                     <span className={`text-[11px] font-black uppercase tracking-widest transition-colors ${nextStageForm.executionMode === 'in-house' ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-700'}`}>In-house</span>
                   </label>
                   <label className="flex items-center gap-2.5 cursor-pointer group">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${nextStageForm.executionMode === 'outsource' ? 'border-indigo-500 bg-indigo-500 shadow-md shadow-indigo-100' : 'border-slate-300 group-hover:border-slate-400'}`}>
+                    <div className={`w-3 h-3 rounded-full border-2 flex items-center justify-center transition-all ${nextStageForm.executionMode === 'outsource' ? 'border-indigo-500 bg-indigo-500 shadow-md shadow-indigo-100' : 'border-slate-300 group-hover:border-slate-400'}`}>
                       {nextStageForm.executionMode === 'outsource' && <div className="w-2 h-2 bg-white rounded-full" />}
                     </div>
                     <input 
@@ -977,7 +977,7 @@ const ProductionEntryPage = () => {
         <div className="bg-[#FBFCFE] rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+              <div className="p-1.5 bg-blue-50 text-blue-600 rounded">
                 <FileText size={18} />
               </div>
               <div>
@@ -985,7 +985,7 @@ const ProductionEntryPage = () => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Consolidated daily and shift-wise production metrics</p>
               </div>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-[11px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all">
+            <button className="flex items-center gap-2 p-2 bg-indigo-50 text-indigo-600 rounded text-[11px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all">
               <DownloadCloud size={16} />
               Download CSV
             </button>

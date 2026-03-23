@@ -147,7 +147,7 @@ const SearchableSelect = ({
       
       <div
         className={`
-          relative w-full border rounded-lg bg-white dark:bg-slate-700 
+          relative w-full border rounded bg-white dark:bg-slate-700 
           transition-all duration-200 flex items-center
           ${isOpen ? 'ring-2 ring-blue-500 border-blue-500 shadow-sm' : 'border-slate-200 dark:border-slate-600'}
           ${error ? 'border-red-500 ring-red-500' : ''}
@@ -201,7 +201,7 @@ const SearchableSelect = ({
         <div 
           ref={dropdownRef}
           style={dropdownStyle}
-          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
+          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-xl max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
         >
           <div className="overflow-y-auto flex-1 py-1 modal-body-scroll">
             {filteredOptions.length > 0 ? (
@@ -210,7 +210,7 @@ const SearchableSelect = ({
                   key={option.value || `option-${index}`}
                   onClick={() => handleSelect(option)}
                   className={`
-                    px-4 py-2 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors
+                    p-2 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors
                     ${String(value) === String(option.value) ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-700 dark:text-slate-300'}
                   `}
                 >

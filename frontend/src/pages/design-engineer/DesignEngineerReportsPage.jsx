@@ -37,7 +37,7 @@ const DesignEngineerReportsPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
           Design Engineer Reports
@@ -52,7 +52,7 @@ const DesignEngineerReportsPage = () => {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700"
+            className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700"
           >
             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
               {stat.label}
@@ -74,7 +74,7 @@ const DesignEngineerReportsPage = () => {
           return (
             <div
               key={report.title}
-              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow"
+              className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6  transition-shadow"
             >
               <div className="flex items-start justify-between mb-4">
                 <Icon size={32} className="text-blue-600 dark:text-blue-400" />
@@ -85,7 +85,7 @@ const DesignEngineerReportsPage = () => {
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                 {report.description}
               </p>
-              <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+              <button className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium">
                 {report.action}
               </button>
             </div>
@@ -94,7 +94,7 @@ const DesignEngineerReportsPage = () => {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
           Recent Activity
         </h3>

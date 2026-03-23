@@ -113,8 +113,8 @@ export default function Step6_QualityCheck({ readOnly = false }) {
   ), [formData.qualityCompliance, formData.warrantySupport, setNestedField, readOnly]);
 
   const inspectionResultsContent = useMemo(() => (
-    <div className="space-y-6">
-      <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+    <div className="space-y-2">
+      <div className="bg-slate-50 p-4 rounded border border-slate-200">
         <h5 className="text-sm font-semibold text-slate-900 mb-3 text-left">Overall QC Summary</h5>
         <FormRow cols={2}>
           <Input
@@ -144,7 +144,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
             onChange={(e) => setNestedField("qualityCheck", "qcReport", e.target.value)}
             disabled={readOnly}
             rows="4"
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter detailed quality control report or findings"
           />
         </div>
@@ -155,7 +155,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
             onChange={(e) => setNestedField("qualityCheck", "remarks", e.target.value)}
             disabled={readOnly}
             rows="3"
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter final QC remarks"
           />
         </div>
@@ -178,12 +178,12 @@ export default function Step6_QualityCheck({ readOnly = false }) {
 
         <div className="space-y-4">
           {(inspections.length === 0) ? (
-            <div className="text-center py-8 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+            <div className="text-center py-8 bg-slate-50 rounded border border-dashed border-slate-300">
               <p className="text-sm text-slate-500">No inspection logs recorded yet.</p>
             </div>
           ) : (
             inspections.map((inspection, index) => (
-              <div key={index} className="p-4 bg-white border border-slate-200 rounded-lg relative">
+              <div key={index} className="p-4 bg-white border border-slate-200 rounded relative">
                 {!readOnly && (
                   <button
                     type="button"
@@ -255,7 +255,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
               value={formData.status || "pending"}
               onChange={(e) => updateField("status", e.target.value)}
               disabled={readOnly}
-              className="w-full p-2 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full p-2 text-xs bg-white border border-slate-200 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               {STATUS_LEVELS.map((level) => (
                 <option key={level.value} value={level.value}>{level.label}</option>
@@ -314,7 +314,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
           onChange={(e) => updateField("specialInstructions", e.target.value)}
           disabled={readOnly}
           rows="4"
-          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
           placeholder="Enter any special instructions"
         />
       </div>
@@ -328,7 +328,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
   ], [qualityRequirementsContent, inspectionResultsContent, paymentAndInternalContent]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <AssigneeField
         stepType="qualityCheck"
         formData={state.formData}
@@ -342,7 +342,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
         subtitle="Manage quality standards, inspections, and project economics"
         icon={Shield}
       >
-        <div className="space-y-6">
+        <div className="space-y-2">
           <Tabs tabs={tabs} defaultTab={1} />
         </div>
       </FormSection>

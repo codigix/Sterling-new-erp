@@ -215,7 +215,7 @@ const MaterialRequestPage = () => {
   return (
     <div className="task-page-container">
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-700">
+        <div className="mb-4 rounded border border-red-200 bg-red-50 p-2 text-sm text-red-700">
           {error}
         </div>
       )}
@@ -288,7 +288,7 @@ const MaterialRequestPage = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-lg transition-colors capitalize ${
+                className={`p-2 rounded transition-colors capitalize ${
                   activeTab === tab
                     ? "bg-blue-600 text-white"
                     : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -301,7 +301,7 @@ const MaterialRequestPage = () => {
         </div>
         <button
           onClick={() => setShowNewForm(!showNewForm)}
-          className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
         >
           <Plus size={18} />
           New Request
@@ -327,7 +327,7 @@ const MaterialRequestPage = () => {
                   value={formData.rootCardId}
                   onChange={handleFormChange}
                   placeholder="Enter root card ID"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                   required
                 />
               </div>
@@ -341,7 +341,7 @@ const MaterialRequestPage = () => {
                   value={formData.materialName}
                   onChange={handleFormChange}
                   placeholder="Enter material name"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                   required
                 />
               </div>
@@ -358,7 +358,7 @@ const MaterialRequestPage = () => {
                   value={formData.materialCode}
                   onChange={handleFormChange}
                   placeholder="Material code"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -372,7 +372,7 @@ const MaterialRequestPage = () => {
                   value={formData.quantity}
                   onChange={handleFormChange}
                   placeholder="0"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                   required
                 />
               </div>
@@ -384,7 +384,7 @@ const MaterialRequestPage = () => {
                   name="unit"
                   value={formData.unit}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 >
                   <option value="Nos">Nos</option>
                   <option value="Kg">Kg</option>
@@ -400,7 +400,7 @@ const MaterialRequestPage = () => {
                   name="priority"
                   value={formData.priority}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -420,7 +420,7 @@ const MaterialRequestPage = () => {
                 onChange={handleFormChange}
                 placeholder="Material specifications"
                 rows="3"
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
               />
             </div>
 
@@ -434,7 +434,7 @@ const MaterialRequestPage = () => {
                   name="requiredDate"
                   value={formData.requiredDate}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -447,7 +447,7 @@ const MaterialRequestPage = () => {
                   value={formData.remarks}
                   onChange={handleFormChange}
                   placeholder="Additional remarks"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
             </div>
@@ -456,14 +456,14 @@ const MaterialRequestPage = () => {
               <button
                 type="button"
                 onClick={() => setShowNewForm(false)}
-                className="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors"
+                className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? "Creating..." : "Create Request"}
               </button>
@@ -602,7 +602,7 @@ const MaterialRequestPage = () => {
                   value={vendorData.vendorId}
                   onChange={handleVendorChange}
                   placeholder="Enter vendor ID"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -616,7 +616,7 @@ const MaterialRequestPage = () => {
                   value={vendorData.quotedPrice}
                   onChange={handleVendorChange}
                   placeholder="0.00"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -629,7 +629,7 @@ const MaterialRequestPage = () => {
                   value={vendorData.deliveryDays}
                   onChange={handleVendorChange}
                   placeholder="0"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -642,7 +642,7 @@ const MaterialRequestPage = () => {
                   onChange={handleVendorChange}
                   placeholder="Additional notes"
                   rows="2"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div className="flex gap-2 justify-end pt-4">
@@ -657,13 +657,13 @@ const MaterialRequestPage = () => {
                       notes: "",
                     });
                   }}
-                  className="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark:"
+                  className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark:"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleAddVendor(selectedRequest.id)}
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                  className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                 >
                   Add Quote
                 </button>

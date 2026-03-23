@@ -40,7 +40,8 @@ const DesignDrawingManagement = () => {
     name: "",
     type: "Mechanical",
     description: "",
-    file: null
+    file: null,
+    root_card_id: ""
   });
 
   const [reviewData, setReviewData] = useState({
@@ -65,11 +66,12 @@ const DesignDrawingManagement = () => {
   };
 
   const fetchDocuments = async () => {
-    if (!rootCardId) return;
     try {
       setLoading(true);
-      const response = await axios.get(`/design-drawings/root-card/${rootCardId}`);
-      // Grouping logic is handled in the render
+      const url = rootCardId 
+        ? `/design-drawings/root-card/${rootCardId}`
+        : `/design-drawings`;
+      const response = await axios.get(url);
       setDocuments(response.data.drawings || response.data.documents || []);
     } catch (error) {
       console.error("Error fetching documents:", error);
@@ -83,14 +85,9 @@ const DesignDrawingManagement = () => {
   }, []);
 
   useEffect(() => {
-    if (rootCardId) {
-      fetchDocuments();
-      setExpandedDocs(new Set());
-      setDocHistories({});
-    } else {
-      setDocuments([]);
-      setLoading(false);
-    }
+    fetchDocuments();
+    setExpandedDocs(new Set());
+    setDocHistories({});
   }, [rootCardId]);
 
   const toggleRow = async (doc) => {
@@ -141,14 +138,15 @@ const DesignDrawingManagement = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!formData.file || !formData.name || !rootCardId) {
+    const finalRootCardId = rootCardId || formData.root_card_id;
+    if (!formData.file || !formData.name || !finalRootCardId) {
       Swal.fire("Error", "Please fill all required fields", "error");
       return;
     }
 
     const uploadData = new FormData();
     uploadData.append("file", formData.file);
-    uploadData.append("root_card_id", rootCardId);
+    uploadData.append("root_card_id", finalRootCardId);
     uploadData.append("name", formData.name);
     uploadData.append("type", formData.type);
     uploadData.append("description", formData.description);
@@ -195,7 +193,7 @@ const DesignDrawingManagement = () => {
   };
 
   const resetForm = () => {
-    setFormData({ name: "", type: "Part Drawing", description: "", file: null });
+    setFormData({ name: "", type: "Part Drawing", description: "", file: null, root_card_id: "" });
     setIsRevision(false);
     setSelectedDoc(null);
   };
@@ -327,36 +325,31 @@ const DesignDrawingManagement = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Design Drawing Management</h1>
-          <p className="text-slate-500">Upload and manage design revisions for root cards</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Design Drawing Management</h1>
+          <p className="text-slate-500 text-xs">Upload and manage design revisions for root cards</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowUploadModal(true); }}
-          disabled={!rootCardId}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            !rootCardId 
-              ? "bg-slate-300 cursor-not-allowed text-slate-500" 
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-          }`}
-          title={!rootCardId ? "Please select a Root Card first" : "Upload New Drawing"}
+          className="flex items-center gap-2 p-2 rounded text-xs transition-colors bg-blue-600 hover:bg-blue-700 text-white"
+          title="Upload New Drawing"
         >
           <Plus size={20} />
           Upload New Drawing
         </button>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex-1 max-w-md">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Select Root Card</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Filter by Root Card</label>
           <select
             value={rootCardId}
             onChange={(e) => setRootCardId(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
           >
-            <option value="">Select Root Card...</option>
+            <option value="">All Root Cards</option>
             {rootCards.map(rc => {
               const baseName = rc.project_name || rc.po_number || "";
               // Remove RC-XXXX pattern from the start of the string if it exists
@@ -368,7 +361,7 @@ const DesignDrawingManagement = () => {
           </select>
         </div>
 
-        <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+        <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded">
           <button
             onClick={() => setActiveTab("active")}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
@@ -397,26 +390,25 @@ const DesignDrawingManagement = () => {
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Drawing Name</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Latest Status</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Last Updated</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                <th className="p-2 text-xs  text-slate-500">Drawing Name</th>
+                <th className="p-2 text-xs  text-slate-500">Project / Root Card</th>
+                <th className="p-2 text-xs  text-slate-500">Type</th>
+                <th className="p-2 text-xs  text-slate-500">Latest Status</th>
+                <th className="p-2 text-xs  text-slate-500">Last Updated</th>
+                <th className="p-2 text-xs  text-slate-500 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-10 text-center text-slate-500">
+                  <td colSpan="6" className="px-6 py-10 text-center text-slate-500">
                     <Loader2 className="animate-spin inline-block mr-2" /> Loading drawings...
                   </td>
                 </tr>
               ) : (activeTab === "active" ? activeDocuments : rejectedDocuments).length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-10 text-center text-slate-500">
-                    {rootCardId 
-                      ? `No ${activeTab} drawings found for this root card` 
-                      : "Please select a root card to view drawings"}
+                  <td colSpan="6" className="px-6 py-10 text-center text-slate-500">
+                    No {activeTab} drawings found
                   </td>
                 </tr>
               ) : (
@@ -426,29 +418,33 @@ const DesignDrawingManagement = () => {
                       onClick={() => toggleRow(doc)}
                       className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors cursor-pointer group"
                     >
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="flex items-center gap-3">
                           <div className={`transition-transform duration-200 ${expandedDocs.has(`${doc.name}-${doc.type}`) ? 'rotate-180' : ''}`}>
                             <ChevronDown size={18} className="text-slate-400 group-hover:text-blue-500" />
                           </div>
                           <div>
-                            <div className="font-bold text-slate-900 dark:text-white">{doc.name}</div>
+                            <div className=" text-xs text-slate-900 dark:text-white">{doc.name}</div>
                             <div className="text-[11px] text-slate-500 truncate max-w-xs">{doc.description}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
+                        <div className="text-[11px] font-bold text-blue-600 dark:text-blue-400 truncate max-w-[150px]" title={doc.project_name}>{doc.project_name || 'N/A'}</div>
+                        <div className="text-[9px] text-slate-500">{doc.po_number || doc.root_card_id}</div>
+                      </td>
+                      <td className="p-2">
                         <span className="text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-md">{doc.type}</span>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(doc.status)}`}>
+                      <td className="p-2">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold   ${getStatusColor(doc.status)}`}>
                           {doc.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-xs text-slate-500 font-medium">
+                      <td className="p-2 text-xs text-slate-500 font-medium">
                         {new Date(doc.updated_at).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td className="p-2 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           {doc.type !== 'Final Approved Drawing' && doc.status !== 'Approved' && (
                             <button 
@@ -458,7 +454,7 @@ const DesignDrawingManagement = () => {
                                 setIsRevision(true);
                                 setShowUploadModal(true);
                               }}
-                              className="bg-white dark:bg-slate-800 text-orange-500 hover:text-orange-600 border border-slate-200 dark:border-slate-700 p-2 rounded-lg transition-colors shadow-sm"
+                              className="bg-white dark:bg-slate-800 text-orange-500 hover:text-orange-600 border border-slate-200 dark:border-slate-700 p-2 rounded transition-colors shadow-sm"
                               title="Upload Revision"
                             >
                               <RefreshCw size={16} />
@@ -466,7 +462,7 @@ const DesignDrawingManagement = () => {
                           )}
                           <button 
                             onClick={() => handleDelete(doc.id, true)}
-                            className="p-2 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                            className="p-2 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm"
                             title="Delete whole drawing (all versions)"
                           >
                             <Trash2 size={16} />
@@ -477,41 +473,41 @@ const DesignDrawingManagement = () => {
                     {/* Expanded Revision History */}
                     {expandedDocs.has(`${doc.name}-${doc.type}`) && (
                       <tr>
-                        <td colSpan="5" className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/20 border-y border-slate-100 dark:border-slate-800">
-                          <div className="pl-8 space-y-4">
+                        <td colSpan="6" className="p-2 bg-slate-50/50 dark:bg-slate-900/20 border-y border-slate-100 dark:border-slate-800">
+                          <div className=" space-y-4">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 uppercase tracking-tight">
-                                <History size={16} className="text-blue-500" /> Revision History
+                              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2  ">
+                                <History size={15} className="text-blue-500" /> Revision History
                               </h4>
                             </div>
                             
                             {fetchingHistory[`${doc.name}-${doc.type}`] ? (
                               <div className="flex items-center gap-2 text-sm text-slate-500 py-6 justify-center">
-                                <Loader2 size={20} className="animate-spin text-blue-500" /> Loading revisions...
+                                <Loader2 size={15} className="animate-spin text-blue-500" /> Loading revisions...
                               </div>
                             ) : (
                               <div className="space-y-3">
                                 {(docHistories[`${doc.name}-${doc.type}`] || []).map((rev, index) => (
                                   <div 
                                     key={rev.id} 
-                                    className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                                    className={`flex items-center justify-between p-4 rounded border transition-all ${
                                       index === 0 
-                                        ? "bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-900/40 shadow-md ring-1 ring-blue-50 dark:ring-blue-900/10" 
+                                        ? "bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-900/40  ring-1 ring-blue-50 dark:ring-blue-900/10" 
                                         : "bg-slate-50/50 dark:bg-slate-900/10 border-slate-100 dark:border-slate-800"
                                     }`}
                                   >
                                     <div className="flex items-center gap-6">
-                                      <div className="flex flex-col items-center min-w-[40px]">
-                                        <span className="text-base font-black text-blue-600">v{rev.version}</span>
-                                        <span className="text-[9px] text-slate-400 uppercase font-black tracking-tighter">{new Date(rev.created_at).toLocaleDateString()}</span>
+                                      <div className="flex flex-col items-center ">
+                                        <span className="text-sm  text-blue-600">v{rev.version}</span>
+                                        <span className="text-[9px] text-slate-400  font-black er">{new Date(rev.created_at).toLocaleDateString()}</span>
                                       </div>
                                       <div className="h-12 w-px bg-slate-200 dark:bg-slate-700"></div>
                                       <div>
                                         <div className="flex items-center gap-3 mb-1.5">
-                                          <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${getStatusColor(rev.status)}`}>
+                                          <span className={`text-[10px] p-1 rounded   ${getStatusColor(rev.status)}`}>
                                             {rev.status}
                                           </span>
-                                          <span className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+                                          <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
                                             {rev.description || "No description"}
                                           </span>
                                         </div>
@@ -520,10 +516,10 @@ const DesignDrawingManagement = () => {
                                           {rev.reviewer_name && <span className="flex items-center gap-1 text-slate-500">Reviewer: <b className="text-slate-700 dark:text-slate-300">{rev.reviewer_name}</b></span>}
                                         </div>
                                         {rev.reviewer_comment && (
-                                          <div className="text-[11px] text-red-600 mt-2.5 flex items-start gap-2 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-100 dark:border-red-900/30">
+                                          <div className="text-[11px] text-red-600 mt-2.5 flex items-start gap-2 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded border border-red-100 dark:border-red-900/30">
                                             <MessageSquare size={14} className="mt-0.5 shrink-0" /> 
                                             <div>
-                                              <span className="font-bold uppercase text-[9px] block mb-0.5">Reviewer Feedback:</span>
+                                              <span className="  text-[9px] block mb-0.5">Reviewer Feedback:</span>
                                               {rev.reviewer_comment}
                                             </div>
                                           </div>
@@ -536,7 +532,7 @@ const DesignDrawingManagement = () => {
                                         href={`${axios.defaults.baseURL.split('/api')[0]}/${rev.file_path}`} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded-lg transition-colors border border-slate-200 dark:border-slate-600"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded transition-colors border border-slate-200 dark:border-slate-600"
                                       >
                                         <Eye size={14} /> View
                                       </a>
@@ -546,7 +542,7 @@ const DesignDrawingManagement = () => {
                                           {rev.status === 'Draft' && (
                                             <button 
                                               onClick={() => submitDraft(rev.id)}
-                                              className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-lg transition-colors shadow-sm"
+                                              className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded transition-colors shadow-sm"
                                             >
                                               <Upload size={14} /> Submit
                                             </button>
@@ -560,7 +556,7 @@ const DesignDrawingManagement = () => {
                                                 setIsRevision(true);
                                                 setShowUploadModal(true);
                                               }}
-                                              className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold rounded-lg transition-colors shadow-sm"
+                                              className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold rounded transition-colors shadow-sm"
                                             >
                                               <RefreshCw size={14} /> Create Revision
                                             </button>
@@ -570,7 +566,7 @@ const DesignDrawingManagement = () => {
                                             <>
                                               <button 
                                                 onClick={() => handleApprove(rev)}
-                                                className="flex items-center gap-1.5 px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold rounded-lg transition-colors shadow-sm"
+                                                className="flex items-center gap-1.5 px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold rounded transition-colors shadow-sm"
                                               >
                                                 <CheckCircle2 size={14} /> Approve
                                               </button>
@@ -581,7 +577,7 @@ const DesignDrawingManagement = () => {
 
                                       <button 
                                         onClick={() => handleDelete(rev.id, false)}
-                                        className="p-1.5 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                                        className="p-1.5 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm"
                                         title="Delete this version only"
                                       >
                                         <Trash2 size={16} />
@@ -606,32 +602,52 @@ const DesignDrawingManagement = () => {
       {/* Upload Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md max-h-[70vh] overflow-scroll rounded shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+              <h3 className="text-lg text-slate-900 dark:text-white">
                 {isRevision ? `Create Revision for ${formData.name} (v${selectedDoc.version + 1})` : "Upload New Drawing"}
               </h3>
               <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-600"><XCircle size={24} /></button>
             </div>
             <form onSubmit={handleUpload} className="p-6 space-y-4">
+              {!isRevision && (
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Root Card (Project)</label>
+                  <select
+                    required
+                    value={formData.root_card_id || rootCardId}
+                    onChange={(e) => setFormData({ ...formData, root_card_id: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Root Card...</option>
+                    {rootCards.map(rc => {
+                      const baseName = rc.project_name || rc.po_number || "";
+                      const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
+                      return (
+                        <option key={rc.id} value={rc.id}>{displayName || baseName || rc.id}</option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Drawing Name</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Drawing Name</label>
                 <input
                   type="text"
                   required
                   disabled={isRevision}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Type</label>
                 <select
                   disabled={isRevision}
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Part Drawing">Part Drawing</option>
                   <option value="Assembly Drawing">Assembly Drawing</option>
@@ -639,26 +655,26 @@ const DesignDrawingManagement = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border text-xs border-slate-200 dark:border-slate-700 rounded p-2 outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">File (Any format)</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">File (Any format)</label>
                 <input
                   type="file"
                   required
                   onChange={handleFileChange}
-                  className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs p-2 rounded transition-colors flex items-center justify-center"
               >
                 {loading ? <Loader2 className="animate-spin" /> : (isRevision ? "Create Revision" : "Upload Drawing")}
               </button>
@@ -671,7 +687,7 @@ const DesignDrawingManagement = () => {
       {showHistoryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Revision History: {selectedDoc?.name}</h3>
               <button onClick={() => setShowHistoryModal(false)} className="text-slate-400 hover:text-slate-600"><XCircle size={24} /></button>
             </div>
@@ -682,13 +698,13 @@ const DesignDrawingManagement = () => {
                 <div key={item.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-blue-600 dark:text-blue-400">Version v{item.version}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(item.status)}`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold   ${getStatusColor(item.status)}`}>
                       {item.status}
                     </span>
                   </div>
                   <div className="text-sm text-slate-600 dark:text-slate-400 italic">"{item.description}"</div>
                   {item.reviewer_comment && (
-                    <div className="flex gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
+                    <div className="flex gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
                       <MessageSquare size={16} />
                       <span>{item.reviewer_comment}</span>
                     </div>
@@ -718,7 +734,7 @@ const DesignDrawingManagement = () => {
       {showReviewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                 {selectedDoc?.status === 'Rejected' ? "Reviewer Feedback" : "Review Drawing"}
               </h3>
@@ -727,13 +743,13 @@ const DesignDrawingManagement = () => {
             <div className="p-6 space-y-4">
               {selectedDoc?.status === 'Rejected' ? (
                 <div className="space-y-4">
-                  <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-lg">
+                  <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded">
                     <div className="flex items-center gap-2 text-red-800 dark:text-red-400 font-bold mb-2">
                       <AlertCircle size={18} />
                       <span>Status: Rejected (v{selectedDoc.version})</span>
                     </div>
                     <div className="text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/50 p-3 rounded border border-red-100 dark:border-red-900/20">
-                      <p className="font-semibold mb-1 text-xs uppercase tracking-wider text-slate-500">Reviewer Comment:</p>
+                      <p className="font-semibold mb-1 text-xs   text-slate-500">Reviewer Comment:</p>
                       {selectedDoc.reviewer_comment || "No comment provided."}
                     </div>
                   </div>
@@ -745,13 +761,13 @@ const DesignDrawingManagement = () => {
                         setIsRevision(true);
                         setShowUploadModal(true);
                       }}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold transition-colors"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-bold transition-colors"
                     >
                       Create Revision
                     </button>
                     <button 
                       onClick={() => setShowReviewModal(false)}
-                      className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg font-bold"
+                      className="p-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded font-bold"
                     >
                       Close
                     </button>
@@ -765,14 +781,14 @@ const DesignDrawingManagement = () => {
                       <button
                         type="button"
                         onClick={() => setReviewData({ ...reviewData, status: "Approved" })}
-                        className={`flex-1 py-2 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${reviewData.status === 'Approved' ? 'border-green-500 bg-green-50 text-green-700 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700'}`}
+                        className={`flex-1 py-2 rounded border-2 transition-all flex items-center justify-center gap-2 ${reviewData.status === 'Approved' ? 'border-green-500 bg-green-50 text-green-700 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700'}`}
                       >
                         <CheckCircle2 size={18} /> Approve
                       </button>
                       <button
                         type="button"
                         onClick={() => setReviewData({ ...reviewData, status: "Rejected" })}
-                        className={`flex-1 py-2 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${reviewData.status === 'Rejected' ? 'border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-700'}`}
+                        className={`flex-1 py-2 rounded border-2 transition-all flex items-center justify-center gap-2 ${reviewData.status === 'Rejected' ? 'border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-700'}`}
                       >
                         <XCircle size={18} /> Reject
                       </button>
@@ -785,12 +801,12 @@ const DesignDrawingManagement = () => {
                       placeholder={reviewData.status === 'Rejected' ? "Please provide feedback for rejection..." : "Optional comments..."}
                       value={reviewData.reviewer_comment}
                       onChange={(e) => setReviewData({ ...reviewData, reviewer_comment: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
                     />
                   </div>
                   <button
                     type="submit"
-                    className={`w-full text-white font-bold py-3 rounded-lg transition-colors ${reviewData.status === 'Approved' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                    className={`w-full text-white font-bold py-3 rounded transition-colors ${reviewData.status === 'Approved' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
                   >
                     Submit Decision
                   </button>

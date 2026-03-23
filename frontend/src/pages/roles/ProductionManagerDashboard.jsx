@@ -225,7 +225,7 @@ const ProductionManagerDashboard = () => {
   ];
 
   const DashboardContent = () => (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => {
@@ -233,7 +233,7 @@ const ProductionManagerDashboard = () => {
           return (
             <div
               key={stat.title}
-              className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow"
+              className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700  transition-shadow"
             >
               <div className="flex items-center text-xs justify-between">
                 <div>
@@ -259,7 +259,7 @@ const ProductionManagerDashboard = () => {
       </div>
 
       {/* Assigned Production Planning Tasks Section */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs flex items-center gap-2">
             <Clock size={20} className="text-blue-600" />
@@ -282,7 +282,7 @@ const ProductionManagerDashboard = () => {
             {departmentTasks.slice(0, 6).map((task) => (
               <div
                 key={task.id}
-                className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
+                className="border border-slate-200 dark:border-slate-700 rounded p-4 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -318,7 +318,7 @@ const ProductionManagerDashboard = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
+          <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-700">
             <Package className="mx-auto text-slate-300 mb-2" size={40} />
             <p className="text-slate-500 dark:text-slate-400 font-medium">
               No active production planning tasks assigned.
@@ -328,7 +328,7 @@ const ProductionManagerDashboard = () => {
       </div>
 
       {/* Active Production Plans Overview */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Target size={20} className="text-blue-600" />
@@ -410,7 +410,7 @@ const ProductionManagerDashboard = () => {
 
       {/* Production Phases by Root Card */}
       {selectedRootCard && (
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-left mb-4">
             Production Phases
           </h2>
@@ -422,7 +422,7 @@ const ProductionManagerDashboard = () => {
               <select
                 value={selectedRootCard || ''}
                 onChange={(e) => setSelectedRootCard(parseInt(e.target.value))}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {rootCards.map((rc) => (
                   <option key={rc.id} value={rc.id}>
@@ -439,7 +439,7 @@ const ProductionManagerDashboard = () => {
       {/* Manufacturing Stages Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Stages Status */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
             Stage Status
           </h2>
@@ -481,7 +481,7 @@ const ProductionManagerDashboard = () => {
         </div>
 
         {/* Team Allocation */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
             Team Allocation
           </h2>
@@ -520,14 +520,14 @@ const ProductionManagerDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             to="/production-manager/planning/plans"
-            className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
+            className="p-4 bg-blue-50 dark:bg-blue-900 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
           >
             <Clock
               size={24}
@@ -539,7 +539,7 @@ const ProductionManagerDashboard = () => {
           </Link>
           <Link
             to="/production-manager/stages/active"
-            className="p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
+            className="p-4 bg-green-50 dark:bg-green-900 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
           >
             <Factory
               size={24}
@@ -551,7 +551,7 @@ const ProductionManagerDashboard = () => {
           </Link>
           <Link
             to="/production-manager/workers/assign"
-            className="p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
+            className="p-4 bg-purple-50 dark:bg-purple-900 rounded hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
           >
             <Users
               size={24}
@@ -563,7 +563,7 @@ const ProductionManagerDashboard = () => {
           </Link>
           <Link
             to="/production-manager/challan/generate"
-            className="p-4 bg-orange-50 dark:bg-orange-900 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors"
+            className="p-4 bg-orange-50 dark:bg-orange-900 rounded hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors"
           >
             <CheckCircle
               size={24}
@@ -575,7 +575,7 @@ const ProductionManagerDashboard = () => {
           </Link>
           <Link
             to="/production-manager/department-tasks"
-            className="p-4 bg-indigo-50 dark:bg-indigo-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-800 transition-colors"
+            className="p-4 bg-indigo-50 dark:bg-indigo-900 rounded hover:bg-indigo-100 dark:hover:bg-indigo-800 transition-colors"
           >
             <FileText
               size={24}
@@ -587,7 +587,7 @@ const ProductionManagerDashboard = () => {
           </Link>
           <Link
             to="/production-manager/outsource-tasks"
-            className="p-4 bg-cyan-50 dark:bg-cyan-900 rounded-lg hover:bg-cyan-100 dark:hover:bg-cyan-800 transition-colors"
+            className="p-4 bg-cyan-50 dark:bg-cyan-900 rounded hover:bg-cyan-100 dark:hover:bg-cyan-800 transition-colors"
           >
             <ShoppingCart
               size={24}

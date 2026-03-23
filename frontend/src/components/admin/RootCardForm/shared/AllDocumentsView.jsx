@@ -40,9 +40,9 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
   }, [formData, poDocuments]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {!readOnly && (
-        <div className="border-2 border-dashed border-slate-300 bg-slate-50 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-purple-50 transition cursor-pointer relative">
+        <div className="border-2 border-dashed border-slate-300 bg-slate-50 rounded p-6 text-center hover:border-purple-500 hover:bg-purple-50 transition cursor-pointer relative">
           <input
             type="file"
             multiple
@@ -75,7 +75,7 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
                 className="flex items-center justify-between bg-white border border-slate-200 p-3 rounded-xl hover:shadow-md transition-all group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-50 rounded-lg text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                  <div className="p-2 bg-purple-50 rounded text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                     <File size={20} />
                   </div>
                   <div className="flex flex-col">
@@ -104,7 +104,7 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
                       href={file.path} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                       title="View File"
                     >
                       <ExternalLink size={16} />
@@ -119,7 +119,7 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
         )}
       </div>
 
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+      <div className="p-4 bg-amber-50 border border-amber-200 rounded">
         <p className="text-xs text-amber-800 leading-relaxed">
           <strong>Note:</strong> This view aggregates all files uploaded across the 7-step process. 
           To manage or remove specific files, please go to the respective step where they were uploaded.

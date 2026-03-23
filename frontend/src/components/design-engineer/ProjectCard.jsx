@@ -241,7 +241,7 @@ const ProjectCard = ({
   const projectName = getProjectName();
 
   return (
-    <div className="bg-white dark:bg-slate-800  border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-slate-800  border border-slate-200 dark:border-slate-700 overflow-hidden  transition-shadow">
       {/* Header Section */}
       <div className="flex justify-between bg-gradient-to-r from-blue-50 dark:from-blue-900/20 to-slate-50 dark:to-slate-800 border-b border-slate-200 dark:border-slate-700 p-4">
         <div className="">
@@ -286,7 +286,7 @@ const ProjectCard = ({
             </div>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition"
+              className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition"
             >
               {isExpanded ? (
                 <ChevronUp
@@ -355,7 +355,7 @@ const ProjectCard = ({
         </div>
         <div className="">
           {/* Project Details Grid */}
-          <div className=" text-right gap-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div className=" text-right gap-4  border-b border-slate-200 dark:border-slate-700">
             {project.status && (
               <div>
                 <p className="text-xs text-slate-700 dark:text-slate-200">
@@ -449,7 +449,7 @@ const ProjectCard = ({
               {workflowTasks.map((task) => (
                 <div
                   key={task.id}
-                  className={`bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow cursor-pointer hover:border-blue-300 dark:hover:border-blue-600 ${
+                  className={`bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow cursor-pointer hover:border-blue-300 dark:hover:border-blue-600 ${
                     task.status === "completed"
                       ? "opacity-60 grayscale-[0.5]"
                       : ""

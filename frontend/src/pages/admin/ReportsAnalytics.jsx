@@ -95,7 +95,7 @@ const ReportsAnalytics = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-white space-y-6 p-6">
+    <div className="w-full min-h-screen  space-y-2 p-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -105,34 +105,34 @@ const ReportsAnalytics = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="flex gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+          <div className="flex gap-2 bg-slate-50 p-2 rounded border border-slate-200">
             <input
               type="date"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
-              className="px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <span className="text-slate-400 px-2 py-2">to</span>
             <input
               type="date"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
-              className="px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="relative">
             <button 
               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center text-xs gap-2 transition-colors"
+              className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center text-xs gap-2 transition-colors"
             >
               <Download className="w-4 h-4" />
               Export
             </button>
             {exportDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
-                <button onClick={() => exportReport('pdf')} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 text-sm">Export as PDF</button>
-                <button onClick={() => exportReport('excel')} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 text-sm border-t border-slate-200">Export as Excel</button>
-                <button onClick={() => exportReport('csv')} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 text-sm border-t border-slate-200">Export as CSV</button>
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded shadow-lg z-50">
+                <button onClick={() => exportReport('pdf')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-sm">Export as PDF</button>
+                <button onClick={() => exportReport('excel')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-sm border-t border-slate-200">Export as Excel</button>
+                <button onClick={() => exportReport('csv')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-sm border-t border-slate-200">Export as CSV</button>
               </div>
             )}
           </div>
@@ -163,7 +163,7 @@ const ReportsAnalytics = () => {
 
       {/* Report Content */}
       {selectedReport === 'overview' && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {/* Key Metrics */}
           <div>
             <h2 className="text-md font-semibold  mb-4">Key Performance Indicators</h2>
@@ -179,7 +179,7 @@ const ReportsAnalytics = () => {
                 const colorIcon = { blue: 'text-blue-600', emerald: 'text-emerald-600', cyan: 'text-cyan-600', amber: 'text-amber-600' }[metric.color];
                 const colorText = { blue: 'text-blue-600', emerald: 'text-emerald-600', cyan: 'text-cyan-600', amber: 'text-amber-600' }[metric.color];
                 return (
-                  <Card key={idx} className="hover:shadow-lg transition-shadow border border-slate-100">
+                  <Card key={idx} className=" transition-shadow border border-slate-100">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -187,8 +187,8 @@ const ReportsAnalytics = () => {
                           <p className="text-2xl font-bold ">{metric.value}</p>
                           <p className={`text-xs ${colorText} mt-2 font-medium`}>{metric.change}</p>
                         </div>
-                        <div className={`${colorBg} p-3 rounded-lg flex-shrink-0`}>
-                          <Icon className={`w-5 h-5 ${colorIcon}`} />
+                        <div className={`${colorBg} p-3 rounded flex-shrink-0`}>
+                          <Icon className={`w-3 h-3 ${colorIcon}`} />
                         </div>
                       </div>
                     </CardContent>
@@ -200,11 +200,11 @@ const ReportsAnalytics = () => {
 
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2 hover:shadow-lg transition-shadow border border-slate-100">
+            <Card className="lg:col-span-2  transition-shadow border border-slate-100">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <TrendingUp className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-blue-50 rounded">
+                    <TrendingUp className="w-3 h-3 text-blue-600" />
                   </div>
                   <span>Project Status Trend</span>
                 </CardTitle>
@@ -218,11 +218,11 @@ const ReportsAnalytics = () => {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+            <Card className=" transition-shadow border border-slate-100">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="flex items-center text-xs gap-2 text-lg">
-                  <div className="p-2 bg-emerald-50 rounded-lg">
-                    <Building2 className="w-5 h-5 text-emerald-600" />
+                  <div className="p-2 bg-emerald-50 rounded">
+                    <Building2 className="w-3 h-3 text-emerald-600" />
                   </div>
                   <span>Department Performance</span>
                 </CardTitle>
@@ -251,11 +251,11 @@ const ReportsAnalytics = () => {
       )}
 
       {selectedReport === 'projects' && (
-        <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+        <Card className=" transition-shadow border border-slate-100">
           <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="flex items-center text-xs gap-2 text-lg">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Briefcase className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-blue-50 rounded">
+                <Briefcase className="w-3 h-3 text-blue-600" />
               </div>
               <span>Project Performance Report</span>
             </CardTitle>
@@ -300,9 +300,9 @@ const ReportsAnalytics = () => {
                       <td className="p-2 text-slate-700">{new Date(project.expectedCompletion).toLocaleDateString()}</td>
                       <td className="p-2">
                         {project.onTime ? (
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                         ) : (
-                          <AlertTriangle className="w-5 h-5 text-red-600" />
+                          <AlertTriangle className="w-3 h-3 text-red-600" />
                         )}
                       </td>
                     </tr>
@@ -315,11 +315,11 @@ const ReportsAnalytics = () => {
       )}
 
       {selectedReport === 'departments' && (
-        <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+        <Card className=" transition-shadow border border-slate-100">
           <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="flex items-center text-xs gap-2 text-lg">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Building2 className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-blue-50 rounded">
+                <Building2 className="w-3 h-3 text-blue-600" />
               </div>
               <span>Department Productivity Report</span>
             </CardTitle>
@@ -327,7 +327,7 @@ const ReportsAnalytics = () => {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(reportData?.departments || []).map((dept, index) => (
-                <div key={index} className="border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                <div key={index} className="border border-slate-200 rounded-xl p-6  transition-shadow">
                   <h4 className="font-semibold  mb-6">{dept.name}</h4>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
@@ -360,11 +360,11 @@ const ReportsAnalytics = () => {
       )}
 
       {selectedReport === 'vendors' && (
-        <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+        <Card className=" transition-shadow border border-slate-100">
           <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="flex items-center text-xs gap-2 text-lg">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Truck className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-blue-50 rounded">
+                <Truck className="w-3 h-3 text-blue-600" />
               </div>
               <span>Vendor Performance Report</span>
             </CardTitle>
@@ -430,16 +430,16 @@ const ReportsAnalytics = () => {
       )}
 
       {selectedReport === 'inventory' && (
-        <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+        <Card className=" transition-shadow border border-slate-100">
           <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="flex items-center text-xs gap-2 text-lg">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Package className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-blue-50 rounded">
+                <Package className="w-3 h-3 text-blue-600" />
               </div>
               <span>Inventory Movement Report</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-6 space-y-2">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Total Items', value: reportData?.inventory?.totalItems || 0, color: 'bg-blue-500', icon: Package },
@@ -497,11 +497,11 @@ const ReportsAnalytics = () => {
       )}
 
       {selectedReport === 'employees' && (
-        <Card className="hover:shadow-lg transition-shadow border border-slate-100">
+        <Card className=" transition-shadow border border-slate-100">
           <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="flex items-center text-xs gap-2 text-lg">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Users className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-blue-50 rounded">
+                <Users className="w-3 h-3 text-blue-600" />
               </div>
               <span>Employee Performance Report</span>
             </CardTitle>

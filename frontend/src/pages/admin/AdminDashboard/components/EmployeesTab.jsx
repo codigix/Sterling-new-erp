@@ -158,12 +158,12 @@ const EmployeesTab = () => {
   };
 
   return (
-    <div className="w-full space-y-6 overflow-x-hidden">
+    <div className="w-full space-y-2 overflow-x-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center text-xs">
-              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded">
                 <UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
@@ -181,7 +181,7 @@ const EmployeesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center text-xs">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded">
                 <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
@@ -199,7 +199,7 @@ const EmployeesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center text-xs">
-              <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded">
                 <Target className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div className="ml-4">
@@ -217,7 +217,7 @@ const EmployeesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center text-xs">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded">
                 <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="ml-4">
@@ -236,7 +236,7 @@ const EmployeesTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
-            <UserCheck className="w-5 h-5 mr-2" />
+            <UserCheck className="w-3 h-3 mr-2" />
             Top Performing Employees
           </CardTitle>
         </CardHeader>
@@ -245,7 +245,7 @@ const EmployeesTab = () => {
             {employeeData.slice(0, 4).map((employee, index) => (
               <div
                 key={index}
-                className="flex items-center text-xs p-4 border border-slate-200 dark:border-slate-700 rounded-lg"
+                className="flex items-center text-xs p-4 border border-slate-200 dark:border-slate-700 rounded"
               >
                 <div className="flex-shrink-0">
                   <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center text-xs justify-center">
@@ -310,7 +310,7 @@ const EmployeesTab = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-xs">
-              <BarChart3 className="w-5 h-5 mr-2" />
+              <BarChart3 className="w-3 h-3 mr-2" />
               Department Efficiency Comparison
             </CardTitle>
           </CardHeader>
@@ -352,7 +352,7 @@ const EmployeesTab = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-xs">
-              <PieChart className="w-5 h-5 mr-2" />
+              <PieChart className="w-3 h-3 mr-2" />
               Performance Distribution
             </CardTitle>
           </CardHeader>
@@ -390,7 +390,7 @@ const EmployeesTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
-            <Factory className="w-5 h-5 mr-2" />
+            <Factory className="w-3 h-3 mr-2" />
             Department Performance Summary
           </CardTitle>
         </CardHeader>
@@ -466,7 +466,7 @@ const EmployeesTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
-            <TrendingUp className="w-5 h-5 mr-2" />
+            <TrendingUp className="w-3 h-3 mr-2" />
             Performance Insights & Recommendations
           </CardTitle>
         </CardHeader>
@@ -477,8 +477,8 @@ const EmployeesTab = () => {
                 Strengths
               </h4>
               <div className="space-y-3">
-                <div className="flex items-center text-xs p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                <div className="flex items-center text-xs p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
+                  <CheckCircle className="w-3 h-3 text-green-600 mr-3" />
                   <div>
                     <p className="font-medium text-green-900 dark:text-green-100">
                       Quality Control Excellence
@@ -488,8 +488,8 @@ const EmployeesTab = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center text-xs p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-blue-600 mr-3" />
+                <div className="flex items-center text-xs p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
+                  <TrendingUp className="w-3 h-3 text-blue-600 mr-3" />
                   <div>
                     <p className="font-medium text-blue-900 dark:text-blue-100">
                       High Attendance Rate
@@ -507,8 +507,8 @@ const EmployeesTab = () => {
                 Areas for Improvement
               </h4>
               <div className="space-y-3">
-                <div className="flex items-center text-xs p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
+                <div className="flex items-center text-xs p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
+                  <AlertTriangle className="w-3 h-3 text-yellow-600 mr-3" />
                   <div>
                     <p className="font-medium text-yellow-900 dark:text-yellow-100">
                       Sales Performance
@@ -519,8 +519,8 @@ const EmployeesTab = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center text-xs p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
-                  <Target className="w-5 h-5 text-orange-600 mr-3" />
+                <div className="flex items-center text-xs p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded">
+                  <Target className="w-3 h-3 text-orange-600 mr-3" />
                   <div>
                     <p className="font-medium text-orange-900 dark:text-orange-100">
                       Engineering Workload

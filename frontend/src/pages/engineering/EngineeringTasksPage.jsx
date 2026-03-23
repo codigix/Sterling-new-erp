@@ -167,7 +167,7 @@ const EngineeringTasksPage = () => {
   return (
     <div className="task-page-container">
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-700">
+        <div className="mb-4 rounded border border-red-200 bg-red-50 p-2 text-sm text-red-700">
           {error}
           <button onClick={() => setError(null)} className="ml-4 text-red-600 hover:text-red-700">×</button>
         </div>
@@ -180,7 +180,7 @@ const EngineeringTasksPage = () => {
         <select
           value={selectedRootCard || ''}
           onChange={(e) => setSelectedRootCard(Number(e.target.value))}
-          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
         >
           {rootCards.map(order => {
             const baseName = order.project_name || order.po_number || order.customer || "";
@@ -219,11 +219,11 @@ const EngineeringTasksPage = () => {
       </div>
 
       {activeTab === 'documents' && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           {!showUploadForm && (
             <button
               onClick={() => setShowUploadForm(true)}
-              className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
             >
               <Upload size={18} />
               Upload Document
@@ -243,7 +243,7 @@ const EngineeringTasksPage = () => {
                       name="documentType"
                       value={uploadForm.documentType}
                       onChange={handleUploadChange}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                     >
                       <option value="qap">QAP/ATP</option>
                       <option value="pd">PD Document</option>
@@ -262,7 +262,7 @@ const EngineeringTasksPage = () => {
                       value={uploadForm.documentName}
                       onChange={handleUploadChange}
                       placeholder="Optional - defaults to filename"
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                     />
                   </div>
                 </div>
@@ -274,20 +274,20 @@ const EngineeringTasksPage = () => {
                     type="file"
                     onChange={handleUploadChange}
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                   />
                 </div>
                 <div className="flex gap-2">
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                   >
                     Upload
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowUploadForm(false)}
-                    className="px-4 py-2 rounded-lg  dark:bg-slate-600  dark: hover:bg-slate-400"
+                    className="p-2 rounded  dark:bg-slate-600  dark: hover:bg-slate-400"
                   >
                     Cancel
                   </button>
@@ -329,10 +329,10 @@ const EngineeringTasksPage = () => {
                       </td>
                       <td className="p-1">
                         <div className="flex gap-2">
-                          <button className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
+                          <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
                             <Download size={16} />
                           </button>
-                          <button className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
+                          <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
                             <Eye size={16} />
                           </button>
                         </div>
@@ -347,10 +347,10 @@ const EngineeringTasksPage = () => {
       )}
 
       {activeTab === 'bom' && (
-        <div className="space-y-6">
+        <div className="space-y-2">
           <button
             onClick={handleCreateBOMRedirect}
-            className="flex items-center text-xs gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
             <Plus size={18} />
             Create Comprehensive BOM
@@ -390,11 +390,11 @@ const EngineeringTasksPage = () => {
                         <div className="flex gap-2">
                           <Link 
                             to={`/department/production/bom/view?bomId=${bom.id}`}
-                            className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors"
+                            className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors"
                           >
                             <Eye size={16} />
                           </Link>
-                          <button className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
+                          <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
                             <Download size={16} />
                           </button>
                         </div>

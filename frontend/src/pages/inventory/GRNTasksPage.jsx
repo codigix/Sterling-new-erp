@@ -237,7 +237,7 @@ const GRNTasksPage = () => {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded p-4">
           <p className="text-red-700 dark:text-red-300">{error}</p>
         </div>
       </div>
@@ -245,7 +245,7 @@ const GRNTasksPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
           Inventory GRN Management
@@ -256,7 +256,7 @@ const GRNTasksPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
           <h3 className="font-semibold text-slate-900 dark:text-white mb-4">
             GRNs
           </h3>
@@ -270,7 +270,7 @@ const GRNTasksPage = () => {
                 <button
                   key={grn.id}
                   onClick={() => setSelectedGrn(grn)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors text-sm ${
+                  className={`w-full text-left p-3 rounded transition-colors text-sm ${
                     selectedGrn?.id === grn.id
                       ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                       : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
@@ -292,7 +292,7 @@ const GRNTasksPage = () => {
         <div className="lg:col-span-3">
           {selectedGrn ? (
             <div className="space-y-4">
-              <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+              <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
@@ -316,7 +316,7 @@ const GRNTasksPage = () => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded">
                     <p className="text-xs text-slate-600 dark:text-slate-400">
                       PO Number
                     </p>
@@ -324,7 +324,7 @@ const GRNTasksPage = () => {
                       {selectedGrn.po_number || selectedGrn.poNo || "N/A"}
                     </p>
                   </div>
-                  <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded">
                     <p className="text-xs text-slate-600 dark:text-slate-400">
                       Expected Qty
                     </p>
@@ -332,7 +332,7 @@ const GRNTasksPage = () => {
                       {selectedGrn.expectedQty || selectedGrn.total_qty || "0"}
                     </p>
                   </div>
-                  <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded">
                     <p className="text-xs text-slate-600 dark:text-slate-400">
                       Received Qty
                     </p>
@@ -342,7 +342,7 @@ const GRNTasksPage = () => {
                         "0"}
                     </p>
                   </div>
-                  <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded">
                     <p className="text-xs text-slate-600 dark:text-slate-400">
                       Status
                     </p>
@@ -369,7 +369,7 @@ const GRNTasksPage = () => {
                       {tasks.map((task) => (
                         <div
                           key={task.id}
-                          className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors cursor-pointer"
+                          className="bg-slate-50 dark:bg-slate-700 rounded p-4 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors cursor-pointer"
                           onClick={() => handleTaskNavigation(task)}
                         >
                           <div className="flex items-start justify-between mb-2">
@@ -421,7 +421,7 @@ const GRNTasksPage = () => {
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <div className="text-center py-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
               <p className="text-slate-600 dark:text-slate-400">
                 Select a GRN to view tasks
               </p>
@@ -432,7 +432,7 @@ const GRNTasksPage = () => {
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-xl max-w-md w-full p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                 Create New Task
@@ -456,7 +456,7 @@ const GRNTasksPage = () => {
                   value={formData.title}
                   onChange={handleFormChange}
                   placeholder="e.g., GRN Processing, QC Inspection"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
@@ -471,7 +471,7 @@ const GRNTasksPage = () => {
                   onChange={handleFormChange}
                   placeholder="Enter task description"
                   rows="3"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -484,7 +484,7 @@ const GRNTasksPage = () => {
                     name="priority"
                     value={formData.priority}
                     onChange={handleFormChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -501,7 +501,7 @@ const GRNTasksPage = () => {
                     name="status"
                     value={formData.status}
                     onChange={handleFormChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="pending">Pending</option>
                     <option value="in_progress">In Progress</option>

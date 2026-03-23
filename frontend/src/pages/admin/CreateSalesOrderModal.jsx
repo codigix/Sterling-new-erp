@@ -218,7 +218,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">{editData ? 'Edit' : 'Create'} Sales Order</h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">{editData ? 'Modify existing' : 'Configure'} order details, taxes and cost breakdown</p>
           </div>
-          <button onClick={onCancel} className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
+          <button onClick={onCancel} className="p-2 hover:bg-slate-200 rounded transition-colors">
             <X size={20} className="text-slate-500" />
           </button>
         </div>
@@ -240,7 +240,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     name="rootCardId"
                     value={formData.rootCardId}
                     onChange={handleRootCardChange}
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-slate-200"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-slate-200"
                     required
                   >
                     <option value="">Select a Root Card</option>
@@ -265,7 +265,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     value={formData.soNumber}
                     onChange={handleChange}
                     placeholder="e.g. SO-2026-001"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-slate-200"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-slate-200"
                     required
                   />
                 </div>
@@ -278,7 +278,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                       name="orderDate"
                       value={formData.orderDate}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
                       required
                     />
                   </div>
@@ -289,7 +289,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                       name="deliveryDate"
                       value={formData.deliveryDate}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
                       required
                     />
                   </div>
@@ -313,7 +313,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     value={formData.customerName}
                     onChange={handleChange}
                     placeholder="Customer Name"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-slate-200"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-slate-200"
                     required
                   />
                 </div>
@@ -324,7 +324,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     name="warehouseId"
                     value={formData.warehouseId}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
                   >
                     <option value="">Select Warehouse (Optional)</option>
                     {warehouses.map(w => (
@@ -340,7 +340,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     value={formData.notes}
                     onChange={handleChange}
                     placeholder="Any special instructions..."
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none min-h-[85px] resize-none dark:text-slate-200"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none min-h-[85px] resize-none dark:text-slate-200"
                   />
                 </div>
               </div>
@@ -361,7 +361,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                   name="bomId"
                   value={formData.bomId}
                   onChange={handleBOMChange}
-                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
                   required
                 >
                   <option value="">Select a BOM</option>
@@ -380,7 +380,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                   min="1"
                   value={formData.quantity}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none font-bold text-primary-600 dark:text-primary-400"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 outline-none font-bold text-primary-600 dark:text-primary-400"
                   required
                 />
               </div>
@@ -390,7 +390,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                   type="text"
                   value={selectedBOMData?.uom || 'Nos'}
                   disabled
-                  className="w-full px-4 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-500 dark:text-slate-400 italic"
+                  className="w-full p-2 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-500 dark:text-slate-400 italic"
                 />
               </div>
             </div>
@@ -427,7 +427,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     type="number"
                     value={selectedBOMData?.totalCost || 0}
                     disabled
-                    className="w-full pl-8 pr-4 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-500 dark:text-slate-400 font-mono"
+                    className="w-full pl-8 pr-4 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-500 dark:text-slate-400 font-mono"
                   />
                   <span className="absolute left-3 top-2 text-slate-400 font-bold">₹</span>
                 </div>
@@ -441,7 +441,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                   name="profitMargin"
                   value={formData.profitMargin}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none font-bold text-emerald-600 dark:text-emerald-400"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded focus:ring-2 focus:ring-primary-500 outline-none font-bold text-emerald-600 dark:text-emerald-400"
                 />
               </div>
 
@@ -453,7 +453,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     name="unitPrice"
                     value={formData.unitPrice}
                     onChange={handleChange}
-                    className="w-full pl-8 pr-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none font-bold dark:text-slate-100"
+                    className="w-full pl-8 pr-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded focus:ring-2 focus:ring-primary-500 outline-none font-bold dark:text-slate-100"
                   />
                   <span className="absolute left-3 top-2 text-slate-400 font-bold">₹</span>
                 </div>
@@ -467,7 +467,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                     name="discountPercent"
                     value={formData.discountPercent}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none font-bold text-red-600 dark:text-red-400"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded focus:ring-2 focus:ring-primary-500 outline-none font-bold text-red-600 dark:text-red-400"
                   />
                 </div>
               </div>
@@ -478,7 +478,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                   name="taxPercent"
                   value={formData.taxPercent}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 rounded focus:ring-2 focus:ring-primary-500 outline-none dark:text-slate-200"
                 >
                   <option value="0">0% (GST)</option>
                   <option value="5">5% (GST)</option>
@@ -490,7 +490,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
             </div>
 
             <div className="grid grid-cols-3 gap-6">
-              <div className="col-span-2 bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+              <div className="col-span-2 bg-white dark:bg-slate-900 p-4 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
                 <h4 className="text-xs font-bold text-slate-400 uppercase mb-3">Value Summary</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -518,7 +518,7 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
                 </div>
               </div>
 
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-100 dark:border-emerald-800/50 flex flex-col justify-center text-center">
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded border border-emerald-100 dark:border-emerald-800/50 flex flex-col justify-center text-center">
                 <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-1">Projected Net Profit</p>
                 <h4 className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
                   ₹{((formData.unitPrice - (selectedBOMData?.totalCost || 0)) * formData.quantity).toLocaleString()}
@@ -564,14 +564,14 @@ const CreateSalesOrderModal = ({ onCancel, onSuccess, editData, preSelectedRootC
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-400 font-semibold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-400 font-semibold rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-2.5 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 shadow-lg shadow-primary-200 dark:shadow-none transition-all active:scale-95 flex items-center gap-2"
+              className="px-8 py-2.5 bg-primary-600 text-white font-bold rounded hover:bg-primary-700 shadow-lg shadow-primary-200 dark:shadow-none transition-all active:scale-95 flex items-center gap-2"
             >
               {loading ? (
                 <>

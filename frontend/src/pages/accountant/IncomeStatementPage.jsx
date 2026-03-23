@@ -52,7 +52,7 @@ const IncomeStatementPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -63,14 +63,14 @@ const IncomeStatementPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
             <Download size={18} />
             Export
           </button>
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
           >
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
@@ -80,7 +80,7 @@ const IncomeStatementPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700 p-4">
+        <div className="bg-green-50 dark:bg-green-900 rounded border border-green-200 dark:border-green-700 p-4">
           <p className="text-sm font-medium text-green-700 dark:text-green-300">
             Gross Profit
           </p>
@@ -91,7 +91,7 @@ const IncomeStatementPage = () => {
             {ratios.grossMargin}% margin
           </p>
         </div>
-        <div className="bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-700 p-4">
+        <div className="bg-blue-50 dark:bg-blue-900 rounded border border-blue-200 dark:border-blue-700 p-4">
           <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
             Operating Profit
           </p>
@@ -102,7 +102,7 @@ const IncomeStatementPage = () => {
             {ratios.operatingMargin}% margin
           </p>
         </div>
-        <div className="bg-purple-50 dark:bg-purple-900 rounded-lg border border-purple-200 dark:border-purple-700 p-4">
+        <div className="bg-purple-50 dark:bg-purple-900 rounded border border-purple-200 dark:border-purple-700 p-4">
           <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
             Net Profit
           </p>
@@ -115,7 +115,7 @@ const IncomeStatementPage = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs mb-6">
           Income Statement
         </h2>

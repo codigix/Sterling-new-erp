@@ -1,0 +1,1 @@
+const db = require('./config/db'); async function checkRC() { try { const [rc] = await db.query('SELECT COUNT(*) as count FROM root_cards'); console.log('Root cards count:', rc[0].count); process.exit(0); } catch (error) { console.error('Error:', error.message); process.exit(1); } } checkRC();  

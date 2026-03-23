@@ -169,7 +169,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
         <div className="p-10 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
           {/* Section 1: Transaction Metadata */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="space-y-6 lg:col-span-2">
+            <div className="space-y-2 lg:col-span-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reference GRN (Optional)</label>
@@ -267,12 +267,12 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
           <div className="h-px bg-slate-100 dark:bg-slate-700" />
 
           {/* Section 2: Material Selection */}
-          <div className="space-y-6">
+          <div className="space-y-2">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
               <LayoutGrid size={14} /> Line Items Selection
             </h3>
 
-            <div className="bg-slate-50/50 dark:bg-slate-900/30 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-700 space-y-6 shadow-inner">
+            <div className="bg-slate-50/50 dark:bg-slate-900/30 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-700 space-y-2 shadow-inner">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-5 space-y-2">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Material</label>
@@ -340,9 +340,9 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                   <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700">
                     <tr>
                       <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Material Identity</th>
-                      <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Quantity</th>
-                      <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Unit Rate</th>
-                      <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Aggregate</th>
+                      <th className="p-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Quantity</th>
+                      <th className="p-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Unit Rate</th>
+                      <th className="p-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Aggregate</th>
                       <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                     </tr>
                   </thead>
@@ -372,7 +372,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                   <tfoot className="bg-indigo-50/30 dark:bg-indigo-900/10 border-t border-slate-100 dark:border-slate-800">
                     <tr>
                       <td colSpan="3" className="px-8 py-4 text-[10px] font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-widest text-right">Transaction Grand Total:</td>
-                      <td className="px-6 py-4 text-sm font-black text-indigo-600 text-right">
+                      <td className="p-2 text-sm font-black text-indigo-600 text-right">
                         ₹{formData.items.reduce((sum, item) => sum + (item.quantity * item.valuation_rate), 0).toLocaleString()}
                       </td>
                       <td className="px-8 py-4"></td>
@@ -398,7 +398,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
               onChange={handleInputChange}
               placeholder="Record any details about this movement..."
               rows="3"
-              className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-sm"
+              className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-sm"
             ></textarea>
           </div>
         </div>

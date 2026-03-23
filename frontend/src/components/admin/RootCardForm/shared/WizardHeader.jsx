@@ -24,7 +24,7 @@ export default function WizardHeader({ mode = 'create' }) {
   };
 
   return (
-    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-slate-200 p-4 rounded-lg mb-6">
+    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-slate-200 p-4 rounded mb-6">
       <div className="mb-4">
         <h2 className="text-lg font-bold text-slate-900">{getTitleForMode()}</h2>
         <p className="text-xs text-slate-500 mt-0.5">

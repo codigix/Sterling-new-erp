@@ -18,7 +18,7 @@ const Select = ({
   };
 
   const selectClasses = `
-  w-full border border-slate-200 rounded-lg
+  w-full border border-slate-200 rounded
   bg-slate-800 
   focus:outline-none focus:ring-2 focus:ring-blue-500
   ${sizeClasses[size]}

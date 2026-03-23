@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 const DashboardContent = ({ stats, handleExport }) => (
-  <div className="space-y-6">
+  <div className="space-y-2">
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
         <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -31,7 +31,7 @@ const DashboardContent = ({ stats, handleExport }) => (
       </div>
       <button
         onClick={handleExport}
-        className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+        className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
       >
         <TrendingUp size={18} />
         Export Report
@@ -44,7 +44,7 @@ const DashboardContent = ({ stats, handleExport }) => (
         return (
           <div
             key={stat.title}
-            className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow"
+            className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6  transition-shadow"
           >
             <div className="flex items-center text-xs justify-between">
               <div>
@@ -74,14 +74,14 @@ const DashboardContent = ({ stats, handleExport }) => (
       })}
     </div>
 
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+    <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
       <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
         Quick Actions
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Link
           to="/worker/daily-tasks"
-          className="p-4 bg-blue-50 dark:bg-slate-700 rounded-lg hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors"
+          className="p-4 bg-blue-50 dark:bg-slate-700 rounded hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors"
         >
           <Clock size={24} className="text-blue-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
@@ -90,7 +90,7 @@ const DashboardContent = ({ stats, handleExport }) => (
         </Link>
         <Link
           to="/worker/weekly-tasks"
-          className="p-4 bg-purple-50 dark:bg-slate-700 rounded-lg hover:bg-purple-100 dark:hover:bg-slate-600 transition-colors"
+          className="p-4 bg-purple-50 dark:bg-slate-700 rounded hover:bg-purple-100 dark:hover:bg-slate-600 transition-colors"
         >
           <Calendar size={24} className="text-purple-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
@@ -99,7 +99,7 @@ const DashboardContent = ({ stats, handleExport }) => (
         </Link>
         <Link
           to="/worker/monthly-tasks"
-          className="p-4 bg-orange-50 dark:bg-slate-700 rounded-lg hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
+          className="p-4 bg-orange-50 dark:bg-slate-700 rounded hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
         >
           <Calendar size={24} className="text-orange-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
@@ -108,7 +108,7 @@ const DashboardContent = ({ stats, handleExport }) => (
         </Link>
         <Link
           to="/worker/request-to-manager"
-          className="p-4 bg-green-50 dark:bg-slate-700 rounded-lg hover:bg-green-100 dark:hover:bg-slate-600 transition-colors"
+          className="p-4 bg-green-50 dark:bg-slate-700 rounded hover:bg-green-100 dark:hover:bg-slate-600 transition-colors"
         >
           <MessageSquare size={24} className="text-green-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
@@ -117,7 +117,7 @@ const DashboardContent = ({ stats, handleExport }) => (
         </Link>
         <Link
           to="/worker/notifications"
-          className="p-4 bg-red-50 dark:bg-slate-700 rounded-lg hover:bg-red-100 dark:hover:bg-slate-600 transition-colors"
+          className="p-4 bg-red-50 dark:bg-slate-700 rounded hover:bg-red-100 dark:hover:bg-slate-600 transition-colors"
         >
           <AlertCircle size={24} className="text-red-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
@@ -126,7 +126,7 @@ const DashboardContent = ({ stats, handleExport }) => (
         </Link>
         <Link
           to="/worker/request-history"
-          className="p-4 bg-indigo-50 dark:bg-slate-700 rounded-lg hover:bg-indigo-100 dark:hover:bg-slate-600 transition-colors"
+          className="p-4 bg-indigo-50 dark:bg-slate-700 rounded hover:bg-indigo-100 dark:hover:bg-slate-600 transition-colors"
         >
           <CheckSquare size={24} className="text-indigo-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">

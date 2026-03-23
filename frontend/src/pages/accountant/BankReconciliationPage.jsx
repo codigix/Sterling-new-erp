@@ -94,7 +94,7 @@ const BankReconciliationPage = () => {
   const isReconciled = difference === 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -104,7 +104,7 @@ const BankReconciliationPage = () => {
             Reconcile bank statements with book records
           </p>
         </div>
-        <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+        <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
           <Download size={18} />
           Export
         </button>
@@ -112,7 +112,7 @@ const BankReconciliationPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
+          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6 mb-6">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
               Select Bank Account
             </h2>
@@ -121,7 +121,7 @@ const BankReconciliationPage = () => {
                 <button
                   key={account.id}
                   onClick={() => setSelectedBank(account.id)}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                  className={`p-4 rounded border-2 text-left transition-all ${
                     selectedBank === account.id
                       ? "border-blue-600 bg-blue-50 dark:bg-blue-900"
                       : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
@@ -139,7 +139,7 @@ const BankReconciliationPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+            <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                 Book Balance
               </p>
@@ -150,7 +150,7 @@ const BankReconciliationPage = () => {
                 As per accounting records
               </p>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+            <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                 Statement Balance
               </p>
@@ -164,7 +164,7 @@ const BankReconciliationPage = () => {
           </div>
 
           {isReconciled ? (
-            <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-6 flex items-center text-xs gap-4">
+            <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded p-6 flex items-center text-xs gap-4">
               <CheckCircle size={32} className="text-green-600 flex-shrink-0" />
               <div>
                 <p className="font-bold text-green-900 dark:text-green-100">
@@ -176,7 +176,7 @@ const BankReconciliationPage = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6 flex items-center text-xs gap-4">
+            <div className="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded p-6 flex items-center text-xs gap-4">
               <AlertCircle
                 size={32}
                 className="text-yellow-600 flex-shrink-0"
@@ -194,7 +194,7 @@ const BankReconciliationPage = () => {
           )}
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
             Reconciliation Summary
           </h3>
@@ -253,7 +253,7 @@ const BankReconciliationPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
             Deposits (Credits)
           </h3>
@@ -261,7 +261,7 @@ const BankReconciliationPage = () => {
             {deposits.map((deposit) => (
               <div
                 key={deposit.id}
-                className="flex items-center text-xs justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg"
+                className="flex items-center text-xs justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded"
               >
                 <div className="flex-1">
                   <p className="font-medium text-slate-900 dark:text-white text-xs">
@@ -290,7 +290,7 @@ const BankReconciliationPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
             Withdrawals (Debits)
           </h3>
@@ -298,7 +298,7 @@ const BankReconciliationPage = () => {
             {withdrawals.map((withdrawal) => (
               <div
                 key={withdrawal.id}
-                className="flex items-center text-xs justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg"
+                className="flex items-center text-xs justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded"
               >
                 <div className="flex-1">
                   <p className="font-medium text-slate-900 dark:text-white text-xs">

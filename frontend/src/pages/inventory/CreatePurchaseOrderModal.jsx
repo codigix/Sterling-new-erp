@@ -291,14 +291,14 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 w-full max-w-7xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className={`px-6 py-4 flex items-center justify-between border-b transition-colors duration-300 sticky top-0 z-10 ${viewMode ? 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900' : 'border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/10'}`}>
+        <div className={`p-2 flex items-center justify-between border-b transition-colors duration-300 sticky top-0 z-10 ${viewMode ? 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900' : 'border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/10'}`}>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
             {viewMode ? <Eye className="text-blue-600" size={24} /> : (editData ? <Edit className="text-emerald-600" size={24} /> : <Plus className="text-blue-600" size={24} />)}
             <span className={!viewMode && editData ? "text-emerald-700 dark:text-emerald-400" : ""}>
               {viewMode ? `View Purchase Order: ${formData.po_number}` : (editData ? `Edit Purchase Order: ${formData.po_number}` : "Create New Purchase Order")}
             </span>
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
             <X size={20} className="text-slate-400" />
           </button>
         </div>
@@ -306,7 +306,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-8">
             {/* PO Header Section */}
-            <div className="space-y-6">
+            <div className="space-y-2">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <FileText size={18} className="text-slate-400" />
                 <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">PO Header</h3>
@@ -317,7 +317,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">PO Number</label>
                   <input 
                     type="text"
-                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-500 outline-none"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-500 outline-none"
                     value={formData.po_number}
                     readOnly
                   />
@@ -326,7 +326,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Quotation Reference *</label>
                   <select 
-                    className={`w-full px-4 py-2.5 ${viewMode || !!editData ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2.5 ${viewMode || !!editData ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.quotation_id}
                     onChange={(e) => handleQuotationSelect(e.target.value)}
                     disabled={viewMode || !!editData}
@@ -342,7 +342,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Supplier (Auto-filled)</label>
                   <select 
-                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-500 outline-none pointer-events-none"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-500 outline-none pointer-events-none"
                     value={formData.vendor_id}
                     readOnly
                     tabIndex="-1"
@@ -358,7 +358,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Order Date *</label>
                   <input 
                     type="date"
-                    className={`w-full px-4 py-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.order_date}
                     onChange={(e) => setFormData({...formData, order_date: e.target.value})}
                     disabled={viewMode}
@@ -370,7 +370,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Expected Delivery *</label>
                   <input 
                     type="date"
-                    className={`w-full px-4 py-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.expected_delivery_date}
                     onChange={(e) => setFormData({...formData, expected_delivery_date: e.target.value})}
                     disabled={viewMode}
@@ -383,7 +383,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <input 
                     type="text"
                     placeholder="e.g. Main Warehouse"
-                    className={`w-full px-4 py-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.delivery_location}
                     onChange={(e) => setFormData({...formData, delivery_location: e.target.value})}
                     disabled={viewMode}
@@ -404,12 +404,12 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <table className="w-full text-sm min-w-[800px]">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/50 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-                      <th className="px-6 py-4 text-left">Item Name / Group</th>
+                      <th className="p-2 text-left">Item Name / Group</th>
                       <th className="px-4 py-4 text-center w-24">Qty</th>
                       <th className="px-4 py-4 text-center w-20">UOM</th>
                       <th className="px-4 py-4 text-center w-32">Rate/Kg</th>
                       <th className="px-4 py-4 text-center w-32">Weight (Kg)</th>
-                      <th className="px-6 py-4 text-right w-40">Total</th>
+                      <th className="p-2 text-right w-40">Total</th>
                       {!viewMode && <th className="px-4 py-4 text-center w-16"></th>}
                     </tr>
                   </thead>
@@ -423,7 +423,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                     ) : (
                       formData.items.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             {viewMode ? (
                               <>
                                 <p className="text-sm font-medium text-slate-900 dark:text-white">
@@ -436,7 +436,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                             ) : (
                               <input 
                                 type="text"
-                                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-lg py-1.5 px-2 text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Item name..."
                                 value={item.material_name}
                                 onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
@@ -446,7 +446,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                           <td className="px-4 py-4 text-center">
                             <input 
                               type="number"
-                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-lg py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
+                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
                               value={item.quantity}
                               onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)}
                               disabled={viewMode}
@@ -458,7 +458,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                             ) : (
                               <input 
                                 type="text"
-                                className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-lg py-1.5 px-2 text-center text-xs font-medium text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-center text-xs font-medium text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
                                 value={item.uom || item.unit || "Nos"}
                                 onChange={(e) => handleItemChange(idx, 'uom', e.target.value)}
                               />
@@ -468,7 +468,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                             <div className="relative">
                               <input 
                                 type="number"
-                                className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-lg py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
+                                className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
                                 value={item.rate_per_kg}
                                 onChange={(e) => handleItemChange(idx, 'rate_per_kg', parseFloat(e.target.value) || 0)}
                                 disabled={viewMode}
@@ -479,14 +479,14 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                           <td className="px-4 py-4 text-center">
                             <input 
                               type="number"
-                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-lg py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
+                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
                               value={item.total_weight}
                               onChange={(e) => handleItemChange(idx, 'total_weight', parseFloat(e.target.value) || 0)}
                               disabled={viewMode}
                               placeholder="0.00"
                             />
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="p-2 text-right">
                             <span className="font-bold text-slate-900 dark:text-white text-sm">₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </td>
                           {!viewMode && (
@@ -494,7 +494,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                               <button 
                                 type="button"
                                 onClick={() => handleRemoveItem(idx)}
-                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
                               >
                                 <Trash2 size={16} />
                               </button>
@@ -511,7 +511,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <button 
                     type="button"
                     onClick={handleAddItem}
-                    className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl border border-dashed border-blue-200 transition-all"
+                    className="flex items-center gap-2 p-2 text-xs font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl border border-dashed border-blue-200 transition-all"
                   >
                     <Plus size={14} />
                     Add Manual Item

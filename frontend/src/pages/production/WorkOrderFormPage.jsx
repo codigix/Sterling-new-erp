@@ -195,11 +195,11 @@ const WorkOrderFormPage = () => {
     <div className="min-h-screen bg-slate-50/50 pb-16">
       {/* Header Section */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto p-2 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate('/department/production/work-orders')}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500"
+              className="p-2 hover:bg-slate-100 rounded transition-colors text-slate-500"
             >
               <ArrowLeft size={20} />
             </button>
@@ -215,7 +215,7 @@ const WorkOrderFormPage = () => {
           <div className="flex items-center gap-3">
             <button 
               onClick={() => navigate('/department/production/work-orders')}
-              className="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-800 transition-colors"
+              className="p-2 text-sm font-bold text-slate-600 hover:text-slate-800 transition-colors"
             >
               Discard
             </button>
@@ -252,7 +252,7 @@ const WorkOrderFormPage = () => {
                           : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/50 border-transparent hover:border-blue-100 group"
                       }`}
                     >
-                      <div className={`p-1.5 rounded-lg transition-colors ${
+                      <div className={`p-1.5 rounded transition-colors ${
                         isActive ? "bg-white/20 text-white" : "bg-slate-50 text-slate-400 group-hover:text-blue-600"
                       }`}>
                         <Icon size={16} />
@@ -279,7 +279,7 @@ const WorkOrderFormPage = () => {
                         value={formData.itemName}
                         onChange={handleInputChange}
                         placeholder="Item Name"
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                       />
                   </div>
                   <div className="space-y-2">
@@ -292,7 +292,7 @@ const WorkOrderFormPage = () => {
                         value={formData.workOrderNo}
                         onChange={handleInputChange}
                         placeholder="WO-AUTO"
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                       />
                   </div>
                   <div className="space-y-2">
@@ -303,7 +303,7 @@ const WorkOrderFormPage = () => {
                         name="itemCode"
                         value={formData.itemCode}
                         onChange={handleItemChange}
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                       >
                           <option value="">Select Item...</option>
                           {items.map(item => (
@@ -319,7 +319,7 @@ const WorkOrderFormPage = () => {
                         name="bomId"
                         value={formData.bomId}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                       >
                           <option value="">Select BOM...</option>
                           {boms.map(bom => (
@@ -339,7 +339,7 @@ const WorkOrderFormPage = () => {
                           name="quantity"
                           value={formData.quantity}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all" 
+                          className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all" 
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">{formData.unit}</span>
                     </div>
@@ -352,7 +352,7 @@ const WorkOrderFormPage = () => {
                       name="priority"
                       value={formData.priority}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700"
                     >
                         <option value="low">Low Priority</option>
                         <option value="medium">Medium Priority</option>
@@ -376,7 +376,7 @@ const WorkOrderFormPage = () => {
                       name="plannedStartDate"
                       value={formData.plannedStartDate}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all" 
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all" 
                     />
                 </div>
                 <div className="space-y-2">
@@ -389,7 +389,7 @@ const WorkOrderFormPage = () => {
                           name="plannedEndDate"
                           value={formData.plannedEndDate}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all" 
+                          className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all" 
                         />
                     </div>
                 </div>
@@ -414,15 +414,15 @@ const WorkOrderFormPage = () => {
                   <tbody className="divide-y divide-slate-50">
                     {formData.operations.length > 0 ? formData.operations.map((op, idx) => (
                       <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4 text-xs font-bold text-slate-400">{op.sequence}</td>
-                        <td className="px-6 py-4 text-xs font-bold text-slate-900">{op.operation_name}</td>
-                        <td className="px-6 py-4 text-xs text-slate-600">{op.workstation || 'N/A'}</td>
-                        <td className="px-6 py-4">
+                        <td className="p-2 text-xs font-bold text-slate-400">{op.sequence}</td>
+                        <td className="p-2 text-xs font-bold text-slate-900">{op.operation_name}</td>
+                        <td className="p-2 text-xs text-slate-600">{op.workstation || 'N/A'}</td>
+                        <td className="p-2">
                             <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full uppercase border border-slate-200">
                               {op.status}
                             </span>
                         </td>
-                        <td className="px-6 py-4 text-[10px] text-slate-500">
+                        <td className="p-2 text-[10px] text-slate-500">
                             {op.planned_start_date ? new Date(op.planned_start_date).toLocaleDateString() : 'TBD'} - 
                             {op.planned_end_date ? new Date(op.planned_end_date).toLocaleDateString() : 'TBD'}
                         </td>
@@ -456,10 +456,10 @@ const WorkOrderFormPage = () => {
                   <tbody className="divide-y divide-slate-50">
                     {formData.inventory.length > 0 ? formData.inventory.map((inv, idx) => (
                       <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4 text-xs font-bold text-slate-900">{inv.item_code}</td>
-                        <td className="px-6 py-4 text-xs text-slate-600">{inv.item_name}</td>
-                        <td className="px-6 py-4 text-xs font-bold text-slate-900">{inv.required_qty} {inv.unit}</td>
-                        <td className="px-6 py-4 text-xs text-slate-500">{inv.source_warehouse || 'Main Warehouse'}</td>
+                        <td className="p-2 text-xs font-bold text-slate-900">{inv.item_code}</td>
+                        <td className="p-2 text-xs text-slate-600">{inv.item_name}</td>
+                        <td className="p-2 text-xs font-bold text-slate-900">{inv.required_qty} {inv.unit}</td>
+                        <td className="p-2 text-xs text-slate-500">{inv.source_warehouse || 'Main Warehouse'}</td>
                       </tr>
                     )) : (
                       <tr>
@@ -477,10 +477,10 @@ const WorkOrderFormPage = () => {
         </div>
 
         {/* Right Sidebar - Info Panels */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="lg:col-span-3 space-y-2">
             
             {/* Efficiency Panel */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <TrendingUp size={16} className="text-blue-600" />

@@ -217,9 +217,9 @@ const RootCardBuilderPage = () => {
   ];
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-2 pb-8">
       {error && (
-        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300">
+        <div className="rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300">
           {error}
           <button
             onClick={() => setError(null)}
@@ -249,7 +249,7 @@ const RootCardBuilderPage = () => {
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">In Progress</p>
                   <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.inProgressRootCards || 0}</p>
                 </div>
-                <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex-shrink-0"></div>
+                <div className="h-10 w-10 rounded bg-purple-100 dark:bg-purple-900/30 flex-shrink-0"></div>
               </div>
             </Card>
             <Card shadow="sm" className="p-6 hover:shadow-md transition-shadow">
@@ -258,7 +258,7 @@ const RootCardBuilderPage = () => {
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Planning</p>
                   <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{stats.planningRootCards || 0}</p>
                 </div>
-                <div className="h-10 w-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex-shrink-0"></div>
+                <div className="h-10 w-10 rounded bg-orange-100 dark:bg-orange-900/30 flex-shrink-0"></div>
               </div>
             </Card>
             <Card shadow="sm" className="p-6 hover:shadow-md transition-shadow">
@@ -267,7 +267,7 @@ const RootCardBuilderPage = () => {
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Completed</p>
                   <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.completedRootCards || 0}</p>
                 </div>
-                <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex-shrink-0"></div>
+                <div className="h-10 w-10 rounded bg-green-100 dark:bg-green-900/30 flex-shrink-0"></div>
               </div>
             </Card>
           </div>
@@ -290,10 +290,10 @@ const RootCardBuilderPage = () => {
               placeholder="Search by title, code, or customer..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700">
+          <div className="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700">
             <Filter size={16} className="text-slate-600 dark:text-slate-400" />
             <select
               value={statusFilter}

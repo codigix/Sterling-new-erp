@@ -76,7 +76,7 @@ const ApprovedReviewsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
           Approved Reviews
@@ -87,7 +87,7 @@ const ApprovedReviewsPage = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4">
           <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
@@ -97,7 +97,7 @@ const ApprovedReviewsPage = () => {
           reviews.map((review) => (
             <div
               key={review.id}
-              className="bg-white dark:bg-slate-800 rounded-lg border border-green-200 dark:border-green-800 p-6 shadow-sm"
+              className="bg-white dark:bg-slate-800 rounded border border-green-200 dark:border-green-800 p-6 shadow-sm"
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -136,11 +136,11 @@ const ApprovedReviewsPage = () => {
               </div>
 
               <div className="flex gap-3">
-                <button className="flex-1 px-4 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
+                <button className="flex-1 p-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
                   <Award size={18} />
                   View Approval
                 </button>
-                <button className="flex-1 px-4 py-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors flex items-center text-xs justify-center gap-2">
+                <button className="flex-1 p-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors flex items-center text-xs justify-center gap-2">
                   <Download size={18} />
                   Download
                 </button>
@@ -148,7 +148,7 @@ const ApprovedReviewsPage = () => {
             </div>
           ))
         ) : (
-          <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
+          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-12 text-center">
             <Award size={48} className="mx-auto text-slate-300 mb-4" />
             <p className="text-slate-500 dark:text-slate-400">No approved designs yet</p>
           </div>

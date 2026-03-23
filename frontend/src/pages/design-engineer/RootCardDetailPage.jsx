@@ -86,7 +86,7 @@ const RootCardDetailPage = () => {
           <ArrowLeft size={20} />
           Back to Root Cards
         </button>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-red-50 border border-red-200 rounded p-6">
           <p className="text-red-800">{error || 'Root card not found'}</p>
         </div>
       </div>
@@ -174,7 +174,7 @@ const RootCardDetailPage = () => {
                   {designs.map((design) => (
                     <div
                       key={design.id}
-                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
+                      className="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-slate-100 transition"
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileText size={18} className="text-blue-600 flex-shrink-0" />
@@ -187,7 +187,7 @@ const RootCardDetailPage = () => {
                       </div>
                       <button
                         onClick={() => handleDownload(design)}
-                        className="ml-2 p-2 hover:bg-blue-100 rounded-lg transition"
+                        className="ml-2 p-2 hover:bg-blue-100 rounded transition"
                         title="Download"
                       >
                         <Download size={16} className="text-blue-600" />
@@ -214,7 +214,7 @@ const RootCardDetailPage = () => {
                   {documents.map((doc) => (
                     <div
                       key={doc.id}
-                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
+                      className="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-slate-100 transition"
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileText size={18} className="text-green-600 flex-shrink-0" />
@@ -227,7 +227,7 @@ const RootCardDetailPage = () => {
                       </div>
                       <button
                         onClick={() => handleDownload(doc)}
-                        className="ml-2 p-2 hover:bg-green-100 rounded-lg transition"
+                        className="ml-2 p-2 hover:bg-green-100 rounded transition"
                         title="Download"
                       >
                         <Download size={16} className="text-green-600" />

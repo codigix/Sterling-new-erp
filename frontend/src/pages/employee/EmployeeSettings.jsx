@@ -25,7 +25,7 @@ const EmployeeSettings = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold  dark:">Settings</h1>
@@ -38,7 +38,7 @@ const EmployeeSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs space-x-2">
-            <Bell className="w-5 h-5" />
+            <Bell className="w-3 h-3" />
             <span>Notification Preferences</span>
           </CardTitle>
         </CardHeader>
@@ -67,7 +67,7 @@ const EmployeeSettings = () => {
           ].map((setting) => (
             <div
               key={setting.key}
-              className="flex items-center text-xs justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
+              className="flex items-center text-xs justify-between p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
             >
               <div>
                 <h3 className="font-medium  dark:">{setting.label}</h3>
@@ -93,12 +93,12 @@ const EmployeeSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs space-x-2">
-            <Lock className="w-5 h-5" />
+            <Lock className="w-3 h-3" />
             <span>Privacy & Security</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+          <div className="p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
             <div className="flex items-center text-xs justify-between mb-2">
               <div>
                 <h3 className="font-medium  dark:">
@@ -128,7 +128,7 @@ const EmployeeSettings = () => {
             )}
           </div>
 
-          <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+          <div className="p-4 border border-slate-200 dark:border-slate-700 rounded">
             <h3 className="font-medium  dark: mb-3">Change Password</h3>
             <div className="space-y-3">
               <div>
@@ -137,7 +137,7 @@ const EmployeeSettings = () => {
                 </label>
                 <input
                   type="password"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                 />
               </div>
               <div>
@@ -146,7 +146,7 @@ const EmployeeSettings = () => {
                 </label>
                 <input
                   type="password"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                 />
               </div>
               <div>
@@ -155,7 +155,7 @@ const EmployeeSettings = () => {
                 </label>
                 <input
                   type="password"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700  dark:"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                 />
               </div>
               <Button className="w-full">Update Password</Button>
@@ -168,12 +168,12 @@ const EmployeeSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-xs space-x-2">
-            <Eye className="w-5 h-5" />
+            <Eye className="w-3 h-3" />
             <span>Display Settings</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition flex items-center text-xs justify-between">
+          <div className="p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition flex items-center text-xs justify-between">
             <div>
               <h3 className="font-medium  dark:">Dark Mode</h3>
               <p className="text-sm text-slate-600 dark:text-slate-400">

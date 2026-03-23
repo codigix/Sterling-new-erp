@@ -75,7 +75,7 @@ const RootCardDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h2 className="text-xl font-bold  text-lefttext-white">Root Cards</h2>
       </div>

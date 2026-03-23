@@ -169,7 +169,7 @@ const TechnicalFilesPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
@@ -181,14 +181,14 @@ const TechnicalFilesPage = () => {
         </div>
         <button
           onClick={() => setShowUploadModal(true)}
-          className="inline-flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center text-xs gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
         >
           <Plus size={20} />
           Upload File
         </button>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <Search
@@ -200,13 +200,13 @@ const TechnicalFilesPage = () => {
               placeholder="Search files..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
@@ -218,16 +218,16 @@ const TechnicalFilesPage = () => {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-12 bg-white dark:bg-slate-800 rounded-lg">
+        <div className="flex flex-col items-center justify-center py-12 bg-white dark:bg-slate-800 rounded">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
           <p className="text-slate-600 dark:text-slate-400">Loading files...</p>
         </div>
       ) : error ? (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4">
           <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700">
@@ -254,7 +254,7 @@ const TechnicalFilesPage = () => {
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
               {filteredFiles.map((file) => (
                 <tr key={file.id} className="hover:bg-slate-50 dark:hover:bg-slate-700">
-                  <td className="px-6 py-4">
+                  <td className="p-2">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getFileIcon(file.name || file.type)}</span>
                       <span className="text-sm font-medium text-slate-900 dark:text-white">
@@ -262,22 +262,22 @@ const TechnicalFilesPage = () => {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                     {file.type || file.name.split('.').pop().toUpperCase()}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                     {file.category}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                     {file.size}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                     <div className="flex items-center gap-2">
                       <Calendar size={16} />
                       {new Date(file.createdAt || file.date).toLocaleDateString()}
                     </div>
                   </td>
-                  <td className="px-6 py-4 flex items-center gap-2">
+                  <td className="p-2 flex items-center gap-2">
                     <button
                       onClick={() => handleViewFile(file)}
                       className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-blue-600 dark:text-blue-400 transition-colors"
@@ -314,7 +314,7 @@ const TechnicalFilesPage = () => {
 
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Upload Technical File</h3>
               <button
@@ -338,7 +338,7 @@ const TechnicalFilesPage = () => {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Assembly Instructions"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -350,7 +350,7 @@ const TechnicalFilesPage = () => {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {categories.filter(c => c !== 'all').map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -368,7 +368,7 @@ const TechnicalFilesPage = () => {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Optional description..."
                   rows="3"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -402,7 +402,7 @@ const TechnicalFilesPage = () => {
                   setFormData({ name: "", category: "Documentation", description: "" });
                   setUploadedFile(null);
                 }}
-                className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
                 disabled={creating}
               >
                 Cancel
@@ -410,7 +410,7 @@ const TechnicalFilesPage = () => {
               <button
                 onClick={handleCreateFile}
                 disabled={creating}
-                className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {creating && <Loader2 size={16} className="animate-spin" />}
                 Upload File
@@ -422,7 +422,7 @@ const TechnicalFilesPage = () => {
 
       {showViewModal && selectedFile && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{selectedFile.name}</h3>
               <button
@@ -467,7 +467,7 @@ const TechnicalFilesPage = () => {
                   setShowViewModal(false);
                   setSelectedFile(null);
                 }}
-                className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
               >
                 Close
               </button>
@@ -477,7 +477,7 @@ const TechnicalFilesPage = () => {
                   setShowViewModal(false);
                   setSelectedFile(null);
                 }}
-                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium text-sm"
               >
                 Download
               </button>
@@ -488,7 +488,7 @@ const TechnicalFilesPage = () => {
 
       {showDeleteModal && selectedFile && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg max-w-sm shadow-2xl border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded max-w-sm shadow-2xl border border-slate-200 dark:border-slate-700">
             <div className="p-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Delete File</h3>
               <p className="text-slate-600 dark:text-slate-400 mb-6">Are you sure you want to delete "{selectedFile.name}"? This action cannot be undone.</p>
@@ -499,7 +499,7 @@ const TechnicalFilesPage = () => {
                   setShowDeleteModal(false);
                   setSelectedFile(null);
                 }}
-                className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
                 disabled={deleteLoading}
               >
                 Cancel
@@ -507,7 +507,7 @@ const TechnicalFilesPage = () => {
               <button
                 onClick={confirmDeleteFile}
                 disabled={deleteLoading}
-                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {deleteLoading && <Loader2 size={16} className="animate-spin" />}
                 Delete

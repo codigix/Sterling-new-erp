@@ -216,7 +216,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                 <button
                   key={step.number}
                   onClick={() => setCurrentStep(step.number)}
-                  className={`group relative p-4 rounded-lg font-medium text-sm transition-all duration-200 ${
+                  className={`group relative p-4 rounded font-medium text-sm transition-all duration-200 ${
                     isActive
                       ? 'bg-purple-600 text-white shadow-lg ring-2 ring-purple-300'
                       : isCompleted
@@ -234,7 +234,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                           : ' text-slate-600'
                       }`}
                     >
-                      {isCompleted ? <Check className="w-5 h-5" /> : <span>{step.number}</span>}
+                      {isCompleted ? <Check className="w-3 h-3" /> : <span>{step.number}</span>}
                     </div>
                     <span className="text-xs text-center line-clamp-2 leading-tight">{step.name}</span>
                   </div>
@@ -246,8 +246,8 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
 
         {/* Error Message */}
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center text-xs gap-3 animate-pulse">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <div className="p-4 bg-red-50 border border-red-200 rounded flex items-center text-xs gap-3 animate-pulse">
+            <AlertCircle className="w-3 h-3 text-red-600 flex-shrink-0" />
             <span className="text-red-700 font-medium">{error}</span>
           </div>
         )}
@@ -256,7 +256,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
         <Card className="border border-slate-200 shadow-lg rounded-xl overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-slate-200">
             <CardTitle className="flex items-center text-xs gap-4">
-              <div className="p-4 bg-purple-600 text-white rounded-lg">
+              <div className="p-4 bg-purple-600 text-white rounded">
                 <StepIcon className="w-6 h-6" />
               </div>
               <div className="flex-1">
@@ -280,15 +280,15 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
               <>
                 {/* Step Status Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="p-5 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover:shadow-md transition-shadow">
                     <div className="flex items-center text-xs justify-between mb-3">
                       <p className="text-sm font-semibold text-slate-700">Current Status</p>
                       {currentStepData.status === 'completed' ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                       ) : currentStepData.status === 'in_progress' ? (
-                        <Clock className="w-5 h-5 text-amber-500 animate-pulse" />
+                        <Clock className="w-3 h-3 text-amber-500 animate-pulse" />
                       ) : (
-                        <Clock className="w-5 h-5 text-slate-400" />
+                        <Clock className="w-3 h-3 text-slate-400" />
                       )}
                     </div>
                     <p className="font-bold text-slate-900 capitalize">
@@ -296,7 +296,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover:shadow-md transition-shadow">
                     <p className="text-sm font-semibold text-slate-700 mb-3">Assigned To</p>
                     <p className="font-bold text-slate-900">
                       {currentStepData.assignedEmployee?.username || (
@@ -305,7 +305,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover:shadow-md transition-shadow">
                     <p className="text-sm font-semibold text-slate-700 mb-3">Assigned Date</p>
                     <p className="font-bold text-slate-900">
                       {currentStepData.assigned_at
@@ -317,10 +317,10 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
 
                 {/* Assign Employee Section */}
                 {!currentStepData.assigned_employee_id && (
-                  <div className="border-2 border-dashed border-purple-300 rounded-lg p-8 bg-purple-50">
+                  <div className="border-2 border-dashed border-purple-300 rounded p-8 bg-purple-50">
                     <div className="flex items-center text-xs gap-3 mb-5">
-                      <div className="p-3 bg-purple-600 text-white rounded-lg">
-                        <User className="w-5 h-5" />
+                      <div className="p-3 bg-purple-600 text-white rounded">
+                        <User className="w-3 h-3" />
                       </div>
                       <div>
                         <h4 className="font-semibold text-slate-900">Assign Employee</h4>
@@ -337,7 +337,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                           e.target.value = '';
                         }
                       }}
-                      className="w-full p-2 border border-purple-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-medium"
+                      className="w-full p-2 border border-purple-300 rounded bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-medium"
                     >
                       <option value="">Select an employee...</option>
                       {employees.map((emp) => (
@@ -351,10 +351,10 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
 
                 {/* Document Upload Section */}
                 {(currentStep === 2) && (
-                  <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 bg-slate-50">
+                  <div className="border-2 border-dashed border-slate-300 rounded p-8 bg-slate-50">
                     <div className="flex items-center text-xs gap-3 mb-5">
-                      <div className="p-3 bg-slate-600 text-white rounded-lg">
-                        <Upload className="w-5 h-5" />
+                      <div className="p-3 bg-slate-600 text-white rounded">
+                        <Upload className="w-3 h-3" />
                       </div>
                       <div>
                         <h4 className="font-semibold text-slate-900">Upload Documents</h4>
@@ -365,7 +365,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                       type="file"
                       multiple
                       onChange={(e) => handleFileUpload(e, currentStepData.id)}
-                      className="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
 
                     {/* Uploaded Documents List */}
@@ -381,9 +381,9 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                           ).map((doc, idx) => (
                             <li
                               key={idx}
-                              className="flex items-center text-xs gap-3 p-3 bg-white border border-slate-200 rounded-lg hover:shadow-md transition-shadow"
+                              className="flex items-center text-xs gap-3 p-3 bg-white border border-slate-200 rounded hover:shadow-md transition-shadow"
                             >
-                              <FileText className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                              <FileText className="w-3 h-3 text-purple-600 flex-shrink-0" />
                               <span className="text-sm text-slate-700 font-medium">
                                 {typeof doc === 'string' ? doc : doc.name}
                               </span>
@@ -412,7 +412,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                       }))
                     }
                     rows="5"
-                    className="w-full p-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                    className="w-full p-2 border border-slate-300 rounded bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                     placeholder="Add any relevant notes for this workflow step..."
                   />
                 </div>
@@ -423,7 +423,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                     <button
                       onClick={() => handleUpdateStepStatus(currentStepData.id, 'in_progress')}
                       disabled={currentStepData.status === 'in_progress'}
-                      className="flex-1 px-6 py-3 bg-slate-100 text-slate-900 rounded-lg hover:bg-slate-200 disabled:opacity-50 transition-colors font-semibold border border-slate-300"
+                      className="flex-1 px-6 py-3 bg-slate-100 text-slate-900 rounded hover:bg-slate-200 disabled:opacity-50 transition-colors font-semibold border border-slate-300"
                     >
                       {currentStepData.status === 'in_progress'
                         ? '⏱️ In Progress'
@@ -431,7 +431,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                     </button>
                     <button
                       onClick={() => handleUpdateStepStatus(currentStepData.id, 'completed')}
-                      className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold shadow-md hover:shadow-lg"
+                      className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors font-semibold shadow-md "
                     >
                       ✓ Complete Step
                     </button>
@@ -439,7 +439,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                 )}
 
                 {currentStepData.status === 'completed' && (
-                  <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center text-xs gap-3">
+                  <div className="p-5 bg-emerald-50 border border-emerald-200 rounded flex items-center text-xs gap-3">
                     <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
                     <div>
                       <p className="font-semibold text-emerald-900">Step Completed</p>
@@ -463,7 +463,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
           <button
             onClick={handlePrevious}
             disabled={currentStep === 1}
-            className="px-6 py-3 border border-slate-300 text-slate-900 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-colors flex items-center text-xs gap-2 font-semibold"
+            className="px-6 py-3 border border-slate-300 text-slate-900 rounded hover:bg-slate-50 disabled:opacity-50 transition-colors flex items-center text-xs gap-2 font-semibold"
           >
             <ChevronLeft className="w-4 h-4" />
             Previous
@@ -472,14 +472,14 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
           <div className="flex gap-3">
             <button
               onClick={onCancel}
-              className="px-6 py-3 border border-slate-300 text-slate-900 rounded-lg hover:bg-slate-50 transition-colors font-semibold"
+              className="px-6 py-3 border border-slate-300 text-slate-900 rounded hover:bg-slate-50 transition-colors font-semibold"
             >
               Cancel
             </button>
             {currentStep === WORKFLOW_STEPS.length && getStepStatus(WORKFLOW_STEPS.length) === 'completed' && (
               <button
                 onClick={onComplete}
-                className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold shadow-md hover:shadow-lg"
+                className="px-6 py-3 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors font-semibold shadow-md "
               >
                 ✓ Complete Workflow
               </button>
@@ -489,7 +489,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
           <button
             onClick={handleNext}
             disabled={currentStep === WORKFLOW_STEPS.length}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors flex items-center text-xs gap-2 font-semibold shadow-md hover:shadow-lg"
+            className="px-6 py-3 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 transition-colors flex items-center text-xs gap-2 font-semibold shadow-md "
           >
             Next
             <ChevronRight className="w-4 h-4" />

@@ -147,6 +147,36 @@ exports.getDrawingHistory = async (req, res) => {
   }
 };
 
+// Get all drawings (optionally for a specific Root Card)
+exports.getAllDrawings = async (req, res) => {
+  try {
+    const isProduction = req.user.department === 'Production';
+    
+    let query = `
+      SELECT d.*, u.full_name as created_by_name, r.full_name as reviewer_name, 
+             rc.project_name, rc.po_number
+      FROM design_documents d
+      LEFT JOIN users u ON d.created_by = u.id
+      LEFT JOIN users r ON d.reviewer_id = r.id
+      LEFT JOIN root_cards rc ON d.root_card_id = rc.id
+      WHERE 1=1
+    `;
+
+    // Production can only see Approved drawings
+    if (isProduction) {
+      query += " AND d.status = 'Approved'";
+    }
+
+    query += " ORDER BY d.created_at DESC";
+
+    const [documents] = await db.query(query);
+    res.json({ success: true, drawings: documents });
+  } catch (error) {
+    console.error('Error fetching all drawings:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};
+
 // Get all drawings for a Root Card
 exports.getRootCardDrawings = async (req, res) => {
   try {

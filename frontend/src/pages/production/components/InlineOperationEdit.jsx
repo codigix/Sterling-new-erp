@@ -60,7 +60,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
   return (
     <div className="col-span-12 mt-2 mb-4 animate-in slide-in-from-top-2 duration-200">
       <div className="bg-blue-50/50 border-2 border-blue-200 rounded-xl overflow-hidden shadow-sm">
-        <div className="bg-blue-600 px-4 py-2 flex items-center justify-between">
+        <div className="bg-blue-600 p-2 flex items-center justify-between">
           <div className="flex items-center gap-2 text-white">
             <div className="p-1 bg-white/20 rounded-md">
               <Activity size={14} />
@@ -85,7 +85,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <Activity size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   value={formData.operationName}
                   onChange={(e) => setFormData({ ...formData, operationName: e.target.value })}
                   required
@@ -99,7 +99,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
               <div className="relative">
                 <Layers size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <select
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   value={formData.workstation}
                   onChange={(e) => setFormData({ ...formData, workstation: e.target.value })}
                 >
@@ -115,7 +115,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
               <select
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
@@ -130,7 +130,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Type</label>
               <select
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value, operatorId: e.target.value === 'outsource' ? '' : formData.operatorId })}
               >
@@ -146,7 +146,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <div className="relative">
                   <Users size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <select
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-indigo-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-indigo-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     value={formData.vendorId}
                     onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
                     required
@@ -167,7 +167,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <div className="relative">
                   <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <select
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     value={formData.operatorId}
                     onChange={(e) => setFormData({ ...formData, operatorId: e.target.value })}
                   >
@@ -189,7 +189,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="number"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold"
                   value={formData.plannedQty}
                   disabled
                 />
@@ -203,7 +203,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="number"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   value={formData.producedQty}
                   onChange={(e) => setFormData({ ...formData, producedQty: e.target.value })}
                 />
@@ -218,7 +218,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="date"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   value={formData.plannedStartDate}
                   onChange={(e) => setFormData({ ...formData, plannedStartDate: e.target.value })}
                 />
@@ -232,7 +232,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="date"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   value={formData.plannedEndDate}
                   onChange={(e) => setFormData({ ...formData, plannedEndDate: e.target.value })}
                 />
@@ -244,7 +244,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
              <button
                 type="button"
                 onClick={() => onDelete(operation.id)}
-                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg text-xs font-bold transition-all"
+                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 rounded text-xs font-bold transition-all"
               >
                 <Trash2 size={14} />
                 Delete Step
@@ -254,14 +254,14 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 hover:bg-white rounded-lg transition-all"
+                  className="p-2 text-xs font-bold text-slate-500 hover:text-slate-700 hover:bg-white rounded transition-all"
                 >
                   Discard
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-200 disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white text-xs font-bold rounded hover:bg-blue-700 transition-all shadow-md shadow-blue-200 disabled:opacity-50"
                 >
                   {loading ? (
                     <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />

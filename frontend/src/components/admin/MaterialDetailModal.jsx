@@ -88,7 +88,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
               <select
                 value={details.gradeCertificationRequired || ""}
                 onChange={(e) => handleChange("gradeCertificationRequired", e.target.value)}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg "
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded "
               >
                 <option value="">Select Option</option>
                 <option value="Yes">Yes</option>
@@ -142,7 +142,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center text-xs justify-center z-50 p-4">
-      <div className=" rounded-lg border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className=" rounded border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center text-xs justify-between bg-slate-800 p-4 border-b border-slate-700">
           <h2 className="text-lg font-semibold ">Fill Details</h2>
           <button
@@ -153,7 +153,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-2">
           {renderForm()}
 
           <div className="flex gap-3 pt-4">

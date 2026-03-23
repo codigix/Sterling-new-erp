@@ -27,8 +27,8 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
 
   if (!vendors || vendors.length === 0) {
     return (
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-yellow-800 dark:text-yellow-200">
-        <AlertCircle className="w-5 h-5 inline mr-2" />
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-4 text-yellow-800 dark:text-yellow-200">
+        <AlertCircle className="w-3 h-3 inline mr-2" />
         No vendors available. Please add vendors first.
       </div>
     );
@@ -46,7 +46,7 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-red-700 dark:text-red-400 flex items-center gap-2">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-3 text-red-700 dark:text-red-400 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           {error}
         </div>
@@ -58,7 +58,7 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
             key={vendor.id}
             onClick={() => handleSelectVendor(vendor.id)}
             disabled={loading}
-            className={`p-4 rounded-lg border-2 text-left transition-all ${
+            className={`p-4 rounded border-2 text-left transition-all ${
               selectedVendor === vendor.id
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                 : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600'
@@ -92,7 +92,7 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
         <button
           onClick={() => handleSelectVendor(selectedVendor)}
           disabled={loading}
-          className="w-full mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full mt-4 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading && <Loader className="w-4 h-4 animate-spin" />}
           {loading ? 'Confirming...' : 'Confirm Vendor Selection'}

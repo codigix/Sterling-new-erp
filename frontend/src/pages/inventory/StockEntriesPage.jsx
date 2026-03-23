@@ -63,7 +63,7 @@ const StockEntriesPage = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header Info */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="flex items-center gap-4">
@@ -112,7 +112,7 @@ const StockEntriesPage = () => {
 
       {/* Filters Section */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/30 dark:bg-slate-900/30">
+        <div className="p-2 border-b border-slate-50 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/30 dark:bg-slate-900/30">
           <div className="relative w-full md:w-96">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
@@ -127,7 +127,7 @@ const StockEntriesPage = () => {
             <div className="flex items-center gap-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Type:</label>
               <select 
-                className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
               >
@@ -147,10 +147,10 @@ const StockEntriesPage = () => {
               <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
                 <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest w-12 text-center"></th>
                 <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Entry Details</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Project / Context</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Items</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Project / Context</th>
+                <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Items</th>
+                <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
@@ -164,7 +164,7 @@ const StockEntriesPage = () => {
                       <td className="px-8 py-6 text-center">
                         <button 
                           onClick={() => { setExpandedEntry(isExpanded ? null : entry.id); setExpandedItem(null); }}
-                          className={`p-1.5 rounded-lg transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
+                          className={`p-1.5 rounded transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
                         >
                           {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
@@ -199,7 +199,7 @@ const StockEntriesPage = () => {
                         </div>
                       </td>
                       <td className="px-6 py-6 text-center">
-                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm shadow-emerald-500/10">
+                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded text-[10px] font-black uppercase tracking-widest shadow-sm shadow-emerald-500/10">
                           {entry.status || 'SUBMITTED'}
                         </span>
                       </td>
@@ -250,20 +250,20 @@ const StockEntriesPage = () => {
                                            className={`hover:bg-slate-50/30 dark:hover:bg-slate-900/30 cursor-pointer transition-colors ${isItemExpanded ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''}`}
                                            onClick={() => setExpandedItem(isItemExpanded ? null : i)}
                                          >
-                                           <td className="px-6 py-4 text-slate-400 font-bold">{i + 1}</td>
-                                           <td className="px-6 py-4 font-black text-indigo-600 uppercase tracking-tight">
+                                           <td className="p-2 text-slate-400 font-bold">{i + 1}</td>
+                                           <td className="p-2 font-black text-indigo-600 uppercase tracking-tight">
                                              {item.item_code}
                                            </td>
-                                           <td className="px-6 py-4 font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight">
+                                           <td className="p-2 font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight">
                                              {item.item_name}
                                            </td>
-                                           <td className="px-6 py-4 text-center">
+                                           <td className="p-2 text-center">
                                              <div className="flex flex-col items-center">
                                                 <span className="font-black text-slate-900 dark:text-white">{item.quantity}</span>
                                                 <span className="text-[9px] font-bold text-slate-400 uppercase">{item.uom}</span>
                                              </div>
                                            </td>
-                                           <td className="px-6 py-4 text-right">
+                                           <td className="p-2 text-right">
                                              <div className="flex flex-wrap justify-end gap-1">
                                                 {item.serials && item.serials.length > 0 ? (
                                                   item.serials.slice(0, 3).map((s, si) => (
@@ -289,10 +289,10 @@ const StockEntriesPage = () => {
                                                  <table className="w-full text-left border-collapse">
                                                    <thead>
                                                      <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
-                                                       <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">#</th>
-                                                       <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Item Code</th>
-                                                       <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Name</th>
-                                                       <th className="px-4 py-2 text-[8px] font-black text-indigo-400 uppercase tracking-widest text-right">ST Code</th>
+                                                       <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">#</th>
+                                                       <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Item Code</th>
+                                                       <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Name</th>
+                                                       <th className="p-2 text-[8px] font-black text-indigo-400 uppercase tracking-widest text-right">ST Code</th>
                                                      </tr>
                                                    </thead>
                                                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
@@ -302,10 +302,10 @@ const StockEntriesPage = () => {
                                                        
                                                        return (
                                                          <tr key={sIdx} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
-                                                           <td className="px-4 py-2 text-[10px] font-bold text-slate-400 text-center">{sIdx + 1}</td>
-                                                           <td className="px-4 py-2 text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">{itemCodePerPiece}</td>
-                                                           <td className="px-4 py-2 text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tight">{item.item_name}</td>
-                                                           <td className="px-4 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-tight text-right">{stCode}</td>
+                                                           <td className="p-2 text-[10px] font-bold text-slate-400 text-center">{sIdx + 1}</td>
+                                                           <td className="p-2 text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">{itemCodePerPiece}</td>
+                                                           <td className="p-2 text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tight">{item.item_name}</td>
+                                                           <td className="p-2 text-[10px] font-black text-indigo-600 uppercase tracking-tight text-right">{stCode}</td>
                                                          </tr>
                                                        );
                                                      })}

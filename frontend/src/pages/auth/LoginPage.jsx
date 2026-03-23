@@ -81,7 +81,7 @@ const LoginPage = () => {
         <img src="/logo.png" alt="Sterling Logo" className="h-10 w-auto mx-auto mb-1" />
       </div>
 
-      <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-slate-200 p-5">
+      <div className="w-full max-w-md bg-white rounded shadow-sm border border-slate-200 p-5">
         <div className="flex bg-slate-100 p-1 rounded-md mb-4">
           <button className="flex-1 py-1.5 text-xs font-medium rounded bg-white text-blue-600 shadow-sm">
             Sign In
@@ -162,7 +162,7 @@ const LoginPage = () => {
           </button>
         </form>
 
-        <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+        <div className="mt-4 p-3 bg-slate-50 rounded border border-slate-100">
           <div className="flex items-center gap-2 text-slate-500 text-[10px] font-semibold mb-3 uppercase tracking-wider">
             <Users size={12} className="text-blue-500" />
             <span>Quick Access</span>

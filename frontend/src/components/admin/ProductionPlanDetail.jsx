@@ -134,7 +134,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <div>
           <div className="flex items-center text-xs justify-between">
@@ -239,7 +239,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
         </div>
         <div>
           {showNewStageForm && (
-            <div className="mb-6 p-4 bg-slate-50 dark: rounded-lg space-y-4">
+            <div className="mb-6 p-4 bg-slate-50 dark: rounded space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
@@ -251,7 +251,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       stageName: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800  dark:"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
                 />
                 <select
                   value={newStageData.stageType}
@@ -261,7 +261,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       stageType: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800  dark:"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
                 >
                   <option value="in_house">In-House</option>
                   <option value="outsourced">Outsourced</option>
@@ -277,7 +277,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       plannedStart: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800  dark:"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
                 />
                 <input
                   type="date"
@@ -288,7 +288,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       plannedEnd: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800  dark:"
+                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
                 />
               </div>
               <div className="flex space-x-2">
@@ -323,7 +323,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
               {stages.map((stage, index) => (
                 <div
                   key={stage.id}
-                  className="border border-slate-200 dark:border-slate-700 rounded-lg"
+                  className="border border-slate-200 dark:border-slate-700 rounded"
                 >
                   <button
                     onClick={() => toggleStageExpand(stage.id)}
@@ -342,9 +342,9 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       </Badge>
                     </div>
                     {expandedStages[stage.id] ? (
-                      <ChevronUp className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                      <ChevronUp className="w-3 h-3 text-slate-600 dark:text-slate-400" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                      <ChevronDown className="w-3 h-3 text-slate-600 dark:text-slate-400" />
                     )}
                   </button>
 

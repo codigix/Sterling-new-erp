@@ -8,6 +8,7 @@ const {
   reviewDrawing, 
   getDrawingHistory, 
   getRootCardDrawings,
+  getAllDrawings,
   submitForReview,
   deleteDrawing
 } = require('../controllers/designDrawingController');
@@ -48,6 +49,8 @@ const handleMulterError = (err, req, res, next) => {
 };
 
 // Drawing Routes
+router.get('/', auth, getAllDrawings);
+
 router.post('/upload', auth, (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (err) return handleMulterError(err, req, res, next);

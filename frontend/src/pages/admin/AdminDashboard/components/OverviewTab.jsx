@@ -19,7 +19,7 @@ const OverviewTab = ({ kpis }) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div className="group relative">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-400 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
-        <Card className="h-full hover:shadow-lg transition-all duration-300 border border-blue-100 dark:border-blue-900">
+        <Card className="h-full  transition-all duration-300 border border-blue-100 dark:border-blue-900">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -45,7 +45,7 @@ const OverviewTab = ({ kpis }) => (
 
       <div className="group relative">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-400 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
-        <Card className="h-full hover:shadow-lg transition-all duration-300 border border-emerald-100 dark:border-emerald-900">
+        <Card className="h-full  transition-all duration-300 border border-emerald-100 dark:border-emerald-900">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -72,7 +72,7 @@ const OverviewTab = ({ kpis }) => (
 
       <div className="group relative">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-600 to-amber-400 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
-        <Card className="h-full hover:shadow-lg transition-all duration-300 border border-amber-100 dark:border-amber-900">
+        <Card className="h-full  transition-all duration-300 border border-amber-100 dark:border-amber-900">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -101,7 +101,7 @@ const OverviewTab = ({ kpis }) => (
 
       <div className="group relative">
         <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-400 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
-        <Card className="h-full hover:shadow-lg transition-all duration-300 border border-red-100 dark:border-red-900">
+        <Card className="h-full  transition-all duration-300 border border-red-100 dark:border-red-900">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -127,11 +127,11 @@ const OverviewTab = ({ kpis }) => (
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="hover:shadow-lg transition-shadow duration-300">
+      <Card className=" transition-shadow duration-300">
         <CardHeader className="border-b border-slate-200 dark:border-slate-700">
           <CardTitle className="flex items-center text-xs space-x-2">
-            <div className="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
-              <PieChart className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <div className="p-2 bg-primary-100 dark:bg-primary-900 rounded">
+              <PieChart className="w-3 h-3 text-primary-600 dark:text-primary-400" />
             </div>
             <span>Project Status Distribution</span>
           </CardTitle>
@@ -170,11 +170,11 @@ const OverviewTab = ({ kpis }) => (
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-lg transition-shadow duration-300">
+      <Card className=" transition-shadow duration-300">
         <CardHeader className="border-b border-slate-200 dark:border-slate-700">
           <CardTitle className="flex items-center text-xs space-x-2">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded">
+              <TrendingUp className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
             </div>
             <span>Monthly Performance</span>
           </CardTitle>

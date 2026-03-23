@@ -71,7 +71,7 @@ const RegisterPage = () => {
         <img src="/logo.png" alt="Sterling Logo" className="h-10 w-auto mx-auto mb-1" />
       </div>
 
-      <div className="w-full max-w-lg bg-white rounded-lg shadow-sm border border-slate-200 p-5">
+      <div className="w-full max-w-lg bg-white rounded shadow-sm border border-slate-200 p-5">
         <div className="flex bg-slate-100 p-1 rounded-md mb-4">
           <Link to="/login" className="flex-1 py-1.5 text-xs font-medium rounded text-slate-500 hover:text-slate-700 text-center">
             Sign In

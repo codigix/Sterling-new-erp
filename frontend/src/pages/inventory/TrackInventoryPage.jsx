@@ -138,7 +138,7 @@ const TrackInventoryPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -150,7 +150,7 @@ const TrackInventoryPage = () => {
             Real-time inventory levels by location
           </p>
         </div>
-        <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+        <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
           <Download size={18} />
           Export Report
         </button>
@@ -169,14 +169,14 @@ const TrackInventoryPage = () => {
               placeholder="Search by item or SKU..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
             />
           </div>
 
           <select
             value={selectedLocation}
             onChange={(e) => setSelectedLocation(e.target.value)}
-            className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
           >
             {locations.map((loc) => (
               <option key={loc} value={loc}>
@@ -185,7 +185,7 @@ const TrackInventoryPage = () => {
             ))}
           </select>
 
-          <button className="flex items-center text-xs justify-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             <Filter size={18} />
             More Filters
           </button>
@@ -199,7 +199,7 @@ const TrackInventoryPage = () => {
             key={item.id}
             className={`${getTrendBg(
               item.trend
-            )} border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:shadow-lg transition-shadow`}
+            )} border border-slate-200 dark:border-slate-700 rounded-xl p-5  transition-shadow`}
           >
             <div className="flex justify-between items-start mb-3">
               <div>
@@ -210,12 +210,12 @@ const TrackInventoryPage = () => {
                   {item.item}
                 </p>
               </div>
-              <button className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors">
+              <button className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors">
                 <Eye size={18} className="text-blue-600 dark:text-blue-400" />
               </button>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">
+            <div className="bg-white dark:bg-slate-800 rounded p-3 mb-3">
               <div className="flex items-end justify-between mb-2">
                 <div>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -264,7 +264,7 @@ const TrackInventoryPage = () => {
               </div>
             </div>
 
-            <button className="w-full mt-4 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center text-xs justify-center gap-2">
+            <button className="w-full mt-4 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors flex items-center text-xs justify-center gap-2">
               <Edit size={16} />
               Adjust Stock
             </button>

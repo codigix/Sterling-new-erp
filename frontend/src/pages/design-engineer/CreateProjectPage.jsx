@@ -322,7 +322,7 @@ const CreateProjectPage = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center">
               <FileText className="text-white" size={24} />
             </div>
             <div>
@@ -337,7 +337,7 @@ const CreateProjectPage = () => {
         </div>
 
         {/* Form */}
-        <div className="space-y-6 pb-32">
+        <div className="space-y-2 pb-32">
           {/* Basic Information */}
           <Card>
             <CardHeader>
@@ -346,7 +346,7 @@ const CreateProjectPage = () => {
             <CardContent className="space-y-4">
               {loadingProject ? (
                 <div className="flex items-center justify-center py-4">
-                  <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -354,7 +354,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Project Name
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
+                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
                       {projectData.projectName || "N/A"}
                     </div>
                   </div>
@@ -362,7 +362,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Project Code
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
+                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
                       {projectData.projectCode || "N/A"}
                     </div>
                   </div>
@@ -370,7 +370,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       PO Number
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
+                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
                       {projectData.poNumber || "N/A"}
                     </div>
                   </div>
@@ -378,7 +378,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Client Name
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
+                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
                       {projectData.clientName || "N/A"}
                     </div>
                   </div>
@@ -386,7 +386,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Priority
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
+                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
                       <span
                         className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
                           projectData.priority === "critical"
@@ -406,7 +406,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Status
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
+                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
                       <span
                         className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
                           projectData.status === "completed"
@@ -431,7 +431,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Start Date
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
+                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
                       {projectData.startDate
                         ? new Date(projectData.startDate).toLocaleDateString()
                         : "N/A"}
@@ -441,7 +441,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Delivery Date
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
+                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
                       {projectData.deliveryDate
                         ? new Date(
                             projectData.deliveryDate
@@ -562,7 +562,7 @@ const CreateProjectPage = () => {
                 Materials Required for Production
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <MultiSelect
@@ -752,7 +752,7 @@ const CreateProjectPage = () => {
               <CardTitle className="text-lg">Reference Documents</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 rounded-lg p-8 text-center hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition cursor-pointer">
+              <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 rounded p-8 text-center hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition cursor-pointer">
                 <input
                   type="file"
                   multiple
@@ -780,7 +780,7 @@ const CreateProjectPage = () => {
                     {uploadedFiles.references.map((file, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-3 rounded-lg hover:shadow-sm transition"
+                        className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-3 rounded hover:shadow-sm transition"
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <File
@@ -824,7 +824,7 @@ const CreateProjectPage = () => {
                   }
                   placeholder="Detailed technical specifications and design features"
                   rows="3"
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-sm"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-sm"
                 />
               </div>
               <div>
@@ -841,7 +841,7 @@ const CreateProjectPage = () => {
                   }
                   placeholder="Special instructions for fabrication, assembly, and testing"
                   rows="3"
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-sm"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-sm"
                 />
               </div>
               <div>
@@ -855,7 +855,7 @@ const CreateProjectPage = () => {
                   }
                   placeholder="QC checkpoints, safety standards, and testing requirements"
                   rows="3"
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-sm"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-sm"
                 />
               </div>
               <div>
@@ -869,14 +869,14 @@ const CreateProjectPage = () => {
                   }
                   placeholder="Any additional information or special requirements"
                   rows="3"
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-sm"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white text-sm"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-slate-800 p-4 rounded-lg shadow-lg">
+          <div className="flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-slate-800 p-4 rounded shadow-lg">
             <Button
               onClick={() => navigate("/design-engineer/project-details")}
               variant="secondary"

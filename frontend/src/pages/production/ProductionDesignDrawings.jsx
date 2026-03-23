@@ -62,7 +62,7 @@ const ProductionDesignDrawings = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-2">
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <FileCheck className="text-green-600" /> Approved Design Drawings
@@ -70,13 +70,13 @@ const ProductionDesignDrawings = () => {
         <p className="text-slate-500">Access latest approved designs for production</p>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row md:items-center gap-4">
+      <div className="border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex-1">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Filter by Root Card</label>
           <select
             value={rootCardId}
             onChange={(e) => setRootCardId(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 focus:ring-2 focus:ring-green-500 outline-none"
           >
             <option value="">Select Root Card...</option>
             {rootCards.map(rc => {
@@ -130,7 +130,7 @@ const ProductionDesignDrawings = () => {
                     href={`${axios.defaults.baseURL.replace('/api', '')}/${doc.file_path}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm font-bold transition-colors"
                   >
                     <Download size={16} /> Download
                   </a>

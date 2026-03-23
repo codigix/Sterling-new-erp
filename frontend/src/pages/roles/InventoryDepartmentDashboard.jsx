@@ -183,7 +183,7 @@ const DashboardContent = React.memo(({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {loadingStats ? (
         <div className="flex justify-center py-20">
           <Loader2 className="animate-spin text-blue-600" size={40} />
@@ -202,7 +202,7 @@ const DashboardContent = React.memo(({
             <div className="flex gap-3 flex-wrap">
               <button
                 onClick={handleExport}
-                className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
               >
                 <Download size={18} />
                 Export
@@ -210,7 +210,7 @@ const DashboardContent = React.memo(({
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white font-medium"
+                className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white font-medium"
               >
                 <option value="7days">Last 7 Days</option>
                 <option value="30days">Last 30 Days</option>
@@ -225,7 +225,7 @@ const DashboardContent = React.memo(({
               return (
                 <div
                   key={stat.title}
-                  className={`bg-gradient-to-br ${stat.bgColor} dark:from-slate-800 dark:to-slate-700 rounded-xl p-6 border ${stat.borderColor} dark:border-slate-600 hover:shadow-lg transition-shadow`}
+                  className={`bg-gradient-to-br ${stat.bgColor} dark:from-slate-800 dark:to-slate-700 rounded-xl p-6 border ${stat.borderColor} dark:border-slate-600  transition-shadow`}
                 >
                   <div className="flex items-center text-xs justify-between">
                     <div>
@@ -249,7 +249,7 @@ const DashboardContent = React.memo(({
                       </p>
                     </div>
                     <div
-                      className={`p-3 bg-white dark:bg-slate-600 rounded-lg ${stat.iconColor}`}
+                      className={`p-3 bg-white dark:bg-slate-600 rounded ${stat.iconColor}`}
                     >
                       <Icon size={28} />
                     </div>
@@ -283,7 +283,7 @@ const DashboardContent = React.memo(({
                 {departmentTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
+                    className="border border-slate-200 dark:border-slate-700 rounded p-4 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -319,7 +319,7 @@ const DashboardContent = React.memo(({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
+              <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-700">
                 <Package className="mx-auto text-slate-300 mb-2" size={40} />
                 <p className="text-slate-500 dark:text-slate-400 font-medium">
                   No active material, shipment, or delivery tasks assigned.
@@ -340,7 +340,7 @@ const DashboardContent = React.memo(({
                 criticalAlerts.map((alert) => (
                   <div
                     key={alert.id}
-                    className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-red-100 dark:border-red-700"
+                    className="bg-white dark:bg-slate-800 rounded p-4 border border-red-100 dark:border-red-700"
                   >
                     <p className="font-semibold text-slate-900 dark:text-white">
                       {alert.item}
@@ -409,7 +409,7 @@ const DashboardContent = React.memo(({
             {recentMovements.map((movement, idx) => (
               <div
                 key={idx}
-                className="flex items-center text-xs justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                className="flex items-center text-xs justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
               >
                 <div className="flex-1">
                   <p className="font-semibold text-slate-900 dark:text-white">
@@ -421,7 +421,7 @@ const DashboardContent = React.memo(({
                 </div>
                 <div className="text-right">
                   <span
-                    className={`inline-block px-3 py-2 rounded-lg text-sm font-semibold ${
+                    className={`inline-block px-3 py-2 rounded text-sm font-semibold ${
                       movement.type === "in"
                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
@@ -442,7 +442,7 @@ const DashboardContent = React.memo(({
           <div className="space-y-3">
             <Link
               to="/department/inventory/stock/balance"
-              className="flex items-center text-xs gap-3 p-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors border border-blue-100 dark:border-blue-800"
+              className="flex items-center text-xs gap-3 p-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900 rounded transition-colors border border-blue-100 dark:border-blue-800"
             >
               <Package size={20} className="text-blue-600 dark:text-blue-400" />
               <div>
@@ -456,7 +456,7 @@ const DashboardContent = React.memo(({
             </Link>
             <Link
               to="/department/inventory/stock/entries"
-              className="flex items-center text-xs gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-lg transition-colors border border-emerald-100 dark:border-emerald-800"
+              className="flex items-center text-xs gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded transition-colors border border-emerald-100 dark:border-emerald-800"
             >
               <Boxes size={20} className="text-emerald-600 dark:text-emerald-400" />
               <div>

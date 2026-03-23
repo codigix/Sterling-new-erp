@@ -400,13 +400,13 @@ const MaterialRequestDetailModal = ({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             Material Request: {request.mr_number}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
           >
             <X size={20} className="text-slate-400" />
           </button>
@@ -508,7 +508,7 @@ const MaterialRequestDetailModal = ({
                             key={idx}
                             className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors"
                           >
-                            <td className="px-6 py-4">
+                            <td className="p-2">
                               <div>
                                 <p className="font-bold text-slate-900 dark:text-white uppercase">
                                   {item.material_name}
@@ -518,12 +518,12 @@ const MaterialRequestDetailModal = ({
                                 </p>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-center">
+                            <td className="p-2 text-center">
                               <span className="font-bold text-slate-900 dark:text-white">
                                 {item.quantity} {item.unit}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-center">
+                            <td className="p-2 text-center">
                               <div className="flex flex-col items-center">
                                 <span
                                   className={`text-sm font-bold ${Number(stockQty || 0) >= Number(item.quantity || 0) && Number(stockQty || 0) > 0 ? "text-emerald-600" : Number(stockQty || 0) > 0 ? "text-amber-600" : "text-red-600"}`}
@@ -560,7 +560,7 @@ const MaterialRequestDetailModal = ({
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-center">
+                            <td className="p-2 text-center">
                               {stockQty >= Number(item.quantity || 0) &&
                               stockQty > 0 ? (
                                 <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-600 whitespace-nowrap">
@@ -584,8 +584,8 @@ const MaterialRequestDetailModal = ({
             </div>
 
             {/* Sidebar info */}
-            <div className="space-y-6">
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-6">
+            <div className="space-y-2">
+              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <Warehouse size={18} className="text-slate-400" />
@@ -597,7 +597,7 @@ const MaterialRequestDetailModal = ({
                     Select Warehouse
                   </label>
                   <select
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-medium"
                     value={selectedWarehouse}
                     onChange={(e) => setSelectedWarehouse(e.target.value)}
                   >
@@ -608,7 +608,7 @@ const MaterialRequestDetailModal = ({
                       </option>
                     ))}
                   </select>
-                  <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30 rounded-lg flex gap-3">
+                  <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30 rounded flex gap-3">
                     <AlertCircle size={14} className="text-orange-600 mt-0.5" />
                     <p className="text-[10px] text-orange-700 dark:text-orange-400 font-medium leading-relaxed">
                       Changing the warehouse will trigger a real-time stock
@@ -683,10 +683,10 @@ const MaterialRequestDetailModal = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+        <div className="p-2 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
           <button
             onClick={handleDelete}
-            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-xs font-bold transition-all"
+            className="flex items-center gap-2 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-xs font-bold transition-all"
           >
             <Trash2 size={16} /> Remove Request
           </button>
@@ -701,7 +701,7 @@ const MaterialRequestDetailModal = ({
               <button
                 onClick={handleApproveRequest}
                 disabled={approving}
-                className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 font-bold rounded-lg transition-all text-xs uppercase flex items-center gap-2"
+                className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 font-bold rounded transition-all text-xs uppercase flex items-center gap-2"
               >
                 {approving ? "Approving..." : "Approve Request"} <CheckCircle size={16} />
               </button>
@@ -714,7 +714,7 @@ const MaterialRequestDetailModal = ({
                   <button
                     onClick={handleReleaseMaterial}
                     disabled={releasing || !allInStock || request.status !== "approved"}
-                    className={`px-6 py-2 ${!allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"} font-bold rounded-lg transition-all text-xs uppercase flex items-center gap-2 disabled:opacity-50`}
+                    className={`px-6 py-2 ${!allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"} font-bold rounded transition-all text-xs uppercase flex items-center gap-2 disabled:opacity-50`}
                   >
                     {releasing ? "Releasing..." : "Release Material"}{" "}
                     <ShieldCheck size={16} />
@@ -726,7 +726,7 @@ const MaterialRequestDetailModal = ({
                         : () => handleCreateQuotation(true)
                     }
                     disabled={creatingPO || request.po_count > 0 || allInStock || request.status !== "approved"}
-                    className={`px-6 py-2 ${request.po_count > 0 || allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20"} font-bold rounded-lg transition-all text-xs uppercase flex items-center gap-2`}
+                    className={`px-6 py-2 ${request.po_count > 0 || allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20"} font-bold rounded transition-all text-xs uppercase flex items-center gap-2`}
                   >
                     {creatingPO
                       ? "Creating..."
@@ -1368,7 +1368,7 @@ const MaterialRequestsPage = () => {
       {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+          <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded">
             <ClipboardList
               className="text-blue-600 dark:text-blue-400"
               size={24}
@@ -1384,7 +1384,7 @@ const MaterialRequestsPage = () => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-white dark:bg-slate-800">
+          <div className="flex border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800">
             <button
               onClick={() => setViewMode("list")}
               className={`p-2 ${viewMode === "list" ? "bg-blue-50 text-blue-600" : "text-slate-400"}`}
@@ -1400,14 +1400,14 @@ const MaterialRequestsPage = () => {
           </div>
           <button
             onClick={fetchMaterialRequests}
-            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-colors"
           >
             <RefreshCw size={18} />
             Refresh
           </button>
           <button
             onClick={() => setShowNewRequestModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
           >
             <Plus size={18} />
             New Request
@@ -1484,7 +1484,7 @@ const MaterialRequestsPage = () => {
                 }`}
               >
                 <div
-                  className={`p-2 rounded-lg w-fit mb-3 bg-${stat.color}-50 dark:bg-${stat.color}-900/20`}
+                  className={`p-2 rounded w-fit mb-3 bg-${stat.color}-50 dark:bg-${stat.color}-900/20`}
                 >
                   <stat.icon
                     className={`text-${stat.color}-600 dark:text-${stat.color}-400`}
@@ -1511,7 +1511,7 @@ const MaterialRequestsPage = () => {
               <input
                 type="text"
                 placeholder="Search by ID, requester or department..."
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -1519,7 +1519,7 @@ const MaterialRequestsPage = () => {
             <div className="flex gap-3">
               <div className="relative">
                 <select
-                  className="appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600 dark:text-slate-300"
+                  className="appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600 dark:text-slate-300"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -1536,11 +1536,11 @@ const MaterialRequestsPage = () => {
                   size={16}
                 />
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50">
+              <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50">
                 <LayoutGrid size={18} />
                 Columns
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50">
+              <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50">
                 <Download size={18} />
                 Export
               </button>
@@ -1552,23 +1552,23 @@ const MaterialRequestsPage = () => {
             <table className="w-full text-left">
               <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-6 py-4 w-10"></th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 w-10"></th>
+                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     ID
                   </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Requester
                   </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Required By
                   </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Availability
                   </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
                     Actions
                   </th>
                 </tr>
@@ -1580,33 +1580,33 @@ const MaterialRequestsPage = () => {
                       <tr
                         className={`hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors ${expandedRows.has(req.id) ? "bg-blue-50/30 dark:bg-blue-900/10" : ""}`}
                       >
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <button
                             onClick={() => toggleRow(req.id)}
-                            className={`p-1 rounded-lg transition-all ${expandedRows.has(req.id) ? "bg-blue-100 text-blue-600 rotate-180" : "text-slate-400 hover:bg-slate-100"}`}
+                            className={`p-1 rounded transition-all ${expandedRows.has(req.id) ? "bg-blue-100 text-blue-600 rotate-180" : "text-slate-400 hover:bg-slate-100"}`}
                           >
                             <ChevronDown size={18} />
                           </button>
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                        <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
                           {req.mr_number || `MR-${req.id}`}
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                        <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
                           {req.created_by_name || "System"}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           {getStatusBadge(req.status)}
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                        <td className="p-2 text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                           <Clock size={14} className="text-slate-400" />
                           {req.required_date
                             ? new Date(req.required_date).toLocaleDateString()
                             : "N/A"}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           {getAvailabilityBadge(req.id)}
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="p-2 text-right">
                           <div className="flex justify-end gap-1">
                             <button
                               onClick={() => fetchRequestDetails(req.id)}
@@ -1674,9 +1674,9 @@ const MaterialRequestsPage = () => {
               <div className="flex-1 overflow-y-auto p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                   {/* Left Side - Details */}
-                  <div className="lg:col-span-4 space-y-6">
+                  <div className="lg:col-span-4 space-y-2">
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
+                      <div className="p-2 bg-blue-100 rounded">
                         <ClipboardList className="text-blue-600" size={20} />
                       </div>
                       <div>
@@ -1696,7 +1696,7 @@ const MaterialRequestsPage = () => {
                           <span className="text-red-500">*</span>
                         </label>
                         <select
-                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
                           value={newRequest.rootCardId}
                           onChange={(e) =>
                             setNewRequest({
@@ -1725,7 +1725,7 @@ const MaterialRequestsPage = () => {
                           Department
                         </label>
                         <select
-                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
                           value={newRequest.department}
                           onChange={(e) =>
                             setNewRequest({
@@ -1748,7 +1748,7 @@ const MaterialRequestsPage = () => {
                         <div className="relative">
                           <input
                             type="date"
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
                             value={newRequest.requiredBy}
                             onChange={(e) =>
                               setNewRequest({
@@ -1787,7 +1787,7 @@ const MaterialRequestsPage = () => {
                               }`}
                             >
                               <div
-                                className={`p-1.5 rounded-lg ${newRequest.purpose === purpose.id ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700"}`}
+                                className={`p-1.5 rounded ${newRequest.purpose === purpose.id ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700"}`}
                               >
                                 <purpose.icon size={16} />
                               </div>
@@ -1805,7 +1805,7 @@ const MaterialRequestsPage = () => {
                   <div className="lg:col-span-8 bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 h-fit">
                     <div className="flex justify-between items-center mb-6">
                       <div className="flex items-start gap-3">
-                        <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                        <div className="p-2 bg-blue-100 rounded text-blue-600">
                           <Warehouse size={20} />
                         </div>
                         <div>
@@ -1827,7 +1827,7 @@ const MaterialRequestsPage = () => {
                         <input
                           type="text"
                           placeholder="Search or enter item name"
-                          className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
                           value={currentItem.item}
                           onChange={(e) =>
                             setCurrentItem({
@@ -1843,7 +1843,7 @@ const MaterialRequestsPage = () => {
                         </label>
                         <input
                           type="number"
-                          className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
                           value={currentItem.quantity}
                           onChange={(e) =>
                             setCurrentItem({
@@ -1860,7 +1860,7 @@ const MaterialRequestsPage = () => {
                           UOM
                         </label>
                         <select
-                          className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
                           value={currentItem.uom}
                           onChange={(e) =>
                             setCurrentItem({
@@ -1880,7 +1880,7 @@ const MaterialRequestsPage = () => {
                         <button
                           type="button"
                           onClick={handleAddItem}
-                          className="w-full h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center transition-colors"
+                          className="w-full h-10 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center transition-colors"
                         >
                           <Plus size={20} />
                         </button>
@@ -1975,14 +1975,14 @@ const MaterialRequestsPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowNewRequestModal(false)}
-                  className="px-6 py-2 bg-emerald-500 text-white font-bold rounded-lg hover:bg-emerald-600 transition-colors"
+                  className="px-6 py-2 bg-emerald-500 text-white font-bold rounded hover:bg-emerald-600 transition-colors"
                 >
                   Cancel
                 </button>
                 <div className="flex gap-3">
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                    className="px-6 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 flex items-center gap-2"
                   >
                     <CheckCircle size={18} /> Create Request
                   </button>

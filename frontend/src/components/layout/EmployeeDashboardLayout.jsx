@@ -83,7 +83,7 @@ const EmployeeDashboardLayout = () => {
           {/* Left side - Logo and mobile menu */}
           <div className="flex items-center">
             <button
-              className="lg:hidden mr-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="lg:hidden mr-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <Menu size={20} />
@@ -103,10 +103,10 @@ const EmployeeDashboardLayout = () => {
             {/* User Menu */}
             <div className="relative">
               <button
-                className="flex items-center text-xs space-x-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
+                className="flex items-center text-xs space-x-3 p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center text-xs justify-center shadow-sm">
+                <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center shadow-sm">
                   <span className="text-white font-bold text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
@@ -123,7 +123,7 @@ const EmployeeDashboardLayout = () => {
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
                   <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
                     <p className="text-sm font-bold text-white">
                       {user?.fullName || user?.username}
@@ -135,7 +135,7 @@ const EmployeeDashboardLayout = () => {
                   <Link
                     to="/employee/profile"
                     onClick={() => setShowUserMenu(false)}
-                    className="flex items-center space-x-2 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
+                    className="flex items-center space-x-2 p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
                   >
                     <User size={16} />
                     <span>Profile</span>
@@ -143,7 +143,7 @@ const EmployeeDashboardLayout = () => {
                   <Link
                     to="/employee/settings"
                     onClick={() => setShowUserMenu(false)}
-                    className="flex items-center space-x-2 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
+                    className="flex items-center space-x-2 p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
                   >
                     <Settings size={16} />
                     <span>Settings</span>
@@ -151,7 +151,7 @@ const EmployeeDashboardLayout = () => {
                   <div className="border-t border-slate-200 dark:border-slate-700 my-1"></div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-2 w-full px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
+                    className="flex items-center space-x-2 w-full p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
                   >
                     <LogOut size={16} />
                     <span>Logout</span>

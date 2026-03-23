@@ -62,7 +62,7 @@ export default function MaterialTable({
       <h5 className="text-lg font-semibold text-slate-200 mb-4">
         Material Requirements Table
       </h5>
-      <div className="overflow-x-auto bg-slate-800 rounded-lg border border-slate-700">
+      <div className="overflow-x-auto bg-slate-800 rounded border border-slate-700">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-600 ">

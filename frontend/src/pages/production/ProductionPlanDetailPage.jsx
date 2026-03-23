@@ -157,13 +157,13 @@ const ProductionPlanDetailPage = () => {
   const getStageStatusIcon = (status) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />;
+        return <CheckCircle className="w-3 h-3 text-green-600 dark:text-green-400" />;
       case 'in_progress':
-        return <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />;
+        return <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />;
       case 'pending':
-        return <Clock className="w-5 h-5 text-slate-400 dark:text-slate-500" />;
+        return <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500" />;
       default:
-        return <AlertCircle className="w-5 h-5 text-slate-400 dark:text-slate-500" />;
+        return <AlertCircle className="w-3 h-3 text-slate-400 dark:text-slate-500" />;
     }
   };
 
@@ -298,11 +298,11 @@ const ProductionPlanDetailPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Info Card */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-2">
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
                     <Layout size={20} />
                   </div>
                   <h3 className="font-bold text-slate-900 dark:text-white">Strategic Parameters</h3>
@@ -314,7 +314,7 @@ const ProductionPlanDetailPage = () => {
               
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-6">
+                  <div className="space-y-2">
                     <div>
                       <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Production Plan Name</p>
                       {isEditing ? (
@@ -322,7 +322,7 @@ const ProductionPlanDetailPage = () => {
                           type="text"
                           value={formData.planName || ''}
                           onChange={(e) => setFormData({ ...formData, planName: e.target.value })}
-                          className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                          className="w-full p-2.5 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                         />
                       ) : (
                         <p className="text-lg font-bold text-slate-900 dark:text-white">{plan.plan_name}</p>
@@ -337,9 +337,9 @@ const ProductionPlanDetailPage = () => {
                             type="number"
                             value={formData.targetQuantity || ''}
                             onChange={(e) => setFormData({ ...formData, targetQuantity: e.target.value })}
-                            className="w-full px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-l-lg bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
+                            className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded-l-lg bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
                           />
-                          <span className="px-4 py-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r-lg text-[10px] font-bold text-slate-500 uppercase">
+                          <span className="p-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r-lg text-[10px] font-bold text-slate-500 uppercase">
                             {plan.uom || 'Units'}
                           </span>
                         </div>
@@ -362,14 +362,14 @@ const ProductionPlanDetailPage = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-2">
                     <div>
                       <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Lifecycle Status</p>
                       {isEditing ? (
                         <select
                           value={formData.status || ''}
                           onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                          className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                          className="w-full p-2.5 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                         >
                           <option value="draft">Draft</option>
                           <option value="planning">Planning</option>
@@ -379,7 +379,7 @@ const ProductionPlanDetailPage = () => {
                           <option value="cancelled">Cancelled</option>
                         </select>
                       ) : (
-                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm ${getStatusColor(plan.status)}`}>
+                        <div className={`inline-flex items-center gap-2 p-2 rounded text-xs-xl font-bold text-sm ${getStatusColor(plan.status)}`}>
                           <div className="w-2 h-2 rounded-full bg-current opacity-50" />
                           {getStatusLabel(plan.status)}
                         </div>
@@ -454,7 +454,7 @@ const ProductionPlanDetailPage = () => {
                       value={formData.notes || ''}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       rows={4}
-                      className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                      className="w-full p-2.5 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                       placeholder="Enter production directives..."
                     />
                   ) : (
@@ -470,7 +470,7 @@ const ProductionPlanDetailPage = () => {
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded">
                     <ListChecks size={20} />
                   </div>
                   <h3 className="font-bold text-slate-900 dark:text-white">Execution Stages</h3>
@@ -488,30 +488,30 @@ const ProductionPlanDetailPage = () => {
                 <table className="w-full text-sm text-left">
                   <thead>
                     <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
-                      <th className="px-6 py-4">Phase Name</th>
-                      <th className="px-6 py-4">Type</th>
-                      <th className="px-6 py-4 text-center">Status</th>
-                      <th className="px-6 py-4">Timeline</th>
+                      <th className="p-2">Phase Name</th>
+                      <th className="p-2">Type</th>
+                      <th className="p-2 text-center">Status</th>
+                      <th className="p-2">Timeline</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                     {plan.stages?.map((stage, idx) => (
                       <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="font-bold text-slate-900 dark:text-white">{stage.stage_name}</div>
                           <div className="text-[11px] text-slate-500 mt-0.5 font-medium">{stage.notes || 'Standard processing'}</div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-bold rounded uppercase">
                             {stage.stage_type || 'In-House'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="p-2 text-center">
                           <div className="flex justify-center">
                             {getStageStatusIcon(stage.status)}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
                             {stage.planned_start ? new Date(stage.planned_start).toLocaleDateString() : 'N/A'} - {stage.planned_end ? new Date(stage.planned_end).toLocaleDateString() : 'N/A'}
                           </div>
@@ -532,7 +532,7 @@ const ProductionPlanDetailPage = () => {
           </div>
 
           {/* Sidebar Cards */}
-          <div className="space-y-6">
+          <div className="space-y-2">
             <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl shadow-slate-900/20 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                 <Box size={80} />

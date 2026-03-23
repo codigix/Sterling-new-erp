@@ -197,7 +197,7 @@ const RequestHistoryPage = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
         <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
           Request History
@@ -211,7 +211,7 @@ const RequestHistoryPage = () => {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className={`${stat.bgColor} rounded-lg p-6 border border-slate-200 dark:border-slate-700`}
+            className={`${stat.bgColor} rounded p-6 border border-slate-200 dark:border-slate-700`}
           >
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
               {stat.label}
@@ -221,7 +221,7 @@ const RequestHistoryPage = () => {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -230,7 +230,7 @@ const RequestHistoryPage = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -246,7 +246,7 @@ const RequestHistoryPage = () => {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
             >
               <option value="all">All Types</option>
               <option value="resource-request">Resource Request</option>
@@ -272,7 +272,7 @@ const RequestHistoryPage = () => {
           filteredRequests.map((request) => (
             <div
               key={request.id}
-              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4"
+              className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4"
             >
               <div
                 className="cursor-pointer"
@@ -345,7 +345,7 @@ const RequestHistoryPage = () => {
                   </div>
 
                   {request.response && (
-                    <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-3">
+                    <div className="bg-slate-50 dark:bg-slate-700 rounded p-3">
                       <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
                         Manager Response
                       </h4>
@@ -356,7 +356,7 @@ const RequestHistoryPage = () => {
                   )}
 
                   {request.status === "pending" && !request.response && (
-                    <div className="flex items-center text-xs gap-2 p-3 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
+                    <div className="flex items-center text-xs gap-2 p-3 bg-yellow-50 dark:bg-yellow-900 rounded">
                       <Clock
                         size={16}
                         className="text-yellow-600 dark:text-yellow-400"

@@ -16,6 +16,7 @@ const purchaseOrderRoutes = require('./routes/purchaseOrderRoutes');
 const qualityRoutes = require('./routes/qualityRoutes');
 const grnRoutes = require('./routes/grnRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
+const employeeRoutes = require('./routes/employeeRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 
 const app = express();
@@ -25,7 +26,12 @@ app.use(helmet({
   crossOriginResourcePolicy: false, // Allow serving images/files
 }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174'
+  ],
   credentials: true
 }));
 app.use(morgan('dev'));
@@ -37,6 +43,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/design-drawings', designDrawingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/root-cards', rootCardRoutes);
+app.use('/api/employee', employeeRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/qc', qualityRoutes);
 app.use('/api/engineering/bom/comprehensive', bomRoutes);
