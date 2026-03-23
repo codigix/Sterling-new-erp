@@ -6,6 +6,7 @@ require('dotenv').config({ path: '../.env' });
 
 const db = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const employeeRoutes = require('./routes/employeeRoutes');
 const rootCardRoutes = require('./routes/rootCardRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const designDrawingRoutes = require('./routes/designDrawingRoutes');
@@ -16,7 +17,6 @@ const purchaseOrderRoutes = require('./routes/purchaseOrderRoutes');
 const qualityRoutes = require('./routes/qualityRoutes');
 const grnRoutes = require('./routes/grnRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
-const employeeRoutes = require('./routes/employeeRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 
 const app = express();
@@ -42,8 +42,8 @@ app.use('/uploads', express.static('uploads'));
 // Routes
 app.use('/api/design-drawings', designDrawingRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/root-cards', rootCardRoutes);
 app.use('/api/employee', employeeRoutes);
+app.use('/api/root-cards', rootCardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/qc', qualityRoutes);
 app.use('/api/engineering/bom/comprehensive', bomRoutes);
@@ -84,7 +84,6 @@ app.use('/api/department/procurement/vendors', quotationRoutes);
 app.use('/api/department/inventory/vendors', quotationRoutes);
 
 // Root Cards (sometimes called directly or through departments)
-app.use('/api/root-cards', rootCardRoutes);
 app.use('/api/production/root-cards', rootCardRoutes);
 app.use('/api/department/procurement/root-cards', rootCardRoutes);
 app.use('/api/department/inventory/root-cards', rootCardRoutes);

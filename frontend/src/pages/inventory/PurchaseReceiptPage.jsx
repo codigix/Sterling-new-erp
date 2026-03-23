@@ -72,8 +72,9 @@ const PurchaseReceiptPage = () => {
     return stringVal.charAt(0).toUpperCase() + stringVal.slice(1);
   };
 
-  const fetchGRNs = useCallback(async () => {
+  const fetchGRNs = useCallback(async (silent = false) => {
     try {
+      if (!silent) setLoading(true);
       const response = await axios.get("/inventory/grns");
       const formattedData = response.data.map((grn) => {
         const firstItem = grn.items && grn.items.length > 0 ? grn.items[0] : {};
@@ -119,6 +120,8 @@ const PurchaseReceiptPage = () => {
       setGrnData(formattedData);
     } catch (error) {
       console.error("Error fetching GRNs:", error);
+    } finally {
+      if (!silent) setLoading(false);
     }
   }, []);
 

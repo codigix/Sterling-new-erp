@@ -150,7 +150,7 @@ exports.getDrawingHistory = async (req, res) => {
 // Get all drawings (optionally for a specific Root Card)
 exports.getAllDrawings = async (req, res) => {
   try {
-    const isProduction = req.user.department === 'Production';
+    const isProduction = req.user.role === 'production';
     
     let query = `
       SELECT d.*, u.full_name as created_by_name, r.full_name as reviewer_name, 
@@ -162,9 +162,9 @@ exports.getAllDrawings = async (req, res) => {
       WHERE 1=1
     `;
 
-    // Production can only see Approved drawings
+    // Production can only see Approved drawings from root cards that have been sent to production
     if (isProduction) {
-      query += " AND d.status = 'Approved'";
+      query += " AND d.status = 'Approved' AND rc.status IN ('MATERIAL_PLANNING', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY')";
     }
 
     query += " ORDER BY d.created_at DESC";
@@ -181,19 +181,20 @@ exports.getAllDrawings = async (req, res) => {
 exports.getRootCardDrawings = async (req, res) => {
   try {
     const { rootCardId } = req.params;
-    const isProduction = req.user.department === 'Production';
+    const isProduction = req.user.role === 'production';
 
     let query = `
       SELECT d.*, u.full_name as created_by_name, r.full_name as reviewer_name 
       FROM design_documents d
       LEFT JOIN users u ON d.created_by = u.id
       LEFT JOIN users r ON d.reviewer_id = r.id
+      LEFT JOIN root_cards rc ON d.root_card_id = rc.id
       WHERE d.root_card_id = ?
     `;
 
-    // Production can only see Approved drawings
+    // Production can only see Approved drawings from root cards that have been sent to production
     if (isProduction) {
-      query += " AND d.status = 'Approved'";
+      query += " AND d.status = 'Approved' AND rc.status IN ('MATERIAL_PLANNING', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY')";
     }
 
     const [documents] = await db.query(query, [rootCardId]);

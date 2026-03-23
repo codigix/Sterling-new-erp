@@ -75,3 +75,62 @@ module.exports = {
   getEmployeeTasks,
   getEmployeeProjects
 };
+exports.getEmployeeTasks = async (req, res) => {
+  const { type, limit } = req.query;
+  try {
+    const types = type ? type.split(',') : [];
+    
+    let query = `
+      SELECT 
+        rcs.id, 
+        rcs.status, 
+        rcs.step_key,
+        rcs.updated_at,
+        rc.id as root_card_id,
+        rc.project_name as title,
+        rc.po_number as poNumber,
+        rc.priority,
+        rc.project_name,
+        rc.items
+      FROM root_card_steps rcs
+      JOIN root_cards rc ON rcs.root_card_id = rc.id
+    `;
+    
+    const queryParams = [];
+    if (types.length > 0) {
+      // Use placeholders for each type in the list
+      const placeholders = types.map(() => '?').join(',');
+      query += ` WHERE rcs.step_key IN (${placeholders})`;
+      queryParams.push(...types);
+    }
+    
+    query += ' ORDER BY rcs.updated_at DESC';
+    
+    if (limit) {
+      query += ' LIMIT ?';
+      queryParams.push(parseInt(limit));
+    }
+    
+    const [rows] = await db.query(query, queryParams);
+    
+    const tasks = rows.map(row => ({
+      id: row.id,
+      status: row.status,
+      stepKey: row.step_key,
+      priority: row.priority,
+      updated_at: row.updated_at,
+      rootCard: {
+        id: row.root_card_id,
+        title: row.title,
+        projectName: row.project_name,
+        poNumber: row.poNumber,
+        items: typeof row.items === 'string' ? JSON.parse(row.items) : row.items
+      }
+    }));
+    
+    res.json({ tasks });
+  } catch (error) {
+    console.error('Error in getEmployeeTasks:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

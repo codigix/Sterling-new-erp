@@ -37,9 +37,9 @@ const QualityInspectionDetail = () => {
     fetchVendors();
   }, [id]);
 
-  const fetchData = async () => {
+  const fetchData = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const [grnRes, stRes] = await Promise.all([
         axios.get(`/inventory/grns/${id}`),
         axios.get(`/qc/grn/${id}/st-numbers`)
@@ -74,7 +74,7 @@ const QualityInspectionDetail = () => {
       console.error("Error fetching data:", error);
       toast.error("Failed to load GRN details");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -167,7 +167,7 @@ const QualityInspectionDetail = () => {
       });
 
       toast.success("Inhouse inspection submitted successfully");
-      fetchData();
+      fetchData(true);
     } catch (error) {
       console.error("Error submitting inspection:", error);
       toast.error("Failed to submit inspection");
@@ -202,7 +202,7 @@ const QualityInspectionDetail = () => {
         serial_numbers: selectedSerials
       });
       toast.success("Inspection Challan created");
-      fetchData();
+      fetchData(true);
     } catch (error) {
       toast.error("Failed to create challan");
     }
@@ -261,7 +261,7 @@ const QualityInspectionDetail = () => {
       });
 
       toast.success(`Inspection completed for ${targetItem.itemName}`);
-      fetchData();
+      fetchData(true);
     } catch (error) {
       console.error("Error submitting outsource results:", error);
       toast.error("Failed to submit outsource results");

@@ -1,24 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './NotificationCenter.css';
 
 const NotificationCenter = ({ onClose }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    if (user) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
 
   const fetchNotifications = async () => {
+    if (!user) return;
     try {
-      const response = await axios.get('notifications');
-      setNotifications(response.data.notifications);
+      const response = await axios.get('notifications', {
+        params: {
+          userId: user.id,
+          department: user.department,
+          role: user.role
+        }
+      });
+      setNotifications(response.data.notifications || []);
       
-      const unread = response.data.notifications.filter(n => !n.read_status).length;
+      const unread = (response.data.notifications || []).filter(n => !n.read_status).length;
       setUnreadCount(unread);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -27,12 +40,25 @@ const NotificationCenter = ({ onClose }) => {
     }
   };
 
+  const handleNotificationClick = async (notification) => {
+    if (!notification.read_status) {
+      await markAsRead(notification.id);
+    }
+    
+    if (notification.link) {
+      navigate(notification.link);
+      onClose();
+    }
+  };
+
   const markAsRead = async (notificationId) => {
     try {
-      await axios.patch(`notifications/${notificationId}/read`,
-        {}
-      );
-      fetchNotifications();
+      await axios.put(`notifications/${notificationId}/read`, {});
+      // Update local state to avoid full re-fetch
+      setNotifications(prev => prev.map(n => 
+        n.id === notificationId ? { ...n, read_status: true } : n
+      ));
+      setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -40,16 +66,19 @@ const NotificationCenter = ({ onClose }) => {
 
   const markAllAsRead = async () => {
     try {
-      await axios.patch('notifications/mark-all/read',
-        {}
-      );
+      await axios.put('notifications/mark-all-read', {
+        userId: user.id,
+        department: user.department,
+        role: user.role
+      });
       fetchNotifications();
     } catch (error) {
       console.error('Error marking all as read:', error);
     }
   };
 
-  const deleteNotification = async (notificationId) => {
+  const deleteNotification = async (e, notificationId) => {
+    e.stopPropagation();
     try {
       await axios.delete(`notifications/${notificationId}`);
       fetchNotifications();
@@ -101,6 +130,8 @@ const NotificationCenter = ({ onClose }) => {
             <div 
               key={notification.id} 
               className={`notification-item ${!notification.read_status ? 'unread' : ''}`}
+              onClick={() => handleNotificationClick(notification)}
+              style={{ cursor: notification.link ? 'pointer' : 'default' }}
             >
               <div 
                 className="notification-icon"
@@ -116,14 +147,17 @@ const NotificationCenter = ({ onClose }) => {
                 {!notification.read_status && (
                   <button 
                     className="read-btn"
-                    onClick={() => markAsRead(notification.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      markAsRead(notification.id);
+                    }}
                   >
                     Mark Read
                   </button>
                 )}
                 <button 
                   className="delete-btn"
-                  onClick={() => deleteNotification(notification.id)}
+                  onClick={(e) => deleteNotification(e, notification.id)}
                 >
                   Delete
                 </button>

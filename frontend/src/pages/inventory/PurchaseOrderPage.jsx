@@ -339,16 +339,16 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     };
   }, [showMonitorModal, selectedPOForMonitor]);
 
-  const fetchPurchaseOrders = async () => {
+  const fetchPurchaseOrders = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const response = await axios.get("/department/procurement/purchase-orders");
       setPurchaseOrders(response.data.purchaseOrders || response.data);
     } catch (error) {
       console.error("Error fetching purchase orders:", error);
       toastUtils.error("Failed to load purchase orders");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 

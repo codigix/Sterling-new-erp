@@ -58,9 +58,9 @@ const MaterialInspectionPage = () => {
     }
   };
 
-  const fetchMaterials = async (rootCardId) => {
+  const fetchMaterials = async (rootCardId, silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const response = await axios.get("/qc/portal/materials-for-inspection", {
         params: { rootCardId }
       });
@@ -69,7 +69,7 @@ const MaterialInspectionPage = () => {
       console.error("Error fetching materials:", error);
       showError("Failed to load materials for inspection");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -88,8 +88,32 @@ const MaterialInspectionPage = () => {
 
   const handleQuickStatusUpdate = async (grnId, poItemId, serialNumber, status, inspectionType) => {
     // User wants common documents after all items are done, so no individual modals here
+    
+    // 1. Optimistic Update
+    const previousMaterials = [...materials];
+    const updatedMaterials = materials.map(item => {
+      if (Number(item.grn_id) === Number(grnId) && Number(item.po_item_id) === Number(poItemId)) {
+        const updatedSerials = item.serials.map(s => {
+          if (s.serial_number === serialNumber) {
+            return { ...s, inspection_status: status };
+          }
+          return s;
+        });
+        
+        // Re-calculate item-level completion status logic (similar to backend logic used in materials fetch)
+        const allProcessed = updatedSerials.length > 0 && updatedSerials.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
+        // Simple logic for UI: if all serials processed, mark as QC COMPLETED
+        const newStatus = allProcessed ? 'QC COMPLETED' : 'QC PENDING';
+        
+        return { ...item, serials: updatedSerials, status: newStatus };
+      }
+      return item;
+    });
+    
+    setMaterials(updatedMaterials);
+
     try {
-      setLoading(true);
+      // Don't set global loading to true to avoid spinner flash
       await axios.post("/qc/inspection/submit", {
         grn_id: grnId,
         po_item_id: poItemId,
@@ -104,12 +128,12 @@ const MaterialInspectionPage = () => {
         remarks: `ST ${serialNumber} marked as ${status}`
       });
       showSuccess(`ST ${serialNumber} marked as ${status}`);
-      fetchMaterials(selectedRootCardId);
+      // Refresh data locally is already done optimistically
     } catch (error) {
       console.error("Error updating status:", error);
       showError(`Failed to update status for ${serialNumber}`);
-    } finally {
-      setLoading(false);
+      // Rollback on error
+      setMaterials(previousMaterials);
     }
   };
 

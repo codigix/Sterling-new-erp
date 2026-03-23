@@ -379,10 +379,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Delivery Location</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Delivery Address</label>
                   <input 
                     type="text"
-                    placeholder="e.g. Main Warehouse"
+                    placeholder="e.g. Full Delivery Address"
                     className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.delivery_location}
                     onChange={(e) => setFormData({...formData, delivery_location: e.target.value})}

@@ -454,7 +454,7 @@ const CreateQuotationModal = ({
       }
 
       if (onQuotationCreated) {
-        onQuotationCreated();
+        onQuotationCreated(formData);
       }
       
       onClose();

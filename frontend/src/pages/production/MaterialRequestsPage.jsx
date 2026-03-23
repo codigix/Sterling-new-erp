@@ -282,6 +282,12 @@ const MaterialRequestsPage = () => {
   const [rootCardFilter, setRootCardFilter] = useState("all");
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [submittingId, setSubmittingId] = useState(null);
+
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const isProcurement = user?.role?.toLowerCase().includes("procurement") || user?.role?.toLowerCase().includes("admin");
 
   useEffect(() => {
     fetchRequests();
@@ -307,6 +313,35 @@ const MaterialRequestsPage = () => {
     } catch (error) {
       console.error("Error fetching root cards:", error);
     }
+  };
+
+  const handleUpdateStatus = async (requestId, newStatus) => {
+    try {
+      setSubmittingId(requestId);
+      await axios.patch(`/production/material-requests/${requestId}/status`, { status: newStatus });
+      toast.success(`Request ${newStatus} successfully`);
+      fetchRequests();
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setSubmittingId(null);
+    }
+  };
+
+  const handlePOProcessing = (request) => {
+    if (!request) return;
+    
+    navigate("/department/procurement/quotations/sent", {
+      state: {
+        openModal: true,
+        initialData: {
+          material_request_id: request.id,
+          root_card_id: request.root_card_id,
+          type: "outbound"
+        }
+      }
+    });
   };
 
   const handleViewDetails = (id) => {
@@ -369,13 +404,25 @@ const MaterialRequestsPage = () => {
       key: "actions",
       label: "ACTIONS",
       render: (_, row) => (
-        <button 
-          className="p-1.5 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
-          title="View Details"
-          onClick={() => handleViewDetails(row.id)}
-        >
-          <Eye size={16} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button 
+            className="p-1.5 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
+            title="View Details"
+            onClick={() => handleViewDetails(row.id)}
+          >
+            <Eye size={16} />
+          </button>
+          {isProcurement && row.status === 'approved' && (
+            <button 
+              className="px-2 py-1 bg-green-50 hover:bg-green-100 rounded-md text-green-600 text-[10px] font-bold transition-colors flex items-center gap-1"
+              title="PO Processing"
+              onClick={() => handlePOProcessing(row)}
+            >
+              <ArrowRight size={12} />
+              <span>PO PROCESSING</span>
+            </button>
+          )}
+        </div>
       )
     }
   ];

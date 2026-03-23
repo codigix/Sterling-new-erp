@@ -91,7 +91,7 @@ const DesignDrawingManagement = () => {
   }, [rootCardId]);
 
   const toggleRow = async (doc) => {
-    const docKey = `${doc.name}-${doc.type}`;
+    const docKey = doc.parent_id || doc.id;
     const newExpanded = new Set(expandedDocs);
     
     if (newExpanded.has(docKey)) {
@@ -106,7 +106,7 @@ const DesignDrawingManagement = () => {
   };
 
   const fetchDocHistory = async (doc) => {
-    const docKey = `${doc.name}-${doc.type}`;
+    const docKey = doc.parent_id || doc.id;
     try {
       setFetchingHistory(prev => ({ ...prev, [docKey]: true }));
       const response = await axios.get(`/design-drawings/${doc.id}/history`);
@@ -118,9 +118,9 @@ const DesignDrawingManagement = () => {
     }
   };
 
-  // Group documents by name and type, keeping the latest version info
+  // Group documents by parent_id (or id if it's the root), keeping the latest version info
   const groupedDocuments = documents.reduce((acc, doc) => {
-    const key = `${doc.name}-${doc.type}`;
+    const key = doc.parent_id || doc.id;
     if (!acc[key] || doc.version > acc[key].version) {
       acc[key] = doc;
     }
@@ -173,7 +173,7 @@ const DesignDrawingManagement = () => {
         
         // If it was a revision, clear cached history for this drawing to force refresh
         if (isRevision && selectedDoc) {
-          const docKey = `${selectedDoc.name}-${selectedDoc.type}`;
+          const docKey = selectedDoc.parent_id || selectedDoc.id;
           setDocHistories(prev => {
             const newState = { ...prev };
             delete newState[docKey];
@@ -207,7 +207,7 @@ const DesignDrawingManagement = () => {
         setShowReviewModal(false);
         fetchDocuments();
         // Clear cached history to force refresh
-        const docKey = `${selectedDoc.name}-${selectedDoc.type}`;
+        const docKey = selectedDoc.parent_id || selectedDoc.id;
         setDocHistories(prev => {
           const newState = { ...prev };
           delete newState[docKey];
@@ -260,7 +260,7 @@ const DesignDrawingManagement = () => {
           Swal.fire("Approved!", "The drawing has been approved successfully.", "success");
           fetchDocuments();
           // Clear cached history to force refresh
-          const docKey = `${doc.name}-${doc.type}`;
+          const docKey = doc.parent_id || doc.id;
           setDocHistories(prev => {
             const newState = { ...prev };
             delete newState[docKey];
@@ -413,14 +413,14 @@ const DesignDrawingManagement = () => {
                 </tr>
               ) : (
                 (activeTab === "active" ? activeDocuments : rejectedDocuments).map((doc) => (
-                  <React.Fragment key={`${doc.name}-${doc.type}`}>
+                  <React.Fragment key={doc.parent_id || doc.id}>
                     <tr 
                       onClick={() => toggleRow(doc)}
                       className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors cursor-pointer group"
                     >
                       <td className="p-2">
                         <div className="flex items-center gap-3">
-                          <div className={`transition-transform duration-200 ${expandedDocs.has(`${doc.name}-${doc.type}`) ? 'rotate-180' : ''}`}>
+                          <div className={`transition-transform duration-200 ${expandedDocs.has(doc.parent_id || doc.id) ? 'rotate-180' : ''}`}>
                             <ChevronDown size={18} className="text-slate-400 group-hover:text-blue-500" />
                           </div>
                           <div>
@@ -446,7 +446,7 @@ const DesignDrawingManagement = () => {
                       </td>
                       <td className="p-2 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
-                          {doc.type !== 'Final Approved Drawing' && doc.status !== 'Approved' && (
+                          {doc.type !== 'Final Approved Drawing' && (
                             <button 
                               onClick={() => {
                                 setSelectedDoc(doc); 
@@ -471,7 +471,7 @@ const DesignDrawingManagement = () => {
                       </td>
                     </tr>
                     {/* Expanded Revision History */}
-                    {expandedDocs.has(`${doc.name}-${doc.type}`) && (
+                    {expandedDocs.has(doc.parent_id || doc.id) && (
                       <tr>
                         <td colSpan="6" className="p-2 bg-slate-50/50 dark:bg-slate-900/20 border-y border-slate-100 dark:border-slate-800">
                           <div className=" space-y-4">
@@ -481,13 +481,13 @@ const DesignDrawingManagement = () => {
                               </h4>
                             </div>
                             
-                            {fetchingHistory[`${doc.name}-${doc.type}`] ? (
+                            {fetchingHistory[doc.parent_id || doc.id] ? (
                               <div className="flex items-center gap-2 text-sm text-slate-500 py-6 justify-center">
                                 <Loader2 size={15} className="animate-spin text-blue-500" /> Loading revisions...
                               </div>
                             ) : (
                               <div className="space-y-3">
-                                {(docHistories[`${doc.name}-${doc.type}`] || []).map((rev, index) => (
+                                {(docHistories[doc.parent_id || doc.id] || []).map((rev, index) => (
                                   <div 
                                     key={rev.id} 
                                     className={`flex items-center justify-between p-4 rounded border transition-all ${

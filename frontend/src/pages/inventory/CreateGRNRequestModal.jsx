@@ -183,7 +183,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
       });
 
       toastUtils.success("Purchase Receipt created successfully with ST Numbers");
-      if (onGRNCreated) onGRNCreated();
+      if (onGRNCreated) onGRNCreated(true);
       onClose();
     } catch (error) {
       console.error("Error creating GRN:", error);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import { showSuccess, showError } from "../../utils/toastUtils";
@@ -30,10 +30,12 @@ import taskService from "../../utils/taskService";
 const GRNProcessingPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const poId = searchParams.get("poId");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [loading, setLoading] = useState(false);
   const [grnData, setGrnData] = useState([]);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedGRN, setSelectedGRN] = useState(null);
@@ -59,17 +61,29 @@ const GRNProcessingPage = () => {
     let typeCode = "GEN";
     const upperName = (materialName || "").toUpperCase();
     if (upperName.includes("PLATE")) typeCode = "PLT";
-    else if (upperName.includes("ROUND BAR") || upperName.includes("RB")) typeCode = "RB";
+    else if (upperName.includes("ROUND BAR") || upperName.includes("RB") || upperName.includes("Ø") || upperName.includes("DIA")) typeCode = "RB";
     else if (upperName.includes("PIPE")) typeCode = "PIPE";
 
-    const sizeMatch = (materialName || "").match(/(\d+)x(\d+)x(\d+)/);
+    // Try 3-dimension pattern (e.g. 12000X1500X25)
+    let sizeMatch = upperName.match(/(\d+)\s*[X]\s*(\d+)\s*[X]\s*(\d+)/);
     let shortSize = "SIZE";
+    
     if (sizeMatch) {
       const dims = [sizeMatch[1], sizeMatch[2], sizeMatch[3]].map(d => {
         const val = parseInt(d);
         return (val >= 100 && val % 100 === 0) ? (val / 100).toString() : val.toString();
       });
       shortSize = dims.join("x");
+    } else {
+      // Try 2-dimension pattern (e.g. Ø80 X 3000)
+      sizeMatch = upperName.match(/(?:Ø|DIA|RB|ROUND BAR)?\s*(\d+)\s*[X]\s*(\d+)/);
+      if (sizeMatch) {
+        const dims = [sizeMatch[1], sizeMatch[2]].map(d => {
+          const val = parseInt(d);
+          return (val >= 100 && val % 100 === 0) ? (val / 100).toString() : val.toString();
+        });
+        shortSize = dims.join("x");
+      }
     }
     return `${typeCode}-${shortSize}`;
   };
@@ -122,12 +136,14 @@ const GRNProcessingPage = () => {
   };
 
   const handleSubmitGRN = async () => {
+    if (loading) return;
     try {
       const hasQuantities = grnForm.items.some(item => Number(item.received_qty) > 0);
       if (!hasQuantities) {
         return showError("Please enter received quantities for at least one item.");
       }
 
+      setLoading(true);
       const payload = {
         purchase_order_id: poData.id,
         vendor_id: poData.vendor_id,
@@ -143,16 +159,19 @@ const GRNProcessingPage = () => {
 
       await axios.post("/department/inventory/purchase-orders/receipts", payload);
       showSuccess("Purchase Receipt created successfully with ST Numbers");
+      fetchGRNs(); // Refresh the list
       navigate("/department/inventory/grn");
     } catch (error) {
       console.error("Error submitting GRN:", error);
       showError(error.response?.data?.message || "Failed to submit Goods Receipt Note");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleViewGRN = async (grn) => {
     try {
-      const response = await axios.get(`/department/procurement/purchase-orders/receipts/${grn.id}`);
+      const response = await axios.get(`/department/inventory/purchase-orders/receipts/${grn.id}`);
       setSelectedGRN(response.data);
       setShowViewModal(true);
     } catch (error) {
@@ -161,9 +180,10 @@ const GRNProcessingPage = () => {
     }
   };
 
-  const fetchGRNs = useCallback(async () => {
+  const fetchGRNs = useCallback(async (silent = false) => {
     try {
-      const response = await axios.get("/department/procurement/purchase-orders/receipts/all");
+      if (!silent) setLoading(true);
+      const response = await axios.get("/department/inventory/purchase-orders/receipts/all");
       const formattedData = response.data.map((grn) => ({
         id: grn.id,
         grnNo: grn.grn_number || `GRN-${String(grn.id).padStart(3, "0")}-${new Date(grn.created_at).getFullYear()}`,
@@ -177,6 +197,8 @@ const GRNProcessingPage = () => {
       setGrnData(formattedData);
     } catch (error) {
       console.error("Error fetching GRNs:", error);
+    } finally {
+      if (!silent) setLoading(false);
     }
   }, []);
 
@@ -188,7 +210,7 @@ const GRNProcessingPage = () => {
     const extractedTaskId = taskService.getTaskIdFromParams();
     if (extractedTaskId) setTaskId(extractedTaskId);
     fetchGRNs();
-  }, [fetchGRNs]);
+  }, [fetchGRNs, location]);
 
   const handleViewDetails = async (grn) => {
     try {
@@ -301,20 +323,29 @@ const GRNProcessingPage = () => {
     },
     {
       label: "Awaiting Storage",
-      value: grnData.filter((g) => ["approved", "shortage", "overage", "awaiting_storage"].includes(g.status)).length,
+      value: grnData.filter((g) => g.status === 'awaiting_storage').length,
       icon: Warehouse,
-      bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
-      iconColor: "text-emerald-600 dark:text-emerald-400",
-      borderColor: "border-emerald-100 dark:border-emerald-800",
+      bgColor: "bg-amber-50 dark:bg-amber-900/20",
+      iconColor: "text-amber-600 dark:text-amber-400",
+      borderColor: "border-amber-100 dark:border-amber-800",
       description: "Pending warehouse entry"
     },
     {
-      label: "Completed",
-      value: grnData.filter((g) => ["completed", "qc_completed"].includes(g.status)).length,
+      label: "Ready for QC",
+      value: grnData.filter((g) => g.status === 'pending').length,
+      icon: Package,
+      bgColor: "bg-blue-50 dark:bg-blue-900/20",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      borderColor: "border-blue-100 dark:border-blue-800",
+      description: "In stock, awaiting inspection"
+    },
+    {
+      label: "QC Completed",
+      value: grnData.filter((g) => g.status === 'qc_completed').length,
       icon: CheckCircle,
-      bgColor: "bg-purple-50 dark:bg-purple-900/20",
-      iconColor: "text-purple-600 dark:text-purple-400",
-      borderColor: "border-purple-100 dark:border-purple-800",
+      bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
+      borderColor: "border-emerald-100 dark:border-emerald-800",
       description: "Successfully added to stock"
     },
   ];
@@ -450,10 +481,11 @@ const GRNProcessingPage = () => {
               </div>
               <button 
                 onClick={handleSubmitGRN}
-                className="px-10 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-3"
+                disabled={loading}
+                className="px-10 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <CheckCircle size={18} />
-                Submit Goods Receipt
+                {loading ? <RefreshCw className="animate-spin" size={18} /> : <CheckCircle size={18} />}
+                {loading ? "Submitting..." : "Submit Goods Receipt"}
               </button>
             </div>
           </div>
@@ -581,21 +613,18 @@ const GRNProcessingPage = () => {
                 <td className="p-2 text-center text-xs">{grn.receivedDate}</td>
                 <td className="p-2 text-center">
                   <span className={`px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-                    grn.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
-                    grn.status === 'pending_approval' ? 'bg-orange-50 text-orange-600 border border-orange-100' :
-                    grn.status === 'pending' ? 'bg-slate-50 text-slate-600 border border-slate-100' :
+                    grn.status === 'awaiting_storage' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                    grn.status === 'pending' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
                     grn.status === 'qc_pending' ? 'bg-purple-50 text-purple-600 border border-purple-100' : 
-                    grn.status === 'qc_completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                    grn.status === 'awaiting_storage' ? 'bg-cyan-50 text-cyan-600 border border-cyan-100' :
-                    grn.status === 'shortage' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
-                    grn.status === 'overage' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
-                    'bg-cyan-50 text-cyan-600 border border-cyan-100'
+                    grn.status === 'qc_finalized' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' :
+                    grn.status === 'qc_completed' ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' :
+                    'bg-slate-50 text-slate-600 border border-slate-100'
                   }`}>
-                    {grn.status === 'completed' ? 'COMPLETED' : 
+                    {grn.status === 'awaiting_storage' ? 'AWAITING STORAGE' : 
                      grn.status === 'pending' ? 'READY FOR QC' :
                      grn.status === 'qc_pending' ? 'QC IN PROGRESS' :
+                     grn.status === 'qc_finalized' ? 'QC FINALIZED' :
                      grn.status === 'qc_completed' ? 'QC COMPLETED' :
-                     grn.status === 'awaiting_storage' ? 'AWAITING STORAGE' :
                      grn.status ? grn.status.replace('_', ' ') : 'UNKNOWN'}
                   </span>
                 </td>
@@ -608,16 +637,6 @@ const GRNProcessingPage = () => {
                       <Eye size={14} />
                       Details
                     </button>
-                    {grn.status === 'pending' && (
-                      <button 
-                        onClick={() => handleSendToQuality(grn)}
-                        disabled={sendingToQC === grn.id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white border border-indigo-700 rounded text-xs font-bold shadow-md shadow-indigo-200 hover:bg-indigo-700 disabled:opacity-50 transition-all"
-                      >
-                        {sendingToQC === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
-                        Send to Quality
-                      </button>
-                    )}
                     {grn.status === 'awaiting_storage' && (
                       <button 
                         onClick={() => handleAddToStock(grn)}
@@ -626,6 +645,16 @@ const GRNProcessingPage = () => {
                       >
                         {processingStock === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <Package size={14} />}
                         Add to Stock
+                      </button>
+                    )}
+                    {grn.status === 'pending' && (
+                      <button 
+                        onClick={() => handleSendToQuality(grn)}
+                        disabled={sendingToQC === grn.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white border border-indigo-700 rounded text-xs font-bold shadow-md shadow-indigo-200 hover:bg-indigo-700 disabled:opacity-50 transition-all"
+                      >
+                        {sendingToQC === grn.id ? <RefreshCw size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+                        Send to Quality
                       </button>
                     )}
                   </div>
@@ -663,8 +692,20 @@ const GRNProcessingPage = () => {
                   </div>
                   <div>
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">QC Status</p>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedGRN.grn?.qcStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {selectedGRN.grn?.qcStatus}
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                      selectedGRN.grn?.status === 'awaiting_storage' ? 'bg-amber-100 text-amber-700' :
+                      selectedGRN.grn?.status === 'pending' ? 'bg-blue-100 text-blue-700' :
+                      selectedGRN.grn?.status === 'qc_pending' ? 'bg-purple-100 text-purple-700' :
+                      selectedGRN.grn?.status === 'qc_finalized' ? 'bg-indigo-100 text-indigo-700' :
+                      selectedGRN.grn?.status === 'qc_completed' ? 'bg-emerald-100 text-emerald-700' :
+                      'bg-slate-100 text-slate-700'
+                    }`}>
+                      {selectedGRN.grn?.status === 'awaiting_storage' ? 'AWAITING STORAGE' : 
+                       selectedGRN.grn?.status === 'pending' ? 'READY FOR QC' :
+                       selectedGRN.grn?.status === 'qc_pending' ? 'QC IN PROGRESS' :
+                       selectedGRN.grn?.status === 'qc_finalized' ? 'QC FINALIZED' :
+                       selectedGRN.grn?.status === 'qc_completed' ? 'QC COMPLETED' :
+                       selectedGRN.grn?.status?.replace('_', ' ') || 'UNKNOWN'}
                     </span>
                   </div>
                 </div>
@@ -745,17 +786,36 @@ const GRNProcessingPage = () => {
                       <tr>
                         <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Item Name / Group</th>
                         <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Ordered</th>
-                        <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Invoice</th>
-                        <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Received Qty</th>
+                        <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Accepted Qty</th>
                         <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Shortage</th>
-                        <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Overage</th>
-                        <th className="px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                       {(selectedGRN.items || []).map((item, idx) => {
-                        const shortage = Math.max(0, (Number(item.quantity) || 0) - (Number(item.received) || 0));
-                        const overage = Number(item.overage) || 0;
+                        const isQCReportReceived = selectedGRN.grn?.status === 'qc_completed';
+                        
+                        const acceptedQtyNum = item.serials && item.serials.length > 0 
+                          ? item.serials.filter(st => (typeof st === 'object' && st.inspection_status === 'Accepted')).length 
+                          : Number(item.received || 0);
+                        
+                        const rejectedQtyNum = item.serials && item.serials.length > 0 
+                          ? item.serials.filter(st => (typeof st === 'object' && st.inspection_status === 'Rejected')).length 
+                          : 0;
+                        
+                        const acceptedQtyDisplay = isQCReportReceived ? acceptedQtyNum : (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-slate-400">0</span>
+                            <span className="px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-tighter bg-amber-50 text-amber-600 border border-amber-100">PENDING</span>
+                          </div>
+                        );
+                        
+                        const shortageDisplay = isQCReportReceived ? rejectedQtyNum : (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-slate-400">0</span>
+                            <span className="px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-tighter bg-amber-50 text-amber-600 border border-amber-100">PENDING</span>
+                          </div>
+                        );
+                        
                         const isExpanded = expandedItem === idx;
 
                         return (
@@ -784,27 +844,16 @@ const GRNProcessingPage = () => {
                                 </div>
                               </td>
                               <td className="px-4 py-4 text-center text-xs font-bold text-slate-400">{item.quantity}</td>
-                              <td className="px-4 py-4 text-center text-xs font-bold text-slate-900">{item.invoice_quantity || item.quantity}</td>
                               <td className="px-4 py-4 text-center">
-                                <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-xs font-black">
-                                  {item.received}
+                                <span className={`px-2 py-1 rounded text-[10px] font-black ${isQCReportReceived ? 'bg-emerald-50 text-emerald-600' : ''}`}>
+                                  {acceptedQtyDisplay}
                                 </span>
                               </td>
-                              <td className="px-4 py-4 text-center text-xs font-black text-amber-600">{shortage}</td>
-                              <td className="px-4 py-4 text-center text-xs font-black text-blue-600">{overage}</td>
-                              <td className="px-4 py-4 text-center">
-                                {shortage > 0 ? (
-                                  <span className="px-2 py-0.5 rounded text-[9px] font-black bg-red-50 text-red-600 uppercase tracking-widest">Shortage</span>
-                                ) : overage > 0 ? (
-                                  <span className="px-2 py-0.5 rounded text-[9px] font-black bg-amber-50 text-amber-600 uppercase tracking-widest">Overage</span>
-                                ) : (
-                                  <span className="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-50 text-emerald-600 uppercase tracking-widest">Verified</span>
-                                )}
-                              </td>
+                              <td className={`px-4 py-4 text-center text-[10px] font-black ${isQCReportReceived ? 'text-amber-600' : ''}`}>{shortageDisplay}</td>
                             </tr>
                             {isExpanded && item.serials && item.serials.length > 0 && (
                               <tr className="bg-slate-50/50">
-                                <td colSpan="7" className="px-12 py-4">
+                                <td colSpan="4" className="px-12 py-4">
                                   <div className="bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden">
                                     <table className="w-full text-left border-collapse">
                                       <thead>
@@ -820,7 +869,7 @@ const GRNProcessingPage = () => {
                                         {item.serials.map((stObj, sIdx) => {
                                           const stCode = typeof stObj === 'string' ? stObj : stObj.serial_number;
                                           const itemCodePerPiece = typeof stObj === 'string' ? stCode.replace('ST-', '') : (stObj.item_code || stCode.replace('ST-', ''));
-                                          const status = typeof stObj === 'string' ? 'Pending' : (stObj.inspection_status || 'Pending');
+                                          const status = !isQCReportReceived ? 'Pending' : (typeof stObj === 'string' ? 'Pending' : (stObj.inspection_status || 'Pending'));
                                           
                                           return (
                                             <tr key={sIdx} className="hover:bg-slate-50 transition-colors">
@@ -856,14 +905,24 @@ const GRNProcessingPage = () => {
             </div>
 
             <div className="p-2 border-t bg-slate-50 flex items-center justify-end gap-4">
-              {(selectedGRN.grn?.qcStatus === 'approved' || selectedGRN.grn?.qcStatus === 'shortage' || selectedGRN.grn?.qcStatus === 'overage') && (
+              {selectedGRN.grn?.status === 'awaiting_storage' && (
                 <button 
-                  onClick={() => handleAddToStock({ id: selectedGRN.grn.id, status: selectedGRN.grn.qcStatus })}
+                  onClick={() => handleAddToStock(selectedGRN.grn)}
                   disabled={processingStock === selectedGRN.grn.id}
                   className="flex items-center gap-1.5 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-md transition-all active:scale-95 disabled:opacity-50"
                 >
                   {processingStock === selectedGRN.grn.id ? <RefreshCw size={16} className="animate-spin" /> : <Warehouse size={16} />}
                   Add to Warehouse Stock
+                </button>
+              )}
+              {selectedGRN.grn?.status === 'pending' && (
+                <button 
+                  onClick={() => handleSendToQuality(selectedGRN.grn)}
+                  disabled={sendingToQC === selectedGRN.grn.id}
+                  className="flex items-center gap-1.5 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-md transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {sendingToQC === selectedGRN.grn.id ? <RefreshCw size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
+                  Send to Quality
                 </button>
               )}
               <button 

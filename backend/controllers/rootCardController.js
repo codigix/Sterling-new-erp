@@ -52,15 +52,22 @@ const createRootCard = async (req, res) => {
     );
 
     // Send notifications to departments
-    const departments = ['design_engineer', 'production', 'procurement', 'inventory', 'quality'];
+    const roles = ['Design Engineer', 'Production Manager', 'Procurement Lead', 'Inventory', 'Quality Head'];
     const title = 'New Root Card Created';
     const message = `A new root card ${randomId} has been created for project: ${projectName}. Please check your root cards tab.`;
 
     try {
-      for (const dept of departments) {
+      for (const role of roles) {
+        let link = '/';
+        if (role === 'Design Engineer') link = '/design-engineer/root-cards';
+        else if (role === 'Production Manager') link = '/department/production/root-cards';
+        else if (role === 'Procurement Lead') link = '/department/procurement/quotations';
+        else if (role === 'Inventory') link = '/department/inventory/materials';
+        else if (role === 'Quality Head') link = '/department/quality/root-cards';
+
         await db.query(
-          'INSERT INTO notifications (department, title, message, type) VALUES (?, ?, ?, ?)',
-          [dept, title, message, 'info']
+          'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+          [role, title, message, 'info', link]
         );
       }
     } catch (error) {
@@ -69,7 +76,8 @@ const createRootCard = async (req, res) => {
 
     res.status(201).json({
       message: 'Root Card created successfully',
-      rootCard: { id: randomId, poNumber, projectName }
+      rootCard: { id: randomId, poNumber, projectName },
+      notificationsSent: roles.length
     });
   } catch (error) {
     console.error('Error creating root card:', error);
@@ -85,6 +93,7 @@ const getAllRootCards = async (req, res) => {
   try {
     let query = 'SELECT * FROM root_cards';
     let queryParams = [];
+    const isProduction = req.user && req.user.role === 'production';
 
     if (assignedOnly === 'true' && req.user && req.user.id) {
       // Find root cards where this user is assigned to ANY step
@@ -94,9 +103,12 @@ const getAllRootCards = async (req, res) => {
         FROM root_cards rc
         LEFT JOIN root_card_steps rcs ON rc.id = rcs.root_card_id
         WHERE rcs.assigned_to = ? 
-        OR rc.status IN ('RC_CREATED', 'DESIGN_IN_PROGRESS', 'PRODUCTION_IN_PROGRESS', 'APPROVED')
+        OR rc.status IN ('RC_CREATED', 'DESIGN_IN_PROGRESS', 'MATERIAL_PLANNING', 'PRODUCTION_IN_PROGRESS', 'APPROVED')
       `;
       queryParams.push(req.user.id);
+    } else if (isProduction) {
+      // Production can only see root cards that have been sent to production
+      query = "SELECT * FROM root_cards WHERE status IN ('MATERIAL_PLANNING', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY')";
     }
 
     query += ' ORDER BY created_at DESC';
@@ -285,13 +297,13 @@ const sendToDesignEngineering = async (req, res) => {
     const title = 'Design Engineering Phase Started';
     const message = `Root Card ${id} for project "${projectName}" has been sent for Design Engineering. Please start uploading design drawings.`;
 
-    // Send notification to Design Engineering department
+    // Send notification to Design Engineering role
     await db.query(
-      'INSERT INTO notifications (department, title, message, type) VALUES (?, ?, ?, ?)',
-      ['design_engineer', title, message, 'info']
+      'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+      ['Design Engineer', title, message, 'info', `/design-engineer/root-cards/${id}?mode=view`]
     );
 
-    res.json({ success: true, message: 'Notification sent to Design Engineering department' });
+    res.json({ success: true, message: 'Notification sent to Design Engineering department', notificationsSent: 1 });
   } catch (error) {
     console.error('Error sending to Design Engineering:', error);
     res.status(500).json({ message: 'Server error' });
@@ -308,16 +320,23 @@ const sendToProduction = async (req, res) => {
     }
 
     const projectName = cards[0].project_name;
+    
+    // Update root card status
+    await db.query(
+      'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      ['PRODUCTION_IN_PROGRESS', id]
+    );
+
     const title = 'Production Phase Started';
     const message = `Root Card ${id} for project "${projectName}" has been sent for Production. All approved drawings are now available.`;
 
-    // Send notification to Production department
+    // Send notification to Production Manager role
     await db.query(
-      'INSERT INTO notifications (department, title, message, type) VALUES (?, ?, ?, ?)',
-      ['production', title, message, 'info']
+      'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+      ['Production Manager', title, message, 'info', `/department/production/root-cards/${id}?mode=view`]
     );
 
-    res.json({ success: true, message: 'Notification sent to Production department' });
+    res.json({ success: true, message: 'Notification sent to Production department', notificationsSent: 1 });
   } catch (error) {
     console.error('Error sending to Production:', error);
     res.status(500).json({ message: 'Server error' });

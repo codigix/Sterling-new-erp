@@ -5,6 +5,9 @@ async function cleanup() {
         console.log("Starting database cleanup...");
         await db.query('SET FOREIGN_KEY_CHECKS = 0');
         const tables = [
+            'purchase_order_communication_attachments',
+            'purchase_order_communications',
+            'purchase_order_attachments',
             'purchase_order_items', 
             'purchase_orders', 
             'grn_items', 
@@ -12,7 +15,12 @@ async function cleanup() {
             'stock_entry_items', 
             'stock_entries', 
             'stock_ledger', 
-            'inventory_serials'
+            'inventory_serials',
+            'quality_inspection_results',
+            'quality_inspections',
+            'quality_final_report_st_numbers',
+            'quality_final_report_items',
+            'quality_final_reports'
         ];
         
         for (const table of tables) {

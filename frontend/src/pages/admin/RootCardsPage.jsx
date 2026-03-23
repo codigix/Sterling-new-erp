@@ -18,7 +18,7 @@ const RootCardsPage = () => {
   const handleSendToDesignEngineering = async (order) => {
     try {
       const response = await axios.post(`/root-cards/${order.id}/send-to-design-engineering`);
-      showSuccess(`Root card sent to Design Engineering Department. Notifications sent to ${response.data.notificationsSent} design engineers.`);
+      showSuccess(`Root card sent to Design Engineering Department. Notifications sent to ${response.data.notificationsSent || 0} design engineers.`);
     } catch (error) {
       console.error('Error sending to Design Engineering:', error);
       showError(error.response?.data?.message || 'Failed to send root card to Design Engineering');

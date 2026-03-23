@@ -26,7 +26,7 @@ exports.getGRNInspections = async (req, res) => {
       LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
       LEFT JOIN quotations q ON po.quotation_id = q.id
       LEFT JOIN root_cards rc ON q.root_card_id = rc.id
-      WHERE g.status IN ('qc_pending', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
+      WHERE g.status IN ('pending', 'qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
       ORDER BY g.created_at DESC
     `);
     
@@ -37,7 +37,7 @@ exports.getGRNInspections = async (req, res) => {
       vendor: grn.vendor,
       projectName: grn.projectName,
       rootCardId: grn.rootCardId,
-      qcStatus: (grn.status === 'qc_completed' || grn.status === 'awaiting_storage' || grn.status === 'completed' || grn.status === 'approved') ? 'completed' : 'pending',
+      qcStatus: (grn.status === 'qc_completed' || grn.status === 'qc_finalized' || grn.status === 'awaiting_storage' || grn.status === 'completed' || grn.status === 'approved') ? 'completed' : 'pending',
       inspectionType: grn.inspection_type,
       receivedDate: grn.posting_date ? new Date(grn.posting_date).toISOString().split('T')[0] : 'N/A',
       items: grn.items,
@@ -64,7 +64,7 @@ exports.getQCReadyRootCards = async (req, res) => {
       JOIN quotations q ON q.root_card_id = rc.id
       JOIN purchase_orders po ON po.quotation_id = q.id
       JOIN grns g ON g.purchase_order_id = po.id
-      WHERE g.status IN ('qc_pending', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
+      WHERE g.status IN ('pending', 'qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
     `);
     res.json(rows);
   } catch (error) {
@@ -97,7 +97,7 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       JOIN vendors v ON g.vendor_id = v.id
       JOIN quotations q ON po.quotation_id = q.id
       JOIN purchase_order_items poi ON gi.po_item_id = poi.id
-      WHERE q.root_card_id = ? AND (g.status IN ('qc_pending', 'qc_completed', 'awaiting_storage', 'completed', 'approved'))
+      WHERE q.root_card_id = ? AND (g.status IN ('pending', 'qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved'))
     `, [rootCardId]);
 
     // Fetch serials for these GRN items
@@ -227,8 +227,8 @@ exports.finalizeGRNQC = async (req, res) => {
             }
         }
 
-        await db.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [id]);
-        res.json({ message: 'QC finalized successfully' });
+        await db.query('UPDATE grns SET status = "qc_finalized" WHERE id = ?', [id]);
+        res.json({ message: 'QC finalized successfully and ready for report creation' });
     } catch (error) {
         console.error('Error finalizing QC:', error);
         res.status(500).json({ message: error.message });
@@ -346,24 +346,28 @@ exports.sendToQC = async (req, res) => {
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
+    
+    // 0. Check current status
+    const [currentGrn] = await connection.query(
+      'SELECT status, grn_number FROM grns WHERE id = ?',
+      [id]
+    );
+
+    if (currentGrn.length === 0) {
+      throw new Error('GRN not found');
+    }
+
+    const grn = currentGrn[0];
+
+    if (grn.status !== 'pending') {
+      throw new Error('GRN must be in "READY FOR QC" status to be sent for inspection');
+    }
 
     // 1. Update GRN status
     await connection.query(
       'UPDATE grns SET status = "qc_pending" WHERE id = ?',
       [id]
     );
-
-    // 2. Get GRN info for notification
-    const [grnRows] = await connection.query(
-      'SELECT grn_number, vendor_id FROM grns WHERE id = ?',
-      [id]
-    );
-    
-    if (grnRows.length === 0) {
-      throw new Error('GRN not found');
-    }
-
-    const grn = grnRows[0];
 
     // 3. Create notification for Quality department
     await connection.query(
@@ -464,9 +468,9 @@ exports.sendReportToInventory = async (req, res) => {
             [id]
         );
 
-        // 3. Update GRN status to awaiting_storage (optional, but good for workflow)
+        // 3. Update GRN status to qc_completed
         await connection.query(
-            'UPDATE grns SET status = "awaiting_storage" WHERE id = ?',
+            'UPDATE grns SET status = "qc_completed" WHERE id = ?',
             [report.grn_id]
         );
 

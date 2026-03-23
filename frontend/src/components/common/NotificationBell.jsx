@@ -71,8 +71,9 @@ const NotificationBell = () => {
   };
 
   const groupNotifications = (notifs) => {
-    const today = new Date().toDateString();
-    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    const now = new Date();
+    const today = now.toDateString();
+    const yesterday = new Date(now.getTime() - 86400000).toDateString();
 
     return notifs.reduce((groups, notif) => {
       const date = new Date(notif.created_at).toDateString();
@@ -90,7 +91,8 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     if (!user?.id) return;
     try {
-      const response = await axios.get(`/notifications?userId=${user.id}&department=${user.department}`);
+      // Send both department and role to ensure we catch all relevant notifications
+      const response = await axios.get(`/notifications?userId=${user.id}&department=${user.department}&role=${user.role}`);
       const notifs = response.data.notifications || [];
       setNotifications(notifs);
       const unread = notifs.filter(n => !n.read_status);
@@ -139,12 +141,11 @@ const NotificationBell = () => {
   const markAllAsRead = async () => {
     if (unreadCount === 0) return;
     try {
-      // Assuming a generic bulk mark-as-read or just marking each unread one by one for now
-      // since the current backend controller markAsRead is for a single ID.
-      // Alternatively, I should add a mark-all-read endpoint to backend.
-      
-      const unread = notifications.filter(n => !n.read_status);
-      await Promise.all(unread.map(n => axios.put(`/notifications/${n.id}/read`)));
+      await axios.put('/notifications/mark-all-read', { 
+        userId: user.id, 
+        department: user.department,
+        role: user.role 
+      });
       
       setNotifications(notifications.map(n => ({ ...n, read_status: true })));
       setUnreadCount(0);
@@ -171,6 +172,24 @@ const NotificationBell = () => {
 
   return (
     <div className="relative">
+      <style>
+        {`
+          @keyframes pulse-red {
+            0% {
+              box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            70% {
+              box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+            100% {
+              box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+          }
+          .animate-pulse-red {
+            animation: pulse-red 2s infinite;
+          }
+        `}
+      </style>
       <button
         ref={bellRef}
         onClick={() => setShowDropdown(!showDropdown)}
@@ -178,7 +197,7 @@ const NotificationBell = () => {
           showDropdown 
             ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' 
             : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-        }`}
+        } ${unreadCount > 0 ? 'animate-pulse-red' : ''}`}
       >
         <Bell size={22} strokeWidth={unreadCount > 0 ? 2.5 : 2} />
         {unreadCount > 0 && (

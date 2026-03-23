@@ -435,6 +435,17 @@ const createPurchaseReceipt = async (req, res) => {
     try {
         await connection.beginTransaction();
 
+        // 0. Duplicate Check (prevent rapid double submits)
+        const [recentGRN] = await connection.query(
+            'SELECT id FROM grns WHERE purchase_order_id = ? AND vendor_id = ? AND created_at > NOW() - INTERVAL 10 SECOND',
+            [purchase_order_id, vendor_id]
+        );
+
+        if (recentGRN.length > 0) {
+            await connection.rollback();
+            return res.status(409).json({ message: 'A GRN was already created for this PO a few seconds ago.' });
+        }
+
         // 1. Generate GRN Number (GRN-YYYY-XXXX)
         const year = new Date().getFullYear();
         const [lastGRN] = await connection.query('SELECT grn_number FROM grns ORDER BY id DESC LIMIT 1');
@@ -464,17 +475,29 @@ const createPurchaseReceipt = async (req, res) => {
                 let typeCode = "GEN";
                 const upperName = (name || "").toUpperCase();
                 if (upperName.includes("PLATE")) typeCode = "PLT";
-                else if (upperName.includes("ROUND BAR") || upperName.includes("RB")) typeCode = "RB";
+                else if (upperName.includes("ROUND BAR") || upperName.includes("RB") || upperName.includes("Ø") || upperName.includes("DIA")) typeCode = "RB";
                 else if (upperName.includes("PIPE")) typeCode = "PIPE";
 
-                const sizeMatch = (name || "").match(/(\d+)x(\d+)x(\d+)/);
+                // Try 3-dimension pattern (e.g. 12000X1500X25)
+                let sizeMatch = upperName.match(/(\d+)\s*[X]\s*(\d+)\s*[X]\s*(\d+)/);
                 let shortSize = "SIZE";
+                
                 if (sizeMatch) {
                     const dims = [sizeMatch[1], sizeMatch[2], sizeMatch[3]].map(d => {
                         const val = parseInt(d);
                         return (val >= 100 && val % 100 === 0) ? (val / 100).toString() : val.toString();
                     });
                     shortSize = dims.join("x");
+                } else {
+                    // Try 2-dimension pattern (e.g. Ø80 X 3000)
+                    sizeMatch = upperName.match(/(?:Ø|DIA|RB|ROUND BAR)?\s*(\d+)\s*[X]\s*(\d+)/);
+                    if (sizeMatch) {
+                        const dims = [sizeMatch[1], sizeMatch[2]].map(d => {
+                            const val = parseInt(d);
+                            return (val >= 100 && val % 100 === 0) ? (val / 100).toString() : val.toString();
+                        });
+                        shortSize = dims.join("x");
+                    }
                 }
                 return `${typeCode}-${shortSize}`;
             };
@@ -503,8 +526,11 @@ const createPurchaseReceipt = async (req, res) => {
 
                 let startSeq = (seqResult[0].max_seq || 0) + 1;
 
-                // 4. Generate ST Numbers for each unit received
-                for (let i = 0; i < parseInt(received_qty); i++) {
+                // 4. Generate ST Numbers (one per unit for 'Nos', one per item for others)
+                const isNos = (unit || '').toLowerCase() === 'nos';
+                const loopCount = isNos ? Math.floor(parseFloat(received_qty)) : 1;
+
+                for (let i = 0; i < loopCount; i++) {
                     const sequenceStr = (startSeq + i).toString().padStart(3, '0');
                     const itemCodePerPiece = `${itemCode}-${sequenceStr}`;
                     const serial_number = `ST-${itemCodePerPiece}`;
@@ -617,6 +643,7 @@ const getPurchaseReceiptById = async (req, res) => {
             grn: {
                 id: grn.id,
                 grn_number: grn.grn_number,
+                status: grn.status,
                 receivedDate: grn.posting_date,
                 receivedQuantity: items.reduce((sum, item) => sum + parseFloat(item.received_qty || 0), 0),
                 poNumber: grn.po_number,

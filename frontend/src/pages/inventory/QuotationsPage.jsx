@@ -947,38 +947,14 @@ const QuotationsPage = ({ defaultTab }) => {
                       </div>
                     </td>
                     <td className="p-2 text-center">
-                      {activeTab === "inbound" ? (
-                        <div className="relative inline-block">
-                          <select
-                            value={quote.status}
-                            disabled={updatingStatusId === quote.id}
-                            onChange={(e) => handleInlineStatusUpdate(quote.id, e.target.value)}
-                            className={`appearance-none pl-3 pr-8 py-1 rounded-full text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer border-none ${getStatusColor(
-                              quote.status
-                            )}`}
-                          >
-                            <option value="pending" className="bg-white text-slate-900">Pending</option>
-                            <option value="approved" className="bg-white text-slate-900">Approved</option>
-                            <option value="rejected" className="bg-white text-slate-900">Rejected</option>
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-                            {updatingStatusId === quote.id ? (
-                              <Loader2 size={12} className="animate-spin" />
-                            ) : (
-                              <ChevronDown size={14} />
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                            quote.status
-                          )}`}
-                        >
-                          {quote.status.charAt(0).toUpperCase() +
-                            quote.status.slice(1)}
-                        </span>
-                      )}
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                          quote.status
+                        )}`}
+                      >
+                        {quote.status.charAt(0).toUpperCase() +
+                          quote.status.slice(1)}
+                      </span>
                     </td>
                     <td className="p-2 text-center">
                       <div className="flex justify-center gap-2">

@@ -37,6 +37,14 @@ const createMaterialRequest = async (req, res) => {
     // 1.1 Update BOM status to 'request_sent'
     await connection.query('UPDATE boms SET status = ? WHERE id = ?', ['request_sent', bomId]);
 
+    // 1.2 Update Root Card status to 'MATERIAL_PLANNING'
+    if (rootCardId) {
+      await connection.query(
+        'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', 
+        ['MATERIAL_PLANNING', rootCardId]
+      );
+    }
+
     // 2. Insert items
     if (items && items.length > 0) {
       const itemValues = items.map(item => [
