@@ -13,7 +13,7 @@ const getQuotations = async (req, res) => {
             FROM quotations q
             LEFT JOIN vendors v ON q.vendor_id = v.id
             LEFT JOIN material_requests mr ON q.material_request_id = mr.id
-            LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+            LEFT JOIN root_cards rc ON rc.id = COALESCE(q.root_card_id, mr.root_card_id)
             LEFT JOIN quotations rfq ON q.rfq_id = rfq.id
             WHERE 1=1
         `;
@@ -28,8 +28,8 @@ const getQuotations = async (req, res) => {
             params.push(material_request_id);
         }
         if (root_card_id) {
-            query += " AND q.root_card_id = ?";
-            params.push(root_card_id);
+            query += " AND (q.root_card_id = ? OR mr.root_card_id = ?)";
+            params.push(root_card_id, root_card_id);
         }
         if (status && status !== 'all') {
             query += " AND q.status = ?";

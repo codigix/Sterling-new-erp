@@ -42,13 +42,10 @@ import RootCardsPage from "./pages/admin/RootCardsPage";
 import NewRootCardPage from "./pages/admin/NewRootCardPage";
 import AdminRootCardDetailPage from "./pages/admin/RootCardDetailPage";
 import ReportsAnalytics from "./pages/admin/ReportsAnalytics";
-import AnalyticsReportsPage from "./pages/admin/AnalyticsReportsPage";
 import AuditLogs from "./pages/admin/AuditLogs";
 import SystemSettings from "./pages/admin/SystemSettings";
 import RoleManagement from "./pages/admin/RoleManagement";
 import EmployeeManagement from "./pages/admin/EmployeeManagement";
-import TaskAssignmentPage from "./pages/admin/TaskAssignmentPage";
-import SalesOrderPage from "./pages/admin/SalesOrderPage";
 
 // Sales Pages
 import RootCardDashboard from "./pages/sales/RootCardDashboard";
@@ -86,6 +83,7 @@ import WorkstationsPage from "./pages/production/WorkstationsPage";
 import WorkstationFormPage from "./pages/production/WorkstationFormPage";
 import ProductionEntryPage from "./pages/production/ProductionEntryPage";
 import MaterialRequestsPage from "./pages/production/MaterialRequestsPage";
+import ReleasedMaterialsPage from "./pages/production/ReleasedMaterialsPage";
 import ProductionDepartmentTasksPage from "./pages/production/ProductionDepartmentTasksPage";
 import ProductionWorkflowTasksPage from "./pages/production/ProductionWorkflowTasksPage";
 
@@ -162,9 +160,6 @@ function App() {
                 <Route path="resources" element={<ResourcesPage />} />
                 <Route path="roles" element={<RoleManagement />} />
                 <Route path="employee-management" element={<EmployeeManagement />} />
-                <Route path="task-assignment" element={<TaskAssignmentPage />} />
-                <Route path="sales-order" element={<SalesOrderPage />} />
-                <Route path="analytics-reports" element={<AnalyticsReportsPage />} />
                 <Route path="reports" element={<ReportsAnalytics />} />
                 <Route path="audit-logs" element={<AuditLogs />} />
                 <Route path="settings" element={<SystemSettings />} />
@@ -188,6 +183,7 @@ function App() {
                 <Route path="production/root-cards/:id" element={<UniversalRootCardDetailPage />} />
                 <Route path="production/design-drawings" element={<ProductionDesignDrawings />} />
                 <Route path="production/material-requests" element={<MaterialRequestsPage />} />
+                <Route path="production/released-materials" element={<ReleasedMaterialsPage />} />
                 
                 {/* BOM Routes */}
                 <Route path="production/bom/create" element={<CreateBOMPage />} />

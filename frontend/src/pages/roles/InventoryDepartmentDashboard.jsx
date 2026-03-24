@@ -11,6 +11,8 @@ const PurchaseOrderPage = lazy(() => import("../inventory/PurchaseOrderPage"));
 const GRNProcessingPage = lazy(() => import("../inventory/GRNProcessingPage"));
 const SerialTagTrackingPage = lazy(() => import("../inventory/SerialTagTrackingPage"));
 const InventoryTasksPage = lazy(() => import("../department/InventoryTasksPage"));
+const UniversalRootCardsPage = lazy(() => import("../shared/UniversalRootCardsPage"));
+const UniversalRootCardDetailPage = lazy(() => import("../shared/UniversalRootCardDetailPage"));
 import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -42,7 +44,8 @@ import {
   ClipboardList,
   Warehouse,
   ShoppingCart,
-  Barcode
+  Barcode,
+  Layers
 } from "lucide-react";
 
 ChartJS.register(
@@ -485,6 +488,11 @@ const InventoryDepartmentDashboard = () => {
       icon: Package,
     },
     {
+      title: "Root Cards",
+      path: "/department/inventory/root-cards",
+      icon: Layers,
+    },
+    {
       title: "Stock Management",
       icon: Boxes,
       submenu: [
@@ -645,6 +653,8 @@ const InventoryDepartmentDashboard = () => {
               />
             }
           />
+          <Route path="root-cards" element={<UniversalRootCardsPage />} />
+          <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
           <Route path="stock/balance" element={<StockBalancePage />} />
           <Route path="stock/entries" element={<StockEntriesPage />} />
           <Route path="stock/view" element={<Navigate to="../balance" replace />} />

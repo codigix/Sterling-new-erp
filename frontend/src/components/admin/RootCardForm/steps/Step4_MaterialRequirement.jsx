@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Package, Plus, Trash2, Edit2, Search, Tag, X, FileText, Send, Receipt, ShoppingCart, List } from "lucide-react";
+import { Package, Plus, Trash2, Edit2, Search, Tag, X, FileText, Send, Receipt, ShoppingCart, List, Eye, ArrowRight } from "lucide-react";
 import Input from "../../../ui/Input";
 import FormSection from "../shared/FormSection";
 import FormRow from "../shared/FormRow";
@@ -15,6 +15,11 @@ import { showSuccess, showError } from "../../../../utils/toastUtils";
 import Tabs from "../../../ui/Tabs";
 import DataTable from "../../../ui/DataTable/DataTable";
 import Badge from "../../../ui/Badge";
+import MaterialRequestDetailModal from "../../../production/MaterialRequestDetailModal";
+import CreatePurchaseOrderModal from "../../../../pages/inventory/CreatePurchaseOrderModal";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "react-toastify";
 
 const UOM_OPTIONS = [
   "Acre", "Acre (US)", "Are", "Area", "Arshin", "Atmosphere", "Bar", "Barleycorn", "Barrel (Oil)", "Barrel(Beer)", 
@@ -60,6 +65,102 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [loadingProcurement, setLoadingProcurement] = useState(false);
 
+  // View Modals State
+  const [selectedMRId, setSelectedMRId] = useState(null);
+  const [isMRModalOpen, setIsMRModalOpen] = useState(false);
+  const [selectedPOData, setSelectedPOData] = useState(null);
+  const [isPOModalOpen, setIsPOModalOpen] = useState(false);
+
+  const loadImage = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+    });
+  };
+
+  const generateQuotationPDF = async (quotation) => {
+    const doc = new jsPDF();
+    try {
+      const logo = await loadImage("/logo.png");
+      doc.addImage(logo, "PNG", 14, 5, 50, 15);
+    } catch (error) {
+      console.warn("Logo not found or failed to load:", error);
+    }
+
+    doc.setFontSize(20);
+    doc.text(quotation.type === "outbound" ? "REQUEST FOR QUOTATION" : "QUOTATION", 105, 30, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.text(`No: ${quotation.quotation_number}`, 14, 45);
+    doc.text(`Date: ${new Date(quotation.created_at || Date.now()).toLocaleDateString()}`, 14, 50);
+    doc.text(`Vendor: ${quotation.vendor_name || "N/A"}`, 14, 55);
+
+    if (quotation.mr_number) doc.text(`Material Request: ${quotation.mr_number}`, 14, 60);
+    if (quotation.rfq_number) doc.text(`Reference RFQ: ${quotation.rfq_number}`, 14, quotation.mr_number ? 65 : 60);
+
+    const tableColumn = quotation.type === "inbound" ? 
+      ["Material Name", "Qty", "UOM", "Rate/Kg", "Weight (Kg)", "Total"] : 
+      ["Item Name", "Group", "Grade", "Part Detail", "Make", "Remark", "Qty", "Unit"];
+
+    const tableRows = (quotation.items || []).map((item) => {
+      if (quotation.type === "inbound") {
+        return [
+          item.vendor_item_name || item.item_name || "N/A",
+          item.quantity ? parseFloat(item.quantity).toString() : "0",
+          item.unit || "N/A",
+          `INR ${item.rate_per_kg || 0}`,
+          `${item.total_weight || 0}`,
+          `INR ${(item.total_weight * item.rate_per_kg || 0).toFixed(2)}`
+        ];
+      } else {
+        return [
+          item.item_name || "N/A",
+          item.item_group || "N/A",
+          item.material_grade || "N/A",
+          item.part_detail || "N/A",
+          item.make || "N/A",
+          item.remark || "N/A",
+          item.quantity ? parseFloat(item.quantity).toString() : "0",
+          item.unit || "N/A",
+        ];
+      }
+    });
+
+    autoTable(doc, {
+      startY: 75,
+      head: [tableColumn],
+      body: tableRows,
+      theme: 'grid',
+      headStyles: { fillColor: [37, 99, 235], fontSize: 8 },
+      styles: { fontSize: 7 }
+    });
+
+    window.open(doc.output("bloburl"), "_blank");
+  };
+
+  const handleViewQuotation = async (quotation) => {
+    try {
+      const response = await axios.get(`/department/procurement/quotations/${quotation.id}`);
+      generateQuotationPDF(response.data);
+    } catch (err) {
+      console.error("Error viewing quotation detail:", err);
+      toast.error("Failed to load quotation details");
+    }
+  };
+
+  const handleViewPO = async (po) => {
+    try {
+      const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
+      setSelectedPOData(response.data);
+      setIsPOModalOpen(true);
+    } catch (error) {
+      console.error("Error viewing PO detail:", error);
+      toast.error("Failed to load PO details");
+    }
+  };
+
   // Inventory Data
   const [itemGroups, setItemGroups] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
@@ -70,14 +171,14 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
       setLoadingProcurement(true);
       const [mrRes, rfqRes, qtnRes, poRes] = await Promise.all([
         axios.get("/department/procurement/material-requests", { params: { rootCardId } }),
-        axios.get("/department/procurement/quotations", { params: { root_card_id: rootCardId, type: 'rfq' } }),
-        axios.get("/department/procurement/quotations", { params: { root_card_id: rootCardId, type: 'quotation' } }),
+        axios.get("/department/procurement/quotations", { params: { root_card_id: rootCardId, type: 'outbound' } }),
+        axios.get("/department/procurement/quotations", { params: { root_card_id: rootCardId, type: 'inbound' } }),
         axios.get("/department/procurement/purchase-orders", { params: { root_card_id: rootCardId } })
       ]);
-      setMaterialRequests(mrRes.data.data || []);
-      setRfqs(rfqRes.data || []);
-      setQuotations(qtnRes.data || []);
-      setPurchaseOrders(poRes.data || []);
+      setMaterialRequests(mrRes.data.data || mrRes.data || []);
+      setRfqs(rfqRes.data.quotations || rfqRes.data.data || rfqRes.data || []);
+      setQuotations(qtnRes.data.quotations || qtnRes.data.data || qtnRes.data || []);
+      setPurchaseOrders(poRes.data.purchaseOrders || poRes.data.data || poRes.data || []);
     } catch (error) {
       console.error("Error fetching procurement data:", error);
     } finally {
@@ -124,7 +225,20 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
     { key: "status", label: "STATUS", render: (val) => (
       <Badge variant={val === 'pending' ? 'warning' : val === 'approved' ? 'success' : 'secondary'}>{val}</Badge>
     )},
-    { key: "created_at", label: "DATE", render: (val) => new Date(val).toLocaleDateString() }
+    { key: "created_at", label: "DATE", render: (val) => new Date(val).toLocaleDateString() },
+    { key: "actions", label: "ACTIONS", render: (_, row) => (
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => {
+          setSelectedMRId(row.id);
+          setIsMRModalOpen(true);
+        }}
+        title="View MR Details"
+      >
+        <Eye size={16} className="text-blue-600" />
+      </Button>
+    )}
   ];
 
   const rfqColumns = [
@@ -133,7 +247,17 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
     { key: "status", label: "STATUS", render: (val) => (
       <Badge variant={val === 'sent' ? 'info' : 'secondary'}>{val}</Badge>
     )},
-    { key: "valid_until", label: "VALID UNTIL", render: (val) => val ? new Date(val).toLocaleDateString() : '-' }
+    { key: "valid_until", label: "VALID UNTIL", render: (val) => val ? new Date(val).toLocaleDateString() : '-' },
+    { key: "actions", label: "ACTIONS", render: (_, row) => (
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => handleViewQuotation(row)}
+        title="View RFQ Details"
+      >
+        <Eye size={16} className="text-blue-600" />
+      </Button>
+    )}
   ];
 
   const quotationColumns = [
@@ -142,6 +266,16 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
     { key: "total_amount", label: "TOTAL AMOUNT", render: (val) => `₹${parseFloat(val).toLocaleString()}` },
     { key: "status", label: "STATUS", render: (val) => (
       <Badge variant={val === 'approved' ? 'success' : val === 'rejected' ? 'danger' : 'warning'}>{val}</Badge>
+    )},
+    { key: "actions", label: "ACTIONS", render: (_, row) => (
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => handleViewQuotation(row)}
+        title="View Quotation Details"
+      >
+        <Eye size={16} className="text-blue-600" />
+      </Button>
     )}
   ];
 
@@ -152,7 +286,17 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
     { key: "status", label: "STATUS", render: (val) => (
       <Badge variant={val === 'approved' ? 'success' : 'warning'}>{val}</Badge>
     )},
-    { key: "created_at", label: "DATE", render: (val) => new Date(val).toLocaleDateString() }
+    { key: "created_at", label: "DATE", render: (val) => new Date(val).toLocaleDateString() },
+    { key: "actions", label: "ACTIONS", render: (_, row) => (
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => handleViewPO(row)}
+        title="View PO Details"
+      >
+        <Eye size={16} className="text-blue-600" />
+      </Button>
+    )}
   ];
 
   // Modals
@@ -442,189 +586,62 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
         icon={ShoppingCart}
         description="Track material requests, RFQs, quotations, and purchase orders for this project"
       >
-        <div className="">
-          <Tabs
-            tabs={[
-              {
-                label: "Material Requirements",
-                icon: List,
-                content: (
-                  <div className="p-2 space-y-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xs  text-slate-800">Project BOM / Requirements</h3>
-                      {!readOnly && (
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="secondary" 
-                            size="sm" 
-                            onClick={() => setShowGroupModal(true)}
-                            className="flex items-center gap-2"
-                          >
-                            <Tag size={16} />
-                            Manage Groups
-                          </Button>
-                          <Button 
-                            variant="primary" 
-                            size="sm" 
-                            onClick={() => {
-                              setEditingItem(null);
-                              setEditingRequirementId(null);
-                              setNewItem({
-                                itemCode: "",
-                                itemName: "",
-                                itemGroupId: "",
-                                category: "Raw Material",
-                                unit: "Nos",
-                                valuationRate: 0,
-                                sellingRate: 0,
-                                noOfCavity: 1,
-                                weightPerUnit: 0,
-                                weightUom: "kg",
-                                gstPercent: 0,
-                                quantity: 1,
-                              });
-                              setShowItemModal(true);
-                            }}
-                            className="flex items-center gap-2"
-                          >
-                            <Plus size={16} />
-                            Add Material
-                          </Button>
-                        </div>
-                      )}
-                    </div>
+        <div className="space-y-8">
+          {/* Section 1: Material Requests */}
+          <div className="p-2 space-y-4">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b pb-2">
+              <FileText size={18} className="text-purple-600" />
+              Material Requests (MR)
+            </h3>
+            <DataTable 
+              columns={mrColumns} 
+              data={materialRequests} 
+              loading={loadingProcurement}
+              emptyMessage="No material requests found for this project"
+            />
+          </div>
 
-                    <div className="overflow-x-auto border border-slate-200 rounded">
-                      <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-700 uppercase text-xs">
-                          <tr>
-                            <th className="px-4 py-3 font-semibold">Code</th>
-                            <th className="px-4 py-3 font-semibold">Item Name</th>
-                            <th className="px-4 py-3 font-semibold">Group</th>
-                            <th className="px-4 py-3 font-semibold text-right">Qty</th>
-                            <th className="px-4 py-3 font-semibold">Unit</th>
-                            <th className="px-4 py-3 font-semibold text-right">Est. Cost</th>
-                            {!readOnly && <th className="px-4 py-3 font-semibold text-center">Actions</th>}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200">
-                          {materials.length === 0 ? (
-                            <tr>
-                              <td colSpan={readOnly ? 6 : 7} className="px-4 py-8 text-center text-slate-500 italic">
-                                No materials added yet.
-                              </td>
-                            </tr>
-                          ) : (
-                            materials.map((mat) => (
-                              <tr key={mat.id} className="hover:bg-slate-50 transition-colors">
-                                <td className="px-4 py-3 font-mono text-xs text-slate-600">{mat.itemCode || mat.item_code || '-'}</td>
-                                <td className="px-4 py-3 font-medium text-slate-900">{mat.itemName || mat.item_name || mat.name}</td>
-                                <td className="px-4 py-3 text-slate-600">
-                                  <span className="px-2 py-0.5 bg-slate-100 rounded-full text-[10px] font-medium uppercase">
-                                    {mat.itemGroupName || mat.item_group_name || 'Uncategorized'}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-3 text-right  text-blue-600">{mat.quantity}</td>
-                                <td className="px-4 py-3 text-slate-600 uppercase text-xs">{mat.unit || mat.default_uom || mat.defaultUom}</td>
-                                <td className="px-4 py-3 text-right text-slate-600">
-                                  ₹{((parseFloat(mat.valuationRate || mat.valuation_rate || 0)) * (parseFloat(mat.quantity))).toLocaleString()}
-                                </td>
-                                {!readOnly && (
-                                  <td className="px-4 py-3">
-                                    <div className="flex justify-center gap-2">
-                                      <button 
-                                        onClick={() => handleEditRequirement(mat)}
-                                        className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                                      >
-                                        <Edit2 size={14} />
-                                      </button>
-                                      <button 
-                                        onClick={() => handleDeleteRequirement(mat.id)}
-                                        className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                                      >
-                                        <Trash2 size={14} />
-                                      </button>
-                                    </div>
-                                  </td>
-                                )}
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                        {materials.length > 0 && (
-                          <tfoot className="bg-slate-50 ">
-                            <tr>
-                              <td colSpan={5} className="px-4 py-3 text-right text-slate-700">Total Est. Material Cost:</td>
-                              <td className="px-4 py-3 text-right text-blue-700">
-                                ₹{materials.reduce((sum, mat) => sum + (parseFloat(mat.valuationRate || mat.valuation_rate || 0) * parseFloat(mat.quantity)), 0).toLocaleString()}
-                              </td>
-                              {!readOnly && <td></td>}
-                            </tr>
-                          </tfoot>
-                        )}
-                      </table>
-                    </div>
-                  </div>
-                )
-              },
-              {
-                label: "Material Requests",
-                icon: FileText,
-                content: (
-                  <div className="p-4">
-                    <DataTable 
-                      columns={mrColumns} 
-                      data={materialRequests} 
-                      loading={loadingProcurement}
-                      emptyMessage="No material requests found for this project"
-                    />
-                  </div>
-                )
-              },
-              {
-                label: "RFQs (Sent)",
-                icon: Send,
-                content: (
-                  <div className="p-4">
-                    <DataTable 
-                      columns={rfqColumns} 
-                      data={rfqs} 
-                      loading={loadingProcurement}
-                      emptyMessage="No RFQs sent for this project"
-                    />
-                  </div>
-                )
-              },
-              {
-                label: "Quotations",
-                icon: Receipt,
-                content: (
-                  <div className="p-4">
-                    <DataTable 
-                      columns={quotationColumns} 
-                      data={quotations} 
-                      loading={loadingProcurement}
-                      emptyMessage="No quotations received for this project"
-                    />
-                  </div>
-                )
-              },
-              {
-                label: "Purchase Orders",
-                icon: ShoppingCart,
-                content: (
-                  <div className="p-4">
-                    <DataTable 
-                      columns={poColumns} 
-                      data={purchaseOrders} 
-                      loading={loadingProcurement}
-                      emptyMessage="No purchase orders issued for this project"
-                    />
-                  </div>
-                )
-              }
-            ]}
-          />
+          {/* Section 2: RFQs (Sent) */}
+          <div className="p-2 space-y-4">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b pb-2">
+              <Send size={18} className="text-blue-600" />
+              RFQs Sent (Request for Quotations)
+            </h3>
+            <DataTable 
+              columns={rfqColumns} 
+              data={rfqs} 
+              loading={loadingProcurement}
+              emptyMessage="No RFQs sent for this project"
+            />
+          </div>
+
+          {/* Section 3: Quotations */}
+          <div className="p-2 space-y-4">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b pb-2">
+              <Receipt size={18} className="text-green-600" />
+              Received Quotations
+            </h3>
+            <DataTable 
+              columns={quotationColumns} 
+              data={quotations} 
+              loading={loadingProcurement}
+              emptyMessage="No quotations received for this project"
+            />
+          </div>
+
+          {/* Section 4: Purchase Orders */}
+          <div className="p-2 space-y-4">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b pb-2">
+              <ShoppingCart size={18} className="text-amber-600" />
+              Approved Purchase Orders (PO)
+            </h3>
+            <DataTable 
+              columns={poColumns} 
+              data={purchaseOrders} 
+              loading={loadingProcurement}
+              emptyMessage="No purchase orders issued for this project"
+            />
+          </div>
         </div>
       </FormSection>
 
@@ -847,6 +864,29 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
           </div>
         </div>
       </Modal>
+
+      {/* View Detail Modals */}
+      <MaterialRequestDetailModal 
+        isOpen={isMRModalOpen}
+        onClose={() => {
+          setIsMRModalOpen(false);
+          setSelectedMRId(null);
+        }}
+        requestId={selectedMRId}
+        readOnly={true}
+      />
+
+      {selectedPOData && (
+        <CreatePurchaseOrderModal 
+          isOpen={isPOModalOpen}
+          onClose={() => {
+            setIsPOModalOpen(false);
+            setSelectedPOData(null);
+          }}
+          editData={selectedPOData}
+          initialViewMode={true}
+        />
+      )}
     </div>
   );
 }

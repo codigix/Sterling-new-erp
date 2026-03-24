@@ -129,11 +129,22 @@ const getStockMovements = async (req, res) => {
 
 const getStockEntries = async (req, res) => {
     try {
-        const [rows] = await db.query(`
+        const { type } = req.query;
+        let query = `
             SELECT se.* 
             FROM stock_entries se 
-            ORDER BY se.created_at DESC
-        `);
+            WHERE 1=1
+        `;
+        const params = [];
+
+        if (type) {
+            query += " AND se.entry_type = ?";
+            params.push(type);
+        }
+
+        query += " ORDER BY se.created_at DESC";
+        
+        const [rows] = await db.query(query, params);
         
         // Fetch items for each entry
         const entriesWithItems = [];
@@ -144,17 +155,17 @@ const getStockEntries = async (req, res) => {
             const itemsWithSerials = [];
             for (let item of items) {
                 let serials = [];
-                if (entry.grn_id) {
-                    // Fetch by GRN for Material Receipt
+                if (entry.grn_id && entry.entry_type === 'Material Receipt') {
+                    // Fetch by GRN for Material Receipt - Only Available ones
                     const [serialRows] = await db.query(
-                        'SELECT serial_number, status FROM inventory_serials WHERE grn_id = ? AND item_code LIKE ? AND item_name = ?',
+                        'SELECT serial_number, status, inspection_status FROM inventory_serials WHERE grn_id = ? AND item_code LIKE ? AND item_name = ? AND status = "Available"',
                         [entry.grn_id, `${item.item_code}%`, item.item_name]
                     );
                     serials = serialRows;
                 } else if (entry.entry_type === 'Material Issue') {
-                    // Fetch by Entry ID for Material Issue
+                    // Fetch by Entry ID for Material Issue - These are the ones released
                     const [serialRows] = await db.query(
-                        'SELECT serial_number, status FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
+                        'SELECT serial_number, status, inspection_status FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
                         [entry.id, `${item.item_code}%`, item.item_name]
                     );
                     serials = serialRows;
@@ -207,7 +218,7 @@ const getStockBalance = async (req, res) => {
 
         // Fetch serials for each material
         const materialsWithSerials = await Promise.all(rows.map(async (material) => {
-            let serialQuery = 'SELECT serial_number, status, item_code FROM inventory_serials WHERE item_code LIKE ? AND item_name = ? AND status = "Available"';
+            let serialQuery = 'SELECT serial_number, status, item_code, inspection_status FROM inventory_serials WHERE item_code LIKE ? AND item_name = ? AND status IN ("Available", "Rejected")';
             let serialParams = [`${material.item_code}%`, material.itemName];
 
             if (material.project_name) {

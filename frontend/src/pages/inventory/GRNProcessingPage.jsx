@@ -226,6 +226,33 @@ const GRNProcessingPage = () => {
   const [processingStock, setProcessingStock] = useState(null);
   const [approvingGRN, setApprovingGRN] = useState(null);
   const [sendingToQC, setSendingToQC] = useState(null);
+  const [releasingMaterial, setReleasingMaterial] = useState(null);
+
+  const handleReleaseMaterial = async (grn) => {
+    try {
+      const result = await Swal.fire({
+        title: "Release Material?",
+        text: `Do you want to release the accepted material from ${grn.grnNo} for production?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Release",
+        cancelButtonText: "No, Cancel",
+        confirmButtonColor: "#f59e0b",
+      });
+
+      if (result.isConfirmed) {
+        setReleasingMaterial(grn.id);
+        await axios.post(`/department/inventory/grns/${grn.id}/release-material`);
+        showSuccess("Material released for production successfully!");
+        fetchGRNs();
+      }
+    } catch (error) {
+      console.error("Error releasing material:", error);
+      showError(error.response?.data?.message || "Failed to release material");
+    } finally {
+      setReleasingMaterial(null);
+    }
+  };
 
   const handleSendToQuality = async (grn) => {
     try {
@@ -341,12 +368,21 @@ const GRNProcessingPage = () => {
     },
     {
       label: "QC Completed",
-      value: grnData.filter((g) => g.status === 'qc_completed').length,
+      value: grnData.filter((g) => ['qc_completed', 'material_released', 'partially_released'].includes(g.status)).length,
       icon: CheckCircle,
       bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
       iconColor: "text-emerald-600 dark:text-emerald-400",
       borderColor: "border-emerald-100 dark:border-emerald-800",
       description: "Successfully added to stock"
+    },
+    {
+      label: "Released",
+      value: grnData.filter((g) => ['material_released', 'partially_released'].includes(g.status)).length,
+      icon: ShieldCheck,
+      bgColor: "bg-indigo-50 dark:bg-indigo-900/20",
+      iconColor: "text-indigo-600 dark:text-indigo-400",
+      borderColor: "border-indigo-100 dark:border-indigo-800",
+      description: "Released to Production"
     },
   ];
 
@@ -497,21 +533,21 @@ const GRNProcessingPage = () => {
   const StatCard = ({ stat }) => {
     const Icon = stat.icon;
     return (
-      <div className={`relative overflow-hidden rounded-xl border p-5 transition-all duration-300 hover:shadow-md ${stat.bgColor} ${stat.borderColor}`}>
-        <div className="flex justify-between items-start mb-4">
-          <div className={`p-2 rounded bg-white dark:bg-slate-800 shadow-sm ${stat.iconColor}`}>
-            <Icon size={20} />
+      <div className={`relative overflow-hidden rounded-xl border p-3.5 transition-all duration-300 hover:shadow-md ${stat.bgColor} ${stat.borderColor}`}>
+        <div className="flex justify-between items-start mb-3">
+          <div className={`p-1.5 rounded bg-white dark:bg-slate-800 shadow-sm ${stat.iconColor}`}>
+            <Icon size={18} />
           </div>
         </div>
         <div>
-          <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">{stat.label}</p>
+          <p className="text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">{stat.label}</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">{stat.value}</span>
+            <span className="text-xl font-black text-slate-900 dark:text-white leading-none">{stat.value}</span>
           </div>
-          <p className="text-[10px] font-medium text-slate-500 dark:text-slate-500 mt-2 uppercase tracking-wider">{stat.description}</p>
+          <p className="text-[9px] font-medium text-slate-500 dark:text-slate-500 mt-1.5 uppercase tracking-wider">{stat.description}</p>
         </div>
         <div className="absolute -right-4 -bottom-4 opacity-10">
-          <Icon size={80} />
+          <Icon size={64} />
         </div>
       </div>
     );
@@ -555,7 +591,7 @@ const GRNProcessingPage = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {stats.map((stat, idx) => (
           <StatCard key={idx} stat={stat} />
         ))}
@@ -618,6 +654,8 @@ const GRNProcessingPage = () => {
                     grn.status === 'qc_pending' ? 'bg-purple-50 text-purple-600 border border-purple-100' : 
                     grn.status === 'qc_finalized' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' :
                     grn.status === 'qc_completed' ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' :
+                    grn.status === 'material_released' ? 'bg-blue-100 text-blue-600 border border-blue-200' :
+                    grn.status === 'partially_released' ? 'bg-amber-100 text-amber-600 border border-amber-200' :
                     'bg-slate-50 text-slate-600 border border-slate-100'
                   }`}>
                     {grn.status === 'awaiting_storage' ? 'AWAITING STORAGE' : 
@@ -625,11 +663,22 @@ const GRNProcessingPage = () => {
                      grn.status === 'qc_pending' ? 'QC IN PROGRESS' :
                      grn.status === 'qc_finalized' ? 'QC FINALIZED' :
                      grn.status === 'qc_completed' ? 'QC COMPLETED' :
+                     grn.status === 'material_released' ? 'MATERIAL RELEASED' :
+                     grn.status === 'partially_released' ? 'PARTIALLY RELEASED' :
                      grn.status ? grn.status.replace('_', ' ') : 'UNKNOWN'}
                   </span>
                 </td>
                 <td className="p-2 text-right">
                   <div className="flex justify-end gap-2">
+                    {grn.status === 'qc_completed' && (
+                      <button 
+                        onClick={() => handleReleaseMaterial(grn)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 text-white border border-amber-700 rounded text-xs font-bold shadow-md shadow-amber-200 hover:bg-amber-700 transition-all"
+                      >
+                        <Zap size={14} />
+                        Release Material
+                      </button>
+                    )}
                     <button 
                       onClick={() => handleViewGRN(grn)}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-xs font-bold hover:bg-blue-100 transition-all"
@@ -792,8 +841,9 @@ const GRNProcessingPage = () => {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                       {(selectedGRN.items || []).map((item, idx) => {
-                        const isQCReportReceived = selectedGRN.grn?.status === 'qc_completed';
-                        
+                        const isQCReportReceived = selectedGRN.items && selectedGRN.items.some(item => item.inspection_report_received === 1);
+                        const isReleased = ['material_released', 'partially_released'].includes(selectedGRN.grn?.status);
+
                         const acceptedQtyNum = item.serials && item.serials.length > 0 
                           ? item.serials.filter(st => (typeof st === 'object' && st.inspection_status === 'Accepted')).length 
                           : Number(item.received || 0);
@@ -802,17 +852,17 @@ const GRNProcessingPage = () => {
                           ? item.serials.filter(st => (typeof st === 'object' && st.inspection_status === 'Rejected')).length 
                           : 0;
                         
-                        const acceptedQtyDisplay = isQCReportReceived ? acceptedQtyNum : (
+                        const acceptedQtyDisplay = isQCReportReceived || isReleased ? acceptedQtyNum : (
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-slate-400">0</span>
-                            <span className="px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-tighter bg-amber-50 text-amber-600 border border-amber-100">PENDING</span>
+                            {selectedGRN.grn?.status === 'pending' && <span className="px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-tighter bg-amber-50 text-amber-600 border border-amber-100">PENDING</span>}
                           </div>
                         );
                         
-                        const shortageDisplay = isQCReportReceived ? rejectedQtyNum : (
+                        const shortageDisplay = isQCReportReceived || isReleased ? rejectedQtyNum : (
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-slate-400">0</span>
-                            <span className="px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-tighter bg-amber-50 text-amber-600 border border-amber-100">PENDING</span>
+                            {selectedGRN.grn?.status === 'pending' && <span className="px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-tighter bg-amber-50 text-amber-600 border border-amber-100">PENDING</span>}
                           </div>
                         );
                         
@@ -869,7 +919,11 @@ const GRNProcessingPage = () => {
                                         {item.serials.map((stObj, sIdx) => {
                                           const stCode = typeof stObj === 'string' ? stObj : stObj.serial_number;
                                           const itemCodePerPiece = typeof stObj === 'string' ? stCode.replace('ST-', '') : (stObj.item_code || stCode.replace('ST-', ''));
-                                          const status = !isQCReportReceived ? 'Pending' : (typeof stObj === 'string' ? 'Pending' : (stObj.inspection_status || 'Pending'));
+                                          
+                                          // Prioritize individual serial inspection status if available
+                                          const status = (typeof stObj === 'object' && stObj.inspection_status) 
+                                            ? stObj.inspection_status 
+                                            : (!isQCReportReceived ? 'Pending' : 'Pending');
                                           
                                           return (
                                             <tr key={sIdx} className="hover:bg-slate-50 transition-colors">

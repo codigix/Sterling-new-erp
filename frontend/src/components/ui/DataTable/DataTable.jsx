@@ -97,6 +97,15 @@ const DataTable = ({
     );
   }
 
+  if (!Array.isArray(sortedData)) {
+    console.error("DataTable error: sortedData is not an array", sortedData);
+    return (
+      <div className="p-4 text-center text-red-500 bg-red-50 rounded border border-red-200">
+        Error: Unable to display data table. Expected an array but received {typeof sortedData}.
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full">

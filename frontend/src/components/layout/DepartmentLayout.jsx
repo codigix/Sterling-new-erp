@@ -234,12 +234,29 @@ const DepartmentLayout = () => {
                         >
                           <IconComponent size={18} className="flex-shrink-0" />
                           {!sidebarCollapsed && (
-                            <span className="ml-3">{dept.title} Tasks</span>
+                            <span className="ml-3">
+                              {dept.title === "Inventory" ? "Dashboard" : `${dept.title} Tasks`}
+                            </span>
                           )}
                         </Link>
                       </li>
                     );
                   })()}
+                  {getDepartmentRole().title === "Inventory" && (
+                    <li>
+                      <Link
+                        to="/department/inventory/root-cards"
+                        className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                          isActive("/department/inventory/root-cards")
+                            ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        <Layers size={18} className="flex-shrink-0" />
+                        {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
+                      </Link>
+                    </li>
+                  )}
                 </ul>
               </div>
             )}
@@ -333,6 +350,19 @@ const DepartmentLayout = () => {
                     >
                       <ShoppingCart size={18} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Material Requests</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/production/released-materials"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                        isActive("/department/production/released-materials")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Boxes size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Released Materials</span>}
                     </Link>
                   </li>
                 </ul>

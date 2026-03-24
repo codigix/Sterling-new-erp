@@ -38,32 +38,34 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       
       // Reset form data for new entry or load data for edit
       if (!editData) {
-        // Auto-generate PO number based on current count
-        axios.get("/department/procurement/purchase-orders").then(res => {
-          const pos = res.data.purchaseOrders || res.data || [];
-          const nextNum = (pos.length + 1).toString().padStart(4, '0');
-          setFormData(prev => ({
-            ...prev,
-            po_number: `PO-${new Date().getFullYear()}-${nextNum}`,
-            quotation_id: "",
-            vendor_id: "",
-            items: [],
-            subtotal: 0,
-            tax_amount: 0,
-            total_amount: 0,
-            notes: ""
-          }));
-        }).catch(() => {
-          setFormData(prev => ({
-            ...prev,
-            po_number: `PO-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`
-          }));
-        });
-
         if (preFilledFromQuotation) {
           handleQuotationSelect(preFilledFromQuotation.id, preFilledFromQuotation);
         } else if (source && type === 'quotation') {
           handleQuotationSelect(source.id, source);
+        } else if (source && type === 'shortage') {
+          handleShortageSelect(source);
+        } else {
+          // Auto-generate PO number based on current count
+          axios.get("/department/procurement/purchase-orders").then(res => {
+            const pos = res.data.purchaseOrders || res.data || [];
+            const nextNum = (pos.length + 1).toString().padStart(4, '0');
+            setFormData(prev => ({
+              ...prev,
+              po_number: `PO-${new Date().getFullYear()}-${nextNum}`,
+              quotation_id: "",
+              vendor_id: "",
+              items: [],
+              subtotal: 0,
+              tax_amount: 0,
+              total_amount: 0,
+              notes: ""
+            }));
+          }).catch(() => {
+            setFormData(prev => ({
+              ...prev,
+              po_number: `PO-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`
+            }));
+          });
         }
       } else {
         // Load edit data
@@ -134,7 +136,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
   };
 
   const handleQuotationSelect = async (quotationId, passedQuote = null) => {
-    if (!quotationId) {
+    if (!quotationId && !passedQuote) {
       setFormData(prev => ({
         ...prev,
         quotation_id: "",
@@ -147,9 +149,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     }
 
     try {
-      // Always fetch full quotation details to get items
-      const response = await axios.get(`/department/procurement/quotations/${quotationId}`);
-      const fullQuote = response.data;
+      let fullQuote = passedQuote;
+      
+      // If we only have an ID or if the passed quote doesn't have items, fetch the full details
+      if (!fullQuote || !fullQuote.items) {
+        const response = await axios.get(`/department/procurement/quotations/${quotationId || passedQuote.id}`);
+        fullQuote = response.data;
+      }
       
       if (fullQuote) {
         const initialItems = (fullQuote.items || []).map(item => ({
@@ -179,6 +185,47 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     } catch (error) {
       console.error("Error fetching full quotation details:", error);
       toastUtils.error("Failed to fetch quotation details");
+    }
+  };
+
+  const handleShortageSelect = async (shortage) => {
+    if (!shortage) return;
+    
+    try {
+      // If shortage doesn't have items, fetch them
+      let fullShortage = shortage;
+      if (!shortage.items) {
+        const response = await axios.get(`/department/procurement/material-requests/${shortage.id}`);
+        fullShortage = response.data.data || response.data.materialRequest;
+      }
+
+      if (fullShortage && fullShortage.items) {
+        const initialItems = (fullShortage.items || []).map(item => ({
+          material_name: item.item_name,
+          item_group: item.item_group || "",
+          part_detail: item.part_detail || "",
+          material_grade: item.material_grade || "",
+          remark: item.remark || "",
+          make: item.make || "",
+          quantity: item.required_quantity,
+          uom: item.uom || "Nos",
+          rate_per_kg: 0,
+          total_weight: 0,
+          rate: 0,
+          amount: 0
+        }));
+
+        calculateTotals(initialItems, formData.tax_template);
+        
+        setFormData(prev => ({
+          ...prev,
+          quotation_id: "", // No quotation for shortage yet
+          notes: prev.notes || `Created from Shortage Request: ${fullShortage.request_number}`
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading shortage items:", error);
+      toastUtils.error("Failed to load shortage request items");
     }
   };
 
@@ -340,12 +387,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Supplier (Auto-filled)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Supplier *</label>
                   <select 
-                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-500 outline-none pointer-events-none"
+                    className={`w-full p-2.5 ${viewMode || (!!formData.quotation_id && !!editData) ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 pointer-events-none' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.vendor_id}
-                    readOnly
-                    tabIndex="-1"
+                    onChange={(e) => setFormData({...formData, vendor_id: e.target.value})}
+                    disabled={viewMode || (!!formData.quotation_id && !!editData)}
+                    required
                   >
                     <option value="">Select Supplier...</option>
                     {vendors.map(v => (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "../../utils/api";
 import {
   Plus,
@@ -9,43 +10,77 @@ import {
   CheckCircle,
   Clock,
   Filter,
+  Package,
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import MaterialRequestPage from "./MaterialRequestPage";
+import CreatePurchaseOrderModal from "../inventory/CreatePurchaseOrderModal";
 import "../../styles/TaskPage.css";
 
 const ProcurementTasksPage = () => {
+  const [searchParams] = useSearchParams();
   const [purchaseRequests, setPurchaseRequests] = useState([]);
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [quotes, setQuotes] = useState([]);
+  const [shortageRequests, setShortageRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("material-requests");
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "material-requests");
   const [showNewForm, setShowNewForm] = useState(false);
+  
+  // Detail Modal State
+  const [showShortageDetail, setShowShortageDetail] = useState(false);
+  const [selectedShortage, setSelectedShortage] = useState(null);
+  const [loadingShortageItems, setLoadingShortageItems] = useState(false);
+  
+  // PO Modal State
+  const [showPOModal, setShowPOModal] = useState(false);
+  const [poSource, setPoSource] = useState(null);
+
+  const fetchProcurementData = async () => {
+    try {
+      setLoading(true);
+      const [prRes, poRes, quotesRes, shortageRes] = await Promise.all([
+        axios.get("/procurement/portal/purchase-requests"),
+        axios.get("/procurement/portal/purchase-orders"),
+        axios.get("/procurement/portal/quotes"),
+        axios.get("/department/procurement/material-requests?type=shortage"),
+      ]);
+      setPurchaseRequests(prRes.data || []);
+      setPurchaseOrders(poRes.data || []);
+      setQuotes(quotesRes.data || []);
+      setShortageRequests(shortageRes.data.data || shortageRes.data || []);
+    } catch (err) {
+      setError("Failed to load procurement data");
+      console.error("Fetch procurement error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProcurementData = async () => {
-      try {
-        setLoading(true);
-        const [prRes, poRes, quotesRes] = await Promise.all([
-          axios.get("/procurement/portal/purchase-requests"),
-          axios.get("/procurement/portal/purchase-orders"),
-          axios.get("/procurement/portal/quotes"),
-        ]);
-        setPurchaseRequests(prRes.data || []);
-        setPurchaseOrders(poRes.data || []);
-        setQuotes(quotesRes.data || []);
-      } catch (err) {
-        setError("Failed to load procurement data");
-        console.error("Fetch procurement error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProcurementData();
   }, []);
+
+  const handleViewShortageDetail = async (shortage) => {
+    setSelectedShortage(shortage);
+    setShowShortageDetail(true);
+    setLoadingShortageItems(true);
+    try {
+      const response = await axios.get(`/department/procurement/material-requests/${shortage.id}`);
+      setSelectedShortage(response.data.data || response.data.materialRequest);
+    } catch (err) {
+      console.error("Error fetching shortage details:", err);
+    } finally {
+      setLoadingShortageItems(false);
+    }
+  };
+
+  const handleCreatePOFromShortage = (shortage) => {
+    setPoSource(shortage);
+    setShowPOModal(true);
+  };
 
   if (loading) {
     return (
@@ -139,6 +174,16 @@ const ProcurementTasksPage = () => {
             Material Requests
           </button>
           <button
+            onClick={() => setActiveTab("shortage-requests")}
+            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
+              activeTab === "shortage-requests"
+                ? "bg-blue-600 text-white"
+                : "bg-slate-200 dark:bg-slate-700  dark: hover:"
+            }`}
+          >
+            Shortage Requests
+          </button>
+          <button
             onClick={() => setActiveTab("pr")}
             className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
               activeTab === "pr"
@@ -187,6 +232,86 @@ const ProcurementTasksPage = () => {
 
       {/* Material Requests */}
       {activeTab === "material-requests" && <MaterialRequestPage />}
+
+      {/* Shortage Requests */}
+      {activeTab === "shortage-requests" && (
+        <Card>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-700">
+                  <th className="px-6 py-3 text-left text-sm font-semibold">
+                    Request No
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">
+                    GRN No
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">
+                    Root Card
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">
+                    Project
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {shortageRequests.length > 0 ? (
+                  shortageRequests.map((req) => (
+                    <tr
+                      key={req.id}
+                      className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs"
+                    >
+                      <td className="p-3 text-sm font-medium text-blue-600">{req.request_number}</td>
+                      <td className="p-3 text-sm font-medium">{req.bom_number || "N/A"}</td>
+                      <td className="p-3 text-sm font-medium">{req.root_card_id || "N/A"}</td>
+                      <td className="p-3 text-sm">{req.project_name}</td>
+                      <td className="p-3 text-sm">{new Date(req.created_at).toLocaleDateString()}</td>
+                      <td className="p-3">
+                        <Badge className={getStatusColor(req.status)}>
+                          {req.status.toUpperCase()}
+                        </Badge>
+                      </td>
+                      <td className="p-3">
+                        <div className="flex gap-2">
+                          <button 
+                            title="View Details"
+                            onClick={() => handleViewShortageDetail(req)}
+                            className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button 
+                            title="Create PO"
+                            onClick={() => handleCreatePOFromShortage(req)}
+                            className="p-2 rounded bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300 hover:bg-emerald-200 transition-colors"
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="p-8 text-center text-slate-500 italic">
+                      No shortage requests found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
 
       {/* Purchase Requests */}
       {activeTab === "pr" && (
@@ -383,6 +508,98 @@ const ProcurementTasksPage = () => {
           ))}
         </div>
       )}
+
+      {/* Shortage Detail Modal */}
+      {showShortageDetail && selectedShortage && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="p-4 border-b flex justify-between items-center bg-amber-50 dark:bg-amber-900/20">
+              <h3 className="text-lg font-bold text-amber-800 dark:text-amber-400 flex items-center gap-2">
+                <Package size={20} />
+                Shortage Request: {selectedShortage.request_number}
+              </h3>
+              <button onClick={() => setShowShortageDetail(false)} className="p-2 hover:bg-white/50 rounded-full transition-colors">
+                <X size={20} className="text-amber-800 dark:text-amber-400" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-slate-500 font-medium">Project</p>
+                  <p className="font-bold text-slate-900 dark:text-white">{selectedShortage.project_name || "General"}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500 font-medium">Date Created</p>
+                  <p className="font-bold text-slate-900 dark:text-white">{new Date(selectedShortage.created_at).toLocaleDateString()}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-slate-500 font-medium">Remarks</p>
+                  <p className="text-slate-700 dark:text-slate-300 italic">{selectedShortage.remarks || "No remarks"}</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Requested Items</h4>
+                <div className="border rounded-xl overflow-hidden">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-50 dark:bg-slate-800">
+                      <tr>
+                        <th className="px-4 py-2 font-bold text-slate-600">Material Name</th>
+                        <th className="px-4 py-2 font-bold text-slate-600 text-center">Qty</th>
+                        <th className="px-4 py-2 font-bold text-slate-600">Unit</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {loadingShortageItems ? (
+                        <tr><td colSpan="3" className="p-4 text-center">Loading items...</td></tr>
+                      ) : (
+                        selectedShortage.items?.map((item, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <td className="px-4 py-3 font-medium">{item.item_name}</td>
+                            <td className="px-4 py-3 text-center font-bold text-blue-600">{item.required_quantity}</td>
+                            <td className="px-4 py-3">{item.uom}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 border-t bg-slate-50 dark:bg-slate-800 flex justify-end gap-3">
+              <button 
+                onClick={() => setShowShortageDetail(false)}
+                className="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-200 transition-all"
+              >
+                Close
+              </button>
+              <button 
+                onClick={() => {
+                  setShowShortageDetail(false);
+                  handleCreatePOFromShortage(selectedShortage);
+                }}
+                className="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 dark:shadow-none"
+              >
+                Create Purchase Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PO Creation Modal */}
+      <CreatePurchaseOrderModal 
+        isOpen={showPOModal}
+        onClose={() => setShowPOModal(false)}
+        source={poSource}
+        type="shortage"
+        onPOCreated={() => {
+          fetchProcurementData();
+          setShowPOModal(false);
+        }}
+      />
     </div>
   );
 };

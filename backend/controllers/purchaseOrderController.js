@@ -15,7 +15,8 @@ const getPurchaseOrders = async (req, res) => {
             FROM purchase_orders po
             LEFT JOIN vendors v ON po.vendor_id = v.id
             LEFT JOIN quotations q ON po.quotation_id = q.id
-            LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+            LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+            LEFT JOIN root_cards rc ON rc.id = COALESCE(q.root_card_id, mr.root_card_id)
             WHERE 1=1
         `;
         const params = [];
@@ -25,8 +26,8 @@ const getPurchaseOrders = async (req, res) => {
             params.push(status);
         }
         if (root_card_id) {
-            query += " AND q.root_card_id = ?";
-            params.push(root_card_id);
+            query += " AND (q.root_card_id = ? OR mr.root_card_id = ?)";
+            params.push(root_card_id, root_card_id);
         }
         if (search) {
             query += " AND (po.po_number LIKE ? OR v.name LIKE ? OR q.quotation_number LIKE ?)";
@@ -240,6 +241,22 @@ const updatePurchaseOrderStatus = async (req, res) => {
         } else if (inventory_status) {
             await db.query('UPDATE purchase_orders SET inventory_status = ? WHERE id = ?', [inventory_status, id]);
         }
+
+        // If PO is sent to inventory, update root card status
+        if (status === 'sent to inventory') {
+            const [rows] = await db.query(`
+                SELECT COALESCE(q.root_card_id, mr.root_card_id) as root_card_id
+                FROM purchase_orders po
+                LEFT JOIN quotations q ON po.quotation_id = q.id
+                LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+                WHERE po.id = ?
+            `, [id]);
+
+            if (rows.length > 0 && rows[0].root_card_id) {
+                await db.query('UPDATE root_cards SET status = "PURCHASE_ORDER_RELEASED" WHERE id = ?', [rows[0].root_card_id]);
+            }
+        }
+
         res.json({ message: 'Purchase Order status updated successfully' });
     } catch (error) {
         console.error('Error updating purchase order status:', error);
@@ -797,6 +814,219 @@ const approveGRN = async (req, res) => {
     }
 };
 
+const releaseGRNMaterial = async (req, res) => {
+    const { id } = req.params;
+    const connection = await db.getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        // 1. Get GRN details
+        const [grnRows] = await connection.query(`
+            SELECT g.*, v.name as vendor_name, rc.project_name, rc.id as root_card_id, po.po_number,
+                   mr.bom_id as original_bom_id, mr.bom_number as original_bom_number,
+                   (SELECT id FROM boms WHERE root_card_id = rc.id AND is_active = 1 ORDER BY id DESC LIMIT 1) as active_bom_id,
+                   (SELECT bom_number FROM boms WHERE root_card_id = rc.id AND is_active = 1 ORDER BY id DESC LIMIT 1) as active_bom_number
+            FROM grns g
+            LEFT JOIN vendors v ON g.vendor_id = v.id
+            LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
+            LEFT JOIN quotations q ON po.quotation_id = q.id
+            LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+            LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+            WHERE g.id = ?
+        `, [id]);
+
+        if (grnRows.length === 0) throw new Error('GRN not found');
+        const grn = grnRows[0];
+
+        if (grn.status !== 'qc_completed') {
+            throw new Error('GRN must be in "QC COMPLETED" status to release material');
+        }
+
+        // 2. Get GRN items and their inspection results
+        const [items] = await connection.query(`
+            SELECT gri.*, poi.item_group, poi.quantity as ordered_qty_in_po
+            FROM grn_items gri
+            LEFT JOIN purchase_order_items poi ON gri.po_item_id = poi.id
+            WHERE gri.grn_id = ?
+        `, [id]);
+
+        // 3. Get Serial Numbers and their inspection status
+        const [serials] = await connection.query(
+            'SELECT * FROM inventory_serials WHERE grn_id = ?',
+            [id]
+        );
+
+        // 4. Calculate Accepted and Rejected quantities per item
+        const itemStats = items.map(item => {
+            const itemSerials = serials.filter(s => s.item_id === item.po_item_id);
+            const isNos = (item.unit || '').toLowerCase() === 'nos';
+            
+            let acceptedQty = 0;
+            let rejectedQty = 0;
+
+            if (isNos) {
+                acceptedQty = itemSerials.filter(s => s.inspection_status === 'Accepted').length;
+                rejectedQty = itemSerials.filter(s => s.inspection_status === 'Rejected').length;
+            } else {
+                // For non-Nos, it's usually all or nothing per serial (and there's only 1 serial)
+                const hasAccepted = itemSerials.some(s => s.inspection_status === 'Accepted');
+                const hasRejected = itemSerials.some(s => s.inspection_status === 'Rejected');
+                
+                if (hasAccepted) acceptedQty = parseFloat(item.received_qty);
+                else if (hasRejected) rejectedQty = parseFloat(item.received_qty);
+            }
+            
+            return {
+                ...item,
+                accepted_qty: acceptedQty,
+                rejected_qty: rejectedQty,
+                // Total quantity to re-order is original ordered minus what was accepted
+                shortage_to_order: Math.max(0, parseFloat(item.ordered_qty || 0) - acceptedQty)
+            };
+        });
+
+        // 5. Generate Stock Entry for Material Issue (Release for Production)
+        const year = new Date().getFullYear();
+        const [lastEntry] = await connection.query('SELECT entry_no FROM stock_entries ORDER BY id DESC LIMIT 1');
+        let nextNum = '0001';
+        if (lastEntry.length > 0 && lastEntry[0].entry_no.startsWith(`STE-${year}`)) {
+            const lastNum = parseInt(lastEntry[0].entry_no.split('-').pop());
+            nextNum = (lastNum + 1).toString().padStart(4, '0');
+        }
+        const entry_no = `STE-${year}-${nextNum}`;
+
+        const [entryResult] = await connection.query(
+            `INSERT INTO stock_entries (entry_no, entry_type, entry_date, remarks, grn_id, project_name, vendor_name, status) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [entry_no, 'Material Issue', new Date().toISOString().split('T')[0], `Released for Production from ${grn.grn_number}`, id, grn.project_name || null, grn.vendor_name || null, 'submitted']
+        );
+        const stockEntryId = entryResult.insertId;
+
+        // 6. Process items for Stock Entry and Ledger
+        let totalShortageCount = 0;
+        const shortageItems = [];
+
+        for (const item of itemStats) {
+            // ONLY deduct and issue the accepted quantity
+            if (item.accepted_qty > 0) {
+                // Insert Stock Entry Item
+                await connection.query(
+                    `INSERT INTO stock_entry_items (stock_entry_id, item_code, item_name, quantity, uom, valuation_rate) 
+                     VALUES (?, ?, ?, ?, ?, ?)`,
+                    [stockEntryId, item.item_code, item.material_name, item.accepted_qty, item.unit || 'Nos', item.rate_per_kg || 0]
+                );
+
+                // Update Ledger (OUT)
+                const [lastBalance] = await connection.query(
+                    'SELECT balance_qty FROM stock_ledger WHERE item_code = ? ORDER BY id DESC LIMIT 1',
+                    [item.item_code]
+                );
+                const currentBalance = (lastBalance[0]?.balance_qty || 0);
+                const newBalance = parseFloat(currentBalance) - parseFloat(item.accepted_qty);
+
+                await connection.query(
+                    `INSERT INTO stock_ledger (item_code, material_name, posting_date, posting_time, voucher_type, voucher_no, actual_qty, uom, balance_qty, project_name, vendor_name, valuation_rate, remarks) 
+                     VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [item.item_code, item.material_name, new Date().toISOString().split('T')[0], 'Stock Entry', entry_no, -item.accepted_qty, item.unit || 'Nos', newBalance, grn.project_name || null, grn.vendor_name || null, item.rate_per_kg || 0, `Released for Production from ${grn.grn_number}`]
+                );
+
+                // Update serials to 'Used'
+                await connection.query(
+                    'UPDATE inventory_serials SET status = "Used", issued_in_entry_id = ? WHERE grn_id = ? AND item_id = ? AND inspection_status = "Accepted"',
+                    [stockEntryId, id, item.po_item_id]
+                );
+            }
+
+            if (item.shortage_to_order > 0) {
+                totalShortageCount += item.shortage_to_order;
+                shortageItems.push({
+                    itemName: item.material_name,
+                    itemGroup: item.item_group,
+                    quantity: item.shortage_to_order,
+                    uom: item.unit,
+                    remark: `Shortage/Rejection against original order from GRN ${grn.grn_number}`
+                });
+            }
+        }
+
+        // 7. Determine Final Status
+        const finalStatus = totalShortageCount > 0 ? 'partially_released' : 'material_released';
+        await connection.query('UPDATE grns SET status = ? WHERE id = ?', [finalStatus, id]);
+
+        // Update Root Card status
+        if (grn.root_card_id) {
+            const rcStatus = finalStatus === 'partially_released' ? 'PARTIALLY_RELEASED' : 'MATERIAL_RELEASED';
+            await connection.query('UPDATE root_cards SET status = ? WHERE id = ?', [rcStatus, grn.root_card_id]);
+        }
+
+        // 8. If Shortage, create Material Request for Procurement
+        if (shortageItems.length > 0) {
+            const [mrCount] = await connection.query('SELECT COUNT(*) as count FROM material_requests');
+            const mrNextNum = (mrCount[0].count + 1).toString().padStart(4, '0');
+            const requestNumber = `MR-SHORT-${year}-${mrNextNum}`;
+
+            const bomId = grn.active_bom_id || grn.original_bom_id || null;
+            const bomNumber = grn.active_bom_number || grn.original_bom_number || grn.grn_number;
+
+            const [mrResult] = await connection.query(
+                `INSERT INTO material_requests 
+                (bom_id, request_number, status, department, project_id, root_card_id, created_by, remarks, project_name, type, bom_number) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [bomId, requestNumber, 'pending', 'Procurement', grn.project_id || null, grn.root_card_id || null, req.user?.id || null, `Shortage from GRN ${grn.grn_number} (PO: ${grn.po_number})`, grn.project_name, 'shortage', bomNumber]
+            );
+
+            const mrId = mrResult.insertId;
+
+            const mrItemValues = shortageItems.map(si => [
+                mrId, si.itemName, si.itemGroup, si.quantity, si.uom, si.remark
+            ]);
+
+            await connection.query(
+                `INSERT INTO material_request_items (material_request_id, item_name, item_group, required_quantity, uom, remark) 
+                 VALUES ?`,
+                [mrItemValues]
+            );
+
+            // Notify Procurement
+            await connection.query(
+                `INSERT INTO notifications (department, title, message, type, link) 
+                 VALUES (?, ?, ?, ?, ?)`,
+                [
+                    'Procurement', 
+                    'Material Shortage from GRN', 
+                    `New shortage request ${requestNumber} created from GRN ${grn.grn_number} for project ${grn.project_name || 'N/A'}.`, 
+                    'warning',
+                    '/department/procurement/dashboard?tab=shortage-requests'
+                ]
+            );
+        }
+
+        // 9. Notify Production about Material Release
+        await connection.query(
+            `INSERT INTO notifications (department, title, message, type, link) 
+             VALUES (?, ?, ?, ?, ?)`,
+            [
+                'Production', 
+                'Material Released for Production', 
+                `Material from GRN ${grn.grn_number} for project ${grn.project_name || 'N/A'} has been released and is ready for use.`, 
+                'success',
+                '/department/production/released-materials'
+            ]
+        );
+
+        await connection.commit();
+        res.json({ message: 'Material released successfully', status: finalStatus });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error releasing material:', error);
+        res.status(500).json({ message: error.message });
+    } finally {
+        connection.release();
+    }
+};
+
 module.exports = {
     getPurchaseOrders,
     getPurchaseOrderById,
@@ -814,5 +1044,6 @@ module.exports = {
     getPurchaseReceiptById,
     getInventorySerials,
     addGRNToStock,
-    approveGRN
+    approveGRN,
+    releaseGRNMaterial
 };

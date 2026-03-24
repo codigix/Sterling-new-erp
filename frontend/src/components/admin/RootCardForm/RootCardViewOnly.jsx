@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Download, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import RootCardWizard from '../../sales/RootCardWizard';
 
 export default function RootCardViewOnly({ formData, initialData, onBack, employees = [] }) {
   const [isGenerating, setIsGenerating] = useState(false);

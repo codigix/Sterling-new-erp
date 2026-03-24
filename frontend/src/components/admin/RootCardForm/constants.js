@@ -94,6 +94,7 @@ export const STATUS_LEVELS = [
   { value: "DESIGN_APPROVED", label: "Design Approved" },
   { value: "BOM_PREPARATION", label: "BOM Preparation" },
   { value: "MATERIAL_PLANNING", label: "Material Planning" },
+  { value: "PURCHASE_ORDER_RELEASED", label: "Purchase Order Released" },
   { value: "PROCUREMENT_IN_PROGRESS", label: "Procurement In Progress" },
   { value: "MATERIAL_RECEIVED", label: "Material Received" },
   { value: "MATERIAL_QC_PENDING", label: "Material QC Pending" },

@@ -15,7 +15,6 @@ import Step3_ProductionPlan from "./steps/Step3_ProductionPlan";
 import Step4_MaterialRequirement from "./steps/Step4_MaterialRequirement";
 import Step5_Inventory from "./steps/Step5_Inventory";
 import Step6_QualityCheck from "./steps/Step6_QualityCheck";
-import RootCardViewOnly from "./RootCardViewOnly";
 import "./RootCardForm.css";
 import { showSuccess, showError } from "../../../utils/toastUtils";
 import Swal from "sweetalert2";
@@ -494,17 +493,6 @@ function RootCardFormContent({
       setLoading(false);
     }
   };
-
-  if (mode === "view") {
-    return (
-      <RootCardViewOnly
-        formData={formData}
-        initialData={initialData}
-        onBack={onCancel}
-        employees={state.employees}
-      />
-    );
-  }
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-50">

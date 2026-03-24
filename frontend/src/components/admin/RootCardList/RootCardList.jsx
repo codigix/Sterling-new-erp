@@ -184,6 +184,8 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
           DESIGN_IN_PROGRESS: ' text-blue-700 border-blue-200',
           DESIGN_APPROVED: ' text-green-700 border-green-200',
           BOM_PREPARATION: ' text-purple-700 border-purple-200',
+          MATERIAL_PLANNING: ' text-amber-700 border-amber-200',
+          PURCHASE_ORDER_RELEASED: ' text-green-700 border-green-200',
           PROCUREMENT_IN_PROGRESS: ' text-orange-700 border-orange-200',
           MATERIAL_RECEIVED: ' text-cyan-700 border-cyan-200',
           MATERIAL_QC_PENDING: ' text-yellow-700 border-yellow-200',

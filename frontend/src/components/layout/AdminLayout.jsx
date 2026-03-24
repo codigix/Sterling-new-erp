@@ -55,24 +55,6 @@ const AdminLayout = () => {
       badge: null,
     },
     {
-      title: "Sales Order",
-      path: "/admin/sales-order",
-      icon: FileText,
-      badge: null,
-    },
-    {
-      title: "Analytics & Reports",
-      path: "/admin/analytics-reports",
-      icon: BarChart3,
-      badge: null,
-    },
-    {
-      title: "Task Assignment",
-      path: "/admin/task-assignment",
-      icon: CheckSquare,
-      badge: null,
-    },
-    {
       title: "Employee Management",
       path: "/admin/employee-management",
       icon: Users,
