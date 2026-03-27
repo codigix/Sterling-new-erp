@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../../utils/api";
+import { getServerUrl } from "../../utils/fileUtils";
 import { toast } from "react-toastify";
 import {
   ArrowLeft,
@@ -520,7 +521,7 @@ const QualityInspectionDetail = () => {
                       <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.acceptedDoc ? 'bg-green-50 border-green-200' : 'bg-white dark:bg-slate-800 border-blue-200 border-dashed hover:border-blue-400'}`}>
                         {item.acceptedDoc && !(item.acceptedDoc instanceof File) ? (
                           <button 
-                            onClick={() => window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.acceptedDoc}`, '_blank')}
+                            onClick={() => window.open(getServerUrl(item.acceptedDoc), '_blank')}
                             className="flex items-center gap-2 text-[10px] font-black text-green-700 uppercase"
                           >
                             <CheckCircle size={14} /> Accepted Report
@@ -545,7 +546,7 @@ const QualityInspectionDetail = () => {
                       <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.rejectedDoc ? 'bg-red-50 border-red-200' : 'bg-white dark:bg-slate-800 border-red-200 border-dashed hover:border-red-400'}`}>
                         {item.rejectedDoc && !(item.rejectedDoc instanceof File) ? (
                           <button 
-                            onClick={() => window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.rejectedDoc}`, '_blank')}
+                            onClick={() => window.open(getServerUrl(item.rejectedDoc), '_blank')}
                             className="flex items-center gap-2 text-[10px] font-black text-red-700 uppercase"
                           >
                             <XCircle size={14} /> Rejected Report

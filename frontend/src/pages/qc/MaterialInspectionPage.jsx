@@ -27,6 +27,7 @@ import {
 import { showSuccess, showError } from "../../utils/toastUtils";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { getServerUrl } from "../../utils/fileUtils";
 
 const MaterialInspectionPage = () => {
   const navigate = useNavigate();
@@ -454,7 +455,7 @@ const MaterialInspectionPage = () => {
                                                       if (docPath) {
                                                         return (
                                                           <button 
-                                                            onClick={(e) => { e.stopPropagation(); window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${docPath}`, '_blank'); }}
+                                                            onClick={(e) => { e.stopPropagation(); window.open(getServerUrl(docPath), '_blank'); }}
                                                             className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                                                             title="View Quality Report"
                                                           >
@@ -553,7 +554,7 @@ const MaterialInspectionPage = () => {
                                                       <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.common_document_path ? 'bg-green-50 border-green-200' : 'bg-white border-blue-200 border-dashed hover:border-blue-400'}`}>
                                                         {item.common_document_path ? (
                                                           <button 
-                                                            onClick={() => window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.common_document_path}`, '_blank')}
+                                                            onClick={() => window.open(getServerUrl(item.common_document_path), '_blank')}
                                                             className="flex items-center gap-2 text-[10px] font-black text-green-700 uppercase"
                                                           >
                                                             <CheckCircle size={14} /> Accepted Items Report
@@ -577,7 +578,7 @@ const MaterialInspectionPage = () => {
                                                       <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.rejected_document_path ? 'bg-red-50 border-red-200' : 'bg-white border-red-200 border-dashed hover:border-red-400'}`}>
                                                         {item.rejected_document_path ? (
                                                           <button 
-                                                            onClick={() => window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.rejected_document_path}`, '_blank')}
+                                                            onClick={() => window.open(getServerUrl(item.rejected_document_path), '_blank')}
                                                             className="flex items-center gap-2 text-[10px] font-black text-red-700 uppercase"
                                                           >
                                                             <XCircle size={14} /> Rejected Items Report

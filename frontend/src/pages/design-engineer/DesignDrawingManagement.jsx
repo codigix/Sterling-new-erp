@@ -20,6 +20,7 @@ import {
   Trash2
 } from "lucide-react";
 import axios from "../../utils/api";
+import { getServerUrl, downloadFile } from "../../utils/fileUtils";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
@@ -81,35 +82,10 @@ const DesignDrawingManagement = () => {
     }
   };
 
-  const getServerUrl = (filePath) => {
-    if (!filePath) return "";
-    const baseUrl = axios.defaults.baseURL.split('/api')[0];
-    const cleanPath = filePath.replace(/\\/g, '/').replace(/^\/+/, '');
-    return `${baseUrl}/${cleanPath}`;
-  };
-
   const handleDownload = async (doc) => {
     try {
-      const fileUrl = getServerUrl(doc.file_path);
-      const response = await axios.get(fileUrl, {
-        responseType: 'blob',
-      });
-      
-      const extension = doc.file_path.split('.').pop();
-      const fileName = doc.name.toLowerCase().endsWith(`.${extension.toLowerCase()}`) 
-        ? doc.name 
-        : `${doc.name}.${extension}`;
-
-      const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await downloadFile(doc.file_path, doc.name);
     } catch (error) {
-      console.error("Download failed:", error);
       toast.error("Failed to download file");
     }
   };
@@ -760,7 +736,7 @@ const DesignDrawingManagement = () => {
                   </div>
                   <div className="flex justify-end">
                     <a 
-                      href={`${axios.defaults.baseURL.split('/api')[0]}/${item.file_path}`} 
+                      href={getServerUrl(item.file_path)} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline text-sm flex items-center gap-1"
