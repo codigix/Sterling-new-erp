@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../utils/api";
+import { getServerUrl } from "../../utils/fileUtils";
 import Swal from "sweetalert2";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -735,7 +736,7 @@ const QCInspectionsPage = () => {
                                     <button 
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.common_document_path}`, '_blank');
+                                        window.open(getServerUrl(item.common_document_path), '_blank');
                                       }}
                                       className="flex items-center gap-2 text-[9px] font-black text-green-600 uppercase hover:text-green-700 transition-colors"
                                     >
@@ -746,7 +747,7 @@ const QCInspectionsPage = () => {
                                     <button 
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.rejected_document_path}`, '_blank');
+                                        window.open(getServerUrl(item.rejected_document_path), '_blank');
                                       }}
                                       className="flex items-center gap-2 text-[9px] font-black text-red-600 uppercase hover:text-red-700 transition-colors"
                                     >

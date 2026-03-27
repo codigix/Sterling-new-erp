@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../utils/api";
+import { getServerUrl } from "../../utils/fileUtils";
 import {
   FileText,
   Search,
@@ -316,7 +317,7 @@ const QCTasksPage = () => {
                                                     onClick={(e) => {
                                                       e.stopPropagation();
                                                       const reportPath = st.status === 'ACCEPTED' ? m.accepted_report : m.rejected_report;
-                                                      window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${reportPath}`, '_blank');
+                                                      window.open(getServerUrl(reportPath), '_blank');
                                                     }}
                                                     className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-emerald-600 transition-colors"
                                                     title="View Report"
