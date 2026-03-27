@@ -10,9 +10,10 @@ import axios from './api';
 export const getServerUrl = (filePath) => {
   if (!filePath) return "";
   
-  // axios.defaults.baseURL is usually "http://localhost:5001/api/"
-  // We want to serve from "http://localhost:5001/uploads/"
-  const baseUrl = axios.defaults.baseURL.split('/api')[0];
+  // Use the full baseURL which already includes /api/ (e.g., "http://localhost:5001/api/")
+  // This ensures the request is properly routed through the /api prefix which is 
+  // often required in production environments (reverse proxies).
+  const baseUrl = axios.defaults.baseURL;
   
   // Clean the path: replace backslashes and remove leading slashes
   let cleanPath = filePath.replace(/\\/g, '/').replace(/^\/+/, '');
@@ -22,8 +23,9 @@ export const getServerUrl = (filePath) => {
     cleanPath = cleanPath.substring(8);
   }
   
-  // Return baseUrl + /uploads/ + filename
-  return `${baseUrl}/uploads/${cleanPath}`;
+  // Return baseUrl + uploads/ + filename
+  // This results in /api/uploads/filename
+  return `${baseUrl}uploads/${cleanPath}`;
 };
 
 /**
