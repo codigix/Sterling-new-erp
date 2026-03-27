@@ -150,7 +150,7 @@ exports.getDrawingHistory = async (req, res) => {
 // Get all drawings (optionally for a specific Root Card)
 exports.getAllDrawings = async (req, res) => {
   try {
-    const isProduction = req.user.role === 'production';
+    const isProduction = req.user && (req.user.role?.toLowerCase().includes('production') || req.user.department?.toLowerCase() === 'production');
     
     let query = `
       SELECT d.*, u.full_name as created_by_name, r.full_name as reviewer_name, 
@@ -162,9 +162,9 @@ exports.getAllDrawings = async (req, res) => {
       WHERE 1=1
     `;
 
-    // Production can only see Approved drawings from root cards that have been sent to production or are in relevant states
+    // Production can only see Approved drawings
     if (isProduction) {
-      query += " AND d.status = 'Approved' AND rc.status IN ('RC_CREATED', 'PURCHASE_ORDER_RELEASED', 'MATERIAL_PLANNING', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY')";
+      query += " AND d.status = 'Approved'";
     }
 
     query += " ORDER BY d.created_at DESC";
@@ -181,7 +181,7 @@ exports.getAllDrawings = async (req, res) => {
 exports.getRootCardDrawings = async (req, res) => {
   try {
     const { rootCardId } = req.params;
-    const isProduction = req.user.role === 'production';
+    const isProduction = req.user && (req.user.role?.toLowerCase().includes('production') || req.user.department?.toLowerCase() === 'production');
 
     let query = `
       SELECT d.*, u.full_name as created_by_name, r.full_name as reviewer_name,
@@ -193,9 +193,9 @@ exports.getRootCardDrawings = async (req, res) => {
       WHERE d.root_card_id = ?
     `;
 
-    // Production can only see Approved drawings from root cards that have been sent to production or are in relevant states
+    // Production can only see Approved drawings
     if (isProduction) {
-      query += " AND d.status = 'Approved' AND rc.status IN ('RC_CREATED', 'PURCHASE_ORDER_RELEASED', 'MATERIAL_PLANNING', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY')";
+      query += " AND d.status = 'Approved'";
     }
 
     const [documents] = await db.query(query, [rootCardId]);

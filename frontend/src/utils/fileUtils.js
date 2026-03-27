@@ -10,8 +10,9 @@ import axios from './api';
 export const getServerUrl = (filePath) => {
   if (!filePath) return "";
   
-  // Get base URL (already includes /api/ from axios config)
-  const baseUrl = axios.defaults.baseURL;
+  // axios.defaults.baseURL is usually "http://localhost:5001/api/"
+  // We want to serve from "http://localhost:5001/uploads/"
+  const baseUrl = axios.defaults.baseURL.split('/api')[0];
   
   // Clean the path: replace backslashes and remove leading slashes
   let cleanPath = filePath.replace(/\\/g, '/').replace(/^\/+/, '');
@@ -21,9 +22,8 @@ export const getServerUrl = (filePath) => {
     cleanPath = cleanPath.substring(8);
   }
   
-  // Return baseURL + uploads/ + filename
-  // baseURL ends with /api/, so this becomes /api/uploads/filename
-  return `${baseUrl}uploads/${cleanPath}`;
+  // Return baseUrl + /uploads/ + filename
+  return `${baseUrl}/uploads/${cleanPath}`;
 };
 
 /**

@@ -97,18 +97,18 @@ const getAllRootCards = async (req, res) => {
 
     if (assignedOnly === 'true' && req.user && req.user.id) {
       // Find root cards where this user is assigned to ANY step
-      // OR root cards that are in relevant statuses for production/design
+      // OR root cards that are active
       query = `
         SELECT DISTINCT rc.* 
         FROM root_cards rc
         LEFT JOIN root_card_steps rcs ON rc.id = rcs.root_card_id
         WHERE rcs.assigned_to = ? 
-        OR rc.status IN ('pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'DESIGN_APPROVED', 'BOM_PREPARATION', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 'PROCUREMENT_IN_PROGRESS', 'MATERIAL_RECEIVED', 'MATERIAL_QC_PENDING', 'MATERIAL_QC_APPROVED', 'MATERIAL_RELEASED', 'PARTIALLY_RELEASED', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY', 'APPROVED', 'COMPLETED')
+        OR 1=1
       `;
       queryParams.push(req.user.id);
     } else if (isProduction) {
-      // Production can see root cards from early stages to monitor incoming work
-      query = "SELECT * FROM root_cards WHERE status IN ('pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'DESIGN_APPROVED', 'BOM_PREPARATION', 'PURCHASE_ORDER_RELEASED', 'MATERIAL_PLANNING', 'PROCUREMENT_IN_PROGRESS', 'MATERIAL_RECEIVED', 'MATERIAL_QC_PENDING', 'MATERIAL_QC_APPROVED', 'MATERIAL_RELEASED', 'PARTIALLY_RELEASED', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY', 'APPROVED', 'COMPLETED')";
+      // Production can see all root cards
+      query = "SELECT * FROM root_cards";
     }
 
     query += ' ORDER BY created_at DESC';

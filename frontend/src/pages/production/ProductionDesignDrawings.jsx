@@ -10,6 +10,7 @@ import {
   Package
 } from "lucide-react";
 import axios from "../../utils/api";
+import { getServerUrl, downloadFile } from "../../utils/fileUtils";
 
 const ProductionDesignDrawings = () => {
   const [searchParams] = useSearchParams();
@@ -61,36 +62,9 @@ const ProductionDesignDrawings = () => {
     }
   };
 
-  const getServerUrl = (filePath) => {
-    if (!filePath) return "";
-    const baseUrl = axios.defaults.baseURL.split('/api')[0]; // Gets http://localhost:5001
-    // Clean up the filePath (handle both backslashes and forward slashes, and potential leading slash)
-    const cleanPath = filePath.replace(/\\/g, '/').replace(/^\/+/, '');
-    return `${baseUrl}/${cleanPath}`;
-  };
-
   const handleDownload = async (doc) => {
     try {
-      const fileUrl = getServerUrl(doc.file_path);
-      const response = await axios.get(fileUrl, {
-        responseType: 'blob',
-      });
-      
-      // Get the original extension from the file_path
-      const extension = doc.file_path.split('.').pop();
-      // Combine doc.name with the extension if it's not already there
-      const fileName = doc.name.toLowerCase().endsWith(`.${extension.toLowerCase()}`) 
-        ? doc.name 
-        : `${doc.name}.${extension}`;
-
-      const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await downloadFile(doc.file_path, doc.name);
     } catch (error) {
       console.error("Download failed:", error);
       alert("Failed to download file");
