@@ -26,7 +26,7 @@ exports.getGRNInspections = async (req, res) => {
       LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
       LEFT JOIN quotations q ON po.quotation_id = q.id
       LEFT JOIN root_cards rc ON q.root_card_id = rc.id
-      WHERE g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
+      WHERE g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released')
       ORDER BY g.created_at DESC
     `);
     
@@ -37,7 +37,7 @@ exports.getGRNInspections = async (req, res) => {
       vendor: grn.vendor,
       projectName: grn.projectName,
       rootCardId: grn.rootCardId,
-      qcStatus: (grn.status === 'qc_completed' || grn.status === 'qc_finalized' || grn.status === 'awaiting_storage' || grn.status === 'completed' || grn.status === 'approved') ? 'completed' : 'pending',
+      qcStatus: (['qc_completed', 'qc_finalized', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released'].includes(grn.status)) ? 'completed' : 'pending',
       inspectionType: grn.inspection_type,
       receivedDate: grn.posting_date ? new Date(grn.posting_date).toISOString().split('T')[0] : 'N/A',
       items: grn.items,
@@ -64,7 +64,7 @@ exports.getQCReadyRootCards = async (req, res) => {
       JOIN quotations q ON q.root_card_id = rc.id
       JOIN purchase_orders po ON po.quotation_id = q.id
       JOIN grns g ON g.purchase_order_id = po.id
-      WHERE g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
+      WHERE g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released')
     `);
     res.json(rows);
   } catch (error) {
@@ -97,7 +97,7 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       JOIN vendors v ON g.vendor_id = v.id
       JOIN quotations q ON po.quotation_id = q.id
       JOIN purchase_order_items poi ON gi.po_item_id = poi.id
-      WHERE q.root_card_id = ? AND (g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved'))
+      WHERE q.root_card_id = ? AND (g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released'))
     `, [rootCardId]);
 
     // Fetch serials for these GRN items

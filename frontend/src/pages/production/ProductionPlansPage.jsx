@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import axios from "../../utils/api";
+import React, { useState } from "react";
 import {
   Search,
   Filter,
@@ -25,9 +24,8 @@ import {
   Bell,
   Box,
 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Swal from "sweetalert2";
-import { showSuccess, showError } from "../../utils/toastUtils";
+import { useNavigate } from "react-router-dom";
+import { showSuccess } from "../../utils/toastUtils";
 import MaterialRequestModal from "../../components/production/MaterialRequestModal";
 import MaterialRequestTraceabilityModal from "../../components/production/MaterialRequestTraceabilityModal";
 
@@ -40,7 +38,7 @@ const ProductionPlansPage = () => {
     completed_plans: 0,
     draft_plans: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showMaterialRequestModal, setShowMaterialRequestModal] = useState(false);
@@ -50,98 +48,6 @@ const ProductionPlansPage = () => {
   const [selectedPlanData, setSelectedPlanData] = useState(null);
   const [selectedPlanMaterials, setSelectedPlanMaterials] = useState([]);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const salesOrderId = params.get("salesOrderId");
-    const taskId = params.get("taskId");
-    const openMaterialRequest = params.get("openMaterialRequest");
-
-    if (salesOrderId && !openMaterialRequest) {
-      // If we have a salesOrderId in the URL, redirect to create a new plan for it
-      navigate(`/department/production/plans/new?salesOrderId=${salesOrderId}${taskId ? `&taskId=${taskId}` : ''}`);
-    }
-  }, [location.search, navigate]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const salesOrderId = params.get("salesOrderId");
-    const openMaterialRequest = params.get("openMaterialRequest");
-    const openWorkOrder = params.get("openWorkOrder");
-
-    if (openMaterialRequest === "true" && salesOrderId && plans.length > 0) {
-      // Find the plan for this sales order (it might be in root_card_id or sales_order_id field)
-      const plan = plans.find(p => p.sales_order_id == salesOrderId || p.root_card_id == salesOrderId);
-      if (plan) {
-        handleSendMaterialRequest(plan.id);
-        // Clear the query params after opening the modal
-        navigate("/department/production/plans", { replace: true });
-      }
-    }
-
-    if (openWorkOrder === "true" && salesOrderId && plans.length > 0) {
-      // Find the plan for this sales order
-      const plan = plans.find(p => p.sales_order_id == salesOrderId || p.root_card_id == salesOrderId);
-      if (plan) {
-        handleGenerateWorkOrders(plan.id);
-        // Clear the query params
-        navigate("/department/production/plans", { replace: true });
-      }
-    }
-  }, [location.search, plans, navigate]);
-
-  useEffect(() => {
-    fetchPlans();
-    fetchStats();
-  }, []);
-
-  const fetchPlans = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get("/production/plans");
-      setPlans(response.data.plans || []);
-    } catch (error) {
-      console.error("Error fetching production plans:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const response = await axios.get("/production/plans/stats");
-      setStats(response.data);
-    } catch (error) {
-      console.error("Error fetching production stats:", error);
-    }
-  };
-
-  const handleDeletePlan = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      customClass: {
-        container: "z-[10000]",
-      },
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await axios.delete(`/production/plans/${id}`);
-        showSuccess("Plan has been deleted.");
-        fetchPlans();
-      } catch (error) {
-        console.error("Error deleting plan:", error);
-        showError("Failed to delete the plan.");
-      }
-    }
-  };
 
   const getStatusBadge = (status) => {
     const s = status?.toLowerCase();
@@ -163,58 +69,7 @@ const ProductionPlansPage = () => {
     navigate("/department/production/plans/new");
   };
 
-  const handleGenerateWorkOrders = async (planId) => {
-    try {
-      const response = await axios.post(`/production/plans/${planId}/generate-work-orders`);
-      showSuccess(response.data.message || "Work orders generated successfully");
-      fetchPlans();
-    } catch (error) {
-      console.error("Error generating work orders:", error);
-      showError(error.response?.data?.message || "Failed to generate work orders");
-    }
-  };
-
-  const handleViewTraceability = (planId, planName) => {
-    setSelectedPlanId(planId);
-    setSelectedPlanName(planName);
-    setShowTraceabilityModal(true);
-  };
-
-  const handleSendMaterialRequest = async (planId) => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`/production/plans/${planId}/with-stages`);
-      const plan = response.data;
-      
-      console.log('--- ProductionPlansPage Debug ---');
-      console.log('Plan fetched:', plan);
-      
-      setSelectedPlanData({
-        planId: plan.id,
-        salesOrderId: plan.sales_order_id,
-        rootCardId: plan.root_card_id,
-        // Ensure both field names are present for compatibility with the modal's logic
-        sales_order_id: plan.sales_order_id,
-        root_card_id: plan.root_card_id,
-        estimatedCompletionDate: plan.estimated_completion_date,
-        planName: plan.plan_name
-      });
-      setSelectedPlanMaterials(plan.materials || []);
-      setShowMaterialRequestModal(true);
-    } catch (error) {
-      console.error("Error fetching plan details for material request:", error);
-      showError(error.response?.data?.message || "Failed to fetch plan details");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredPlans = plans.filter(
-    (plan) =>
-      (plan.plan_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        plan.product_name?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (statusFilter === "all" || plan.status === statusFilter),
-  );
+  const filteredPlans = [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 pb-24">
@@ -245,7 +100,6 @@ const ProductionPlansPage = () => {
             <button
               className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
               onClick={() => {
-                fetchPlans();
                 showSuccess("Cache reset successfully");
               }}
             >

@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from '../../utils/api';
+import React, { useState } from 'react';
 import {
   Search,
   Filter,
@@ -27,9 +26,7 @@ import {
   Package,
   Eye
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import { showSuccess, showError, showWarning } from '../../utils/toastUtils';
+import { useNavigate } from 'react-router-dom';
 import CreateJobCardModal from './components/CreateJobCardModal';
 import InlineOperationEdit from './components/InlineOperationEdit';
 import JobCardDetailsModal from './components/JobCardDetailsModal';
@@ -58,37 +55,14 @@ const JobCardsPage = () => {
   const [fetchingMaterials, setFetchingMaterials] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
-  useEffect(() => {
-    fetchVendors();
-  }, []);
-
-  const fetchVendors = async () => {
-    try {
-      const response = await axios.get('/inventory/vendors');
-      setVendors(response.data || []);
-    } catch (error) {
-      console.error('Error fetching vendors:', error);
-    }
-  };
-
-  const fetchWorkOrderMaterials = async (workOrderId) => {
-    try {
-      setFetchingMaterials(true);
-      const response = await axios.get(`/production/outsourcing/work-order/${workOrderId}/materials`);
-      setMaterials(response.data?.data || []);
-    } catch (error) {
-      console.error('Error fetching materials:', error);
-    } finally {
-      setFetchingMaterials(false);
-    }
-  };
+  const fetchJobCards = () => {};
+  const handleStartOperation = () => {};
+  const handleDeleteOperation = () => {};
 
   const handleOpenChallanModal = (operation, workOrder) => {
     setSelectedOperation(operation);
     setSelectedWorkOrder(workOrder);
-    fetchWorkOrderMaterials(workOrder.id);
     setIsChallanModalOpen(true);
   };
 
@@ -96,140 +70,6 @@ const JobCardsPage = () => {
     setSelectedOperation(operation);
     setSelectedWorkOrder(workOrder);
     setIsInwardModalOpen(true);
-  };
-
-  useEffect(() => {
-    if (location.state?.workOrderId) {
-      const orderId = parseInt(location.state.workOrderId);
-      setExpandedOrders(new Set([orderId]));
-
-      // Scroll to the specific job card after a short delay to ensure list is rendered
-      setTimeout(() => {
-        const element = document.getElementById(`work-order-${orderId}`);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 500);
-    }
-  }, [location.state]);
-
-  const fetchJobCards = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams(location.search);
-      const salesOrderId = params.get('salesOrderId');
-      const rootCardId = params.get('rootCardId');
-
-      const response = await axios.get('/production/work-orders/job-cards', {
-        params: {
-          search: searchTerm,
-          status: statusFilter === 'all' ? undefined : statusFilter,
-          salesOrderId: salesOrderId,
-          rootCardId: rootCardId,
-          workOrderId: location.state?.workOrderId || undefined
-        }
-      });
-
-      const orders = response.data || [];
-      setWorkOrders(orders);
-
-      // Flatten operations into jobCards
-      const flattened = [];
-      orders.forEach(wo => {
-        if (wo.operations && Array.isArray(wo.operations)) {
-          // Sort operations by sequence if available, otherwise by ID
-          const sortedOps = [...wo.operations].sort((a, b) => (a.sequence || a.id) - (b.sequence || b.id));
-          
-          // Find the first operation that is not completed
-          const firstIncompleteOp = sortedOps.find(op => op.status !== 'completed');
-          
-          sortedOps.forEach(op => {
-            flattened.push({
-              ...op,
-              work_order_no: wo.work_order_no,
-              work_order_item: wo.item_name,
-              work_order_full_qty: wo.quantity,
-              is_material_ready: wo.is_material_ready,
-              sales_order_no: wo.sales_order_no,
-              is_current_op: firstIncompleteOp ? firstIncompleteOp.id === op.id : false
-            });
-          });
-        }
-      });
-      setJobCards(flattened);
-
-      // Auto-expand all for now if searching
-      if (searchTerm) {
-        setExpandedOrders(new Set(orders.map(wo => wo.id)));
-      }
-    } catch (error) {
-      console.error('Error fetching job cards:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchTerm, statusFilter, location.state]);
-
-  useEffect(() => {
-    fetchJobCards();
-  }, [fetchJobCards]);
-
-  const handleStartOperation = async (operation) => {
-    if (!operation.operator_id) {
-      showWarning('Please assign an operator before starting the operation.');
-      setEditingOperationId(operation.id);
-      return;
-    }
-
-    try {
-      const result = await Swal.fire({
-        title: 'Start Operation?',
-        text: 'This will move the operation to in-progress status and assign the task to the operator.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, Start!'
-      });
-
-      if (result.isConfirmed) {
-        await axios.post(`/production/work-orders/operations/${operation.id}/start`, {
-          operatorId: operation.operator_id,
-          workstationId: operation.workstation_id
-        });
-
-        showSuccess('Operation is now in-progress. Task assigned to operator.');
-
-        fetchJobCards();
-      }
-    } catch (error) {
-      console.error('Error starting operation:', error);
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to start operation';
-      showError(errorMessage);
-    }
-  };
-
-  const handleDeleteOperation = async (id) => {
-    try {
-      const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this operational step!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-      });
-
-      if (result.isConfirmed) {
-        await axios.delete(`/production/work-orders/operations/${id}`);
-        showSuccess('Operation has been removed.');
-        fetchJobCards();
-        setEditingOperationId(null);
-      }
-    } catch (error) {
-      console.error('Error deleting operation:', error);
-      showError('Failed to delete operation');
-    }
   };
 
   const toggleExpand = (id) => {

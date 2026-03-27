@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from '../../utils/api';
+import React, { useState } from 'react';
 import { 
   Search, 
   Filter, 
@@ -25,9 +24,7 @@ import {
   Play,
   TrendingUp
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import { toast } from '../../utils/toastUtils';
+import { useNavigate } from 'react-router-dom';
 
 const WorkOrdersPage = () => {
   const [workOrders, setWorkOrders] = useState([]);
@@ -43,70 +40,6 @@ const WorkOrdersPage = () => {
   const [monthFilter, setMonthFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState(new Date().getFullYear().toString());
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const fetchWorkOrders = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams(location.search);
-      const salesOrderId = params.get('salesOrderId');
-      const rootCardId = params.get('rootCardId');
-
-      const response = await axios.get('/production/work-orders', {
-        params: {
-          search: searchTerm,
-          status: statusFilter === 'all' ? undefined : statusFilter,
-          month: monthFilter === 'all' ? undefined : monthFilter,
-          year: yearFilter === 'all' ? undefined : yearFilter,
-          salesOrderId: salesOrderId,
-          rootCardId: rootCardId
-        }
-      });
-      
-      const orders = response.data || [];
-      setWorkOrders(orders);
-      
-      // Calculate stats from orders
-      const newStats = {
-        total: orders.length,
-        inProgress: orders.filter(o => o.status === 'in_progress').length,
-        completed: orders.filter(o => o.status === 'completed').length,
-        pending: orders.filter(o => o.status === 'draft' || o.status === 'pending').length
-      };
-      setStats(newStats);
-    } catch (error) {
-      console.error('Error fetching work orders:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchTerm, statusFilter, monthFilter, yearFilter, location.search]);
-
-  useEffect(() => {
-    fetchWorkOrders();
-  }, [fetchWorkOrders]);
-
-  const handleDelete = async (id) => {
-    try {
-      const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-      });
-
-      if (result.isConfirmed) {
-        await axios.delete(`/production/work-orders/${id}`);
-        toast.success('Work order deleted successfully');
-        fetchWorkOrders();
-      }
-    } catch (error) {
-      console.error('Error deleting work order:', error);
-      toast.error('Failed to delete work order');
-    }
-  };
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -129,15 +62,7 @@ const WorkOrdersPage = () => {
   };
 
   const handleCreateNew = () => {
-    const params = new URLSearchParams(location.search);
-    const salesOrderId = params.get('salesOrderId');
-    const rootCardId = params.get('rootCardId');
-    let url = '/department/production/work-orders/new';
-    const queryParts = [];
-    if (salesOrderId) queryParts.push(`salesOrderId=${salesOrderId}`);
-    if (rootCardId) queryParts.push(`rootCardId=${rootCardId}`);
-    if (queryParts.length > 0) url += `?${queryParts.join('&')}`;
-    navigate(url);
+    navigate('/department/production/work-orders/new');
   };
 
   return (
