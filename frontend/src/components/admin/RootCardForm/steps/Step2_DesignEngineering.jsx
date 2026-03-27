@@ -4,6 +4,7 @@ import FormSection from "../shared/FormSection";
 import AssigneeField from "../shared/AssigneeField";
 import { useRootCardContext } from "../hooks";
 import axios from "../../../../utils/api";
+import { getServerUrl } from "../../../../utils/fileUtils";
 
 export default function Step2_DesignEngineering({ readOnly = false }) {
   const { state, updateField, initialData } = useRootCardContext();
@@ -43,9 +44,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
   }, [fetchApprovedDrawings]);
 
   const getFileUrl = (filePath) => {
-    if (!filePath) return "#";
-    const base = axios.defaults.baseURL.split("/api")[0];
-    return `${base}/${filePath}`;
+    return getServerUrl(filePath);
   };
 
   const content = React.useMemo(() => (
