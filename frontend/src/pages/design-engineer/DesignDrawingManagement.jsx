@@ -148,7 +148,7 @@ const DesignDrawingManagement = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    const finalRootCardId = rootCardId || formData.root_card_id;
+    const finalRootCardId = rootCardId || formData.root_card_id || (isRevision && selectedDoc?.root_card_id);
     if (!formData.file || !formData.name || !finalRootCardId) {
       toast.error("Please fill all required fields");
       return;
@@ -573,7 +573,7 @@ const DesignDrawingManagement = () => {
                                             <button 
                                               onClick={() => {
                                                 setSelectedDoc(rev); 
-                                                setFormData({ ...formData, name: rev.name, type: rev.type }); 
+                                                setFormData({ ...formData, name: rev.name, type: rev.type, root_card_id: rev.root_card_id }); 
                                                 setIsRevision(true);
                                                 setShowUploadModal(true);
                                               }}
@@ -778,7 +778,7 @@ const DesignDrawingManagement = () => {
                     <button 
                       onClick={() => {
                         setShowReviewModal(false);
-                        setFormData({ ...formData, name: selectedDoc.name, type: selectedDoc.type }); 
+                        setFormData({ ...formData, name: selectedDoc.name, type: selectedDoc.type, root_card_id: selectedDoc.root_card_id }); 
                         setIsRevision(true);
                         setShowUploadModal(true);
                       }}
