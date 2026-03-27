@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from '../../utils/api';
+import { getServerUrl, downloadFile } from '../../utils/fileUtils';
 import { Download, FileText, FileCode, Calendar, User, Trash2, CheckCircle, XCircle, MessageSquare, Eye } from 'lucide-react';
 
 const DocumentSelector = ({ documentType, title, description }) => {
@@ -126,24 +127,15 @@ const DocumentSelector = ({ documentType, title, description }) => {
     const filePath = doc.path || doc.file_path || doc.filePath;
     
     if (!filePath) {
-      alert('⚠️ File path not available\n\nThis file was uploaded before the path storage was implemented. Please re-upload the file to enable downloads.');
+      alert('⚠️ File path not available');
       return;
     }
 
     try {
-      const encodedPath = encodeURIComponent(filePath);
-      const downloadUrl = `/files/download?path=${encodedPath}&name=${encodeURIComponent(fileName)}`;
-      
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await downloadFile(filePath, fileName);
     } catch (err) {
       console.error('Error downloading file:', err);
-      alert('Failed to download file. Please try again or re-upload the file.');
+      alert('Failed to download file.');
     }
   };
 
@@ -229,62 +221,10 @@ const DocumentSelector = ({ documentType, title, description }) => {
   };
 
   const handleViewFile = async (doc) => {
-    const fileName = doc.name || doc.title || doc.file_name;
-    const fileExt = fileName?.split('.').pop()?.toLowerCase();
     const filePath = doc.path || doc.filePath || doc.file_path;
-    
-    console.log(`[handleViewFile] File: ${fileName}, Extension: ${fileExt}, Path: ${filePath}`);
-    
-    let viewUrl = null;
     if (filePath) {
-      try {
-        console.log(`[handleViewFile] Fetching file: ${filePath}`);
-        const response = await axios.get(`/files/download?path=${encodeURIComponent(filePath)}&name=${encodeURIComponent(fileName)}`, {
-          responseType: 'blob'
-        });
-        
-        // Ensure the blob has the correct type if the backend returned generic octet-stream
-        let blob = response.data;
-        if (blob.type === 'application/octet-stream' || !blob.type) {
-          console.log(`[handleViewFile] Overriding generic MIME type for extension: ${fileExt}`);
-          const mimeTypes = {
-            'pdf': 'application/pdf',
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg',
-            'png': 'image/png',
-            'gif': 'image/gif',
-            'bmp': 'image/bmp',
-            'txt': 'text/plain'
-          };
-          if (mimeTypes[fileExt]) {
-            blob = new Blob([response.data], { type: mimeTypes[fileExt] });
-          }
-        }
-
-        console.log(`[handleViewFile] Final Blob:`, {
-          size: blob.size,
-          type: blob.type
-        });
-        viewUrl = URL.createObjectURL(blob);
-        console.log(`[handleViewFile] Created blob URL:`, viewUrl);
-      } catch (err) {
-        console.error('Error loading file:', err);
-        viewUrl = null;
-      }
+      window.open(getServerUrl(filePath), '_blank');
     }
-    
-    console.log(`[handleViewFile] Setting viewer with: extension=${fileExt}, url=${!!viewUrl}`);
-    
-    setViewerFile({
-      name: fileName,
-      extension: fileExt || 'unknown',
-      path: filePath,
-      size: doc.size,
-      url: viewUrl,
-      status: doc.status
-    });
-    setViewerDocId(doc.id);
-    setViewerOpen(true);
   };
 
   const formatFileSize = (bytes) => {
