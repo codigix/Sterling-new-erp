@@ -50,14 +50,6 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
 
   const content = React.useMemo(() => (
     <div className="space-y-2">
-      <AssigneeField
-        stepType="designEngineering"
-        formData={state.formData}
-        updateField={updateField}
-        employees={state.employees}
-        readOnly={readOnly}
-      />
-      
       <FormSection
         title="Approved Design Drawings"
         subtitle="View and access approved design revisions for this root card"

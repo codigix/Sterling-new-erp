@@ -52,5 +52,14 @@
     "avgTime": "2.8 days",
     "employees": 8,
     "status": "Good"
+  },
+  {
+    "name": "Accounts",
+    "tasksCompleted": 56,
+    "totalTasks": 60,
+    "efficiency": 93,
+    "avgTime": "1.5 days",
+    "employees": 6,
+    "status": "Excellent"
   }
 ]

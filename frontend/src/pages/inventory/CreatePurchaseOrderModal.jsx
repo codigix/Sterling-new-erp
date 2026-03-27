@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
 
-const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, editData, preFilledFromQuotation, initialViewMode = false }) => {
+const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, editData, preFilledFromQuotation, initialViewMode = false, isInventoryView = false }) => {
   const navigate = useNavigate();
   const { completeCurrentTask, isFromDepartmentTasks } = useRootCardInventoryTask();
   const [vendors, setVendors] = useState([]);
@@ -21,9 +21,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     order_date: new Date().toISOString().split('T')[0],
     expected_delivery_date: "",
     delivery_location: "",
+    location_link: "",
     currency: "INR",
     tax_template: "No Tax Template",
     notes: "",
+    terms: "",
     items: [],
     subtotal: 0,
     tax_amount: 0,
@@ -58,7 +60,8 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               subtotal: 0,
               tax_amount: 0,
               total_amount: 0,
-              notes: ""
+              notes: "",
+              terms: ""
             }));
           }).catch(() => {
             setFormData(prev => ({
@@ -82,9 +85,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               order_date: fullPO.order_date ? fullPO.order_date.split('T')[0] : new Date().toISOString().split('T')[0],
               expected_delivery_date: fullPO.expected_delivery_date ? fullPO.expected_delivery_date.split('T')[0] : "",
               delivery_location: fullPO.delivery_location || "",
+              location_link: fullPO.location_link || "",
               currency: fullPO.currency || "INR",
               tax_template: fullPO.tax_template || "No Tax Template",
               notes: fullPO.notes || "",
+              terms: fullPO.terms || "",
               items: fullPO.items || [],
               subtotal: fullPO.subtotal || 0,
               tax_amount: fullPO.tax_amount || 0,
@@ -100,9 +105,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               order_date: editData.order_date ? editData.order_date.split('T')[0] : new Date().toISOString().split('T')[0],
               expected_delivery_date: editData.expected_delivery_date ? editData.expected_delivery_date.split('T')[0] : "",
               delivery_location: editData.delivery_location || "",
+              location_link: editData.location_link || "",
               currency: editData.currency || "INR",
               tax_template: editData.tax_template || "No Tax Template",
               notes: editData.notes || "",
+              terms: editData.terms || "",
               items: editData.items || [],
               subtotal: editData.subtotal || 0,
               tax_amount: editData.tax_amount || 0,
@@ -437,6 +444,29 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                     disabled={viewMode}
                   />
                 </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Location Link (Maps)</label>
+                  {viewMode && formData.location_link ? (
+                    <a 
+                      href={formData.location_link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-block w-full p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline transition-all"
+                    >
+                      View on Google Maps
+                    </a>
+                  ) : (
+                    <input 
+                      type="text"
+                      placeholder="e.g. https://maps.app.goo.gl/..."
+                      className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                      value={formData.location_link}
+                      onChange={(e) => setFormData({...formData, location_link: e.target.value})}
+                      disabled={viewMode}
+                    />
+                  )}
+                </div>
               </div>
             </div>
 
@@ -570,16 +600,39 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
 
             {/* Bottom Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Notes & Terms</label>
-                <textarea 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none disabled:opacity-50"
-                  rows={6}
-                  placeholder="Enter any specific notes or terms for this order..."
-                  value={formData.notes}
-                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  disabled={viewMode}
-                />
+              <div className="md:col-span-2 space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Notes</label>
+                  {viewMode ? (
+                    <div className="w-full min-h-[60px] px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                      {formData.notes || <span className="text-slate-400 italic">No notes added</span>}
+                    </div>
+                  ) : (
+                    <textarea 
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                      rows={3}
+                      placeholder="Enter any internal notes or details..."
+                      value={formData.notes}
+                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                    />
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-blue-600 dark:text-blue-400">Terms & Conditions</label>
+                  {viewMode ? (
+                    <div className="w-full min-h-[100px] px-4 py-3 bg-blue-50/30 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                      {formData.terms || <span className="text-slate-400 italic">No terms & conditions specified</span>}
+                    </div>
+                  ) : (
+                    <textarea 
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none border-blue-100 dark:border-blue-900/30"
+                      rows={5}
+                      placeholder="Enter payment terms, delivery terms, and other conditions..."
+                      value={formData.terms}
+                      onChange={(e) => setFormData({...formData, terms: e.target.value})}
+                    />
+                  )}
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -623,14 +676,16 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               Cancel
             </button>
             {viewMode ? (
-              <button 
-                type="button"
-                onClick={() => setViewMode(false)}
-                className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
-              >
-                <Edit size={16} />
-                Edit PO
-              </button>
+              !isInventoryView && (
+                <button 
+                  type="button"
+                  onClick={() => setViewMode(false)}
+                  className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
+                >
+                  <Edit size={16} />
+                  Edit PO
+                </button>
+              )
             ) : (
               <button 
                 type="submit"

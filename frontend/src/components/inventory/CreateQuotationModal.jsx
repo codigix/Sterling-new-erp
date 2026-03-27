@@ -87,6 +87,8 @@ const CreateQuotationModal = ({
           quantity: m.quantity || m.requiredQuantity || 0,
           unit_price: 0,
           unit: m.unit || "",
+          rate_per_kg: 0,
+          total_weight: 0,
         }));
         initialFormState.root_card_id = preFilledMaterials[0]?.rootCardId || initialFormState.root_card_id;
         initialFormState.material_request_id = preFilledMaterials[0]?.material_request_id || initialFormState.material_request_id;
@@ -209,11 +211,14 @@ const CreateQuotationModal = ({
         // For now, we just fill the prices.
       }));
 
-      const missingPrices = response.data.items.filter(item => item.unit_price === 0).length;
-      if (missingPrices > 0) {
-        toast.info(`Prices extracted for most items, but ${missingPrices} items could not be automatically matched. Please enter them manually.`);
+      const missingData = response.data.items.filter(item => 
+        (formData.type === "inbound" ? (item.rate_per_kg === 0 || item.total_weight === 0) : item.unit_price === 0)
+      ).length;
+
+      if (missingData > 0) {
+        toast.info(`Data extracted for some items, but ${missingData} items could not be automatically matched. Please enter them manually.`);
       } else {
-        toast.success("Prices fetched successfully from the document!");
+        toast.success("Details fetched successfully from the document!");
       }
     } catch (error) {
       console.error("Error analyzing quotation:", error);
@@ -316,6 +321,8 @@ const CreateQuotationModal = ({
             quantity: item.required_quantity || item.quantity || 0,
             unit: item.uom || item.unit || "",
             unit_price: 0,
+            rate_per_kg: 0,
+            total_weight: 0,
             item_group: item.item_group || "",
             material_grade: item.material_grade || "",
             part_detail: item.part_detail || "",

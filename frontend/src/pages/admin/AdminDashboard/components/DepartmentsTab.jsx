@@ -217,6 +217,13 @@ const DepartmentsTab = () => {
                     backgroundColor: "#ef444420",
                     tension: 0.4,
                   },
+                  {
+                    label: "Accounts",
+                    data: [90, 91, 92, 92, 93, 93],
+                    borderColor: "#8b5cf6",
+                    backgroundColor: "#8b5cf620",
+                    tension: 0.4,
+                  },
                 ],
               }}
               options={{

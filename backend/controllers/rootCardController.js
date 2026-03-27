@@ -52,7 +52,7 @@ const createRootCard = async (req, res) => {
     );
 
     // Send notifications to departments
-    const roles = ['Design Engineer', 'Production Manager', 'Procurement Lead', 'Inventory', 'Quality Head'];
+    const roles = ['Design Engineer', 'Production', 'Procurement', 'Quality', 'Inventory'];
     const title = 'New Root Card Created';
     const message = `A new root card ${randomId} has been created for project: ${projectName}. Please check your root cards tab.`;
 
@@ -60,10 +60,10 @@ const createRootCard = async (req, res) => {
       for (const role of roles) {
         let link = '/';
         if (role === 'Design Engineer') link = '/design-engineer/root-cards';
-        else if (role === 'Production Manager') link = '/department/production/root-cards';
-        else if (role === 'Procurement Lead') link = '/department/procurement/quotations';
-        else if (role === 'Inventory') link = '/department/inventory/materials';
-        else if (role === 'Quality Head') link = '/department/quality/root-cards';
+        else if (role === 'Production') link = '/department/production/root-cards';
+        else if (role === 'Procurement') link = '/department/procurement/root-cards';
+        else if (role === 'Inventory') link = '/department/inventory/root-cards';
+        else if (role === 'Quality') link = '/department/quality/root-cards';
 
         await db.query(
           'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
@@ -93,7 +93,7 @@ const getAllRootCards = async (req, res) => {
   try {
     let query = 'SELECT * FROM root_cards';
     let queryParams = [];
-    const isProduction = req.user && req.user.role === 'production';
+    const isProduction = req.user && (req.user.role?.toLowerCase().includes('production') || req.user.department?.toLowerCase() === 'production');
 
     if (assignedOnly === 'true' && req.user && req.user.id) {
       // Find root cards where this user is assigned to ANY step
@@ -103,12 +103,12 @@ const getAllRootCards = async (req, res) => {
         FROM root_cards rc
         LEFT JOIN root_card_steps rcs ON rc.id = rcs.root_card_id
         WHERE rcs.assigned_to = ? 
-        OR rc.status IN ('RC_CREATED', 'DESIGN_IN_PROGRESS', 'MATERIAL_PLANNING', 'PRODUCTION_IN_PROGRESS', 'APPROVED')
+        OR rc.status IN ('pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'DESIGN_APPROVED', 'BOM_PREPARATION', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 'PROCUREMENT_IN_PROGRESS', 'MATERIAL_RECEIVED', 'MATERIAL_QC_PENDING', 'MATERIAL_QC_APPROVED', 'MATERIAL_RELEASED', 'PARTIALLY_RELEASED', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY', 'APPROVED', 'COMPLETED')
       `;
       queryParams.push(req.user.id);
     } else if (isProduction) {
-      // Production can only see root cards that have been sent to production
-      query = "SELECT * FROM root_cards WHERE status IN ('MATERIAL_PLANNING', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY')";
+      // Production can see root cards from early stages to monitor incoming work
+      query = "SELECT * FROM root_cards WHERE status IN ('pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'DESIGN_APPROVED', 'BOM_PREPARATION', 'PURCHASE_ORDER_RELEASED', 'MATERIAL_PLANNING', 'PROCUREMENT_IN_PROGRESS', 'MATERIAL_RECEIVED', 'MATERIAL_QC_PENDING', 'MATERIAL_QC_APPROVED', 'MATERIAL_RELEASED', 'PARTIALLY_RELEASED', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY', 'APPROVED', 'COMPLETED')";
     }
 
     query += ' ORDER BY created_at DESC';
@@ -330,10 +330,10 @@ const sendToProduction = async (req, res) => {
     const title = 'Production Phase Started';
     const message = `Root Card ${id} for project "${projectName}" has been sent for Production. All approved drawings are now available.`;
 
-    // Send notification to Production Manager role
+    // Send notification to Production department
     await db.query(
       'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
-      ['Production Manager', title, message, 'info', `/department/production/root-cards/${id}?mode=view`]
+      ['Production', title, message, 'info', `/department/production/root-cards/${id}?mode=view`]
     );
 
     res.json({ success: true, message: 'Notification sent to Production department', notificationsSent: 1 });

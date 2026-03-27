@@ -10,6 +10,10 @@ const UniversalNewRootCardPage = () => {
   // Determine base path based on current location
   const getBasePath = () => {
     if (location.pathname.startsWith('/admin')) return '/admin/root-cards';
+    if (location.pathname.startsWith('/department/quality')) return '/department/quality/root-cards';
+    if (location.pathname.startsWith('/department/procurement')) return '/department/procurement/root-cards';
+    if (location.pathname.startsWith('/department/inventory')) return '/department/inventory/root-cards';
+    if (location.pathname.startsWith('/department/production')) return '/department/production/root-cards';
     if (location.pathname.startsWith('/department')) return '/department/root-cards';
     if (location.pathname.startsWith('/design-engineer')) return '/design-engineer/root-cards';
     return '/department/root-cards';

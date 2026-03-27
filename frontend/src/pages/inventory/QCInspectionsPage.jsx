@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
@@ -29,9 +29,23 @@ const QCInspectionsPage = () => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [rootCardFilter, setRootCardFilter] = useState("all");
   const [inspections, setInspections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [taskId, setTaskId] = useState(null);
+
+  // Get unique root cards for the filter
+  const uniqueRootCards = useMemo(() => {
+    const cards = [];
+    const seen = new Set();
+    inspections.forEach(ins => {
+      if (ins.rootCardId && ins.projectName && !seen.has(ins.rootCardId)) {
+        seen.add(ins.rootCardId);
+        cards.push({ id: ins.rootCardId, name: ins.projectName });
+      }
+    });
+    return cards.sort((a, b) => a.name.localeCompare(b.name));
+  }, [inspections]);
 
   // Report Modal State
   const [showReportModal, setShowReportModal] = useState(false);
@@ -54,6 +68,14 @@ const QCInspectionsPage = () => {
     if (extractedTaskId) {
       setTaskId(extractedTaskId);
     }
+    
+    // Handle search parameter from notification
+    const params = new URLSearchParams(window.location.search);
+    const initialSearch = params.get("search");
+    if (initialSearch) {
+      setSearchQuery(initialSearch);
+    }
+    
     fetchInspections();
   }, []);
 
@@ -123,6 +145,7 @@ const QCInspectionsPage = () => {
       showSuccess("QC Report created and saved successfully");
       setShowReportModal(false);
       fetchInspections(); // Refresh the list
+      navigate("/department/quality/reports");
     } catch (error) {
       console.error("Error creating report:", error);
       showError("Failed to create QC report");
@@ -378,7 +401,8 @@ const QCInspectionsPage = () => {
       (inspection.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         inspection.poNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         inspection.vendor.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter === "all" || inspection.qcStatus === statusFilter)
+      (statusFilter === "all" || inspection.qcStatus === statusFilter) &&
+      (rootCardFilter === "all" || String(inspection.rootCardId) === String(rootCardFilter))
   );
 
   const getStatusColor = (status) => {
@@ -438,6 +462,18 @@ const QCInspectionsPage = () => {
               className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
             />
           </div>
+          <select
+            value={rootCardFilter}
+            onChange={(e) => setRootCardFilter(e.target.value)}
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs max-w-[200px]"
+          >
+            <option value="all">All Projects / Root Cards</option>
+            {uniqueRootCards.map((rc) => (
+              <option key={rc.id} value={rc.id}>
+                {rc.name}
+              </option>
+            ))}
+          </select>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -522,10 +558,12 @@ const QCInspectionsPage = () => {
                     <td className="p-2 text-sm">
                       <span
                         className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(
-                          inspection.qcStatus
+                          inspection.finalReportId ? "completed" : inspection.qcStatus
                         )}`}
                       >
-                        {inspection.qcStatus === "completed"
+                        {inspection.finalReportId 
+                          ? "Report Generated" 
+                          : inspection.qcStatus === "completed"
                           ? "QC Completed"
                           : inspection.qcStatus === "passed" || inspection.qcStatus === "approved"
                           ? "Approved"
@@ -543,7 +581,15 @@ const QCInspectionsPage = () => {
                       </select>
                     </td>
                     <td className="p-2 text-center text-sm">
-                      {inspection.qcStatus === 'completed' ? (
+                      {inspection.finalReportId ? (
+                        <button
+                          onClick={() => navigate("/department/quality/reports")}
+                          className="px-4 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 mx-auto"
+                        >
+                          <Eye size={14} />
+                          View Report
+                        </button>
+                      ) : inspection.qcStatus === 'completed' ? (
                         <button
                           onClick={() => handleShowReport(inspection)}
                           className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shadow-emerald-200 flex items-center gap-2 mx-auto"
@@ -689,7 +735,7 @@ const QCInspectionsPage = () => {
                                     <button 
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.common_document_path}`, '_blank');
+                                        window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.common_document_path}`, '_blank');
                                       }}
                                       className="flex items-center gap-2 text-[9px] font-black text-green-600 uppercase hover:text-green-700 transition-colors"
                                     >
@@ -700,7 +746,7 @@ const QCInspectionsPage = () => {
                                     <button 
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.rejected_document_path}`, '_blank');
+                                        window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.rejected_document_path}`, '_blank');
                                       }}
                                       className="flex items-center gap-2 text-[9px] font-black text-red-600 uppercase hover:text-red-700 transition-colors"
                                     >

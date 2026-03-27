@@ -3,7 +3,6 @@ import { Package, Plus, Trash2, Edit2, Search, Tag, X, FileText, Send, Receipt, 
 import Input from "../../../ui/Input";
 import FormSection from "../shared/FormSection";
 import FormRow from "../shared/FormRow";
-import AssigneeField from "../shared/AssigneeField";
 import Button from "../../../ui/Button";
 import Modal from "../../../ui/Modal";
 import Select from "../../../ui/Select";

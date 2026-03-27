@@ -1,351 +1,282 @@
-import React, { useCallback, useMemo } from "react";
-import { Check, Plus, Trash2, Shield, DollarSign } from "lucide-react";
-import Input from "../../../ui/Input";
-import Select from "../../../ui/Select";
-import FormSection from "../shared/FormSection";
-import FormRow from "../shared/FormRow";
-import AssigneeField from "../shared/AssigneeField";
-import Tabs from "../../../ui/Tabs";
+import React, { useCallback, useEffect, useState } from "react";
+import { 
+  FileText, 
+  User, 
+  Package, 
+  Calendar, 
+  ChevronUp, 
+  ChevronDown, 
+  CheckCircle, 
+  AlertTriangle, 
+  Hash, 
+  Search, 
+  Download, 
+  Info 
+} from "lucide-react";
+import axios from "../../../../utils/api";
 import { useFormData, useRootCardContext } from "../hooks";
-import { PRIORITY_LEVELS, STATUS_LEVELS } from "../constants";
 
 export default function Step6_QualityCheck({ readOnly = false }) {
-  const { formData, updateField } = useFormData();
-  const { state, setNestedField } = useRootCardContext();
+  const { formData } = useFormData();
+  const { state } = useRootCardContext();
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expandedReport, setExpandedReport] = useState(null);
+  const [expandedMaterials, setExpandedMaterials] = useState({});
 
-  const inspections = useMemo(() => formData.qualityCheck?.inspections || [], [formData.qualityCheck?.inspections]);
+  // Get ID from either formData or state.initialData
+  const rootCardId = formData?.id || state?.initialData?.id;
 
-  const handleAddInspection = useCallback(() => {
-    const newInspection = {
-      type: "",
-      date: new Date().toISOString().split('T')[0],
-      inspector: "",
-      result: "Pending"
+  useEffect(() => {
+    const fetchReports = async () => {
+      if (!rootCardId) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const response = await axios.get("/qc/reports", {
+          params: { rootCardId }
+        });
+        setReports(response.data || []);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setNestedField("qualityCheck", "inspections", [...inspections, newInspection]);
-  }, [inspections, setNestedField]);
+    fetchReports();
+  }, [rootCardId]);
 
-  const handleRemoveInspection = useCallback((index) => {
-    const currentInspections = [...inspections];
-    currentInspections.splice(index, 1);
-    setNestedField("qualityCheck", "inspections", currentInspections);
-  }, [inspections, setNestedField]);
+  const toggleMaterial = useCallback((reportId, materialIdx) => {
+    const key = `${reportId}-${materialIdx}`;
+    setExpandedMaterials(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  }, []);
 
-  const handleUpdateInspection = useCallback((index, field, value) => {
-    const currentInspections = [...inspections];
-    currentInspections[index] = { ...currentInspections[index], [field]: value };
-    setNestedField("qualityCheck", "inspections", currentInspections);
-  }, [inspections, setNestedField]);
+  const filteredReports = reports.filter(r => 
+    r.grn_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.vendor_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const qualityRequirementsContent = useMemo(() => (
-    <div className="space-y-3">
-      <div>
-        <h5 className="text-sm font-semibold text-slate-900 mb-2 text-left">Quality Standards</h5>
-        <Input
-          label="Quality Standards"
-          value={formData.qualityCompliance?.qualityStandards || ""}
-          onChange={(e) => setNestedField("qualityCompliance", "qualityStandards", e.target.value)}
-          placeholder="e.g., ISO 9001:2015"
-          disabled={readOnly}
-        />
-        <FormRow cols={2}>
-          <Input
-            label="Welding Standards"
-            value={formData.qualityCompliance?.weldingStandards || ""}
-            onChange={(e) => setNestedField("qualityCompliance", "weldingStandards", e.target.value)}
-            placeholder="e.g., AWS D1.1"
-            disabled={readOnly}
-          />
-          <Input
-            label="Surface Finish"
-            value={formData.qualityCompliance?.surfaceFinish || ""}
-            onChange={(e) => setNestedField("qualityCompliance", "surfaceFinish", e.target.value)}
-            placeholder="e.g., Ra 1.6"
-            disabled={readOnly}
-          />
-        </FormRow>
-        <FormRow cols={2}>
-          <Input
-            label="Mechanical Load Testing"
-            value={formData.qualityCompliance?.mechanicalLoadTesting || ""}
-            onChange={(e) => setNestedField("qualityCompliance", "mechanicalLoadTesting", e.target.value)}
-            placeholder="e.g., 1.5x load"
-            disabled={readOnly}
-          />
-          <Input
-            label="Electrical Compliance"
-            value={formData.qualityCompliance?.electricalCompliance || ""}
-            onChange={(e) => setNestedField("qualityCompliance", "electricalCompliance", e.target.value)}
-            placeholder="e.g., IP65"
-            disabled={readOnly}
-          />
-        </FormRow>
-        <Input
-          label="Documents Required"
-          value={formData.qualityCompliance?.documentsRequired || ""}
-          onChange={(e) => setNestedField("qualityCompliance", "documentsRequired", e.target.value)}
-          placeholder="e.g., QAP, FAT Report"
-          disabled={readOnly}
-        />
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Loading Reports...</p>
       </div>
-
-      <div className="border-t border-slate-200 pt-3">
-        <h5 className="text-sm font-semibold text-slate-900 mb-2 text-left">Warranty & Support</h5>
-        <FormRow cols={2}>
-          <Input
-            label="Warranty Period"
-            value={formData.warrantySupport?.warrantyPeriod || ""}
-            onChange={(e) => setNestedField("warrantySupport", "warrantyPeriod", e.target.value)}
-            placeholder="e.g., 12 Months"
-            disabled={readOnly}
-          />
-          <Input
-            label="Service Support"
-            value={formData.warrantySupport?.serviceSupport || ""}
-            onChange={(e) => setNestedField("warrantySupport", "serviceSupport", e.target.value)}
-            placeholder="e.g., On-call support"
-            disabled={readOnly}
-          />
-        </FormRow>
-      </div>
-    </div>
-  ), [formData.qualityCompliance, formData.warrantySupport, setNestedField, readOnly]);
-
-  const inspectionResultsContent = useMemo(() => (
-    <div className="space-y-2">
-      <div className="bg-slate-50 p-4 rounded border border-slate-200">
-        <h5 className="text-sm font-semibold text-slate-900 mb-3 text-left">Overall QC Summary</h5>
-        <FormRow cols={2}>
-          <Input
-            label="Inspection Type"
-            value={formData.qualityCheck?.inspectionType || ""}
-            onChange={(e) => setNestedField("qualityCheck", "inspectionType", e.target.value)}
-            placeholder="e.g., Final Inspection"
-            disabled={readOnly}
-          />
-          <Select
-            label="Overall QC Status"
-            options={[
-              { label: "Pending", value: "pending" },
-              { label: "Passed", value: "passed" },
-              { label: "Failed", value: "failed" },
-              { label: "Conditional Pass", value: "conditional" }
-            ]}
-            value={formData.qualityCheck?.qcStatus || "pending"}
-            onChange={(e) => setNestedField("qualityCheck", "qcStatus", e.target.value)}
-            disabled={readOnly}
-          />
-        </FormRow>
-        <div className="mt-3">
-          <label className="block text-sm font-medium text-slate-900 text-left mb-2">Detailed QC Report</label>
-          <textarea
-            value={formData.qualityCheck?.qcReport || ""}
-            onChange={(e) => setNestedField("qualityCheck", "qcReport", e.target.value)}
-            disabled={readOnly}
-            rows="4"
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter detailed quality control report or findings"
-          />
-        </div>
-        <div className="mt-3">
-          <label className="block text-sm font-medium text-slate-900 text-left mb-2">Final Remarks</label>
-          <textarea
-            value={formData.qualityCheck?.remarks || ""}
-            onChange={(e) => setNestedField("qualityCheck", "remarks", e.target.value)}
-            disabled={readOnly}
-            rows="3"
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter final QC remarks"
-          />
-        </div>
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h5 className="text-sm font-semibold text-slate-900">Detailed Inspection Logs</h5>
-          {!readOnly && (
-            <button
-              type="button"
-              onClick={handleAddInspection}
-              className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md text-xs font-medium hover:bg-blue-100 transition-colors"
-            >
-              <Plus size={14} />
-              Add Inspection
-            </button>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          {(inspections.length === 0) ? (
-            <div className="text-center py-8 bg-slate-50 rounded border border-dashed border-slate-300">
-              <p className="text-sm text-slate-500">No inspection logs recorded yet.</p>
-            </div>
-          ) : (
-            inspections.map((inspection, index) => (
-              <div key={index} className="p-4 bg-white border border-slate-200 rounded relative">
-                {!readOnly && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveInspection(index)}
-                    className="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                )}
-                <FormRow cols={2} className="mb-3">
-                  <Input
-                    label="Inspection / Test Name"
-                    value={inspection.type || ""}
-                    onChange={(e) => handleUpdateInspection(index, "type", e.target.value)}
-                    placeholder="e.g., Dimensional Check"
-                    disabled={readOnly}
-                  />
-                  <Input
-                    label="Inspection Date"
-                    type="date"
-                    value={inspection.date || ""}
-                    onChange={(e) => handleUpdateInspection(index, "date", e.target.value)}
-                    disabled={readOnly}
-                  />
-                </FormRow>
-                <FormRow cols={2}>
-                  <Input
-                    label="Inspector Name"
-                    value={inspection.inspector || ""}
-                    onChange={(e) => handleUpdateInspection(index, "inspector", e.target.value)}
-                    placeholder="Name of inspector"
-                    disabled={readOnly}
-                  />
-                  <Select
-                    label="Result"
-                    options={[
-                      { label: "Passed", value: "Passed" },
-                      { label: "Failed", value: "Failed" },
-                      { label: "Observation", value: "Observation" }
-                    ]}
-                    value={inspection.result || "Passed"}
-                    onChange={(e) => handleUpdateInspection(index, "result", e.target.value)}
-                    disabled={readOnly}
-                  />
-                </FormRow>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  ), [formData.qualityCheck, inspections, handleAddInspection, handleRemoveInspection, handleUpdateInspection, setNestedField, readOnly]);
-
-  const paymentAndInternalContent = useMemo(() => (
-    <div className="space-y-3">
-      <div>
-        <h5 className="text-sm font-semibold text-slate-900 mb-2 text-left">Payment & Priority</h5>
-        <FormRow cols={2}>
-          <Input
-            label="Payment Terms"
-            value={formData.paymentTerms || ""}
-            onChange={(e) => updateField("paymentTerms", e.target.value)}
-            placeholder="e.g., 40% advance"
-            disabled={readOnly}
-          />
-          <div>
-            <label className="block text-sm font-medium text-slate-900 text-left mb-2">Order Status</label>
-            <select
-              value={formData.status || "pending"}
-              onChange={(e) => updateField("status", e.target.value)}
-              disabled={readOnly}
-              className="w-full p-2 text-xs bg-white border border-slate-200 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              {STATUS_LEVELS.map((level) => (
-                <option key={level.value} value={level.value}>{level.label}</option>
-              ))}
-            </select>
-          </div>
-        </FormRow>
-      </div>
-
-      <div className="border-t border-slate-200 pt-3">
-        <h5 className="text-sm font-semibold text-slate-900 mb-2 text-left">Internal Information</h5>
-        <FormRow cols={2}>
-          <Select
-            label="Internal Project Owner"
-            options={state.employees?.map(emp => ({ label: emp.full_name || emp.name, value: emp.id })) || []}
-            value={formData.internalProjectOwner || ""}
-            onChange={(e) => updateField("internalProjectOwner", e.target.value)}
-            placeholder="Select Project Owner"
-            disabled={readOnly}
-          />
-          <div className="hidden md:block"></div>
-        </FormRow>
-        <FormRow cols={2}>
-          <Input
-            label="Estimated Costing (₹)"
-            type="number"
-            step="any"
-            value={formData.internalInfo?.estimatedCosting || ""}
-            onChange={(e) => setNestedField("internalInfo", "estimatedCosting", e.target.value)}
-            placeholder="0.00"
-            disabled={readOnly}
-          />
-          <Input
-            label="Estimated Profit (₹)"
-            type="number"
-            step="any"
-            value={formData.internalInfo?.estimatedProfit || ""}
-            onChange={(e) => setNestedField("internalInfo", "estimatedProfit", e.target.value)}
-            placeholder="0.00"
-            disabled={readOnly}
-          />
-        </FormRow>
-        <Input
-          label="Job Card Number"
-          value={formData.internalInfo?.jobCardNo || ""}
-          onChange={(e) => setNestedField("internalInfo", "jobCardNo", e.target.value)}
-          placeholder="Enter job card number"
-          disabled={readOnly}
-        />
-      </div>
-
-      <div className="border-t border-slate-200 pt-3">
-        <h5 className="text-sm font-semibold text-slate-900 mb-2 text-left">Special Instructions</h5>
-        <textarea
-          value={formData.specialInstructions || ""}
-          onChange={(e) => updateField("specialInstructions", e.target.value)}
-          disabled={readOnly}
-          rows="4"
-          className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          placeholder="Enter any special instructions"
-        />
-      </div>
-    </div>
-  ), [formData.paymentTerms, formData.projectPriority, formData.totalAmount, formData.status, formData.internalInfo, formData.specialInstructions, formData.internalProjectOwner, state.employees, updateField, setNestedField, readOnly]);
-
-  const tabs = useMemo(() => [
-    { label: "Requirements", content: qualityRequirementsContent },
-    { label: "Inspections", content: inspectionResultsContent },
-    { label: "Payment & Internal", content: paymentAndInternalContent },
-  ], [qualityRequirementsContent, inspectionResultsContent, paymentAndInternalContent]);
+    );
+  }
 
   return (
-    <div className="space-y-2">
-      <AssigneeField
-        stepType="qualityCheck"
-        formData={state.formData}
-        updateField={updateField}
-        employees={state.employees}
-        readOnly={readOnly}
-      />
-      
-      <FormSection
-        title="Quality & Compliance"
-        subtitle="Manage quality standards, inspections, and project economics"
-        icon={Shield}
-      >
-        <div className="space-y-2">
-          <Tabs tabs={tabs} defaultTab={1} />
+    <div className="space-y-4">
+      {/* Header with Search */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+            <FileText className="text-emerald-600" size={24} />
+            Quality Inspection Reports
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs font-bold uppercase tracking-widest">
+            History of all finalized quality inspections for this root card
+          </p>
         </div>
-      </FormSection>
+
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <input
+            type="text"
+            placeholder="Search reports..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm"
+          />
+        </div>
+      </div>
+
+      {/* Reports List */}
+      <div className="space-y-4">
+        {filteredReports.length === 0 ? (
+          <div className="bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-12 text-center">
+            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-300">
+              <FileText size={40} />
+            </div>
+            <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase">No Reports Found</h3>
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-2">Create a final report from the material inspection portal</p>
+          </div>
+        ) : (
+          filteredReports.map((report) => (
+            <div 
+              key={report.id}
+              className={`bg-white dark:bg-slate-800 rounded-2xl border transition-all overflow-hidden shadow-sm ${
+                expandedReport === report.id ? 'border-emerald-500 ring-4 ring-emerald-500/5' : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300'
+              }`}
+            >
+              <div 
+                className="p-5 flex flex-wrap items-center justify-between gap-4 cursor-pointer"
+                onClick={() => setExpandedReport(expandedReport === report.id ? null : report.id)}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${expandedReport === report.id ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-600'}`}>
+                    <CheckCircle size={24} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{report.grn_number}</h4>
+                      <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 rounded text-[8px] font-black uppercase tracking-widest">{report.inspection_type}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <span className="flex items-center gap-1"><User size={12} /> {report.vendor_name}</span>
+                      <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                      <span className="flex items-center gap-1"><Package size={12} /> {report.project_name}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Report Date</p>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1 justify-end">
+                      <Calendar size={12} /> {new Date(report.report_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {report.is_sent_to_inventory ? (
+                      <div className="p-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border border-slate-200">
+                        <CheckCircle size={14} className="text-green-500" />
+                        Sent to Inventory
+                      </div>
+                    ) : (
+                      <div className="p-2 bg-amber-50 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border border-amber-100">
+                        Pending Transfer
+                      </div>
+                    )}
+                    <button 
+                      className="p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-emerald-600 rounded-xl transition-all"
+                      title="Download PDF"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Download size={18} />
+                    </button>
+                    {expandedReport === report.id ? <ChevronUp size={20} className="text-emerald-600" /> : <ChevronDown size={20} className="text-slate-400" />}
+                  </div>
+                </div>
+              </div>
+
+              {expandedReport === report.id && (
+                <div className="border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 p-6 animate-in slide-in-from-top-2 duration-200">
+                  <div className="grid grid-cols-1 gap-4">
+                    <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <Package size={14} /> Material Inspection Details
+                    </h5>
+                    
+                    <div className="overflow-hidden border border-slate-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 shadow-sm">
+                      <table className="w-full text-left">
+                        <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                          <tr>
+                            <th className="px-6 py-3">Material Info</th>
+                            <th className="px-4 py-3 text-center">Received</th>
+                            <th className="px-4 py-3 text-center">Result</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                          {report.materials?.map((m, mIdx) => {
+                            const materialKey = `${report.id}-${mIdx}`;
+                            const isMatExpanded = expandedMaterials[materialKey];
+                            
+                            return (
+                              <React.Fragment key={mIdx}>
+                                <tr 
+                                  className={`text-[11px] font-bold text-slate-700 dark:text-slate-300 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 cursor-pointer transition-colors ${isMatExpanded ? 'bg-emerald-50/20' : ''}`}
+                                  onClick={() => toggleMaterial(report.id, mIdx)}
+                                >
+                                  <td className="p-2">
+                                    <div className="flex items-center gap-2">
+                                      <div className={`w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 ${isMatExpanded ? 'bg-emerald-100 text-emerald-600' : ''}`}>
+                                        <Package size={12} />
+                                      </div>
+                                      <div>
+                                        <p className="font-black text-slate-900 dark:text-white uppercase flex items-center gap-2">
+                                          {m.material_name}
+                                          {m.st_numbers?.length > 0 && (
+                                            isMatExpanded ? <ChevronUp size={12} className="text-emerald-600" /> : <ChevronDown size={12} className="text-slate-400" />
+                                          )}
+                                        </p>
+                                        <p className="text-[9px] text-slate-400 uppercase tracking-tighter flex items-center gap-2">
+                                          <Hash size={10} /> {m.item_code || 'N/A'} • {m.item_group}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-4 text-center">{m.received_qty} {m.unit}</td>
+                                  <td className="px-4 py-4">
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded border border-green-100 flex items-center gap-1 font-black uppercase text-[9px]">
+                                        <CheckCircle size={10} /> {m.accepted_qty} Accepted
+                                      </span>
+                                      {m.rejected_qty > 0 && (
+                                        <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded border border-red-100 flex items-center gap-1 font-black uppercase text-[9px]">
+                                          <AlertTriangle size={10} /> {m.rejected_qty} Rejected
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                                
+                                {m.st_numbers?.length > 0 && isMatExpanded && (
+                                  <tr className="animate-in fade-in slide-in-from-top-1 duration-200">
+                                    <td colSpan="3" className="px-8 py-4 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800">
+                                      <div className="flex items-center gap-2 mb-3">
+                                        <Info size={12} className="text-emerald-600" />
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">ST Number status for {m.material_name}</span>
+                                      </div>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        {m.st_numbers.map((st, stIdx) => (
+                                          <div 
+                                            key={stIdx}
+                                            className={`p-3 rounded-xl border bg-white dark:bg-slate-900 shadow-sm transition-all hover:shadow-md flex flex-col gap-2 ${
+                                              st.status === 'ACCEPTED' 
+                                                ? 'border-green-100 dark:border-green-900/30' 
+                                                : 'border-red-100 dark:border-red-900/30'
+                                            }`}
+                                          >
+                                            <div className="flex items-center justify-between">
+                                              <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase flex items-center gap-2">
+                                                <Hash size={12} className="text-slate-400" /> {st.st_code}
+                                              </span>
+                                              <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
+                                                st.status === 'ACCEPTED' 
+                                                  ? 'bg-green-100 text-green-600' 
+                                                  : 'bg-red-100 text-red-600'
+                                              }`}>
+                                                {st.status}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

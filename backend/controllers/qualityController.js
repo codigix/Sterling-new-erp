@@ -15,7 +15,7 @@ exports.getGRNInspections = async (req, res) => {
   try {
     const { salesOrderId } = req.query;
     
-    // Fetch GRNs that are ready for QC
+    // Fetch GRNs that are ready for QC (exclude 'pending' as it's not yet sent to quality)
     const [rows] = await db.query(`
       SELECT g.*, v.name as vendor, po.po_number as poNumber,
       rc.project_name as projectName, rc.id as rootCardId,
@@ -26,7 +26,7 @@ exports.getGRNInspections = async (req, res) => {
       LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
       LEFT JOIN quotations q ON po.quotation_id = q.id
       LEFT JOIN root_cards rc ON q.root_card_id = rc.id
-      WHERE g.status IN ('pending', 'qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
+      WHERE g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
       ORDER BY g.created_at DESC
     `);
     
@@ -64,7 +64,7 @@ exports.getQCReadyRootCards = async (req, res) => {
       JOIN quotations q ON q.root_card_id = rc.id
       JOIN purchase_orders po ON po.quotation_id = q.id
       JOIN grns g ON g.purchase_order_id = po.id
-      WHERE g.status IN ('pending', 'qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
+      WHERE g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved')
     `);
     res.json(rows);
   } catch (error) {
@@ -97,7 +97,7 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       JOIN vendors v ON g.vendor_id = v.id
       JOIN quotations q ON po.quotation_id = q.id
       JOIN purchase_order_items poi ON gi.po_item_id = poi.id
-      WHERE q.root_card_id = ? AND (g.status IN ('pending', 'qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved'))
+      WHERE q.root_card_id = ? AND (g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved'))
     `, [rootCardId]);
 
     // Fetch serials for these GRN items
@@ -105,10 +105,10 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
     let serials = [];
     if (grnIds.length > 0) {
       const [serialRows] = await db.query(
-        `SELECT s.*, qir.document_path 
+        `SELECT s.*, qir.document_path, qir.notes as rejection_reason 
          FROM inventory_serials s 
          LEFT JOIN (
-           SELECT serial_number, document_path, id
+           SELECT serial_number, document_path, notes, id
            FROM quality_inspection_results
            WHERE id IN (
              SELECT MAX(id)
@@ -175,7 +175,8 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
           item_code: s.item_code,
           status: s.status,
           inspection_status: s.inspection_status || 'Pending',
-          document_path: s.document_path
+          document_path: s.document_path,
+          rejection_reason: s.rejection_reason
         }))
       };
     });
@@ -300,10 +301,23 @@ exports.createFinalQCReport = async (req, res) => {
 
 exports.getFinalQCReports = async (req, res) => {
     try {
-        const [rows] = await db.query(`
-            SELECT * FROM quality_final_reports 
-            ORDER BY created_at DESC
-        `);
+        const { rootCardId } = req.query;
+        let query = 'SELECT * FROM quality_final_reports';
+        let queryParams = [];
+
+        if (rootCardId) {
+            query = `
+                SELECT qfr.* 
+                FROM quality_final_reports qfr
+                JOIN grns g ON qfr.grn_id = g.id
+                JOIN purchase_orders po ON g.purchase_order_id = po.id
+                JOIN quotations q ON po.quotation_id = q.id
+                WHERE q.root_card_id = ?
+            `;
+            queryParams = [rootCardId];
+        }
+
+        const [rows] = await db.query(`${query} ORDER BY created_at DESC`, queryParams);
         
         // Fetch items for each report
         const reports = [];
@@ -347,11 +361,15 @@ exports.sendToQC = async (req, res) => {
   try {
     await connection.beginTransaction();
     
-    // 0. Check current status
-    const [currentGrn] = await connection.query(
-      'SELECT status, grn_number FROM grns WHERE id = ?',
-      [id]
-    );
+    // 0. Check current status and get project name
+    const [currentGrn] = await connection.query(`
+      SELECT g.status, g.grn_number, rc.project_name
+      FROM grns g
+      LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
+      LEFT JOIN quotations q ON po.quotation_id = q.id
+      LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+      WHERE g.id = ?
+    `, [id]);
 
     if (currentGrn.length === 0) {
       throw new Error('GRN not found');
@@ -371,13 +389,14 @@ exports.sendToQC = async (req, res) => {
 
     // 3. Create notification for Quality department
     await connection.query(
-      `INSERT INTO notifications (department, title, message, type) 
-       VALUES (?, ?, ?, ?)`,
+      `INSERT INTO notifications (department, title, message, type, link) 
+       VALUES (?, ?, ?, ?, ?)`,
       [
         'Quality',
-        'New GRN for Inspection',
-        `GRN ${grn.grn_number} has been submitted and is ready for quality inspection.`,
-        'info'
+        'Material Quality Check',
+        `GRN ${grn.grn_number} for project ${grn.project_name || 'N/A'} is ready for quality inspection.`,
+        'info',
+        `/department/quality/incoming?search=${grn.grn_number}`
       ]
     );
 
@@ -452,7 +471,7 @@ exports.sendReportToInventory = async (req, res) => {
 
         // 1. Get report details
         const [reportRows] = await connection.query(
-            'SELECT grn_id, grn_number FROM quality_final_reports WHERE id = ?',
+            'SELECT grn_id, grn_number, project_name FROM quality_final_reports WHERE id = ?',
             [id]
         );
         
@@ -476,13 +495,14 @@ exports.sendReportToInventory = async (req, res) => {
 
         // 4. Create notification for Inventory department
         await connection.query(
-            `INSERT INTO notifications (department, title, message, type) 
-             VALUES (?, ?, ?, ?)`,
+            `INSERT INTO notifications (department, title, message, type, link) 
+             VALUES (?, ?, ?, ?, ?)`,
             [
                 'Inventory',
-                'QC Report Received',
-                `Final QC Report for GRN ${report.grn_number} has been received. Materials are ready for storage.`,
-                'success'
+                'Quality Check Completed',
+                `Quality check is completed and material is ready for release for production against project: ${report.project_name} (GRN: ${report.grn_number})`,
+                'success',
+                `/department/inventory/grn?search=${report.grn_number}`
             ]
         );
 
@@ -519,17 +539,32 @@ exports.submitQualityInspection = async (req, res) => {
 
         // 2. Insert results and update serial status
         for (const item of results) {
-            await connection.query(
-                'INSERT INTO quality_inspection_results (inspection_id, serial_number, status, notes) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status), notes = VALUES(notes)',
-                [inspectionId, item.serial_number, item.status, item.notes]
-            );
+            if (item.status === 'Pending') {
+                // If status is Pending, it's a revert action
+                // Delete previous result if exists
+                await connection.query(
+                    'DELETE FROM quality_inspection_results WHERE inspection_id = ? AND serial_number = ?',
+                    [inspectionId, item.serial_number]
+                );
 
-            // Update inventory_serials
-            const finalStatus = item.status === 'Accepted' ? 'Available' : 'Rejected';
-            await connection.query(
-                'UPDATE inventory_serials SET status = ?, inspection_status = ? WHERE serial_number = ?',
-                [finalStatus, item.status, item.serial_number]
-            );
+                // Update inventory_serials back to Quality/Pending
+                await connection.query(
+                    'UPDATE inventory_serials SET status = "Quality", inspection_status = "Pending" WHERE serial_number = ?',
+                    [item.serial_number]
+                );
+            } else {
+                await connection.query(
+                    'INSERT INTO quality_inspection_results (inspection_id, serial_number, status, notes) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status), notes = VALUES(notes)',
+                    [inspectionId, item.serial_number, item.status, item.notes]
+                );
+
+                // Update inventory_serials
+                const finalStatus = item.status === 'Accepted' ? 'Available' : 'Rejected';
+                await connection.query(
+                    'UPDATE inventory_serials SET status = ?, inspection_status = ? WHERE serial_number = ?',
+                    [finalStatus, item.status, item.serial_number]
+                );
+            }
         }
 
         // 3. Update GRN status if all serials are inspected and all required docs are present
@@ -565,10 +600,15 @@ exports.submitQualityInspection = async (req, res) => {
                 
                 if (allDocsPresent) {
                     await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [grn_id]);
+                } else {
+                    await connection.query('UPDATE grns SET status = "qc_pending" WHERE id = ?', [grn_id]);
                 }
             } else {
                 await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [grn_id]);
             }
+        } else {
+            // If not all processed (due to a revert), move GRN back to qc_pending if it was completed
+            await connection.query('UPDATE grns SET status = "qc_pending" WHERE id = ?', [grn_id]);
         }
 
         await connection.commit();

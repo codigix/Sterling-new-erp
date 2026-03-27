@@ -61,6 +61,49 @@ const ProductionDesignDrawings = () => {
     }
   };
 
+  const getServerUrl = (filePath) => {
+    if (!filePath) return "";
+    const baseUrl = axios.defaults.baseURL.split('/api')[0]; // Gets http://localhost:5001
+    // Clean up the filePath (handle both backslashes and forward slashes, and potential leading slash)
+    const cleanPath = filePath.replace(/\\/g, '/').replace(/^\/+/, '');
+    return `${baseUrl}/${cleanPath}`;
+  };
+
+  const handleDownload = async (doc) => {
+    try {
+      const fileUrl = getServerUrl(doc.file_path);
+      const response = await axios.get(fileUrl, {
+        responseType: 'blob',
+      });
+      
+      // Get the original extension from the file_path
+      const extension = doc.file_path.split('.').pop();
+      // Combine doc.name with the extension if it's not already there
+      const fileName = doc.name.toLowerCase().endsWith(`.${extension.toLowerCase()}`) 
+        ? doc.name 
+        : `${doc.name}.${extension}`;
+
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Failed to download file");
+    }
+  };
+
+  const handleView = (doc) => {
+    const fileUrl = getServerUrl(doc.file_path);
+    if (fileUrl) {
+      window.open(fileUrl, '_blank');
+    }
+  };
+
   return (
     <div className="p-6 space-y-2">
       <div className="flex flex-col gap-2">
@@ -126,14 +169,20 @@ const ProductionDesignDrawings = () => {
                   <div className="text-[11px] text-slate-500">
                     Approved on: {new Date(doc.updated_at).toLocaleDateString()}
                   </div>
-                  <a 
-                    href={`${axios.defaults.baseURL.replace('/api', '')}/${doc.file_path}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm font-bold transition-colors"
-                  >
-                    <Download size={16} /> Download
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => handleView(doc)}
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-xs font-bold transition-colors"
+                    >
+                      <Eye size={14} /> View
+                    </button>
+                    <button 
+                      onClick={() => handleDownload(doc)}
+                      className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-xs font-bold transition-colors"
+                    >
+                      <Download size={14} /> Download
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -8,6 +8,40 @@ import { useFormData } from "../hooks";
 export default function Step1_ClientPO({ readOnly = false }) {
   const { formData, updateField } = useFormData();
   
+  // Keep the random number stable during the component's lifecycle
+  const [randomSuffix] = React.useState(() => Math.floor(1000 + Math.random() * 9000));
+  
+  const handleProjectNameChange = (e) => {
+    const projectName = e.target.value;
+    updateField("projectName", projectName);
+
+    // Automatically generate project code if the name has at least 1 character
+    if (projectName.trim().length > 0) {
+      // Generate initials from words or first few letters
+      const words = projectName.trim().split(/\s+/);
+      let codeBase = "";
+      
+      if (words.length > 1) {
+        codeBase = words.map(word => word[0]).join("").toUpperCase();
+      } else {
+        codeBase = projectName.trim().substring(0, 3).toUpperCase();
+      }
+      
+      const generatedCode = `${codeBase}-${randomSuffix}`;
+      
+      // Update if empty or if it was likely auto-generated (matches the pattern)
+      // We check if the user has NOT manually edited the code to something else
+      // For simplicity, we update it as long as the user hasn't explicitly changed it 
+      // away from our pattern, or if it's currently empty.
+      if (!formData.projectCode || formData.projectCode.includes(`-${randomSuffix}`)) {
+        updateField("projectCode", generatedCode);
+      }
+    } else {
+      // Clear code if name is completely removed
+      updateField("projectCode", "");
+    }
+  };
+
   return (
     <div className="space-y-2">
       <FormSection
@@ -26,7 +60,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
               <Input
                 label="Project Name"
                 value={formData.projectName || ""}
-                onChange={(e) => updateField("projectName", e.target.value)}
+                onChange={handleProjectNameChange}
                 placeholder="Enter project name"
                 disabled={readOnly}
                 required

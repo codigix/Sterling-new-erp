@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Lock, User, Mail, Eye, EyeOff, Boxes, Factory, UserCog, PenTool, ShoppingCart, ClipboardCheck } from 'lucide-react';
+import { Lock, User, Mail, Eye, EyeOff, Boxes, Factory, UserCog, PenTool, ShoppingCart, ClipboardCheck, BarChart3 } from 'lucide-react';
 
 const DEPARTMENTS = [
   { id: 'admin', name: 'Admin', icon: UserCog },
@@ -10,6 +10,7 @@ const DEPARTMENTS = [
   { id: 'procurement', name: 'Procurement', icon: ShoppingCart },
   { id: 'quality', name: 'Quality', icon: ClipboardCheck },
   { id: 'inventory', name: 'Inventory', icon: Boxes },
+  { id: 'accountant', name: 'Accountant', icon: BarChart3 },
 ];
 
 const RegisterPage = () => {

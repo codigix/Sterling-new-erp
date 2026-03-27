@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 const DesignDrawingManagement = () => {
   const [searchParams] = useSearchParams();
@@ -65,9 +66,9 @@ const DesignDrawingManagement = () => {
     }
   };
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const url = rootCardId 
         ? `/design-drawings/root-card/${rootCardId}`
         : `/design-drawings`;
@@ -76,7 +77,40 @@ const DesignDrawingManagement = () => {
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
+    }
+  };
+
+  const getServerUrl = (filePath) => {
+    if (!filePath) return "";
+    const baseUrl = axios.defaults.baseURL.split('/api')[0];
+    const cleanPath = filePath.replace(/\\/g, '/').replace(/^\/+/, '');
+    return `${baseUrl}/${cleanPath}`;
+  };
+
+  const handleDownload = async (doc) => {
+    try {
+      const fileUrl = getServerUrl(doc.file_path);
+      const response = await axios.get(fileUrl, {
+        responseType: 'blob',
+      });
+      
+      const extension = doc.file_path.split('.').pop();
+      const fileName = doc.name.toLowerCase().endsWith(`.${extension.toLowerCase()}`) 
+        ? doc.name 
+        : `${doc.name}.${extension}`;
+
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast.error("Failed to download file");
     }
   };
 
@@ -140,7 +174,7 @@ const DesignDrawingManagement = () => {
     e.preventDefault();
     const finalRootCardId = rootCardId || formData.root_card_id;
     if (!formData.file || !formData.name || !finalRootCardId) {
-      Swal.fire("Error", "Please fill all required fields", "error");
+      toast.error("Please fill all required fields");
       return;
     }
 
@@ -168,25 +202,23 @@ const DesignDrawingManagement = () => {
       }
 
       if (response.data.success) {
-        Swal.fire("Success", response.data.message, "success");
+        toast.success(response.data.message || "Upload successful");
         setShowUploadModal(false);
         
-        // If it was a revision, clear cached history for this drawing to force refresh
+        // If it was a revision, refresh the expanded history
         if (isRevision && selectedDoc) {
           const docKey = selectedDoc.parent_id || selectedDoc.id;
-          setDocHistories(prev => {
-            const newState = { ...prev };
-            delete newState[docKey];
-            return newState;
-          });
+          if (expandedDocs.has(docKey)) {
+            await fetchDocHistory(selectedDoc);
+          }
         }
         
         resetForm();
-        fetchDocuments();
+        fetchDocuments(true); // silent refresh
       }
     } catch (error) {
       console.error("Upload failed:", error);
-      Swal.fire("Error", error.response?.data?.message || "Upload failed", "error");
+      toast.error(error.response?.data?.message || "Upload failed");
     } finally {
       setLoading(false);
     }
@@ -203,20 +235,18 @@ const DesignDrawingManagement = () => {
     try {
       const response = await axios.put(`/design-drawings/${selectedDoc.id}/review`, reviewData);
       if (response.data.success) {
-        Swal.fire("Success", response.data.message, "success");
+        toast.success(response.data.message || "Review updated");
         setShowReviewModal(false);
-        fetchDocuments();
-        // Clear cached history to force refresh
+        fetchDocuments(true);
+        // Refresh expanded history if needed
         const docKey = selectedDoc.parent_id || selectedDoc.id;
-        setDocHistories(prev => {
-          const newState = { ...prev };
-          delete newState[docKey];
-          return newState;
-        });
+        if (expandedDocs.has(docKey)) {
+          await fetchDocHistory(selectedDoc);
+        }
       }
     } catch (error) {
       console.error("Review failed:", error);
-      Swal.fire("Error", "Review failed", "error");
+      toast.error(error.response?.data?.message || "Review failed");
     }
   };
 
@@ -224,8 +254,8 @@ const DesignDrawingManagement = () => {
     try {
       const response = await axios.put(`/design-drawings/${docId}/submit`);
       if (response.data.success) {
-        Swal.fire("Success", "Submitted for review", "success");
-        fetchDocuments();
+        toast.success("Submitted for review");
+        fetchDocuments(true);
         // Refresh expanded history if needed
         const doc = documents.find(d => d.id === docId);
         if (doc) {
@@ -233,7 +263,7 @@ const DesignDrawingManagement = () => {
         }
       }
     } catch (error) {
-      Swal.fire("Error", "Submission failed", "error");
+      toast.error(error.response?.data?.message || "Submission failed");
     }
   };
 
@@ -257,20 +287,18 @@ const DesignDrawingManagement = () => {
         });
         
         if (response.data.success) {
-          Swal.fire("Approved!", "The drawing has been approved successfully.", "success");
-          fetchDocuments();
-          // Clear cached history to force refresh
+          toast.success("The drawing has been approved successfully.");
+          fetchDocuments(true);
+          // Refresh expanded history if needed
           const docKey = doc.parent_id || doc.id;
-          setDocHistories(prev => {
-            const newState = { ...prev };
-            delete newState[docKey];
-            return newState;
-          });
+          if (expandedDocs.has(docKey)) {
+             await fetchDocHistory(doc);
+          }
         }
       }
     } catch (error) {
       console.error("Approval failed:", error);
-      Swal.fire("Error", "Approval failed", "error");
+      toast.error(error.response?.data?.message || "Approval failed");
     } finally {
       setLoading(false);
     }
@@ -294,21 +322,29 @@ const DesignDrawingManagement = () => {
         setLoading(true);
         const response = await axios.delete(`/design-drawings/${docId}${deleteAll ? "?deleteAll=true" : ""}`);
         if (response.data.success) {
-          Swal.fire("Deleted!", response.data.message || "Drawing has been deleted.", "success");
-          fetchDocuments();
+          toast.success(response.data.message || "Drawing has been deleted.");
+          fetchDocuments(true);
           if (deleteAll) {
-            setExpandedDocs(new Set());
-            setDocHistories({});
+            setExpandedDocs(prev => {
+              const newState = new Set(prev);
+              newState.delete(docId);
+              return newState;
+            });
+            setDocHistories(prev => {
+              const newState = { ...prev };
+              delete newState[docId];
+              return newState;
+            });
           } else {
              // If we deleted a single revision, we might need to refresh history
-             // But usually we just refresh the main list which groups them
+             // We can just clear it or better re-fetch it if expanded
              setDocHistories({});
           }
         }
       }
     } catch (error) {
       console.error("Delete failed:", error);
-      Swal.fire("Error", error.response?.data?.message || "Delete failed", "error");
+      toast.error(error.response?.data?.message || "Delete failed");
     } finally {
       setLoading(false);
     }
@@ -446,7 +482,7 @@ const DesignDrawingManagement = () => {
                       </td>
                       <td className="p-2 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
-                          {doc.type !== 'Final Approved Drawing' && (
+                          {doc.type !== 'Final Approved Drawing' && doc.status !== 'Approved' && (
                             <button 
                               onClick={() => {
                                 setSelectedDoc(doc); 
@@ -516,7 +552,11 @@ const DesignDrawingManagement = () => {
                                           {rev.reviewer_name && <span className="flex items-center gap-1 text-slate-500">Reviewer: <b className="text-slate-700 dark:text-slate-300">{rev.reviewer_name}</b></span>}
                                         </div>
                                         {rev.reviewer_comment && (
-                                          <div className="text-[11px] text-red-600 mt-2.5 flex items-start gap-2 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded border border-red-100 dark:border-red-900/30">
+                                          <div className={`text-[11px] mt-2.5 flex items-start gap-2 px-3 py-2 rounded border ${
+                                            rev.status === 'Approved' 
+                                              ? "text-green-600 bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-900/30" 
+                                              : "text-red-600 bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30"
+                                          }`}>
                                             <MessageSquare size={14} className="mt-0.5 shrink-0" /> 
                                             <div>
                                               <span className="  text-[9px] block mb-0.5">Reviewer Feedback:</span>
@@ -528,14 +568,19 @@ const DesignDrawingManagement = () => {
                                     </div>
                                     
                                     <div className="flex items-center gap-2">
-                                      <a 
-                                        href={`${axios.defaults.baseURL.split('/api')[0]}/${rev.file_path}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
+                                      <button 
+                                        onClick={() => window.open(getServerUrl(rev.file_path), '_blank')}
                                         className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded transition-colors border border-slate-200 dark:border-slate-600"
                                       >
                                         <Eye size={14} /> View
-                                      </a>
+                                      </button>
+                                      
+                                      <button 
+                                        onClick={() => handleDownload(rev)}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded transition-colors border border-slate-200 dark:border-slate-600"
+                                      >
+                                        <Download size={14} /> Download
+                                      </button>
                                       
                                       {index === 0 && rev.type !== 'Final Approved Drawing' && (
                                         <div className="flex items-center gap-2">

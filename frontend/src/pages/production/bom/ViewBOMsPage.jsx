@@ -173,7 +173,7 @@ const ViewBOMsPage = () => {
   };
 
   const filteredBOMs = useMemo(() => {
-    if (!isSendToAdminTask && !rootCardFilter) return [];
+    if (!isSendToAdminTask && (!rootCardFilter || rootCardFilter === "")) return boms;
 
     return boms.filter((bom) => {
       // If it's the "Send to Admin" task, show all BOMs for this specific root card
@@ -181,17 +181,18 @@ const ViewBOMsPage = () => {
         return String(bom.rootCardId) === String(rootCardIdFromUrl);
       }
 
-      const matchesRootCard = String(bom.rootCardId) === String(rootCardFilter);
+      const matchesRootCard = rootCardFilter && String(bom.rootCardId) === String(rootCardFilter);
       
       return matchesRootCard;
     });
   }, [boms, rootCardFilter, isSendToAdminTask, rootCardIdFromUrl]);
 
   const rootCardOptions = useMemo(() => {
-    return (Array.isArray(rootCards) ? rootCards : []).map(rc => ({
+    const options = (Array.isArray(rootCards) ? rootCards : []).map(rc => ({
       label: rc.project_name || rc.title || 'N/A',
       value: String(rc.id)
     }));
+    return [{ label: "All Projects / Root Cards", value: "" }, ...options];
   }, [rootCards]);
 
   const stats = useMemo(() => {
@@ -217,6 +218,23 @@ const ViewBOMsPage = () => {
   }, [rootCards]);
 
   const columns = [
+    {
+      key: "rootCardId",
+      label: "PROJECT / ROOT CARD",
+      render: (val) => {
+        const rc = rootCardMap[val];
+        return (
+          <div className="flex flex-col">
+            <span className="font-bold text-slate-900 text-xs truncate max-w-[150px]" title={rc?.project_name}>
+              {rc?.project_name || 'N/A'}
+            </span>
+            <span className="text-[10px] text-slate-500 font-mono">
+              {rc?.title || rc?.id || 'N/A'}
+            </span>
+          </div>
+        );
+      }
+    },
     {
       key: "bomNumber",
       label: "BOM NUMBER",
@@ -338,7 +356,7 @@ const ViewBOMsPage = () => {
             Bill of Materials Revisions
           </h2>
           <p className="text-slate-500 text-xs">
-            Select a project to view all its BOM versions and active status
+            Showing all BOM versions and active status. Use the filter to select a specific project.
           </p>
         </div>
         {!isSendToAdminTask && (
@@ -414,35 +432,19 @@ const ViewBOMsPage = () => {
         </Card>
       )}
 
-      {/* Data Table / Instructions */}
-      {!rootCardFilter && !isSendToAdminTask ? (
-        <Card className="border-none shadow-sm bg-blue-50/30 border-dashed border-2 border-blue-100">
-          <CardContent className="p-16 text-center">
-            <div className="mx-auto w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
-              <ClipboardList size={40} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">Project Selection Required</h3>
-            <p className="text-slate-500 max-w-sm mx-auto text-sm leading-relaxed">
-              To view Bill of Materials revisions and active status, please select a **Root Card** from the filter above.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className={`border-none shadow-sm overflow-hidden ${!rootCardFilter && isSendToAdminTask ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
-          <CardContent className="p-0">
-            <DataTable 
-              columns={columns}
-              data={filteredBOMs}
-              loading={loading}
-              emptyMessage={
-                !isSendToAdminTask && !rootCardFilter 
-                  ? "Please select a Root Card to view its BOM revisions." 
-                  : (isSendToAdminTask ? "No Approved Finished Good BOMs available to send." : "No Bill of Materials found for this project.")
-              }
-            />
-          </CardContent>
-        </Card>
-      )}
+      {/* Data Table */}
+      <Card className={`border-none shadow-sm overflow-hidden ${!rootCardFilter && isSendToAdminTask ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+        <CardContent className="p-0">
+          <DataTable 
+            columns={columns}
+            data={filteredBOMs}
+            loading={loading}
+            emptyMessage={
+              isSendToAdminTask ? "No Approved Finished Good BOMs available to send." : "No Bill of Materials found."
+            }
+          />
+        </CardContent>
+      </Card>
 
       {error && (
         <div className="flex items-center gap-3 p-4 rounded bg-red-50 border border-red-200">

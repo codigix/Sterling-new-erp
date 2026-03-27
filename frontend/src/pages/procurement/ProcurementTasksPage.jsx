@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
-import MaterialRequestPage from "./MaterialRequestPage";
+import MaterialRequestsPage from "../production/MaterialRequestsPage";
 import CreatePurchaseOrderModal from "../inventory/CreatePurchaseOrderModal";
 import "../../styles/TaskPage.css";
 
@@ -231,7 +231,7 @@ const ProcurementTasksPage = () => {
       </div>
 
       {/* Material Requests */}
-      {activeTab === "material-requests" && <MaterialRequestPage />}
+      {activeTab === "material-requests" && <MaterialRequestsPage />}
 
       {/* Shortage Requests */}
       {activeTab === "shortage-requests" && (

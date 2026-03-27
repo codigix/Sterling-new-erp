@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const {
     getQuotations,
     getQuotationById,
@@ -20,6 +22,30 @@ const {
     deleteQuotation
 } = require('../controllers/quotationController');
 const auth = require('../middleware/authMiddleware');
+
+// Multer storage configuration for temporary analysis
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'analysis-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (allowedExtensions.includes(ext)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only PDF and images are allowed for analysis'), false);
+        }
+    }
+});
 
 // @route   GET api/department/procurement/vendors
 // This will be called when base is /api/department/procurement/vendors
@@ -90,7 +116,14 @@ router.post('/', auth, createQuotation);
 router.get('/:id', auth, getQuotationById);
 
 // @route   POST api/department/procurement/quotations/analyze
-router.post('/analyze', auth, analyzeQuotation);
+router.post('/analyze', auth, upload.single('file'), (err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        return res.status(400).json({ message: `Multer error: ${err.message}` });
+    } else if (err) {
+        return res.status(400).json({ message: err.message });
+    }
+    next();
+}, analyzeQuotation);
 
 // @route   GET api/department/procurement/quotations/:id/communications
 router.get('/:id/communications', auth, getCommunications);

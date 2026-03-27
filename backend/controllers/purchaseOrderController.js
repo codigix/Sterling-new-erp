@@ -53,10 +53,13 @@ const getPurchaseOrderById = async (req, res) => {
         const condition = isNumeric ? 'po.id = ?' : 'po.po_number = ?';
 
         const [rows] = await db.query(`
-            SELECT po.*, v.name as vendor_name, v.email as vendor_email, q.quotation_number
+            SELECT po.*, v.name as vendor_name, v.email as vendor_email, q.quotation_number,
+            rc.id as root_card_id, rc.project_name as root_card_project_name
             FROM purchase_orders po
             LEFT JOIN vendors v ON po.vendor_id = v.id
             LEFT JOIN quotations q ON po.quotation_id = q.id
+            LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+            LEFT JOIN root_cards rc ON rc.id = COALESCE(q.root_card_id, mr.root_card_id)
             WHERE ${condition}
         `, [id]);
 
@@ -81,8 +84,8 @@ const getPurchaseOrderById = async (req, res) => {
 const createPurchaseOrder = async (req, res) => {
     const { 
         po_number, quotation_id, vendor_id, order_date, expected_delivery_date, 
-        delivery_location, currency, tax_template, tax_amount, subtotal, 
-        total_amount, notes, items 
+        delivery_location, location_link, currency, tax_template, tax_amount, subtotal, 
+        total_amount, notes, terms, items 
     } = req.body;
     
     const connection = await db.getConnection();
@@ -94,23 +97,39 @@ const createPurchaseOrder = async (req, res) => {
         let finalPoNumber = po_number;
         const [existingPO] = await connection.query('SELECT id FROM purchase_orders WHERE po_number = ?', [po_number]);
         
-        if (existingPO.length > 0) {
+        if (existingPO.length > 0 || !po_number) {
             const year = new Date().getFullYear();
-            const [countRows] = await connection.query('SELECT COUNT(*) as count FROM purchase_orders');
-            const nextNum = (countRows[0].count + 1).toString().padStart(4, '0');
-            finalPoNumber = `PO-${year}-${nextNum}`;
+            const pattern = `PO-${year}-%`;
+            const [lastPO] = await connection.query(
+                'SELECT po_number FROM purchase_orders WHERE po_number LIKE ? ORDER BY po_number DESC LIMIT 1',
+                [pattern]
+            );
+
+            let nextNum = 1;
+            if (lastPO.length > 0) {
+                const lastPoNumber = lastPO[0].po_number;
+                const parts = lastPoNumber.split('-');
+                if (parts.length >= 3) {
+                    const lastNum = parseInt(parts[2]);
+                    if (!isNaN(lastNum)) {
+                        nextNum = lastNum + 1;
+                    }
+                }
+            }
+            finalPoNumber = `PO-${year}-${nextNum.toString().padStart(4, '0')}`;
         }
 
         const [result] = await connection.query(
             `INSERT INTO purchase_orders 
-            (po_number, quotation_id, vendor_id, order_date, expected_delivery_date, delivery_location, currency, tax_template, tax_amount, subtotal, total_amount, notes, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (po_number, quotation_id, vendor_id, order_date, expected_delivery_date, delivery_location, location_link, currency, tax_template, tax_amount, subtotal, total_amount, notes, terms, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 finalPoNumber, quotation_id || null, vendor_id, order_date, 
                 expected_delivery_date || null, delivery_location || '', 
+                location_link || '',
                 currency || 'INR', tax_template || 'No Tax Template', 
                 tax_amount || 0, subtotal || 0, total_amount || 0, 
-                notes || '', 'draft'
+                notes || '', terms || '', 'draft'
             ]
         );
 
@@ -168,8 +187,8 @@ const updatePurchaseOrder = async (req, res) => {
     const { id } = req.params;
     const { 
         quotation_id, vendor_id, order_date, expected_delivery_date, 
-        delivery_location, currency, tax_template, tax_amount, 
-        subtotal, total_amount, notes, items 
+        delivery_location, location_link, currency, tax_template, tax_amount, 
+        subtotal, total_amount, notes, terms, items 
     } = req.body;
     
     const connection = await db.getConnection();
@@ -180,13 +199,13 @@ const updatePurchaseOrder = async (req, res) => {
         await connection.query(
             `UPDATE purchase_orders 
             SET quotation_id = ?, vendor_id = ?, order_date = ?, expected_delivery_date = ?, 
-            delivery_location = ?, currency = ?, tax_template = ?, tax_amount = ?, 
-            subtotal = ?, total_amount = ?, notes = ?
+            delivery_location = ?, location_link = ?, currency = ?, tax_template = ?, tax_amount = ?, 
+            subtotal = ?, total_amount = ?, notes = ?, terms = ?
             WHERE id = ?`,
             [
                 quotation_id || null, vendor_id, order_date, expected_delivery_date || null, 
-                delivery_location || '', currency || 'INR', tax_template || 'No Tax Template', 
-                tax_amount || 0, subtotal || 0, total_amount || 0, notes || '', id
+                delivery_location || '', location_link || '', currency || 'INR', tax_template || 'No Tax Template', 
+                tax_amount || 0, subtotal || 0, total_amount || 0, notes || '', terms || '', id
             ]
         );
 
@@ -245,7 +264,7 @@ const updatePurchaseOrderStatus = async (req, res) => {
         // If PO is sent to inventory, update root card status
         if (status === 'sent to inventory') {
             const [rows] = await db.query(`
-                SELECT COALESCE(q.root_card_id, mr.root_card_id) as root_card_id
+                SELECT po.po_number, COALESCE(q.root_card_id, mr.root_card_id) as root_card_id
                 FROM purchase_orders po
                 LEFT JOIN quotations q ON po.quotation_id = q.id
                 LEFT JOIN material_requests mr ON q.material_request_id = mr.id
@@ -489,15 +508,18 @@ const createPurchaseReceipt = async (req, res) => {
 
             // Internal helper to generate item code if missing
             const generateItemCode = (name) => {
+                const upperName = (name || "").toUpperCase().trim();
                 let typeCode = "GEN";
-                const upperName = (name || "").toUpperCase();
                 if (upperName.includes("PLATE")) typeCode = "PLT";
                 else if (upperName.includes("ROUND BAR") || upperName.includes("RB") || upperName.includes("Ø") || upperName.includes("DIA")) typeCode = "RB";
                 else if (upperName.includes("PIPE")) typeCode = "PIPE";
+                else if (upperName.includes("PAINT")) typeCode = "PNT";
+                else if (upperName.includes("THINNER")) typeCode = "THN";
+                else if (upperName.includes("WELDING") || upperName.includes("ELECTRODE")) typeCode = "WLD";
 
                 // Try 3-dimension pattern (e.g. 12000X1500X25)
                 let sizeMatch = upperName.match(/(\d+)\s*[X]\s*(\d+)\s*[X]\s*(\d+)/);
-                let shortSize = "SIZE";
+                let shortSize = "";
                 
                 if (sizeMatch) {
                     const dims = [sizeMatch[1], sizeMatch[2], sizeMatch[3]].map(d => {
@@ -516,6 +538,19 @@ const createPurchaseReceipt = async (req, res) => {
                         shortSize = dims.join("x");
                     }
                 }
+
+                if (!shortSize) {
+                    // If no dimensions, create a slug from the name (first 2-3 words/parts)
+                    shortSize = upperName
+                        .replace(/[^A-Z0-9\s]/g, '')
+                        .split(/\s+/)
+                        .filter(word => word.length > 1)
+                        .slice(0, 2)
+                        .join("");
+                    
+                    if (!shortSize) shortSize = "ITEM";
+                }
+
                 return `${typeCode}-${shortSize}`;
             };
 
@@ -543,14 +578,25 @@ const createPurchaseReceipt = async (req, res) => {
 
                 let startSeq = (seqResult[0].max_seq || 0) + 1;
 
-                // 4. Generate ST Numbers (one per unit for 'Nos', one per item for others)
-                const isNos = (unit || '').toLowerCase() === 'nos';
+                // 4. Generate ST Numbers (one per unit for 'Nos', one per batch for others)
+                const isNos = (unit || '').trim().toLowerCase() === 'nos';
                 const loopCount = isNos ? Math.floor(parseFloat(received_qty)) : 1;
 
                 for (let i = 0; i < loopCount; i++) {
-                    const sequenceStr = (startSeq + i).toString().padStart(3, '0');
-                    const itemCodePerPiece = `${itemCode}-${sequenceStr}`;
-                    const serial_number = `ST-${itemCodePerPiece}`;
+                    let itemCodePerPiece = itemCode;
+                    let serial_number = '';
+                    
+                    if (isNos) {
+                        const sequenceStr = (startSeq + i).toString().padStart(3, '0');
+                        itemCodePerPiece = `${itemCode}-${sequenceStr}`;
+                        serial_number = `ST-${itemCodePerPiece}`;
+                    } else {
+                        // For non-Nos, we create one ST number for the entire batch.
+                        // To ensure uniqueness across different GRNs and different items in same GRN,
+                        // we use both the GRN suffix and the PO Item ID.
+                        const grnSuffix = grn_number.split('-').pop(); // e.g. 0001
+                        serial_number = `ST-${itemCode}-${grnSuffix}-${po_item_id}`;
+                    }
                     
                     await connection.query(
                         `INSERT INTO inventory_serials (serial_number, item_code, purchase_order_id, item_id, item_name, grn_id, status) 
@@ -962,9 +1008,24 @@ const releaseGRNMaterial = async (req, res) => {
 
         // 8. If Shortage, create Material Request for Procurement
         if (shortageItems.length > 0) {
-            const [mrCount] = await connection.query('SELECT COUNT(*) as count FROM material_requests');
-            const mrNextNum = (mrCount[0].count + 1).toString().padStart(4, '0');
-            const requestNumber = `MR-SHORT-${year}-${mrNextNum}`;
+            const pattern = `MR-SHORT-${year}-%`;
+            const [lastMR] = await connection.query(
+                'SELECT request_number FROM material_requests WHERE request_number LIKE ? ORDER BY request_number DESC LIMIT 1',
+                [pattern]
+            );
+
+            let nextNum = 1;
+            if (lastMR.length > 0) {
+                const lastRequestNumber = lastMR[0].request_number;
+                const parts = lastRequestNumber.split('-');
+                if (parts.length >= 4) {
+                    const lastNum = parseInt(parts[3]);
+                    if (!isNaN(lastNum)) {
+                        nextNum = lastNum + 1;
+                    }
+                }
+            }
+            const requestNumber = `MR-SHORT-${year}-${nextNum.toString().padStart(4, '0')}`;
 
             const bomId = grn.active_bom_id || grn.original_bom_id || null;
             const bomNumber = grn.active_bom_number || grn.original_bom_number || grn.grn_number;
@@ -995,21 +1056,22 @@ const releaseGRNMaterial = async (req, res) => {
                 [
                     'Procurement', 
                     'Material Shortage from GRN', 
-                    `New shortage request ${requestNumber} created from GRN ${grn.grn_number} for project ${grn.project_name || 'N/A'}.`, 
+                    `New shortage request ${requestNumber} for project ${grn.project_name || 'N/A'} created from GRN ${grn.grn_number}.`, 
                     'warning',
-                    '/department/procurement/dashboard?tab=shortage-requests'
+                    '/department/procurement/material-requests'
                 ]
             );
         }
 
         // 9. Notify Production about Material Release
+        const releaseType = finalStatus === 'partially_released' ? 'Partially Released' : 'Fully Released';
         await connection.query(
             `INSERT INTO notifications (department, title, message, type, link) 
              VALUES (?, ?, ?, ?, ?)`,
             [
                 'Production', 
                 'Material Released for Production', 
-                `Material from GRN ${grn.grn_number} for project ${grn.project_name || 'N/A'} has been released and is ready for use.`, 
+                `Material for project ${grn.project_name || 'N/A'} has been ${releaseType} to Production against GRN ${grn.grn_number}.`, 
                 'success',
                 '/department/production/released-materials'
             ]

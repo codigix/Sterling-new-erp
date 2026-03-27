@@ -28,12 +28,14 @@ import {
   Edit,
   Paperclip,
   Upload,
+  Layers,
 } from "lucide-react";
 
 const KanbanView = ({
   data,
   navigate,
   handleEditPO,
+  handleViewPO,
   handleMonitorPO,
   handleSendPO,
   handleDownloadPO,
@@ -188,6 +190,15 @@ const KanbanView = ({
                               <FileText size={14} />
                             </button>
                           )}
+                          {po.status !== "draft" && !isInventoryView && (
+                            <button
+                              onClick={() => handleUploadInvoice(po)}
+                              className="p-1 text-slate-400 hover:text-orange-600 rounded transition-all"
+                              title="View Attachments/Invoice"
+                            >
+                              <Paperclip size={14} />
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -266,11 +277,12 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [projectFilter, setProjectFilter] = useState("all");
+  const [rootCardFilter, setRootCardFilter] = useState("all");
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [modalViewMode, setModalViewMode] = useState(false);
-  const [viewMode, setViewMode] = useState("list");
   const [editPO, setEditPO] = useState(null);
   const [preFilledFromQuotation, setPreFilledFromQuotation] = useState(null);
   const [stats, setStats] = useState(null);
@@ -292,6 +304,14 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       setShowCreateModal(true);
       // Clear the state after it's been used
       navigate(location.pathname, { replace: true, state: {} });
+    }
+
+    // Check for project filter in URL
+    const projFilter = params.get('projectFilter');
+    if (projFilter) {
+      setProjectFilter(projFilter);
+      // Optional: clear the param from URL if you want it to be a one-time thing
+      // navigate(location.pathname, { replace: true });
     }
   }, [location.state, location.search, location.pathname, navigate]);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -394,7 +414,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         const m = (date.getMonth() + 1).toString().padStart(2, '0');
         const y = date.getFullYear();
         return `${d}-${m}-${y}`;
-      } catch (e) {
+      } catch {
         return dateStr;
       }
     };
@@ -410,6 +430,20 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         14,
         60,
       );
+    }
+
+    if (po.delivery_location) {
+      doc.text(
+        `Delivery Location: ${po.delivery_location}`,
+        14,
+        65,
+      );
+    }
+
+    if (po.location_link) {
+      doc.setTextColor(59, 130, 246);
+      doc.text("Location Map Link", 14, 70, { link: { url: po.location_link } });
+      doc.setTextColor(0, 0, 0);
     }
 
     const tableColumn = [
@@ -436,7 +470,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     ]);
 
     autoTable(doc, {
-      startY: 70,
+      startY: 80,
       head: [tableColumn],
       body: tableRows,
       theme: "grid",
@@ -472,10 +506,31 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     );
     doc.setFont("helvetica", "normal");
 
+    let currentY = finalY + 25;
+    
     if (po.notes) {
       doc.setFontSize(10);
-      doc.text("Notes:", 14, finalY + 25);
-      doc.text(po.notes, 14, finalY + 30);
+      doc.setFont("helvetica", "bold");
+      doc.text("Notes:", 14, currentY);
+      doc.setFont("helvetica", "normal");
+      currentY += 5;
+      const splitNotes = doc.splitTextToSize(po.notes, 180);
+      doc.text(splitNotes, 14, currentY);
+      currentY += (splitNotes.length * 5) + 10;
+    }
+
+    if (po.terms) {
+      if (currentY > 260) {
+        doc.addPage();
+        currentY = 20;
+      }
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("Terms & Conditions:", 14, currentY);
+      doc.setFont("helvetica", "normal");
+      currentY += 5;
+      const splitTerms = doc.splitTextToSize(po.terms, 180);
+      doc.text(splitTerms, 14, currentY);
     }
 
     return doc;
@@ -606,11 +661,17 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       });
 
       // Send notification to Inventory department
+      const projectPart = po.root_card_project_name ? ` for project: ${po.root_card_project_name}` : "";
+      const filterLink = po.root_card_project_name 
+        ? `/department/inventory/purchase-orders?projectFilter=${encodeURIComponent(po.root_card_project_name)}`
+        : "/department/inventory/purchase-orders";
+
       await axios.post("/notifications", {
-        department: "Inventory",
+        department: "inventory",
         title: "New Purchase Order Received",
-        message: `Purchase Order ${po.po_number} from ${po.vendor_name || 'Vendor'} has been sent to inventory for processing.`,
-        type: "info"
+        message: `Purchase Order ${po.po_number} from ${po.vendor_name || 'Vendor'}${projectPart} has been sent to inventory for processing.`,
+        type: "info",
+        link: filterLink
       });
 
       toastUtils.success(`PO ${po.po_number} sent to inventory successfully`);
@@ -658,26 +719,30 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     return new Intl.NumberFormat("en-IN").format(amount || 0);
   };
 
+  const projects = Array.from(new Set(purchaseOrders.map(po => po.root_card_project_name).filter(Boolean))).sort();
+  const rootCardsList = Array.from(new Set(purchaseOrders.map(po => po.root_card_id).filter(Boolean))).sort();
+
   const filteredData = purchaseOrders.filter((po) => {
     const matchesSearch =
       (po.po_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (po.vendor_name || "").toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (isInventoryView) {
-      if (statusFilter === "all") {
-        return matchesSearch && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received" || po.inventory_status === "fulfilled" || po.inventory_status === "delivered");
-      }
-      if (statusFilter === "pending receipt") {
-        return matchesSearch && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received");
-      }
-      return matchesSearch && po.inventory_status === statusFilter;
-    }
+      (po.vendor_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (po.root_card_project_name || "").toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || po.status === statusFilter;
-    const matchesProject = (po.root_card_project_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (String(po.root_card_id || "")).toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesProject = projectFilter === "all" || po.root_card_project_name === projectFilter;
+    const matchesRootCard = rootCardFilter === "all" || String(po.root_card_id) === rootCardFilter;
     
-    return (matchesSearch || matchesProject) && matchesStatus;
+    if (isInventoryView) {
+      const matchesInventoryStatus = statusFilter === "all" 
+        ? (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received" || po.inventory_status === "fulfilled" || po.inventory_status === "delivered")
+        : (statusFilter === "pending receipt" 
+            ? (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received")
+            : po.inventory_status === statusFilter);
+
+      return matchesSearch && matchesInventoryStatus && matchesProject && matchesRootCard;
+    }
+    
+    return matchesSearch && matchesStatus && matchesProject && matchesRootCard;
   });
 
   const handleViewPO = (po) => {
@@ -900,6 +965,40 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         </div>
 
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 shadow-sm">
+            <Filter size={14} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Project:
+            </span>
+            <select
+              value={projectFilter}
+              onChange={(e) => setProjectFilter(e.target.value)}
+              className="bg-transparent border-none text-[10px] font-bold uppercase tracking-wider text-blue-600 focus:ring-0 cursor-pointer max-w-[150px]"
+            >
+              <option value="all">All Projects</option>
+              {projects.map(project => (
+                <option key={project} value={project}>{project}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 shadow-sm">
+            <Filter size={14} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Root Card:
+            </span>
+            <select
+              value={rootCardFilter}
+              onChange={(e) => setRootCardFilter(e.target.value)}
+              className="bg-transparent border-none text-[10px] font-bold uppercase tracking-wider text-blue-600 focus:ring-0 cursor-pointer max-w-[120px]"
+            >
+              <option value="all">All Root Cards</option>
+              {rootCardsList.map(rcId => (
+                <option key={rcId} value={String(rcId)}>RC-{rcId}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 shadow-sm">
             <Filter size={14} />
             <span className="text-[10px] font-bold uppercase tracking-wider">
@@ -1138,9 +1237,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                               </button>
                             </>
                           )}
-                          {po.status !== "draft" && 
-                           !["sent to inventory", "material received", "fulfilled", "delivered"].includes(po.status) && 
-                           !isInventoryView && (
+                          {po.status !== "draft" && !isInventoryView && (
                             <button
                               onClick={() => handleUploadInvoice(po)}
                               className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded transition-all"
@@ -1478,6 +1575,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
           setModalViewMode(false);
         }}
         editData={editPO}
+        isInventoryView={isInventoryView}
         initialViewMode={modalViewMode}
         preFilledFromQuotation={preFilledFromQuotation}
         onPOCreated={() => {
@@ -1505,12 +1603,24 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
             <div className="p-6 space-y-4">
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/50">
-                <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
-                  Target PO:
-                </p>
-                <p className="text-sm font-black text-slate-900 dark:text-white uppercase">
-                  {selectedPOForUpload?.po_number}
-                </p>
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+                      Target PO:
+                    </p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white uppercase">
+                      {selectedPOForUpload?.po_number}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+                      Project Name:
+                    </p>
+                    <p className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight break-words leading-relaxed">
+                      {selectedPOForUpload?.root_card_project_name || selectedPOForUpload?.project_name || "N/A (Direct PO)"}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {selectedPOForUpload?.attachments && selectedPOForUpload.attachments.length > 0 && (

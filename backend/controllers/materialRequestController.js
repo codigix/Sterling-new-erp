@@ -20,9 +20,24 @@ const createMaterialRequest = async (req, res) => {
 
     // Generate Request Number
     const year = new Date().getFullYear();
-    const [countRows] = await connection.query('SELECT COUNT(*) as count FROM material_requests');
-    const nextNum = (countRows[0].count + 1).toString().padStart(4, '0');
-    const requestNumber = `MR-${year}-${nextNum}`;
+    const pattern = `MR-${year}-%`;
+    const [lastRequest] = await connection.query(
+      'SELECT request_number FROM material_requests WHERE request_number LIKE ? ORDER BY request_number DESC LIMIT 1',
+      [pattern]
+    );
+
+    let nextNum = 1;
+    if (lastRequest.length > 0) {
+      const lastRequestNumber = lastRequest[0].request_number;
+      const parts = lastRequestNumber.split('-');
+      if (parts.length >= 3) {
+        const lastNum = parseInt(parts[2]);
+        if (!isNaN(lastNum)) {
+          nextNum = lastNum + 1;
+        }
+      }
+    }
+    const requestNumber = `MR-${year}-${nextNum.toString().padStart(4, '0')}`;
 
     // 1. Insert into material_requests
     const [requestResult] = await connection.query(
@@ -71,11 +86,15 @@ const createMaterialRequest = async (req, res) => {
 
     // 3. Create notification for Procurement
     try {
+        const notifMessage = `New Material Request ${requestNumber} received from Production for project ${projectNameSnapshot !== 'N/A' ? projectNameSnapshot : 'N/A'}`;
+        const metadata = JSON.stringify({ rootCardId: rootCardId, requestId: requestId });
+        const link = `/department/procurement/material-requests?rootCardId=${rootCardId}`;
+
         await connection.query(
-            `INSERT INTO notifications (user_id, title, message, type, department) 
-             SELECT id, 'New Material Request', ?, 'material_request', 'procurement' 
+            `INSERT INTO notifications (user_id, title, message, type, department, link, metadata) 
+             SELECT id, 'New Material Request', ?, 'material_request', 'procurement', ?, ?
              FROM users WHERE LOWER(role) = 'procurement' OR LOWER(role) = 'admin'`,
-            [`New Material Request ${requestNumber} received from Production`]
+            [notifMessage, link, metadata]
         );
     } catch (notifErr) {
         console.error('Error creating notification:', notifErr);

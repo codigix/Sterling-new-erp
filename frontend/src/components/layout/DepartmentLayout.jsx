@@ -35,6 +35,7 @@ const DepartmentLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+  const [expandedSections, setExpandedSections] = useState({});
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -83,6 +84,35 @@ const DepartmentLayout = () => {
       icon: Factory,
       path: "/department/production",
     },
+    accounts: {
+      title: "Accounts",
+      icon: BarChart3,
+      path: "/accountant/dashboard",
+      navigation: [
+        { title: "Dashboard", path: "/accountant/dashboard", icon: BarChart3 },
+        { 
+          title: "Accounts Payable", 
+          icon: ShoppingCart,
+          submenu: [
+            { title: "Vendor Invoices", path: "/accountant/payable/vendor-invoices", icon: FileText },
+            { title: "Bill Payments", path: "/accountant/payable/bill-payments", icon: Activity }
+          ]
+        },
+        { 
+          title: "Accounts Receivable", 
+          icon: BarChart3,
+          submenu: [
+            { title: "Customer Invoices", path: "/accountant/receivable/customer-invoices", icon: FileText },
+            { title: "Payment Tracking", path: "/accountant/receivable/payment-tracking", icon: Activity }
+          ]
+        },
+        { title: "General Ledger", path: "/accountant/ledger/entries", icon: FileText },
+        { title: "Financial Reports", path: "/accountant/reports/income-statement", icon: BarChart3 },
+        { title: "Bank Reconciliation", path: "/accountant/bank/reconciliation", icon: Home },
+        { title: "Budget Management", path: "/accountant/budget/management", icon: Activity },
+        { title: "Expense Tracking", path: "/accountant/expense/tracking", icon: ShoppingCart },
+      ]
+    },
   };
 
   const getDepartmentRole = () => {
@@ -94,6 +124,7 @@ const DepartmentLayout = () => {
     if (rawRole.includes("procurement")) return departmentModules.procurement;
     if (rawRole.includes("qc") || rawRole.includes("quality")) return departmentModules.qc;
     if (rawRole.includes("engineering") || rawRole.includes("design")) return departmentModules.engineering;
+    if (rawRole.includes("account")) return departmentModules.accounts;
     if (rawRole.includes("sales")) return departmentModules.sales;
     
     // Check for "management" or "admin" roles
@@ -208,8 +239,70 @@ const DepartmentLayout = () => {
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-            {/* Your Department */}
-            {getDepartmentRole().title !== "Production" && (
+            {/* Accounts Sidebar Logic */}
+            {getDepartmentRole().title === "Accounts" ? (
+              <div>
+                <h6 className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${sidebarCollapsed ? "text-center" : ""}`}>
+                  {!sidebarCollapsed && "ACCOUNTANT"}
+                </h6>
+                <ul className="space-y-1">
+                  {getDepartmentRole().navigation.map((item) => {
+                    const IconComponent = item.icon;
+                    const hasSubmenu = item.submenu && item.submenu.length > 0;
+                    
+                    return (
+                      <li key={item.path || item.title}>
+                        {hasSubmenu ? (
+                          <>
+                            <button
+                              onClick={() => {
+                                setExpandedSections(prev => ({...prev, [item.title]: !prev[item.title]}))
+                              }}
+                              className="w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                            >
+                              <IconComponent size={18} className="flex-shrink-0" />
+                              {!sidebarCollapsed && (
+                                <>
+                                  <span className="ml-3 flex-1 text-left">{item.title}</span>
+                                  <ChevronDown size={14} className={`transition-transform ${expandedSections[item.title] ? 'rotate-180' : ''}`} />
+                                </>
+                              )}
+                            </button>
+                            {expandedSections[item.title] && !sidebarCollapsed && (
+                              <ul className="mt-1 ml-3 border-l border-slate-200 pl-3 space-y-1">
+                                {item.submenu.map(sub => (
+                                  <li key={sub.path}>
+                                    <Link to={sub.path} className={`flex items-center text-xs px-3 py-1.5 text-[11px] font-medium rounded ${isActive(sub.path) ? "bg-blue-100 text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}>
+                                      <sub.icon size={14} className="mr-2" />
+                                      {sub.title}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        ) : (
+                          <Link
+                            to={item.path}
+                            className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                              isActive(item.path)
+                                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                            }`}
+                          >
+                            <IconComponent size={18} className="flex-shrink-0" />
+                            {!sidebarCollapsed && <span className="ml-3">{item.title}</span>}
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : (
+              <>
+                {/* Your Department */}
+                {getDepartmentRole().title !== "Production" && (
               <div>
                 <h6
                   className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
@@ -770,7 +863,9 @@ const DepartmentLayout = () => {
                 </ul>
               </div>
             )}
-          </nav>
+          </>
+        )}
+      </nav>
         </div>
       </aside>
 

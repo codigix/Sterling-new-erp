@@ -73,6 +73,12 @@ const AdminLayout = () => {
       badge: null,
     },
     {
+      title: "Accounts",
+      path: "/accountant/dashboard",
+      icon: BarChart3,
+      badge: null,
+    },
+    {
       title: "Audit Logs",
       path: "/admin/audit-logs",
       icon: Activity,

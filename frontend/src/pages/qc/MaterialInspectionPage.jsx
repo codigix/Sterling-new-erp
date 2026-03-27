@@ -18,7 +18,11 @@ import {
   Upload,
   AlertTriangle,
   Eye,
-  Clock
+  Clock,
+  RotateCcw,
+  CheckCheck,
+  MessageSquare,
+  X
 } from "lucide-react";
 import { showSuccess, showError } from "../../utils/toastUtils";
 import SearchableSelect from "../../components/ui/SearchableSelect";
@@ -34,6 +38,14 @@ const MaterialInspectionPage = () => {
   const [loading, setLoading] = useState(false);
   const [loadingRC, setLoadingRC] = useState(true);
   const [expandedItem, setExpandedItem] = useState(null);
+  const [rejectionModal, setRejectionModal] = useState({
+    isOpen: false,
+    grnId: null,
+    poItemId: null,
+    serialNumber: null,
+    inspectionType: null,
+    reason: ""
+  });
 
   useEffect(() => {
     fetchReadyRootCards();
@@ -86,16 +98,14 @@ const MaterialInspectionPage = () => {
     setExpandedItem(null);
   };
 
-  const handleQuickStatusUpdate = async (grnId, poItemId, serialNumber, status, inspectionType) => {
-    // User wants common documents after all items are done, so no individual modals here
-    
+  const handleBulkStatusUpdate = async (grnId, poItemId, serialsToUpdate, status, inspectionType, customNotes = null) => {
     // 1. Optimistic Update
     const previousMaterials = [...materials];
     const updatedMaterials = materials.map(item => {
       if (Number(item.grn_id) === Number(grnId) && Number(item.po_item_id) === Number(poItemId)) {
         const updatedSerials = item.serials.map(s => {
-          if (s.serial_number === serialNumber) {
-            return { ...s, inspection_status: status };
+          if (serialsToUpdate.includes(s.serial_number)) {
+            return { ...s, inspection_status: status, rejection_reason: status === 'Rejected' ? customNotes : null };
           }
           return s;
         });
@@ -118,23 +128,66 @@ const MaterialInspectionPage = () => {
         grn_id: grnId,
         po_item_id: poItemId,
         inspection_type: inspectionType || "Inhouse",
-        results: [
-          {
-            serial_number: serialNumber,
-            status: status,
-            notes: `Quick ${status} from material inspection list`
-          }
-        ],
-        remarks: `ST ${serialNumber} marked as ${status}`
+        results: serialsToUpdate.map(serialNumber => ({
+          serial_number: serialNumber,
+          status: status,
+          notes: customNotes || `${serialsToUpdate.length > 1 ? 'Bulk ' : ''}${status} from material inspection list`
+        })),
+        remarks: `${serialsToUpdate.length === 1 ? 'ST ' + serialsToUpdate[0] : serialsToUpdate.length + ' ST numbers'} marked as ${status}`
       });
-      showSuccess(`ST ${serialNumber} marked as ${status}`);
+      showSuccess(`${serialsToUpdate.length === 1 ? 'ST ' + serialsToUpdate[0] : serialsToUpdate.length + ' items'} marked as ${status}`);
       // Refresh data locally is already done optimistically
     } catch (error) {
       console.error("Error updating status:", error);
-      showError(`Failed to update status for ${serialNumber}`);
+      showError(`Failed to update status for ${serialsToUpdate.length === 1 ? serialsToUpdate[0] : 'items'}`);
       // Rollback on error
       setMaterials(previousMaterials);
     }
+  };
+
+  const handleQuickStatusUpdate = async (grnId, poItemId, serialNumber, status, inspectionType) => {
+    if (status === 'Rejected' && (!inspectionType || inspectionType === 'Inhouse')) {
+      setRejectionModal({
+        isOpen: true,
+        grnId,
+        poItemId,
+        serialNumber,
+        inspectionType,
+        reason: ""
+      });
+    } else {
+      handleBulkStatusUpdate(grnId, poItemId, [serialNumber], status, inspectionType);
+    }
+  };
+
+  const submitRejection = () => {
+    if (!rejectionModal.reason.trim()) {
+      showError("Please enter a rejection reason");
+      return;
+    }
+    handleBulkStatusUpdate(
+      rejectionModal.grnId,
+      rejectionModal.poItemId,
+      [rejectionModal.serialNumber],
+      'Rejected',
+      rejectionModal.inspectionType,
+      rejectionModal.reason
+    );
+    setRejectionModal({ ...rejectionModal, isOpen: false, reason: "" });
+  };
+
+  const handleApproveAll = (item) => {
+    const pendingSerials = item.serials
+      ?.filter(s => s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection')
+      .map(s => s.serial_number);
+    
+    if (pendingSerials && pendingSerials.length > 0) {
+      handleBulkStatusUpdate(item.grn_id, item.po_item_id, pendingSerials, 'Accepted', item.inspection_type);
+    }
+  };
+
+  const handleRevertStatus = (grnId, poItemId, serialNumber, inspectionType) => {
+    handleBulkStatusUpdate(grnId, poItemId, [serialNumber], 'Pending', inspectionType);
   };
 
   const handleConsolidatedUpload = async (file, grnId, poItemId, type) => {
@@ -341,35 +394,49 @@ const MaterialInspectionPage = () => {
                                               <th className="p-2">Name</th>
                                               <th className="p-2">ST Code</th>
                                               <th className="p-2">Status</th>
-                                              <th className="p-2 text-center">Action</th>
+                                              <th className="p-2 text-center">
+                                                <div className="flex items-center justify-center gap-2">
+                                                  Action
+                                                  {item.serials?.some(s => s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
+                                                    <button 
+                                                      onClick={(e) => { e.stopPropagation(); handleApproveAll(item); }}
+                                                      className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-600 text-white rounded text-[8px] font-black uppercase tracking-tighter hover:bg-blue-700 transition-colors shadow-sm"
+                                                      title="Approve All Pending"
+                                                    >
+                                                      <CheckCheck size={10} /> Approve All
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              </th>
                                             </tr>
                                           </thead>
                                           <tbody className="divide-y divide-slate-50">
                                             {item.serials.map((s, sIdx) => (
-                                              <tr key={sIdx} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="p-2 text-[11px] font-medium text-slate-400 text-center">
-                                                  {sIdx + 1}
-                                                </td>
-                                                <td className="p-2 text-[11px] font-bold text-slate-700">
-                                                  {s.item_code || s.serial_number.replace('ST-', '')}
-                                                </td>
-                                                <td className="p-2 text-[11px] text-slate-600">
-                                                  {item.material_name}
-                                                </td>
-                                                <td className="p-2 text-[11px] font-bold text-blue-600">
-                                                  {s.serial_number}
-                                                </td>
-                                                <td className="p-2">
-                                                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                                                    s.inspection_status === 'Accepted' ? 'bg-green-100 text-green-700' :
-                                                    s.inspection_status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                    s.inspection_status === 'Sent for Inspection' ? 'bg-blue-100 text-blue-700' :
-                                                    'bg-yellow-100 text-yellow-700'
-                                                  }`}>
-                                                    {s.inspection_status}
-                                                  </span>
-                                                </td>
-                                                <td className="p-2">
+                                              <React.Fragment key={sIdx}>
+                                                <tr className="hover:bg-slate-50/50 transition-colors">
+                                                  <td className="p-2 text-[11px] font-medium text-slate-400 text-center">
+                                                    {sIdx + 1}
+                                                  </td>
+                                                  <td className="p-2 text-[11px] font-bold text-slate-700">
+                                                    {s.item_code || s.serial_number.replace('ST-', '')}
+                                                  </td>
+                                                  <td className="p-2 text-[11px] text-slate-600">
+                                                    {item.material_name}
+                                                  </td>
+                                                  <td className="p-2 text-[11px] font-bold text-blue-600">
+                                                    {s.serial_number}
+                                                  </td>
+                                                  <td className="p-2">
+                                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                                                      s.inspection_status === 'Accepted' ? 'bg-green-100 text-green-700' :
+                                                      s.inspection_status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                      s.inspection_status === 'Sent for Inspection' ? 'bg-blue-100 text-blue-700' :
+                                                      'bg-yellow-100 text-yellow-700'
+                                                    }`}>
+                                                      {s.inspection_status}
+                                                    </span>
+                                                  </td>
+                                                  <td className="p-2">
                                                   <div className="flex items-center justify-center gap-2">
                                                     {/* Unified Document Viewer for Consolidated Reports */}
                                                     {(() => {
@@ -387,7 +454,7 @@ const MaterialInspectionPage = () => {
                                                       if (docPath) {
                                                         return (
                                                           <button 
-                                                            onClick={(e) => { e.stopPropagation(); window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${docPath}`, '_blank'); }}
+                                                            onClick={(e) => { e.stopPropagation(); window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${docPath}`, '_blank'); }}
                                                             className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                                                             title="View Quality Report"
                                                           >
@@ -416,13 +483,36 @@ const MaterialInspectionPage = () => {
                                                         </button>
                                                       </>
                                                     )}
+                                                    {(s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected') && (
+                                                      <button 
+                                                        onClick={(e) => { e.stopPropagation(); handleRevertStatus(item.grn_id, item.po_item_id, s.serial_number, item.inspection_type); }}
+                                                        className="p-1.5 bg-slate-50 text-slate-500 rounded hover:bg-slate-500 hover:text-white transition-all shadow-sm group/btn"
+                                                        title="Revert to Pending"
+                                                      >
+                                                        <RotateCcw size={14} className="group-hover/btn:rotate-[-180deg] transition-transform duration-500" />
+                                                      </button>
+                                                    )}
                                                   </div>
                                                 </td>
                                               </tr>
-                                            ))}
-                                          </tbody>
-                                        </table>
-                                      </div>
+                                              {s.inspection_status === 'Rejected' && s.rejection_reason && (
+                                                <tr className="bg-red-50/30">
+                                                  <td colSpan="6" className="px-8 py-2">
+                                                    <div className="flex items-start gap-2 text-[10px] text-red-600 font-bold">
+                                                      <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
+                                                      <div className="flex flex-col gap-0.5">
+                                                        <span className="uppercase tracking-widest text-[8px] opacity-70">Rejection Reason:</span>
+                                                        <p className="italic font-medium">{s.rejection_reason}</p>
+                                                      </div>
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              )}
+                                            </React.Fragment>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
                                     ) : (
                                       <div className="p-8 text-center">
                                         <Hash size={24} className="text-slate-300 mx-auto mb-2" />
@@ -463,7 +553,7 @@ const MaterialInspectionPage = () => {
                                                       <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.common_document_path ? 'bg-green-50 border-green-200' : 'bg-white border-blue-200 border-dashed hover:border-blue-400'}`}>
                                                         {item.common_document_path ? (
                                                           <button 
-                                                            onClick={() => window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.common_document_path}`, '_blank')}
+                                                            onClick={() => window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.common_document_path}`, '_blank')}
                                                             className="flex items-center gap-2 text-[10px] font-black text-green-700 uppercase"
                                                           >
                                                             <CheckCircle size={14} /> Accepted Items Report
@@ -487,7 +577,7 @@ const MaterialInspectionPage = () => {
                                                       <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.rejected_document_path ? 'bg-red-50 border-red-200' : 'bg-white border-red-200 border-dashed hover:border-red-400'}`}>
                                                         {item.rejected_document_path ? (
                                                           <button 
-                                                            onClick={() => window.open(`${axios.defaults.baseURL.replace('/api', '')}/uploads/${item.rejected_document_path}`, '_blank')}
+                                                            onClick={() => window.open(`${new URL(axios.defaults.baseURL).origin}/uploads/${item.rejected_document_path}`, '_blank')}
                                                             className="flex items-center gap-2 text-[10px] font-black text-red-700 uppercase"
                                                           >
                                                             <XCircle size={14} /> Rejected Items Report
@@ -591,6 +681,61 @@ const MaterialInspectionPage = () => {
           )}
         </div>
       </div>
+
+      {/* Rejection Reason Modal */}
+      {rejectionModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center text-red-600">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Rejection Reason</h3>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{rejectionModal.serialNumber}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setRejectionModal({ ...rejectionModal, isOpen: false })}
+                className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all shadow-sm text-slate-400 hover:text-red-500"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <MessageSquare size={12} /> Reason for Rejection
+                </label>
+                <textarea
+                  value={rejectionModal.reason}
+                  onChange={(e) => setRejectionModal({ ...rejectionModal, reason: e.target.value })}
+                  placeholder="Enter the specific reason why this unit is being rejected..."
+                  className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all resize-none dark:text-white"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  onClick={() => setRejectionModal({ ...rejectionModal, isOpen: false })}
+                  className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitRejection}
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 shadow-lg shadow-red-200 dark:shadow-none transition-all"
+                >
+                  Confirm Rejection
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

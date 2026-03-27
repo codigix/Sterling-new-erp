@@ -93,7 +93,6 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
           'Design ID': designData.generalDesignInfo?.designId,
           'Product Name': designData.productSpecification?.productName,
           'Design Status': designData.generalDesignInfo?.designStatus,
-          'Assigned To': getEmployeeName(formData?.designEngineeringAssignedTo),
           // ... rest of design fields
         });
       }
@@ -289,7 +288,6 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                   <DetailField label="Design ID" value={formData.designEngineering.generalDesignInfo?.designId} />
                   <DetailField label="Product Name" value={formData.designEngineering.productSpecification?.productName} />
                   <DetailField label="Design Status" value={formData.designEngineering.generalDesignInfo?.designStatus} />
-                  <DetailField label="Assigned To" value={getEmployeeName(formData?.designEngineeringAssignedTo)} />
                 </div>
               </div>
 

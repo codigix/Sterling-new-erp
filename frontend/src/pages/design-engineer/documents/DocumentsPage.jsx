@@ -11,6 +11,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import axios from "../../../utils/api";
+import { toast } from "react-toastify";
 
 const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
   const [searchParams] = useSearchParams();
@@ -143,17 +144,17 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
     e.preventDefault();
 
     if (!uploadFormData.file) {
-      alert("Please select a file");
+      toast.error("Please select a file");
       return;
     }
 
     if (!rootCardId) {
-      alert("Please select a root card first");
+      toast.error("Please select a root card first");
       return;
     }
 
     if (activeTab === "raw-designs" && !uploadFormData.designName) {
-      alert("Please fill in required fields");
+      toast.error("Please fill in required fields");
       return;
     }
 
@@ -176,7 +177,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
         }
       }
 
-      alert("Document uploaded successfully!");
+      toast.success("Document uploaded successfully!");
       setShowUploadModal(false);
       setUploadFormData({
         designName: "",
@@ -192,7 +193,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
       await fetchAllDocuments();
     } catch (error) {
       console.error("Failed to upload document:", error);
-      alert("Failed to upload document. Please try again.");
+      toast.error("Failed to upload document. Please try again.");
     }
   };
 
@@ -210,13 +211,13 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
       } else {
         await axios.delete(`/root-cards/steps/${rootCardId}/design-engineering/required-documents/${selectedItem.id}`);
       }
-      alert("Document deleted successfully");
+      toast.success("Document deleted successfully");
       setShowDeleteModal(false);
       setSelectedItem(null);
       await fetchAllDocuments();
     } catch (error) {
       console.error("Failed to delete document:", error);
-      alert("Failed to delete document. Please try again.");
+      toast.error("Failed to delete document. Please try again.");
     } finally {
       setDeleteLoading(false);
     }
@@ -226,7 +227,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
     try {
       // For design engineering documents, we'll use the file path if available
       if (!item.path && !item.filePath) {
-        alert("Download URL not available for this document");
+        toast.error("Download URL not available for this document");
         return;
       }
 
@@ -245,7 +246,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("Failed to download document:", err);
-      alert("Failed to download document. The file may no longer be available.");
+      toast.error("Failed to download document. The file may no longer be available.");
     }
   };
 
@@ -265,14 +266,14 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
         comments: approvalNotes
       });
 
-      alert("Design Engineering approved successfully");
+      toast.success("Design Engineering approved successfully");
       setShowApprovalModal(false);
       setSelectedItem(null);
       setApprovalNotes("");
       await fetchAllDocuments();
     } catch (error) {
       console.error("Failed to approve design engineering:", error);
-      alert("Failed to approve design engineering. Please try again.");
+      toast.error("Failed to approve design engineering. Please try again.");
     } finally {
       setApproving(false);
     }

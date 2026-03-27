@@ -2,6 +2,7 @@ const db = require('../config/db');
 const { sendEmail } = require('../utils/emailService');
 const fs = require('fs');
 const path = require('path');
+const pdf = require('pdf-parse');
 
 const getQuotations = async (req, res) => {
     try {
@@ -109,10 +110,25 @@ const createQuotation = async (req, res) => {
 
         // Generate Quotation Number
         const year = new Date().getFullYear();
-        const [countRows] = await connection.query('SELECT COUNT(*) as count FROM quotations');
-        const nextNum = (countRows[0].count + 1).toString().padStart(4, '0');
         const prefix = type === 'outbound' ? 'RFQ' : 'QTN';
-        const quotationNumber = `${prefix}-${year}-${nextNum}`;
+        const pattern = `${prefix}-${year}-%`;
+        const [lastQuotation] = await connection.query(
+            'SELECT quotation_number FROM quotations WHERE quotation_number LIKE ? ORDER BY quotation_number DESC LIMIT 1',
+            [pattern]
+        );
+
+        let nextNum = 1;
+        if (lastQuotation.length > 0) {
+            const lastQuotationNumber = lastQuotation[0].quotation_number;
+            const parts = lastQuotationNumber.split('-');
+            if (parts.length >= 3) {
+                const lastNum = parseInt(parts[2]);
+                if (!isNaN(lastNum)) {
+                    nextNum = lastNum + 1;
+                }
+            }
+        }
+        const quotationNumber = `${prefix}-${year}-${nextNum.toString().padStart(4, '0')}`;
 
         const [result] = await connection.query(
             `INSERT INTO quotations 
@@ -272,9 +288,21 @@ const createVendor = async (req, res) => {
         // Generate Vendor Code if not provided
         let vCode = vendor_code;
         if (!vCode) {
-            const [countRows] = await db.query('SELECT COUNT(*) as count FROM vendors');
-            const nextNum = (countRows[0].count + 1).toString().padStart(4, '0');
-            vCode = `VEN-${nextNum}`;
+            const [lastVendor] = await db.query(
+                'SELECT vendor_code FROM vendors WHERE vendor_code LIKE "VEN-%" ORDER BY vendor_code DESC LIMIT 1'
+            );
+            let nextNum = 1;
+            if (lastVendor.length > 0) {
+                const lastCode = lastVendor[0].vendor_code;
+                const parts = lastCode.split('-');
+                if (parts.length >= 2) {
+                    const lastNum = parseInt(parts[1]);
+                    if (!isNaN(lastNum)) {
+                        nextNum = lastNum + 1;
+                    }
+                }
+            }
+            vCode = `VEN-${nextNum.toString().padStart(4, '0')}`;
         }
 
         const [result] = await db.query(
@@ -339,11 +367,213 @@ const deleteVendor = async (req, res) => {
 };
 
 const analyzeQuotation = async (req, res) => {
-    // Placeholder for AI/Document analysis
-    res.json({ 
-        items: JSON.parse(req.body.items || '[]').map(item => ({ ...item, unit_price: Math.floor(Math.random() * 1000) + 100 })),
-        total_amount: 5000 
-    });
+    try {
+        console.log('Quotation Analysis Request Received');
+        if (!req.file) {
+            console.error('No file found in request');
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        console.log('File uploaded:', req.file.originalname, 'Path:', req.file.path);
+
+        const items = JSON.parse(req.body.items || '[]');
+        console.log('Number of items to analyze:', items.length);
+        
+        const filePath = req.file.path;
+        const fileExtension = path.extname(req.file.originalname).toLowerCase();
+
+        let extractedText = '';
+
+        if (fileExtension === '.pdf') {
+            console.log('Parsing PDF file with custom pagerender...');
+            const dataBuffer = fs.readFileSync(filePath);
+            
+            // Custom pagerender to ensure spaces between words/numbers
+            // Standard pdf-parse often merges columns without spaces
+            const options = {
+                pagerender: function(pageData) {
+                    return pageData.getTextContent()
+                    .then(function(textContent) {
+                        let lastY, text = '';
+                        for (let item of textContent.items) {
+                            if (lastY == item.transform[5] || !lastY){
+                                text += ' ' + item.str;
+                            }
+                            else{
+                                text += '\n' + item.str;
+                            }    
+                            lastY = item.transform[5];
+                        }
+                        return text;
+                    });
+                }
+            };
+
+            const data = await pdf(dataBuffer, options);
+            extractedText = data.text;
+        } else {
+            console.warn('Unsupported file extension for extraction:', fileExtension);
+            // Clean up temp file
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+            return res.status(400).json({ message: 'Currently only PDF analysis is supported for detailed extraction' });
+        }
+
+        console.log('Extracted Text length:', extractedText.length);
+        
+        // Clean and prepare lines
+        const lines = extractedText.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+
+        // Helper to normalize strings for comparison
+        const normalize = (str) => {
+            if (!str) return '';
+            return str.toLowerCase()
+                .replace(/[x×]/g, ' ')
+                .replace(/[^a-z0-9]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        };
+
+        const updatedItems = items.map(item => {
+            // Defaults
+            item.rate_per_kg = 0;
+            item.total_weight = 0;
+            item.unit_price = item.unit_price || 0;
+
+            const targetName = normalize(item.item_name);
+            if (!targetName) return item;
+
+            // Step 1: Find all lines containing parts of the item name
+            const targetWords = targetName.split(' ').filter(w => w.length > 1);
+            let candidates = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = normalize(lines[i]);
+                const matchCount = targetWords.filter(word => line.includes(word)).length;
+                const score = matchCount / targetWords.length;
+                
+                if (score > 0.4) {
+                    candidates.push({ lineIdx: i, score });
+                }
+            }
+
+            // Sort candidates by match score
+            candidates.sort((a, b) => b.score - a.score);
+
+            if (candidates.length > 0) {
+                // Try each candidate line
+                for (const candidate of candidates) {
+                    const startIdx = candidate.lineIdx;
+                    // Combine current line and next few lines to ensure we get the full row data
+                    const contextText = lines.slice(startIdx, startIdx + 4).join(' ');
+                    
+                    // Extract all numbers
+                    const numberMatches = contextText.match(/\d+(?:,\d{3})*(?:\.\d+)?/g) || [];
+                    const numbers = numberMatches.map(n => parseFloat(n.replace(/,/g, '')));
+                    
+                    // Filter out numbers that are part of the dimensions in the item name
+                    const dimensions = item.item_name.match(/\d+/g) || [];
+                    const filteredNumbers = numbers.filter(n => !dimensions.some(d => parseFloat(d) === n));
+
+                    const knownQty = parseFloat(item.quantity) || 0;
+
+                    // 1. Precise Table Row Pattern Matching
+                    // Looking for: [Qty] [Any Text/Unit] [Weight] [Rate] [Amount]
+                    const qtyIdx = numbers.findIndex(n => Math.abs(n - knownQty) < 0.01);
+                    
+                    if (qtyIdx !== -1 && numbers.length > qtyIdx + 2) {
+                        const w = numbers[qtyIdx + 1];
+                        const r = numbers[qtyIdx + 2];
+                        const a = numbers[qtyIdx + 3] || 0;
+                        
+                        // Verification: w * r should be very close to a
+                        // This confirms we have the right columns
+                        if (a > 0 && Math.abs((w * r) - a) < (a * 0.05 + 10)) {
+                            item.total_weight = w;
+                            item.rate_per_kg = r;
+                            foundMath = true;
+                        } else if (numbers.length > qtyIdx + 2) {
+                            // Fallback if Amount column isn't parsed correctly but sequence is likely
+                            // In your PDF: Qty(2) Unit(Nos) Weight(1507.2) Rate(82)
+                            item.total_weight = w;
+                            item.rate_per_kg = r;
+                            foundMath = true;
+                        }
+                    }
+
+                    // 2. Relationship triplet matching (Weight * Rate = Total)
+                    if (!foundMath) {
+                        for (let i = 0; i < filteredNumbers.length; i++) {
+                            for (let j = 0; j < filteredNumbers.length; j++) {
+                                if (i === j) continue;
+                                const w = filteredNumbers[i];
+                                const r = filteredNumbers[j];
+                                const prod = w * r;
+                                
+                                // Check if any OTHER number matches this product (Amount)
+                                const totalIdx = filteredNumbers.findIndex((n, idx) => 
+                                    idx !== i && idx !== j && Math.abs(n - prod) < (prod * 0.02 + 5)
+                                );
+
+                                if (totalIdx !== -1) {
+                                    // Based on your PDF, the larger one in the first two is Weight
+                                    // and the sequence is Weight then Rate
+                                    if (i < j) {
+                                        item.total_weight = w;
+                                        item.rate_per_kg = r;
+                                    } else {
+                                        item.total_weight = r;
+                                        item.rate_per_kg = w;
+                                    }
+                                    foundMath = true;
+                                    break;
+                                }
+                            }
+                            if (foundMath) break;
+                        }
+                    }
+
+                    if (foundMath) {
+                        console.log(`Math verified match for "${item.item_name}": Weight=${item.total_weight}, Rate=${item.rate_per_kg}`);
+                        break; // Stop at first math-verified line
+                    }
+
+                    // Fallback to Qty anchor if math fails
+                    const qtyIdxFallback = filteredNumbers.findIndex(n => Math.abs(n - knownQty) < 0.01);
+                    if (qtyIdxFallback !== -1 && qtyIdxFallback < filteredNumbers.length - 2) {
+                        item.total_weight = filteredNumbers[qtyIdxFallback + 1];
+                        item.rate_per_kg = filteredNumbers[qtyIdxFallback + 2];
+                        console.log(`Qty-anchor match for "${item.item_name}": Weight=${item.total_weight}, Rate=${item.rate_per_kg}`);
+                        break;
+                    }
+                }
+
+                // Final calculation for internal unit_price
+                if (item.total_weight && item.rate_per_kg) {
+                    item.unit_price = (item.total_weight * item.rate_per_kg) / (parseFloat(item.quantity) || 1);
+                }
+            }
+
+            return item;
+        });
+
+        // Calculate final total
+        const totalAmount = updatedItems.reduce((sum, item) => {
+            return sum + (item.total_weight * item.rate_per_kg || item.quantity * item.unit_price || 0);
+        }, 0);
+
+        // Cleanup temp file
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+        res.json({ 
+            items: updatedItems,
+            total_amount: totalAmount 
+        });
+
+    } catch (error) {
+        console.error('Error analyzing quotation:', error);
+        res.status(500).json({ message: 'Error analyzing document: ' + error.message });
+    }
 };
 
 const getCommunications = async (req, res) => {
@@ -561,12 +791,22 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
             baseBomNumber = baseBomNumber.split('-V')[0];
         }
         
-        // Count existing versions to determine next version number
-        const [versionCount] = await connection.query(
-            'SELECT COUNT(*) as count FROM boms WHERE bom_number LIKE ?',
-            [`${baseBomNumber}%`]
+        // Find the latest version number for this base BOM number
+        const [lastBom] = await connection.query(
+            'SELECT bom_number FROM boms WHERE bom_number LIKE ? ORDER BY bom_number DESC LIMIT 1',
+            [`${baseBomNumber}-V%`]
         );
-        const nextVersion = versionCount[0].count + 1;
+        let nextVersion = 1;
+        if (lastBom.length > 0) {
+            const lastBomNumber = lastBom[0].bom_number;
+            const parts = lastBomNumber.split('-V');
+            if (parts.length >= 2) {
+                const lastVer = parseInt(parts[parts.length - 1]);
+                if (!isNaN(lastVer)) {
+                    nextVersion = lastVer + 1;
+                }
+            }
+        }
         const newBomNumber = `${baseBomNumber}-V${nextVersion}`;
         
         console.log(`Generating new BOM version: ${newBomNumber} (Base: ${baseBomNumber})`);
