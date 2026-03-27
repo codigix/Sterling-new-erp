@@ -7,7 +7,7 @@ const qualityController = require('../controllers/qualityController');
 // Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, process.env.UPLOAD_PATH || 'uploads/');
+    cb(null, path.join(__dirname, '../', process.env.UPLOAD_PATH || 'uploads/'));
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
