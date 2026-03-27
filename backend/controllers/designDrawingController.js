@@ -15,7 +15,7 @@ exports.uploadDrawing = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    const file_path = req.file.path;
+    const file_path = req.file.filename;
     const initialStatus = type === 'Final Approved Drawing' ? 'Approved' : 'Pending Review';
 
     const [result] = await db.query(
@@ -61,7 +61,7 @@ exports.createRevision = async (req, res) => {
 
     const doc = docs[0];
     const new_version = doc.last_version + 1;
-    const file_path = req.file.path;
+    const file_path = req.file.filename;
 
     // Set all previous versions to 'Rejected' (or 'Obsolete' but user said Rejected)
     await db.query(
@@ -256,8 +256,12 @@ exports.deleteDrawing = async (req, res) => {
 
       // Delete physical files
       allDocs.forEach(doc => {
-        if (doc.file_path && fs.existsSync(doc.file_path)) {
-          fs.unlinkSync(doc.file_path);
+        if (doc.file_path) {
+          const fileName = path.basename(doc.file_path);
+          const fullPath = path.join(process.env.UPLOAD_PATH || 'uploads', fileName);
+          if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+          }
         }
       });
 
@@ -277,8 +281,12 @@ exports.deleteDrawing = async (req, res) => {
     await db.query('DELETE FROM design_documents WHERE id = ?', [id]);
 
     // Delete physical file
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (filePath) {
+      const fileName = path.basename(filePath);
+      const fullPath = path.join(process.env.UPLOAD_PATH || 'uploads', fileName);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
     }
 
     res.json({ success: true, message: 'Drawing version deleted successfully' });

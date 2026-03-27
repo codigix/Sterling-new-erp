@@ -378,7 +378,8 @@ const analyzeQuotation = async (req, res) => {
         const items = JSON.parse(req.body.items || '[]');
         console.log('Number of items to analyze:', items.length);
         
-        const filePath = req.file.path;
+        const fileName = path.basename(req.file.path);
+        const filePath = path.join(process.env.UPLOAD_PATH || 'uploads', fileName);
         const fileExtension = path.extname(req.file.originalname).toLowerCase();
 
         let extractedText = '';
