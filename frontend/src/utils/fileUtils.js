@@ -37,6 +37,7 @@ export const downloadFile = async (filePath, displayName) => {
     const fileUrl = getServerUrl(filePath);
     const response = await axios.get(fileUrl, {
       responseType: 'blob',
+      baseURL: '' // Prevent doubling the /api/ prefix if fileUrl is already absolute
     });
     
     const extension = filePath.split('.').pop();
