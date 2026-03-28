@@ -694,7 +694,9 @@ const updateQuotationStatus = async (req, res) => {
         const params = [status];
 
         if (file) {
-            const relativePath = path.join(process.env.UPLOAD_PATH || 'uploads', file.filename);
+            const uploadDir = process.env.UPLOAD_PATH || 'uploads';
+            // Always use forward slashes for database paths for cross-platform consistency
+            const relativePath = `${uploadDir}/${file.filename}`;
             query += ', received_quotation_path = ?';
             params.push(relativePath);
         }
@@ -722,9 +724,12 @@ const downloadReceivedQuotation = async (req, res) => {
             return res.status(404).json({ message: 'Quotation file not found' });
         }
 
-        const filePath = path.join(__dirname, '..', rows[0].received_quotation_path);
+        // Normalize path separators to ensure cross-platform compatibility
+        const normalizedPath = rows[0].received_quotation_path.replace(/\\/g, '/');
+        const filePath = path.join(__dirname, '..', normalizedPath);
         
         if (!fs.existsSync(filePath)) {
+            console.error(`File not found at path: ${filePath}`);
             return res.status(404).json({ message: 'File does not exist on server' });
         }
 

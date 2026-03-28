@@ -27,7 +27,8 @@ const auth = require('../middleware/authMiddleware');
 // Multer storage configuration for temporary analysis and uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, path.resolve(__dirname, '../', process.env.UPLOAD_PATH || 'uploads/'));
+        const uploadPath = process.env.UPLOAD_PATH || 'uploads/';
+        cb(null, path.resolve(__dirname, '../', uploadPath));
     },
     filename: (req, file, cb) => {
         const prefix = file.fieldname === 'received_quotation' ? 'quote-' : 'analysis-';
@@ -114,30 +115,14 @@ router.get('/stats', auth, getQuotationStats);
 // @route   POST api/department/procurement/quotations
 router.post('/', auth, createQuotation);
 
+// @route   GET api/department/procurement/quotations/:id/download
+router.get('/:id/download', auth, downloadReceivedQuotation);
+
 // @route   GET api/department/procurement/quotations/:id
 router.get('/:id', auth, getQuotationById);
 
-// @route   POST api/department/procurement/quotations/analyze
-router.post('/analyze', auth, upload.single('file'), (err, req, res, next) => {
-    if (err instanceof multer.MulterError) {
-        return res.status(400).json({ message: `Multer error: ${err.message}` });
-    } else if (err) {
-        return res.status(400).json({ message: err.message });
-    }
-    next();
-}, analyzeQuotation);
-
-// @route   GET api/department/procurement/quotations/:id/communications
-router.get('/:id/communications', auth, getCommunications);
-
-// @route   POST api/department/procurement/quotations/:id/email
-router.post('/:id/email', auth, sendQuotationEmail);
-
 // @route   PATCH api/department/procurement/quotations/:id/status
 router.patch('/:id/status', auth, upload.single('received_quotation'), updateQuotationStatus);
-
-// @route   GET api/department/procurement/quotations/:id/download
-router.get('/:id/download', auth, downloadReceivedQuotation);
 
 // @route   GET api/department/procurement/quotations/communications/attachment/:id
 router.get('/communications/attachment/:id', auth, downloadAttachment);

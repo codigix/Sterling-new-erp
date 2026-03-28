@@ -255,7 +255,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                       </div>
                     </div>
 
-                    {request.quotation.received_quotation_path && (
+                      {request.quotation.received_quotation_path && (
                       <button
                         onClick={async () => {
                           try {
