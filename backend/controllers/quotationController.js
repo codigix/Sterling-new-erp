@@ -378,39 +378,52 @@ const analyzeQuotation = async (req, res) => {
         const items = JSON.parse(req.body.items || '[]');
         console.log('Number of items to analyze:', items.length);
         
-        const fileName = path.basename(req.file.path);
-        const filePath = path.join(process.env.UPLOAD_PATH || 'uploads', fileName);
+        const filePath = req.file.path;
         const fileExtension = path.extname(req.file.originalname).toLowerCase();
 
         let extractedText = '';
 
         if (fileExtension === '.pdf') {
-            console.log('Parsing PDF file with custom pagerender...');
+            console.log('Parsing PDF file...');
             const dataBuffer = fs.readFileSync(filePath);
             
-            // Custom pagerender to ensure spaces between words/numbers
-            // Standard pdf-parse often merges columns without spaces
-            const options = {
-                pagerender: function(pageData) {
-                    return pageData.getTextContent()
-                    .then(function(textContent) {
-                        let lastY, text = '';
-                        for (let item of textContent.items) {
-                            if (lastY == item.transform[5] || !lastY){
-                                text += ' ' + item.str;
+            try {
+                // Try with custom pagerender first for better column detection
+                const options = {
+                    pagerender: function(pageData) {
+                        return pageData.getTextContent()
+                        .then(function(textContent) {
+                            let lastY, text = '';
+                            for (let item of textContent.items) {
+                                if (lastY == item.transform[5] || !lastY){
+                                    text += ' ' + item.str;
+                                }
+                                else{
+                                    text += '\n' + item.str;
+                                }    
+                                lastY = item.transform[5];
                             }
-                            else{
-                                text += '\n' + item.str;
-                            }    
-                            lastY = item.transform[5];
-                        }
-                        return text;
+                            return text;
+                        });
+                    }
+                };
+                const data = await pdf(dataBuffer, options);
+                extractedText = data.text;
+            } catch (pdfError) {
+                console.warn('PDF parsing with custom pagerender failed, trying default...', pdfError.message);
+                try {
+                    // Fallback to default parsing
+                    const data = await pdf(dataBuffer);
+                    extractedText = data.text;
+                } catch (fallbackError) {
+                    console.error('All PDF parsing attempts failed:', fallbackError.message);
+                    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+                    return res.status(422).json({ 
+                        message: 'The PDF document appears to be malformed or protected. Please try another file or enter data manually.',
+                        error: fallbackError.message 
                     });
                 }
-            };
-
-            const data = await pdf(dataBuffer, options);
-            extractedText = data.text;
+            }
         } else {
             console.warn('Unsupported file extension for extraction:', fileExtension);
             // Clean up temp file
@@ -420,6 +433,19 @@ const analyzeQuotation = async (req, res) => {
 
         console.log('Extracted Text length:', extractedText.length);
         
+        // Detect column order from headers if possible
+        let rateBeforeWeight = false; // Default: Weight then Rate
+        const lowerText = extractedText.toLowerCase();
+        const rateIdx = lowerText.indexOf('rate');
+        const weightIdx = lowerText.indexOf('weight');
+        
+        if (rateIdx !== -1 && weightIdx !== -1 && rateIdx < weightIdx) {
+            rateBeforeWeight = true;
+            console.log('Detected column order: Rate before Weight');
+        } else {
+            console.log('Detected column order: Weight before Rate (or unknown, using default)');
+        }
+
         // Clean and prepare lines
         const lines = extractedText.split('\n')
             .map(line => line.trim())
@@ -453,7 +479,7 @@ const analyzeQuotation = async (req, res) => {
                 const matchCount = targetWords.filter(word => line.includes(word)).length;
                 const score = matchCount / targetWords.length;
                 
-                if (score > 0.4) {
+                if (score > 0.3) {
                     candidates.push({ lineIdx: i, score });
                 }
             }
@@ -465,8 +491,9 @@ const analyzeQuotation = async (req, res) => {
                 // Try each candidate line
                 for (const candidate of candidates) {
                     const startIdx = candidate.lineIdx;
+                    let foundMath = false;
                     // Combine current line and next few lines to ensure we get the full row data
-                    const contextText = lines.slice(startIdx, startIdx + 4).join(' ');
+                    const contextText = lines.slice(startIdx, startIdx + 6).join(' ');
                     
                     // Extract all numbers
                     const numberMatches = contextText.match(/\d+(?:,\d{3})*(?:\.\d+)?/g) || [];
@@ -483,21 +510,21 @@ const analyzeQuotation = async (req, res) => {
                     const qtyIdx = numbers.findIndex(n => Math.abs(n - knownQty) < 0.01);
                     
                     if (qtyIdx !== -1 && numbers.length > qtyIdx + 2) {
-                        const w = numbers[qtyIdx + 1];
-                        const r = numbers[qtyIdx + 2];
+                        const wCandidate = numbers[qtyIdx + (rateBeforeWeight ? 2 : 1)];
+                        const rCandidate = numbers[qtyIdx + (rateBeforeWeight ? 1 : 2)];
                         const a = numbers[qtyIdx + 3] || 0;
                         
                         // Verification: w * r should be very close to a
                         // This confirms we have the right columns
-                        if (a > 0 && Math.abs((w * r) - a) < (a * 0.05 + 10)) {
-                            item.total_weight = w;
-                            item.rate_per_kg = r;
+                        if (a > 0 && Math.abs((wCandidate * rCandidate) - a) < (a * 0.05 + 10)) {
+                            item.total_weight = wCandidate;
+                            item.rate_per_kg = rCandidate;
                             foundMath = true;
                         } else if (numbers.length > qtyIdx + 2) {
                             // Fallback if Amount column isn't parsed correctly but sequence is likely
                             // In your PDF: Qty(2) Unit(Nos) Weight(1507.2) Rate(82)
-                            item.total_weight = w;
-                            item.rate_per_kg = r;
+                            item.total_weight = wCandidate;
+                            item.rate_per_kg = rCandidate;
                             foundMath = true;
                         }
                     }
@@ -507,9 +534,9 @@ const analyzeQuotation = async (req, res) => {
                         for (let i = 0; i < filteredNumbers.length; i++) {
                             for (let j = 0; j < filteredNumbers.length; j++) {
                                 if (i === j) continue;
-                                const w = filteredNumbers[i];
-                                const r = filteredNumbers[j];
-                                const prod = w * r;
+                                const n1 = filteredNumbers[i];
+                                const n2 = filteredNumbers[j];
+                                const prod = n1 * n2;
                                 
                                 // Check if any OTHER number matches this product (Amount)
                                 const totalIdx = filteredNumbers.findIndex((n, idx) => 
@@ -517,14 +544,25 @@ const analyzeQuotation = async (req, res) => {
                                 );
 
                                 if (totalIdx !== -1) {
-                                    // Based on your PDF, the larger one in the first two is Weight
-                                    // and the sequence is Weight then Rate
-                                    if (i < j) {
-                                        item.total_weight = w;
-                                        item.rate_per_kg = r;
+                                    // Use detected column sequence or heuristics
+                                    if (rateBeforeWeight) {
+                                        // If Rate comes before Weight in headers, first number in pair is likely Rate
+                                        if (i < j) {
+                                            item.rate_per_kg = n1;
+                                            item.total_weight = n2;
+                                        } else {
+                                            item.rate_per_kg = n2;
+                                            item.total_weight = n1;
+                                        }
                                     } else {
-                                        item.total_weight = r;
-                                        item.rate_per_kg = w;
+                                        // Default: Weight then Rate or use larger number for weight if unknown
+                                        if (i < j) {
+                                            item.total_weight = n1;
+                                            item.rate_per_kg = n2;
+                                        } else {
+                                            item.total_weight = n2;
+                                            item.rate_per_kg = n1;
+                                        }
                                     }
                                     foundMath = true;
                                     break;

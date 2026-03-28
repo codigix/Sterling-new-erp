@@ -103,6 +103,9 @@ router.delete('/:id', auth, (req, res, next) => {
     return deleteQuotation(req, res);
 });
 
+// @route   POST api/department/procurement/quotations/analyze
+router.post('/analyze', auth, upload.single('file'), analyzeQuotation);
+
 // @route   GET api/department/procurement/quotations/vendors
 router.get('/vendors', auth, getVendors);
 
