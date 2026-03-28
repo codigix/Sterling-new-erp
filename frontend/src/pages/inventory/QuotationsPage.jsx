@@ -43,6 +43,7 @@ const QuotationsPage = ({ defaultTab }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [activeTab, setActiveTab] = useState(defaultTab || location.state?.activeTab || "outbound");
+  const basePath = location.pathname.includes('/procurement') ? '/department/procurement' : '/department/inventory';
 
   // Sync tab state when defaultTab prop changes (navigation between routes)
   useEffect(() => {
@@ -69,7 +70,7 @@ const QuotationsPage = ({ defaultTab }) => {
     } else if (mrId && !showAddModal && !location.state?.modalProcessed) {
       if (activeTab === "outbound" && action !== "record") {
         if (action === "send") {
-          axios.get(`/department/procurement/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
+          axios.get(`${basePath}/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
             const existingQuotes = response.data;
             if (existingQuotes && existingQuotes.length > 0) {
               handleSendEmail(existingQuotes[0]);
@@ -81,7 +82,7 @@ const QuotationsPage = ({ defaultTab }) => {
           fetchMRAndOpenAddModal(mrId, "outbound");
         }
       } else if (activeTab === "inbound" && action === "record") {
-        axios.get(`/department/procurement/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
+        axios.get(`${basePath}/quotations?material_request_id=${mrId}&type=outbound`).then(response => {
           const existingQuotes = response.data;
           if (existingQuotes && existingQuotes.length > 0) {
             const quote = existingQuotes.find(q => q.status === "sent") || existingQuotes[0];
@@ -122,9 +123,9 @@ const QuotationsPage = ({ defaultTab }) => {
     setActiveTab(tab);
     const searchString = location.search;
     if (tab === "outbound") {
-      navigate(`/department/procurement/quotations/sent${searchString}`);
+      navigate(`${basePath}/quotations/sent${searchString}`);
     } else {
-      navigate(`/department/procurement/quotations/received${searchString}`);
+      navigate(`${basePath}/quotations/received${searchString}`);
     }
   };
   const [stats, setStats] = useState({});
@@ -167,7 +168,7 @@ const QuotationsPage = ({ defaultTab }) => {
       
       params.append("type", activeTab);
 
-      const response = await axios.get(`/department/procurement/quotations?${params}`);
+      const response = await axios.get(`${basePath}/quotations?${params}`);
       setQuotations(response.data);
       setError(null);
     } catch (err) {
@@ -180,7 +181,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await axios.get("/department/procurement/quotations/stats");
+      const response = await axios.get(`${basePath}/quotations/stats`);
       setStats(response.data);
     } catch (err) {
       console.error("Error fetching quotation stats:", err);
@@ -189,7 +190,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const fetchVendors = useCallback(async () => {
     try {
-      const response = await axios.get("/department/procurement/vendors");
+      const response = await axios.get(`${basePath}/vendors`);
       setVendors(response.data);
     } catch (err) {
       console.error("Error fetching vendors:", err);
@@ -239,8 +240,8 @@ const QuotationsPage = ({ defaultTab }) => {
           params.append("type", activeTab);
 
           const [qRes, sRes] = await Promise.all([
-            axios.get(`/department/procurement/quotations?${params}`),
-            axios.get("/department/procurement/quotations/stats")
+            axios.get(`${basePath}/quotations?${params}`),
+            axios.get(`${basePath}/quotations/stats`)
           ]);
           setQuotations(qRes.data);
           setStats(sRes.data);
@@ -260,7 +261,7 @@ const QuotationsPage = ({ defaultTab }) => {
       interval = setInterval(async () => {
         try {
           const response = await axios.get(
-            `/department/procurement/quotations/${selectedQuotationForComms.id}/communications`
+            `${basePath}/quotations/${selectedQuotationForComms.id}/communications`
           );
           setCommunications(response.data || []);
         } catch (error) {
@@ -287,7 +288,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const handleViewQuotation = async (quotation) => {
     try {
-      const response = await axios.get(`/department/procurement/quotations/${quotation.id}`);
+      const response = await axios.get(`${basePath}/quotations/${quotation.id}`);
       const fullQuotation = response.data;
       const doc = await generateQuotationPDF(fullQuotation);
       window.open(doc.output("bloburl"), "_blank");
@@ -300,7 +301,7 @@ const QuotationsPage = ({ defaultTab }) => {
   const handleViewReceivedQuotation = async (quotationId) => {
     try {
       const response = await axios.get(
-        `/department/inventory/quotations/${quotationId}/download`,
+        `${basePath}/quotations/${quotationId}/download`,
         {
           responseType: "blob",
         }
@@ -493,7 +494,7 @@ const QuotationsPage = ({ defaultTab }) => {
     setLoadingCommunications(true);
     try {
       const response = await axios.get(
-        `/department/inventory/quotations/${quotation.id}/communications`
+        `${basePath}/quotations/${quotation.id}/communications`
       );
       setCommunications(response.data || []);
     } catch (error) {
@@ -517,7 +518,7 @@ const QuotationsPage = ({ defaultTab }) => {
       setSendingReply(true);
       const vendor = vendors.find((v) => v.id === selectedQuotationForComms.vendor_id);
       
-      await axios.post(`/department/inventory/quotations/${selectedQuotationForComms.id}/email`, {
+      await axios.post(`${basePath}/quotations/${selectedQuotationForComms.id}/email`, {
         email: vendor?.email,
         subject: `RE: Quotation Request ${selectedQuotationForComms.quotation_number}`,
         message: replyMessage,
@@ -526,7 +527,7 @@ const QuotationsPage = ({ defaultTab }) => {
       setReplyMessage("");
       // Refresh communications
       const response = await axios.get(
-        `/department/inventory/quotations/${selectedQuotationForComms.id}/communications`
+        `${basePath}/quotations/${selectedQuotationForComms.id}/communications`
       );
       setCommunications(response.data || []);
       
@@ -542,7 +543,7 @@ const QuotationsPage = ({ defaultTab }) => {
   const handleDownloadAttachment = async (attachmentId, fileName) => {
     try {
       const response = await axios.get(
-        `/department/inventory/quotations/communications/attachment/${attachmentId}`,
+        `${basePath}/quotations/communications/attachment/${attachmentId}`,
         {
           responseType: "blob",
         }
@@ -571,7 +572,7 @@ const QuotationsPage = ({ defaultTab }) => {
     setSendingEmail(true);
     try {
       // Fetch full quotation details including items
-      const response = await axios.get(`/department/inventory/quotations/${emailData.quotationId}`);
+      const response = await axios.get(`${basePath}/quotations/${emailData.quotationId}`);
       const fullQuotation = response.data;
       
       if (!fullQuotation) throw new Error("Quotation not found");
@@ -579,14 +580,14 @@ const QuotationsPage = ({ defaultTab }) => {
       const doc = await generateQuotationPDF(fullQuotation);
       const pdfBase64 = doc.output("datauristring");
 
-      await axios.post(`/department/inventory/quotations/${fullQuotation.id}/email`, {
+      await axios.post(`${basePath}/quotations/${fullQuotation.id}/email`, {
         email: emailData.email,
         subject: emailData.subject,
         message: emailData.message,
         pdfBase64,
       });
 
-      await axios.patch(`/department/inventory/quotations/${fullQuotation.id}/status`, {
+      await axios.patch(`${basePath}/quotations/${fullQuotation.id}/status`, {
         status: "sent",
       });
 
@@ -620,7 +621,7 @@ const QuotationsPage = ({ defaultTab }) => {
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`/department/inventory/quotations/${id}`);
+      await axios.delete(`${basePath}/quotations/${id}`);
       fetchQuotations();
       fetchStats();
       toast.success("Quotation deleted successfully.");
@@ -642,7 +643,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
     try {
       setUpdatingStatusId(quoteId);
-      await axios.patch(`/department/inventory/quotations/${quoteId}/status`, {
+      await axios.patch(`${basePath}/quotations/${quoteId}/status`, {
         status: newStatus,
       });
       
@@ -676,7 +677,7 @@ const QuotationsPage = ({ defaultTab }) => {
       formData.append("status", "approved");
       formData.append("received_quotation", selectedFile);
 
-      await axios.patch(`/department/inventory/quotations/${quotationToApprove.id}/status`, formData, {
+      await axios.patch(`${basePath}/quotations/${quotationToApprove.id}/status`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

@@ -118,8 +118,14 @@ router.post('/', auth, createQuotation);
 // @route   GET api/department/procurement/quotations/:id/download
 router.get('/:id/download', auth, downloadReceivedQuotation);
 
+// @route   GET api/department/procurement/quotations/:id/communications
+router.get('/:id/communications', auth, getCommunications);
+
 // @route   GET api/department/procurement/quotations/:id
 router.get('/:id', auth, getQuotationById);
+
+// @route   POST api/department/procurement/quotations/:id/email
+router.post('/:id/email', auth, sendQuotationEmail);
 
 // @route   PATCH api/department/procurement/quotations/:id/status
 router.patch('/:id/status', auth, upload.single('received_quotation'), updateQuotationStatus);

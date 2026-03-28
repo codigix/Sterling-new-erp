@@ -540,7 +540,7 @@ const DepartmentLayout = () => {
                       {!sidebarCollapsed && <span className="ml-3">Work Orders</span>}
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
                       to="/department/production/job-cards"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
@@ -552,7 +552,7 @@ const DepartmentLayout = () => {
                       <ClipboardList size={18} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Job Cards</span>}
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       to="/department/production/workstations"
