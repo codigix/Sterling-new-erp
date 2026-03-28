@@ -694,7 +694,7 @@ const updateQuotationStatus = async (req, res) => {
         const params = [status];
 
         if (file) {
-            const uploadDir = process.env.UPLOAD_PATH || 'uploads';
+            const uploadDir = (process.env.UPLOAD_PATH || 'uploads').replace(/\/$/, '').replace(/\\$/, '');
             // Always use forward slashes for database paths for cross-platform consistency
             const relativePath = `${uploadDir}/${file.filename}`;
             query += ', received_quotation_path = ?';
@@ -725,11 +725,14 @@ const downloadReceivedQuotation = async (req, res) => {
         }
 
         // Normalize path separators to ensure cross-platform compatibility
-        const normalizedPath = rows[0].received_quotation_path.replace(/\\/g, '/');
-        const filePath = path.join(__dirname, '..', normalizedPath);
+        // And remove any duplicate slashes
+        const normalizedPath = rows[0].received_quotation_path.replace(/\\/g, '/').replace(/\/+/g, '/');
+        
+        // Use path.resolve to get an absolute path starting from the backend root
+        const filePath = path.resolve(__dirname, '..', normalizedPath);
         
         if (!fs.existsSync(filePath)) {
-            console.error(`File not found at path: ${filePath}`);
+            console.error(`ERROR: Quotation PDF not found at ${filePath}`);
             return res.status(404).json({ message: 'File does not exist on server' });
         }
 
