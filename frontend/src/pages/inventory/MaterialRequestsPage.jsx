@@ -677,6 +677,47 @@ const MaterialRequestDetailModal = ({
                     </div>
                   </div>
                 </div>
+
+                {request.quotation && (
+                  <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/30 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[10px] font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-widest flex items-center gap-1.5">
+                        <ShieldCheck size={14} /> Approved Quotation
+                      </h4>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <FileText size={16} className="text-emerald-600" />
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          {request.quotation.quotation_number}
+                        </span>
+                      </div>
+                      
+                      {request.quotation.received_quotation_path && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              const response = await axios.get(
+                                `/department/inventory/quotations/${request.quotation.id}/download`,
+                                { responseType: "blob" }
+                              );
+                              const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                              window.open(url, "_blank");
+                            } catch (error) {
+                              console.error("Error viewing quotation:", error);
+                              Swal.fire("Error", "Failed to view quotation PDF", "error");
+                            }
+                          }}
+                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px] font-bold hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all shadow-sm flex items-center justify-center gap-2"
+                        >
+                          <Download size={12} />
+                          VIEW VENDOR QUOTATION
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

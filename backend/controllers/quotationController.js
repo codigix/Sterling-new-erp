@@ -687,12 +687,55 @@ const sendQuotationEmail = async (req, res) => {
 const updateQuotationStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
+    const file = req.file;
 
     try {
-        await db.query('UPDATE quotations SET status = ? WHERE id = ?', [status, id]);
-        res.json({ message: 'Status updated successfully' });
+        let query = 'UPDATE quotations SET status = ?';
+        const params = [status];
+
+        if (file) {
+            const relativePath = path.join(process.env.UPLOAD_PATH || 'uploads', file.filename);
+            query += ', received_quotation_path = ?';
+            params.push(relativePath);
+        }
+
+        query += ' WHERE id = ?';
+        params.push(id);
+
+        await db.query(query, params);
+        res.json({ 
+            message: 'Status updated successfully',
+            received_quotation_path: file ? path.join(process.env.UPLOAD_PATH || 'uploads', file.filename) : null
+        });
     } catch (error) {
         console.error('Error updating quotation status:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const downloadReceivedQuotation = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await db.query('SELECT received_quotation_path FROM quotations WHERE id = ?', [id]);
+        
+        if (rows.length === 0 || !rows[0].received_quotation_path) {
+            return res.status(404).json({ message: 'Quotation file not found' });
+        }
+
+        const filePath = path.join(__dirname, '..', rows[0].received_quotation_path);
+        
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ message: 'File does not exist on server' });
+        }
+
+        const fileName = path.basename(filePath);
+        res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+        res.setHeader('Content-Type', 'application/pdf');
+        
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
+    } catch (error) {
+        console.error('Error downloading received quotation:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -928,6 +971,7 @@ module.exports = {
     deleteVendor,
     deleteQuotation,
     analyzeQuotation,
+    downloadReceivedQuotation,
     getCommunications,
     downloadAttachment,
     sendQuotationEmail,

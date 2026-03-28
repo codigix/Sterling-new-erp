@@ -19,18 +19,20 @@ const {
     downloadAttachment,
     sendQuotationEmail,
     updateQuotationStatus,
+    downloadReceivedQuotation,
     deleteQuotation
 } = require('../controllers/quotationController');
 const auth = require('../middleware/authMiddleware');
 
-// Multer storage configuration for temporary analysis
+// Multer storage configuration for temporary analysis and uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, path.resolve(__dirname, '../', process.env.UPLOAD_PATH || 'uploads/'));
     },
     filename: (req, file, cb) => {
+        const prefix = file.fieldname === 'received_quotation' ? 'quote-' : 'analysis-';
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'analysis-' + uniqueSuffix + path.extname(file.originalname));
+        cb(null, prefix + uniqueSuffix + path.extname(file.originalname));
     }
 });
 
@@ -42,7 +44,7 @@ const upload = multer({
         if (allowedExtensions.includes(ext)) {
             cb(null, true);
         } else {
-            cb(new Error('Only PDF and images are allowed for analysis'), false);
+            cb(new Error('Only PDF and images are allowed'), false);
         }
     }
 });
@@ -132,7 +134,10 @@ router.get('/:id/communications', auth, getCommunications);
 router.post('/:id/email', auth, sendQuotationEmail);
 
 // @route   PATCH api/department/procurement/quotations/:id/status
-router.patch('/:id/status', auth, updateQuotationStatus);
+router.patch('/:id/status', auth, upload.single('received_quotation'), updateQuotationStatus);
+
+// @route   GET api/department/procurement/quotations/:id/download
+router.get('/:id/download', auth, downloadReceivedQuotation);
 
 // @route   GET api/department/procurement/quotations/communications/attachment/:id
 router.get('/communications/attachment/:id', auth, downloadAttachment);

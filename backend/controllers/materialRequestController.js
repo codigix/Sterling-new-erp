@@ -176,15 +176,26 @@ const getMaterialRequestById = async (req, res) => {
 
     const [items] = await db.query('SELECT * FROM material_request_items WHERE material_request_id = ?', [id]);
 
+    // Fetch approved quotation if any
+    const [quotations] = await db.query(
+      `SELECT id, quotation_number, vendor_id, total_amount, received_quotation_path, status 
+       FROM quotations 
+       WHERE material_request_id = ? AND status = 'approved' AND type = 'inbound'
+       ORDER BY created_at DESC LIMIT 1`, 
+      [id]
+    );
+
     res.json({ 
       success: true, 
       data: {
         ...requestRows[0],
-        items
+        items,
+        quotation: quotations.length > 0 ? quotations[0] : null
       },
       materialRequest: {
         ...requestRows[0],
-        items
+        items,
+        quotation: quotations.length > 0 ? quotations[0] : null
       }
     });
   } catch (error) {

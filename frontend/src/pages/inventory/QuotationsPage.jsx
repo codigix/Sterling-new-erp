@@ -150,6 +150,10 @@ const QuotationsPage = ({ defaultTab }) => {
   const [loadingCommunications, setLoadingCommunications] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [quotationToApprove, setQuotationToApprove] = useState(null);
 
   const fetchQuotations = useCallback(async () => {
     try {
@@ -290,6 +294,22 @@ const QuotationsPage = ({ defaultTab }) => {
     } catch (err) {
       console.error("Error viewing quotation detail:", err);
       toast.error("Failed to load quotation details");
+    }
+  };
+
+  const handleViewReceivedQuotation = async (quotationId) => {
+    try {
+      const response = await axios.get(
+        `/department/inventory/quotations/${quotationId}/download`,
+        {
+          responseType: "blob",
+        }
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error viewing quotation:", error);
+      toast.error("Failed to view quotation PDF");
     }
   };
 
@@ -610,7 +630,16 @@ const QuotationsPage = ({ defaultTab }) => {
     }
   };
 
-  const handleInlineStatusUpdate = async (quoteId, newStatus) => {
+  const handleInlineStatusUpdate = async (quoteOrId, newStatus) => {
+    const quote = typeof quoteOrId === 'object' ? quoteOrId : quotations.find(q => q.id === quoteOrId);
+    const quoteId = typeof quoteOrId === 'object' ? quote.id : quoteOrId;
+
+    if (newStatus === "approved") {
+      setQuotationToApprove(quote);
+      setShowUploadModal(true);
+      return;
+    }
+
     try {
       setUpdatingStatusId(quoteId);
       await axios.patch(`/department/inventory/quotations/${quoteId}/status`, {
@@ -632,6 +661,42 @@ const QuotationsPage = ({ defaultTab }) => {
       fetchQuotations(); // Revert on error
     } finally {
       setUpdatingStatusId(null);
+    }
+  };
+
+  const handleUploadAndApprove = async () => {
+    if (!selectedFile) {
+      toast.error("Please select a PDF file");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("status", "approved");
+      formData.append("received_quotation", selectedFile);
+
+      await axios.patch(`/department/inventory/quotations/${quotationToApprove.id}/status`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Quotation approved and PDF uploaded successfully");
+      
+      // Update local state
+      setQuotations(prev => prev.map(q => q.id === quotationToApprove.id ? { ...q, status: "approved" } : q));
+      
+      // Reset state and close modal
+      setShowUploadModal(false);
+      setSelectedFile(null);
+      setQuotationToApprove(null);
+      fetchStats();
+    } catch (error) {
+      console.error("Error uploading quotation:", error);
+      toast.error("Failed to upload and approve quotation");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -999,7 +1064,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         )}
                         {activeTab === "inbound" && quote.status === "pending" && (
                           <button
-                            onClick={() => handleInlineStatusUpdate(quote.id, "approved")}
+                            onClick={() => handleInlineStatusUpdate(quote, "approved")}
                             className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
                             title="Quick Approve"
                           >
@@ -1009,13 +1074,22 @@ const QuotationsPage = ({ defaultTab }) => {
                         {activeTab === "inbound" && (
                           <>
                             {quote.status === "approved" && (
-                              <button
-                                onClick={() => handleCreatePOFromQuote(quote)}
-                                className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
-                                title="Create Purchase Order"
-                              >
-                                <Plus size={16} />
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => handleCreatePOFromQuote(quote)}
+                                  className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
+                                  title="Create Purchase Order"
+                                >
+                                  <Plus size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleViewReceivedQuotation(quote.id)}
+                                  className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400 rounded transition-colors"
+                                  title="View Received Quotation PDF"
+                                >
+                                  <FileText size={16} />
+                                </button>
+                              </>
                             )}
                           </>
                         )}
@@ -1312,6 +1386,101 @@ const QuotationsPage = ({ defaultTab }) => {
               )}
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                Upload Received Quotation
+              </h3>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="text-slate-400 hover:text-slate-500 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {quotationToApprove && (
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-500 font-medium uppercase tracking-tighter">Project Name:</span>
+                    <span className="text-slate-900 dark:text-white font-bold">{quotationToApprove.project_name || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-500 font-medium uppercase tracking-tighter">Material Request No:</span>
+                    <span className="text-slate-900 dark:text-white font-bold">{quotationToApprove.mr_number || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-500 font-medium uppercase tracking-tighter">Reference RFQ No:</span>
+                    <span className="text-slate-900 dark:text-white font-bold">{quotationToApprove.rfq_number || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between text-xs pt-1 border-t border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-500 font-medium uppercase tracking-tighter">Current Quote No:</span>
+                    <span className="text-slate-900 dark:text-white font-bold text-sm">{quotationToApprove.quotation_number}</span>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Please upload the PDF file received from the vendor to approve this quotation.
+              </p>
+
+              <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors relative">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div className="flex flex-col items-center">
+                  <FileText
+                    size={40}
+                    className={
+                      selectedFile ? "text-blue-500" : "text-slate-400"
+                    }
+                  />
+                  <span className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {selectedFile ? selectedFile.name : "Click to select PDF"}
+                  </span>
+                  <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Max size: 5MB (PDF only)
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end mt-8 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => setShowUploadModal(false)}
+                  className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUploadAndApprove}
+                  disabled={uploading || !selectedFile}
+                  className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white rounded transition-colors font-medium"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={16} />
+                      Approve & Upload
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

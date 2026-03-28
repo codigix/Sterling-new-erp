@@ -227,6 +227,58 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                   </table>
                 </div>
               </div>
+
+              {/* Approved Quotation Section */}
+              {request.quotation && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-widest flex items-center gap-2">
+                      <CheckCircle2 size={16} /> Approved Vendor Quotation
+                    </h4>
+                    <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded-full text-[10px] font-bold uppercase">
+                      {request.quotation.status}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                        <FileText size={24} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">
+                          {request.quotation.quotation_number}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Total Amount: ₹{(request.quotation.total_amount || 0).toLocaleString('en-IN')}
+                        </p>
+                      </div>
+                    </div>
+
+                    {request.quotation.received_quotation_path && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const response = await axios.get(
+                              `/department/inventory/quotations/${request.quotation.id}/download`,
+                              { responseType: "blob" }
+                            );
+                            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                            window.open(url, "_blank");
+                          } catch (error) {
+                            console.error("Error viewing quotation:", error);
+                            toast.error("Failed to view quotation PDF");
+                          }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-bold hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all shadow-sm"
+                      >
+                        <FileText size={16} />
+                        View Vendor Quotation PDF
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
