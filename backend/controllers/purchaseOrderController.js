@@ -402,23 +402,38 @@ const getCommunications = async (req, res) => {
 const downloadAttachment = async (req, res) => {
     const { id } = req.params;
     try {
-        const [rows] = await db.query(
+        // Try to find in communication attachments first
+        let [rows] = await db.query(
             'SELECT file_path, file_name, mime_type FROM purchase_order_communication_attachments WHERE id = ?',
             [id]
         );
+
+        // If not found, try the direct purchase order attachments table
+        if (rows.length === 0) {
+            [rows] = await db.query(
+                'SELECT file_path, file_name, mime_type FROM purchase_order_attachments WHERE id = ?',
+                [id]
+            );
+        }
 
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Attachment not found' });
         }
 
         const attachment = rows[0];
-        const filePath = path.join(__dirname, '..', attachment.file_path);
+        let filePath = attachment.file_path;
+
+        // If it's a relative path, join it with the backend directory
+        if (!path.isAbsolute(filePath)) {
+            filePath = path.join(__dirname, '..', filePath);
+        }
 
         if (!fs.existsSync(filePath)) {
+            console.error(`File not found at: ${filePath}`);
             return res.status(404).json({ message: 'File not found on server' });
         }
 
-        res.setHeader('Content-Type', attachment.mime_type);
+        res.setHeader('Content-Type', attachment.mime_type || 'application/octet-stream');
         res.setHeader('Content-Disposition', `attachment; filename="${attachment.file_name}"`);
         
         const fileStream = fs.createReadStream(filePath);
@@ -442,11 +457,20 @@ const uploadInvoice = async (req, res) => {
         await connection.beginTransaction();
 
         for (const file of files) {
+            // Normalize path to be relative to the backend directory
+            // This makes the database more portable across different environments
+            let relativePathToStore = file.path;
+            const projectRoot = path.join(__dirname, '..');
+            
+            if (path.isAbsolute(file.path)) {
+                relativePathToStore = path.relative(projectRoot, file.path);
+            }
+
             await connection.query(
                 `INSERT INTO purchase_order_attachments 
                 (purchase_order_id, file_name, file_path, file_size, mime_type, uploaded_by) 
                 VALUES (?, ?, ?, ?, ?, ?)`,
-                [id, file.originalname, file.path, file.size, file.mimetype, req.user?.id || null]
+                [id, file.originalname, relativePathToStore, file.size, file.mimetype, req.user?.id || null]
             );
         }
 
