@@ -910,7 +910,7 @@ const releaseGRNMaterial = async (req, res) => {
         const grn = grnRows[0];
 
         if (grn.status !== 'qc_completed') {
-            throw new Error('GRN must be in "QC COMPLETED" status to release material');
+            throw new Error('GRN must be in "QC Completed" status to release material');
         }
 
         // 2. Get GRN items and their inspection results

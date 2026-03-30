@@ -290,7 +290,7 @@ const QualityInspectionDetail = () => {
   const hasAnyAccepted = items.some(item => item.serials.some(s => s.tempStatus === 'Accepted'));
 
   return (
-    <div className="p-6 space-y-2 bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div className="p-4 space-y-2 bg-slate-50 dark:bg-slate-900 min-h-screen">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
@@ -298,24 +298,24 @@ const QualityInspectionDetail = () => {
             className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded  transition-colors"
             title="Back to Material Inspection"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={15} />
           </button>
           <div>
-            <h1 className="text-2xl  text-slate-900 dark:text-white">
+            <h1 className="text-xl  text-slate-900 dark:text-white">
               Quality Inspection: {grn?.grn_number}
             </h1>
-            <p className="text-slate-500 dark:text-slate-400">
+            <p className="text-slate-500 text-xs dark:text-slate-400">
               {grn?.vendor} | {grn?.project_name || "No Project"}
             </p>
           </div>
         </div>
         
-        <div className="flex items-center bg-white dark:bg-slate-800 p-1 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="flex items-center bg-white dark:bg-slate-800 p-1 rounded border border-slate-200 dark:border-slate-700 ">
           <button
             onClick={() => handleInspectionTypeChange("Inhouse")}
-            className={`p-2 rounded-md text-sm   tracking-widest transition-all ${
+            className={`p-2 rounded text-xs    transition-all ${
               inspectionType === "Inhouse"
-                ? "bg-blue-600 text-white shadow-sm"
+                ? "bg-blue-600 text-white "
                 : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
             }`}
           >
@@ -323,9 +323,9 @@ const QualityInspectionDetail = () => {
           </button>
           <button
             onClick={() => handleInspectionTypeChange("Outsource")}
-            className={`p-2 rounded-md text-sm   tracking-widest transition-all ${
+            className={`p-2 rounded text-xs    transition-all ${
               inspectionType === "Outsource"
-                ? "bg-blue-600 text-white shadow-sm"
+                ? "bg-blue-600 text-white "
                 : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
             }`}
           >
@@ -334,27 +334,27 @@ const QualityInspectionDetail = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
             <div
               key={item.itemName}
-              className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm"
+              className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden "
             >
               <div
-                className="p-4 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer"
+                className="p-2 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer"
                 onClick={() => toggleExpand(item.itemName)}
               >
                 <div className="flex items-center gap-3">
                   {expandedItems[item.itemName] ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
-                  <div className="w-10 h-10 rounded bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
-                    <Package size={20} />
+                  <div className="p-2 rounded bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                    <Package size={15} />
                   </div>
                   <div>
                     <span className=" text-slate-900 dark:text-white  ">
                       {item.itemName}
                     </span>
-                    <div className="text-[10px]  text-slate-400  tracking-widest mt-0.5">
+                    <div className="text-xs  text-slate-400   mt-0.5">
                       {item.serials.length} Units Tracked
                     </div>
                   </div>
@@ -362,20 +362,20 @@ const QualityInspectionDetail = () => {
                 <div className="flex gap-2" onClick={e => e.stopPropagation()}>
                    <button 
                     onClick={() => bulkAction(item.itemName, 'Accepted')}
-                    className="px-3 py-1 bg-green-50 text-green-600 rounded text-[10px]   tracking-widest hover:bg-green-600 hover:text-white transition-all border border-green-100"
+                    className="p-2 bg-green-50 text-green-600 rounded text-xs    hover:bg-green-600 hover:text-white transition-all border border-green-100"
                    >
                      Accept All
                    </button>
                    <button 
                     onClick={() => bulkAction(item.itemName, 'Rejected')}
-                    className="px-3 py-1 bg-red-50 text-red-600 rounded text-[10px]   tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100"
+                    className="p-2 bg-red-50 text-red-600 rounded text-xs    hover:bg-red-600 hover:text-white transition-all border border-red-100"
                    >
                      Reject All
                    </button>
                    {inspectionType === 'Outsource' && (
                      <button 
                       onClick={() => bulkAction(item.itemName, 'Sent for Inspection')}
-                      className="px-3 py-1 bg-blue-50 text-blue-600 rounded text-[10px]   tracking-widest hover:bg-blue-600 hover:text-white transition-all border border-blue-100"
+                      className="p-2 bg-blue-50 text-blue-600 rounded text-xs    hover:bg-blue-600 hover:text-white transition-all border border-blue-100"
                      >
                        Outsource All
                      </button>
@@ -388,12 +388,12 @@ const QualityInspectionDetail = () => {
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-50/30 border-b border-slate-100 dark:border-slate-700 text-slate-400 text-[10px]   tracking-widest">
-                        <th className="px-6 py-3 text-left">ST Number</th>
-                        <th className="px-6 py-3 text-left">Current Status</th>
-                        <th className="px-6 py-3 text-center">Action</th>
-                        {inspectionType === 'Outsource' && <th className="px-6 py-3 text-center">Doc</th>}
-                        <th className="px-6 py-3 text-left">Notes</th>
+                      <tr className="bg-slate-50/30 border-b border-slate-100 dark:border-slate-700 text-slate-400 text-xs   ">
+                        <th className="p-2 text-left">ST Number</th>
+                        <th className="p-2 text-left">Current Status</th>
+                        <th className="p-2 text-center">Action</th>
+                        {inspectionType === 'Outsource' && <th className="p-2 text-center">Doc</th>}
+                        <th className="p-2 text-left">Notes</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -403,7 +403,7 @@ const QualityInspectionDetail = () => {
                             {s.serial_number}
                           </td>
                           <td className="p-2">
-                            <span className={`text-[10px] px-2.5 py-1 rounded    tracking-widest ${
+                            <span className={`text-xs p-1 rounded     ${
                               s.inspection_status === 'Accepted' ? 'bg-green-100 text-green-700' :
                               s.inspection_status === 'Rejected' ? 'bg-red-100 text-red-700' :
                               s.inspection_status === 'Sent for Inspection' ? 'bg-blue-100 text-blue-700' :
@@ -418,37 +418,37 @@ const QualityInspectionDetail = () => {
                                 <>
                                   <button
                                     onClick={() => updateSerialStatus(item.itemName, s.serial_number, 'Accepted')}
-                                    className={`p-2 rounded transition-all shadow-sm ${
+                                    className={`p-2 rounded transition-all  ${
                                       s.tempStatus === 'Accepted' ? 'bg-green-600 text-white shadow-green-200' : 'bg-slate-50 text-slate-400 hover:text-green-600 hover:bg-green-50'
                                     }`}
                                     title="Accept"
                                   >
-                                    <CheckCircle size={18} />
+                                    <CheckCircle size={15} />
                                   </button>
                                   <button
                                     onClick={() => updateSerialStatus(item.itemName, s.serial_number, 'Rejected')}
-                                    className={`p-2 rounded transition-all shadow-sm ${
+                                    className={`p-2 rounded transition-all  ${
                                       s.tempStatus === 'Rejected' ? 'bg-red-600 text-white shadow-red-200' : 'bg-slate-50 text-slate-400 hover:text-red-600 hover:bg-red-50'
                                     }`}
                                     title="Reject"
                                   >
-                                    <XCircle size={18} />
+                                    <XCircle size={15} />
                                   </button>
                                   {inspectionType === 'Outsource' && s.inspection_status === 'Pending' && (
                                     <button
                                       onClick={() => updateSerialStatus(item.itemName, s.serial_number, 'Sent for Inspection')}
-                                      className={`p-2 rounded transition-all shadow-sm ${
+                                      className={`p-2 rounded transition-all  ${
                                         s.tempStatus === 'Sent for Inspection' ? 'bg-blue-600 text-white shadow-blue-200' : 'bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-blue-50'
                                       }`}
                                       title="Mark for Outsource"
                                     >
-                                      <Truck size={18} />
+                                      <Truck size={15} />
                                     </button>
                                   )}
                                 </>
                               )}
                               {s.inspection_status !== 'Pending' && s.inspection_status !== 'Sent for Inspection' && (
-                                <span className="text-[10px]  text-slate-300  tracking-widest italic">Processed</span>
+                                <span className="text-xs  text-slate-300   italic">Processed</span>
                               )}
                             </div>
                           </td>
@@ -457,7 +457,7 @@ const QualityInspectionDetail = () => {
                               {s.tempStatus === 'Rejected' ? (
                                 <div className="flex flex-col items-center gap-1">
                                   <label className={`cursor-pointer p-2 rounded transition-all ${s.doc ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}>
-                                    <Upload size={16} />
+                                    <Upload size={15} />
                                     <input type="file" className="hidden" onChange={(e) => {
                                       const file = e.target.files[0];
                                       setItems(prev => prev.map(it => {
@@ -514,21 +514,21 @@ const QualityInspectionDetail = () => {
                   </table>
                 </div>
                 
-                <div className="p-4 bg-slate-50/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <div className="p-2 bg-slate-50/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
                   {inspectionType === 'Outsource' ? (
                     <div className="flex flex-wrap items-center gap-4">
                       {/* Accepted Report */}
-                      <div className={`flex items-center h-10 px-4 rounded border transition-all ${item.acceptedDoc ? 'bg-green-50 border-green-200' : 'bg-white dark:bg-slate-800 border-blue-200 border-dashed hover:border-blue-400'}`}>
+                      <div className={`flex items-center p-2 rounded border transition-all ${item.acceptedDoc ? 'bg-green-50 border-green-200' : 'bg-white dark:bg-slate-800 border-blue-200 border-dashed hover:border-blue-400'}`}>
                         {item.acceptedDoc && !(item.acceptedDoc instanceof File) ? (
                           <button 
                             onClick={() => window.open(getServerUrl(item.acceptedDoc), '_blank')}
-                            className="flex items-center gap-2 text-[10px]  text-green-700 "
+                            className="flex items-center gap-2 text-xs  text-green-700 "
                           >
                             <CheckCircle size={14} /> Accepted Report
                             <Eye size={14} className="ml-1 opacity-60" />
                           </button>
                         ) : (
-                          <label className="flex items-center gap-2 text-[10px]  text-blue-600  cursor-pointer">
+                          <label className="flex items-center gap-2 text-xs  text-blue-600  cursor-pointer">
                             <Upload size={14} /> {item.acceptedDoc instanceof File ? item.acceptedDoc.name : "Upload Accepted Report"}
                             <input 
                               type="file" 
@@ -543,17 +543,17 @@ const QualityInspectionDetail = () => {
                       </div>
 
                       {/* Rejected Report */}
-                      <div className={`flex items-center h-10 px-4 rounded border transition-all ${item.rejectedDoc ? 'bg-red-50 border-red-200' : 'bg-white dark:bg-slate-800 border-red-200 border-dashed hover:border-red-400'}`}>
+                      <div className={`flex items-center p-2 rounded border transition-all ${item.rejectedDoc ? 'bg-red-50 border-red-200' : 'bg-white dark:bg-slate-800 border-red-200 border-dashed hover:border-red-400'}`}>
                         {item.rejectedDoc && !(item.rejectedDoc instanceof File) ? (
                           <button 
                             onClick={() => window.open(getServerUrl(item.rejectedDoc), '_blank')}
-                            className="flex items-center gap-2 text-[10px]  text-red-700 "
+                            className="flex items-center gap-2 text-xs  text-red-700 "
                           >
                             <XCircle size={14} /> Rejected Report
                             <Eye size={14} className="ml-1 opacity-60" />
                           </button>
                         ) : (
-                          <label className="flex items-center gap-2 text-[10px]  text-red-600  cursor-pointer">
+                          <label className="flex items-center gap-2 text-xs  text-red-600  cursor-pointer">
                             <Upload size={14} /> {item.rejectedDoc instanceof File ? item.rejectedDoc.name : "Upload Rejected Report"}
                             <input 
                               type="file" 
@@ -569,13 +569,13 @@ const QualityInspectionDetail = () => {
 
                       <button 
                         onClick={() => handleSubmitOutsource(item)}
-                        className="p-2 bg-green-600 text-white rounded text-[10px]   tracking-widest shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center gap-2 ml-auto"
+                        className="p-2 bg-green-600 text-white rounded text-xs    shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center gap-2 ml-auto"
                       >
                         <Save size={14} /> Complete Item Inspection
                       </button>
                     </div>
                   ) : (
-                    <div className="text-[10px]  text-slate-400  tracking-widest italic">
+                    <div className="text-xs  text-slate-400   italic">
                       Inhouse inspection - Process each ST number above
                     </div>
                   )}
@@ -588,14 +588,14 @@ const QualityInspectionDetail = () => {
 
         <div className="space-y-2">
           {inspectionType === 'Outsource' && (
-            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm space-y-4">
-              <h3 className="text-xs  text-slate-900 dark:text-white  tracking-widest flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-2  space-y-4">
+              <h3 className="text-xs  text-slate-900 dark:text-white   flex items-center gap-2">
                 <Truck size={16} className="text-blue-600" /> Outsource Actions
               </h3>
               
               <div className="space-y-4 pt-2">
                 <div>
-                  <label className="block text-[10px]  text-slate-500  tracking-widest mb-1.5">Select Vendor</label>
+                  <label className="block text-xs  text-slate-500   mb-1.5">Select Vendor</label>
                   <select 
                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2.5 text-xs  text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                     value={selectedVendor}
@@ -607,7 +607,7 @@ const QualityInspectionDetail = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-[10px]  text-slate-500  tracking-widest mb-1.5">Challan Date</label>
+                  <label className="block text-xs  text-slate-500   mb-1.5">Challan Date</label>
                   <input 
                     type="date"
                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2.5 text-xs  text-slate-700"
@@ -618,21 +618,21 @@ const QualityInspectionDetail = () => {
 
                 <button 
                   onClick={handleCreateChallan}
-                  className="w-full py-3 bg-blue-600 text-white rounded text-xs   tracking-widest shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                  className="w-full p-2 bg-blue-600 text-white rounded text-xs    shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                 >
-                  <FileText size={16} /> Create Challan
+                  <FileText size={15} /> Create Challan
                 </button>
               </div>
             </div>
           )}
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm space-y-4">
-            <h3 className="text-xs  text-slate-900 dark:text-white  tracking-widest flex items-center gap-2">
-              <CheckCircle size={16} className="text-blue-600" /> Finalize Inspection
+          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-2  space-y-4">
+            <h3 className="text-xs  text-slate-900 dark:text-white   flex items-center gap-2">
+              <CheckCircle size={15} className="text-blue-600" /> Finalize Inspection
             </h3>
             
             <textarea 
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs  text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all min-h-[100px]"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-4 py-3 text-xs  text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all min-h-[100px]"
               placeholder="Enter overall inspection remarks..."
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
@@ -641,9 +641,9 @@ const QualityInspectionDetail = () => {
             {inspectionType === 'Inhouse' && (
               <button 
                 onClick={handleSubmitInhouse}
-                className="w-full py-4 bg-green-600 text-white rounded-2xl text-xs   tracking-widest shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+                className="w-full p-2 bg-green-600 text-white rounded text-xs    shadow-lg shadow-green-200 hover:bg-green-700 transition-all flex items-center justify-center gap-2"
               >
-                <Save size={18} /> 
+                <Save size={15} /> 
                 Submit Inhouse Results
               </button>
             )}
@@ -662,11 +662,11 @@ const QualityInspectionDetail = () => {
                 <button 
                   onClick={handleFinalizeQC}
                   disabled={!canFinalize}
-                  className={`w-full py-4 rounded-2xl text-xs   tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${
+                  className={`w-full p-2 rounded text-xs transition-all flex items-center justify-center gap-2 ${
                     canFinalize ? 'bg-emerald-600 text-white shadow-emerald-200 hover:bg-emerald-700' : 'bg-slate-300 text-slate-500 cursor-not-allowed'
                   }`}
                 >
-                  <CheckCircle size={18} /> 
+                  <CheckCircle size={15} /> 
                   Finalize Overall QC
                 </button>
               );

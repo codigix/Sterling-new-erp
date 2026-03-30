@@ -105,21 +105,21 @@ const QCTasksPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded  animate-spin"></div>
-        <p className="text-slate-500   tracking-widest text-[10px]">Loading Reports...</p>
+        <p className="text-slate-500    text-xs">Loading Reports...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-2">
+    <div className="p-4 space-y-2">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl  text-slate-900 dark:text-white   flex items-center gap-2">
-            <FileText className="text-emerald-600" size={24} />
+            <FileText className="text-emerald-600" size={15} />
             Quality Inspection Reports
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs   tracking-widest">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs   ">
             History of all finalized quality inspections
           </p>
         </div>
@@ -131,7 +131,7 @@ const QCTasksPage = () => {
             placeholder="Search reports..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs  text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm"
+            className="w-full pl-10 pr-4 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
           />
         </div>
       </div>
@@ -139,35 +139,35 @@ const QCTasksPage = () => {
       {/* Reports List */}
       <div className="space-y-4">
         {filteredReports.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-12 text-center">
+          <div className="bg-white dark:bg-slate-800 rounded border-2 border-dashed border-slate-200 dark:border-slate-700 p-2 text-center">
             <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-300">
-              <FileText size={40} />
+              <FileText size={15} />
             </div>
-            <h3 className="text-lg  text-slate-900 dark:text-white ">No Reports Found</h3>
-            <p className="text-slate-500 text-xs   tracking-widest mt-2">Create a final report from the material inspection portal</p>
+            <h3 className="text-xs  text-slate-900 dark:text-white ">No Reports Found</h3>
+            <p className="text-slate-500 text-xs    mt-2">Create a final report from the material inspection portal</p>
           </div>
         ) : (
           filteredReports.map((report) => (
             <div 
               key={report.id}
-              className={`bg-white dark:bg-slate-800 rounded-2xl border transition-all overflow-hidden shadow-sm ${
+              className={`bg-white dark:bg-slate-800 rounded border transition-all overflow-hidden ${
                 expandedReport === report.id ? 'border-emerald-500 ring-4 ring-emerald-500/5' : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300'
               }`}
             >
               <div 
-                className="p-5 flex flex-wrap items-center justify-between gap-4 cursor-pointer"
+                className="p-2 flex flex-wrap items-center justify-between gap-2 cursor-pointer"
                 onClick={() => setExpandedReport(expandedReport === report.id ? null : report.id)}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${expandedReport === report.id ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-600'}`}>
-                    <CheckCircle size={24} />
+                  <div className={`p-2 rounded flex items-center justify-center transition-colors ${expandedReport === report.id ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-600'}`}>
+                    <CheckCircle size={15} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h4 className="text-sm  text-slate-900 dark:text-white  ">{report.grn_number}</h4>
-                      <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 rounded text-[8px]   tracking-widest">{report.inspection_type}</span>
+                      <span className="p-1 bg-slate-100 dark:bg-slate-700 text-slate-500 rounded text-[8px]   ">{report.inspection_type}</span>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-[10px]  text-slate-400  tracking-widest">
+                    <div className="flex items-center gap-3 mt-1 text-xs  text-slate-400  ">
                       <span className="flex items-center gap-1"><User size={12} /> {report.vendor_name}</span>
                       <span className="w-1 h-1 rounded  bg-slate-300"></span>
                       <span className="flex items-center gap-1"><Package size={12} /> {report.project_name}</span>
@@ -177,7 +177,7 @@ const QCTasksPage = () => {
 
                 <div className="flex items-center gap-6">
                   <div className="text-right hidden sm:block">
-                    <p className="text-[10px]  text-slate-400  tracking-widest">Report Date</p>
+                    <p className="text-xs  text-slate-400  ">Report Date</p>
                     <p className="text-xs  text-slate-700 dark:text-slate-300 flex items-center gap-1 justify-end">
                       <Calendar size={12} /> {new Date(report.report_date).toLocaleDateString()}
                     </p>
@@ -187,7 +187,7 @@ const QCTasksPage = () => {
                       <button 
                         onClick={(e) => handleSendToInventory(e, report.id)}
                         disabled={sendingReport === report.id}
-                        className={`p-2 bg-blue-600 text-white rounded text-[10px]   tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2 ${sendingReport === report.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`p-2 bg-blue-600 text-white rounded text-xs    hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2 ${sendingReport === report.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
                         {sendingReport === report.id ? (
                           <div className="w-3 h-3 border-2 border-white border-t-transparent rounded  animate-spin"></div>
@@ -197,7 +197,7 @@ const QCTasksPage = () => {
                         Send to Inventory
                       </button>
                     ) : (
-                      <div className="p-2 bg-slate-100 text-slate-500 rounded text-[10px]   tracking-widest flex items-center gap-2 border border-slate-200">
+                      <div className="p-2 bg-slate-100 text-slate-500 rounded text-xs    flex items-center gap-2 border border-slate-200">
                         <CheckCircle size={14} className="text-green-500" />
                         Sent to Inventory
                       </div>
@@ -228,15 +228,15 @@ const QCTasksPage = () => {
               </div>
 
               {expandedReport === report.id && (
-                <div className="border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 p-6 animate-in slide-in-from-top-2 duration-200">
+                <div className="border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 p-2 animate-in slide-in-from-top-2 duration-200">
                   <div className="grid grid-cols-1 gap-4">
-                    <h5 className="text-[10px]  text-slate-500  tracking-widest mb-2 flex items-center gap-2">
+                    <h5 className="text-xs  text-slate-500 flex items-center gap-2">
                       <Package size={14} /> Material Inspection Details
                     </h5>
                     
-                    <div className="overflow-hidden border border-slate-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 shadow-sm">
+                    <div className="overflow-hidden border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 ">
                       <table className="w-full text-left">
-                        <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-[9px]  text-slate-400  tracking-widest">
+                        <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-xs  text-slate-400  ">
                           <tr>
                             <th className="px-6 py-3">Material Info</th>
                             <th className="px-4 py-3 text-center">Received</th>
@@ -266,7 +266,7 @@ const QCTasksPage = () => {
                                             isMatExpanded ? <ChevronUp size={12} className="text-emerald-600" /> : <ChevronDown size={12} className="text-slate-400" />
                                           )}
                                         </p>
-                                        <p className="text-[9px] text-slate-400  er flex items-center gap-2">
+                                        <p className="text-xs text-slate-400  er flex items-center gap-2">
                                           <Hash size={10} /> {m.item_code || 'N/A'} • {m.item_group}
                                         </p>
                                       </div>
@@ -289,16 +289,16 @@ const QCTasksPage = () => {
                                 
                                 {m.st_numbers?.length > 0 && isMatExpanded && (
                                   <tr className="animate-in fade-in slide-in-from-top-1 duration-200">
-                                    <td colSpan="3" className="px-8 py-4 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800">
+                                    <td colSpan="3" className="p-2 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800">
                                       <div className="flex items-center gap-2 mb-3">
                                         <Info size={12} className="text-emerald-600" />
-                                        <span className="text-[9px]  text-slate-500  tracking-widest">ST Number status for {m.material_name}</span>
+                                        <span className="text-xs  text-slate-500  ">ST Number status for {m.material_name}</span>
                                       </div>
                                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                         {m.st_numbers.map((st, stIdx) => (
                                           <div 
                                             key={stIdx}
-                                            className={`p-3 rounded border bg-white dark:bg-slate-900 shadow-sm transition-all hover: flex flex-col gap-2 ${
+                                            className={`p-2 rounded border bg-white dark:bg-slate-900  transition-all hover: flex flex-col gap-2 ${
                                               st.status === 'ACCEPTED' 
                                                 ? 'border-green-100 dark:border-green-900/30' 
                                                 : 'border-red-100 dark:border-red-900/30'
@@ -307,7 +307,7 @@ const QCTasksPage = () => {
                                             <div className="flex items-center justify-between">
                                               <div className="flex items-center gap-1.5">
                                                 <div className={`w-2 h-2 rounded  ${st.status === 'ACCEPTED' ? 'bg-green-500 animate-pulse' : 'bg-red-500 animate-pulse'}`}></div>
-                                                <span className={`text-[10px]    ${st.status === 'ACCEPTED' ? 'text-green-600' : 'text-red-600'}`}>
+                                                <span className={`text-xs    ${st.status === 'ACCEPTED' ? 'text-green-600' : 'text-red-600'}`}>
                                                   {st.status}
                                                 </span>
                                               </div>
@@ -322,15 +322,15 @@ const QCTasksPage = () => {
                                                     className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-emerald-600 transition-colors"
                                                     title="View Report"
                                                   >
-                                                    <Eye size={12} />
+                                                    <Eye size={15} />
                                                   </button>
                                                 )}
-                                                <Tag size={10} className="text-slate-300" />
+                                                <Tag size={15} className="text-slate-300" />
                                               </div>
                                             </div>
                                             
                                             <div className="space-y-1">
-                                              <p className="text-[8px]  text-slate-400  tracking-widest">ST Number (Serial)</p>
+                                              <p className="text-[8px]  text-slate-400  ">ST Number (Serial)</p>
                                               <p className="text-[11px]  text-slate-700 dark:text-slate-200   font-mono truncate" title={st.st_code}>
                                                 {st.st_code}
                                               </p>
@@ -339,11 +339,11 @@ const QCTasksPage = () => {
                                             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-50 dark:border-slate-800">
                                               <div>
                                                 <p className="text-[7px]  text-slate-400  er">Item Code</p>
-                                                <p className="text-[9px]  text-slate-500 dark:text-slate-400 truncate">{st.item_code || m.item_code || 'N/A'}</p>
+                                                <p className="text-xs  text-slate-500 dark:text-slate-400 truncate">{st.item_code || m.item_code || 'N/A'}</p>
                                               </div>
                                               <div>
                                                 <p className="text-[7px]  text-slate-400  er">Material Name</p>
-                                                <p className="text-[9px]  text-slate-500 dark:text-slate-400 truncate">{m.material_name}</p>
+                                                <p className="text-xs  text-slate-500 dark:text-slate-400 truncate">{m.material_name}</p>
                                               </div>
                                             </div>
                                           </div>

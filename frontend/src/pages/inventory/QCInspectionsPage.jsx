@@ -426,33 +426,33 @@ const QCInspectionsPage = () => {
   };
 
   return (
-    <div className="space-y-2 p-6">
+    <div className="space-y-2 p-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white ">
             QC Inspections
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-slate-500 text-xs dark:text-slate-400 mt-1">
             Quality control inspection records and reports
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          {/* <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+          {/* <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
             <Plus size={18} />
             New Inspection
           </button> */}
-          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
-            <Download size={18} />
+          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors ">
+            <Download size={15} />
             Export
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
+      <div className=" dark:bg-slate-800 rounded my-5  dark:border-slate-700">
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-3 text-slate-400"
             />
             <input
@@ -460,13 +460,13 @@ const QCInspectionsPage = () => {
               placeholder="Search inspection, GRN or vendor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
+              className="w-full pl-10 pr-4 p-2 border text-xs border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
             />
           </div>
           <select
             value={rootCardFilter}
             onChange={(e) => setRootCardFilter(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs max-w-[200px]"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs max-w-[200px]"
           >
             <option value="all">All Projects / Root Cards</option>
             {uniqueRootCards.map((rc) => (
@@ -478,7 +478,7 @@ const QCInspectionsPage = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
           >
             <option value="all">All Status</option>
             <option value="completed">Completed</option>
@@ -490,28 +490,28 @@ const QCInspectionsPage = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full bg-white">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
                   GRN ID
                 </th>
-                <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
                   Project / Root Card
                 </th>
-                <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
                   PO No.
                 </th>
-                <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
                   Vendor
                 </th>
-                <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
                   Status
                 </th>
-                <th className="p-2 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
                   Inspection Type
                 </th>
-                <th className="p-2 text-center text-sm font-semibold text-slate-900 dark:text-white">
+                <th className="p-2 text-center text-xs font-semibold text-slate-900 dark:text-white">
                   Action
                 </th>
               </tr>
@@ -519,13 +519,13 @@ const QCInspectionsPage = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="10" className="p-4 text-center text-slate-500">
+                  <td colSpan="10" className="p-2 text-center text-slate-500">
                     Loading...
                   </td>
                 </tr>
               ) : filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan="10" className="p-4 text-center text-slate-500">
+                  <td colSpan="10" className="p-2 text-center text-slate-500">
                     No inspections found
                   </td>
                 </tr>
@@ -535,14 +535,14 @@ const QCInspectionsPage = () => {
                     key={inspection.id}
                     className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                   >
-                    <td className="p-2 text-sm font-medium text-slate-900 text-left dark:text-white">
+                    <td className="p-2 text-xs  text-slate-900 text-left dark:text-white">
                       {inspection.id}
                     </td>
-                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
+                    <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
                       {inspection.projectName ? (
                         <Link
                           to={`/department/quality/root-cards/${inspection.rootCardId}`}
-                          className="text-blue-600 hover:underline font-medium"
+                          className="text-blue-600 hover:underline "
                         >
                           {inspection.projectName}
                         </Link>
@@ -550,15 +550,15 @@ const QCInspectionsPage = () => {
                         "N/A"
                       )}
                     </td>
-                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
+                    <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
                       {inspection.poNumber}
                     </td>
-                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
+                    <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
                       {inspection.vendor}
                     </td>
-                    <td className="p-2 text-sm">
+                    <td className="p-2 text-xs">
                       <span
-                        className={`px-3 py-1 rounded  text-[10px]   tracking-widest ${getStatusColor(
+                        className={`p-1 rounded  text-xs    ${getStatusColor(
                           inspection.finalReportId ? "completed" : inspection.qcStatus
                         )}`}
                       >
@@ -571,7 +571,7 @@ const QCInspectionsPage = () => {
                           : inspection.qcStatus.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="p-2 text-sm">
+                    <td className="p-2 text-xs">
                       <select
                         value={inspection.inspectionType || 'Inhouse'}
                         onChange={(e) => handleTypeChange(inspection.dbId, e.target.value)}
@@ -581,11 +581,11 @@ const QCInspectionsPage = () => {
                         <option value="Outsource">Outsource</option>
                       </select>
                     </td>
-                    <td className="p-2 text-center text-sm">
+                    <td className="p-2 text-center text-xs">
                       {inspection.finalReportId ? (
                         <button
                           onClick={() => navigate("/department/quality/reports")}
-                          className="px-4 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-[10px]   tracking-widest transition-all shadow-sm flex items-center gap-2 mx-auto"
+                          className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-xs    transition-all shadow-sm flex items-center gap-2 mx-auto"
                         >
                           <Eye size={14} />
                           View Report
@@ -593,7 +593,7 @@ const QCInspectionsPage = () => {
                       ) : inspection.qcStatus === 'completed' ? (
                         <button
                           onClick={() => handleShowReport(inspection)}
-                          className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px]   tracking-widest transition-all shadow-sm shadow-emerald-200 flex items-center gap-2 mx-auto"
+                          className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs    transition-all shadow-sm shadow-emerald-200 flex items-center gap-2 mx-auto"
                         >
                           <FileText size={14} />
                           QC Report
@@ -601,7 +601,7 @@ const QCInspectionsPage = () => {
                       ) : (
                         <button
                           onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${inspection.rootCardId}`)}
-                          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px]   tracking-widest transition-all shadow-sm shadow-blue-200"
+                          className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs    transition-all shadow-sm shadow-blue-200"
                         >
                           Do Inspection
                         </button>
@@ -630,11 +630,11 @@ const QCInspectionsPage = () => {
                     QC Inspection Report: {reportData.id}
                   </h2>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-[10px]  text-slate-400  tracking-widest">
+                    <span className="text-xs  text-slate-400  ">
                       Project: <span className="text-slate-500 dark:text-slate-300">{reportData.projectName}</span>
                     </span>
                     <span className="w-1 h-1 rounded  bg-slate-300"></span>
-                    <span className="text-[10px]  text-slate-400  tracking-widest">
+                    <span className="text-xs  text-slate-400  ">
                       Vendor: <span className="text-slate-500 dark:text-slate-300">{reportData.vendor}</span>
                     </span>
                   </div>
@@ -664,7 +664,7 @@ const QCInspectionsPage = () => {
                       placeholder="Search Material or ST Number..."
                       value={reportSearchQuery}
                       onChange={(e) => setReportSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px]  text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all"
+                      className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all"
                     />
                   </div>
                 </div>
@@ -673,10 +673,10 @@ const QCInspectionsPage = () => {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                        <th className="p-2 text-[10px]  text-slate-400  tracking-widest">Material & ST Numbers</th>
-                        <th className="px-4 py-4 text-[10px]  text-slate-400  tracking-widest text-center">Received Qty</th>
-                        <th className="px-4 py-4 text-[10px]  text-slate-400  tracking-widest text-center">Summary Status</th>
-                        <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-right">Reports</th>
+                        <th className="p-2 text-xs  text-slate-400  ">Material & ST Numbers</th>
+                        <th className="px-4 py-4 text-xs  text-slate-400   text-center">Received Qty</th>
+                        <th className="px-4 py-4 text-xs  text-slate-400   text-center">Summary Status</th>
+                        <th className="p-2 text-xs  text-slate-400   text-right">Reports</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -701,16 +701,16 @@ const QCInspectionsPage = () => {
                                     <Package size={16} />
                                   </div>
                                   <div>
-                                    <p className="text-sm  text-slate-900 dark:text-white   flex items-center gap-2">
+                                    <p className="text-xs  text-slate-900 dark:text-white   flex items-center gap-2">
                                       {item.material_name}
                                       {isExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
                                     </p>
-                                    <p className="text-[10px]  text-slate-400  tracking-widest">{item.item_group}</p>
+                                    <p className="text-xs  text-slate-400  ">{item.item_group}</p>
                                   </div>
                                 </div>
                               </td>
                               <td className="px-4 py-5 text-center">
-                                <span className="text-sm  text-slate-700 dark:text-slate-300">
+                                <span className="text-xs  text-slate-700 dark:text-slate-300">
                                   {item.received_qty} {item.unit}
                                 </span>
                               </td>
@@ -772,10 +772,10 @@ const QCInspectionsPage = () => {
                                         }`}
                                       >
                                         <div className="flex items-center justify-between">
-                                          <span className="text-[8px]  text-slate-400  tracking-widest">ST Number</span>
+                                          <span className="text-[8px]  text-slate-400  ">ST Number</span>
                                           <span className={`w-2 h-2 rounded  ${s.inspection_status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}></span>
                                         </div>
-                                        <p className="text-[10px]  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
+                                        <p className="text-xs  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
                                           {s.serial_number}
                                         </p>
                                         <div className={`mt-1 px-2 py-0.5 rounded text-[8px]   er w-fit ${
@@ -802,7 +802,7 @@ const QCInspectionsPage = () => {
               {/* General Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-4">
-                  <h4 className="text-[10px]  text-slate-400  tracking-[0.2em] flex items-center gap-2">
+                  <h4 className="text-xs  text-slate-400  tracking-[0.2em] flex items-center gap-2">
                     <Search size={14} /> Inspection Details
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
@@ -817,14 +817,14 @@ const QCInspectionsPage = () => {
                   </div>
                 </div>
                 <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
-                  <h4 className="text-[10px]  text-slate-400  tracking-[0.2em]">Summary Status</h4>
+                  <h4 className="text-xs  text-slate-400  tracking-[0.2em]">Summary Status</h4>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-emerald-600">
                       <CheckCircle size={20} />
                     </div>
                     <div>
-                      <p className="text-sm  text-slate-900 dark:text-white  ">Quality Passed</p>
-                      <p className="text-[10px]  text-slate-400  tracking-widest">All criteria met for production release</p>
+                      <p className="text-xs  text-slate-900 dark:text-white  ">Quality Passed</p>
+                      <p className="text-xs  text-slate-400  ">All criteria met for production release</p>
                     </div>
                   </div>
                 </div>
@@ -835,20 +835,20 @@ const QCInspectionsPage = () => {
             <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end gap-4">
               <button 
                 onClick={() => setShowReportModal(false)}
-                className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 rounded text-[10px]   tracking-widest hover:bg-slate-50 transition-all shadow-sm"
+                className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 rounded text-xs    hover:bg-slate-50 transition-all shadow-sm"
               >
                 Close Report
               </button>
               <button 
                 onClick={handleCreateReport}
                 disabled={loading}
-                className="px-8 py-3 bg-emerald-600 text-white rounded text-[10px]   tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2"
+                className="px-8 py-3 bg-emerald-600 text-white rounded text-xs    hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2"
               >
                 <Plus size={14} /> Create Final Report
               </button>
               <button 
                 onClick={() => window.print()}
-                className="px-8 py-3 bg-blue-600 text-white rounded text-[10px]   tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+                className="px-8 py-3 bg-blue-600 text-white rounded text-xs    hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
               >
                 <Download size={14} /> Export PDF
               </button>
@@ -874,9 +874,9 @@ const QCInspectionsPage = () => {
             </div>
 
             <div className="p-6 space-y-2">
-              <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-700/30 p-4 rounded border border-slate-100 dark:border-slate-700">
+              <div className="grid grid-cols-2 gap-4 text-xs bg-slate-50 dark:bg-slate-700/30 p-4 rounded border border-slate-100 dark:border-slate-700">
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide font-medium mb-1">
+                  <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide  mb-1">
                     PO Number
                   </p>
                   <p className="font-semibold text-slate-900 dark:text-white text-lg">
@@ -884,7 +884,7 @@ const QCInspectionsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide font-medium mb-1">
+                  <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide  mb-1">
                     Vendor
                   </p>
                   <p className="font-semibold text-slate-900 dark:text-white text-lg">
@@ -899,7 +899,7 @@ const QCInspectionsPage = () => {
                   Items Inspection
                 </h3>
                 <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded shadow-sm">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
                         <th className="p-3 text-left font-semibold text-slate-900 dark:text-white">
@@ -929,7 +929,7 @@ const QCInspectionsPage = () => {
                           className="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                         >
                           <td className="p-3">
-                            <p className="font-medium text-slate-900 dark:text-white text-xs">
+                            <p className=" text-slate-900 dark:text-white text-xs">
                               {item.description}
                             </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -937,7 +937,7 @@ const QCInspectionsPage = () => {
                             </p>
                           </td>
                           <td className="p-3 text-center">
-                            <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 font-medium text-slate-700 dark:text-slate-300">
+                            <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700  text-slate-700 dark:text-slate-300">
                               {item.quantity} {item.unit}
                             </span>
                           </td>
@@ -945,7 +945,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center font-medium transition-all shadow-sm"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center  transition-all shadow-sm"
                                 value={item.invoice_quantity}
                                 onChange={(e) =>
                                   handleQuantityChange(
@@ -961,7 +961,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center font-medium transition-all shadow-sm"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center  transition-all shadow-sm"
                                 value={
                                   item.total_received_val !== undefined
                                     ? item.total_received_val
@@ -981,7 +981,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center font-medium cursor-not-allowed"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center  cursor-not-allowed"
                                 value={item.rejected}
                                 readOnly
                               />
@@ -991,7 +991,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center font-medium cursor-not-allowed"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center  cursor-not-allowed"
                                 value={item.overage}
                                 readOnly
                               />
@@ -1006,12 +1006,12 @@ const QCInspectionsPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-700/30 p-5 rounded border border-slate-100 dark:border-slate-700">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                     Overall Status
                   </label>
                   <div className="relative">
                     <select
-                      className="w-full pl-4 pr-10 py-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none shadow-sm font-medium"
+                      className="w-full pl-4 pr-10 py-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none shadow-sm "
                       value={inspectionForm.status}
                       onChange={(e) =>
                         setInspectionForm({
@@ -1043,7 +1043,7 @@ const QCInspectionsPage = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                     General Remarks
                   </label>
                   <textarea
@@ -1065,13 +1065,13 @@ const QCInspectionsPage = () => {
             <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-b-lg">
               <button
                 onClick={() => setShowInspectModal(false)}
-                className="p-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-transparent hover:border-slate-300 dark:hover:border-slate-600 rounded transition-all"
+                className="p-2 text-xs  text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-transparent hover:border-slate-300 dark:hover:border-slate-600 rounded transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmitInspection}
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded shadow-sm hover:shadow transition-all"
+                className="flex items-center gap-2 px-6 py-2 text-xs  text-white bg-blue-600 hover:bg-blue-700 rounded shadow-sm hover:shadow transition-all"
               >
                 <Save size={18} />
                 Save Inspection

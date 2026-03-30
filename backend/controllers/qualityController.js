@@ -167,7 +167,7 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
 
       return {
         ...item,
-        status: isItemDone ? 'QC COMPLETED' : 'QC PENDING',
+        status: isItemDone ? 'QC Completed' : 'QC PENDING',
         common_document_path: itemDoc ? itemDoc.common_document_path : null,
         rejected_document_path: itemDoc ? itemDoc.rejected_document_path : null,
         serials: itemSerials.map(s => ({
