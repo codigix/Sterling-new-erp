@@ -432,7 +432,7 @@ const ProductionDashboard = () => {
                   >
                     {stage.status}
                   </span>
-                  <span className="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 px-2 py-1 text-xs rounded">
+                  <span className="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300  text-xs rounded">
                     {stage.count}
                   </span>
                 </div>

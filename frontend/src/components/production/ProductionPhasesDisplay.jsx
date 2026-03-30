@@ -133,7 +133,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                         {phase.stage_name}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-xs px-2 py-1 rounded ${
+                        <span className={`text-xs  rounded ${
                           phase.stage_type === 'in_house'
                             ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                             : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'

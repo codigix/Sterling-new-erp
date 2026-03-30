@@ -287,7 +287,7 @@ const ExpenseTrackingPage = () => {
                       {expense.employee}
                     </td>
                     <td className="p-1">
-                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs font-medium text-slate-700 dark:text-slate-300">
+                      <span className=" bg-slate-100 dark:bg-slate-700 rounded text-xs font-medium text-slate-700 dark:text-slate-300">
                         {expense.category}
                       </span>
                     </td>

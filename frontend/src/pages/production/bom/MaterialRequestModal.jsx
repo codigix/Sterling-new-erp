@@ -112,7 +112,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                           </div>
                         </td>
                         <td className="px-4 py-3.5 text-center">
-                          <span className=" text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-800">
+                          <span className=" text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800  rounded border border-slate-100 dark:border-slate-800">
                             {item.quantity}
                           </span>
                         </td>

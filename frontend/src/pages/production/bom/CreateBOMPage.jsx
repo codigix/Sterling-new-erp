@@ -801,7 +801,7 @@ const CreateBOMPage = () => {
                                     value={row.itemName}
                                     onChange={(e) => updateTableRow("materials", row.id, "itemName", e.target.value)}
                                     placeholder="Item name"
-                                    className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                    className="w-full .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
                                   />
                                   <SearchableSelect
                                     options={itemGroupSelectOptions}
@@ -826,14 +826,14 @@ const CreateBOMPage = () => {
                                     value={row.partDetail}
                                     onChange={(e) => updateTableRow("materials", row.id, "partDetail", e.target.value)}
                                     placeholder="Details"
-                                    className="w-full px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                    className="w-full  bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
                                   />
                                   <input
                                     type="text"
                                     value={row.materialGrade}
                                     onChange={(e) => updateTableRow("materials", row.id, "materialGrade", e.target.value)}
                                     placeholder="Grade"
-                                    className="w-full px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                    className="w-full  bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
                                   />
                                 </div>
                               ) : (
@@ -853,14 +853,14 @@ const CreateBOMPage = () => {
                                     value={row.remark}
                                     onChange={(e) => updateTableRow("materials", row.id, "remark", e.target.value)}
                                     placeholder="Remark"
-                                    className="w-full px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                    className="w-full  bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
                                   />
                                   <input
                                     type="text"
                                     value={row.make}
                                     onChange={(e) => updateTableRow("materials", row.id, "make", e.target.value)}
                                     placeholder="Make"
-                                    className="w-full px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                    className="w-full  bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
                                   />
                                 </div>
                               ) : (
@@ -887,7 +887,7 @@ const CreateBOMPage = () => {
                                     }
                                   }}
                                   onFocus={(e) => e.target.select()}
-                                  className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                  className="w-20 .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-emerald-500/20 outline-none"
                                 />
                               ) : (
                                 <span className="text-xs text-slate-500 dark:text-slate-400">{row.quantity}</span>

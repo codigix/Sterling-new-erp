@@ -241,7 +241,7 @@ const WeeklyTasksPage = () => {
                       {task.title}
                     </h3>
                     <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(
+                      className={` rounded text-xs font-semibold ${getStatusColor(
                         task.status
                       )}`}
                     >

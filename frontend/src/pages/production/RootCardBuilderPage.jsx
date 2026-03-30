@@ -209,7 +209,7 @@ const RootCardBuilderPage = () => {
       label: 'Status',
       sortable: true,
       render: (value) => (
-        <Badge className={`px-2 py-1 rounded  text-[10px]  ${getStatusColor(value)}`}>
+        <Badge className={` rounded  text-[10px]  ${getStatusColor(value)}`}>
           {getStatusLabel(value)}
         </Badge>
       ),

@@ -285,7 +285,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           {material.itemName || material.description || "N/A"}
                         </h4>
                         {material.itemCode && (
-                          <span className="text-xs bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 px-2 py-1 rounded">
+                          <span className="text-xs bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300  rounded">
                             {material.itemCode}
                           </span>
                         )}

@@ -59,7 +59,7 @@ const MultiSelect = ({
                     disabled
                       ? "bg-slate-300 dark:bg-slate-600 text-slate-900 dark:text-slate-100"
                       : "bg-blue-600 dark:bg-blue-700 text-white"
-                  } text-xs px-2 py-1 rounded flex items-center gap-1 whitespace-nowrap`}
+                  } text-xs  rounded flex items-center gap-1 whitespace-nowrap`}
                 >
                   {item}
                   {!disabled && (

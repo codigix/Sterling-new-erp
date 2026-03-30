@@ -233,7 +233,7 @@ const RoleManagement = () => {
       label: 'Users',
       sortable: true,
       render: (value) => (
-        <span className="inline-block px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+        <span className="inline-block  rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
           {value || 0}
         </span>
       ),
@@ -245,12 +245,12 @@ const RoleManagement = () => {
       render: (value) => (
         <div className="flex flex-wrap gap-1">
           {value?.slice(0, 2).map((permId) => (
-            <span key={permId} className="inline-block px-2 py-1 bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 rounded text-xs">
+            <span key={permId} className="inline-block  bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 rounded text-xs">
               {getPermissionName(permId)}
             </span>
           ))}
           {value?.length > 2 && (
-            <span className="inline-block px-2 py-1 bg-slate-500 text-white rounded text-xs font-medium">
+            <span className="inline-block  bg-slate-500 text-white rounded text-xs font-medium">
               +{value.length - 2}
             </span>
           )}
@@ -262,7 +262,7 @@ const RoleManagement = () => {
       label: 'Status',
       sortable: true,
       render: (value) => (
-        <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+        <span className={`inline-block  rounded text-xs font-medium ${
           value 
             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
             : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'

@@ -149,7 +149,7 @@ const RootCardDashboard = () => {
                         <div className="font-medium">{rootCard.poNumber || rootCard.po_number}</div>
                         <div className="text-xs text-slate-500">{rootCard.projectName || rootCard.project_name}</div>
                       </td>
-                      <td className="py-3 px-4"><span className={`px-2 py-1 rounded text-xs ${getStatusColor(rootCard.status)}`}>{rootCard.status}</span></td>
+                      <td className="py-3 px-4"><span className={` rounded text-xs ${getStatusColor(rootCard.status)}`}>{rootCard.status}</span></td>
                     </tr>
                   ))}
                 </tbody>

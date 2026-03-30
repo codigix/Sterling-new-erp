@@ -212,7 +212,7 @@ const MaterialRequestsPage = ({ embed = false }) => {
           </button>
           {isProcurement && row.status === "approved" && (
             <button
-              className="px-2 py-1 bg-green-50 hover:bg-green-100 rounded-md text-green-600 text-[10px]  transition-colors flex items-center gap-1"
+              className=" bg-green-50 hover:bg-green-100 rounded-md text-green-600 text-[10px]  transition-colors flex items-center gap-1"
               title="PO Processing"
               onClick={() => handlePOProcessing(row)}
             >

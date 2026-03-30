@@ -295,7 +295,7 @@ const EmployeeManagement = () => {
       label: "Department",
       sortable: true,
       render: (value) => (
-        <span className="inline-block px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+        <span className="inline-block  rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
           {value}
         </span>
       ),
@@ -305,7 +305,7 @@ const EmployeeManagement = () => {
       label: "Role",
       sortable: true,
       render: (value) => (
-        <span className="inline-block px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+        <span className="inline-block  rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
           {availableRoles.find((r) => r.id === value)?.name || "N/A"}
         </span>
       ),
@@ -680,7 +680,7 @@ const EmployeeManagement = () => {
                     </p>
                     <button
                       onClick={() => copyToClipboard(selectedCredentials.email)}
-                      className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
+                      className="text-xs  bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
                     >
                       Copy
                     </button>
@@ -698,7 +698,7 @@ const EmployeeManagement = () => {
                       onClick={() =>
                         copyToClipboard(selectedCredentials.loginId)
                       }
-                      className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
+                      className="text-xs  bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
                     >
                       Copy
                     </button>
@@ -716,7 +716,7 @@ const EmployeeManagement = () => {
                       onClick={() =>
                         copyToClipboard(selectedCredentials.password)
                       }
-                      className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
+                      className="text-xs  bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
                     >
                       Copy
                     </button>
@@ -779,7 +779,7 @@ const EmployeeManagement = () => {
                   </p>
                   <button
                     onClick={() => copyToClipboard(registeringEmployee.loginId)}
-                    className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
+                    className="text-xs  bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
                   >
                     Copy
                   </button>
@@ -798,7 +798,7 @@ const EmployeeManagement = () => {
                     onClick={() =>
                       copyToClipboard(registeringEmployee.password)
                     }
-                    className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
+                    className="text-xs  bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
                   >
                     Copy
                   </button>

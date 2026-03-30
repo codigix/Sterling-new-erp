@@ -162,7 +162,7 @@ const SerialTagTrackingPage = () => {
                 {filteredData.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
                     <td className="p-2">
-                      <span className="px-2 py-1 bg-blue-600 text-white rounded text-[10px]   tracking-widest shadow-sm">
+                      <span className=" bg-blue-600 text-white rounded text-[10px]   tracking-widest shadow-sm">
                         {item.serial_number}
                       </span>
                     </td>

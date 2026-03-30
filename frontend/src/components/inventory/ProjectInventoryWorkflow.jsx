@@ -202,7 +202,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                           <span className="font-semibold text-gray-900">
                             Step {task.step_number}: {stepInfo?.name}
                           </span>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(task.status)}`}>
+                          <span className={` rounded text-xs font-medium ${getStatusBadge(task.status)}`}>
                             {task.status}
                           </span>
                         </div>

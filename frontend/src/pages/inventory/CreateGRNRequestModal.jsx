@@ -380,7 +380,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                           <input 
                             type="number"
                             step="any"
-                            className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-blue-600 text-center outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-20 .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-blue-600 text-center outline-none focus:ring-2 focus:ring-blue-500"
                             value={item.received_quantity}
                             onChange={(e) => handleItemChange(idx, "received_quantity", e.target.value)}
                           />
@@ -389,7 +389,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                            <input 
                             type="number"
                             step="any"
-                            className="w-20 px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-500 text-center outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-20 .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-500 text-center outline-none focus:ring-2 focus:ring-blue-500"
                             value={item.rate}
                             onChange={(e) => handleItemChange(idx, "rate", e.target.value)}
                           />

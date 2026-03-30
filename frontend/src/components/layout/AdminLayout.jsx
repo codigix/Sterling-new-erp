@@ -291,7 +291,7 @@ const AdminLayout = () => {
                             <>
                               <span className="ml-3">{item.title}</span>
                               {item.badge && (
-                                <span className="ml-auto bg-primary-600 text-white text-xs px-2 py-1 rounded ">
+                                <span className="ml-auto bg-primary-600 text-white text-xs  rounded ">
                                   {item.badge}
                                 </span>
                               )}

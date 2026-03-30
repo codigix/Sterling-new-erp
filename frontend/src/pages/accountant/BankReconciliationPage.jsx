@@ -276,7 +276,7 @@ const BankReconciliationPage = () => {
                     +₹{deposit.amount.toLocaleString("en-IN")}
                   </p>
                   <span
-                    className={`text-xs px-2 py-1 rounded mt-1 inline-block ${
+                    className={`text-xs  rounded mt-1 inline-block ${
                       deposit.status === "cleared"
                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
@@ -313,7 +313,7 @@ const BankReconciliationPage = () => {
                     -₹{withdrawal.amount.toLocaleString("en-IN")}
                   </p>
                   <span
-                    className={`text-xs px-2 py-1 rounded mt-1 inline-block ${
+                    className={`text-xs  rounded mt-1 inline-block ${
                       withdrawal.status === "cleared"
                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"

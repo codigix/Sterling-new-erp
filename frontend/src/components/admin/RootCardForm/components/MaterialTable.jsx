@@ -99,7 +99,7 @@ export default function MaterialTable({
                   {getMaterialName(material)}
                 </td>
                 <td className="p-2 text-left">
-                  <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">
+                  <span className="text-xs bg-slate-700 text-slate-300  rounded">
                     {getMaterialType(material)}
                   </span>
                 </td>
@@ -111,7 +111,7 @@ export default function MaterialTable({
                 </td>
                 <td className="p-2 text-left text-slate-300">
                   {material.source ? (
-                    <span className="text-xs bg-blue-900 text-blue-200 px-2 py-1 rounded capitalize">
+                    <span className="text-xs bg-blue-900 text-blue-200  rounded capitalize">
                       {material.source}
                     </span>
                   ) : (
@@ -124,7 +124,7 @@ export default function MaterialTable({
                     onChange={(e) =>
                       onAssigneeChange(material.id, e.target.value)
                     }
-                    className="w-full px-2 py-1 bg-slate-700 border border-slate-600 rounded  text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full  bg-slate-700 border border-slate-600 rounded  text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Assignee</option>
                     {employees.map((emp) => (

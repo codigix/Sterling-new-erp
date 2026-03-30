@@ -214,7 +214,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
       : 'bg-yellow-100 text-yellow-800';
     
     return (
-      <span className={`px-2 py-1 rounded text-xs font-medium ${statusClass}`}>
+      <span className={` rounded text-xs font-medium ${statusClass}`}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
@@ -349,7 +349,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
                       <td className="p-2 text-sm space-x-2 flex flex-wrap gap-2">
                         <button
                           onClick={() => handleDownload(doc)}
-                          className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-xs"
+                          className="inline-flex items-center  bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-xs"
                           title="Download file"
                         >
                           <Download className="w-3 h-3 mr-1" />
@@ -357,7 +357,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
                         </button>
                         <button
                           onClick={() => handleViewFile(doc)}
-                          className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors text-xs"
+                          className="inline-flex items-center  bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors text-xs"
                           title="View file"
                         >
                           <Eye className="w-3 h-3 mr-1" />

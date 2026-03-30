@@ -377,7 +377,7 @@ const GRNTasksPage = () => {
                               {task.title}
                             </h5>
                             <span
-                              className={`px-2 py-1 text-xs font-semibold rounded  ${getStatusColor(
+                              className={` text-xs font-semibold rounded  ${getStatusColor(
                                 task.status
                               )}`}
                             >
@@ -391,7 +391,7 @@ const GRNTasksPage = () => {
                           )}
                           <div className="flex gap-2">
                             <span
-                              className={`px-2 py-1 text-xs font-medium rounded ${getPriorityBadge(
+                              className={` text-xs font-medium rounded ${getPriorityBadge(
                                 task.priority
                               )}`}
                             >

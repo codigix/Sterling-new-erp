@@ -295,7 +295,7 @@ const ReorderLevelsPage = () => {
                               current: parseInt(e.target.value),
                             })
                           }
-                          className="w-20 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center"
+                          className="w-20  border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center"
                         />
                       </td>
                       <td className="p-1 text-center">
@@ -308,7 +308,7 @@ const ReorderLevelsPage = () => {
                               reorderLevel: parseInt(e.target.value),
                             })
                           }
-                          className="w-20 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center"
+                          className="w-20  border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center"
                         />
                       </td>
                       <td className="p-1 text-center">
@@ -321,7 +321,7 @@ const ReorderLevelsPage = () => {
                               reorderQty: parseInt(e.target.value),
                             })
                           }
-                          className="w-20 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center"
+                          className="w-20  border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center"
                         />
                       </td>
                       <td className="p-1 text-slate-900 dark:text-white text-sm">

@@ -294,7 +294,7 @@ const ProductionManagerDashboard = () => {
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-1 text-[10px]  rounded   ${
+                    className={` text-[10px]  rounded   ${
                       task.status === "pending"
                         ? "bg-amber-100 text-amber-700"
                         : "bg-blue-100 text-blue-700"
@@ -461,7 +461,7 @@ const ProductionManagerDashboard = () => {
                 </div>
                 <div className="flex items-center text-xs gap-3">
                   <span
-                    className={`px-2 py-1 text-xs rounded font-medium ${
+                    className={` text-xs rounded font-medium ${
                       stage.status === "Active"
                         ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                         : stage.status === "Pending"
@@ -471,7 +471,7 @@ const ProductionManagerDashboard = () => {
                   >
                     {stage.status}
                   </span>
-                  <span className="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 px-2 py-1 text-xs rounded">
+                  <span className="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300  text-xs rounded">
                     {stage.count}
                   </span>
                 </div>

@@ -238,7 +238,7 @@ const ProductionDesignDrawings = () => {
                       <div className="text-xs text-slate-400">{doc.po_number}</div>
                     </td>
                     <td className="p-2  text-xs">
-                      <span className="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded ">
+                      <span className="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20  rounded ">
                         v{doc.version}
                       </span>
                     </td>

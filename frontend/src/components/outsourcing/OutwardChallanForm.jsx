@@ -379,7 +379,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
 
                     <div className="md:col-span-2">
                       <p className="text-[10px]  text-slate-400  mb-1 text-center">Released</p>
-                      <div className="bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1.5 rounded border border-indigo-100 dark:border-indigo-800 text-center">
+                      <div className="bg-indigo-50 dark:bg-indigo-900/20 .5 rounded border border-indigo-100 dark:border-indigo-800 text-center">
                         <span className="text-sm  text-indigo-700 dark:text-indigo-300">
                           {item.availableQuantity} {item.unit}
                         </span>

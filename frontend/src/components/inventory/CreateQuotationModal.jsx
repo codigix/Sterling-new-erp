@@ -619,7 +619,7 @@ const CreateQuotationModal = ({
                                     e.target.value
                                   )
                                 }
-                                className="w-24 px-2 py-1 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                                className="w-24  text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
                               />
                             </td>
                             <td className="p-2">
@@ -973,7 +973,7 @@ const CreateQuotationModal = ({
                                     }
                                     placeholder="Item name"
                                     disabled
-                                    className="w-full px-2 py-1 text-xs  text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-slate-50 dark:bg-slate-900 transition-all disabled:opacity-80"
+                                    className="w-full  text-xs  text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-slate-50 dark:bg-slate-900 transition-all disabled:opacity-80"
                                   />
                                   <input
                                     type="text"
@@ -1003,7 +1003,7 @@ const CreateQuotationModal = ({
                                       )
                                     }
                                     placeholder="Vendor Material Name (if different)"
-                                    className="w-full px-2 py-1 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all resize-none h-12"
+                                    className="w-full  text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all resize-none h-12"
                                   />
                                 </td>
                               )}
@@ -1023,7 +1023,7 @@ const CreateQuotationModal = ({
                                         }
                                         placeholder="Part Detail"
                                         disabled={preFilledMaterials}
-                                        className="w-full px-2 py-1 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                        className="w-full  text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
                                       />
                                       <input
                                         type="text"
@@ -1055,7 +1055,7 @@ const CreateQuotationModal = ({
                                         }
                                         placeholder="Remark"
                                         disabled={preFilledMaterials}
-                                        className="w-full px-2 py-1 text-xs italic text-slate-500 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+                                        className="w-full  text-xs italic text-slate-500 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
                                       />
                                       <input
                                         type="text"

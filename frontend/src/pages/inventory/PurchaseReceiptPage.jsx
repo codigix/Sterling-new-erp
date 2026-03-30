@@ -490,7 +490,7 @@ const PurchaseReceiptPage = () => {
                         </div>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                        <div className="inline-flex items-center gap-1.5  rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                           <Calendar size={12} className="text-slate-400" />
                           <span className="text-[10px]  text-slate-500 dark:text-slate-400">
                             {grn.receivedDate ? new Date(grn.receivedDate).toLocaleDateString() : 'N/A'}
@@ -583,7 +583,7 @@ const PurchaseReceiptPage = () => {
                         </span>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                        <div className="inline-flex items-center gap-1.5  rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                           <Warehouse size={12} className="text-slate-400" />
                           <span className="text-[10px]  text-slate-500 dark:text-slate-400">
                             {stock.warehouse || 'Main Warehouse'}

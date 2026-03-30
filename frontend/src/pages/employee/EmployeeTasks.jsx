@@ -260,7 +260,7 @@ const EmployeeTasks = () => {
 
                 <div className="flex flex-col gap-2 ml-4">
                   {task.status === 'pending' && (
-                    <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-[10px]   bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded border border-amber-100 dark:border-amber-900/30">
+                    <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-[10px]   bg-amber-50 dark:bg-amber-900/20  rounded border border-amber-100 dark:border-amber-900/30">
                       <Clock className="w-3 h-3" />
                       Awaiting Production Start
                     </div>

@@ -250,7 +250,7 @@ const DesignEngineerDashboard = () => {
                     <Icon size={15} className={stat.iconColor} />
                   </div>
                   <div
-                    className={`flex items-center text-xs gap-1 px-2 py-1 rounded  ${
+                    className={`flex items-center text-xs gap-1  rounded  ${
                       stat.positive
                         ? "bg-green-100 dark:bg-green-900/30"
                         : "bg-red-100 dark:bg-red-900/30"

@@ -507,7 +507,7 @@ const RootCardDetailPage = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Phase {index + 1}</span>
-                        <Badge className={`text-xs font-semibold px-2 py-1 rounded ${getStageTypeColor(stage.stage_type || stage.stageType)}`}>
+                        <Badge className={`text-xs font-semibold  rounded ${getStageTypeColor(stage.stage_type || stage.stageType)}`}>
                           {(stage.stage_type || stage.stageType) === 'in_house' ? 'In-House' : 'Outsource'}
                         </Badge>
                       </div>

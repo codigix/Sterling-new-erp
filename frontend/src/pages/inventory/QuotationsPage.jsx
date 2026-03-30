@@ -1354,7 +1354,7 @@ const QuotationsPage = ({ defaultTab }) => {
                         </div>
                       </div>
                       {comm.has_attachments && (
-                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs px-2 py-1 rounded ">
+                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs  rounded ">
                           PDF Attachment
                         </span>
                       )}

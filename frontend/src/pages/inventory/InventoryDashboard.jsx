@@ -303,7 +303,7 @@ const DashboardContent = React.memo(({
                         </p>
                       </div>
                       <span
-                        className={`px-2 py-1 text-[10px]  rounded   ${
+                        className={` text-[10px]  rounded   ${
                           task.status === "pending"
                             ? "bg-amber-100 text-amber-700"
                             : "bg-blue-100 text-blue-700"

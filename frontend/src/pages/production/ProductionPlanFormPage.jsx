@@ -695,7 +695,7 @@ const ProductionPlanFormPage = () => {
                           </div>
                         </td>
                         <td className="p-2 text-center">
-                          <span className="px-2 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-[10px]   tracking-wider border border-red-100 dark:border-red-800">
+                          <span className=" bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-[10px]   tracking-wider border border-red-100 dark:border-red-800">
                             {sa.manufacturingType || 'In House'}
                           </span>
                         </td>

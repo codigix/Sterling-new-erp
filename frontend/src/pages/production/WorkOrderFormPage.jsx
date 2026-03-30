@@ -418,7 +418,7 @@ const WorkOrderFormPage = () => {
                         <td className="p-2 text-xs  text-slate-900">{op.operation_name}</td>
                         <td className="p-2 text-xs text-slate-500">{op.workstation || 'N/A'}</td>
                         <td className="p-2">
-                            <span className="px-2 py-1 bg-slate-100 text-slate-500 text-[10px]  rounded   border border-slate-200">
+                            <span className=" bg-slate-100 text-slate-500 text-[10px]  rounded   border border-slate-200">
                               {op.status}
                             </span>
                         </td>

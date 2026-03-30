@@ -213,7 +213,7 @@ const ProductionProjectCard = ({
                       value={task.status}
                       onChange={(e) => handleTaskStatusUpdate(task.id, e.target.value)}
                       disabled={updatingTaskId === task.id || !isTaskEnabled}
-                      className="text-xs border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded px-2 py-1 outline-none"
+                      className="text-xs border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded  outline-none"
                     >
                       <option value="pending">Pending</option>
                       <option value="in_progress">In Progress</option>

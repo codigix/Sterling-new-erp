@@ -317,7 +317,7 @@ const WorkOrderDetailPage = () => {
                             <p className="text-sm  text-slate-900">{op.operation_name}</p>
                           </td>
                           <td className="p-2">
-                            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-100 text-slate-500 text-[10px]  rounded  er">
+                            <span className="inline-flex items-center gap-1.5  bg-slate-100 text-slate-500 text-[10px]  rounded  er">
                               <Settings size={12} /> {op.workstation || 'General'}
                             </span>
                           </td>

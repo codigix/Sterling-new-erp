@@ -388,7 +388,7 @@ const CreateProjectPage = () => {
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
                       <span
-                        className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                        className={`inline-block  rounded text-xs font-semibold ${
                           projectData.priority === "critical"
                             ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                             : projectData.priority === "high"
@@ -408,7 +408,7 @@ const CreateProjectPage = () => {
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
                       <span
-                        className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                        className={`inline-block  rounded text-xs font-semibold ${
                           projectData.status === "completed"
                             ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                             : projectData.status === "active" ||
@@ -584,7 +584,7 @@ const CreateProjectPage = () => {
                           {projectData.steelSections.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>
@@ -613,7 +613,7 @@ const CreateProjectPage = () => {
                         {projectData.plates.map((item) => (
                           <span
                             key={item}
-                            className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                            className="inline-block bg-blue-600 text-white text-xs  rounded"
                           >
                             {item}
                           </span>
@@ -643,7 +643,7 @@ const CreateProjectPage = () => {
                           {projectData.fasteners.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>
@@ -673,7 +673,7 @@ const CreateProjectPage = () => {
                           {projectData.components.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>
@@ -703,7 +703,7 @@ const CreateProjectPage = () => {
                           {projectData.electrical.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>
@@ -733,7 +733,7 @@ const CreateProjectPage = () => {
                           {projectData.consumables.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>

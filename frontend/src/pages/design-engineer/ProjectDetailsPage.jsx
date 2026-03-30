@@ -628,7 +628,7 @@ const ProjectDetailsPage = () => {
                             </div>
                           </td>
                           <td className="p-3">
-                            <code className="text-xs font-mono bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 px-2 py-1 rounded">
+                            <code className="text-xs font-mono bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300  rounded">
                               {project.po_number || "N/A"}
                             </code>
                           </td>
@@ -956,7 +956,7 @@ const ProjectDetailsPage = () => {
                           {projectData.steelSections.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>
@@ -986,7 +986,7 @@ const ProjectDetailsPage = () => {
                         {projectData.plates.map((item) => (
                           <span
                             key={item}
-                            className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                            className="inline-block bg-blue-600 text-white text-xs  rounded"
                           >
                             {item}
                           </span>
@@ -1017,7 +1017,7 @@ const ProjectDetailsPage = () => {
                           {projectData.fasteners.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>
@@ -1048,7 +1048,7 @@ const ProjectDetailsPage = () => {
                           {projectData.components.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>
@@ -1079,7 +1079,7 @@ const ProjectDetailsPage = () => {
                           {projectData.electrical.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>
@@ -1110,7 +1110,7 @@ const ProjectDetailsPage = () => {
                           {projectData.consumables.map((item) => (
                             <span
                               key={item}
-                              className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                              className="inline-block bg-blue-600 text-white text-xs  rounded"
                             >
                               {item}
                             </span>

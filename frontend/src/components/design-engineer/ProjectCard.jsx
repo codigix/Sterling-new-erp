@@ -476,7 +476,7 @@ const ProjectCard = ({
                         updatingTaskId === task.id ||
                         task.status === "completed"
                       }
-                      className={`px-2 py-1 text-xs font-semibold rounded  border-0 cursor-pointer whitespace-nowrap flex-shrink-0 ${getStatusColor(
+                      className={` text-xs font-semibold rounded  border-0 cursor-pointer whitespace-nowrap flex-shrink-0 ${getStatusColor(
                         task.status
                       )} ${
                         task.status === "completed"
@@ -514,7 +514,7 @@ const ProjectCard = ({
                   <div className="flex flex-wrap items-center gap-2 mb-3">
 
                     {project?.code && (
-                      <span className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">
+                      <span className="inline-block  text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">
                         {project.code}
                       </span>
                     )}
@@ -524,7 +524,7 @@ const ProjectCard = ({
                           const notes = JSON.parse(task.notes);
                           if (notes.workflow_step) {
                             return (
-                              <span className="inline-block px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded">
+                              <span className="inline-block  text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded">
                                 Step {notes.step_order}: {notes.workflow_step}
                               </span>
                             );

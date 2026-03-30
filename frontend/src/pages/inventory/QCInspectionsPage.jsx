@@ -575,7 +575,7 @@ const QCInspectionsPage = () => {
                       <select
                         value={inspection.inspectionType || 'Inhouse'}
                         onChange={(e) => handleTypeChange(inspection.dbId, e.target.value)}
-                        className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                        className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded  text-xs outline-none focus:ring-1 focus:ring-blue-500"
                       >
                         <option value="Inhouse">Inhouse</option>
                         <option value="Outsource">Outsource</option>

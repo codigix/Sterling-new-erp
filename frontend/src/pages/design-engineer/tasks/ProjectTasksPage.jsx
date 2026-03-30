@@ -271,7 +271,7 @@ const ProjectTasksPage = () => {
                   </p>
                   <div className="flex items-center gap-2 mt-2">
                     <span
-                      className={`text-xs px-2 py-1 rounded ${
+                      className={`text-xs  rounded ${
                         project.steps?.step2_design
                           ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
                           : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200"

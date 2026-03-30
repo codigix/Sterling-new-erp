@@ -293,7 +293,7 @@ const AuditLogs = () => {
                           <div className={`p-2 rounded ${getTypeColor(log.type)}`}>
                             {getTypeIcon(log.type)}
                           </div>
-                          <span className={`px-2 py-1 rounded  text-xs font-semibold ${getTypeColor(log.type)}`}>
+                          <span className={` rounded  text-xs font-semibold ${getTypeColor(log.type)}`}>
                             {log.type}
                           </span>
                         </div>

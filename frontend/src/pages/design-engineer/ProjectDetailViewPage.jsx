@@ -641,7 +641,7 @@ const ProjectDetailViewPage = () => {
                               {projectData.steelSections.map((item) => (
                                 <span
                                   key={item}
-                                  className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                                  className="inline-block bg-blue-600 text-white text-xs  rounded"
                                 >
                                   {item}
                                 </span>
@@ -671,7 +671,7 @@ const ProjectDetailViewPage = () => {
                             {projectData.plates.map((item) => (
                               <span
                                 key={item}
-                                className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                                className="inline-block bg-blue-600 text-white text-xs  rounded"
                               >
                                 {item}
                               </span>
@@ -702,7 +702,7 @@ const ProjectDetailViewPage = () => {
                               {projectData.fasteners.map((item) => (
                                 <span
                                   key={item}
-                                  className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                                  className="inline-block bg-blue-600 text-white text-xs  rounded"
                                 >
                                   {item}
                                 </span>
@@ -733,7 +733,7 @@ const ProjectDetailViewPage = () => {
                               {projectData.components.map((item) => (
                                 <span
                                   key={item}
-                                  className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                                  className="inline-block bg-blue-600 text-white text-xs  rounded"
                                 >
                                   {item}
                                 </span>
@@ -764,7 +764,7 @@ const ProjectDetailViewPage = () => {
                               {projectData.electrical.map((item) => (
                                 <span
                                   key={item}
-                                  className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                                  className="inline-block bg-blue-600 text-white text-xs  rounded"
                                 >
                                   {item}
                                 </span>
@@ -795,7 +795,7 @@ const ProjectDetailViewPage = () => {
                               {projectData.consumables.map((item) => (
                                 <span
                                   key={item}
-                                  className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                                  className="inline-block bg-blue-600 text-white text-xs  rounded"
                                 >
                                   {item}
                                 </span>

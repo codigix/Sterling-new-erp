@@ -897,7 +897,7 @@ const GRNProcessingPage = () => {
                               </td>
                               <td className="p-2 text-center text-xs  text-slate-400">{item.quantity}</td>
                               <td className="p-2 text-center">
-                                <span className={`px-2 py-1 rounded text-xs  ${isQCReportReceived ? 'bg-emerald-50 text-emerald-600' : ''}`}>
+                                <span className={` rounded text-xs  ${isQCReportReceived ? 'bg-emerald-50 text-emerald-600' : ''}`}>
                                   {acceptedQtyDisplay}
                                 </span>
                               </td>

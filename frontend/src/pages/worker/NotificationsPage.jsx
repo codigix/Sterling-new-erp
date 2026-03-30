@@ -261,7 +261,7 @@ const NotificationsPage = () => {
                       </p>
                     </div>
                     <span
-                      className={`px-2 py-1 rounded text-xs font-semibold flex-shrink-0 ${getTypeColor(
+                      className={` rounded text-xs font-semibold flex-shrink-0 ${getTypeColor(
                         notif.type
                       )}`}
                     >
