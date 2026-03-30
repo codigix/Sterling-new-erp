@@ -429,7 +429,7 @@ const QCInspectionsPage = () => {
     <div className="space-y-2 p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             QC Inspections
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -538,7 +538,7 @@ const QCInspectionsPage = () => {
                     <td className="p-2 text-sm font-medium text-slate-900 text-left dark:text-white">
                       {inspection.id}
                     </td>
-                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                       {inspection.projectName ? (
                         <Link
                           to={`/department/quality/root-cards/${inspection.rootCardId}`}
@@ -550,15 +550,15 @@ const QCInspectionsPage = () => {
                         "N/A"
                       )}
                     </td>
-                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                       {inspection.poNumber}
                     </td>
-                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                       {inspection.vendor}
                     </td>
                     <td className="p-2 text-sm">
                       <span
-                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(
+                        className={`px-3 py-1 rounded  text-[10px]   tracking-widest ${getStatusColor(
                           inspection.finalReportId ? "completed" : inspection.qcStatus
                         )}`}
                       >
@@ -585,7 +585,7 @@ const QCInspectionsPage = () => {
                       {inspection.finalReportId ? (
                         <button
                           onClick={() => navigate("/department/quality/reports")}
-                          className="px-4 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 mx-auto"
+                          className="px-4 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-[10px]   tracking-widest transition-all shadow-sm flex items-center gap-2 mx-auto"
                         >
                           <Eye size={14} />
                           View Report
@@ -593,7 +593,7 @@ const QCInspectionsPage = () => {
                       ) : inspection.qcStatus === 'completed' ? (
                         <button
                           onClick={() => handleShowReport(inspection)}
-                          className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shadow-emerald-200 flex items-center gap-2 mx-auto"
+                          className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px]   tracking-widest transition-all shadow-sm shadow-emerald-200 flex items-center gap-2 mx-auto"
                         >
                           <FileText size={14} />
                           QC Report
@@ -601,7 +601,7 @@ const QCInspectionsPage = () => {
                       ) : (
                         <button
                           onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${inspection.rootCardId}`)}
-                          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shadow-blue-200"
+                          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px]   tracking-widest transition-all shadow-sm shadow-blue-200"
                         >
                           Do Inspection
                         </button>
@@ -626,23 +626,23 @@ const QCInspectionsPage = () => {
                   <FileText size={24} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                  <h2 className="text-xl  text-slate-900 dark:text-white  ">
                     QC Inspection Report: {reportData.id}
                   </h2>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      Project: <span className="text-slate-600 dark:text-slate-300">{reportData.projectName}</span>
+                    <span className="text-[10px]  text-slate-400  tracking-widest">
+                      Project: <span className="text-slate-500 dark:text-slate-300">{reportData.projectName}</span>
                     </span>
-                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      Vendor: <span className="text-slate-600 dark:text-slate-300">{reportData.vendor}</span>
+                    <span className="w-1 h-1 rounded  bg-slate-300"></span>
+                    <span className="text-[10px]  text-slate-400  tracking-widest">
+                      Vendor: <span className="text-slate-500 dark:text-slate-300">{reportData.vendor}</span>
                     </span>
                   </div>
                 </div>
               </div>
               <button 
                 onClick={() => setShowReportModal(false)} 
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
               >
                 <X size={24} className="text-slate-400" />
               </button>
@@ -653,7 +653,7 @@ const QCInspectionsPage = () => {
               {/* Materials Summary Table */}
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <h3 className="text-xs  text-slate-500  tracking-[0.2em] flex items-center gap-2">
                     <Layers size={14} /> Inspected Materials Detail Tracking
                   </h3>
                   
@@ -664,7 +664,7 @@ const QCInspectionsPage = () => {
                       placeholder="Search Material or ST Number..."
                       value={reportSearchQuery}
                       onChange={(e) => setReportSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all"
+                      className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px]  text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all"
                     />
                   </div>
                 </div>
@@ -673,10 +673,10 @@ const QCInspectionsPage = () => {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                        <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Material & ST Numbers</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Received Qty</th>
-                        <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Summary Status</th>
-                        <th className="p-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Reports</th>
+                        <th className="p-2 text-[10px]  text-slate-400  tracking-widest">Material & ST Numbers</th>
+                        <th className="px-4 py-4 text-[10px]  text-slate-400  tracking-widest text-center">Received Qty</th>
+                        <th className="px-4 py-4 text-[10px]  text-slate-400  tracking-widest text-center">Summary Status</th>
+                        <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-right">Reports</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -701,16 +701,16 @@ const QCInspectionsPage = () => {
                                     <Package size={16} />
                                   </div>
                                   <div>
-                                    <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                                    <p className="text-sm  text-slate-900 dark:text-white   flex items-center gap-2">
                                       {item.material_name}
                                       {isExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
                                     </p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.item_group}</p>
+                                    <p className="text-[10px]  text-slate-400  tracking-widest">{item.item_group}</p>
                                   </div>
                                 </div>
                               </td>
                               <td className="px-4 py-5 text-center">
-                                <span className="text-sm font-black text-slate-700 dark:text-slate-300">
+                                <span className="text-sm  text-slate-700 dark:text-slate-300">
                                   {item.received_qty} {item.unit}
                                 </span>
                               </td>
@@ -718,12 +718,12 @@ const QCInspectionsPage = () => {
                                 <div className="flex flex-col items-center gap-1">
                                   <div className="flex gap-2">
                                     {acceptedCount > 0 && (
-                                      <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded text-[9px] font-black uppercase border border-green-100">
+                                      <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded text-[9px]   border border-green-100">
                                         {acceptedCount} Passed
                                       </span>
                                     )}
                                     {rejectedCount > 0 && (
-                                      <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-[9px] font-black uppercase border border-red-100">
+                                      <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-[9px]   border border-red-100">
                                         {rejectedCount} Failed
                                       </span>
                                     )}
@@ -738,7 +738,7 @@ const QCInspectionsPage = () => {
                                         e.stopPropagation();
                                         window.open(getServerUrl(item.common_document_path), '_blank');
                                       }}
-                                      className="flex items-center gap-2 text-[9px] font-black text-green-600 uppercase hover:text-green-700 transition-colors"
+                                      className="flex items-center gap-2 text-[9px]  text-green-600  hover:text-green-700 transition-colors"
                                     >
                                       <CheckCircle size={12} /> Accepted <Eye size={12} />
                                     </button>
@@ -749,7 +749,7 @@ const QCInspectionsPage = () => {
                                         e.stopPropagation();
                                         window.open(getServerUrl(item.rejected_document_path), '_blank');
                                       }}
-                                      className="flex items-center gap-2 text-[9px] font-black text-red-600 uppercase hover:text-red-700 transition-colors"
+                                      className="flex items-center gap-2 text-[9px]  text-red-600  hover:text-red-700 transition-colors"
                                     >
                                       <AlertTriangle size={12} /> Rejected <Eye size={12} />
                                     </button>
@@ -765,20 +765,20 @@ const QCInspectionsPage = () => {
                                     {item.serials?.map((s, sIdx) => (
                                       <div 
                                         key={sIdx}
-                                        className={`p-3 rounded-xl border flex flex-col gap-1.5 transition-all ${
+                                        className={`p-3 rounded border flex flex-col gap-1.5 transition-all ${
                                           s.inspection_status === 'Accepted' 
                                             ? 'bg-white dark:bg-slate-900 border-green-100 dark:border-green-900/30' 
                                             : 'bg-white dark:bg-slate-900 border-red-100 dark:border-red-900/30'
                                         }`}
                                       >
                                         <div className="flex items-center justify-between">
-                                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">ST Number</span>
-                                          <span className={`w-2 h-2 rounded-full ${s.inspection_status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                          <span className="text-[8px]  text-slate-400  tracking-widest">ST Number</span>
+                                          <span className={`w-2 h-2 rounded  ${s.inspection_status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}></span>
                                         </div>
-                                        <p className="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase truncate" title={s.serial_number}>
+                                        <p className="text-[10px]  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
                                           {s.serial_number}
                                         </p>
-                                        <div className={`mt-1 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter w-fit ${
+                                        <div className={`mt-1 px-2 py-0.5 rounded text-[8px]   er w-fit ${
                                           s.inspection_status === 'Accepted' 
                                             ? 'bg-green-50 text-green-600' 
                                             : 'bg-red-50 text-red-600'
@@ -802,29 +802,29 @@ const QCInspectionsPage = () => {
               {/* General Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-4">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <h4 className="text-[10px]  text-slate-400  tracking-[0.2em] flex items-center gap-2">
                     <Search size={14} /> Inspection Details
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">Inspection Type</p>
-                      <p className="text-xs font-black text-slate-700 dark:text-slate-200 uppercase">{reportData.inspectionType}</p>
+                      <p className="text-[9px]  text-slate-400  mb-1">Inspection Type</p>
+                      <p className="text-xs  text-slate-700 dark:text-slate-200 ">{reportData.inspectionType}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">Received Date</p>
-                      <p className="text-xs font-black text-slate-700 dark:text-slate-200 uppercase">{reportData.receivedDate}</p>
+                      <p className="text-[9px]  text-slate-400  mb-1">Received Date</p>
+                      <p className="text-xs  text-slate-700 dark:text-slate-200 ">{reportData.receivedDate}</p>
                     </div>
                   </div>
                 </div>
                 <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Summary Status</h4>
+                  <h4 className="text-[10px]  text-slate-400  tracking-[0.2em]">Summary Status</h4>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <div className="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-emerald-600">
                       <CheckCircle size={20} />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Quality Passed</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">All criteria met for production release</p>
+                      <p className="text-sm  text-slate-900 dark:text-white  ">Quality Passed</p>
+                      <p className="text-[10px]  text-slate-400  tracking-widest">All criteria met for production release</p>
                     </div>
                   </div>
                 </div>
@@ -835,20 +835,20 @@ const QCInspectionsPage = () => {
             <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end gap-4">
               <button 
                 onClick={() => setShowReportModal(false)}
-                className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm"
+                className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 rounded text-[10px]   tracking-widest hover:bg-slate-50 transition-all shadow-sm"
               >
                 Close Report
               </button>
               <button 
                 onClick={handleCreateReport}
                 disabled={loading}
-                className="px-8 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2"
+                className="px-8 py-3 bg-emerald-600 text-white rounded text-[10px]   tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2"
               >
                 <Plus size={14} /> Create Final Report
               </button>
               <button 
                 onClick={() => window.print()}
-                className="px-8 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+                className="px-8 py-3 bg-blue-600 text-white rounded text-[10px]   tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
               >
                 <Download size={14} /> Export PDF
               </button>
@@ -876,7 +876,7 @@ const QCInspectionsPage = () => {
             <div className="p-6 space-y-2">
               <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-700/30 p-4 rounded border border-slate-100 dark:border-slate-700">
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-1">
+                  <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide font-medium mb-1">
                     PO Number
                   </p>
                   <p className="font-semibold text-slate-900 dark:text-white text-lg">
@@ -884,7 +884,7 @@ const QCInspectionsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-medium mb-1">
+                  <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide font-medium mb-1">
                     Vendor
                   </p>
                   <p className="font-semibold text-slate-900 dark:text-white text-lg">
@@ -1004,7 +1004,7 @@ const QCInspectionsPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-700/30 p-5 rounded-xl border border-slate-100 dark:border-slate-700">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-700/30 p-5 rounded border border-slate-100 dark:border-slate-700">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Overall Status

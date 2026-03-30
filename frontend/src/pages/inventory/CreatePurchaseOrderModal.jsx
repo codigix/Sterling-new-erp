@@ -343,11 +343,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-7xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className={`p-2 flex items-center justify-between border-b transition-colors duration-300 sticky top-0 z-10 ${viewMode ? 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900' : 'border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/10'}`}>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-            {viewMode ? <Eye className="text-blue-600" size={24} /> : (editData ? <Edit className="text-emerald-600" size={24} /> : <Plus className="text-blue-600" size={24} />)}
+          <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2  ">
+            {viewMode ? <Eye className="text-blue-600" size={15} /> : (editData ? <Edit className="text-emerald-600" size={24} /> : <Plus className="text-blue-600" size={24} />)}
             <span className={!viewMode && editData ? "text-emerald-700 dark:text-emerald-400" : ""}>
               {viewMode ? `View Purchase Order: ${formData.po_number}` : (editData ? `Edit Purchase Order: ${formData.po_number}` : "Create New Purchase Order")}
             </span>
@@ -358,29 +358,29 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-8">
+          <div className="p-2 space-y-2">
             {/* PO Header Section */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
-                <FileText size={18} className="text-slate-400" />
-                <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">PO Header</h3>
+                <FileText size={15} className="text-slate-400" />
+                <h3 className="text-sm  text-slate-700 dark:text-slate-300  ">PO Header</h3>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">PO Number</label>
+                  <label className="block text-xs  text-slate-500   ">PO Number</label>
                   <input 
                     type="text"
-                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-500 outline-none"
+                    className="w-full p-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded   text-slate-500 outline-none"
                     value={formData.po_number}
                     readOnly
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Quotation Reference *</label>
+                  <label className="block text-xs  text-slate-500   ">Quotation Reference *</label>
                   <select 
-                    className={`w-full p-2.5 ${viewMode || !!editData ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2 text-xs ${viewMode || !!editData ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded   focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.quotation_id}
                     onChange={(e) => handleQuotationSelect(e.target.value)}
                     disabled={viewMode || !!editData}
@@ -394,9 +394,9 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Supplier *</label>
+                  <label className="block text-xs  text-slate-500   ">Supplier *</label>
                   <select 
-                    className={`w-full p-2.5 ${viewMode || (!!formData.quotation_id && !!editData) ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 pointer-events-none' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2 text-xs ${viewMode || (!!formData.quotation_id && !!editData) ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 pointer-events-none' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded   focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.vendor_id}
                     onChange={(e) => setFormData({...formData, vendor_id: e.target.value})}
                     disabled={viewMode || (!!formData.quotation_id && !!editData)}
@@ -410,10 +410,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Order Date *</label>
+                  <label className="block text-xs  text-slate-500   ">Order Date *</label>
                   <input 
                     type="date"
-                    className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2 text-xs ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded text-sm  focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.order_date}
                     onChange={(e) => setFormData({...formData, order_date: e.target.value})}
                     disabled={viewMode}
@@ -422,10 +422,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Expected Delivery *</label>
+                  <label className="block text-xs  text-slate-500   ">Expected Delivery *</label>
                   <input 
                     type="date"
-                    className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2 text-xs ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded text-sm  focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.expected_delivery_date}
                     onChange={(e) => setFormData({...formData, expected_delivery_date: e.target.value})}
                     disabled={viewMode}
@@ -434,11 +434,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Delivery Address</label>
+                  <label className="block text-xs  text-slate-500   ">Delivery Address</label>
                   <input 
                     type="text"
                     placeholder="e.g. Full Delivery Address"
-                    className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2 text-xs ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded text-sm  focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.delivery_location}
                     onChange={(e) => setFormData({...formData, delivery_location: e.target.value})}
                     disabled={viewMode}
@@ -446,13 +446,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Location Link (Maps)</label>
+                  <label className="block text-xs  text-slate-500   ">Location Link (Maps)</label>
                   {viewMode && formData.location_link ? (
                     <a 
                       href={formData.location_link} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-block w-full p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline transition-all"
+                      className="inline-block w-full p-2 text-xs bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded text-sm  text-blue-600 dark:text-blue-400 hover:underline transition-all"
                     >
                       View on Google Maps
                     </a>
@@ -460,7 +460,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                     <input 
                       type="text"
                       placeholder="e.g. https://maps.app.goo.gl/..."
-                      className={`w-full p-2.5 ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                      className={`w-full p-2 text-xs ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded text-sm  focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                       value={formData.location_link}
                       onChange={(e) => setFormData({...formData, location_link: e.target.value})}
                       disabled={viewMode}
@@ -471,30 +471,30 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
             </div>
 
             {/* Items Table */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+            <div className="space-y-2">
+              <div className="flex items-center  justify-between my-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <Package size={18} className="text-slate-400" />
-                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Purchase Order Items</h3>
+                  <Package size={15} className="text-slate-400" />
+                  <h3 className="text-sm  text-slate-700 dark:text-slate-300  ">Purchase Order Items</h3>
                 </div>
               </div>
               <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-x-auto shadow-sm">
                 <table className="w-full text-sm min-w-[800px]">
                   <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-xs   text-slate-500 ">
                       <th className="p-2 text-left">Item Name / Group</th>
-                      <th className="px-4 py-4 text-center w-24">Qty</th>
-                      <th className="px-4 py-4 text-center w-20">UOM</th>
-                      <th className="px-4 py-4 text-center w-32">Rate/Kg</th>
-                      <th className="px-4 py-4 text-center w-32">Weight (Kg)</th>
+                      <th className="p-2 text-center w-24">Qty</th>
+                      <th className="p-2 text-center w-20">UOM</th>
+                      <th className="p-2 text-center w-32">Rate/Kg</th>
+                      <th className="p-2 text-center w-32">Weight (Kg)</th>
                       <th className="p-2 text-right w-40">Total</th>
-                      {!viewMode && <th className="px-4 py-4 text-center w-16"></th>}
+                      {!viewMode && <th className="p-2 text-center "></th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                     {formData.items.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="px-6 py-8 text-center text-slate-400 italic">
+                        <td colSpan="7" className="p-2 text-center text-slate-400 italic">
                           Select a quotation to populate items
                         </td>
                       </tr>
@@ -504,49 +504,49 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                           <td className="p-2">
                             {viewMode ? (
                               <>
-                                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                <p className="text-xs  text-slate-900 dark:text-white">
                                   {item.material_name}
                                 </p>
-                                <p className="text-[10px] text-slate-500 uppercase tracking-tight">
+                                <p className="text-xs text-slate-500  ">
                                   {item.item_group || "N/A"}
                                 </p>
                               </>
                             ) : (
                               <input 
                                 type="text"
-                                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Item name..."
                                 value={item.material_name}
                                 onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
                               />
                             )}
                           </td>
-                          <td className="px-4 py-4 text-center">
+                          <td className="p-2 text-center">
                             <input 
                               type="number"
-                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
+                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-center text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
                               value={item.quantity}
                               onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)}
                               disabled={viewMode}
                             />
                           </td>
-                          <td className="px-4 py-4 text-center">
+                          <td className="p-2 text-center">
                             {viewMode ? (
-                              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{item.uom || item.unit || "Nos"}</span>
+                              <span className="text-sm  text-slate-500 dark:text-slate-400">{item.uom || item.unit || "Nos"}</span>
                             ) : (
                               <input 
                                 type="text"
-                                className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-center text-xs font-medium text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-center text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
                                 value={item.uom || item.unit || "Nos"}
                                 onChange={(e) => handleItemChange(idx, 'uom', e.target.value)}
                               />
                             )}
                           </td>
-                          <td className="px-4 py-4 text-center">
+                          <td className="p-2 text-center">
                             <div className="relative">
                               <input 
                                 type="number"
-                                className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
+                                className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-center text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
                                 value={item.rate_per_kg}
                                 onChange={(e) => handleItemChange(idx, 'rate_per_kg', parseFloat(e.target.value) || 0)}
                                 disabled={viewMode}
@@ -554,10 +554,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                               />
                             </div>
                           </td>
-                          <td className="px-4 py-4 text-center">
+                          <td className="p-2 text-center">
                             <input 
                               type="number"
-                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded py-1.5 px-2 text-center text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
+                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-center text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
                               value={item.total_weight}
                               onChange={(e) => handleItemChange(idx, 'total_weight', parseFloat(e.target.value) || 0)}
                               disabled={viewMode}
@@ -565,16 +565,16 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                             />
                           </td>
                           <td className="p-2 text-right">
-                            <span className="font-bold text-slate-900 dark:text-white text-sm">₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            <span className=" text-slate-900 dark:text-white text-sm">₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </td>
                           {!viewMode && (
-                            <td className="px-4 py-4 text-center">
+                            <td className="p-2 text-center">
                               <button 
                                 type="button"
                                 onClick={() => handleRemoveItem(idx)}
                                 className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
                               >
-                                <Trash2 size={16} />
+                                <Trash2 size={15} />
                               </button>
                             </td>
                           )}
@@ -589,7 +589,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <button 
                     type="button"
                     onClick={handleAddItem}
-                    className="flex items-center gap-2 p-2 text-xs font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl border border-dashed border-blue-200 transition-all"
+                    className="flex items-center gap-2 p-2 text-xs  text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded border border-dashed border-blue-200 transition-all"
                   >
                     <Plus size={14} />
                     Add Manual Item
@@ -599,17 +599,17 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
             </div>
 
             {/* Bottom Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
-              <div className="md:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 my-5">
+              <div className="md:col-span-2 space-y-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Notes</label>
+                  <label className="block text-xs  text-slate-500   ">Notes</label>
                   {viewMode ? (
-                    <div className="w-full min-h-[60px] px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                    <div className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded text-xs  text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
                       {formData.notes || <span className="text-slate-400 italic">No notes added</span>}
                     </div>
                   ) : (
                     <textarea 
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
                       rows={3}
                       placeholder="Enter any internal notes or details..."
                       value={formData.notes}
@@ -618,15 +618,15 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-blue-600 dark:text-blue-400">Terms & Conditions</label>
+                  <label className="block text-xs  text-slate-500    text-blue-600 dark:text-blue-400">Terms & Conditions</label>
                   {viewMode ? (
-                    <div className="w-full min-h-[100px] px-4 py-3 bg-blue-50/30 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                    <div className="w-full  p-2 bg-blue-50/30 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30 rounded text-xs  text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
                       {formData.terms || <span className="text-slate-400 italic">No terms & conditions specified</span>}
                     </div>
                   ) : (
                     <textarea 
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none border-blue-100 dark:border-blue-900/30"
-                      rows={5}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm  focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none border-blue-100 dark:border-blue-900/30"
+                      rows={2}
                       placeholder="Enter payment terms, delivery terms, and other conditions..."
                       value={formData.terms}
                       onChange={(e) => setFormData({...formData, terms: e.target.value})}
@@ -635,17 +635,17 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="p-6 bg-blue-600 rounded-2xl shadow-xl shadow-blue-500/20 space-y-4">
+              <div className="space-y-2">
+                <div className="p-2 bg-blue-600 rounded  shadow-blue-500/20 space-y-2">
                   <div className="flex justify-between items-center text-blue-100">
-                    <span className="text-xs font-bold uppercase tracking-widest">Subtotal</span>
-                    <span className="font-bold text-sm">₹{formData.subtotal.toLocaleString()}</span>
+                    <span className="text-xs   ">Subtotal</span>
+                    <span className=" text-xs">₹{formData.subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-blue-100">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold uppercase tracking-widest">Tax</span>
+                      <span className="text-xs   ">Tax</span>
                       <select 
-                        className="mt-1 bg-blue-500 text-white text-[10px] font-bold border border-blue-400 rounded px-1 py-0.5 outline-none disabled:opacity-50"
+                        className="mt-1 bg-blue-500 text-white text-xs  border border-blue-400 rounded px-1 py-0.5 outline-none disabled:opacity-50"
                         value={formData.tax_template}
                         onChange={(e) => handleTaxTemplateChange(e.target.value)}
                         disabled={viewMode}
@@ -656,11 +656,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                         <option value="GST 5%">GST 5%</option>
                       </select>
                     </div>
-                    <span className="font-bold text-sm">₹{formData.tax_amount.toLocaleString()}</span>
+                    <span className=" text-xs">₹{formData.tax_amount.toLocaleString()}</span>
                   </div>
                   <div className="pt-4 border-t border-blue-500 flex justify-between items-center text-white">
-                    <span className="text-sm font-black uppercase tracking-[0.2em]">Grand Total</span>
-                    <span className="text-2xl font-black tracking-tight">₹{formData.total_amount.toLocaleString()}</span>
+                    <span className="text-sm">Grand Total</span>
+                    <span className="text-sm  ">₹{formData.total_amount.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -671,7 +671,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
             <button 
               type="button"
               onClick={onClose}
-              className="px-6 py-2.5 text-slate-500 hover:text-slate-700 font-bold text-xs uppercase tracking-widest transition-colors"
+              className="px-6 py-2.5 text-slate-500 hover:text-slate-700  text-xs   transition-colors"
             >
               Cancel
             </button>
@@ -680,7 +680,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <button 
                   type="button"
                   onClick={() => setViewMode(false)}
-                  className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
+                  className="px-8 py-2.5 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
                 >
                   <Edit size={16} />
                   Edit PO
@@ -690,7 +690,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               <button 
                 type="submit"
                 disabled={submitting}
-                className={`px-8 py-2.5 ${editData ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/25' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/25'} text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg transition-all flex items-center gap-2`}
+                className={`px-8 py-2.5 ${editData ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/25' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/25'} text-white rounded  text-xs   shadow-lg transition-all flex items-center gap-2`}
               >
                 {submitting ? <RefreshCw size={16} className="animate-spin" /> : (editData ? <Save size={16} /> : <CheckCircle size={16} />)}
                 {submitting ? "Saving..." : (editData ? "Update PO" : "Create Purchase Order")}

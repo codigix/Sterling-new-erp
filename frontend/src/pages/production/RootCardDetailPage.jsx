@@ -157,7 +157,7 @@ const RootCardDetailPage = () => {
       case 'low':
         return 'text-green-600 dark:text-green-400';
       default:
-        return 'text-slate-600 dark:text-slate-400';
+        return 'text-slate-500 dark:text-slate-400';
     }
   };
 
@@ -165,8 +165,8 @@ const RootCardDetailPage = () => {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-10 w-10 border-3 border-blue-200 border-b-blue-600 mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading root card details...</p>
+          <div className="inline-block animate-spin rounded  h-10 w-10 border-3 border-blue-200 border-b-blue-600 mb-4"></div>
+          <p className="text-slate-500 dark:text-slate-400">Loading root card details...</p>
         </div>
       </div>
     );
@@ -187,11 +187,11 @@ const RootCardDetailPage = () => {
           onClick={() => navigate('/department/production/root-cards')}
           className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
         >
-          <ArrowLeft size={24} className="text-slate-600 dark:text-slate-400" />
+          <ArrowLeft size={24} className="text-slate-500 dark:text-slate-400" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{card.title}</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Root Card #{card.code}</p>
+          <h1 className="text-3xl  text-slate-900 dark:text-white">{card.title}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Root Card #{card.code}</p>
         </div>
       </div>
 
@@ -233,7 +233,7 @@ const RootCardDetailPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-2">
           <Card className="p-8">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Details</h2>
+            <h2 className="text-xl  text-slate-900 dark:text-white mb-6">Details</h2>
             <div className="space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -287,7 +287,7 @@ const RootCardDetailPage = () => {
                       <option value="cancelled">Cancelled</option>
                     </select>
                   ) : (
-                    <Badge className={`inline-block text-sm font-semibold px-3 py-1.5 rounded-full ${getStatusColor(card.status)}`}>
+                    <Badge className={`inline-block text-sm font-semibold px-3 py-1.5 rounded  ${getStatusColor(card.status)}`}>
                       {getStatusLabel(card.status)}
                     </Badge>
                   )}
@@ -364,7 +364,7 @@ const RootCardDetailPage = () => {
                     className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                   />
                 ) : (
-                  <p className="text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{card.notes || '-'}</p>
+                  <p className="text-slate-500 dark:text-slate-400 whitespace-pre-wrap">{card.notes || '-'}</p>
                 )}
               </div>
 
@@ -392,7 +392,7 @@ const RootCardDetailPage = () => {
 
           <Card className="p-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Production Phases</h2>
+              <h2 className="text-xl  text-slate-900 dark:text-white">Production Phases</h2>
               {!isAddingStage && (
                 <button
                   onClick={() => setIsAddingStage(true)}
@@ -506,7 +506,7 @@ const RootCardDetailPage = () => {
                   <div key={stage.id || index} className="flex items-start justify-between p-4 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-700/30 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">Phase {index + 1}</span>
+                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Phase {index + 1}</span>
                         <Badge className={`text-xs font-semibold px-2 py-1 rounded ${getStageTypeColor(stage.stage_type || stage.stageType)}`}>
                           {(stage.stage_type || stage.stageType) === 'in_house' ? 'In-House' : 'Outsource'}
                         </Badge>
@@ -515,19 +515,19 @@ const RootCardDetailPage = () => {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         {(stage.planned_start || stage.plannedStart) && (
                           <div>
-                            <span className="text-slate-600 dark:text-slate-400">Start:</span>
+                            <span className="text-slate-500 dark:text-slate-400">Start:</span>
                             <p className="text-slate-900 dark:text-white">{new Date(stage.planned_start || stage.plannedStart).toLocaleDateString()}</p>
                           </div>
                         )}
                         {(stage.planned_end || stage.plannedEnd) && (
                           <div>
-                            <span className="text-slate-600 dark:text-slate-400">End:</span>
+                            <span className="text-slate-500 dark:text-slate-400">End:</span>
                             <p className="text-slate-900 dark:text-white">{new Date(stage.planned_end || stage.plannedEnd).toLocaleDateString()}</p>
                           </div>
                         )}
                       </div>
                       {(stage.notes || stage.notes) && (
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">{stage.notes}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{stage.notes}</p>
                       )}
                     </div>
                     <button
@@ -545,35 +545,35 @@ const RootCardDetailPage = () => {
 
         <div className="space-y-2">
           <Card className="p-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Information</h3>
+            <h3 className="text-lg  text-slate-900 dark:text-white mb-4">Information</h3>
             <div className="space-y-4">
               <div>
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 mb-1">
+                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
                   <User size={16} />
                   Supervisor
                 </div>
                 <p className="font-medium text-slate-900 dark:text-white">{card.assigned_supervisor_name || '-'}</p>
               </div>
               <div>
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 mb-1">
+                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
                   <Package size={16} />
                   Customer
                 </div>
                 <p className="font-medium text-slate-900 dark:text-white">{card.customer_name || '-'}</p>
               </div>
               <div>
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 mb-1">
+                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
                   <Tag size={16} />
                   Project
                 </div>
                 <p className="font-medium text-slate-900 dark:text-white">{card.project_name || '-'}</p>
               </div>
               <div>
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 mb-1">
+                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
                   <Calendar size={16} />
                   Created
                 </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   {new Date(card.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -582,44 +582,44 @@ const RootCardDetailPage = () => {
 
           {card.projectDetails && (
             <Card className="p-6">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Project Details</h3>
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-4">Project Details</h3>
               <div className="space-y-4 text-sm">
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Project Name</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Project Name</p>
                   <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.name || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Project Code</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Project Code</p>
                   <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.code || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Client</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Client</p>
                   <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.clientName || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Project Status</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Project Status</p>
                   <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.status ? card.projectDetails.status.replace('_', ' ').toUpperCase() : '-'}</p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Project Priority</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Project Priority</p>
                   <p className={`font-medium ${getPriorityColor(card.projectDetails.priority)}`}>
                     {card.projectDetails.priority ? card.projectDetails.priority.toUpperCase() : '-'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Expected Dates</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Expected Dates</p>
                   <p className="font-medium text-slate-900 dark:text-white text-xs">
                     {card.projectDetails.expectedStart ? new Date(card.projectDetails.expectedStart).toLocaleDateString() : '-'} to{' '}
                     {card.projectDetails.expectedEnd ? new Date(card.projectDetails.expectedEnd).toLocaleDateString() : '-'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Project Manager</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Project Manager</p>
                   <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.managerName || '-'}</p>
                 </div>
                 {card.projectDetails.summary && (
                   <div>
-                    <p className="text-slate-600 dark:text-slate-400 mb-1">Summary</p>
+                    <p className="text-slate-500 dark:text-slate-400 mb-1">Summary</p>
                     <p className="text-slate-700 dark:text-slate-300 text-xs">{card.projectDetails.summary}</p>
                   </div>
                 )}
@@ -629,39 +629,39 @@ const RootCardDetailPage = () => {
 
           {card.rootCardDetails && (
             <Card className="p-6">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Root Card Details</h3>
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-4">Root Card Details</h3>
               <div className="space-y-4 text-sm">
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">PO Number</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">PO Number</p>
                   <p className="font-medium text-slate-900 dark:text-white">{card.rootCardDetails.poNumber || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Order Date</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Order Date</p>
                   <p className="font-medium text-slate-900 dark:text-white">
                     {card.rootCardDetails.orderDate ? new Date(card.rootCardDetails.orderDate).toLocaleDateString() : '-'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Due Date</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Due Date</p>
                   <p className="font-medium text-slate-900 dark:text-white">
                     {card.rootCardDetails.dueDate ? new Date(card.rootCardDetails.dueDate).toLocaleDateString() : '-'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Total Amount</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Total Amount</p>
                   <p className="font-medium text-slate-900 dark:text-white">
                     {card.rootCardDetails.total ? `${card.rootCardDetails.currency || 'INR'} ${card.rootCardDetails.total}` : '-'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400 mb-1">Order Status</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-1">Order Status</p>
                   <p className="font-medium text-slate-900 dark:text-white">
                     {card.rootCardDetails.status ? card.rootCardDetails.status.replace('_', ' ').toUpperCase() : '-'}
                   </p>
                 </div>
                 {card.rootCardDetails.items && card.rootCardDetails.items.length > 0 && (
                   <div>
-                    <p className="text-slate-600 dark:text-slate-400 mb-2">Items</p>
+                    <p className="text-slate-500 dark:text-slate-400 mb-2">Items</p>
                     <div className="space-y-1">
                       {card.rootCardDetails.items.map((item, idx) => (
                         <div key={idx} className="text-xs text-slate-700 dark:text-slate-300">
@@ -676,19 +676,19 @@ const RootCardDetailPage = () => {
           )}
 
           <Card className="p-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Status Summary</h3>
+            <h3 className="text-lg  text-slate-900 dark:text-white mb-4">Status Summary</h3>
             <div className="space-y-3">
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Current Status</span>
                 </div>
-                <Badge className={`inline-block text-xs font-semibold px-3 py-2 rounded-full ${getStatusColor(card.status)}`}>
+                <Badge className={`inline-block text-xs font-semibold px-3 py-2 rounded  ${getStatusColor(card.status)}`}>
                   {getStatusLabel(card.status)}
                 </Badge>
               </div>
               <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Phases</span>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stages.length}</p>
+                <p className="text-2xl  text-slate-900 dark:text-white mt-1">{stages.length}</p>
               </div>
             </div>
           </Card>

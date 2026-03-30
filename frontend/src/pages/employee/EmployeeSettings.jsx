@@ -28,8 +28,8 @@ const EmployeeSettings = () => {
     <div className="space-y-2">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold  dark:">Settings</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+        <h1 className="text-3xl   dark:">Settings</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
           Manage your preferences and account settings
         </p>
       </div>
@@ -71,7 +71,7 @@ const EmployeeSettings = () => {
             >
               <div>
                 <h3 className="font-medium  dark:">{setting.label}</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   {setting.description}
                 </p>
               </div>
@@ -82,7 +82,7 @@ const EmployeeSettings = () => {
                   onChange={() => handleToggle(setting.key)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6  peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:bg-slate-600 peer-checked:bg-primary-600"></div>
+                <div className="w-11 h-6  peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded  peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded  after:h-5 after:w-5 after:transition-all dark:bg-slate-600 peer-checked:bg-primary-600"></div>
               </label>
             </div>
           ))}
@@ -104,7 +104,7 @@ const EmployeeSettings = () => {
                 <h3 className="font-medium  dark:">
                   Two-Factor Authentication
                 </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Add an extra layer of security to your account
                 </p>
               </div>
@@ -115,7 +115,7 @@ const EmployeeSettings = () => {
                   onChange={() => handleToggle("twoFactorAuth")}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6  peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:bg-slate-600 peer-checked:bg-primary-600"></div>
+                <div className="w-11 h-6  peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded  peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded  after:h-5 after:w-5 after:transition-all dark:bg-slate-600 peer-checked:bg-primary-600"></div>
               </label>
             </div>
             {settings.twoFactorAuth && (
@@ -176,7 +176,7 @@ const EmployeeSettings = () => {
           <div className="p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition flex items-center text-xs justify-between">
             <div>
               <h3 className="font-medium  dark:">Dark Mode</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Toggle dark mode for the application
               </p>
             </div>
@@ -187,7 +187,7 @@ const EmployeeSettings = () => {
                 onChange={() => handleToggle("darkMode")}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6  peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:bg-slate-600 peer-checked:bg-primary-600"></div>
+              <div className="w-11 h-6  peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded  peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded  after:h-5 after:w-5 after:transition-all dark:bg-slate-600 peer-checked:bg-primary-600"></div>
             </label>
           </div>
         </CardContent>

@@ -259,7 +259,7 @@ const ProjectCard = ({
                     {project.priority && (
                       <div>
                         <span
-                          className={`inline-block mt-1 text-xs font-medium rounded-full capitalize ${
+                          className={`inline-block mt-1 text-xs font-medium rounded  capitalize ${
                             project.priority === "critical"
                               ? "text-red-800 dark:bg-red-900 dark:text-red-200"
                               : project.priority === "high"
@@ -291,12 +291,12 @@ const ProjectCard = ({
               {isExpanded ? (
                 <ChevronUp
                   size={20}
-                  className="text-slate-600 dark:text-slate-400"
+                  className="text-slate-500 dark:text-slate-400"
                 />
               ) : (
                 <ChevronDown
                   size={20}
-                  className="text-slate-600 dark:text-slate-400"
+                  className="text-slate-500 dark:text-slate-400"
                 />
               )}
             </button>
@@ -322,7 +322,7 @@ const ProjectCard = ({
             {(project.order_date ||
               project.planned_start ||
               project.start_date) && (
-              <div className="flex items-center text-xs gap-2 text-slate-600 dark:text-slate-400">
+              <div className="flex items-center text-xs gap-2 text-slate-500 dark:text-slate-400">
                 <Calendar size={16} />
                 <span>
                   Start:{" "}
@@ -337,7 +337,7 @@ const ProjectCard = ({
               </div>
             )}
             {(project.due_date || project.planned_end || project.end_date) && (
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                 <Calendar size={16} />
                 <span>
                   End:{" "}
@@ -362,7 +362,7 @@ const ProjectCard = ({
                   Status
                 </p>
                 <span
-                  className={`inline-block mt-1 px-3 py-1 text-xs font-semibold rounded-full capitalize ${
+                  className={`inline-block mt-1 px-3 py-1 text-xs font-semibold rounded  capitalize ${
                     project.status === "active" ||
                     project.status === "in_progress"
                       ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
@@ -416,7 +416,7 @@ const ProjectCard = ({
       {/* Progress Bar */}
       <div className="px-4 py-3 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+          <span className="text-xs  text-slate-700 dark:text-slate-200">
             Progress
           </span>
           <span className="text-xs font-medium text-slate-900 dark:text-white text-xs">
@@ -424,7 +424,7 @@ const ProjectCard = ({
             {tasks.length})
           </span>
         </div>
-        <div className="w-full h-2 bg-slate-300 dark:bg-slate-600 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-slate-300 dark:bg-slate-600 rounded  overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -439,7 +439,7 @@ const ProjectCard = ({
         <div className="border-t border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-700/30">
           <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
             <span>Workflow Tasks</span>
-            <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
+            <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
               ({workflowTasks.length})
             </span>
           </h3>
@@ -449,7 +449,7 @@ const ProjectCard = ({
               {workflowTasks.map((task) => (
                 <div
                   key={task.id}
-                  className={`bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow cursor-pointer hover:border-blue-300 dark:hover:border-blue-600 ${
+                  className={`bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4 hover: transition-shadow cursor-pointer hover:border-blue-300 dark:hover:border-blue-600 ${
                     task.status === "completed"
                       ? "opacity-60 grayscale-[0.5]"
                       : ""
@@ -461,7 +461,7 @@ const ProjectCard = ({
                       <h4 className="font-semibold text-slate-900 dark:text-white text-xs hover:text-blue-600 dark:hover:text-blue-400">
                         {task.task_title || task.title}
                       </h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
                         {task.task_description || task.description}
                       </p>
                     </div>
@@ -476,7 +476,7 @@ const ProjectCard = ({
                         updatingTaskId === task.id ||
                         task.status === "completed"
                       }
-                      className={`px-2 py-1 text-xs font-semibold rounded-full border-0 cursor-pointer whitespace-nowrap flex-shrink-0 ${getStatusColor(
+                      className={`px-2 py-1 text-xs font-semibold rounded  border-0 cursor-pointer whitespace-nowrap flex-shrink-0 ${getStatusColor(
                         task.status
                       )} ${
                         task.status === "completed"
@@ -539,7 +539,7 @@ const ProjectCard = ({
               ))}
             </div>
           ) : (
-            <div className="text-center py-6 text-slate-600 dark:text-slate-400">
+            <div className="text-center py-6 text-slate-500 dark:text-slate-400">
               <p className="text-sm">
                 No workflow tasks yet. Create tasks to get started.
               </p>

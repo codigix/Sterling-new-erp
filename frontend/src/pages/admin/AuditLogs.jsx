@@ -15,6 +15,7 @@ import {
   Activity,
 } from 'lucide-react';
 import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import Select from '../../components/ui/Select';
 
 const AuditLogs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -168,12 +169,12 @@ const AuditLogs = () => {
   });
 
   return (
-    <div className="w-full min-h-screen  space-y-2 p-6">
+    <div className="w-full min-h-screen  space-y-2">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold ">Audit Logs</h1>
-          <p className="text-sm text-slate-600 mt-1 text-left">
+          <h1 className="text-3xl  ">Audit Logs</h1>
+          <p className="text-sm text-slate-500 mt-1 text-left">
             Track and monitor all system activities and user actions
           </p>
         </div>
@@ -194,8 +195,8 @@ const AuditLogs = () => {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
-                    <p className="text-2xl font-bold ">{stat.value}</p>
+                    <p className="text-xs font-semibold text-slate-500  tracking-widest mb-1">{stat.label}</p>
+                    <p className="text-2xl  ">{stat.value}</p>
                   </div>
                   <div className={`${colorBg} p-3 rounded flex-shrink-0`}>
                     <Icon className={`w-3 h-3 ${colorIcon}`} />
@@ -224,12 +225,12 @@ const AuditLogs = () => {
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Activity Type</label>
-              <select
+            <div className="-mt-3">
+              <Select
+                label="Activity Type"
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="w-full p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="All Types"
               >
                 <option value="all">All Types</option>
                 <option value="auth">Authentication</option>
@@ -237,20 +238,20 @@ const AuditLogs = () => {
                 <option value="admin">Admin</option>
                 <option value="account">Account</option>
                 <option value="security">Security</option>
-              </select>
+              </Select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Status</label>
-              <select
+            <div className="-mt-3">
+              <Select
+                label="Status"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="All Status"
               >
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
                 <option value="warning">Warning</option>
                 <option value="error">Error</option>
-              </select>
+              </Select>
             </div>
           </div>
         </CardContent>
@@ -292,7 +293,7 @@ const AuditLogs = () => {
                           <div className={`p-2 rounded ${getTypeColor(log.type)}`}>
                             {getTypeIcon(log.type)}
                           </div>
-                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getTypeColor(log.type)}`}>
+                          <span className={`px-2 py-1 rounded  text-xs font-semibold ${getTypeColor(log.type)}`}>
                             {log.type}
                           </span>
                         </div>
@@ -301,7 +302,7 @@ const AuditLogs = () => {
                       <td className="p-2 text-slate-700">{log.timestamp}</td>
                       <td className="p-2 text-slate-700 font-mono text-xs">{log.ipAddress}</td>
                       <td className="p-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(log.status)}`}>
+                        <span className={`px-3 py-1 rounded  text-xs font-semibold ${getStatusColor(log.status)}`}>
                           {log.status === 'success' && <CheckCircle2 className="w-3 h-3 inline mr-1" />}
                           {log.status === 'warning' && <AlertTriangle className="w-3 h-3 inline mr-1" />}
                           {log.status === 'error' && <Trash2 className="w-3 h-3 inline mr-1" />}

@@ -225,7 +225,7 @@ const ViewBOMsPage = () => {
         const rc = rootCardMap[val];
         return (
           <div className="flex flex-col">
-            <span className="font-bold text-slate-900 text-xs truncate max-w-[150px]" title={rc?.project_name}>
+            <span className=" text-slate-900 text-xs truncate max-w-[150px]" title={rc?.project_name}>
               {rc?.project_name || 'N/A'}
             </span>
             <span className="text-[10px] text-slate-500 font-mono">
@@ -241,7 +241,7 @@ const ViewBOMsPage = () => {
       render: (val, row) => {
         const baseNumber = val.includes('-V') ? val.split('-V')[0] : val;
         return (
-          <span className="font-bold text-blue-600 cursor-pointer hover:underline" onClick={() => navigate(`/department/production/bom/view/${row.id}`)}>
+          <span className=" text-blue-600 cursor-pointer hover:underline" onClick={() => navigate(`/department/production/bom/view/${row.id}`)}>
             {baseNumber}
           </span>
         );
@@ -263,7 +263,7 @@ const ViewBOMsPage = () => {
       key: "totalCost",
       label: "TOTAL COST",
       render: (val) => (
-        <span className="font-bold text-slate-900">
+        <span className=" text-slate-900">
           ₹{(parseFloat(val) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </span>
       )
@@ -295,7 +295,7 @@ const ViewBOMsPage = () => {
               variant="success"
               className="px-3 py-1 bg-emerald-100 text-emerald-700 border-emerald-200 animate-pulse-slow flex items-center gap-1.5"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+              <div className="w-1.5 h-1.5 rounded  bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
               Active
             </Badge>
           ) : (
@@ -331,7 +331,7 @@ const ViewBOMsPage = () => {
           </button>
           <button 
             onClick={() => navigate(`/department/production/bom/create?bomId=${row.id}`)}
-            className="p-1.5 hover:bg-slate-100 rounded-md text-slate-600 transition-colors"
+            className="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 transition-colors"
             title="Edit BOM"
           >
             <Edit2 size={16} />
@@ -352,7 +352,7 @@ const ViewBOMsPage = () => {
     <div className="p-6 space-y-2 bg-slate-50/50 min-h-screen">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">
+          <h2 className="text-xl  text-slate-900">
             Bill of Materials Revisions
           </h2>
           <p className="text-slate-500 text-xs">
@@ -372,9 +372,9 @@ const ViewBOMsPage = () => {
 
       {isSendToAdminTask && filteredBOMs.length === 0 && !loading && (
         <Card className="bg-amber-50 border-amber-200">
-          <CardContent className="p-4 flex items-center gap-3">
+          <CardContent className="p-2 flex items-center gap-3">
             <AlertCircle className="text-amber-600" size={20} />
-            <p className="text-amber-800 text-sm">
+            <p className="text-amber-800 text-xs">
               No **Approved Finished Good BOMs** found for this project. Please ensure the Finished Good BOM is created and approved before sending it to the admin.
             </p>
           </CardContent>
@@ -383,16 +383,16 @@ const ViewBOMsPage = () => {
 
       {/* Stats Cards */}
       {!isSendToAdminTask && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 my-5 gap-4">
           {stats.map((stat, idx) => (
             <Card key={idx} className="border-none shadow-sm overflow-hidden relative">
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className={`p-3 rounded-xl bg-${stat.color}-50 text-${stat.color}-600`}>
-                  <stat.icon size={24} />
+              <CardContent className="p-2 flex items-center gap-4">
+                <div className={`p-2 rounded bg-${stat.color}-50 text-${stat.color}-600`}>
+                  <stat.icon size={15} />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-slate-500">{stat.label}</p>
-                  <p className="text-xl font-bold text-slate-900">{stat.value}</p>
+                  <p className="text-xl  text-slate-900">{stat.value}</p>
                 </div>
               </CardContent>
               <div className={`absolute top-0 left-0 w-1 h-full bg-${stat.color}-500`} />
@@ -403,8 +403,8 @@ const ViewBOMsPage = () => {
 
       {/* Filters */}
       {!isSendToAdminTask && (
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-4 flex items-center gap-4">
+        <div className="border-none">
+          <CardContent className=" flex items-center gap-4">
             <div className="flex-1 max-w-md">
               <SearchableSelect
                 label="Filter by Root Card"
@@ -429,12 +429,12 @@ const ViewBOMsPage = () => {
               )}
             </div>
           </CardContent>
-        </Card>
+        </div>
       )}
 
       {/* Data Table */}
-      <Card className={`border-none shadow-sm overflow-hidden ${!rootCardFilter && isSendToAdminTask ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
-        <CardContent className="p-0">
+      <div className={`border-none shadow-sm overflow-hidden ${!rootCardFilter && isSendToAdminTask ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+        <div className="p-0">
           <DataTable 
             columns={columns}
             data={filteredBOMs}
@@ -443,12 +443,12 @@ const ViewBOMsPage = () => {
               isSendToAdminTask ? "No Approved Finished Good BOMs available to send." : "No Bill of Materials found."
             }
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 rounded bg-red-50 border border-red-200">
-          <AlertCircle size={20} className="text-red-600" />
+        <div className="flex items-center gap-3 p-2 rounded bg-red-50 border border-red-200">
+          <AlertCircle size={15} className="text-red-600" />
           <p className="text-sm font-medium text-red-800">{error}</p>
         </div>
       )}

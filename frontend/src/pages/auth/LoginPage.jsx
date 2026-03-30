@@ -165,7 +165,7 @@ const LoginPage = () => {
         </form>
 
         <div className="mt-4 p-3 bg-slate-50 rounded border border-slate-100">
-          <div className="flex items-center gap-2 text-slate-500 text-[10px] font-semibold mb-3 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-slate-500 text-[10px] font-semibold mb-3  tracking-wider">
             <Users size={12} className="text-blue-500" />
             <span>Quick Access</span>
           </div>

@@ -39,10 +39,10 @@ const DesignEngineerReportsPage = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+        <h2 className="text-xl  text-slate-900 dark:text-white text-xs">
           Design Engineer Reports
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+        <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
           Analytics and performance metrics
         </p>
       </div>
@@ -54,10 +54,10 @@ const DesignEngineerReportsPage = () => {
             key={stat.label}
             className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700"
           >
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               {stat.label}
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-2">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
               {stat.value}
             </p>
             <p className="text-sm text-green-600 dark:text-green-400 mt-2">
@@ -82,7 +82,7 @@ const DesignEngineerReportsPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
                 {report.title}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                 {report.description}
               </p>
               <button className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium">
@@ -118,7 +118,7 @@ const DesignEngineerReportsPage = () => {
               key={idx}
               className="flex items-center text-xs justify-between py-2 border-b border-slate-200 dark:border-slate-700 last:border-0"
             >
-              <span className="text-sm text-slate-600 dark:text-slate-400">
+              <span className="text-sm text-slate-500 dark:text-slate-400">
                 {activity.action}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">

@@ -59,17 +59,17 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
   };
 
   const materialColumns = [
-    { key: "itemName", label: "ITEM NAME", className: "font-medium" },
-    { key: "itemGroup", label: "GROUP", render: (val) => <Badge variant="gray">{val || "NO-GROUP"}</Badge> },
-    { key: "partDetail", label: "PART DETAIL / GRADE", render: (val, row) => (
+    { key: "itemName", label: "Item Name", className: "font-medium" },
+    { key: "itemGroup", label: "Group", render: (val) => <Badge variant="gray">{val || "NO-GROUP"}</Badge> },
+    { key: "partDetail", label: "Part Detail / Grade", render: (val, row) => (
       <div className="flex flex-col">
         <span className="text-xs">{val || "-"}</span>
-        <span className="text-[10px] text-slate-500 uppercase">{row.materialGrade || "-"}</span>
+        <span className="text-[10px] text-slate-500 ">{row.materialGrade || "-"}</span>
       </div>
     )},
-    { key: "warehouse", label: "WH / OPERATION", render: (val, row) => (
+    { key: "warehouse", label: "WH / Operation", render: (val, row) => (
       <div className="flex flex-col">
-        <span className="text-xs text-blue-600 font-bold">{val || "-"}</span>
+        <span className="text-xs text-blue-600 ">{val || "-"}</span>
         <span className="text-[10px] text-amber-600 font-medium italic">{row.operation || "-"}</span>
       </div>
     )},
@@ -77,13 +77,13 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
   ];
 
   const operationColumns = [
-    { key: "operationName", label: "OPERATION", className: "font-medium" },
-    { key: "type", label: "EXECUTION", render: (val) => (
+    { key: "operationName", label: "Operation", className: "font-medium" },
+    { key: "type", label: "Execution", render: (val) => (
       <Badge variant={val === 'outsource' ? 'warning' : 'info'} className="capitalize">
         {val || 'in-house'}
       </Badge>
     )},
-    { key: "workstation", label: "WORKSTATION / VENDOR", render: (val, row) => (
+    { key: "workstation", label: "Workstation / Vendor", render: (val, row) => (
       <div className="flex flex-col">
         <span className="text-xs font-medium text-slate-700">{row.type === 'outsource' ? (row.vendorName || '-') : (val || '-')}</span>
         {row.type === 'outsource' && row.subcontractWarehouse && (
@@ -91,14 +91,14 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
         )}
       </div>
     )},
-    { key: "cycleTime", label: "TIME (MIN)", render: (val, row) => (
+    { key: "cycleTime", label: "Time (Min)", render: (val, row) => (
       <div className="flex flex-col text-[10px]">
         <span>Cycle: {val}m</span>
         <span>Setup: {row.setupTime}m</span>
       </div>
     )},
-    { key: "cost", label: "TOTAL COST", render: (val) => (
-      <span className="font-bold text-slate-900">₹{parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+    { key: "cost", label: "Total Cost", render: (val) => (
+      <span className=" text-slate-900">₹{parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
     )},
   ];
 
@@ -106,7 +106,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
     return (
       <div className="flex justify-center items-center p-12">
         <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-        <span className="ml-3 text-slate-600">Loading BOM List...</span>
+        <span className="ml-3 text-slate-500">Loading BOM List...</span>
       </div>
     );
   }
@@ -126,14 +126,14 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
         <div className="">
           <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div>
-              <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Active BOM</h3>
+              <h3 className="text-sm font-medium text-slate-500  tracking-wider">Active BOM</h3>
               <div className="flex items-center gap-3 mt-1">
-                <span className="text-xl font-bold text-slate-900">{boms[0].bomNumber.split('-V')[0]}</span>
+                <span className="text-xl  text-slate-900">{boms[0].bomNumber.split('-V')[0]}</span>
                 <Badge variant="secondary" className="font-mono">
                   {boms[0].bomNumber.includes('-V') ? `V${boms[0].bomNumber.split('-V')[1]}` : 'V1'}
                 </Badge>
                 <Badge variant="success" className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <div className="w-1.5 h-1.5 rounded  bg-emerald-500" />
                   Active
                 </Badge>
               </div>
@@ -149,28 +149,28 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
           </div>
           
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-50/50 border border-amber-100">
+            <div className="flex items-center gap-4 p-4 rounded bg-amber-50/50 border border-amber-100">
               <div className="p-3 rounded bg-amber-100 text-amber-600">
                 <Hammer size={24} />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase">Operation Cost</p>
-                <p className="text-2xl font-bold text-slate-900">₹{parseFloat(boms[0].operationCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <p className="text-xs font-medium text-slate-500 ">Operation Cost</p>
+                <p className="text-2xl  text-slate-900">₹{parseFloat(boms[0].operationCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-purple-50/50 border border-purple-100">
+            <div className="flex items-center gap-4 p-4 rounded bg-purple-50/50 border border-purple-100">
               <div className="p-3 rounded bg-purple-100 text-purple-600">
                 <TrendingUp size={24} />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase">Total BOM Cost</p>
-                <p className="text-2xl font-bold text-slate-900">₹{parseFloat(boms[0].totalCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <p className="text-xs font-medium text-slate-500 ">Total BOM Cost</p>
+                <p className="text-2xl  text-slate-900">₹{parseFloat(boms[0].totalCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="p-12 text-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+        <div className="p-12 text-center bg-slate-50 rounded border-2 border-dashed border-slate-200">
           <FileText className="mx-auto h-12 w-12 text-slate-400 mb-4" />
           <h3 className="text-lg font-medium text-slate-900">No Active BOM</h3>
           <p className="text-slate-500 mt-1">There is currently no active Bill of Materials for this project.</p>
@@ -188,22 +188,22 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
           <ModalBody className="p-0">
             <div className="p-6 bg-slate-50 border-b border-slate-200">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
+                  <div className="flex items-center gap-3 bg-white p-4 rounded border border-slate-200">
                     <div className={`p-2 rounded bg-amber-50 text-amber-600`}>
                       <Hammer size={20} />
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-slate-500 uppercase">Operation Cost</p>
-                      <p className="text-lg font-bold text-slate-900">₹{selectedBOM.costs?.operationCost?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
+                      <p className="text-[10px] font-medium text-slate-500 ">Operation Cost</p>
+                      <p className="text-lg  text-slate-900">₹{selectedBOM.costs?.operationCost?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
+                  <div className="flex items-center gap-3 bg-white p-4 rounded border border-slate-200">
                     <div className={`p-2 rounded bg-purple-50 text-purple-600`}>
                       <TrendingUp size={20} />
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-slate-500 uppercase">Total BOM Cost</p>
-                      <p className="text-lg font-bold text-slate-900">₹{selectedBOM.costs?.totalBOMCost?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
+                      <p className="text-[10px] font-medium text-slate-500 ">Total BOM Cost</p>
+                      <p className="text-lg  text-slate-900">₹{selectedBOM.costs?.totalBOMCost?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
                     </div>
                   </div>
                 </div>
@@ -211,26 +211,26 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
 
             <div className="p-6 space-y-8">
               <section>
-                <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wide mb-4">
+                <h3 className=" text-slate-900 flex items-center gap-2 text-sm  tracking-wide mb-4">
                   <PackageCheck size={18} className="text-purple-600" />
                   Materials Breakdown
                 </h3>
                 <DataTable
                   columns={materialColumns}
                   data={selectedBOM.materials || []}
-                  className="border rounded-xl overflow-hidden"
+                  className="border rounded overflow-hidden"
                 />
               </section>
 
               <section>
-                <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wide mb-4">
+                <h3 className=" text-slate-900 flex items-center gap-2 text-sm  tracking-wide mb-4">
                   <FileText size={18} className="text-blue-600" />
                   Operations & Manufacturing
                 </h3>
                 <DataTable
                   columns={operationColumns}
                   data={selectedBOM.operations || []}
-                  className="border rounded-xl overflow-hidden"
+                  className="border rounded overflow-hidden"
                 />
               </section>
             </div>

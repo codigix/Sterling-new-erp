@@ -77,12 +77,12 @@ const ProductionPlansPage = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-purple-600 dark:bg-purple-500 rounded-xl text-white shadow-lg shadow-purple-600/20">
+            <div className="p-3 bg-purple-600 dark:bg-purple-500 rounded text-white shadow-lg shadow-purple-600/20">
               <Layers size={24} />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[10px] font-bold uppercase tracking-wider rounded">
+                <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[10px]   tracking-wider rounded">
                   Intelligence Module
                 </span>
                 <span className="text-slate-300 dark:text-slate-700">•</span>
@@ -90,7 +90,7 @@ const ProductionPlansPage = () => {
                   Manufacturing Pipeline
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-2xl  text-slate-900 dark:text-white">
                 Production Intelligence
               </h1>
             </div>
@@ -98,7 +98,7 @@ const ProductionPlansPage = () => {
 
           <div className="flex items-center gap-3">
             <button
-              className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
+              className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400  hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
               onClick={() => {
                 showSuccess("Cache reset successfully");
               }}
@@ -108,7 +108,7 @@ const ProductionPlansPage = () => {
             </button>
             <button
               onClick={handleCreateNew}
-              className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 shadow-lg shadow-purple-600/20 transition-all text-sm"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded bg-purple-600 text-white  hover:bg-purple-700 shadow-lg shadow-purple-600/20 transition-all text-sm"
             >
               <Plus size={18} />
               New Strategic Plan
@@ -120,14 +120,14 @@ const ProductionPlansPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded group-hover:scale-110 transition-transform">
                 <Layers size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <p className="text-[10px]  text-slate-500  tracking-widest">
                   Total Plans
                 </p>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h3 className="text-xl  text-slate-900 dark:text-white">
                   {stats.total_plans || 0}
                 </h3>
               </div>
@@ -136,14 +136,14 @@ const ProductionPlansPage = () => {
 
           <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded group-hover:scale-110 transition-transform">
                 <Activity size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <p className="text-[10px]  text-slate-500  tracking-widest">
                   In Progress
                 </p>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h3 className="text-xl  text-slate-900 dark:text-white">
                   {stats.in_progress_plans || 0}
                 </h3>
               </div>
@@ -152,14 +152,14 @@ const ProductionPlansPage = () => {
 
           <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded group-hover:scale-110 transition-transform">
                 <CheckCircle2 size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <p className="text-[10px]  text-slate-500  tracking-widest">
                   Completed
                 </p>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h3 className="text-xl  text-slate-900 dark:text-white">
                   {stats.completed_plans || 0}
                 </h3>
               </div>
@@ -168,14 +168,14 @@ const ProductionPlansPage = () => {
 
           <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 rounded-xl group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 rounded group-hover:scale-110 transition-transform">
                 <FileText size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <p className="text-[10px]  text-slate-500  tracking-widest">
                   Draft Plans
                 </p>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h3 className="text-xl  text-slate-900 dark:text-white">
                   {stats.draft_plans || 0}
                 </h3>
               </div>
@@ -195,16 +195,16 @@ const ProductionPlansPage = () => {
               placeholder="Search plans or products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
+              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
             />
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded">
               <Filter size={16} className="text-slate-400" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-transparent text-sm font-bold text-slate-600 dark:text-slate-400 outline-none cursor-pointer"
+                className="bg-transparent text-sm  text-slate-500 dark:text-slate-400 outline-none cursor-pointer"
               >
                 <option value="all">All Status</option>
                 <option value="draft">Draft</option>
@@ -224,28 +224,28 @@ const ProductionPlansPage = () => {
               <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded">
                 <ClipboardList size={20} />
               </div>
-              <h3 className="font-bold text-slate-900 dark:text-white">
+              <h3 className=" text-slate-900 dark:text-white">
                 Manufacturing Strategy Pipeline
               </h3>
             </div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <span className="text-[10px]  text-slate-400  tracking-widest">
               {filteredPlans.length} active plans
             </span>
           </div>
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <div className="w-10 h-10 border-4 border-purple-100 border-b-purple-600 rounded-full animate-spin mb-4"></div>
+              <div className="w-10 h-10 border-4 border-purple-100 border-b-purple-600 rounded  animate-spin mb-4"></div>
               <p className="text-sm font-medium text-slate-500">
                 Syncing Pipeline Data...
               </p>
             </div>
           ) : filteredPlans.length === 0 ? (
             <div className="text-center py-20 px-6">
-              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900/50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900/50 rounded  flex items-center justify-center mx-auto mb-4 text-slate-300">
                 <AlertCircle size={32} />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-1">
                 No Plans Found
               </h3>
               <p className="text-slate-500 text-sm max-w-xs mx-auto">
@@ -292,7 +292,7 @@ const ProductionPlansPage = () => {
                             <p className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                               {plan.plan_name}
                             </p>
-                            <p className="text-[11px] font-bold text-slate-500 truncate max-w-[250px] mt-0.5">
+                            <p className="text-[11px]  text-slate-500 truncate max-w-[250px] mt-0.5">
                               {plan.product_name || "Product Name Not Set"}
                             </p>
                           </div>
@@ -305,14 +305,14 @@ const ProductionPlansPage = () => {
                             <span>Global Manufacturing</span>
                           </div>
                           <span
-                            className={`inline-flex items-center w-fit px-2 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wider ${getStatusBadge(plan.status)}`}
+                            className={`inline-flex items-center w-fit px-2 py-0.5 rounded border text-[10px]   tracking-wider ${getStatusBadge(plan.status)}`}
                           >
                             {plan.status?.replace("_", " ")}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                           <Calendar size={14} className="text-slate-400" />
                           <span>
                             {plan.planned_end_date
@@ -329,17 +329,17 @@ const ProductionPlansPage = () => {
                       <td className="px-6 py-5">
                         <div className="w-48">
                           <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                               {plan.progress_percentage || 0}% Complete
                             </span>
-                            <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                            <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px]  text-slate-500 dark:text-slate-400">
                               {plan.completed_stages || 0}/
                               {plan.total_stages || 0} OPS
                             </span>
                           </div>
-                          <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden mb-1.5">
+                          <div className="w-full bg-slate-100 dark:bg-slate-700 rounded  h-1.5 overflow-hidden mb-1.5">
                             <div
-                              className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                              className="bg-blue-500 h-full rounded  transition-all duration-500"
                               style={{
                                 width: `${plan.progress_percentage || 0}%`,
                               }}
@@ -400,12 +400,12 @@ const ProductionPlansPage = () => {
                               className={`p-2 rounded transition-all relative ${
                                 action.variant === "danger"
                                   ? "text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                  : "text-slate-300 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
+                                  : "text-slate-300 hover:text-slate-500 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
                               }`}
                             >
                               <action.icon size={16} />
                               {action.badge && (
-                                <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-blue-500 text-[8px] font-bold text-white rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800">
+                                <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-blue-500 text-[8px]  text-white rounded  flex items-center justify-center border-2 border-white dark:border-slate-800">
                                   {action.count || 1}
                                 </span>
                               )}
@@ -421,12 +421,12 @@ const ProductionPlansPage = () => {
           )}
 
           <div className="p-4 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <p className="text-[10px]  text-slate-400  tracking-widest">
               Production Intelligence System v2.0
             </p>
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+              <div className="w-1.5 h-1.5 rounded  bg-green-500 animate-pulse"></div>
+              <span className="text-[10px]  text-slate-500  tracking-widest">
                 Neural Link Active
               </span>
             </div>

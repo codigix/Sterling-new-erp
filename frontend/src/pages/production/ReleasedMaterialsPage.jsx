@@ -65,7 +65,7 @@ const ReleasedMaterialsPage = () => {
     {
       key: "entry_no",
       label: "ENTRY NO",
-      render: (val) => <span className="font-bold text-blue-600">{val}</span>
+      render: (val) => <span className=" text-blue-600">{val}</span>
     },
     {
       key: "project_name",
@@ -73,7 +73,7 @@ const ReleasedMaterialsPage = () => {
       render: (val) => (
         <div className="flex flex-col">
           <span className="font-semibold text-slate-700">{val || "General Stock"}</span>
-          <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">Project Assignment</span>
+          <span className="text-xs text-slate-400   ">Project Assignment</span>
         </div>
       )
     },
@@ -111,8 +111,8 @@ const ReleasedMaterialsPage = () => {
     <div className="p-6 space-y-4 bg-slate-50/50 min-h-screen">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <Boxes className="text-blue-600" size={24} />
+          <h2 className="text-xl  text-slate-900 flex items-center gap-2">
+            
             Released Materials
           </h2>
           <p className="text-slate-500 text-xs">View materials released from inventory for production use</p>
@@ -120,8 +120,8 @@ const ReleasedMaterialsPage = () => {
         <Button variant="secondary" icon={Clock} onClick={fetchReleasedMaterials}>Refresh</Button>
       </div>
 
-      <Card className="border-none shadow-sm">
-        <CardContent className="p-4">
+      <div className="border-none">
+        <div className="">
           <div className="max-w-md">
             <Input
               placeholder="Search by Entry No, Project or Remarks..."
@@ -131,29 +131,29 @@ const ReleasedMaterialsPage = () => {
               className="mb-0"
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card className="border-none shadow-sm overflow-hidden">
+      <div className="border-none shadow-sm overflow-hidden">
         <DataTable
           columns={columns}
           data={filteredMovements}
           loading={loading}
           emptyMessage="No released materials found."
         />
-      </Card>
+      </div>
 
       {/* Detail Modal */}
       {showDetailModal && selectedEntry && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-blue-50/30">
+        <div className="fixed inset-0 z-[150] flex  items-center justify-center p-2 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-[700px] rounded overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-blue-50/30">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                  <Package size={20} />
+                <div className="w-10 h-10 rounded bg-blue-100 flex items-center justify-center text-blue-600">
+                  <Package size={15} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-lg  text-slate-900 dark:text-white">
                     Released Items: {selectedEntry.entry_no}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">{selectedEntry.project_name || "General Production"}</p>
@@ -161,45 +161,45 @@ const ReleasedMaterialsPage = () => {
               </div>
               <button 
                 onClick={() => setShowDetailModal(false)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                className="p-2 hover:bg-slate-100 rounded  transition-colors"
               >
-                <ArrowLeft size={20} />
+                <ArrowLeft size={15} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-2">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Release Date</p>
-                  <p className="font-bold text-slate-700">{new Date(selectedEntry.entry_date).toLocaleDateString()}</p>
+                <div className="p-2 rounded bg-slate-50 border border-slate-100">
+                  <p className="text-xs  text-slate-400   mb-1">Release Date</p>
+                  <p className=" text-slate-700 text-xs">{new Date(selectedEntry.entry_date).toLocaleDateString()}</p>
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Project</p>
-                  <p className="font-bold text-slate-700">{selectedEntry.project_name || "N/A"}</p>
+                <div className="p-2 rounded bg-slate-50 border border-slate-100">
+                  <p className="text-xs  text-slate-400   mb-1">Project</p>
+                  <p className=" text-slate-700 text-xs">{selectedEntry.project_name || "N/A"}</p>
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Remarks</p>
-                  <p className="font-bold text-slate-700 line-clamp-1">{selectedEntry.remarks || "No remarks"}</p>
+                <div className="p-2 rounded bg-slate-50 border border-slate-100">
+                  <p className="text-xs  text-slate-400   mb-1">Remarks</p>
+                  <p className=" text-slate-700 text-xs line-clamp-1">{selectedEntry.remarks || "No remarks"}</p>
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
-                    <Layers size={16} className="text-blue-600" />
+                  <h4 className="text-xs  text-slate-900   flex items-center gap-2">
+                    <Layers size={15} className="text-blue-600" />
                     Material List
                   </h4>
                   <Badge variant="info">{selectedEntry.items?.length || 0} Items Released</Badge>
                 </div>
 
-                <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                <div className="border border-slate-100 rounded overflow-hidden shadow-sm">
                   <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                    <thead className="bg-slate-50 text-xs  text-slate-400   border-b border-slate-100">
                       <tr>
-                        <th className="px-6 py-4">Item Details</th>
-                        <th className="px-6 py-4 text-center">Released Qty</th>
-                        <th className="px-6 py-4 text-center">Unit</th>
-                        <th className="px-6 py-4 text-right">ST Numbers</th>
+                        <th className="p-2">Item Details</th>
+                        <th className="p-2 text-center">Released Qty</th>
+                        <th className="p-2 text-center">Unit</th>
+                        <th className="p-2 text-right">ST Numbers</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -211,27 +211,27 @@ const ReleasedMaterialsPage = () => {
                               className={`hover:bg-slate-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/30' : ''}`}
                               onClick={() => setExpandedItem(isExpanded ? null : idx)}
                             >
-                              <td className="px-6 py-4">
+                              <td className="p-2">
                                 <div className="flex items-center gap-3">
                                   <div className={`w-8 h-8 rounded flex items-center justify-center ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`}>
                                     <Package size={16} />
                                   </div>
                                   <div>
-                                    <p className="font-black text-slate-900 text-sm uppercase tracking-tight">{item.item_name}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.item_code}</p>
+                                    <p className=" text-slate-900 text-xs  ">{item.item_name}</p>
+                                    <p className="text-xs  text-slate-400  ">{item.item_code}</p>
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-6 py-4 text-center">
-                                <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full font-black text-sm">
+                              <td className="p-2 text-center">
+                                <span className="p-1  text-emerald-600 text-xs">
                                   {item.quantity}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 text-center">
-                                <span className="text-xs font-bold text-slate-500 uppercase">{item.uom}</span>
+                              <td className="p-2 text-center">
+                                <span className="text-xs  text-slate-500 ">{item.uom}</span>
                               </td>
-                              <td className="px-6 py-4 text-right">
-                                <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 uppercase tracking-widest">
+                              <td className="p-2 text-right">
+                                <span className="text-xs  text-blue-600 rounded   ">
                                   {item.serials?.length || 0} Pieces
                                 </span>
                               </td>
@@ -239,14 +239,14 @@ const ReleasedMaterialsPage = () => {
                             {isExpanded && item.serials && item.serials.length > 0 && (
                               <tr className="bg-slate-50/50">
                                 <td colSpan="4" className="px-12 py-4">
-                                  <div className="bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden">
+                                  <div className="bg-white border border-slate-100 rounded shadow-sm overflow-hidden">
                                     <table className="w-full text-left border-collapse">
                                       <thead>
                                         <tr className="bg-slate-50 border-b border-slate-100">
-                                          <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest w-12 text-center">#</th>
-                                          <th className="p-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Item Code</th>
-                                          <th className="p-2 text-[8px] font-black text-indigo-400 uppercase tracking-widest">ST Code</th>
-                                          <th className="p-2 text-[8px] font-black text-emerald-400 uppercase tracking-widest text-right">QC STATUS</th>
+                                          <th className="p-2 text-[8px]  text-slate-400   w-12 text-center">#</th>
+                                          <th className="p-2 text-[8px]  text-slate-400  ">Item Code</th>
+                                          <th className="p-2 text-[8px]  text-indigo-400  ">ST Code</th>
+                                          <th className="p-2 text-[8px]  text-emerald-400   text-right">QC STATUS</th>
                                         </tr>
                                       </thead>
                                       <tbody className="divide-y divide-slate-50">
@@ -255,11 +255,11 @@ const ReleasedMaterialsPage = () => {
                                           const itemCodePerPiece = stCode.replace('ST-', '');
                                           return (
                                             <tr key={sIdx} className="hover:bg-slate-50 transition-colors">
-                                              <td className="p-2 text-[10px] font-bold text-slate-400 text-center">{sIdx + 1}</td>
-                                              <td className="p-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">{itemCodePerPiece}</td>
-                                              <td className="p-2 text-[10px] font-black text-indigo-600 uppercase tracking-tight">{stCode}</td>
+                                              <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
+                                              <td className="p-2 text-xs  text-slate-700  ">{itemCodePerPiece}</td>
+                                              <td className="p-2 text-xs  text-indigo-600  ">{stCode}</td>
                                               <td className="p-2 text-right">
-                                                <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                                <span className="px-2 py-0.5 rounded text-[8px]   er bg-emerald-50 text-emerald-600 border border-emerald-100">
                                                   {stObj.inspection_status || 'ACCEPTED'}
                                                 </span>
                                               </td>

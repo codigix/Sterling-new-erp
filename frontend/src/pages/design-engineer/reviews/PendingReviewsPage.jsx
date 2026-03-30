@@ -91,10 +91,10 @@ const PendingReviewsPage = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+        <h2 className="text-xl  text-slate-900 dark:text-white text-xs">
           Pending Reviews
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+        <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
           Designs awaiting approval
         </p>
       </div>
@@ -117,15 +117,15 @@ const PendingReviewsPage = () => {
                   <h3 className="font-semibold text-slate-900 dark:text-white">
                     {review.design}
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
                     Project: {review.projectName} | Client: {review.customerName}
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
                     Submitted by: {review.submittedBy} on {review.submittedDate}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Waiting for review by:
                   </p>
                   <p className="font-semibold text-slate-900 dark:text-white">

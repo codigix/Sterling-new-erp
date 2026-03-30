@@ -55,7 +55,7 @@ const IncomeStatementPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Income Statement
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -84,7 +84,7 @@ const IncomeStatementPage = () => {
           <p className="text-sm font-medium text-green-700 dark:text-green-300">
             Gross Profit
           </p>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">
+          <p className="text-2xl  text-green-600 dark:text-green-400 mt-2">
             ₹{grossProfit.toLocaleString("en-IN")}
           </p>
           <p className="text-xs text-green-600 dark:text-green-400 mt-1">
@@ -95,7 +95,7 @@ const IncomeStatementPage = () => {
           <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
             Operating Profit
           </p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+          <p className="text-2xl  text-blue-600 dark:text-blue-400 mt-2">
             ₹{operatingProfit.toLocaleString("en-IN")}
           </p>
           <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
@@ -106,7 +106,7 @@ const IncomeStatementPage = () => {
           <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
             Net Profit
           </p>
-          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+          <p className="text-2xl  text-purple-600 dark:text-purple-400 mt-2">
             ₹{netProfit.toLocaleString("en-IN")}
           </p>
           <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
@@ -116,7 +116,7 @@ const IncomeStatementPage = () => {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs mb-6">
+        <h2 className="text-xl  text-slate-900 dark:text-white text-xs mb-6">
           Income Statement
         </h2>
 
@@ -126,7 +126,7 @@ const IncomeStatementPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Revenue
               </h3>
-              <p className="text-lg font-bold text-green-600">
+              <p className="text-lg  text-green-600">
                 ₹{incomeStatementData.revenue.total.toLocaleString("en-IN")}
               </p>
             </div>
@@ -163,7 +163,7 @@ const IncomeStatementPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Cost of Goods Sold
               </h3>
-              <p className="text-lg font-bold text-red-600">
+              <p className="text-lg  text-red-600">
                 ₹
                 {incomeStatementData.costOfGoodsSold.total.toLocaleString(
                   "en-IN"
@@ -206,7 +206,7 @@ const IncomeStatementPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Gross Profit
               </h3>
-              <p className="text-lg font-bold text-green-600">
+              <p className="text-lg  text-green-600">
                 ₹{grossProfit.toLocaleString("en-IN")}
               </p>
             </div>
@@ -217,7 +217,7 @@ const IncomeStatementPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Operating Expenses
               </h3>
-              <p className="text-lg font-bold text-red-600">
+              <p className="text-lg  text-red-600">
                 ₹
                 {incomeStatementData.operatingExpenses.total.toLocaleString(
                   "en-IN"
@@ -287,7 +287,7 @@ const IncomeStatementPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Operating Profit
               </h3>
-              <p className="text-lg font-bold text-blue-600">
+              <p className="text-lg  text-blue-600">
                 ₹{operatingProfit.toLocaleString("en-IN")}
               </p>
             </div>
@@ -308,10 +308,10 @@ const IncomeStatementPage = () => {
 
           <div className="border-t-2 border-slate-300 dark:border-slate-600 border-double pt-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left">
+              <h3 className="text-xl  text-slate-900 dark:text-white text-xs text-left">
                 Net Profit
               </h3>
-              <p className="text-xl font-bold text-green-600">
+              <p className="text-xl  text-green-600">
                 ₹{netProfit.toLocaleString("en-IN")}
               </p>
             </div>

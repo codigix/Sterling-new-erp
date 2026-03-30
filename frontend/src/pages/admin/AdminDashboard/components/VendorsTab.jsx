@@ -45,10 +45,10 @@ const VendorsTab = () => {
             <CardContent className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-tight">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
                     On-Time Delivery
                   </p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                  <p className="text-sm  text-slate-900 dark:text-white text-xs">
                     {vendor.onTimeDelivery}/{vendor.totalOrders}
                   </p>
                   <p className="text-xs text-green-600">
@@ -59,11 +59,11 @@ const VendorsTab = () => {
                   </p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-tight">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
                     Quality
                   </p>
                   <p
-                    className={`text-sm font-bold ${getQualityColor(
+                    className={`text-sm  ${getQualityColor(
                       vendor.qualityRating
                     )}`}
                   >
@@ -74,7 +74,7 @@ const VendorsTab = () => {
 
               <div className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-400">
                     Avg. Time
                   </span>
                   <span className="font-medium text-slate-900 dark:text-white text-xs">
@@ -82,7 +82,7 @@ const VendorsTab = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-400">
                     Total Value
                   </span>
                   <span className="font-medium text-slate-900 dark:text-white text-xs">
@@ -91,9 +91,9 @@ const VendorsTab = () => {
                 </div>
               </div>
 
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1">
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1">
                 <div
-                  className="bg-primary-600 h-1 rounded-full transition-all duration-300"
+                  className="bg-primary-600 h-1 rounded  transition-all duration-300"
                   style={{
                     width: `${
                       (vendor.onTimeDelivery / vendor.totalOrders) * 100
@@ -279,12 +279,12 @@ const VendorsTab = () => {
                   <p className="font-medium text-slate-900 dark:text-white text-xs text-xs">
                     Top Vendor
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     MetalWorks
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-green-600 text-sm">₹14.5L</p>
+                  <p className=" text-green-600 text-sm">₹14.5L</p>
                   <p className="text-xs text-slate-500">23%</p>
                 </div>
               </div>
@@ -294,12 +294,12 @@ const VendorsTab = () => {
                   <p className="font-medium text-slate-900 dark:text-white text-xs text-xs">
                     Total Spend
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     All Vendors
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-slate-900 dark:text-white text-xs text-sm">
+                  <p className=" text-slate-900 dark:text-white text-xs text-sm">
                     ₹45.2L
                   </p>
                   <p className="text-xs text-green-600">+8%</p>
@@ -311,12 +311,12 @@ const VendorsTab = () => {
                   <p className="font-medium text-slate-900 dark:text-white text-xs text-xs">
                     Savings
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     This QTR
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-blue-600 text-sm">₹2.8L</p>
+                  <p className=" text-blue-600 text-sm">₹2.8L</p>
                   <p className="text-xs text-slate-500">12%</p>
                 </div>
               </div>

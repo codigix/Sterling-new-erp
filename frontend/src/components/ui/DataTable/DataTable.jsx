@@ -65,7 +65,7 @@ const DataTable = ({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Loader className="w-6 h-6 animate-spin text-blue-600 mb-2" />
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Loading data...
         </p>
       </div>
@@ -90,7 +90,7 @@ const DataTable = ({
   if (!sortedData || sortedData.length === 0) {
     return (
       <div className="flex items-center text-xs justify-center py-12">
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           {emptyMessage}
         </p>
       </div>
@@ -114,7 +114,7 @@ const DataTable = ({
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`text-left p-2 font-semibold text-xs tracking-wide text-slate-700 dark:text-slate-300 ${
+                className={`text-left p-2  text-xs  text-slate-700 dark:text-slate-300 ${
                   column.sortable !== false && sortable
                     ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 select-none'
                     : ''

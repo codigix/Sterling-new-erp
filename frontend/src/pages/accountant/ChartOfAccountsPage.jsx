@@ -174,7 +174,7 @@ const ChartOfAccountsPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Chart of Accounts
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -195,26 +195,26 @@ const ChartOfAccountsPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Total Assets
           </p>
-          <p className="text-2xl font-bold text-blue-600 mt-2">
+          <p className="text-2xl  text-blue-600 mt-2">
             ₹{totalAssets.toLocaleString("en-IN")}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Total Liabilities
           </p>
-          <p className="text-2xl font-bold text-red-600 mt-2">
+          <p className="text-2xl  text-red-600 mt-2">
             ₹{totalLiabilities.toLocaleString("en-IN")}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Total Equity
           </p>
-          <p className="text-2xl font-bold text-purple-600 mt-2">
+          <p className="text-2xl  text-purple-600 mt-2">
             ₹{totalEquity.toLocaleString("en-IN")}
           </p>
         </div>
@@ -296,7 +296,7 @@ const ChartOfAccountsPage = () => {
                 </td>
                 <td className="p-1">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(
+                    className={`px-3 py-1 rounded  text-xs font-medium ${getCategoryColor(
                       account.category
                     )}`}
                   >

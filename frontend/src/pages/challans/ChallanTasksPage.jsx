@@ -103,38 +103,38 @@ const ChallanTasksPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total Challans
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
               {stats.total}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Outward
             </p>
-            <p className="text-2xl font-bold text-purple-600 mt-1">
+            <p className="text-2xl  text-purple-600 mt-1">
               {stats.outward}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Inward</p>
-            <p className="text-2xl font-bold text-green-600 mt-1">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Inward</p>
+            <p className="text-2xl  text-green-600 mt-1">
               {stats.inward}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               In Transit
             </p>
-            <p className="text-2xl font-bold text-yellow-600 mt-1">
+            <p className="text-2xl  text-yellow-600 mt-1">
               {stats.pending}
             </p>
           </div>
@@ -193,7 +193,7 @@ const ChallanTasksPage = () => {
       {/* New Challan Form */}
       {showNewChallan && (
         <Card className="mb-6 p-6">
-          <h3 className="text-lg font-bold  dark: mb-4">Create New Challan</h3>
+          <h3 className="text-lg   dark: mb-4">Create New Challan</h3>
           <div className="task-form mb-4">
             <select className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:">
               <option>Select Challan Type...</option>

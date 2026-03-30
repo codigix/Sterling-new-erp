@@ -340,7 +340,7 @@ const DesignDrawingManagement = () => {
     <div className="p-6 space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Design Drawing Management</h1>
+          <h1 className="text-xl  text-slate-900 dark:text-white">Design Drawing Management</h1>
           <p className="text-slate-500 text-xs">Upload and manage design revisions for root cards</p>
         </div>
         <button
@@ -353,13 +353,13 @@ const DesignDrawingManagement = () => {
         </button>
       </div>
 
-      <div className="border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="border-slate-200 my-5 dark:border-slate-700  flex flex-col md:flex-row md:items-center justify-between">
         <div className="flex-1 max-w-md">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Filter by Root Card</label>
+          <label className="block text-xs  text-slate-700 dark:text-slate-300 ">Filter by Root Card</label>
           <select
             value={rootCardId}
             onChange={(e) => setRootCardId(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
           >
             <option value="">All Root Cards</option>
             {rootCards.map(rc => {
@@ -376,9 +376,9 @@ const DesignDrawingManagement = () => {
         <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded">
           <button
             onClick={() => setActiveTab("active")}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+            className={`p-2 rounded-md text-xs  transition-all ${
               activeTab === "active"
-                ? "bg-white dark:bg-slate-800 text-blue-600 shadow-sm"
+                ? "bg-white dark:bg-slate-800 text-blue-600 "
                 : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             }`}
           >
@@ -386,9 +386,9 @@ const DesignDrawingManagement = () => {
           </button>
           <button
             onClick={() => setActiveTab("rejected")}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+            className={`p-2 rounded-md text-xs  transition-all ${
               activeTab === "rejected"
-                ? "bg-white dark:bg-slate-800 text-red-600 shadow-sm"
+                ? "bg-white dark:bg-slate-800 text-red-600 "
                 : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             }`}
           >
@@ -397,7 +397,7 @@ const DesignDrawingManagement = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
@@ -442,18 +442,18 @@ const DesignDrawingManagement = () => {
                         </div>
                       </td>
                       <td className="p-2">
-                        <div className="text-[11px] font-bold text-blue-600 dark:text-blue-400 truncate max-w-[150px]" title={doc.project_name}>{doc.project_name || 'N/A'}</div>
+                        <div className="text-[11px]  text-blue-600 dark:text-blue-400 truncate max-w-[150px]" title={doc.project_name}>{doc.project_name || 'N/A'}</div>
                         <div className="text-[9px] text-slate-500">{doc.po_number || doc.root_card_id}</div>
                       </td>
                       <td className="p-2">
-                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-md">{doc.type}</span>
+                        <span className="text-xs  text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-md">{doc.type}</span>
                       </td>
                       <td className="p-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold   ${getStatusColor(doc.status)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px]    ${getStatusColor(doc.status)}`}>
                           {doc.status}
                         </span>
                       </td>
-                      <td className="p-2 text-xs text-slate-500 font-medium">
+                      <td className="p-2 text-xs text-slate-500 ">
                         {new Date(doc.updated_at).toLocaleDateString()}
                       </td>
                       <td className="p-2 text-right" onClick={(e) => e.stopPropagation()}>
@@ -466,7 +466,7 @@ const DesignDrawingManagement = () => {
                                 setIsRevision(true);
                                 setShowUploadModal(true);
                               }}
-                              className="bg-white dark:bg-slate-800 text-orange-500 hover:text-orange-600 border border-slate-200 dark:border-slate-700 p-2 rounded transition-colors shadow-sm"
+                              className="bg-white dark:bg-slate-800 text-orange-500 hover:text-orange-600 border border-slate-200 dark:border-slate-700 p-2 rounded transition-colors "
                               title="Upload Revision"
                             >
                               <RefreshCw size={16} />
@@ -474,7 +474,7 @@ const DesignDrawingManagement = () => {
                           )}
                           <button 
                             onClick={() => handleDelete(doc.id, true)}
-                            className="p-2 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm"
+                            className="p-2 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 "
                             title="Delete whole drawing (all versions)"
                           >
                             <Trash2 size={16} />
@@ -488,7 +488,7 @@ const DesignDrawingManagement = () => {
                         <td colSpan="6" className="p-2 bg-slate-50/50 dark:bg-slate-900/20 border-y border-slate-100 dark:border-slate-800">
                           <div className=" space-y-4">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2  ">
+                              <h4 className="text-sm  text-slate-700 dark:text-slate-300 flex items-center gap-2  ">
                                 <History size={15} className="text-blue-500" /> Revision History
                               </h4>
                             </div>
@@ -502,58 +502,57 @@ const DesignDrawingManagement = () => {
                                 {(docHistories[doc.parent_id || doc.id] || []).map((rev, index) => (
                                   <div 
                                     key={rev.id} 
-                                    className={`flex items-center justify-between p-4 rounded border transition-all ${
+                                    className={`flex items-start justify-between p-4 rounded border transition-all ${
                                       index === 0 
                                         ? "bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-900/40  ring-1 ring-blue-50 dark:ring-blue-900/10" 
                                         : "bg-slate-50/50 dark:bg-slate-900/10 border-slate-100 dark:border-slate-800"
                                     }`}
                                   >
-                                    <div className="flex items-center gap-6">
+                                    <div className="flex items-start  gap-2">
                                       <div className="flex flex-col items-center ">
                                         <span className="text-sm  text-blue-600">v{rev.version}</span>
-                                        <span className="text-[9px] text-slate-400  font-black er">{new Date(rev.created_at).toLocaleDateString()}</span>
+                                        <span className="text-[9px] text-slate-400   er">{new Date(rev.created_at).toLocaleDateString()}</span>
                                       </div>
                                       <div className="h-12 w-px bg-slate-200 dark:bg-slate-700"></div>
                                       <div>
-                                        <div className="flex items-center gap-3 mb-1.5">
-                                          <span className={`text-[10px] p-1 rounded   ${getStatusColor(rev.status)}`}>
-                                            {rev.status}
-                                          </span>
-                                          <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                                        <div className="flex gap-3 mb-1.5">
+                                          
+                                          <span className="text-xs text-slate-500 dark:text-slate-300">
                                             {rev.description || "No description"}
                                           </span>
                                         </div>
-                                        <div className="flex items-center gap-4 text-[11px] text-slate-400 font-medium">
+                                        <div className="flex items-center gap-4 text-[11px] text-slate-400 ">
                                           <span className="flex items-center gap-1"><FileText size={12} /> {rev.file_path.split('/').pop()}</span>
                                           {rev.reviewer_name && <span className="flex items-center gap-1 text-slate-500">Reviewer: <b className="text-slate-700 dark:text-slate-300">{rev.reviewer_name}</b></span>}
                                         </div>
-                                        {rev.reviewer_comment && (
-                                          <div className={`text-[11px] mt-2.5 flex items-start gap-2 px-3 py-2 rounded border ${
+                                        
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex items-start  gap-2">
+                                      {rev.reviewer_comment && (
+                                          <div className={`text-xs flex items-start gap-2 p-2 w-fit rounded border ${
                                             rev.status === 'Approved' 
                                               ? "text-green-600 bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-900/30" 
                                               : "text-red-600 bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30"
                                           }`}>
-                                            <MessageSquare size={14} className="mt-0.5 shrink-0" /> 
+                                            <MessageSquare size={10} className="mt-0.5 shrink-0" /> 
                                             <div>
-                                              <span className="  text-[9px] block mb-0.5">Reviewer Feedback:</span>
+                                              <span className="  text-[9px] block mb-0.5">Feedback</span>
                                               {rev.reviewer_comment}
                                             </div>
                                           </div>
                                         )}
-                                      </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2">
                                       <button 
                                         onClick={() => window.open(getServerUrl(rev.file_path), '_blank')}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded transition-colors border border-slate-200 dark:border-slate-600"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px]  rounded transition-colors border border-slate-200 dark:border-slate-600"
                                       >
                                         <Eye size={14} /> View
                                       </button>
                                       
                                       <button 
                                         onClick={() => handleDownload(rev)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded transition-colors border border-slate-200 dark:border-slate-600"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px]  rounded transition-colors border border-slate-200 dark:border-slate-600"
                                       >
                                         <Download size={14} /> Download
                                       </button>
@@ -563,7 +562,7 @@ const DesignDrawingManagement = () => {
                                           {rev.status === 'Draft' && (
                                             <button 
                                               onClick={() => submitDraft(rev.id)}
-                                              className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded transition-colors shadow-sm"
+                                              className="flex items-center gap-1.5 p-2 bg-blue-600 hovexsbg-blue-700 text-white text-[11px]  rounded transition-colors "
                                             >
                                               <Upload size={14} /> Submit
                                             </button>
@@ -577,7 +576,7 @@ const DesignDrawingManagement = () => {
                                                 setIsRevision(true);
                                                 setShowUploadModal(true);
                                               }}
-                                              className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold rounded transition-colors shadow-sm"
+                                              className="flex items-center gap-1.5 p-2 bg-orange-600 hoxsr:bg-orange-700 text-white text-[11px]  rounded transition-colors "
                                             >
                                               <RefreshCw size={14} /> Create Revision
                                             </button>
@@ -587,7 +586,7 @@ const DesignDrawingManagement = () => {
                                             <>
                                               <button 
                                                 onClick={() => handleApprove(rev)}
-                                                className="flex items-center gap-1.5 px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold rounded transition-colors shadow-sm"
+                                                className="flex items-center gap-1.5 p-2 bg-green-600 hovxs:bg-green-700 text-white text-[11px]  rounded transition-colors "
                                               >
                                                 <CheckCircle2 size={14} /> Approve
                                               </button>
@@ -598,7 +597,7 @@ const DesignDrawingManagement = () => {
 
                                       <button 
                                         onClick={() => handleDelete(rev.id, false)}
-                                        className="p-1.5 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm"
+                                        className="p-1.5 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 "
                                         title="Delete this version only"
                                       >
                                         <Trash2 size={16} />
@@ -622,18 +621,18 @@ const DesignDrawingManagement = () => {
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 w-full max-w-md max-h-[70vh] overflow-scroll rounded shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg text-slate-900 dark:text-white">
                 {isRevision ? `Create Revision for ${formData.name} (v${selectedDoc.version + 1})` : "Upload New Drawing"}
               </h3>
-              <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-600"><XCircle size={24} /></button>
+              <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={24} /></button>
             </div>
-            <form onSubmit={handleUpload} className="p-6 space-y-4">
+            <form onSubmit={handleUpload} className="p-2 space-y-4">
               {!isRevision && (
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Root Card (Project)</label>
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Root Card (Project)</label>
                   <select
                     required
                     value={formData.root_card_id || rootCardId}
@@ -652,7 +651,7 @@ const DesignDrawingManagement = () => {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Drawing Name</label>
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Drawing Name</label>
                 <input
                   type="text"
                   required
@@ -663,7 +662,7 @@ const DesignDrawingManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Type</label>
                 <select
                   disabled={isRevision}
                   value={formData.type}
@@ -676,7 +675,7 @@ const DesignDrawingManagement = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -684,7 +683,7 @@ const DesignDrawingManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">File (Any format)</label>
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">File (Any format)</label>
                 <input
                   type="file"
                   required
@@ -709,21 +708,21 @@ const DesignDrawingManagement = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Revision History: {selectedDoc?.name}</h3>
-              <button onClick={() => setShowHistoryModal(false)} className="text-slate-400 hover:text-slate-600"><XCircle size={24} /></button>
+              <h3 className="text-lg  text-slate-900 dark:text-white">Revision History: {selectedDoc?.name}</h3>
+              <button onClick={() => setShowHistoryModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={24} /></button>
             </div>
             <div className="p-6 max-h-[60vh] overflow-y-auto space-y-4">
               {historyLoading ? (
                 <div className="text-center py-10 text-slate-500"><Loader2 className="animate-spin inline mr-2" /> Loading history...</div>
               ) : history.map((item) => (
-                <div key={item.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+                <div key={item.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-200 dark:border-slate-700 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-blue-600 dark:text-blue-400">Version v{item.version}</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold   ${getStatusColor(item.status)}`}>
+                    <span className=" text-blue-600 dark:text-blue-400">Version v{item.version}</span>
+                    <span className={`px-2 py-0.5 rounded text-[10px]    ${getStatusColor(item.status)}`}>
                       {item.status}
                     </span>
                   </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400 italic">"{item.description}"</div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 italic">"{item.description}"</div>
                   {item.reviewer_comment && (
                     <div className="flex gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
                       <MessageSquare size={16} />
@@ -756,16 +755,16 @@ const DesignDrawingManagement = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 {selectedDoc?.status === 'Rejected' ? "Reviewer Feedback" : "Review Drawing"}
               </h3>
-              <button onClick={() => setShowReviewModal(false)} className="text-slate-400 hover:text-slate-600"><XCircle size={24} /></button>
+              <button onClick={() => setShowReviewModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={24} /></button>
             </div>
             <div className="p-6 space-y-4">
               {selectedDoc?.status === 'Rejected' ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded">
-                    <div className="flex items-center gap-2 text-red-800 dark:text-red-400 font-bold mb-2">
+                    <div className="flex items-center gap-2 text-red-800 dark:text-red-400  mb-2">
                       <AlertCircle size={18} />
                       <span>Status: Rejected (v{selectedDoc.version})</span>
                     </div>
@@ -782,13 +781,13 @@ const DesignDrawingManagement = () => {
                         setIsRevision(true);
                         setShowUploadModal(true);
                       }}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-bold transition-colors"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded  transition-colors"
                     >
                       Create Revision
                     </button>
                     <button 
                       onClick={() => setShowReviewModal(false)}
-                      className="p-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded font-bold"
+                      className="p-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded "
                     >
                       Close
                     </button>
@@ -797,7 +796,7 @@ const DesignDrawingManagement = () => {
               ) : (
                 <form onSubmit={handleReview} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Decision</label>
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">Decision</label>
                     <div className="flex gap-4">
                       <button
                         type="button"
@@ -816,7 +815,7 @@ const DesignDrawingManagement = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reviewer Comments</label>
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">Reviewer Comments</label>
                     <textarea
                       required={reviewData.status === 'Rejected'}
                       placeholder={reviewData.status === 'Rejected' ? "Please provide feedback for rejection..." : "Optional comments..."}
@@ -827,7 +826,7 @@ const DesignDrawingManagement = () => {
                   </div>
                   <button
                     type="submit"
-                    className={`w-full text-white font-bold py-3 rounded transition-colors ${reviewData.status === 'Approved' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                    className={`w-full text-white  py-3 rounded transition-colors ${reviewData.status === 'Approved' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
                   >
                     Submit Decision
                   </button>

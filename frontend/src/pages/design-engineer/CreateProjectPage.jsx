@@ -326,10 +326,10 @@ const CreateProjectPage = () => {
               <FileText className="text-white" size={24} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white text-xs">
+              <h1 className="text-3xl  text-slate-900 dark:text-white text-xs">
                 Create Project Details
               </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                 New Project
               </p>
             </div>

@@ -121,13 +121,13 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
               <ClipboardList size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Create Job Card</h3>
+              <h3 className="text-lg  text-slate-900">Create Job Card</h3>
               <p className="text-xs text-slate-500 font-medium">Manually generate a production operation</p>
             </div>
           </div>
           <button 
             onClick={onClose} 
-            className="text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-100 rounded-full"
+            className="text-slate-400 hover:text-slate-500 transition-colors p-2 hover:bg-slate-100 rounded "
           >
             <X size={20} />
           </button>
@@ -139,11 +139,11 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
               {/* Work Order Select */}
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Work Order *</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Work Order *</label>
                 <div className="relative group">
                   <Box size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <select
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                     value={formData.workOrderId}
                     onChange={handleWorkOrderChange}
                     required
@@ -158,11 +158,11 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
 
               {/* Workstation Select */}
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Workstation *</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Workstation *</label>
                 <div className="relative group">
                   <Layers size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <select
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                     value={formData.workstation}
                     onChange={(e) => setFormData({ ...formData, workstation: e.target.value })}
                     required
@@ -177,11 +177,11 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
 
               {/* Operator Select */}
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Operator</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Operator</label>
                 <div className="relative group">
                   <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <select
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                     value={formData.operatorId}
                     onChange={(e) => setFormData({ ...formData, operatorId: e.target.value })}
                   >
@@ -197,11 +197,11 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
 
               {/* Operation Select */}
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Operation *</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Operation *</label>
                 <div className="relative group">
                   <Activity size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <select
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700 disabled:opacity-50"
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700 disabled:opacity-50"
                     value={formData.operationName}
                     onChange={(e) => {
                       const opName = e.target.value;
@@ -227,7 +227,7 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
                   <input
                     type="text"
                     placeholder="Enter custom operation name"
-                    className="w-full mt-2 p-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                    className="w-full mt-2 p-2.5 bg-white border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     onChange={(e) => setFormData({ ...formData, operationName: e.target.value })}
                   />
                 )}
@@ -235,13 +235,13 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
 
               {/* Quantity */}
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Quantity *</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Quantity *</label>
                 <div className="relative group">
                   <Hash size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <input
                     type="number"
                     step="0.000001"
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700"
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all  text-slate-700"
                     value={formData.quantity}
                     onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                     required
@@ -251,9 +251,9 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
 
               {/* Status */}
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Status</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Status</label>
                 <select
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
@@ -266,9 +266,9 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
 
               {/* Type */}
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Operation Type</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Operation Type</label>
                 <select
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value, operatorId: e.target.value === 'outsource' ? '' : formData.operatorId })}
                 >
@@ -280,11 +280,11 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
               {/* Vendor Select (Shows for Outsource) */}
               {formData.type === 'outsource' && (
                 <div className="col-span-2 md:col-span-1 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Assign Vendor *</label>
+                  <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Assign Vendor *</label>
                   <div className="relative group">
                     <Users size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                     <select
-                      className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-indigo-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700"
+                      className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-indigo-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all  text-slate-700"
                       value={formData.vendorId}
                       onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
                       required
@@ -300,12 +300,12 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
 
               {/* Dates */}
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Start Date *</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Start Date *</label>
                 <div className="relative group">
                   <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <input
                     type="date"
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                     value={formData.plannedStartDate}
                     onChange={(e) => setFormData({ ...formData, plannedStartDate: e.target.value })}
                     required
@@ -314,12 +314,12 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
               </div>
 
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">End Date</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">End Date</label>
                 <div className="relative group">
                   <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <input
                     type="date"
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-semibold text-slate-700"
                     value={formData.plannedEndDate}
                     onChange={(e) => setFormData({ ...formData, plannedEndDate: e.target.value })}
                   />
@@ -328,9 +328,9 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
 
               {/* Notes */}
               <div className="col-span-2">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Notes</label>
+                <label className="block text-[11px]  text-slate-500  tracking-wider mb-2">Notes</label>
                 <textarea
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all min-h-[100px] text-slate-700 font-medium"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all min-h-[100px] text-slate-700 font-medium"
                   placeholder="Enter any additional instructions or notes here..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -342,16 +342,16 @@ const CreateJobCardModal = ({ isOpen, onClose, onRefresh }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all"
+                className="px-6 py-2.5 text-sm  text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-black transition-all shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-8 py-2.5 bg-slate-900 text-white text-sm  rounded hover:bg-black transition-all shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded  animate-spin" />}
                 Create Job Card
               </button>
             </div>

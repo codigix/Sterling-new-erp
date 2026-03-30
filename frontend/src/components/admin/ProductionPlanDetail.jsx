@@ -140,7 +140,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
           <div className="flex items-center text-xs justify-between">
             <div>
               <CardTitle className="text-2xl">{rootCard.title}</CardTitle>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
                 {rootCard.project}{" "}
                 {rootCard.projectCode && `(${rootCard.projectCode})`}
               </p>
@@ -158,7 +158,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Production Code
               </p>
               <p className="text-md font-semibold  dark:">
@@ -166,7 +166,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Total Stages
               </p>
               <p className="text-md font-semibold  dark:">
@@ -174,7 +174,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Completed Stages
               </p>
               <p className="text-md font-semibold  dark:">
@@ -182,13 +182,13 @@ const ProductionPlanDetail = ({ rootCard }) => {
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Overall Progress
               </p>
               <div className="flex items-center text-xs space-x-2">
-                <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded  h-2">
                   <div
-                    className="bg-blue-600 h-2 rounded-full"
+                    className="bg-blue-600 h-2 rounded "
                     style={{ width: `${rootCard.progress || 0}%` }}
                   ></div>
                 </div>
@@ -203,7 +203,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
               {rootCard.plannedStart && (
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Planned Start
                   </p>
                   <p className=" dark:">
@@ -213,7 +213,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
               )}
               {rootCard.plannedEnd && (
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Planned End
                   </p>
                   <p className=" dark:">
@@ -308,13 +308,13 @@ const ProductionPlanDetail = ({ rootCard }) => {
 
           {loading ? (
             <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-500 dark:text-slate-400">
                 Loading stages...
               </p>
             </div>
           ) : stages.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-500 dark:text-slate-400">
                 No manufacturing stages yet
               </p>
             </div>
@@ -342,9 +342,9 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       </Badge>
                     </div>
                     {expandedStages[stage.id] ? (
-                      <ChevronUp className="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                      <ChevronUp className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                     ) : (
-                      <ChevronDown className="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                      <ChevronDown className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                     )}
                   </button>
 
@@ -352,7 +352,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                     <div className="px-4 py-4 bg-slate-50 dark: border-t border-slate-200 dark:border-slate-700 space-y-3">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
                             Type
                           </p>
                           <p className=" dark:">
@@ -360,14 +360,14 @@ const ProductionPlanDetail = ({ rootCard }) => {
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
                             Progress
                           </p>
                           <p className=" dark:">{stage.progress || 0}%</p>
                         </div>
                         {stage.planned_start && (
                           <div>
-                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
                               Planned Start
                             </p>
                             <p className=" dark:">
@@ -379,7 +379,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                         )}
                         {stage.planned_end && (
                           <div>
-                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
                               Planned End
                             </p>
                             <p className=" dark:">

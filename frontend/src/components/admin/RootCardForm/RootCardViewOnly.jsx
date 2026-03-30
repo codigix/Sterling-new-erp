@@ -168,7 +168,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
     if (!value && value !== 0) return null;
     return (
       <div className="space-y-1">
-        <label className="text-xs  text-slate-600  ">{label}</label>
+        <label className="text-xs  text-slate-500  ">{label}</label>
         <p className="text-sm text-black">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</p>
       </div>
     );
@@ -176,10 +176,10 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
 
   const SectionHeader = ({ number, title }) => (
     <div className="flex items-center gap-3 mb-2 border-b border-slate-200 pb-2">
-      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+      <span className="flex items-center justify-center w-8 h-8 rounded  bg-blue-100 text-blue-600  text-sm">
         {number}
       </span>
-      <h2 className="text-md font-bold">{title}</h2>
+      <h2 className="text-md ">{title}</h2>
     </div>
   );
 
@@ -195,12 +195,12 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                 className="p-2 hover:bg-slate-100 rounded transition-colors"
                 title="Back"
               >
-                <ArrowLeft size={20} className="text-slate-600" />
+                <ArrowLeft size={20} className="text-slate-500" />
               </button>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Root Card Details
+                <h1 className="text-xl  text-slate-900">Root Card Details
 </h1>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-slate-500">
                   {initialData?.po_number || formData?.poNumber || 'New Root Card'}
                 </p>
               </div>
@@ -222,7 +222,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
       <div className=" mx-auto  p-2 space-y-2">
         {!formData?.poNumber && !initialData?.po_number && (
           <div className="text-center py-12">
-            <p className="text-slate-600">No data filled in this root card yet.</p>
+            <p className="text-slate-500">No data filled in this root card yet.</p>
           </div>
         )}
 
@@ -249,7 +249,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                       {Object.entries(formData.projectRequirements).map(([key, value]) => {
                         const hasValue = value && (typeof value !== 'object' || Object.keys(value).length > 0);
                         return hasValue ? (
-                          <p key={key} className="text-sm text-slate-600">
+                          <p key={key} className="text-sm text-slate-500">
                             <span className="text-slate-700 ">{key}:</span> {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                           </p>
                         ) : null;
@@ -266,7 +266,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                   <div className="flex flex-wrap gap-2">
                     {formData.attachments.map((file, idx) => (
                       <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-700">
-                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                        <span className="w-1.5 h-1.5 bg-blue-500 rounded "></span>
                         {typeof file === 'string' ? file.split('/').pop() : file.name}
                       </div>
                     ))}
@@ -322,7 +322,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                   <ul className="space-y-2">
                     {formData.designEngineering.attachments.drawings.map((file, idx) => (
                       <li key={idx} className="text-sm text-slate-700 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                        <span className="w-1.5 h-1.5 bg-blue-500 rounded "></span>
                         {typeof file === 'string' ? file : file.name}
                       </li>
                     ))}
@@ -336,7 +336,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                   <ul className="space-y-2">
                     {formData.designEngineering.attachments.documents.map((file, idx) => (
                       <li key={idx} className="text-sm text-slate-700 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                        <span className="w-1.5 h-1.5 bg-blue-500 rounded "></span>
                         {typeof file === 'string' ? file : file.name}
                       </li>
                     ))}
@@ -497,9 +497,9 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                         <div key={idx} className="bg-slate-50 rounded p-4 border border-slate-200">
                           <p className=" text-slate-900 mb-2">{inspection.type || 'Inspection ' + (idx + 1)}</p>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            {inspection.date && <p className="text-slate-600"><span className="text-slate-700">Date:</span> {inspection.date}</p>}
-                            {inspection.inspector && <p className="text-slate-600"><span className="text-slate-700">Inspector:</span> {inspection.inspector}</p>}
-                            {inspection.result && <p className="text-slate-600"><span className="text-slate-700">Result:</span> {inspection.result}</p>}
+                            {inspection.date && <p className="text-slate-500"><span className="text-slate-700">Date:</span> {inspection.date}</p>}
+                            {inspection.inspector && <p className="text-slate-500"><span className="text-slate-700">Inspector:</span> {inspection.inspector}</p>}
+                            {inspection.result && <p className="text-slate-500"><span className="text-slate-700">Result:</span> {inspection.result}</p>}
                           </div>
                         </div>
                       ))}

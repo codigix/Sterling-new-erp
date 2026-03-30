@@ -17,13 +17,13 @@ const GRNEmailModal = ({
       <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-4xl my-8">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs flex items-center gap-3">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs flex items-center gap-3">
             <AlertTriangle className="text-orange-500" size={24} />
             Email Preview - GRN Discrepancy Report
           </h2>
           <button
             onClick={() => setEmailModal({ show: false, type: "", data: null })}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            className="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors"
           >
             <X size={24} />
           </button>
@@ -35,7 +35,7 @@ const GRNEmailModal = ({
           <div className="mb-6 p-4 rounded bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
               <strong>Discrepancy Status:</strong>{" "}
-              <span className="uppercase font-bold text-orange-600 dark:text-orange-400 text-lg ml-2">
+              <span className="  text-orange-600 dark:text-orange-400 text-lg ml-2">
                 {emailModal.type}
               </span>
             </p>
@@ -48,7 +48,7 @@ const GRNEmailModal = ({
           <div className="bg-gradient-to-b from-blue-50 to-white dark:from-slate-700 dark:to-slate-800 border-2 border-blue-300 dark:border-blue-900 rounded overflow-hidden">
             {/* Email Header */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 text-white p-6">
-              <h3 className="text-2xl font-bold mb-2">
+              <h3 className="text-2xl  mb-2">
                 📦 Goods Received Note Discrepancy Report
               </h3>
               <p className="text-blue-100">
@@ -63,7 +63,7 @@ const GRNEmailModal = ({
               <div className="bg-white dark:bg-slate-700 p-4 rounded border border-slate-200 dark:border-slate-600">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                    <p className="text-xs  text-blue-600 dark:text-blue-400  tracking-wide">
                       Vendor
                     </p>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1">
@@ -71,7 +71,7 @@ const GRNEmailModal = ({
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                    <p className="text-xs  text-blue-600 dark:text-blue-400  tracking-wide">
                       Purchase Order
                     </p>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 break-all">
@@ -79,7 +79,7 @@ const GRNEmailModal = ({
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                    <p className="text-xs  text-blue-600 dark:text-blue-400  tracking-wide">
                       GRN Number
                     </p>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 break-all">
@@ -87,10 +87,10 @@ const GRNEmailModal = ({
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                    <p className="text-xs  text-blue-600 dark:text-blue-400  tracking-wide">
                       Discrepancy Type
                     </p>
-                    <p className="text-sm font-bold text-orange-600 dark:text-orange-400 mt-1 uppercase">
+                    <p className="text-sm  text-orange-600 dark:text-orange-400 mt-1 ">
                       {emailModal.type}
                     </p>
                   </div>
@@ -99,7 +99,7 @@ const GRNEmailModal = ({
 
               {/* Important Notice */}
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4 rounded">
-                <h5 className="font-bold text-yellow-900 dark:text-yellow-300 mb-2">
+                <h5 className=" text-yellow-900 dark:text-yellow-300 mb-2">
                   ⚠️ Important Notice
                 </h5>
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -112,7 +112,7 @@ const GRNEmailModal = ({
 
               {/* Items Table */}
               <div className="border border-slate-200 dark:border-slate-600 rounded overflow-hidden">
-                <h5 className="font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-4 py-3 border-b border-blue-200 dark:border-blue-800">
+                <h5 className=" text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-4 py-3 border-b border-blue-200 dark:border-blue-800">
                   Detailed Item Comparison
                 </h5>
                 <div className="overflow-x-auto">
@@ -173,7 +173,7 @@ const GRNEmailModal = ({
                             </td>
                             <td className="px-4 py-3 text-center">
                               <span
-                                className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}
+                                className={`inline-block px-3 py-1 rounded  text-xs  ${statusColor}`}
                               >
                                 {status}{" "}
                                 {diff !== 0 &&
@@ -190,12 +190,12 @@ const GRNEmailModal = ({
 
               {/* Action Items */}
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded p-4">
-                <h5 className="font-bold text-blue-900 dark:text-blue-300 mb-2">
+                <h5 className=" text-blue-900 dark:text-blue-300 mb-2">
                   Required Action:
                 </h5>
                 <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold">
+                    <span className="text-blue-600 dark:text-blue-400 ">
                       •
                     </span>
                     <span>
@@ -203,7 +203,7 @@ const GRNEmailModal = ({
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold">
+                    <span className="text-blue-600 dark:text-blue-400 ">
                       •
                     </span>
                     <span>
@@ -212,7 +212,7 @@ const GRNEmailModal = ({
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold">
+                    <span className="text-blue-600 dark:text-blue-400 ">
                       •
                     </span>
                     <span>
@@ -221,7 +221,7 @@ const GRNEmailModal = ({
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold">
+                    <span className="text-blue-600 dark:text-blue-400 ">
                       •
                     </span>
                     <span>Please reply within 48 hours</span>

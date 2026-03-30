@@ -450,19 +450,19 @@ const MyDesignsPage = () => {
           {projectId && (
             <button
               onClick={() => navigate("/design-engineer/root-cards")}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400 transition"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-500 dark:text-slate-400 transition"
               title="Back to Projects"
             >
               <ChevronLeft size={20} />
             </button>
           )}
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+            <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
               {selectedProject
                 ? `${selectedProject.projectName} - Designs`
                 : "My Designs"}
             </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 text-xs">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-xs">
               {selectedProject
                 ? `${designs.length} design documents for ${selectedProject.productName}`
                 : `Manage ${designs.length} design documents`}
@@ -471,7 +471,7 @@ const MyDesignsPage = () => {
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="inline-flex items-center justify-center gap-2 py-2 px-4  bg-blue-600 dark:bg-blue-600 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors font-medium shadow-md text-xs"
+          className="inline-flex items-center justify-center gap-2 py-2 px-4  bg-blue-600 dark:bg-blue-600 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors font-medium  text-xs"
         >
           <Plus size={18} />
           New Design
@@ -501,7 +501,7 @@ const MyDesignsPage = () => {
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-2" />
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
+              <p className="text-slate-500 dark:text-slate-400 text-sm">
                 Loading designs...
               </p>
             </div>
@@ -534,7 +534,7 @@ const MyDesignsPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center text-xs justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+              <h3 className="text-lg  text-slate-900 dark:text-white text-xs">
                 Create New Design
               </h3>
               <button
@@ -578,7 +578,7 @@ const MyDesignsPage = () => {
                     type="text"
                     value={formData.customerName}
                     disabled
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-sm opacity-60 cursor-not-allowed"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm opacity-60 cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -675,7 +675,7 @@ const MyDesignsPage = () => {
                   />
                   {uploadedFiles.length > 0 && (
                     <div className="mt-4 space-y-2">
-                      <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                         Uploaded Files:
                       </p>
                       {uploadedFiles.map((file, index) => (
@@ -747,10 +747,10 @@ const MyDesignsPage = () => {
                   className="text-red-600 dark:text-red-400"
                 />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-2">
+              <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-2">
                 Delete Design?
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
+              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
                 Are you sure you want to delete{" "}
                 <span className="font-semibold">"{selectedDesign.name}"</span>?
                 This cannot be undone.
@@ -779,12 +779,12 @@ const MyDesignsPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center text-xs justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[80vh] overflow-y-auto">
             <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-6 flex items-center text-xs justify-between">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+              <h3 className="text-lg  text-slate-900 dark:text-white text-xs">
                 {selectedDesign.name}
               </h3>
               <button
                 onClick={() => setSelectedDesign(null)}
-                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
               >
                 <X size={20} />
               </button>
@@ -792,7 +792,7 @@ const MyDesignsPage = () => {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
                     Project
                   </p>
                   <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
@@ -800,7 +800,7 @@ const MyDesignsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
                     Status
                   </p>
                   <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
@@ -808,7 +808,7 @@ const MyDesignsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
                     Author
                   </p>
                   <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
@@ -816,7 +816,7 @@ const MyDesignsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
                     Version
                   </p>
                   <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
@@ -824,7 +824,7 @@ const MyDesignsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
                     Date
                   </p>
                   <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
@@ -832,7 +832,7 @@ const MyDesignsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
                     Category
                   </p>
                   <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
@@ -842,7 +842,7 @@ const MyDesignsPage = () => {
               </div>
 
               <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-3">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-3">
                   Design Documents
                 </p>
                 {selectedDesign.documents && selectedDesign.documents.length > 0 ? (

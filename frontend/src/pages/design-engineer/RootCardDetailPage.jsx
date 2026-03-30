@@ -69,8 +69,8 @@ const RootCardDetailPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-50 p-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading root card details...</p>
+          <div className="animate-spin rounded  h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-500">Loading root card details...</p>
         </div>
       </div>
     );
@@ -111,21 +111,21 @@ const RootCardDetailPage = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="text-sm font-semibold text-slate-600">PO Number</label>
+                <label className="text-sm font-semibold text-slate-500">PO Number</label>
                 <p className="text-lg text-slate-900 mt-1">{rootCard.po_number}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-600">Project Name</label>
+                <label className="text-sm font-semibold text-slate-500">Project Name</label>
                 <p className="text-lg text-slate-900 mt-1">{rootCard.project_name}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-600">Customer</label>
+                <label className="text-sm font-semibold text-slate-500">Customer</label>
                 <p className="text-lg text-slate-900 mt-1">{rootCard.customer}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-600">Status</label>
+                <label className="text-sm font-semibold text-slate-500">Status</label>
                 <p className="text-lg text-slate-900 mt-1">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  <span className={`px-3 py-1 rounded  text-sm font-medium ${
                     rootCard.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                     rootCard.status === 'completed' ? 'bg-green-100 text-green-800' :
                     'bg-blue-100 text-blue-800'
@@ -135,9 +135,9 @@ const RootCardDetailPage = () => {
                 </p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-600">Priority</label>
+                <label className="text-sm font-semibold text-slate-500">Priority</label>
                 <p className="text-lg text-slate-900 mt-1">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  <span className={`px-3 py-1 rounded  text-sm font-medium ${
                     rootCard.priority === 'High' ? 'bg-red-100 text-red-800' :
                     rootCard.priority === 'Medium' ? 'bg-orange-100 text-orange-800' :
                     'bg-green-100 text-green-800'
@@ -147,11 +147,11 @@ const RootCardDetailPage = () => {
                 </p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-600">Order Date</label>
+                <label className="text-sm font-semibold text-slate-500">Order Date</label>
                 <p className="text-lg text-slate-900 mt-1">{new Date(rootCard.order_date).toLocaleDateString()}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-600">Due Date</label>
+                <label className="text-sm font-semibold text-slate-500">Due Date</label>
                 <p className="text-lg text-slate-900 mt-1">{new Date(rootCard.due_date).toLocaleDateString()}</p>
               </div>
             </div>

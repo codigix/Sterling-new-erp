@@ -228,10 +228,10 @@ const ProductionWorkflowTasksPage = () => {
     <div className="space-y-2">
       <div className="flex justify-between items-center p-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+          <h2 className="text-xl  text-slate-900 dark:text-white">
             Production Workflow Projects
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
             View root cards and manage production workflow tasks
           </p>
         </div>
@@ -328,7 +328,7 @@ const ProductionWorkflowTasksPage = () => {
             </div>
           ) : (
             <div className="text-center py-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-500 dark:text-slate-400">
                 Select a root card to view workflow
               </p>
             </div>

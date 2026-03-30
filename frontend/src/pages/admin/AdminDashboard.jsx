@@ -166,13 +166,13 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen  space-y-2 ">
+    <div className="w-full min-h-screen  space-y-2 p-4 ">
       {/* Header */}
       <div>
-        <h1 className="text-xl text-left font-bold">
+        <h1 className="text-xl text-left ">
           Dashboard & Overview
         </h1>
-        <p className="text-sm text-slate-600 mt-1 text-left">
+        <p className="text-sm text-slate-500 mt-1 text-left">
           Real-time manufacturing system analytics and KPIs
         </p>
       </div>
@@ -180,13 +180,13 @@ const AdminDashboard = () => {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Projects */}
-        <div className="bg-white border-2 border-blue-100 rounded-xl p-4  transition-all hover:border-blue-300">
+        <div className="bg-white border-2 border-blue-100 rounded p-4  transition-all hover:border-blue-300">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500  text-left mb-2">
                 Total Projects
               </p>
-              <p className="text-xl text-left font-bold">
+              <p className="text-xl text-left ">
                 {kpis.totalProjects}
               </p>
               <p className="text-xs text-left text-blue-600 mt-2 font-medium">
@@ -194,7 +194,7 @@ const AdminDashboard = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center text-xs justify-center border border-blue-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded flex items-center text-xs justify-center border border-blue-200">
                 <Target className="w-6 h-6 text-blue-600" />
               </div>
             </div>
@@ -202,13 +202,13 @@ const AdminDashboard = () => {
         </div>
 
         {/* Active Projects */}
-        <div className="bg-white border-2 border-emerald-100 rounded-xl p-4  transition-all hover:border-emerald-300">
+        <div className="bg-white border-2 border-emerald-100 rounded p-4  transition-all hover:border-emerald-300">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500  text-left mb-2">
                 Active Projects
               </p>
-              <p className="text-xl text-left font-bold">
+              <p className="text-xl text-left ">
                 {kpis.activeProjects}
               </p>
               <p className="text-xs text-lef text-emerald-600 mt-2 font-semibold">
@@ -216,7 +216,7 @@ const AdminDashboard = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl flex items-center text-xs justify-center border border-emerald-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded flex items-center text-xs justify-center border border-emerald-200">
                 <Activity className="w-6 h-6 text-emerald-600" />
               </div>
             </div>
@@ -224,13 +224,13 @@ const AdminDashboard = () => {
         </div>
 
         {/* Active Employees */}
-        <div className="bg-white border-2 border-amber-100 rounded-xl p-4  transition-all hover:border-amber-300">
+        <div className="bg-white border-2 border-amber-100 rounded p-4  transition-all hover:border-amber-300">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500  text-left mb-2">
                 Active Employees
               </p>
-              <p className="text-xl text-left font-bold">
+              <p className="text-xl text-left ">
                 {kpis.activeEmployees}
               </p>
               <p className="text-xs text-left text-amber-600 mt-2 font-semibold">
@@ -238,7 +238,7 @@ const AdminDashboard = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl flex items-center text-xs justify-center border border-amber-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-50 to-amber-100 rounded flex items-center text-xs justify-center border border-amber-200">
                 <Users className="w-6 h-6 text-amber-600" />
               </div>
             </div>
@@ -246,13 +246,13 @@ const AdminDashboard = () => {
         </div>
 
         {/* Critical Alerts */}
-        <div className="bg-white border-2 border-red-100 rounded-xl p-4  transition-all hover:border-red-300">
+        <div className="bg-white border-2 border-red-100 rounded p-4  transition-all hover:border-red-300">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500  text-left mb-2">
                 Critical Alerts
               </p>
-              <p className="text-xl text-left font-bold">
+              <p className="text-xl text-left ">
                 {kpis.criticalAlerts}
               </p>
               <p className="text-xs text-left text-red-600 mt-2 font-semibold">
@@ -260,7 +260,7 @@ const AdminDashboard = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-50 to-red-100 rounded-xl flex items-center text-xs justify-center border border-red-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-red-50 to-red-100 rounded flex items-center text-xs justify-center border border-red-200">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
             </div>
@@ -531,16 +531,16 @@ const AdminDashboard = () => {
           </div>
           <div className="mt-6 grid grid-cols-3 gap-4">
             <div className="text-center p-3 bg-slate-50 rounded">
-              <p className="text-xs text-slate-600 font-medium mb-1">Highest</p>
-              <p className="text-lg font-bold">Quality (97%)</p>
+              <p className="text-xs text-slate-500 font-medium mb-1">Highest</p>
+              <p className="text-lg ">Quality (97%)</p>
             </div>
             <div className="text-center p-3 bg-slate-50 rounded">
-              <p className="text-xs text-slate-600 font-medium mb-1">Average</p>
-              <p className="text-lg font-bold">91%</p>
+              <p className="text-xs text-slate-500 font-medium mb-1">Average</p>
+              <p className="text-lg ">91%</p>
             </div>
             <div className="text-center p-3 bg-slate-50 rounded">
-              <p className="text-xs text-slate-600 font-medium mb-1">Lowest</p>
-              <p className="text-lg font-bold">HR (85%)</p>
+              <p className="text-xs text-slate-500 font-medium mb-1">Lowest</p>
+              <p className="text-lg ">HR (85%)</p>
             </div>
           </div>
         </CardContent>
@@ -553,17 +553,17 @@ const AdminDashboard = () => {
           <CardContent>
             <div className="flex items-center text-xs justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase text-left mb-2">
+                <p className="text-xs font-semibold text-slate-500  text-left mb-2">
                   Completion Rate
                 </p>
-                <p className="text-xl text-left font-bold">
+                <p className="text-xl text-left ">
                   {Math.round((kpis.completedProjects / kpis.totalProjects) * 100)}%
                 </p>
                 <p className="text-xs text-left text-blue-600 mt-2 font-medium">
                   {kpis.completedProjects} of {kpis.totalProjects} complete
                 </p>
               </div>
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center text-xs justify-center flex-shrink-0 border border-blue-200">
+              <div className="w-14 h-14 rounded bg-gradient-to-br from-blue-50 to-blue-100 flex items-center text-xs justify-center flex-shrink-0 border border-blue-200">
                 <CheckCircle2 className="w-7 h-7 text-blue-600" />
               </div>
             </div>
@@ -575,17 +575,17 @@ const AdminDashboard = () => {
           <CardContent>
             <div className="flex items-center text-xs justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase text-left mb-2">
+                <p className="text-xs font-semibold text-slate-500  text-left mb-2">
                   System Uptime
                 </p>
-                <p className="text-xl text-left font-bold">
+                <p className="text-xl text-left ">
                   {kpis.systemUptime}%
                 </p>
                 <p className="text-xs text-left text-emerald-600 mt-2 font-medium">
                   Excellent performance
                 </p>
               </div>
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center text-xs justify-center flex-shrink-0 border border-emerald-200">
+              <div className="w-14 h-14 rounded bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center text-xs justify-center flex-shrink-0 border border-emerald-200">
                 <Zap className="w-7 h-7 text-emerald-600" />
               </div>
             </div>
@@ -597,17 +597,17 @@ const AdminDashboard = () => {
           <CardContent>
             <div className="flex items-center text-xs justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase text-left mb-2">
+                <p className="text-xs font-semibold text-slate-500  text-left mb-2">
                   Pending Tasks
                 </p>
-                <p className="text-xl text-left font-bold">
+                <p className="text-xl text-left ">
                   {kpis.pendingTasks}
                 </p>
                 <p className="text-xs text-left text-amber-600 mt-2 font-medium">
                   Awaiting action
                 </p>
               </div>
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center text-xs justify-center flex-shrink-0 border border-amber-200">
+              <div className="w-14 h-14 rounded bg-gradient-to-br from-amber-50 to-amber-100 flex items-center text-xs justify-center flex-shrink-0 border border-amber-200">
                 <Clock className="w-7 h-7 text-amber-600" />
               </div>
             </div>

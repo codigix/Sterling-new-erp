@@ -237,10 +237,10 @@ const SpecificationsPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs">
             Technical Specifications
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             Manage design specifications
           </p>
         </div>
@@ -269,7 +269,7 @@ const SpecificationsPage = () => {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-slate-500 dark:text-slate-400">
             Loading specifications...
           </p>
         </div>
@@ -306,7 +306,7 @@ const SpecificationsPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <div className="flex justify-between text-sm text-slate-500 dark:text-slate-400 mb-4">
                 <span>{new Date(spec.createdAt || spec.date).toLocaleDateString()}</span>
               </div>
               <div className="flex gap-2">
@@ -348,7 +348,7 @@ const SpecificationsPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 {isEditing ? "Edit Specification" : "Create New Specification"}
               </h3>
               <button
@@ -462,7 +462,7 @@ const SpecificationsPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 {selectedSpec.title}
               </h3>
               <button
@@ -534,10 +534,10 @@ const SpecificationsPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded max-w-sm shadow-2xl border border-slate-200 dark:border-slate-700">
             <div className="p-6">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-2">
                 Delete Specification
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
+              <p className="text-slate-500 dark:text-slate-400 mb-6">
                 Are you sure you want to delete "{selectedSpec.title}"? This action cannot be undone.
               </p>
             </div>

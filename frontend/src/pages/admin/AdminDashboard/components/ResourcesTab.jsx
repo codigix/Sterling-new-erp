@@ -140,7 +140,7 @@ const ResourcesTab = () => {
       case "Critical":
         return "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-400";
       default:
-        return "text-slate-600 bg-slate-100 dark: dark:text-slate-400";
+        return "text-slate-500 bg-slate-100 dark: dark:text-slate-400";
     }
   };
 
@@ -155,7 +155,7 @@ const ResourcesTab = () => {
       case "Low":
         return "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400";
       default:
-        return "text-slate-600 bg-slate-100 dark: dark:text-slate-400";
+        return "text-slate-500 bg-slate-100 dark: dark:text-slate-400";
     }
   };
 
@@ -184,10 +184,10 @@ const ResourcesTab = () => {
                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Optimal Resources
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   3
                 </p>
               </div>
@@ -202,10 +202,10 @@ const ResourcesTab = () => {
                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   High Utilization
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   2
                 </p>
               </div>
@@ -220,10 +220,10 @@ const ResourcesTab = () => {
                 <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Bottlenecks
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   2
                 </p>
               </div>
@@ -238,10 +238,10 @@ const ResourcesTab = () => {
                 <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Avg Utilization
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   72%
                 </p>
               </div>
@@ -282,19 +282,19 @@ const ResourcesTab = () => {
 
                 <div className="grid grid-cols-3 gap-4 mb-3">
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       Available
                     </p>
-                    <p className="text-lg font-bold  dark:">
+                    <p className="text-lg   dark:">
                       {resource.available}/{resource.total}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       Utilization
                     </p>
                     <p
-                      className={`text-lg font-bold ${
+                      className={`text-lg  ${
                         resource.utilization >= 80
                           ? "text-red-600"
                           : resource.utilization >= 70
@@ -306,11 +306,11 @@ const ResourcesTab = () => {
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       Status
                     </p>
                     <div
-                      className={`w-full h-2 rounded-full mt-1 ${
+                      className={`w-full h-2 rounded  mt-1 ${
                         resource.utilization >= 80
                           ? "bg-red-500"
                           : resource.utilization >= 70
@@ -361,7 +361,7 @@ const ResourcesTab = () => {
 
                   <div className="grid grid-cols-2 gap-4 mb-3">
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
                         Next Available
                       </p>
                       <p className="font-medium  dark:">
@@ -369,7 +369,7 @@ const ResourcesTab = () => {
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
                         Queued Projects
                       </p>
                       <p className="font-medium  dark:">
@@ -378,9 +378,9 @@ const ResourcesTab = () => {
                     </div>
                   </div>
 
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-2">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2 mb-2">
                     <div
-                      className={`h-2 rounded-full ${
+                      className={`h-2 rounded  ${
                         resource.currentLoad >= 90
                           ? "bg-red-500"
                           : resource.currentLoad >= 80
@@ -391,7 +391,7 @@ const ResourcesTab = () => {
                     ></div>
                   </div>
 
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     <span className="font-medium">Recommendation:</span>{" "}
                     {resource.recommendation}
                   </p>
@@ -496,7 +496,7 @@ const ResourcesTab = () => {
                         {insight.impact} Impact
                       </Badge>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
                       {insight.description}
                     </p>
                     <div className="flex items-center text-xs justify-between">

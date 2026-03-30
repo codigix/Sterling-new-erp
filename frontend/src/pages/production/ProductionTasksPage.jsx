@@ -45,7 +45,7 @@ const ProductionTasksPage = () => {
   if (loading) {
     return (
       <div className="flex items-center text-xs justify-center py-12">
-        <p className="text-slate-600">Loading production data...</p>
+        <p className="text-slate-500">Loading production data...</p>
       </div>
     );
   }
@@ -76,40 +76,40 @@ const ProductionTasksPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total Root Cards
             </p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+            <p className="text-2xl  text-slate-900 dark:text-white mt-1">
               {stats.totalRC}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               In Progress
             </p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+            <p className="text-2xl  text-blue-600 dark:text-blue-400 mt-1">
               {stats.inProgress}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total Stages
             </p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+            <p className="text-2xl  text-slate-900 dark:text-white mt-1">
               {stats.totalStages}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Active Stages
             </p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+            <p className="text-2xl  text-blue-600 dark:text-blue-400 mt-1">
               {stats.activeStages}
             </p>
           </div>
@@ -177,9 +177,9 @@ const ProductionTasksPage = () => {
           <Card className="max-w-2xl w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Root Card Builder</h3>
+                <h3 className="text-lg  text-slate-900 dark:text-white">Root Card Builder</h3>
                 <button onClick={() => setShowRootCardBuilder(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors">
-                  <X size={20} className="text-slate-600 dark:text-slate-400" />
+                  <X size={20} className="text-slate-500 dark:text-slate-400" />
                 </button>
               </div>
 
@@ -260,10 +260,10 @@ const ProductionTasksPage = () => {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h4 className="text-lg font-bold text-slate-900 dark:text-white">
+                      <h4 className="text-lg  text-slate-900 dark:text-white">
                         {(productDetails.itemName || rc.title || 'Untitled Card').replace(/^RC-\d{4}\s*[-:]\s*/i, '')}
                       </h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
                         {step1.projectName || rc.projectDetails?.name || rc.project_name || 'N/A'}
                       </p>
                       {(productDetails.itemName || rc.product_name) && (
@@ -279,25 +279,25 @@ const ProductionTasksPage = () => {
 
                   <div className="mb-4 space-y-2 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Code:</span>
+                      <span className="text-slate-500 dark:text-slate-400">Code:</span>
                       <span className="font-medium text-slate-900 dark:text-white">
                         {step1.projectCode || rc.projectDetails?.code || '-'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Client:</span>
+                      <span className="text-slate-500 dark:text-slate-400">Client:</span>
                       <span className="font-medium text-slate-900 dark:text-white">
                         {step1.clientName || rc.projectDetails?.clientName || '-'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">PO:</span>
+                      <span className="text-slate-500 dark:text-slate-400">PO:</span>
                       <span className="font-medium text-slate-900 dark:text-white">
                         {step1.poNumber || rc.rootCardDetails?.poNumber || '-'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Amount:</span>
+                      <span className="text-slate-500 dark:text-slate-400">Amount:</span>
                       <span className="font-medium text-slate-900 dark:text-white">
                         {rc.total ? `${rc.currency || 'INR'} ${rc.total}` : (rc.rootCardDetails?.total ? `${rc.rootCardDetails?.currency || 'INR'} ${rc.rootCardDetails?.total}` : '-')}
                       </span>
@@ -305,7 +305,7 @@ const ProductionTasksPage = () => {
                   </div>
 
                 <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 uppercase mb-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-400  mb-2">
                     Timeline
                   </p>
                   <p className="text-xs text-slate-700 dark:text-slate-300">
@@ -314,7 +314,7 @@ const ProductionTasksPage = () => {
                   </p>
                 </div>
 
-                <div className="text-xs text-slate-600 dark:text-slate-400 mb-4">
+                <div className="text-xs text-slate-500 dark:text-slate-400 mb-4">
                   Created: {rc.created_at ? new Date(rc.created_at).toLocaleDateString() : '-'}
                 </div>
 
@@ -400,9 +400,9 @@ const ProductionTasksPage = () => {
                     </td>
                     <td className="p-1">
                       <div className="flex items-center text-xs gap-2">
-                        <div className="w-16 bg-slate-200 dark:bg-slate-600 rounded-full h-2">
+                        <div className="w-16 bg-slate-200 dark:bg-slate-600 rounded  h-2">
                           <div
-                            className="bg-blue-600 h-2 rounded-full"
+                            className="bg-blue-600 h-2 rounded "
                             style={{ width: `${stage.progress}%` }}
                           />
                         </div>

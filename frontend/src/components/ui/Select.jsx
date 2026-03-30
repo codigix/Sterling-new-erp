@@ -1,4 +1,5 @@
 import React from "react";
+import SearchableSelect from "./SearchableSelect";
 
 const Select = ({
   label,
@@ -9,49 +10,58 @@ const Select = ({
   containerClassName = "",
   size = "default",
   disabled = false,
+  onChange,
+  value,
+  placeholder,
+  children,
   ...props
 }) => {
-  const sizeClasses = {
-    sm: "px-3 py-1.5 text-sm",
-    default: "px-3 py-2 text-sm",
-    lg: "p-2 text-base",
-  };
+  // If children (options) are provided, we need to extract them for SearchableSelect
+  const extractedOptions = React.useMemo(() => {
+    if (options && options.length > 0) return options;
+    
+    if (children) {
+      return React.Children.map(children, child => {
+        if (child && child.type === 'option') {
+          return {
+            label: child.props.children,
+            value: child.props.value
+          };
+        }
+        return null;
+      }).filter(Boolean);
+    }
+    
+    return [];
+  }, [options, children]);
 
-  const selectClasses = `
-  w-full border border-slate-200 rounded
-  bg-slate-800 
-  focus:outline-none focus:ring-2 focus:ring-blue-500
-  ${sizeClasses[size]}
-  ${error ? "border-red-500 focus:ring-red-500" : ""}
-  ${disabled ? "opacity-50 cursor-not-allowed " : "cursor-pointer"}
-  ${className}
-`;
+  const handleSearchableChange = (newValue) => {
+    if (onChange) {
+      // Create a mock event for backward compatibility if needed
+      const event = {
+        target: {
+          value: newValue,
+          name: props.name
+        }
+      };
+      onChange(event);
+    }
+  };
 
   return (
     <div className={`space-y-2 mt-3 ${containerClassName}`}>
-      {label && (
-        <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left text-left">
-          {label}
-        </label>
-      )}
-      <select className={selectClasses} disabled={disabled} {...props}>
-        {props.children || (
-          <>
-            {props.placeholder && (
-              <option value="">{props.placeholder}</option>
-            )}
-            {options.map((option) => (
-              <option
-                key={option.key || option.value}
-                value={option.value}
-              >
-                {option.label}
-              </option>
-            ))}
-          </>
-        )}
-      </select>
-      {error && <p className="text-sm text-red-400 font-medium">{error}</p>}
+      <SearchableSelect
+        label={label}
+        options={extractedOptions}
+        value={value}
+        onChange={handleSearchableChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        error={error}
+        className={className}
+        name={props.name}
+        id={props.id}
+      />
       {helperText && !error && (
         <p className="text-sm text-slate-400">{helperText}</p>
       )}

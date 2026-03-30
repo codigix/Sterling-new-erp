@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../utils/api';
 import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import Select from '../../components/ui/Select';
 import {
   Settings,
   Lock,
@@ -120,30 +121,26 @@ const SystemSettings = () => {
   );
 
   const SettingSelect = ({ label, value, onChange, options }) => (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
-      <select
+    <div className="-mt-3">
+      <Select
+        label={label}
         value={value}
         onChange={onChange}
-        className="w-full p-2.5 bg-white border border-slate-300 rounded  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-      >
-        {options.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
+        options={options}
+      />
     </div>
   );
 
   const SettingToggle = ({ label, checked, onChange }) => (
     <label className="flex items-center text-xs gap-3 cursor-pointer p-4 rounded border border-slate-200 hover:bg-slate-50 transition-colors">
-      <div className="relative inline-flex w-10 h-6  rounded-full">
+      <div className="relative inline-flex w-10 h-6  rounded ">
         <input
           type="checkbox"
           checked={checked}
           onChange={onChange}
           className="sr-only peer"
         />
-        <div className={`absolute left-1 top-1 w-4 h-4 rounded-full transition-all ${checked ? 'bg-blue-600 translate-x-4' : 'bg-white'}`}></div>
+        <div className={`absolute left-1 top-1 w-4 h-4 rounded  transition-all ${checked ? 'bg-blue-600 translate-x-4' : 'bg-white'}`}></div>
       </div>
       <span className="text-sm font-medium text-slate-700">{label}</span>
     </label>
@@ -153,18 +150,18 @@ const SystemSettings = () => {
     return (
       <div className="w-full min-h-screen bg-white flex flex-col items-center justify-center">
         <Loader className="w-8 h-8 animate-spin text-blue-600 mb-3" />
-        <p className="text-slate-600">Loading system settings...</p>
+        <p className="text-slate-500">Loading system settings...</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen  space-y-2 p-6">
+    <div className="w-full min-h-screen  space-y-2">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold ">System Settings</h1>
-          <p className="text-sm text-slate-600 mt-1 text-left">
+          <h1 className="text-3xl  ">System Settings</h1>
+          <p className="text-sm text-slate-500 mt-1 text-left">
             Configure system-wide settings and preferences
           </p>
         </div>
@@ -200,7 +197,7 @@ const SystemSettings = () => {
                 className={`pb-2 px-1 font-medium text-sm flex items-center text-xs gap-2 transition-all border-b-2 whitespace-nowrap ${
                   isActive
                     ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-slate-600 hover:'
+                    : 'border-transparent text-slate-500 hover:'
                 }`}
               >
                 <Icon className="w-4 h-4" />

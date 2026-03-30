@@ -26,7 +26,7 @@ import Button from "../../components/ui/Button";
 import { toast } from "react-toastify";
 import MaterialRequestDetailModal from "../../components/production/MaterialRequestDetailModal";
 
-const MaterialRequestsPage = () => {
+const MaterialRequestsPage = ({ embed = false }) => {
   const [requests, setRequests] = useState([]);
   const [rootCards, setRootCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -176,7 +176,7 @@ const MaterialRequestsPage = () => {
     {
       key: "request_number",
       label: "REQUEST NO",
-      render: (val) => <span className="font-bold text-blue-600">{val}</span>,
+      render: (val) => <span className=" text-blue-600">{val}</span>,
     },
     {
       key: "bom_number",
@@ -186,7 +186,7 @@ const MaterialRequestsPage = () => {
     {
       key: "project_name",
       label: "PROJECT",
-      render: (val) => <span className="text-slate-600">{val || "N/A"}</span>,
+      render: (val) => <span className="text-slate-500">{val || "N/A"}</span>,
     },
     {
       key: "created_at",
@@ -204,7 +204,7 @@ const MaterialRequestsPage = () => {
       render: (_, row) => (
         <div className="flex items-center gap-1">
           <button
-            className="p-1.5 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
+            className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
             title="View Details"
             onClick={() => handleViewDetails(row.id)}
           >
@@ -212,7 +212,7 @@ const MaterialRequestsPage = () => {
           </button>
           {isProcurement && row.status === "approved" && (
             <button
-              className="px-2 py-1 bg-green-50 hover:bg-green-100 rounded-md text-green-600 text-[10px] font-bold transition-colors flex items-center gap-1"
+              className="px-2 py-1 bg-green-50 hover:bg-green-100 rounded-md text-green-600 text-[10px]  transition-colors flex items-center gap-1"
               title="PO Processing"
               onClick={() => handlePOProcessing(row)}
             >
@@ -226,84 +226,77 @@ const MaterialRequestsPage = () => {
   ];
 
   return (
-    <div className="p-6 space-y-2 bg-slate-50/50 min-h-screen">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <ShoppingCart className="text-blue-600" size={24} />
-            Material Requests
-          </h2>
-          <p className="text-slate-500 text-xs">
-            Track and manage material requests sent to procurement
-          </p>
+    <div className={`${embed ? "p-0 space-y-4" : "p-6 space-y-2 bg-slate-50/50 min-h-screen"}`}>
+      {!embed && (
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-xl  text-slate-900 flex items-center gap-2">
+              Material Requests
+            </h2>
+            <p className="text-slate-500 text-xs">
+              Track and manage material requests sent to procurement
+            </p>
+          </div>
         </div>
+      )}
+
+      <div className={`flex flex-wrap gap-2 items-center ${embed ? "my-3" : ""}`}>
+        <div className="flex-1">
+          <Input
+            placeholder="Search by Request No, BOM or Project..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            leftIcon={<Search size={15} />}
+            className="mb-0"
+            containerClassName="mt-0"
+          />
+        </div>
+        <div className="w-full sm:w-auto">
+          <select
+            value={rootCardFilter}
+            onChange={(e) => setRootCardFilter(e.target.value)}
+            className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+          >
+            <option value="all">All Root Cards</option>
+            {rootCards.map((rc) => (
+              <option key={rc.id} value={rc.id.toString()}>
+                {rc.project_name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="w-full sm:w-auto">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="partially_received">Partially Received</option>
+            <option value="received">Received</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <Button
+          variant="secondary"
+          icon={Clock}
+          onClick={fetchRequests}
+          className="mb-0"
+        >
+          Refresh
+        </Button>
       </div>
 
-      <Card className="border-none shadow-sm">
-        <CardContent className="p-4 flex flex-wrap items-end gap-4">
-          <div className="flex-1 min-w-[300px]">
-            <Input
-              placeholder="Search by Request No, BOM or Project..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              leftIcon={<Search size={18} />}
-              className="mb-0"
-              containerClassName="mt-0"
-            />
-          </div>
-          <div className="w-64">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">
-              Filter by Root Card
-            </label>
-            <select
-              value={rootCardFilter}
-              onChange={(e) => setRootCardFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-            >
-              <option value="all">All Root Cards</option>
-              {rootCards.map((rc) => (
-                <option key={rc.id} value={rc.id.toString()}>
-                   {rc.project_name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="w-48">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">
-              Status Filter
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="partially_received">Partially Received</option>
-              <option value="received">Received</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <Button
-            variant="secondary"
-            icon={Clock}
-            onClick={fetchRequests}
-            className="mb-0"
-          >
-            Refresh
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card className="border-none shadow-sm overflow-hidden">
+      <div className="border-none shadow-sm overflow-hidden">
         <DataTable
           columns={columns}
           data={filteredRequests}
           loading={loading}
           emptyMessage="No material requests found."
         />
-      </Card>
+      </div>
 
       <MaterialRequestDetailModal
         isOpen={isDetailModalOpen}

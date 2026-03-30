@@ -161,11 +161,11 @@ const ReorderLevelsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-md font-bold text-slate-900 dark:text-white text-xs flex items-center  gap-2">
+          <h2 className="text-md  text-slate-900 dark:text-white text-xs flex items-center  gap-2">
             <AlertTriangle size={24} />
             Reorder Levels Management
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             Manage stock reorder thresholds
           </p>
         </div>
@@ -186,13 +186,13 @@ const ReorderLevelsPage = () => {
 
       {/* Critical Alerts */}
       {criticalItems.length > 0 && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4">
           <div className="flex items-center text-xs gap-2 mb-3">
             <AlertTriangle
               className="text-red-600 dark:text-red-400"
               size={20}
             />
-            <h3 className="font-bold text-red-900 dark:text-red-100">
+            <h3 className=" text-red-900 dark:text-red-100">
               Critical Items Requiring Immediate Order
             </h3>
           </div>
@@ -206,7 +206,7 @@ const ReorderLevelsPage = () => {
                   <p className="font-semibold text-slate-900 dark:text-white">
                     {item.name}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Current: {item.current} | Reorder Level: {item.reorderLevel}
                   </p>
                 </div>
@@ -239,7 +239,7 @@ const ReorderLevelsPage = () => {
       </div>
 
       {/* Reorder Levels Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -329,7 +329,7 @@ const ReorderLevelsPage = () => {
                       </td>
                       <td className="p-1 text-center">
                         <span
-                          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                          className={`inline-flex px-3 py-1 rounded  text-xs font-semibold ${getStatusColor(
                             item.status
                           )}`}
                         >
@@ -367,7 +367,7 @@ const ReorderLevelsPage = () => {
                         </span>
                       </td>
                       <td className="p-1 text-center">
-                        <span className="text-slate-600 dark:text-slate-400">
+                        <span className="text-slate-500 dark:text-slate-400">
                           {item.reorderQty}
                         </span>
                       </td>
@@ -376,7 +376,7 @@ const ReorderLevelsPage = () => {
                       </td>
                       <td className="p-1 text-center">
                         <span
-                          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                          className={`inline-flex px-3 py-1 rounded  text-xs font-semibold ${getStatusColor(
                             item.status
                           )}`}
                         >
@@ -412,36 +412,36 @@ const ReorderLevelsPage = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-green-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-green-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Optimal Stock
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {optimalItems.length}
           </p>
-          <p className="text-xs text-slate-600 dark:text-slate-400 text-xs ">
+          <p className="text-xs text-slate-500 dark:text-slate-400 text-xs ">
             Items with adequate stock
           </p>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-yellow-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-yellow-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Low Stock
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {lowStockItems.length}
           </p>
-          <p className="text-xs text-slate-600 dark:text-slate-400 text-xs ">
+          <p className="text-xs text-slate-500 dark:text-slate-400 text-xs ">
             Items below reorder level
           </p>
         </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-red-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-red-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Critical Stock
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {criticalItems.length}
           </p>
-          <p className="text-xs text-slate-600 dark:text-slate-400 text-xs ">
+          <p className="text-xs text-slate-500 dark:text-slate-400 text-xs ">
             Immediate action required
           </p>
         </div>

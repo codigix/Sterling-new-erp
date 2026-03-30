@@ -255,11 +255,11 @@ const DocumentSelector = ({ documentType, title, description }) => {
   return (
     <div className="w-full">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
+        <h1 className="text-3xl  text-gray-900 mb-2">{title}</h1>
         <p className="text-gray-600">{description}</p>
       </div>
 
-      <div className="bg-white rounded shadow-md p-6 mb-8">
+      <div className="bg-white rounded  p-6 mb-8">
         <label className="block text-sm font-medium text-gray-700 mb-3">
           Select Root Card *
         </label>
@@ -299,7 +299,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
       )}
 
       {selectedRootCard && documents.length > 0 ? (
-        <div className="bg-white rounded shadow-md overflow-hidden">
+        <div className="bg-white rounded  overflow-hidden">
           <div className="p-2 border-b border-gray-200 bg-gray-50">
             <h2 className="text-lg font-semibold text-gray-900">
               {documentType === 'raw-designs' ? 'Raw Design Drawings' : 'Required Documents'} ({documents.length})
@@ -310,12 +310,12 @@ const DocumentSelector = ({ documentType, title, description }) => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Filename</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Format</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Size</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Upload Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Filename</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Format</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Size</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Upload Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody>

@@ -98,7 +98,7 @@
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-soft border border-slate-200 p-6;
+    @apply bg-white rounded shadow-soft border border-slate-200 p-6;
   }
 
   /* Sidebar scrollbar styling */

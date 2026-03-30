@@ -64,7 +64,7 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
         </div>
 
         {allFiles.length === 0 ? (
-          <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+          <div className="text-center py-12 bg-slate-50 rounded border border-dashed border-slate-300">
             <p className="text-sm text-slate-500 italic">No documents uploaded in any step yet.</p>
           </div>
         ) : (
@@ -72,21 +72,21 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
             {allFiles.map((file, idx) => (
               <div
                 key={`${file.step}-${file.category}-${idx}`}
-                className="flex items-center justify-between bg-white border border-slate-200 p-3 rounded-xl hover:shadow-md transition-all group"
+                className="flex items-center justify-between bg-white border border-slate-200 p-3 rounded hover: transition-all group"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-purple-50 rounded text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                     <File size={20} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold text-slate-900 truncate max-w-[200px]">
+                    <span className="text-sm  text-slate-900 truncate max-w-[200px]">
                       {file.name}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium">
+                      <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded  font-medium">
                         {file.step}
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-full font-medium">
+                      <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded  font-medium">
                         {file.category}
                       </span>
                       {file.size && (

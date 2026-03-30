@@ -157,7 +157,7 @@ const ExpenseTrackingPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Expense Tracking
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -182,10 +182,10 @@ const ExpenseTrackingPage = () => {
             key={stat.label}
             className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4"
           >
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               {stat.label}
             </p>
-            <p className={`text-2xl font-bold mt-2 ${stat.color}`}>
+            <p className={`text-2xl  mt-2 ${stat.color}`}>
               {stat.value}
             </p>
           </div>
@@ -298,7 +298,7 @@ const ExpenseTrackingPage = () => {
                       <div className="flex items-center text-xs gap-2">
                         {getStatusIcon(expense.status)}
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          className={`px-3 py-1 rounded  text-xs font-medium ${getStatusColor(
                             expense.status
                           )}`}
                         >
@@ -316,31 +316,31 @@ const ExpenseTrackingPage = () => {
 
         <div className="space-y-4">
           <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
               Expense Summary
             </h3>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Total Amount
                 </p>
-                <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+                <p className="text-xl  text-slate-900 dark:text-white text-xs">
                   ₹{totalAmount.toLocaleString("en-IN")}
                 </p>
               </div>
               <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Approved
                 </p>
-                <p className="text-xl font-bold text-green-600">
+                <p className="text-xl  text-green-600">
                   ₹{approvedAmount.toLocaleString("en-IN")}
                 </p>
               </div>
               <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Pending
                 </p>
-                <p className="text-xl font-bold text-yellow-600">
+                <p className="text-xl  text-yellow-600">
                   ₹{pendingAmount.toLocaleString("en-IN")}
                 </p>
               </div>
@@ -348,7 +348,7 @@ const ExpenseTrackingPage = () => {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
               By Category
             </h3>
             <div className="space-y-3">
@@ -358,13 +358,13 @@ const ExpenseTrackingPage = () => {
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       {category}
                     </span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                    <span className="text-sm  text-slate-900 dark:text-white text-xs">
                       ₹{amount.toLocaleString("en-IN")}
                     </span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">
                     <div
-                      className="bg-purple-600 h-2 rounded-full"
+                      className="bg-purple-600 h-2 rounded "
                       style={{ width: `${(amount / totalAmount) * 100}%` }}
                     ></div>
                   </div>

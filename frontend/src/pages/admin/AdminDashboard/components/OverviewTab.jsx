@@ -24,14 +24,14 @@ const OverviewTab = ({ kpis }) => (
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center text-xs space-x-2 mb-3">
-                  <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                  <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded group-hover:scale-110 transition-transform duration-300">
                     <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                   Total Projects
                 </p>
-                <p className="text-3xl font-bold  dark:">
+                <p className="text-3xl   dark:">
                   {kpis.totalProjects}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
@@ -50,14 +50,14 @@ const OverviewTab = ({ kpis }) => (
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center text-xs space-x-2 mb-3">
-                  <div className="p-3 bg-emerald-100 dark:bg-emerald-900 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                  <div className="p-3 bg-emerald-100 dark:bg-emerald-900 rounded group-hover:scale-110 transition-transform duration-300">
                     <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                   Active Projects
                 </p>
-                <p className="text-3xl font-bold  dark:">
+                <p className="text-3xl   dark:">
                   {kpis.activeProjects}
                 </p>
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium">
@@ -77,14 +77,14 @@ const OverviewTab = ({ kpis }) => (
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center text-xs space-x-2 mb-3">
-                  <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                  <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded group-hover:scale-110 transition-transform duration-300">
                     <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                   Active Employees
                 </p>
-                <p className="text-3xl font-bold  dark:">
+                <p className="text-3xl   dark:">
                   {kpis.activeEmployees}
                 </p>
                 <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 font-medium">
@@ -106,14 +106,14 @@ const OverviewTab = ({ kpis }) => (
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center text-xs space-x-2 mb-3">
-                  <div className="p-3 bg-red-100 dark:bg-red-900 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                  <div className="p-3 bg-red-100 dark:bg-red-900 rounded group-hover:scale-110 transition-transform duration-300">
                     <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                   Critical Alerts
                 </p>
-                <p className="text-3xl font-bold  dark:">
+                <p className="text-3xl   dark:">
                   {kpis.criticalAlerts}
                 </p>
                 <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
@@ -222,17 +222,17 @@ const OverviewTab = ({ kpis }) => (
         <CardContent className="p-6">
           <div className="flex items-center text-xs justify-between">
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
                 Completion Rate
               </p>
-              <p className="text-xl font-bold  text-left">
+              <p className="text-xl   text-left">
                 {Math.round(
                   (kpis.completedProjects / kpis.totalProjects) * 100
                 )}
                 %
               </p>
             </div>
-            <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center text-xs justify-center">
+            <div className="w-16 h-16 rounded  bg-primary-100 dark:bg-primary-900 flex items-center text-xs justify-center">
               <CheckCircle className="w-8 h-8 text-primary-600 dark:text-primary-400" />
             </div>
           </div>
@@ -243,14 +243,14 @@ const OverviewTab = ({ kpis }) => (
         <CardContent className="p-6">
           <div className="flex items-center text-xs justify-between">
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
                 System Uptime
               </p>
-              <p className="text-xl font-bold  text-left">
+              <p className="text-xl   text-left">
                 {kpis.systemUptime}%
               </p>
             </div>
-            <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center text-xs justify-center">
+            <div className="w-16 h-16 rounded  bg-emerald-100 dark:bg-emerald-900 flex items-center text-xs justify-center">
               <Zap className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
             </div>
           </div>
@@ -261,14 +261,14 @@ const OverviewTab = ({ kpis }) => (
         <CardContent className="p-6">
           <div className="flex items-center text-xs justify-between">
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
                 Pending Tasks
               </p>
-              <p className="text-xl font-bold  text-left">
+              <p className="text-xl   text-left">
                 {kpis.pendingTasks}
               </p>
             </div>
-            <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center text-xs justify-center">
+            <div className="w-16 h-16 rounded  bg-amber-100 dark:bg-amber-900 flex items-center text-xs justify-center">
               <Clock className="w-8 h-8 text-amber-600 dark:text-amber-400" />
             </div>
           </div>

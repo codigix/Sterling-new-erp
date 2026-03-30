@@ -55,13 +55,13 @@ const ProjectsTab = ({ projects }) => (
                         </span>
                       </div>
                     </div>
-                    <span className="text-sm font-bold text-primary-600 dark:text-primary-400 flex-shrink-0">
+                    <span className="text-sm  text-primary-600 dark:text-primary-400 flex-shrink-0">
                       {project.progress}%
                     </span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1.5 overflow-hidden">
                     <div
-                      className={`h-1.5 rounded-full transition-all duration-500 ${
+                      className={`h-1.5 rounded  transition-all duration-500 ${
                         project.status === "On Track"
                           ? "bg-gradient-to-r from-emerald-500 to-emerald-600"
                           : project.status === "Delayed"
@@ -90,34 +90,34 @@ const ProjectsTab = ({ projects }) => (
           </CardHeader>
           <CardContent className="p-2.5 space-y-2">
             <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950 rounded border border-emerald-200 dark:border-emerald-800">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-emerald-500 rounded  flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-tight">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
                   Completed
                 </p>
-                <p className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                <p className="text-sm  text-slate-900 dark:text-white text-xs">
                   6
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-950 rounded border border-blue-200 dark:border-blue-800">
-              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded  flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-tight">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
                   In Progress
                 </p>
-                <p className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                <p className="text-sm  text-slate-900 dark:text-white text-xs">
                   18
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2 p-2 bg-amber-50 dark:bg-amber-950 rounded border border-amber-200 dark:border-amber-800">
-              <div className="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-amber-500 rounded  flex-shrink-0"></div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-tight">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
                   Delayed
                 </p>
-                <p className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                <p className="text-sm  text-slate-900 dark:text-white text-xs">
                   4
                 </p>
               </div>
@@ -135,14 +135,14 @@ const ProjectsTab = ({ projects }) => (
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 text-center">
-            <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+            <p className="text-2xl  text-primary-600 dark:text-primary-400">
               {Math.round(
                 projects.progress.reduce((acc, p) => acc + p.progress, 0) /
                   projects.progress.length
               )}
               %
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
               all projects
             </p>
           </CardContent>

@@ -128,7 +128,7 @@ const SwipeButton = ({ onSwipeComplete, isLoading = false, isCompleted = false }
     <div className="w-full">
       <div
         ref={containerRef}
-        className={`relative w-full h-16 rounded-full overflow-hidden transition-all duration-200 ${
+        className={`relative w-full h-16 rounded  overflow-hidden transition-all duration-200 ${
           isCompleted || isLocked
             ? 'bg-gradient-to-r from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20'
             : isDragging && isNearCompletion
@@ -153,7 +153,7 @@ const SwipeButton = ({ onSwipeComplete, isLoading = false, isCompleted = false }
             className={`font-semibold transition-all duration-200 ${
               isCompleted || isLocked
                 ? 'text-green-600 dark:text-green-400 text-sm'
-                : 'text-slate-600 dark:text-slate-400 text-base'
+                : 'text-slate-500 dark:text-slate-400 text-base'
             }`}
           >
             {isCompleted || isLocked ? 'Task Complete!' : 'Swipe to Complete Task'}
@@ -161,12 +161,12 @@ const SwipeButton = ({ onSwipeComplete, isLoading = false, isCompleted = false }
         </div>
 
         <div
-          className={`absolute top-1 left-1 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-100 ${
+          className={`absolute top-1 left-1 w-14 h-14 rounded  flex items-center justify-center transition-all duration-100 ${
             isCompleted || isLocked
               ? 'bg-green-500 shadow-lg'
               : isDragging
               ? 'bg-blue-500 shadow-2xl scale-110'
-              : 'bg-white shadow-md dark:bg-slate-700'
+              : 'bg-white  dark:bg-slate-700'
           }`}
           style={{
             transform: `translateX(${dragX}px)`,
@@ -175,7 +175,7 @@ const SwipeButton = ({ onSwipeComplete, isLoading = false, isCompleted = false }
           {isLoading ? (
             <div className="relative w-6 h-6">
               <div className="absolute inset-0 animate-spin">
-                <div className="w-6 h-6 border-2 border-transparent border-t-white rounded-full" />
+                <div className="w-6 h-6 border-2 border-transparent border-t-white rounded " />
               </div>
             </div>
           ) : isCompleted || isLocked ? (
@@ -183,7 +183,7 @@ const SwipeButton = ({ onSwipeComplete, isLoading = false, isCompleted = false }
           ) : isDragging ? (
             <ChevronRight className="w-6 h-6 text-white animate-pulse" />
           ) : (
-            <ChevronRight className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+            <ChevronRight className="w-6 h-6 text-slate-500 dark:text-slate-300" />
           )}
         </div>
       </div>

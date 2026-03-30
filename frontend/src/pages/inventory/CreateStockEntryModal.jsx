@@ -145,41 +145,41 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] w-full max-w-5xl shadow-2xl overflow-hidden my-8 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded overflow-auto max-h-[90vh] w-full max-w-5xl my-8 border border-slate-200 dark:border-slate-700">
         {/* Header */}
-        <div className="px-10 py-8 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
-              <Package size={30} />
+            <div className="w-14 h-14 rounded bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
+              <Package size={15} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-md  text-slate-900 dark:text-white ">
                 Create Stock Entry
               </h2>
-              <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
+              <p className="text-slate-500 dark:text-slate-400 font-medium text-xs">
                 Record material receipts and issues with project context
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-3 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-2xl transition-all group">
-            <X size={24} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+          <button onClick={onClose} className="p-3 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-all group">
+            <X size={15} className="text-slate-400 group-hover:text-slate-500 transition-colors" />
           </button>
         </div>
 
-        <div className="p-10 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
+        <div className="p-2 space-y-2  ">
           {/* Section 1: Transaction Metadata */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
             <div className="space-y-2 lg:col-span-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reference GRN (Optional)</label>
+                  <label className="text-xs  text-slate-400   ml-1">Reference GRN (Optional)</label>
                   <div className="relative">
                     <ClipboardList className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <select 
                       name="grn_id"
                       value={formData.grn_id}
                       onChange={handleInputChange}
-                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-sm"
+                      className="w-full pl-12 pr-4 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition-all  text-xs"
                     >
                       <option value="">MANUAL ENTRY</option>
                       {grns.map(grn => (
@@ -190,7 +190,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Entry Date</label>
+                  <label className="text-xs  text-slate-400   ml-1">Entry Date</label>
                   <div className="relative">
                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input 
@@ -198,7 +198,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                       name="entry_date"
                       value={formData.entry_date}
                       onChange={handleInputChange}
-                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-sm"
+                      className="w-full pl-12 pr-4 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition-all  text-xs"
                     />
                   </div>
                 </div>
@@ -206,7 +206,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Project Allocation</label>
+                  <label className="text-xs  text-slate-400   ml-1">Project Allocation</label>
                   <div className="relative">
                     <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input 
@@ -215,13 +215,13 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                       placeholder="e.g. Project-2024-X"
                       value={formData.project_name}
                       onChange={handleInputChange}
-                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-sm uppercase"
+                      className="w-full pl-12 pr-4 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition-all  text-xs "
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Supplier / Vendor</label>
+                  <label className="text-xs  text-slate-400   ml-1">Supplier / Vendor</label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input 
@@ -230,26 +230,26 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                       placeholder="Supplier Name"
                       value={formData.vendor_name}
                       onChange={handleInputChange}
-                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-bold text-sm uppercase"
+                      className="w-full pl-12 pr-4 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition-all  text-xs "
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-3xl border border-indigo-100 dark:border-indigo-800/50 space-y-4">
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded border border-indigo-100 dark:border-indigo-800/50 space-y-4">
               <div className="flex items-center gap-3 mb-2">
-                <Zap className="text-indigo-600" size={20} />
-                <h4 className="text-xs font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest">Entry Type</h4>
+                <Zap className="text-indigo-600" size={15} />
+                <h4 className="text-xs  text-indigo-900 dark:text-indigo-300  ">Entry Type</h4>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {["Material Receipt", "Material Issue", "Stock Adjustment"].map((type) => (
-                  <label key={type} className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
+                  <label key={type} className={`flex items-center justify-between p-2 rounded border cursor-pointer transition-all ${
                     formData.entry_type === type 
-                      ? 'bg-white border-indigo-500 shadow-sm ring-1 ring-indigo-500' 
+                      ? 'bg-white border-indigo-500  ring-1 ring-indigo-500' 
                       : 'bg-indigo-100/30 border-transparent hover:border-indigo-200'
                   }`}>
-                    <span className="text-xs font-black uppercase tracking-tight text-indigo-900 dark:text-indigo-300">{type}</span>
+                    <span className="text-xs    text-indigo-900 dark:text-indigo-300">{type}</span>
                     <input 
                       type="radio" 
                       name="entry_type" 
@@ -268,19 +268,19 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
 
           {/* Section 2: Material Selection */}
           <div className="space-y-2">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+            <h3 className="text-xs  text-slate-400  flex items-center gap-2">
               <LayoutGrid size={14} /> Line Items Selection
             </h3>
 
-            <div className="bg-slate-50/50 dark:bg-slate-900/30 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-700 space-y-2 shadow-inner">
+            <div className="bg-slate-50/50 dark:bg-slate-900/30 p-2 rounded border border-slate-100 dark:border-slate-700">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-5 space-y-2">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Material</label>
+                  <label className="text-xs  text-slate-400   ml-1">Select Material</label>
                   <select 
                     name="material_id"
                     value={currentItem.material_id}
                     onChange={handleCurrentItemChange}
-                    className="w-full px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-bold shadow-sm"
+                    className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-xs  "
                   >
                     <option value="">SEARCH MATERIAL...</option>
                     {materials.map(mat => (
@@ -290,80 +290,80 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                 </div>
 
                 <div className="lg:col-span-2 space-y-2">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Quantity</label>
+                  <label className="text-xs  text-slate-400   ml-1">Quantity</label>
                   <input 
                     type="number"
                     name="quantity"
                     value={currentItem.quantity}
                     onChange={handleCurrentItemChange}
-                    className="w-full px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-black shadow-sm"
+                    className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-xs  "
                   />
                 </div>
 
                 <div className="lg:col-span-2 space-y-2">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit (UOM)</label>
+                  <label className="text-xs  text-slate-400   ml-1">Unit (UOM)</label>
                   <input 
                     type="text"
                     name="uom"
                     value={currentItem.uom}
                     readOnly
-                    className="w-full px-5 py-3 bg-slate-100 dark:bg-slate-700 border border-transparent rounded-2xl text-xs font-black text-slate-500 uppercase tracking-widest outline-none shadow-sm"
+                    className="w-full p-2 bg-slate-100 dark:bg-slate-700 border border-transparent rounded text-xs  text-slate-500   outline-none "
                   />
                 </div>
 
                 <div className="lg:col-span-3 space-y-2">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Rate (₹)</label>
+                  <label className="text-xs  text-slate-400   ml-1">Rate (₹)</label>
                   <input 
                     type="number"
                     name="valuation_rate"
                     value={currentItem.valuation_rate}
                     onChange={handleCurrentItemChange}
-                    className="w-full px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-black shadow-sm"
+                    className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-xs  "
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex my-5 justify-end">
                 <button 
                   onClick={addItem}
-                  className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-3 active:scale-95"
+                  className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-3 active:scale-95"
                 >
-                  <Plus size={16} /> Add to Transaction
+                  <Plus size={15} /> Add to Transaction
                 </button>
               </div>
             </div>
 
             {/* Added Items List */}
             {formData.items.length > 0 ? (
-              <div className="overflow-hidden rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900">
+              <div className="overflow-hidden rounded border border-slate-100 dark:border-slate-700  bg-white dark:bg-slate-900">
                 <table className="w-full text-left">
                   <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700">
                     <tr>
-                      <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Material Identity</th>
-                      <th className="p-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Quantity</th>
-                      <th className="p-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Unit Rate</th>
-                      <th className="p-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Aggregate</th>
-                      <th className="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                      <th className="p-2 text-xs  text-slate-400  ">Material Identity</th>
+                      <th className="p-2 text-xs  text-slate-400   text-center">Quantity</th>
+                      <th className="p-2 text-xs  text-slate-400   text-center">Unit Rate</th>
+                      <th className="p-2 text-xs  text-slate-400   text-right">Aggregate</th>
+                      <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                     {formData.items.map((item) => (
                       <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="px-8 py-5">
+                        <td className="p-2">
                           <div className="space-y-0.5">
-                            <p className="text-xs font-black text-indigo-600 font-mono tracking-tight uppercase">{item.item_code}</p>
-                            <p className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tight line-clamp-1">{item.item_name}</p>
+                            <p className="text-xs  text-indigo-600 font-mono  ">{item.item_code}</p>
+                            <p className="text-xs  text-slate-500 dark:text-slate-400   line-clamp-1">{item.item_name}</p>
                           </div>
                         </td>
-                        <td className="px-6 py-5 text-center">
-                          <span className="text-sm font-black text-slate-900 dark:text-white">{item.quantity}</span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase ml-1.5">{item.uom}</span>
+                        <td className="p-2 text-center">
+                          <span className="text-xs  text-slate-900 dark:text-white">{item.quantity}</span>
+                          <span className="text-xs  text-slate-400  ml-1.5">{item.uom}</span>
                         </td>
-                        <td className="px-6 py-5 text-center font-bold text-slate-500 text-xs">₹{parseFloat(item.valuation_rate).toLocaleString()}</td>
-                        <td className="px-6 py-5 text-right font-black text-slate-900 dark:text-white text-xs">₹{(item.quantity * item.valuation_rate).toLocaleString()}</td>
-                        <td className="px-8 py-5 text-right">
-                          <button onClick={() => removeItem(item.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all">
-                            <Trash2 size={18} />
+                        <td className="p-2 text-center  text-slate-500 text-xs">₹{parseFloat(item.valuation_rate).toLocaleString()}</td>
+                        <td className="p-2 text-right  text-slate-900 dark:text-white text-xs">₹{(item.quantity * item.valuation_rate).toLocaleString()}</td>
+                        <td className="p-2 text-right">
+                          <button onClick={() => removeItem(item.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all">
+                            <Trash2 size={15} />
                           </button>
                         </td>
                       </tr>
@@ -371,43 +371,43 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                   </tbody>
                   <tfoot className="bg-indigo-50/30 dark:bg-indigo-900/10 border-t border-slate-100 dark:border-slate-800">
                     <tr>
-                      <td colSpan="3" className="px-8 py-4 text-[10px] font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-widest text-right">Transaction Grand Total:</td>
-                      <td className="p-2 text-sm font-black text-indigo-600 text-right">
+                      <td colSpan="3" className="p-2 text-xs  text-indigo-900 dark:text-indigo-400   text-right">Transaction Grand Total:</td>
+                      <td className="p-2 text-xs  text-indigo-600 text-right">
                         ₹{formData.items.reduce((sum, item) => sum + (item.quantity * item.valuation_rate), 0).toLocaleString()}
                       </td>
-                      <td className="px-8 py-4"></td>
+                      <td className="p-2"></td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
             ) : (
-              <div className="py-16 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-700">
+              <div className="p-5 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded border-2 border-dashed border-slate-200 dark:border-slate-700">
                 <div className="flex flex-col items-center gap-4 text-slate-300">
-                  <Info size={48} className="opacity-20" />
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em]">No materials added to this entry</p>
+                  <Info size={15} className="" />
+                  <p className="text-xs   ">No materials added to this entry</p>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Internal Remarks & Notes</label>
+          <div className="space-y-2">
+            <label className="text-xs  text-slate-400   ml-1">Internal Remarks & Notes</label>
             <textarea 
               name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
               placeholder="Record any details about this movement..."
               rows="3"
-              className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-sm"
+              className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-xs"
             ></textarea>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-10 py-8 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
+        <div className="p-2 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
           <button 
             onClick={onClose}
-            className="px-8 py-4 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-black text-[10px] uppercase tracking-widest transition-all"
+            className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200  text-xs   transition-all"
           >
             Cancel Transaction
           </button>
@@ -415,14 +415,14 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
             <button 
               onClick={() => handleSubmit(true)}
               disabled={loading}
-              className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm"
+              className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 rounded  text-xs   hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all "
             >
               Save as Draft
             </button>
             <button 
               onClick={() => handleSubmit(false)}
               disabled={loading}
-              className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
+              className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
             >
               {loading ? "PROCESSING..." : "Commit Entry"}
             </button>

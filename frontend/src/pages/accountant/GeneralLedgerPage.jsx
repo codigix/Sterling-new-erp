@@ -87,7 +87,7 @@ const GeneralLedgerPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             General Ledger
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -114,27 +114,27 @@ const GeneralLedgerPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Total Debits
           </p>
-          <p className="text-2xl font-bold text-blue-600 mt-2">
+          <p className="text-2xl  text-blue-600 mt-2">
             ₹{totalDebits.toLocaleString("en-IN")}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Total Credits
           </p>
-          <p className="text-2xl font-bold text-green-600 mt-2">
+          <p className="text-2xl  text-green-600 mt-2">
             ₹{totalCredits.toLocaleString("en-IN")}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Balance
           </p>
           <p
-            className={`text-2xl font-bold mt-2 ${
+            className={`text-2xl  mt-2 ${
               totalDebits >= totalCredits ? "text-blue-600" : "text-red-600"
             }`}
           >

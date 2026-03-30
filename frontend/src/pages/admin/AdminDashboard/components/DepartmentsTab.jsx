@@ -35,18 +35,18 @@ const DepartmentsTab = () => {
             <CardContent className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-tight">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
                     Tasks
                   </p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                  <p className="text-sm  text-slate-900 dark:text-white text-xs">
                     {dept.tasksCompleted}/{dept.totalTasks}
                   </p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800 p-2 rounded">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-tight">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
                     Efficiency
                   </p>
-                  <p className="text-sm font-bold text-green-600">
+                  <p className="text-sm  text-green-600">
                     {dept.efficiency}%
                   </p>
                 </div>
@@ -54,7 +54,7 @@ const DepartmentsTab = () => {
 
               <div className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-400">
                     Avg. Time
                   </span>
                   <span className="font-medium text-slate-900 dark:text-white text-xs">
@@ -62,7 +62,7 @@ const DepartmentsTab = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-400">
                     Employees
                   </span>
                   <span className="font-medium text-slate-900 dark:text-white text-xs">
@@ -71,9 +71,9 @@ const DepartmentsTab = () => {
                 </div>
               </div>
 
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1">
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1">
                 <div
-                  className="bg-primary-600 h-1 rounded-full transition-all duration-300"
+                  className="bg-primary-600 h-1 rounded  transition-all duration-300"
                   style={{ width: `${dept.efficiency}%` }}
                 ></div>
               </div>

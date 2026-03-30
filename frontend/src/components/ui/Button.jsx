@@ -11,7 +11,7 @@ const Button = ({
   icon: Icon,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center text-xs justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95';
+  const baseClasses = 'inline-flex text-xs items-center text-xs justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95';
 
   const variants = {
     primary: 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500 ',
@@ -21,7 +21,7 @@ const Button = ({
     danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 ',
     warning: 'bg-amber-600 hover:bg-amber-700 text-white focus:ring-amber-500 ',
     light: 'bg-slate-50 hover:bg-slate-100 border border-slate-200 focus:ring-primary-500',
-    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 focus:ring-slate-500',
+    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 focus:ring-slate-500',
     destructive: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm'
   };
 

@@ -59,7 +59,7 @@ const BalanceSheetPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Balance Sheet
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -77,7 +77,7 @@ const BalanceSheetPage = () => {
           <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
             Total Assets
           </p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+          <p className="text-2xl  text-blue-600 dark:text-blue-400 mt-2">
             ₹{balanceSheetData.assets.totalAssets.toLocaleString("en-IN")}
           </p>
         </div>
@@ -85,7 +85,7 @@ const BalanceSheetPage = () => {
           <p className="text-sm font-medium text-red-700 dark:text-red-300">
             Total Liabilities
           </p>
-          <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-2">
+          <p className="text-2xl  text-red-600 dark:text-red-400 mt-2">
             ₹
             {balanceSheetData.liabilities.totalLiabilities.toLocaleString(
               "en-IN"
@@ -96,7 +96,7 @@ const BalanceSheetPage = () => {
           <p className="text-sm font-medium text-green-700 dark:text-green-300">
             Total Equity
           </p>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">
+          <p className="text-2xl  text-green-600 dark:text-green-400 mt-2">
             ₹{balanceSheetData.equity.totalEquity.toLocaleString("en-IN")}
           </p>
         </div>
@@ -104,7 +104,7 @@ const BalanceSheetPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-6">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs text-left mb-6">
             Assets
           </h2>
 
@@ -198,7 +198,7 @@ const BalanceSheetPage = () => {
             </div>
 
             <div className="border-t-2 border-slate-300 dark:border-slate-600 border-double pt-4">
-              <div className="flex justify-between text-lg font-bold text-slate-900 dark:text-white text-xs">
+              <div className="flex justify-between text-lg  text-slate-900 dark:text-white text-xs">
                 <span>Total Assets</span>
                 <span>
                   ₹{balanceSheetData.assets.totalAssets.toLocaleString("en-IN")}
@@ -209,7 +209,7 @@ const BalanceSheetPage = () => {
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-6">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs text-left mb-6">
             Liabilities & Equity
           </h2>
 
@@ -308,7 +308,7 @@ const BalanceSheetPage = () => {
             </div>
 
             <div className="border-t-2 border-slate-300 dark:border-slate-600 border-double pt-4">
-              <div className="flex justify-between text-lg font-bold text-slate-900 dark:text-white text-xs">
+              <div className="flex justify-between text-lg  text-slate-900 dark:text-white text-xs">
                 <span>Total Liabilities & Equity</span>
                 <span>
                   ₹{totalLiabilitiesAndEquity.toLocaleString("en-IN")}
@@ -320,40 +320,40 @@ const BalanceSheetPage = () => {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+        <h2 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
           Financial Ratios
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded">
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
               Current Ratio
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs">
               {ratios.currentRatio}
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
               Current Assets / Current Liabilities
             </p>
           </div>
           <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded">
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
               Debt-to-Equity
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs">
               {ratios.debtToEquity}
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
               Total Liabilities / Total Equity
             </p>
           </div>
           <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded">
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
               Asset Turnover
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs">
               {ratios.assetTurnover}
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
               Revenue / Total Assets
             </p>
           </div>

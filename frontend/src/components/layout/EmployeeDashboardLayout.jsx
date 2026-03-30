@@ -107,15 +107,15 @@ const EmployeeDashboardLayout = () => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center shadow-sm">
-                  <span className="text-white font-bold text-base">
+                  <span className="text-white  text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="hidden md:flex flex-col items-start text-left leading-tight">
-                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                  <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-[11px] text-slate-600 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-semibold capitalize">
                     {user?.department || user?.role || "Employee"}
                   </span>
                 </div>
@@ -125,10 +125,10 @@ const EmployeeDashboardLayout = () => {
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
                   <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
-                    <p className="text-sm font-bold text-white">
+                    <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-[10px] font-medium text-blue-100 uppercase tracking-wider">
+                    <p className="text-[10px] font-medium text-blue-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>
@@ -180,7 +180,7 @@ const EmployeeDashboardLayout = () => {
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                  className={`flex items-center space-x-3 px-4 py-3 rounded transition-all duration-200 ${
                     active
                       ? "bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-2 border-primary-200 dark:border-primary-900/50 shadow-sm"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/30 border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-600"

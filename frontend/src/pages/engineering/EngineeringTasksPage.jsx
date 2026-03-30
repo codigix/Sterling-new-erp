@@ -201,7 +201,7 @@ const EngineeringTasksPage = () => {
           className={`p-2 font-medium border-b-2 transition-colors ${
             activeTab === 'documents'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-600 dark:text-slate-400 hover:'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:'
           }`}
         >
           Documents
@@ -211,7 +211,7 @@ const EngineeringTasksPage = () => {
           className={`p-2 font-medium border-b-2 transition-colors ${
             activeTab === 'bom'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-600 dark:text-slate-400 hover:'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:'
           }`}
         >
           Bill of Materials
@@ -232,7 +232,7 @@ const EngineeringTasksPage = () => {
 
           {showUploadForm && (
             <Card className="mb-6 p-6">
-              <h3 className="text-lg font-bold  dark: mb-4">Upload Engineering Document</h3>
+              <h3 className="text-lg   dark: mb-4">Upload Engineering Document</h3>
               <form onSubmit={handleUploadDocument} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

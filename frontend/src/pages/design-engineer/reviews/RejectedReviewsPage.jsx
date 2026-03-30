@@ -22,10 +22,10 @@ const RejectedReviewsPage = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+        <h2 className="text-xl  text-slate-900 dark:text-white text-xs">
           Rejected Reviews
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+        <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
           Designs that need revisions
         </p>
       </div>
@@ -47,13 +47,13 @@ const RejectedReviewsPage = () => {
                     {review.design}
                   </h3>
                 </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Rejected by:{" "}
                   <span className="font-medium">{review.rejectedBy}</span>
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Rejected Date
                 </p>
                 <p className="font-semibold text-slate-900 dark:text-white">

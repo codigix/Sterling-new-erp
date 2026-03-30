@@ -8,6 +8,7 @@ import {
   X,
   MessageSquare,
 } from "lucide-react";
+import Select from "../../components/ui/Select";
 
 const WeeklyTasksPage = () => {
   const [tasks, setTasks] = useState([
@@ -187,7 +188,7 @@ const WeeklyTasksPage = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+        <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
           Weekly Tasks
         </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -201,41 +202,42 @@ const WeeklyTasksPage = () => {
             key={stat.label}
             className={`${stat.bgColor} rounded p-6 border border-slate-200 dark:border-slate-700`}
           >
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-300 mb-2">
               {stat.label}
             </p>
-            <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
+            <p className={`text-3xl  ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+          <h2 className="text-lg  text-slate-900 dark:text-white text-xs">
             Task List
           </h2>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white font-medium"
-          >
-            <option value="all">All Tasks</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </select>
+          <div className="min-w-[150px] -mt-3">
+            <Select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">All Tasks</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </Select>
+          </div>
         </div>
 
         <div className="space-y-4">
           {filteredTasks.map((task) => (
             <div
               key={task.id}
-              className="border border-slate-200 dark:border-slate-700 rounded p-4 hover:shadow-md transition-shadow"
+              className="border border-slate-200 dark:border-slate-700 rounded p-4 hover: transition-shadow"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center text-xs gap-2 mb-2">
-                    <h3 className="font-bold text-slate-900 dark:text-white text-xs">
+                    <h3 className=" text-slate-900 dark:text-white text-xs">
                       {task.title}
                     </h3>
                     <span
@@ -249,10 +251,10 @@ const WeeklyTasksPage = () => {
                           task.status.slice(1)}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">
+                  <p className="text-sm text-slate-500 dark:text-slate-300 mb-2">
                     {task.description}
                   </p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3">
                     <div>
                       <span className="font-semibold">Week:</span> {task.week}
                     </div>
@@ -281,16 +283,16 @@ const WeeklyTasksPage = () => {
 
               <div className="mb-3">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     Progress
                   </span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white text-xs">
+                  <span className="text-xs  text-slate-900 dark:text-white text-xs">
                     {task.progress}%
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all"
+                    className="bg-blue-600 h-2 rounded  transition-all"
                     style={{ width: `${task.progress}%` }}
                   />
                 </div>
@@ -366,10 +368,10 @@ const WeeklyTasksPage = () => {
       {showNotification && notificationTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center text-xs justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
+            <h2 className="text-xl  text-slate-900 dark:text-white text-xs text-left mb-4">
               Send Notification
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
+            <p className="text-slate-500 dark:text-slate-300 mb-4">
               Send notification about:{" "}
               <span className="font-semibold">{notificationTask.title}</span>
             </p>

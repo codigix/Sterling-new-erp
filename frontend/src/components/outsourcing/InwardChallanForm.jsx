@@ -91,15 +91,15 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
 
       {/* Stats Summary */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Dispatched</div>
-          <div className="text-xl font-black text-slate-700">
+        <div className="bg-slate-50 border border-slate-100 rounded p-4">
+          <div className="text-[11px]  text-slate-400  tracking-wider mb-1">Dispatched</div>
+          <div className="text-xl  text-slate-700">
             {parseFloat(operation?.dispatched_qty || 0).toFixed(6)} <span className="text-sm font-medium text-slate-400">units</span>
           </div>
         </div>
-        <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4">
-          <div className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider mb-1 text-right">Pending Receipt</div>
-          <div className="text-xl font-black text-indigo-600 text-right">
+        <div className="bg-indigo-50/50 border border-indigo-100 rounded p-4">
+          <div className="text-[11px]  text-indigo-400  tracking-wider mb-1 text-right">Pending Receipt</div>
+          <div className="text-xl  text-indigo-600 text-right">
             {parseFloat(operation?.dispatched_qty || 0).toFixed(0)} <span className="text-sm font-medium text-indigo-400">units</span>
           </div>
         </div>
@@ -107,7 +107,7 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
 
       <div className="space-y-4">
         <div>
-          <label className="block text-[12px] font-bold text-slate-600 uppercase mb-2">
+          <label className="block text-[12px]  text-slate-500  mb-2">
             Quantity Received
           </label>
           <input
@@ -115,7 +115,7 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
             step="any"
             value={formData.quantityReceived}
             onChange={(e) => handleUpdateField('quantityReceived', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded text-slate-900  focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
             placeholder="Enter quantity received..."
             disabled={loading}
           />
@@ -123,7 +123,7 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="flex items-center gap-1.5 text-[12px] font-bold text-emerald-600 uppercase mb-2">
+            <label className="flex items-center gap-1.5 text-[12px]  text-emerald-600  mb-2">
               <CheckCircle size={14} /> Accepted Qty
             </label>
             <input
@@ -131,12 +131,12 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
               step="any"
               value={formData.acceptedQty}
               onChange={(e) => handleUpdateField('acceptedQty', e.target.value)}
-              className="w-full px-4 py-3 bg-emerald-50/30 border border-emerald-100 rounded-xl text-emerald-700 font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+              className="w-full px-4 py-3 bg-emerald-50/30 border border-emerald-100 rounded text-emerald-700  focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
               disabled={loading}
             />
           </div>
           <div>
-            <label className="flex items-center gap-1.5 text-[12px] font-bold text-rose-600 uppercase mb-2">
+            <label className="flex items-center gap-1.5 text-[12px]  text-rose-600  mb-2">
               <AlertCircle size={14} /> Rejected Qty
             </label>
             <input
@@ -144,20 +144,20 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
               step="any"
               value={formData.rejectedQty}
               onChange={(e) => handleUpdateField('rejectedQty', e.target.value)}
-              className="w-full px-4 py-3 bg-rose-50/30 border border-rose-100 rounded-xl text-rose-700 font-bold focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none"
+              className="w-full px-4 py-3 bg-rose-50/30 border border-rose-100 rounded text-rose-700  focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none"
               disabled={loading}
             />
           </div>
         </div>
 
         <div>
-          <label className="flex items-center gap-1.5 text-[12px] font-bold text-slate-600 uppercase mb-2">
+          <label className="flex items-center gap-1.5 text-[12px]  text-slate-500  mb-2">
             <FileText size={14} className="text-slate-400" /> Receipt Notes
           </label>
           <textarea
             value={formData.notes}
             onChange={(e) => handleUpdateField('notes', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none"
             placeholder="Notes about quality or delivery..."
             rows="3"
             disabled={loading}
@@ -169,7 +169,7 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
         <button
           type="submit"
           disabled={loading}
-          className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded  transition-all shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <Loader className="w-3 h-3 animate-spin" />

@@ -77,47 +77,47 @@ const RootCardDashboard = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h2 className="text-xl font-bold  text-lefttext-white">Root Cards</h2>
+        <h2 className="text-xl   text-lefttext-white">Root Cards</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-3xl font-bold">{stats.total}</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">Total</p>
+              <p className="text-3xl ">{stats.total}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-3xl font-bold">{stats.pending}</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">Pending</p>
+              <p className="text-3xl ">{stats.pending}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Pending</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-3xl font-bold">{stats.approved}</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">Approved</p>
+              <p className="text-3xl ">{stats.approved}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Approved</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-3xl font-bold">{stats.in_progress}</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">In Progress</p>
+              <p className="text-3xl ">{stats.in_progress}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">In Progress</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-3xl font-bold">{stats.completed}</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">Completed</p>
+              <p className="text-3xl ">{stats.completed}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Completed</p>
             </div>
           </CardContent>
         </Card>

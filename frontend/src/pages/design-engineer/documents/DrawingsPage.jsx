@@ -211,10 +211,10 @@ const DrawingsPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs">
             Technical Drawings
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             View and manage technical drawings
           </p>
         </div>
@@ -270,7 +270,7 @@ const DrawingsPage = () => {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-slate-500 dark:text-slate-400">
             Loading drawings...
           </p>
         </div>
@@ -280,7 +280,7 @@ const DrawingsPage = () => {
         </div>
       ) : filteredDrawings.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-slate-500 dark:text-slate-400">
             No drawings found
           </p>
         </div>
@@ -289,22 +289,22 @@ const DrawingsPage = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700">
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                <th className="p-2 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                <th className="p-2 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Format
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                <th className="p-2 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Size
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                <th className="p-2 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                <th className="p-2 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                <th className="p-2 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Actions
                 </th>
               </tr>
@@ -318,18 +318,18 @@ const DrawingsPage = () => {
                   <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
                     {drawing.name}
                   </td>
-                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                     {drawing.format}
                   </td>
-                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                     {drawing.size}
                   </td>
-                  <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                  <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                     {drawing.date}
                   </td>
                   <td className="p-2">
                     <span
-                      className={`px-3 py-1 text-xs font-medium rounded-full ${
+                      className={`px-3 py-1 text-xs font-medium rounded  ${
                         drawing.status === "Final"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
@@ -379,7 +379,7 @@ const DrawingsPage = () => {
               <h3 className="font-medium text-slate-900 dark:text-white text-xs mb-2">
                 {drawing.name}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                 {drawing.size}
               </p>
               <div className="flex gap-2">
@@ -412,7 +412,7 @@ const DrawingsPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+              <h3 className="text-lg  text-slate-900 dark:text-white text-xs">
                 Upload Technical Drawing
               </h3>
               <button
@@ -426,7 +426,7 @@ const DrawingsPage = () => {
             <form onSubmit={handleUploadSubmit} className="p-6 space-y-4">
               {/* Design Name (Searchable Select) */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Design Name *
                 </label>
                 <div className="relative">
@@ -506,7 +506,7 @@ const DrawingsPage = () => {
 
               {/* Drawing Name */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Drawing Name *
                 </label>
                 <input
@@ -525,7 +525,7 @@ const DrawingsPage = () => {
 
               {/* Drawing Number */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Drawing Number *
                 </label>
                 <input
@@ -545,7 +545,7 @@ const DrawingsPage = () => {
               {/* Drawing Type and Version */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                     Drawing Type
                   </label>
                   <select
@@ -564,7 +564,7 @@ const DrawingsPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                     Version / Revision
                   </label>
                   <input
@@ -584,7 +584,7 @@ const DrawingsPage = () => {
 
               {/* Drawing Status */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Drawing Status
                 </label>
                 <select
@@ -604,7 +604,7 @@ const DrawingsPage = () => {
 
               {/* Remarks */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Remarks
                 </label>
                 <textarea
@@ -623,7 +623,7 @@ const DrawingsPage = () => {
 
               {/* File Upload */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Upload Drawing File * (PDF / DWG / STEP)
                 </label>
                 <input
@@ -662,7 +662,7 @@ const DrawingsPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 {selectedDrawing.name}
               </h3>
               <button
@@ -678,7 +678,7 @@ const DrawingsPage = () => {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">
                     Drawing Number
                   </label>
                   <p className="text-sm text-slate-900 dark:text-white">
@@ -686,7 +686,7 @@ const DrawingsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">
                     Format
                   </label>
                   <p className="text-sm text-slate-900 dark:text-white">
@@ -694,7 +694,7 @@ const DrawingsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">
                     Size
                   </label>
                   <p className="text-sm text-slate-900 dark:text-white">
@@ -702,7 +702,7 @@ const DrawingsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">
                     Status
                   </label>
                   <p className="text-sm text-slate-900 dark:text-white">
@@ -740,10 +740,10 @@ const DrawingsPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded max-w-sm shadow-2xl border border-slate-200 dark:border-slate-700">
             <div className="p-6">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-2">
                 Delete Drawing
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
+              <p className="text-slate-500 dark:text-slate-400 mb-6">
                 Are you sure you want to delete "{selectedDrawing.name}"? This action cannot be undone.
               </p>
             </div>

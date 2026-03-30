@@ -96,7 +96,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
         <Card className="w-full max-w-4xl">
           <CardContent className="py-12 text-center">
-            <p className="text-slate-600 dark:text-slate-400">Loading task details...</p>
+            <p className="text-slate-500 dark:text-slate-400">Loading task details...</p>
           </CardContent>
         </Card>
       </div>
@@ -109,7 +109,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
         <Card className="w-full max-w-4xl">
           <CardContent className="py-8 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <p className="text-slate-600 dark:text-slate-400">Task not found</p>
+            <p className="text-slate-500 dark:text-slate-400">Task not found</p>
             <button onClick={onClose} className="mt-4 p-2 bg-slate-200 dark:bg-slate-700 rounded">
               Close
             </button>
@@ -124,7 +124,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
       <Card className="w-full max-w-4xl my-8">
         <CardHeader className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+            <h2 className="text-2xl  text-slate-900 dark:text-white mb-2">
               {task.root_card_title || 'Outsourcing Task'}
             </h2>
             <Badge className={getStatusColor(task.status)}>
@@ -149,28 +149,28 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
         <CardContent className="space-y-2 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-1">
                 Product Name
               </p>
               <p className="text-slate-900 dark:text-white font-medium">{task.product_name || 'N/A'}</p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-1">
                 Project
               </p>
               <p className="text-slate-900 dark:text-white font-medium">{task.project_name || 'N/A'}</p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-1">
                 Production Stage
               </p>
               <p className="text-slate-900 dark:text-white font-medium">{task.stage_name || 'N/A'}</p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-1">
                 Selected Vendor
               </p>
               <p className="text-slate-900 dark:text-white font-medium">{task.vendor_name || 'Not Selected'}</p>
@@ -310,14 +310,14 @@ const StepIndicator = ({ title, description, status, isActive, onClick }) => {
       onClick={onClick}
       disabled={status === 'disabled'}
       className={`w-full border-2 rounded p-4 text-left transition-all ${statusColors[status]} ${
-        status !== 'disabled' ? 'cursor-pointer hover:shadow-md' : 'cursor-not-allowed'
+        status !== 'disabled' ? 'cursor-pointer hover:' : 'cursor-not-allowed'
       }`}
     >
       <div className="flex items-center gap-3">
         {statusIcons[status]}
         <div className="flex-1">
           <h4 className="font-semibold text-slate-900 dark:text-white">{title}</h4>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
         </div>
         {status !== 'disabled' && <ChevronDown className="w-3 h-3" />}
       </div>

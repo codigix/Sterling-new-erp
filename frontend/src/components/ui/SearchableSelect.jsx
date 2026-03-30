@@ -140,7 +140,7 @@ const SearchableSelect = ({
   return (
     <div className={`relative ${className}`} ref={wrapperRef}>
       {label && (
-        <label htmlFor={inputId} className="block text-[10px] font-bold text-slate-900 dark:text-slate-100 mb-1.5 tracking-tight uppercase">
+        <label htmlFor={inputId} className="block text-xs  text-slate-900 dark:text-slate-100 mb-1.5  ">
           {label}
         </label>
       )}
@@ -179,7 +179,7 @@ const SearchableSelect = ({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              className="p-1 text-slate-400 hover:text-slate-500 dark:hover:text-slate-200 transition-colors"
             >
               <X size={14} />
             </button>
@@ -190,7 +190,7 @@ const SearchableSelect = ({
               e.stopPropagation();
               if (!disabled) setIsOpen(!isOpen);
             }}
-            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+            className="p-1 text-slate-400 hover:text-slate-500 dark:hover:text-slate-200 transition-colors"
           >
             <ChevronDown size={16} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -217,7 +217,7 @@ const SearchableSelect = ({
                   <div className="flex flex-col">
                     <span>{option.label}</span>
                     {option.subLabel && (
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-tight">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400  ">
                         {option.subLabel}
                       </span>
                     )}

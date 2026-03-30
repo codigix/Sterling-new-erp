@@ -46,9 +46,9 @@ const WorkOrdersPage = () => {
       case 'completed': return 'bg-green-100 text-green-700 border-green-200';
       case 'in_progress': return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'planning': 
-      case 'pending': return 'bg-slate-100 text-slate-600 border-slate-200';
+      case 'pending': return 'bg-slate-100 text-slate-500 border-slate-200';
       case 'on_hold': return 'bg-amber-100 text-amber-700 border-amber-200';
-      default: return 'bg-slate-100 text-slate-600 border-slate-200';
+      default: return 'bg-slate-100 text-slate-500 border-slate-200';
     }
   };
 
@@ -75,7 +75,7 @@ const WorkOrdersPage = () => {
               <FileText size={24} />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <h1 className="text-xl  text-slate-900 flex items-center gap-2">
                 Work Orders
               </h1>
               <div className="flex items-center gap-3 mt-1">
@@ -105,44 +105,44 @@ const WorkOrdersPage = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-500 mb-1">Total Orders</p>
-              <h3 className="text-2xl font-bold text-slate-900">{stats.total}</h3>
-              <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight font-medium">Global manufacturing volume</p>
+              <h3 className="text-2xl  text-slate-900">{stats.total}</h3>
+              <p className="text-[10px] text-slate-400 mt-1   font-medium">Global manufacturing volume</p>
             </div>
             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded flex items-center justify-center">
               <Layers size={24} />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-500 mb-1">In Progress</p>
-              <h3 className="text-2xl font-bold text-slate-900">{stats.inProgress}</h3>
-              <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight font-medium">Active production lines</p>
+              <h3 className="text-2xl  text-slate-900">{stats.inProgress}</h3>
+              <p className="text-[10px] text-slate-400 mt-1   font-medium">Active production lines</p>
             </div>
             <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded flex items-center justify-center">
               <Activity size={24} />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-500 mb-1">Completed</p>
-              <h3 className="text-2xl font-bold text-slate-900">{stats.completed}</h3>
-              <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight font-medium">Ready for delivery</p>
+              <h3 className="text-2xl  text-slate-900">{stats.completed}</h3>
+              <p className="text-[10px] text-slate-400 mt-1   font-medium">Ready for delivery</p>
             </div>
             <div className="w-12 h-12 bg-green-50 text-green-500 rounded flex items-center justify-center">
               <CheckCircle size={24} />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-500 mb-1">Pending</p>
-              <h3 className="text-2xl font-bold text-slate-900">{stats.pending}</h3>
-              <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight font-medium">Awaiting scheduling</p>
+              <h3 className="text-2xl  text-slate-900">{stats.pending}</h3>
+              <p className="text-[10px] text-slate-400 mt-1   font-medium">Awaiting scheduling</p>
             </div>
             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded flex items-center justify-center">
               <Timer size={24} />
@@ -151,37 +151,37 @@ const WorkOrdersPage = () => {
         </div>
 
         {/* Scheduling Analyzer */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden mb-8">
           <div className="p-2 border-b border-slate-100 bg-white flex items-center gap-3">
             <TrendingUp size={18} className="text-indigo-600" />
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Scheduling Analyzer</h3>
+            <h3 className="text-sm  text-slate-900  tracking-wider">Scheduling Analyzer</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 bg-white">
             <div className="p-6 hover:bg-slate-50 transition-colors">
               <p className="text-xs text-slate-500 mb-2">High Priority Pending</p>
-              <h4 className="text-xl font-bold text-slate-900 mb-4">1 <span className="text-xs font-medium text-red-500 ml-2 uppercase tracking-widest font-black">Critical</span></h4>
-              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <h4 className="text-xl  text-slate-900 mb-4">1 <span className="text-xs font-medium text-red-500 ml-2  tracking-widest ">Critical</span></h4>
+              <div className="h-1.5 w-full bg-slate-100 rounded  overflow-hidden">
                 <div className="h-full bg-red-500 w-[20%] shadow-[0_0_8px_rgba(239,68,68,0.2)]" />
               </div>
             </div>
             <div className="p-6 hover:bg-slate-50 transition-colors">
               <p className="text-xs text-slate-500 mb-2">Due This Week</p>
-              <h4 className="text-xl font-bold text-slate-900 mb-4">0</h4>
-              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <h4 className="text-xl  text-slate-900 mb-4">0</h4>
+              <div className="h-1.5 w-full bg-slate-100 rounded  overflow-hidden">
                 <div className="h-full bg-amber-500 w-0" />
               </div>
             </div>
             <div className="p-6 hover:bg-slate-50 transition-colors">
               <p className="text-xs text-slate-500 mb-2">Efficiency Rate</p>
-              <h4 className="text-xl font-bold text-slate-900 mb-4">88 %</h4>
-              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <h4 className="text-xl  text-slate-900 mb-4">88 %</h4>
+              <div className="h-1.5 w-full bg-slate-100 rounded  overflow-hidden">
                 <div className="h-full bg-indigo-600 w-[88%] shadow-[0_0_8px_rgba(79,70,229,0.2)]" />
               </div>
             </div>
             <div className="p-6 hover:bg-slate-50 transition-colors">
               <p className="text-xs text-slate-500 mb-2">Ready for QC</p>
-              <h4 className="text-xl font-bold text-slate-900 mb-4">0</h4>
-              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <h4 className="text-xl  text-slate-900 mb-4">0</h4>
+              <div className="h-1.5 w-full bg-slate-100 rounded  overflow-hidden">
                 <div className="h-full bg-emerald-500 w-0" />
               </div>
             </div>
@@ -189,15 +189,15 @@ const WorkOrdersPage = () => {
         </div>
 
         {/* Active Work Orders Table */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-slate-900">Active Work Orders</h3>
+              <h3 className="text-base  text-slate-900">Active Work Orders</h3>
               <p className="text-xs text-slate-500 mt-0.5">Real-time production tracking</p>
             </div>
             <div className="flex items-center gap-3">
-               <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-600 rounded-full text-[10px] font-bold border border-green-100">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+               <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-600 rounded  text-[10px]  border border-green-100">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded " />
                   {workOrders.length} Orders Active
                </div>
             </div>
@@ -218,7 +218,7 @@ const WorkOrdersPage = () => {
               <div className="flex items-center gap-2">
                  <Filter size={16} className="text-slate-400" />
                  <select 
-                   className="bg-transparent text-sm font-medium text-slate-600 outline-none"
+                   className="bg-transparent text-sm font-medium text-slate-500 outline-none"
                    value={statusFilter}
                    onChange={(e) => setStatusFilter(e.target.value)}
                  >
@@ -232,7 +232,7 @@ const WorkOrdersPage = () => {
               </div>
               <div className="h-4 w-px bg-slate-300 mx-1" />
               <select 
-                className="bg-transparent text-sm font-medium text-slate-600 outline-none"
+                className="bg-transparent text-sm font-medium text-slate-500 outline-none"
                 value={monthFilter}
                 onChange={(e) => setMonthFilter(e.target.value)}
               >
@@ -251,7 +251,7 @@ const WorkOrdersPage = () => {
                  <option value="12">December</option>
               </select>
               <select 
-                className="bg-transparent text-sm font-medium text-slate-600 outline-none font-bold"
+                className="bg-transparent text-sm font-medium text-slate-500 outline-none "
                 value={yearFilter}
                 onChange={(e) => setYearFilter(e.target.value)}
               >
@@ -268,12 +268,12 @@ const WorkOrdersPage = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-white border-b border-slate-100">
-                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Order Identity</th>
-                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Item</th>
-                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Material Status</th>
-                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Status & Priority</th>
-                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">Progress</th>
-                  <th className="p-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                  <th className="p-2 text-[11px]  text-slate-400  tracking-wider">Order Identity</th>
+                  <th className="p-2 text-[11px]  text-slate-400  tracking-wider">Item</th>
+                  <th className="p-2 text-[11px]  text-slate-400  tracking-wider text-center">Material Status</th>
+                  <th className="p-2 text-[11px]  text-slate-400  tracking-wider text-center">Status & Priority</th>
+                  <th className="p-2 text-[11px]  text-slate-400  tracking-wider text-center">Progress</th>
+                  <th className="p-2 text-[11px]  text-slate-400  tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -290,12 +290,12 @@ const WorkOrdersPage = () => {
                     <tr key={order.id} className="hover:bg-slate-50/80 transition-all group border-b border-slate-50">
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
-                          <div className="p-2.5 bg-blue-50 text-indigo-600 rounded-xl group-hover:scale-110 transition-transform shadow-sm border border-blue-100">
+                          <div className="p-2.5 bg-blue-50 text-indigo-600 rounded group-hover:scale-110 transition-transform shadow-sm border border-blue-100">
                             <FileText size={18} />
                           </div>
                           <div>
-                            <p className="text-[13px] font-black text-indigo-700 leading-none mb-1 uppercase tracking-tight">{order.work_order_no}</p>
-                            <p className="text-[10px] text-slate-500 font-bold flex items-center gap-1 uppercase tracking-wider">
+                            <p className="text-[13px]  text-indigo-700 leading-none mb-1  ">{order.work_order_no}</p>
+                            <p className="text-[10px] text-slate-500  flex items-center gap-1  tracking-wider">
                               <Calendar size={10} className="text-slate-400" />
                               {order.created_at ? new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '05 Feb'}
                             </p>
@@ -304,11 +304,11 @@ const WorkOrdersPage = () => {
                       </td>
                       <td className="px-6 py-5">
                         <div>
-                          <p className="text-[15px] font-black text-slate-900 leading-none mb-1.5 uppercase tracking-tight">{order.item_name}</p>
+                          <p className="text-[15px]  text-slate-900 leading-none mb-1.5  ">{order.item_name}</p>
                           <div className="flex items-center gap-2">
-                            <p className="text-[11px] text-indigo-700 font-bold uppercase tracking-widest italic">{order.bom_no || 'No BOM'}</p>
+                            <p className="text-[11px] text-indigo-700   tracking-widest italic">{order.bom_no || 'No BOM'}</p>
                             {(order.sales_order_no || order.project_name) && (
-                              <span className="text-[9px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded font-bold uppercase tracking-tighter border border-slate-200 dark:border-slate-700">
+                              <span className="text-[9px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded   er border border-slate-200 dark:border-slate-700">
                                 {order.sales_order_no || order.project_name}
                               </span>
                             )}
@@ -318,12 +318,12 @@ const WorkOrdersPage = () => {
                       <td className="px-6 py-5">
                         <div className="flex flex-col items-center">
                           {order.is_material_ready ? (
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-green-50 text-green-700 border border-green-200 uppercase tracking-wider shadow-sm">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded  text-[10px]  bg-green-50 text-green-700 border border-green-200  tracking-wider shadow-sm">
                                <CheckCircle size={12} />
                                Ready
                             </div>
                           ) : (
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-red-50 text-red-700 border border-red-200 uppercase tracking-wider shadow-sm animate-pulse">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded  text-[10px]  bg-red-50 text-red-700 border border-red-200  tracking-wider shadow-sm animate-pulse">
                                <AlertTriangle size={12} />
                                Awaiting MR
                             </div>
@@ -332,13 +332,13 @@ const WorkOrdersPage = () => {
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex flex-col items-center gap-2">
-                          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-wider ${getStatusBadge(order.status)} shadow-sm`}>
+                          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded  text-[10px]  border  tracking-wider ${getStatusBadge(order.status)} shadow-sm`}>
                              <Clock size={12} />
                              {(order.status || 'pending').replace('_', ' ')}
                           </div>
                           <div className="flex items-center gap-1.5">
-                             <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_4px_currentColor] ${getPriorityColor(order.priority)}`} />
-                             <span className={`text-[10px] font-black uppercase tracking-widest ${getPriorityColor(order.priority)}`}>
+                             <div className={`w-1.5 h-1.5 rounded  shadow-[0_0_4px_currentColor] ${getPriorityColor(order.priority)}`} />
+                             <span className={`text-[10px]   tracking-widest ${getPriorityColor(order.priority)}`}>
                                {order.priority || 'medium'} priority
                              </span>
                           </div>
@@ -347,10 +347,10 @@ const WorkOrdersPage = () => {
                       <td className="px-6 py-5">
                         <div className="max-w-[120px] mx-auto text-center">
                           <div className="flex items-center justify-center mb-1.5">
-                            <span className="text-[10px] font-black text-slate-600 uppercase">0 / <span className="text-indigo-600">0%</span></span>
+                            <span className="text-[10px]  text-slate-500 ">0 / <span className="text-indigo-600">0%</span></span>
                           </div>
-                          <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden p-[1px]">
-                            <div className="h-full bg-indigo-500 w-0 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.3)]" />
+                          <div className="h-1.5 w-full bg-slate-100 rounded  overflow-hidden p-[1px]">
+                            <div className="h-full bg-indigo-500 w-0 rounded  shadow-[0_0_8px_rgba(99,102,241,0.3)]" />
                           </div>
                         </div>
                       </td>
@@ -398,8 +398,8 @@ const WorkOrdersPage = () => {
           <div className="p-2 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
              <p className="text-xs text-slate-500">Showing {workOrders.length} manufacturing sequences</p>
              <div className="flex items-center gap-2">
-                <button className="px-3 py-1 text-xs font-bold text-slate-400 hover:text-slate-600 disabled:opacity-50">Previous</button>
-                <button className="px-4 py-1.5 bg-white border border-slate-200 text-xs font-bold text-slate-900 rounded shadow-sm hover:bg-slate-50 transition-all">Next</button>
+                <button className="px-3 py-1 text-xs  text-slate-400 hover:text-slate-500 disabled:opacity-50">Previous</button>
+                <button className="px-4 py-1.5 bg-white border border-slate-200 text-xs  text-slate-900 rounded shadow-sm hover:bg-slate-50 transition-all">Next</button>
              </div>
           </div>
         </div>

@@ -204,7 +204,7 @@ const DesignEngineerDashboard = () => {
       <div className="flex justify-center items-center h-screen">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-slate-500 dark:text-slate-400">
             Loading dashboard...
           </p>
         </div>
@@ -215,8 +215,8 @@ const DesignEngineerDashboard = () => {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl p-6">
-          <h3 className="text-red-800 dark:text-red-200 font-semibold mb-2">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded p-6">
+          <h3 className="text-red-800 dark:text-red-200  mb-2">
             Error Loading Dashboard
           </h3>
           <p className="text-red-700 dark:text-red-300">{error}</p>
@@ -227,9 +227,9 @@ const DesignEngineerDashboard = () => {
 
   return (
     <div className="space-y-2 pb-6">
-      <div className="bg-blue-600 dark:bg-blue-700 rounded-xl p-3 text-white shadow-lg">
+      <div className="bg-blue-600 dark:bg-blue-700 rounded p-3 text-white shadow-lg">
         <div className="max-w-2xl">
-          <h1 className="text-xl font-bold mb-1">Design Engineering Hub</h1>
+          <h1 className="text-xl  mb-1">Design Engineering Hub</h1>
           <p className="text-blue-100 text-xs">
             Real-time project and task monitoring
           </p>
@@ -242,7 +242,7 @@ const DesignEngineerDashboard = () => {
           return (
             <div
               key={stat.title}
-              className={`group relative overflow-hidden rounded-xl border ${stat.borderColor} bg-white dark:bg-slate-800 shadow-sm  transition-all duration-300`}
+              className={`group relative overflow-hidden rounded border ${stat.borderColor} bg-white dark:bg-slate-800 shadow-sm  transition-all duration-300`}
             >
               <div className="relative p-3">
                 <div className="flex items-center text-xs justify-between mb-3">
@@ -250,7 +250,7 @@ const DesignEngineerDashboard = () => {
                     <Icon size={15} className={stat.iconColor} />
                   </div>
                   <div
-                    className={`flex items-center text-xs gap-1 px-2 py-1 rounded-full ${
+                    className={`flex items-center text-xs gap-1 px-2 py-1 rounded  ${
                       stat.positive
                         ? "bg-green-100 dark:bg-green-900/30"
                         : "bg-red-100 dark:bg-red-900/30"
@@ -265,7 +265,7 @@ const DesignEngineerDashboard = () => {
                       }
                     />
                     <span
-                      className={`text-xs font-semibold ${
+                      className={`text-xs  ${
                         stat.positive
                           ? "text-green-600 dark:text-green-400"
                           : "text-red-600 dark:text-red-400"
@@ -275,10 +275,10 @@ const DesignEngineerDashboard = () => {
                     </span>
                   </div>
                 </div>
-                <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                   {stat.title}
                 </p>
-                <p className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+                <p className="text-lg  text-slate-900 dark:text-white text-xs">
                   {stat.value}
                 </p>
               </div>
@@ -288,13 +288,13 @@ const DesignEngineerDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-6">
           <div className="mb-6">
-            <h3 className="text-md font-bold text-slate-900 dark:text-white  flex items-center gap-2 mb-2">
+            <h3 className="text-md  text-slate-900 dark:text-white  flex items-center gap-2 mb-2">
               <Target size={15} className="text-blue-600 dark:text-blue-400" />
               Task Status Overview
             </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Current distribution of design tasks
             </p>
           </div>
@@ -309,13 +309,13 @@ const DesignEngineerDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-6">
           <div className="mb-6">
-            <h3 className="text-md font-bold text-slate-900 dark:text-white  flex items-center gap-2 mb-1">
+            <h3 className="text-md  text-slate-900 dark:text-white  flex items-center gap-2 mb-1">
               <Award size={15} className="text-amber-600 dark:text-amber-400" />
               Task Distribution
             </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               By status
             </p>
           </div>
@@ -346,35 +346,35 @@ const DesignEngineerDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-2">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+            <h3 className="text-xl  text-slate-900 dark:text-white">
               Assigned Root Cards
             </h3>
             <Link
               to="/design-engineer/root-cards"
-              className="text-sm text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700"
+              className="text-sm text-blue-600 dark:text-blue-400  hover:text-blue-700"
             >
               View All →
             </Link>
           </div>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="space-y-3 overflow-y-auto">
             {departmentTasks.slice(0, 5).map((task) => (
               <div
                 key={task.id}
-                className="group border border-slate-200 dark:border-slate-700 rounded p-4 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all"
+                className="group border border-slate-200 dark:border-slate-700 rounded p-2 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all"
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between ">
                   <div>
-                    <p className="font-semibold text-slate-900 dark:text-white">
+                    <p className=" text-slate-900 dark:text-white">
                       {task.rootCard?.title || "N/A"}
                     </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       {task.rootCard?.customer || task.salesOrder?.customer || "No Customer"}
                     </p>
                   </div>
                   <span
-                    className={`px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${
+                    className={`p-2 text-xs  rounded whitespace-nowrap ${
                       task.status === "in_progress"
                         ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
                         : task.status === "completed"
@@ -388,14 +388,14 @@ const DesignEngineerDashboard = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-slate-600 dark:text-slate-400">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     Priority:{" "}
-                    <span className="font-semibold capitalize">
+                    <span className=" capitalize">
                       {task.priority}
                     </span>
                   </span>
                   {(task.rootCard?.poNumber || task.salesOrder?.poNumber) && (
-                    <span className="text-xs font-semibold text-slate-900 dark:text-white">
+                    <span className="text-xs  text-slate-900 dark:text-white">
                       PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber}
                     </span>
                   )}
@@ -414,8 +414,8 @@ const DesignEngineerDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
             Quick Actions
           </h3>
           <div className="space-y-2.5">
@@ -425,10 +425,10 @@ const DesignEngineerDashboard = () => {
             >
               <Wrench size={18} className="text-blue-600 dark:text-blue-400" />
               <div>
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                <p className="text-sm  text-slate-900 dark:text-white">
                   My Designs
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Browse & manage
                 </p>
               </div>
@@ -442,10 +442,10 @@ const DesignEngineerDashboard = () => {
                 className="text-green-600 dark:text-green-400"
               />
               <div>
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                <p className="text-sm  text-slate-900 dark:text-white">
                   Create BOM
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Bill of materials
                 </p>
               </div>
@@ -459,10 +459,10 @@ const DesignEngineerDashboard = () => {
                 className="text-indigo-600 dark:text-indigo-400"
               />
               <div>
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                <p className="text-sm  text-slate-900 dark:text-white">
                   Department Tasks
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {departmentTasks.length} assigned
                 </p>
               </div>
@@ -470,8 +470,8 @@ const DesignEngineerDashboard = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
             Recent Tasks
           </h3>
           <div className="space-y-3 max-h-80 overflow-y-auto">
@@ -481,7 +481,7 @@ const DesignEngineerDashboard = () => {
                 className="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-700 last:border-0"
               >
                 <div
-                  className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${
+                  className={`w-2.5 h-2.5 rounded  mt-1.5 flex-shrink-0 ${
                     task.status === "completed"
                       ? "bg-green-500"
                       : task.status === "in_progress"
@@ -496,11 +496,11 @@ const DesignEngineerDashboard = () => {
                     {task.title}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-slate-600 dark:text-slate-400">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
                       {task.rootCard?.title || "N/A"}
                     </span>
                     <span className="text-xs text-slate-500">•</span>
-                    <span className="text-xs text-slate-600 dark:text-slate-400">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
                       {new Date(task.createdAt).toLocaleDateString("en-IN")}
                     </span>
                   </div>

@@ -128,14 +128,14 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
         {/* Modal Header */}
         <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded bg-green-500/10 flex items-center justify-center">
               <Send size={20} className="text-green-600" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Material Request</h2>
+              <h2 className="text-lg  text-slate-900 dark:text-white">Material Request</h2>
               <div className="flex items-center gap-2">
                 <Activity size={12} className="text-green-500" />
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Resource Acquisition Phase</span>
+                <span className="text-[10px]   text-slate-500 tracking-wider">Resource Acquisition Phase</span>
               </div>
             </div>
           </div>
@@ -148,19 +148,19 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
         <div className="p-6 space-y-2 max-h-[70vh] overflow-y-auto text-slate-900 dark:text-slate-100">
           {/* Metadata Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Request Identifier</span>
-              <p className="text-sm font-bold text-slate-900 dark:text-white mt-1 uppercase">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700/50">
+              <span className="text-[10px]   text-slate-400">Request Identifier</span>
+              <p className="text-sm  text-slate-900 dark:text-white mt-1 ">
                 {planId ? `PP-MR-${planId}` : 'PENDING SAVE'}
               </p>
             </div>
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
-              <span className="text-[10px] uppercase font-bold text-slate-400">Originating Dept</span>
-              <p className="text-sm font-bold text-slate-900 dark:text-white mt-1 uppercase">Production</p>
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700/50">
+              <span className="text-[10px]   text-slate-400">Originating Dept</span>
+              <p className="text-sm  text-slate-900 dark:text-white mt-1 ">Production</p>
             </div>
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
-              <span className="text-[10px] uppercase font-bold text-slate-400">SLA Target Date</span>
-              <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">{data.estimatedCompletionDate || 'Not set'}</p>
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700/50">
+              <span className="text-[10px]   text-slate-400">SLA Target Date</span>
+              <p className="text-sm  text-slate-900 dark:text-white mt-1">{data.estimatedCompletionDate || 'Not set'}</p>
             </div>
           </div>
 
@@ -168,13 +168,13 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
           {/* Components List */}
           <div>
             <div className="flex items-center gap-2 mb-4 px-1">
-              <div className="w-1 h-4 bg-green-500 rounded-full" />
-              <h3 className="text-xs font-bold text-black dark:text-slate-200 uppercase tracking-wider">Requested Components ({consolidatedMaterials?.length || 0})</h3>
+              <div className="w-1 h-4 bg-green-500 rounded " />
+              <h3 className="text-xs  text-black dark:text-slate-200  tracking-wider">Requested Components ({consolidatedMaterials?.length || 0})</h3>
             </div>
-            <div className="border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden">
+            <div className="border border-slate-100 dark:border-slate-800 rounded overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-800 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                  <tr className="bg-slate-50 dark:bg-slate-800 text-[10px]   text-slate-500 tracking-wider">
                     <th className="px-6 py-3 text-left">Component Intelligence</th>
                     <th className="px-6 py-3 text-center">Required</th>
                     <th className="px-6 py-3 text-center">Unit</th>
@@ -185,7 +185,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
                     <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="p-2">
                         <div>
-                          <p className="font-bold text-slate-900 dark:text-white text-xs">
+                          <p className=" text-slate-900 dark:text-white text-xs">
                             {m.itemName || m.specification}
                             {(m.itemCode || m.materialCode) && (
                               <span className="ml-1 text-slate-400 font-medium">
@@ -196,10 +196,10 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
                         </div>
                       </td>
                       <td className="p-2 text-center">
-                        <span className="font-bold text-slate-900 dark:text-white">{m.requiredQty}</span>
+                        <span className=" text-slate-900 dark:text-white">{m.requiredQty}</span>
                       </td>
                       <td className="p-2 text-center">
-                        <span className="text-[10px] text-slate-400 font-bold uppercase">{m.uom || 'KG'}</span>
+                        <span className="text-[10px] text-slate-400  ">{m.uom || 'KG'}</span>
                       </td>
                     </tr>
                   ))}
@@ -214,14 +214,14 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
           <button 
             onClick={onClose} 
             disabled={isSubmitting}
-            className="px-5 py-2 text-slate-600 dark:text-slate-400 text-xs font-bold hover:text-slate-900 transition-colors"
+            className="px-5 py-2 text-slate-500 dark:text-slate-400 text-xs  hover:text-slate-900 transition-colors"
           >
             Abort Request
           </button>
           <button 
             onClick={handleProcessRequest}
             disabled={isSubmitting || !materials || materials.length === 0}
-            className="inline-flex items-center gap-2 px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded font-bold hover:bg-black transition-all text-xs border border-slate-800 disabled:bg-slate-400"
+            className="inline-flex items-center gap-2 px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded  hover:bg-black transition-all text-xs border border-slate-800 disabled:bg-slate-400"
           >
             {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
             Process Request

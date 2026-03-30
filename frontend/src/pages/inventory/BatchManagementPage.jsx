@@ -166,11 +166,11 @@ const BatchManagementPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-md font-bold text-slate-900 dark:text-white text-xs flex items-center  gap-2">
+          <h2 className="text-md  text-slate-900 dark:text-white text-xs flex items-center  gap-2">
             <Package size={24} />
             Batch Management
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             Track and manage inventory batches
           </p>
         </div>
@@ -187,7 +187,7 @@ const BatchManagementPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search
@@ -222,7 +222,7 @@ const BatchManagementPage = () => {
       </div>
 
       {/* Batches Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -259,7 +259,7 @@ const BatchManagementPage = () => {
                     className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                   >
                     <td className="p-1">
-                      <p className="font-bold text-slate-900 dark:text-white text-xs">
+                      <p className=" text-slate-900 dark:text-white text-xs">
                         {batch.batchNo}
                       </p>
                     </td>
@@ -301,7 +301,7 @@ const BatchManagementPage = () => {
                     </td>
                     <td className="p-1 text-center">
                       <span
-                        className={`inline-flex items-center text-xs gap-1 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                        className={`inline-flex items-center text-xs gap-1 px-3 py-1 rounded  text-xs font-semibold ${getStatusColor(
                           batch.status
                         )}`}
                       >
@@ -330,35 +330,35 @@ const BatchManagementPage = () => {
 
       {/* Batch Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-green-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-green-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Active Batches
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData.filter((b) => b.status === "active").length}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-yellow-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-yellow-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Expiring Soon
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData.filter((b) => b.status === "expiring").length}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-red-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-red-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Expired Batches
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData.filter((b) => b.status === "expired").length}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-blue-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-blue-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Total Quantity
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData
               .reduce((sum, batch) => sum + batch.quantity, 0)
               .toLocaleString()}

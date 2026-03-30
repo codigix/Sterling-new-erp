@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CheckSquare, Clock, AlertCircle, TrendingUp } from "lucide-react";
+import Select from "../../components/ui/Select";
 
 const WorkerDashboardPage = () => {
   const [dateRange, setDateRange] = useState("week");
@@ -126,23 +127,24 @@ const WorkerDashboardPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Task Overview
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
             Monitor your assigned tasks and progress
           </p>
         </div>
-        <select
-          value={dateRange}
-          onChange={(e) => setDateRange(e.target.value)}
-          className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white font-medium"
-        >
-          <option value="today">Today</option>
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-          <option value="all">All Time</option>
-        </select>
+        <div className="min-w-[150px] -mt-3">
+          <Select
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value)}
+          >
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="all">All Time</option>
+          </Select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -151,49 +153,49 @@ const WorkerDashboardPage = () => {
             key={stat.label}
             className={`${stat.bgColor} rounded p-6 border border-slate-200 dark:border-slate-700`}
           >
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-300 mb-2">
               {stat.label}
             </p>
-            <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
+            <p className={`text-3xl  ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+        <h2 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
           Task Completion Progress
         </h2>
         <div className="space-y-4">
           <div className="flex items-center text-xs justify-between">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-300">
               Overall Completion
             </span>
-            <span className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+            <span className="text-sm  text-slate-900 dark:text-white text-xs">
               {Math.round(completionPercentage)}%
             </span>
           </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-3">
             <div
-              className="bg-green-600 h-3 rounded-full transition-all"
+              className="bg-green-600 h-3 rounded  transition-all"
               style={{ width: `${completionPercentage}%` }}
             />
           </div>
           <div className="grid grid-cols-3 gap-4 mt-6">
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">15</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-2xl  text-green-600">15</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Completed
               </p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">6</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-2xl  text-blue-600">6</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 In Progress
               </p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-orange-600">2</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-2xl  text-orange-600">2</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Pending
               </p>
             </div>
@@ -202,7 +204,7 @@ const WorkerDashboardPage = () => {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+        <h2 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
           Upcoming Tasks
         </h2>
         <div className="overflow-x-auto">
@@ -240,14 +242,14 @@ const WorkerDashboardPage = () => {
                   </td>
                   <td className="py-3 px-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${getPeriodColor(
+                      className={`px-3 py-1 rounded  text-xs font-semibold ${getPeriodColor(
                         task.period
                       )}`}
                     >
                       {task.period}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-slate-600 dark:text-slate-300">
+                  <td className="py-3 px-4 text-slate-500 dark:text-slate-300">
                     {task.dueDate}
                   </td>
                   <td className="py-3 px-4">
@@ -262,7 +264,7 @@ const WorkerDashboardPage = () => {
                   </td>
                   <td className="py-3 px-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                      className={`px-3 py-1 rounded  text-xs font-semibold ${getStatusColor(
                         task.status
                       )}`}
                     >
@@ -272,7 +274,7 @@ const WorkerDashboardPage = () => {
                           task.status.slice(1)}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-slate-600 dark:text-slate-300 text-sm">
+                  <td className="py-3 px-4 text-slate-500 dark:text-slate-300 text-sm">
                     {task.assignedBy}
                   </td>
                 </tr>

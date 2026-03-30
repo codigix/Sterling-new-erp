@@ -475,10 +475,10 @@ const InventoryTasksPage = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h2 className="text-md font-bold text-slate-900 dark:text-white text-xs">
+        <h2 className="text-md  text-slate-900 dark:text-white text-xs">
           Inventory Task Management
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-xs mt-1">
+        <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
           Create and manage tasks for Material Requests
         </p>
       </div>
@@ -487,7 +487,7 @@ const InventoryTasksPage = () => {
         {/* Sidebar - Material Requests */}
         <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[calc(100vh-200px)]">
           <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
-            <h2 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
+            <h2 className=" text-slate-900 dark:text-white flex items-center gap-2 text-sm  tracking-wider">
               <Package size={18} className="text-blue-600" />
               Material Requests
             </h2>
@@ -513,7 +513,7 @@ const InventoryTasksPage = () => {
                   }`}
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                    <span className="text-xs  text-blue-600 dark:text-blue-400">
                       {mr.mr_number}
                     </span>
                     <button
@@ -530,10 +530,10 @@ const InventoryTasksPage = () => {
                     {mr.purpose || "Material Request"}
                   </p>
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-tight bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400   bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
                       {mr.department}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-400">
+                    <span className="text-[10px]  text-slate-400">
                       {new Date(mr.created_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -555,15 +555,15 @@ const InventoryTasksPage = () => {
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                       <FileText size={24} className="text-blue-600" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                        <h2 className="text-xl  text-slate-900 dark:text-white">
                           {selectedMR.mr_number}
                         </h2>
-                        <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase ${
+                        <span className={`px-2 py-0.5 text-[10px]  rounded  ${
                           selectedMR.priority === 'critical' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                         }`}>
                           {selectedMR.priority}
@@ -579,7 +579,7 @@ const InventoryTasksPage = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => setShowCreateModal(true)}
-                      className="flex items-center gap-2 font-bold text-xs uppercase"
+                      className="flex items-center gap-2  text-xs "
                     >
                       <Plus size={16} />
                       Add Task
@@ -589,35 +589,35 @@ const InventoryTasksPage = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
+                    <p className="text-[10px]   text-slate-500 dark:text-slate-400">
                       Request Date
                     </p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">
+                    <p className="text-sm  text-slate-900 dark:text-white mt-1">
                       {new Date(selectedMR.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
+                    <p className="text-[10px]   text-slate-500 dark:text-slate-400">
                       Workflow Steps
                     </p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">
+                    <p className="text-sm  text-slate-900 dark:text-white mt-1">
                       {tasks.length} Created
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
+                    <p className="text-[10px]   text-slate-500 dark:text-slate-400">
                       Completion
                     </p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">
+                    <p className="text-sm  text-slate-900 dark:text-white mt-1">
                       {tasks.length > 0 ? Math.round((tasks.filter(t => t.status === 'completed').length / tasks.length) * 100) : 0}%
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
+                    <p className="text-[10px]   text-slate-500 dark:text-slate-400">
                       Workflow Status
                     </p>
                     <p
-                      className={`text-sm font-bold mt-1 uppercase ${
+                      className={`text-sm  mt-1  ${
                         tasks.every((t) => t.status === "completed") && tasks.length > 0
                           ? "text-green-600"
                           : tasks.some((t) => t.status === "in_progress")
@@ -637,7 +637,7 @@ const InventoryTasksPage = () => {
                 {tasks.length > 0 && (
                   <div>
                     <div className="flex items-center justify-between mb-6">
-                      <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <h4 className=" text-slate-900 dark:text-white flex items-center gap-2">
                         <Zap size={18} className="text-amber-500" />
                         Execution Workflow
                       </h4>
@@ -645,7 +645,7 @@ const InventoryTasksPage = () => {
                         <button
                           onClick={handleInitializeWorkflow}
                           disabled={isInitiatingWorkflow}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold uppercase bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 transition-all disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px]   bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 transition-all disabled:opacity-50"
                           title="Initialize or missing workflow tasks"
                         >
                           <RefreshCw size={12} className={isInitiatingWorkflow ? "animate-spin" : ""} />
@@ -655,7 +655,7 @@ const InventoryTasksPage = () => {
                           <button
                             onClick={handleBulkDelete}
                             disabled={isDeleting}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold uppercase bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px]   bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all disabled:opacity-50"
                           >
                             <Trash2 size={12} />
                             Delete ({selectedTasks.size})
@@ -676,8 +676,8 @@ const InventoryTasksPage = () => {
                           >
                             <div className="flex items-center justify-between px-1">
                               <div className="flex items-center gap-2">
-                                <div className={`w-1.5 h-1.5 rounded-full ${getPhaseColor(phase.id).replace('bg-', 'bg-').split(' ')[0]}`} />
-                                <h5 className={`font-bold text-[10px] uppercase tracking-wider ${getPhaseTextColor(phase.id)}`}>
+                                <div className={`w-1.5 h-1.5 rounded  ${getPhaseColor(phase.id).replace('bg-', 'bg-').split(' ')[0]}`} />
+                                <h5 className={` text-[10px]  tracking-wider ${getPhaseTextColor(phase.id)}`}>
                                   {phase.name}
                                 </h5>
                               </div>
@@ -695,7 +695,7 @@ const InventoryTasksPage = () => {
                                 .map((task) => (
                                   <div
                                     key={task.id}
-                                    className={`group rounded-xl p-4 transition-all border ${
+                                    className={`group rounded p-4 transition-all border ${
                                       selectedTasks.has(task.id)
                                         ? "bg-blue-50/50 dark:bg-blue-900/20 border-blue-300"
                                         : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 hover:shadow-sm"
@@ -714,14 +714,14 @@ const InventoryTasksPage = () => {
                                       >
                                         <div className="flex items-start justify-between">
                                           <div>
-                                            <h6 className="font-bold text-slate-900 dark:text-white text-sm">
+                                            <h6 className=" text-slate-900 dark:text-white text-sm">
                                               {task.title || task.step_name}
                                             </h6>
                                             <div className="flex items-center gap-3 mt-1.5">
-                                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${getStatusColor(task.backend_status || task.status)}`}>
+                                              <span className={`px-2 py-0.5 rounded text-[10px]   ${getStatusColor(task.backend_status || task.status)}`}>
                                                 {task.backend_status || task.status}
                                               </span>
-                                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${getPriorityBadge(task.priority)}`}>
+                                              <span className={`px-2 py-0.5 rounded text-[10px]   ${getPriorityBadge(task.priority)}`}>
                                                 {task.priority}
                                               </span>
                                             </div>
@@ -755,10 +755,10 @@ const InventoryTasksPage = () => {
 
                 {tasks.length === 0 && (
                   <div className="text-center py-16 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700">
-                    <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded  flex items-center justify-center mx-auto mb-4 shadow-sm">
                       <Zap size={32} className="text-slate-300" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Initialize Workflow</h3>
+                    <h3 className="text-lg  text-slate-900 dark:text-white">Initialize Workflow</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
                       No active workflow tasks found for this request. Click the button below to automatically generate all required inventory workflow steps.
                     </p>
@@ -767,7 +767,7 @@ const InventoryTasksPage = () => {
                         onClick={handleInitializeWorkflow}
                         loading={isInitiatingWorkflow}
                         icon={Play}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-lg shadow-blue-200 dark:shadow-none transition-all active:scale-95"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow-lg shadow-blue-200 dark:shadow-none transition-all active:scale-95"
                       >
                         {isInitiatingWorkflow ? "Initializing..." : "Initialize Workflow Tasks"}
                       </Button>
@@ -778,10 +778,10 @@ const InventoryTasksPage = () => {
             </div>
           ) : (
             <div className="h-[calc(100vh-200px)] flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded border-2 border-dashed border-slate-200 dark:border-slate-700 p-12">
-              <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900/50 rounded-full flex items-center justify-center mb-6">
+              <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900/50 rounded  flex items-center justify-center mb-6">
                 <Package size={40} className="text-slate-300" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Workflow Management</h3>
+              <h3 className="text-xl  text-slate-900 dark:text-white">Workflow Management</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 text-center max-w-sm">
                 Select a material request from the left panel to manage its acquisition and fulfillment workflow tasks.
               </p>
@@ -793,12 +793,12 @@ const InventoryTasksPage = () => {
       {/* Create Custom Task Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-xl w-full max-w-md overflow-hidden">
             <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 dark:text-white">Create Custom Task</h3>
+              <h3 className=" text-slate-900 dark:text-white">Create Custom Task</h3>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full"
+                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded "
               >
                 <X size={20} />
               </button>

@@ -86,7 +86,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader className="animate-spin text-blue-500" size={24} />
-        <span className="ml-3 text-slate-600 dark:text-slate-400">Loading phases...</span>
+        <span className="ml-3 text-slate-500 dark:text-slate-400">Loading phases...</span>
       </div>
     );
   }
@@ -104,7 +104,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
 
       {phases.length === 0 && !isAdding ? (
         <div className="text-center py-8">
-          <p className="text-slate-600 dark:text-slate-400 mb-4">No production phases yet</p>
+          <p className="text-slate-500 dark:text-slate-400 mb-4">No production phases yet</p>
           {editable && (
             <button
               onClick={() => setIsAdding(true)}
@@ -125,7 +125,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full font-semibold text-sm">
+                    <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded  font-semibold text-sm">
                       {index + 1}
                     </div>
                     <div>
@@ -140,7 +140,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                         }`}>
                           {phase.stage_type === 'in_house' ? 'In-House' : 'Outsource'}
                         </span>
-                        <span className="text-xs text-slate-600 dark:text-slate-400">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           {phase.status === 'pending' ? 'Pending' : phase.status || 'Pending'}
                         </span>
                       </div>
@@ -162,7 +162,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                   <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
                     {phase.planned_start && (
                       <div>
-                        <p className="text-xs text-slate-600 dark:text-slate-400">Start Date</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Start Date</p>
                         <p className="text-slate-900 dark:text-white">
                           {new Date(phase.planned_start).toLocaleDateString()}
                         </p>
@@ -170,7 +170,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                     )}
                     {phase.planned_end && (
                       <div>
-                        <p className="text-xs text-slate-600 dark:text-slate-400">End Date</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">End Date</p>
                         <p className="text-slate-900 dark:text-white">
                           {new Date(phase.planned_end).toLocaleDateString()}
                         </p>
@@ -181,7 +181,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
 
                 {phase.notes && (
                   <div className="mt-3 p-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Notes</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Notes</p>
                     <p className="text-sm text-slate-900 dark:text-white mt-1">{phase.notes}</p>
                   </div>
                 )}
@@ -192,7 +192,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
           {editable && !isAdding && (
             <button
               onClick={() => setIsAdding(true)}
-              className="w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               + Add Phase
             </button>

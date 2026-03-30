@@ -53,11 +53,11 @@ const Modal = ({
         {title && (
           <div className="flex items-center justify-between p-3 border-b border-slate-700/50">
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-left tracking-tight">{title}</h3>
+              <h3 className="text-lg  text-left ">{title}</h3>
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-2 rounded  text-xshover:bg-white/10 transition-all duration-200 ml-4"
+              className="text-slate-400 hover:text-white p-2 rounded hover:bg-white/10 transition-all duration-200 ml-4"
               aria-label="Close modal"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

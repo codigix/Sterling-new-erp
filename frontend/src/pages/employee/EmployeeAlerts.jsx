@@ -75,24 +75,24 @@ const EmployeeAlerts = () => {
     <div className="w-full min-h-screen bg-white space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-left dark:text-white mb-2">
+          <h1 className="text-3xl  text-left dark:text-white mb-2">
             Alerts & Notifications
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-slate-500 dark:text-slate-400">
             Stay updated with important notifications and alerts
           </p>
         </div>
         {unreadCount > 0 && (
-          <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-full font-semibold border border-red-200 dark:border-red-900/50">
+          <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded  font-semibold border border-red-200 dark:border-red-900/50">
             {unreadCount} new
           </div>
         )}
       </div>
 
       {alerts.length === 0 ? (
-        <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-12 text-center  transition-all">
+        <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded p-12 text-center  transition-all">
           <CheckCircle className="w-12 h-12 mx-auto text-green-600 dark:text-green-400 mb-3" />
-          <p className="text-slate-600 dark:text-slate-400 font-medium">
+          <p className="text-slate-500 dark:text-slate-400 font-medium">
             You're all caught up! No new alerts.
           </p>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -104,7 +104,7 @@ const EmployeeAlerts = () => {
           {alerts.map((alert) => (
             <div 
               key={alert.id} 
-              className={`bg-white border-2 rounded-xl p-4  transition-all ${getAlertColor(alert.type)} ${!alert.read ? 'ring-2 ring-primary-500' : ''}`}
+              className={`bg-white border-2 rounded p-4  transition-all ${getAlertColor(alert.type)} ${!alert.read ? 'ring-2 ring-primary-500' : ''}`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3 flex-1">
@@ -118,13 +118,13 @@ const EmployeeAlerts = () => {
                         {alert.type}
                       </Badge>
                       {!alert.read && (
-                        <span className="w-2 h-2 bg-primary-600 rounded-full"></span>
+                        <span className="w-2 h-2 bg-primary-600 rounded "></span>
                       )}
                     </div>
                     <p className="text-sm text-slate-700 dark:text-slate-300 mb-2">
                       {alert.message}
                     </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       {alert.timestamp}
                     </p>
                   </div>
@@ -135,7 +135,7 @@ const EmployeeAlerts = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => markAsRead(alert.id)}
-                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      className="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
                       title="Mark as read"
                     >
                       <CheckCircle className="w-3 h-3" />
@@ -145,7 +145,7 @@ const EmployeeAlerts = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => dismissAlert(alert.id)}
-                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    className="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
                     title="Dismiss"
                   >
                     <X className="w-3 h-3" />

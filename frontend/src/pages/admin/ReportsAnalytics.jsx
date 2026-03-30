@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import DataTable from '../../components/ui/DataTable/DataTable';
 import {
   Download,
   LayoutDashboard,
@@ -73,6 +74,217 @@ const ReportsAnalytics = () => {
     ]
   };
 
+  const projectColumns = [
+    {
+      key: 'id',
+      label: 'Project ID',
+      sortable: true,
+      render: (value) => `PRJ-${value}`,
+    },
+    {
+      key: 'name',
+      label: 'Project Name',
+      sortable: true,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-3 py-1 rounded  text-xs ${
+          value === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+          value === 'Active' ? 'bg-blue-100 text-blue-700' :
+          'bg-amber-100 text-amber-700'
+        }`}>
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: 'progress',
+      label: 'Progress',
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center text-xs gap-2 min-w-[100px]">
+          <div className="flex-1 bg-slate-200 rounded  h-2">
+            <div className="bg-blue-500 h-2 rounded " style={{ width: `${value}%` }}></div>
+          </div>
+          <span className="text-xs text-slate-700 w-8">{value}%</span>
+        </div>
+      ),
+    },
+    {
+      key: 'startDate',
+      label: 'Start Date',
+      sortable: true,
+    },
+    {
+      key: 'expectedCompletion',
+      label: 'Expected Completion',
+      sortable: true,
+    },
+    {
+      key: 'onTime',
+      label: 'On-Time',
+      sortable: true,
+      render: (value) => (
+        value ? (
+          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+        ) : (
+          <AlertTriangle className="w-3 h-3 text-red-600" />
+        )
+      ),
+    },
+  ];
+
+  const vendorColumns = [
+    {
+      key: 'name',
+      label: 'Vendor Name',
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center text-xs gap-3">
+          <div className="w-8 h-8 bg-blue-100 rounded  flex items-center text-xs justify-center flex-shrink-0">
+            <span className="text-xs text-blue-600">{value.charAt(0)}</span>
+          </div>
+          <span className="font-medium">{value}</span>
+        </div>
+      ),
+    },
+    { key: 'totalOrders', label: 'Total Orders', sortable: true },
+    {
+      key: 'onTimeDelivery',
+      label: 'On-Time Delivery',
+      sortable: true,
+      render: (value) => `${value}%`,
+    },
+    {
+      key: 'qualityRating',
+      label: 'Quality Rating',
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center text-xs gap-1">
+          <span className="text-xs text-slate-700 mr-1">{value}/5</span>
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`w-4 h-4 ${i < value ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: 'totalValue',
+      label: 'Total Value',
+      sortable: true,
+      render: (value) => `₹${value.toLocaleString()}`,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-3 py-1 rounded  text-xs ${
+          value === 'Excellent' ? 'bg-emerald-100 text-emerald-700' :
+          value === 'Good' ? 'bg-blue-100 text-blue-700' :
+          'bg-amber-100 text-amber-700'
+        }`}>
+          {value}
+        </span>
+      ),
+    },
+  ];
+
+  const inventoryColumns = [
+    { key: 'code', label: 'Item Code', sortable: true },
+    { key: 'description', label: 'Description', sortable: true },
+    { key: 'currentStock', label: 'Current Stock', sortable: true },
+    { key: 'minStock', label: 'Min. Stock', sortable: true },
+    {
+      key: 'lastMovement',
+      label: 'Last Movement',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (_, row) => (
+        <span className={`px-3 py-1 rounded  text-xs ${
+          row.currentStock < row.minStock ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
+        }`}>
+          {row.currentStock < row.minStock ? 'Low Stock' : 'In Stock'}
+        </span>
+      ),
+    },
+  ];
+
+  const employeeColumns = [
+    {
+      key: 'name',
+      label: 'Employee',
+      sortable: true,
+      render: (value, row) => (
+        <div className="flex items-center text-xs gap-3">
+          <div className="w-8 h-8 bg-blue-100 rounded  flex items-center text-xs justify-center flex-shrink-0">
+            <span className="text-xs text-blue-600">{value.charAt(0)}</span>
+          </div>
+          <div>
+            <p className="font-medium">{value}</p>
+            <p className="text-xs text-slate-500">ID: {row.id}</p>
+          </div>
+        </div>
+      ),
+    },
+    { key: 'department', label: 'Department', sortable: true },
+    { key: 'tasksCompleted', label: 'Tasks Completed', sortable: true },
+    {
+      key: 'efficiency',
+      label: 'Efficiency',
+      sortable: true,
+      render: (value) => `${value}%`,
+    },
+    {
+      key: 'qualityScore',
+      label: 'Quality Score',
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center text-xs gap-1">
+          <span className="text-xs text-slate-700 mr-1">{value}/5</span>
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`w-4 h-4 ${i < value ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: 'attendance',
+      label: 'Attendance',
+      sortable: true,
+      render: (value) => `${value}%`,
+    },
+    {
+      key: 'rating',
+      label: 'Performance Rating',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-3 py-1 rounded  text-xs ${
+          value >= 4.5 ? 'bg-emerald-100 text-emerald-700' :
+          value >= 4 ? 'bg-blue-100 text-blue-700' :
+          value >= 3 ? 'bg-amber-100 text-amber-700' :
+          'bg-red-100 text-red-700'
+        }`}>
+          {value}/5
+        </span>
+      ),
+    },
+  ];
+
   const exportReport = (format) => {
     const data = JSON.stringify(reportData[selectedReport], null, 2);
     const element = document.createElement('a');
@@ -95,32 +307,32 @@ const ReportsAnalytics = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen  space-y-2 p-6">
+    <div className="w-full min-h-screen  space-y-2">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold ">Reports & Analytics</h1>
-          <p className="text-sm text-slate-600 mt-1 text-left">
+          <h1 className="text-xl  ">Reports & Analytics</h1>
+          <p className="text-xs text-slate-500 mt-1 text-left">
             Comprehensive insights into Sterling ERP operations
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="flex gap-2 bg-slate-50 p-2 rounded border border-slate-200">
+          <div className="flex gap-2">
             <input
               type="date"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
-              className="px-3 py-2 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-2 text-xs bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <span className="text-slate-400 px-2 py-2">to</span>
+            <span className="text-slate-400 text-xs p-2">to</span>
             <input
               type="date"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
-              className="px-3 py-2 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-2 text-xs bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="relative">
+          <div className="relative mt-3">
             <button 
               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
               className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center text-xs gap-2 transition-colors"
@@ -130,9 +342,9 @@ const ReportsAnalytics = () => {
             </button>
             {exportDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded shadow-lg z-50">
-                <button onClick={() => exportReport('pdf')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-sm">Export as PDF</button>
-                <button onClick={() => exportReport('excel')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-sm border-t border-slate-200">Export as Excel</button>
-                <button onClick={() => exportReport('csv')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-sm border-t border-slate-200">Export as CSV</button>
+                <button onClick={() => exportReport('pdf')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-xs">Export as PDF</button>
+                <button onClick={() => exportReport('excel')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-xs border-t border-slate-200">Export as Excel</button>
+                <button onClick={() => exportReport('csv')} className="w-full text-left p-2 hover:bg-slate-50 text-slate-700 text-xs border-t border-slate-200">Export as CSV</button>
               </div>
             )}
           </div>
@@ -140,7 +352,7 @@ const ReportsAnalytics = () => {
       </div>
 
       {/* Report Navigation Tabs */}
-      <div className="border-b border-slate-200 flex gap-8 overflow-x-auto">
+      <div className="border-b border-slate-200 flex my-10 gap-8 overflow-x-auto">
         {reportTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = selectedReport === tab.id;
@@ -148,10 +360,10 @@ const ReportsAnalytics = () => {
             <button
               key={tab.id}
               onClick={() => setSelectedReport(tab.id)}
-              className={`pb-4 px-1 font-medium text-sm flex items-center text-xs gap-2 transition-all border-b-2 ${
+              className={`p-2  text-xs flex items-center text-xs gap-2 transition-all border-b-2 ${
                 isActive
                   ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-600 hover:'
+                  : 'border-transparent text-slate-500 hover:'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -166,7 +378,7 @@ const ReportsAnalytics = () => {
         <div className="space-y-2">
           {/* Key Metrics */}
           <div>
-            <h2 className="text-md font-semibold  mb-4">Key Performance Indicators</h2>
+            <h2 className="text-md   mb-4">Key Performance Indicators</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Projects Completed', value: reportData?.overview?.completedProjects || 0, icon: CheckCircle2, color: 'blue', change: '+15% vs last month' },
@@ -180,12 +392,12 @@ const ReportsAnalytics = () => {
                 const colorText = { blue: 'text-blue-600', emerald: 'text-emerald-600', cyan: 'text-cyan-600', amber: 'text-amber-600' }[metric.color];
                 return (
                   <Card key={idx} className=" transition-shadow border border-slate-100">
-                    <CardContent className="p-5">
-                      <div className="flex items-start justify-between gap-3">
+                    <CardContent className="p-2">
+                      <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1">{metric.label}</p>
-                          <p className="text-2xl font-bold ">{metric.value}</p>
-                          <p className={`text-xs ${colorText} mt-2 font-medium`}>{metric.change}</p>
+                          <p className="text-xs  text-slate-500   mb-1">{metric.label}</p>
+                          <p className="text-xl  ">{metric.value}</p>
+                          <p className={`text-xs ${colorText} mt-2 `}>{metric.change}</p>
                         </div>
                         <div className={`${colorBg} p-3 rounded flex-shrink-0`}>
                           <Icon className={`w-3 h-3 ${colorIcon}`} />
@@ -209,11 +421,11 @@ const ReportsAnalytics = () => {
                   <span>Project Status Trend</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-2">
                 <div className="flex flex-col items-center justify-center py-12">
                   <TrendingUp className="w-12 h-12 text-slate-300 mb-3" />
-                  <h6 className="text-slate-600 font-medium mb-1">Chart Visualization</h6>
-                  <p className="text-slate-500 text-sm">Interactive charts will be displayed here showing project trends over time</p>
+                  <h6 className="text-slate-500  mb-1">Chart Visualization</h6>
+                  <p className="text-slate-500 text-xs">Interactive charts will be displayed here showing project trends over time</p>
                 </div>
               </CardContent>
             </Card>
@@ -227,7 +439,7 @@ const ReportsAnalytics = () => {
                   <span>Department Performance</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="p-2 space-y-4">
                 {[
                   { name: 'Engineering', value: 95, color: 'bg-blue-500' },
                   { name: 'Production', value: 88, color: 'bg-emerald-500' },
@@ -236,11 +448,11 @@ const ReportsAnalytics = () => {
                 ].map((dept, idx) => (
                   <div key={idx}>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-700">{dept.name}</span>
-                      <span className="text-sm font-bold ">{dept.value}%</span>
+                      <span className="text-xs  text-slate-700">{dept.name}</span>
+                      <span className="text-xs  ">{dept.value}%</span>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div className={`${dept.color} h-2 rounded-full`} style={{width: `${dept.value}%`}}></div>
+                    <div className="w-full bg-slate-200 rounded  h-2">
+                      <div className={`${dept.color} h-2 rounded `} style={{width: `${dept.value}%`}}></div>
                     </div>
                   </div>
                 ))}
@@ -260,56 +472,13 @@ const ReportsAnalytics = () => {
               <span>Project Performance Report</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="p-2 text-left font-semibold text-slate-700">Project ID</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Project Name</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Status</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Progress</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Start Date</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Expected Completion</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">On-Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(reportData?.projects || []).map((project, index) => (
-                    <tr key={index} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                      <td className="p-2 font-semibold ">PRJ-{project.id}</td>
-                      <td className="p-2 text-slate-700">{project.name}</td>
-                      <td className="p-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          project.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
-                          project.status === 'Active' ? 'bg-blue-100 text-blue-700' :
-                          'bg-amber-100 text-amber-700'
-                        }`}>
-                          {project.status}
-                        </span>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex items-center text-xs gap-2">
-                          <div className="flex-1 bg-slate-200 rounded-full h-2">
-                            <div className="bg-blue-500 h-2 rounded-full" style={{width: `${project.progress}%`}}></div>
-                          </div>
-                          <span className="text-xs font-semibold text-slate-700 w-8">{project.progress}%</span>
-                        </div>
-                      </td>
-                      <td className="p-2 text-slate-700">{new Date(project.startDate).toLocaleDateString()}</td>
-                      <td className="p-2 text-slate-700">{new Date(project.expectedCompletion).toLocaleDateString()}</td>
-                      <td className="p-2">
-                        {project.onTime ? (
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        ) : (
-                          <AlertTriangle className="w-3 h-3 text-red-600" />
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <CardContent className="p-2">
+            <DataTable
+              columns={projectColumns}
+              data={reportData?.projects || []}
+              striped={true}
+              hover={true}
+            />
           </CardContent>
         </Card>
       )}
@@ -324,32 +493,32 @@ const ReportsAnalytics = () => {
               <span>Department Productivity Report</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(reportData?.departments || []).map((dept, index) => (
-                <div key={index} className="border border-slate-200 rounded-xl p-6  transition-shadow">
-                  <h4 className="font-semibold  mb-6">{dept.name}</h4>
+                <div key={index} className="border border-slate-200 rounded p-2  transition-shadow">
+                  <h4 className="  mb-6">{dept.name}</h4>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center text-xs justify-center mx-auto mb-2">
+                      <div className="w-12 h-12 bg-blue-100 rounded  flex items-center text-xs justify-center mx-auto mb-2">
                         <Users className="w-6 h-6 text-blue-600" />
                       </div>
-                      <p className="text-2xl font-bold ">{dept.totalUsers}</p>
-                      <p className="text-xs text-slate-600 mt-1">Users</p>
+                      <p className="text-xl  ">{dept.totalUsers}</p>
+                      <p className="text-xs text-slate-500 mt-1">Users</p>
                     </div>
                     <div>
-                      <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center text-xs justify-center mx-auto mb-2">
+                      <div className="w-12 h-12 bg-emerald-100 rounded  flex items-center text-xs justify-center mx-auto mb-2">
                         <CheckCircle2 className="w-6 h-6 text-emerald-600" />
                       </div>
-                      <p className="text-2xl font-bold ">{dept.completedTasks}</p>
-                      <p className="text-xs text-slate-600 mt-1">Tasks Done</p>
+                      <p className="text-xl  ">{dept.completedTasks}</p>
+                      <p className="text-xs text-slate-500 mt-1">Tasks Done</p>
                     </div>
                     <div>
-                      <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center text-xs justify-center mx-auto mb-2">
+                      <div className="w-12 h-12 bg-cyan-100 rounded  flex items-center text-xs justify-center mx-auto mb-2">
                         <Clock className="w-6 h-6 text-cyan-600" />
                       </div>
-                      <p className="text-2xl font-bold ">{dept.avgEfficiency}%</p>
-                      <p className="text-xs text-slate-600 mt-1">Efficiency</p>
+                      <p className="text-xl  ">{dept.avgEfficiency}%</p>
+                      <p className="text-xs text-slate-500 mt-1">Efficiency</p>
                     </div>
                   </div>
                 </div>
@@ -369,62 +538,13 @@ const ReportsAnalytics = () => {
               <span>Vendor Performance Report</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="p-2 text-left font-semibold text-slate-700">Vendor Name</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Total Orders</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">On-Time Delivery</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Quality Rating</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Total Value</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(reportData?.vendors || []).map((vendor, index) => (
-                    <tr key={index} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                      <td className="p-2">
-                        <div className="flex items-center text-xs gap-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center text-xs justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-blue-600">{vendor.name.charAt(0)}</span>
-                          </div>
-                          <span className="font-medium ">{vendor.name}</span>
-                        </div>
-                      </td>
-                      <td className="p-2 text-slate-700">{vendor.totalOrders}</td>
-                      <td className="p-2 text-slate-700">{vendor.onTimeDelivery}%</td>
-                      <td className="p-2">
-                        <div className="flex items-center text-xs gap-1">
-                          <span className="text-sm font-medium text-slate-700 mr-1">{vendor.qualityRating}/5</span>
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${
-                                i < vendor.qualityRating
-                                  ? 'fill-amber-400 text-amber-400'
-                                  : 'text-slate-300'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-2 font-semibold ">₹{vendor.totalValue.toLocaleString()}</td>
-                      <td className="p-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          vendor.status === 'Excellent' ? 'bg-emerald-100 text-emerald-700' :
-                          vendor.status === 'Good' ? 'bg-blue-100 text-blue-700' :
-                          'bg-amber-100 text-amber-700'
-                        }`}>
-                          {vendor.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <CardContent className="p-2">
+            <DataTable
+              columns={vendorColumns}
+              data={reportData?.vendors || []}
+              striped={true}
+              hover={true}
+            />
           </CardContent>
         </Card>
       )}
@@ -439,7 +559,7 @@ const ReportsAnalytics = () => {
               <span>Inventory Movement Report</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 space-y-2">
+          <CardContent className="p-2 space-y-2">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Total Items', value: reportData?.inventory?.totalItems || 0, color: 'bg-blue-500', icon: Package },
@@ -449,49 +569,21 @@ const ReportsAnalytics = () => {
               ].map((metric, idx) => {
                 const Icon = metric.icon;
                 return (
-                  <div key={idx} className={`${metric.color} text-white rounded-xl p-6 text-center`}>
+                  <div key={idx} className={`${metric.color} text-white rounded p-6 text-center`}>
                     <Icon className="w-6 h-6 mx-auto mb-3 opacity-80" />
-                    <p className="text-3xl font-bold mb-1">{metric.value}</p>
-                    <p className="text-sm opacity-90">{metric.label}</p>
+                    <p className="text-3xl  mb-1">{metric.value}</p>
+                    <p className="text-xs opacity-90">{metric.label}</p>
                   </div>
                 );
               })}
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="p-2 text-left font-semibold text-slate-700">Item Code</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Description</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Current Stock</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Min. Stock</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Last Movement</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(reportData?.inventory?.items || []).map((item, index) => (
-                    <tr key={index} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                      <td className="p-2 font-semibold ">{item.code}</td>
-                      <td className="p-2 text-slate-700">{item.description}</td>
-                      <td className="p-2 text-slate-700">{item.currentStock}</td>
-                      <td className="p-2 text-slate-700">{item.minStock}</td>
-                      <td className="p-2 text-slate-700">{new Date(item.lastMovement).toLocaleDateString()}</td>
-                      <td className="p-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          item.currentStock < item.minStock
-                            ? 'bg-red-100 text-red-700'
-                            : 'bg-emerald-100 text-emerald-700'
-                        }`}>
-                          {item.currentStock < item.minStock ? 'Low Stock' : 'In Stock'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={inventoryColumns}
+              data={reportData?.inventory?.items || []}
+              striped={true}
+              hover={true}
+            />
           </CardContent>
         </Card>
       )}
@@ -506,68 +598,13 @@ const ReportsAnalytics = () => {
               <span>Employee Performance Report</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="p-2 text-left font-semibold text-slate-700">Employee</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Department</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Tasks Completed</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Efficiency</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Quality Score</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Attendance</th>
-                    <th className="p-2 text-left font-semibold text-slate-700">Performance Rating</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(reportData?.employees || []).map((employee, index) => (
-                    <tr key={index} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                      <td className="p-2">
-                        <div className="flex items-center text-xs gap-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center text-xs justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-blue-600">{employee.name.charAt(0)}</span>
-                          </div>
-                          <div>
-                            <p className="font-medium ">{employee.name}</p>
-                            <p className="text-xs text-slate-500">ID: {employee.id}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-2 text-slate-700">{employee.department}</td>
-                      <td className="p-2 text-slate-700">{employee.tasksCompleted}</td>
-                      <td className="p-2 text-slate-700">{employee.efficiency}%</td>
-                      <td className="p-2">
-                        <div className="flex items-center text-xs gap-1">
-                          <span className="text-sm font-medium text-slate-700 mr-1">{employee.qualityScore}/5</span>
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${
-                                i < employee.qualityScore
-                                  ? 'fill-amber-400 text-amber-400'
-                                  : 'text-slate-300'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-2 text-slate-700">{employee.attendance}%</td>
-                      <td className="p-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          employee.rating >= 4.5 ? 'bg-emerald-100 text-emerald-700' :
-                          employee.rating >= 4 ? 'bg-blue-100 text-blue-700' :
-                          employee.rating >= 3 ? 'bg-amber-100 text-amber-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          {employee.rating}/5
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <CardContent className="p-2">
+            <DataTable
+              columns={employeeColumns}
+              data={reportData?.employees || []}
+              striped={true}
+              hover={true}
+            />
           </CardContent>
         </Card>
       )}

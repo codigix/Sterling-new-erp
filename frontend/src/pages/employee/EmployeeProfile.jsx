@@ -118,14 +118,14 @@ const EmployeeProfile = () => {
   return (
     <div className="w-full min-h-screen bg-white space-y-2">
       <div>
-        <h1 className="text-3xl font-bold text-left dark:text-white mb-2">My Profile</h1>
-        <p className="text-slate-600 dark:text-slate-400">
+        <h1 className="text-3xl  text-left dark:text-white mb-2">My Profile</h1>
+        <p className="text-slate-500 dark:text-slate-400">
           View and manage your profile information
         </p>
       </div>
 
       {successMessage && (
-        <div className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 p-4 rounded-xl border border-green-200 dark:border-green-900/50 flex items-center justify-between">
+        <div className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 p-4 rounded border border-green-200 dark:border-green-900/50 flex items-center justify-between">
           <span>{successMessage}</span>
           <button onClick={() => setSuccessMessage(null)} className="text-green-800 dark:text-green-300 hover:text-green-900">
             <X className="w-4 h-4" />
@@ -134,7 +134,7 @@ const EmployeeProfile = () => {
       )}
 
       {errorMessage && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 p-4 rounded-xl border border-red-200 dark:border-red-900/50 flex items-center justify-between">
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 p-4 rounded border border-red-200 dark:border-red-900/50 flex items-center justify-between">
           <span>{errorMessage}</span>
           <button onClick={() => setErrorMessage(null)} className="text-red-800 dark:text-red-300 hover:text-red-900">
             <X className="w-4 h-4" />
@@ -142,7 +142,7 @@ const EmployeeProfile = () => {
         </div>
       )}
 
-      <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded-xl p-6  transition-all hover:border-blue-300 dark:hover:border-blue-700">
+      <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded p-6  transition-all hover:border-blue-300 dark:hover:border-blue-700">
         <div className="mb-4 flex items-center gap-2">
           <User className="w-3 h-3 text-blue-600 dark:text-blue-400" />
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Personal Information</h2>
@@ -150,13 +150,13 @@ const EmployeeProfile = () => {
         
         <div className="space-y-2">
           <div className="flex items-start gap-6">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center text-xs justify-center text-white text-3xl font-bold shadow-lg">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-400 rounded  flex items-center text-xs justify-center text-white text-3xl  shadow-lg">
               {profileData.firstName?.charAt(0) || "E"}
             </div>
             {!isEditing ? (
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white text-left">{profileData.firstName} {profileData.lastName}</h3>
-                <p className="text-lg text-slate-600 dark:text-slate-400 mt-1 text-sm">
+                <h3 className="text-xl  text-slate-900 dark:text-white text-left">{profileData.firstName} {profileData.lastName}</h3>
+                <p className="text-lg text-slate-500 dark:text-slate-400 mt-1 text-sm">
                   {profileData.designation}
                 </p>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
@@ -193,7 +193,7 @@ const EmployeeProfile = () => {
             {!isEditing ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
                     Email Address
                   </p>
                   <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
@@ -203,7 +203,7 @@ const EmployeeProfile = () => {
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
                     Designation
                   </p>
                   <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
@@ -213,7 +213,7 @@ const EmployeeProfile = () => {
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
                     Department
                   </p>
                   <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
@@ -223,7 +223,7 @@ const EmployeeProfile = () => {
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
                     Role
                   </p>
                   <p className="text-slate-900 dark:text-white font-medium">
@@ -245,21 +245,21 @@ const EmployeeProfile = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
                       Email Address
                     </p>
                     <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
-                      <Mail className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                      <Mail className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                       {user?.email}
                     </p>
                   </div>
 
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
                       Department
                     </p>
                     <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
-                      <Building2 className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                      <Building2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                       {user?.department}
                     </p>
                   </div>
@@ -300,7 +300,7 @@ const EmployeeProfile = () => {
         </div>
       </div>
 
-      <div className="bg-white border-2 border-purple-100 dark:border-purple-900/30 rounded-xl p-6  transition-all hover:border-purple-300 dark:hover:border-purple-700">
+      <div className="bg-white border-2 border-purple-100 dark:border-purple-900/30 rounded p-6  transition-all hover:border-purple-300 dark:hover:border-purple-700">
         <div className="mb-4 flex items-center gap-2">
           <Lock className="w-3 h-3 text-purple-600 dark:text-purple-400" />
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Security</h2>
@@ -341,7 +341,7 @@ const EmployeeProfile = () => {
               placeholder="Enter new password"
               className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               At least 8 characters long
             </p>
           </div>
@@ -375,39 +375,39 @@ const EmployeeProfile = () => {
         </div>
       </div>
 
-      <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-6  transition-all">
+      <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded p-6  transition-all">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Account Statistics</h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover:shadow-md transition">
-            <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+          <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover: transition">
+            <p className="text-2xl  text-primary-600 dark:text-primary-400">
               24
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Projects
             </p>
           </div>
-          <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover:shadow-md transition">
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover: transition">
+            <p className="text-2xl  text-green-600 dark:text-green-400">
               156
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Hours
             </p>
           </div>
-          <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover:shadow-md transition">
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover: transition">
+            <p className="text-2xl  text-blue-600 dark:text-blue-400">
               95%
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Attendance
             </p>
           </div>
-          <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover:shadow-md transition">
-            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+          <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover: transition">
+            <p className="text-2xl  text-purple-600 dark:text-purple-400">
               38
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Tasks Done
             </p>
           </div>

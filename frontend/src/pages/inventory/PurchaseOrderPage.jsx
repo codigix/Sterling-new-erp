@@ -81,12 +81,12 @@ const KanbanView = ({
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-2">
               <div
-                className={`w-2 h-2 rounded-full ${getStatusColor(col.id)}`}
+                className={`w-2 h-2 rounded ${getStatusColor(col.id)}`}
               />
-              <h3 className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">
+              <h3 className="text-xs  text-slate-700 dark:text-slate-300  ">
                 {col.title}
               </h3>
-              <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-500">
+              <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs  text-slate-500">
                 {data.filter((po) => po.status === col.id).length}
               </span>
             </div>
@@ -94,8 +94,8 @@ const KanbanView = ({
 
           <div className="flex flex-col gap-3 flex-1">
             {data.filter((po) => po.status === col.id).length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 bg-slate-50/50 dark:bg-slate-800/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-800/50">
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+              <div className="flex flex-col items-center justify-center py-10 bg-slate-50/50 dark:bg-slate-800/20 rounded border border-dashed border-slate-200 dark:border-slate-800/50">
+                <p className="text-xs  text-slate-400  ">
                   No orders
                 </p>
               </div>
@@ -113,12 +113,12 @@ const KanbanView = ({
                   return (
                     <div
                       key={po.id}
-                      className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4  transition-all group border-l-4 border-l-blue-500"
+                      className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800 p-4  transition-all group border-l-4 border-l-blue-500"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <button
                           onClick={() => handleViewPO(po)}
-                          className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight"
+                          className="text-xs  text-blue-600 hover:text-blue-700  "
                         >
                           {po.po_number}
                         </button>
@@ -153,7 +153,7 @@ const KanbanView = ({
                               }
                             />
                             {po.unread_communication_count > 0 && (
-                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 font-bold">
+                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-fulder-2 border-white dark:border-slate-900 ">
                                 {po.unread_communication_count}
                               </span>
                             )}
@@ -202,14 +202,14 @@ const KanbanView = ({
                         </div>
                       </div>
 
-                      <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-tight truncate">
+                      <h4 className="text-xs  text-slate-700 dark:text-slate-300 mb-1   truncate">
                         {po.vendor_name || "N/A"}
                       </h4>
 
                       <div className="flex flex-wrap items-center gap-2 mb-4">
                         <div className="flex items-center gap-1">
                           <Calendar size={10} className="text-slate-400" />
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">
+                          <span className="text-xs  text-slate-400 ">
                             {new Date(
                               po.order_date || po.created_at,
                             ).toLocaleDateString("en-GB", {
@@ -220,14 +220,14 @@ const KanbanView = ({
                         </div>
                         <div className="flex items-center gap-1">
                           <FileText size={10} className="text-slate-400" />
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                          <span className="text-xs  text-slate-400  ">
                             #{po.mr_number || po.quotation_id || "Direct"}
                           </span>
                         </div>
                         {po.root_card_id && (
                           <div className="flex items-center gap-1">
                             <Layers size={10} className="text-blue-600 flex-shrink-0" />
-                            <span className="text-[9px] font-black text-blue-600 uppercase tracking-tight break-words">
+                            <span className="text-xs  text-blue-600   break-words">
                               Project: {po.root_card_project_name || "N/A"}
                             </span>
                           </div>
@@ -236,26 +236,26 @@ const KanbanView = ({
 
                       <div className="flex items-center justify-between mb-3">
                         <div>
-                          <p className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+                          <p className="text-xs  text-slate-900 dark:text-white  ">
                             ₹{formatCurrency(po.total_amount)}
                           </p>
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+                          <p className="text-[8px]  text-slate-400   mt-0.5">
                             Total Value
                           </p>
                         </div>
                         <div className="text-right">
                           <p
-                            className={`text-[10px] font-black ${fulfillmentPercent === 100 ? "text-emerald-500" : "text-blue-600"}`}
+                            className={`text-xs  ${fulfillmentPercent === 100 ? "text-emerald-500" : "text-blue-600"}`}
                           >
                             {fulfillmentPercent}%
                           </p>
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+                          <p className="text-[8px]  text-slate-400   mt-0.5">
                             Received
                           </p>
                         </div>
                       </div>
 
-                      <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded  low-hidden">
                         <div
                           className={`h-full transition-all duration-500 ${fulfillmentPercent === 100 ? "bg-emerald-500" : "bg-blue-500"}`}
                           style={{ width: `${fulfillmentPercent}%` }}
@@ -771,26 +771,26 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
 
   return (
-    <div className="p-6 bg-slate-50/50 dark:bg-slate-950 min-h-screen">
+    <div className="p-4 bg-slate-50/50 dark:bg-slate-950 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/20">
-              <ShoppingCart className="text-white" size={24} />
+            <div className="p-2 bg-blue-600 rounded shadow-lg shadow-blue-500/20">
+              <ShoppingCart className="text-white" size={15} />
             </div>
             <div>
-              <nav className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-0.5">
+              <nav className="flex items-center gap-2 text-xs  text-slate-400   mb-0.5">
                 <span>{isInventoryView ? "Inventory" : "Buying"}</span>
                 <ChevronRight size={10} />
                 <span className="text-blue-600">{isInventoryView ? "Incoming Material" : "Procurement"}</span>
               </nav>
-              <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              <h1 className="text-md  text-slate-900 dark:text-white ">
                 {isInventoryView ? "Received Purchase Orders" : "Purchase Orders"}
               </h1>
             </div>
           </div>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+          <p className="text-xs  text-slate-400   flex items-center gap-2">
             {isInventoryView ? "Process incoming material from suppliers" : "Manage procurement cycles and supplier orders"}
           </p>
         </div>
@@ -799,23 +799,23 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
           
           <button
             onClick={fetchPurchaseOrders}
-            className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-400 hover:bg-slate-50 shadow-sm transition-all"
+            className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-400 hover:bg-slate-50  transition-all"
           >
-            <RefreshCw size={18} />
+            <RefreshCw size={15} />
           </button>
           {!isInventoryView && (
             <div className="relative">
               <button
                 onClick={() => setShowCreateOptions(!showCreateOptions)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded font-bold text-xs uppercase tracking-wider hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
+                className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
               >
                 <Plus size={16} /> Create Order
               </button>
 
               {showCreateOptions && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-2 border-b border-slate-50 dark:border-slate-800 mb-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <p className="text-xs  text-slate-400  ">
                       Select PO Type
                     </p>
                   </div>
@@ -825,7 +825,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       setShowCreateModal(true);
                       setShowCreateOptions(false);
                     }}
-                    className="w-full text-left p-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
+                    className="w-full text-left p-2 text-xs  text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-3   transition-colors"
                   >
                     <div className="p-1.5 bg-blue-50 dark:bg-blue-900/50 text-blue-600 rounded-md">
                       <FileText size={14} />
@@ -840,7 +840,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       }, 1500);
                       setShowCreateOptions(false);
                     }}
-                    className="w-full text-left p-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center gap-3 uppercase tracking-wider transition-colors"
+                    className="w-full text-left p-2 text-xs  text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center gap-3   transition-colors"
                   >
                     <div className="p-1.5 bg-purple-50 dark:bg-purple-900/50 text-purple-600 rounded-md">
                       <Package size={14} />
@@ -856,7 +856,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
       {/* Stats Cards */}
       {!isInventoryView && (
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 my-5 gap-4">
           {[
             {
               label: "Total Orders",
@@ -915,16 +915,16 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             return (
               <div
                 key={idx}
-                className={`bg-white dark:bg-slate-900 p-4 rounded-xl border ${card.active ? "border-blue-500 ring-2 ring-blue-500/10 shadow-lg shadow-blue-500/5" : "border-slate-100 dark:border-slate-800 shadow-sm"} relative overflow-hidden group transition-all hover:shadow-md ${card.isNew ? "ring-2 ring-blue-400 animate-blink" : ""}`}
+                className={`bg-white dark:bg-slate-900 p-2 rounded border ${card.active ? "border-blue-500 ring-2 ring-blue-500/10 shadow-lg shadow-blue-500/5" : "border-slate-100 dark:border-slate-800 "} relative overflow-hidden group transition-all hover: ${card.isNew ? "ring-2 ring-blue-400 animate-blink" : ""}`}
               >
                 <div
-                  className={`absolute top-0 right-0 p-4 opacity-5 transform rotate-12 transition-transform group-hover:rotate-6`}
+                  className={`absolute top-0 right-0 p-2 opacity-5 transform rotate-12 transition-transform group-hover:rotate-6`}
                 >
-                  <Icon size={48} />
+                  <Icon size={15} />
                 </div>
                 <div className="relative">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs  text-slate-400  ">
                       {card.label}
                     </p>
                     <div
@@ -933,10 +933,10 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       <Icon size={12} />
                     </div>
                   </div>
-                  <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-0.5 tracking-tight">
+                  <h2 className="text-xl  text-slate-900 dark:text-white mb-0.5 ">
                     {card.value}
                   </h2>
-                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-tight italic">
+                  <p className="text-xs font-medium text-slate-500   italic">
                     {card.subValue}
                   </p>
                 </div>
@@ -960,20 +960,20 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             placeholder="Search by PO # or supplier..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none "
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 ">
             <Filter size={14} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">
+            <span className="text-xs   ">
               Project:
             </span>
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="bg-transparent border-none text-[10px] font-bold uppercase tracking-wider text-blue-600 focus:ring-0 cursor-pointer max-w-[150px]"
+              className="bg-transparent border-none text-xs    text-blue-600 focus:ring-0 cursor-pointer max-w-[150px]"
             >
               <option value="all">All Projects</option>
               {projects.map(project => (
@@ -982,15 +982,15 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             </select>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 ">
             <Filter size={14} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">
+            <span className="text-xs   ">
               Root Card:
             </span>
             <select
               value={rootCardFilter}
               onChange={(e) => setRootCardFilter(e.target.value)}
-              className="bg-transparent border-none text-[10px] font-bold uppercase tracking-wider text-blue-600 focus:ring-0 cursor-pointer max-w-[120px]"
+              className="bg-transparent border-none text-xs    text-blue-600 focus:ring-0 cursor-pointer max-w-[120px]"
             >
               <option value="all">All Root Cards</option>
               {rootCardsList.map(rcId => (
@@ -999,15 +999,15 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             </select>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 ">
             <Filter size={14} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">
+            <span className="text-xs   ">
               Status:
             </span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-transparent border-none text-[10px] font-bold uppercase tracking-wider text-blue-600 focus:ring-0 cursor-pointer"
+              className="bg-transparent border-none text-xs    text-blue-600 focus:ring-0 cursor-pointer"
             >
               {isInventoryView ? (
                 <>
@@ -1031,37 +1031,37 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
               )}
             </select>
           </div>
-          <button className="p-2.5 bg-emerald-500 text-white rounded hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all">
-            <Filter size={18} />
+          <button className="p-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all">
+            <Filter size={15} />
           </button>
         </div>
       </div>
 
       {/* Purchase Orders Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden mb-8">
+      <div className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800  overflow-hidden mb-8">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-xs  text-slate-400  ">
                   PO Details
                 </th>
-                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-xs  text-slate-400  ">
                   Supplier
                 </th>
-                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-xs  text-slate-400  ">
                   Project
                 </th>
-                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-xs  text-slate-400  ">
                   Order -- Expected
                 </th>
-                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <th className="p-2 text-xs  text-slate-400  ">
                   Amount
                 </th>
-                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+                <th className="p-2 text-xs  text-slate-400   text-center">
                   Status
                 </th>
-                <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+                <th className="p-2 text-xs  text-slate-400   text-center">
                   Actions
                 </th>
               </tr>
@@ -1069,10 +1069,10 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center">
+                  <td colSpan="6" className="p-2 text-center">
                     <div className="flex flex-col items-center gap-3">
-                      <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded ate-spin"></div>
+                      <span className="text-xs  text-slate-400  ">
                         Loading orders...
                       </span>
                     </div>
@@ -1083,7 +1083,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   <td colSpan="6" className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-3 opacity-20">
                       <ShoppingCart size={48} className="text-slate-400" />
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <span className="text-xs  text-slate-400  ">
                         No orders found
                       </span>
                     </div>
@@ -1099,39 +1099,39 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       <td className="p-2">
                         <button
                           onClick={() => handleViewPO(po)}
-                          className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-tight block mb-0.5"
+                          className="text-xs  text-blue-600 hover:text-blue-700   block mb-0.5"
                         >
                           {po.po_number}
                         </button>
                       </td>
                       <td className="p-2">
-                        <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-0.5 uppercase tracking-tight">
+                        <p className="text-xs  text-slate-700 dark:text-slate-300 mb-0.5  ">
                           {po.vendor_name || "N/A"}
                         </p>
-                        <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1">
-                          <span className="w-1 h-1 rounded-full bg-emerald-500"></span>{" "}
+                        <p className="text-xs  text-emerald-500   flex items-center gap-1">
+                          <span className="w-1 h-1 rounded bg-emerald-500"></span>{" "}
                           Active Vendor
                         </p>
                       </td>
-                      <td className="p-2 min-w-[200px]">
+                      <td className="p-2 ">
                         {po.root_card_project_name ? (
                           <div className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1 flex-shrink-0"></div>
-                            <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest break-words leading-relaxed">
+                            <div className="w-1.5 h-1.5 rounded bg-blue-500 mt-1 flex-shrink-0"></div>
+                            <p className="text-xs  text-slate-700   break-words leading-relaxed">
                               {po.root_card_project_name}
                             </p>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">
+                          <span className="text-xs  text-slate-300   italic">
                             Direct PO
                           </span>
                         )}
                       </td>
                       <td className="p-2">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-700">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 p-1 rounded bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-700">
                             <Calendar size={10} />
-                            <span className="text-[9px] font-bold uppercase">
+                            <span className="text-xs  ">
                               {new Date(
                                 po.order_date || po.created_at,
                               ).toLocaleDateString("en-GB", {
@@ -1141,9 +1141,9 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                             </span>
                           </div>
                           <ChevronRight size={10} className="text-slate-300" />
-                          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-orange-50 dark:bg-orange-900/30 text-orange-600 border border-orange-100 dark:border-orange-800/30">
+                          <div className="flex items-center gap-1.5 p-1 rounded bg-orange-50 dark:bg-orange-900/30 text-orange-600 border border-orange-100 dark:border-orange-800/30">
                             <Clock size={10} />
-                            <span className="text-[9px] font-bold uppercase">
+                            <span className="text-xs  ">
                               {po.expected_delivery_date
                                 ? new Date(
                                     po.expected_delivery_date,
@@ -1157,16 +1157,16 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                         </div>
                       </td>
                       <td className="p-2">
-                        <p className="text-[11px] font-bold text-slate-900 dark:text-white mb-0.5 tracking-tight">
+                        <p className="text-xs  text-slate-900 dark:text-white">
                           ₹{formatCurrency(po.total_amount)}
                         </p>
-                        <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">
+                        <p className="text-xs  text-emerald-500  ">
                           Net Value
                         </p>
                       </td>
                       <td className="p-2 text-center">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[9px] font-black uppercase tracking-widest border shadow-sm ${
+                          className={`inline-flex items-center gap-1.5 p-1 rounded text-xs    border  ${
                             po.status === "draft"
                               ? "bg-orange-50 text-orange-600 border-orange-100"
                               : po.status === "submitted"
@@ -1186,7 +1186,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           }`}
                         >
                           <div
-                            className={`w-1 h-1 rounded-full ${
+                            className={`w-1 h-1 rounded ${
                               isInventoryView ? (
                                 po.inventory_status === "pending receipt" ? "bg-purple-500" :
                                 po.inventory_status === "material received" ? "bg-indigo-500" :
@@ -1270,7 +1270,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                                 }
                               />
                               {po.unread_communication_count > 0 && (
-                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 font-bold animate-blink">
+                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-fulder-2 border-white dark:border-slate-900  animate-blink">
                                   {po.unread_communication_count}
                                 </span>
                               )}
@@ -1311,17 +1311,17 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
               <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                <h3 className="text-lg  text-slate-900 dark:text-white flex items-center gap-3">
                   <Mail className="text-blue-600" size={20} />
                   Send Purchase Order
                 </h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                <p className="text-xs  text-slate-400   mt-1">
                   PO: {emailData.poNumber}
                 </p>
               </div>
               <button
                 onClick={() => setShowEmailModal(false)}
-                className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm"
+                className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-all "
               >
                 <X size={20} className="text-slate-400" />
               </button>
@@ -1329,7 +1329,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
             <form onSubmit={submitEmail} className="p-6 space-y-4">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                <label className="block text-xs  text-slate-400   mb-2">
                   Recipient Email
                 </label>
                 <input
@@ -1340,12 +1340,12 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                     setEmailData({ ...emailData, email: e.target.value })
                   }
                   placeholder="vendor@example.com"
-                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                <label className="block text-xs  text-slate-400   mb-2">
                   Subject
                 </label>
                 <input
@@ -1354,12 +1354,12 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   onChange={(e) =>
                     setEmailData({ ...emailData, subject: e.target.value })
                   }
-                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                <label className="block text-xs  text-slate-400   mb-2">
                   Message
                 </label>
                 <textarea
@@ -1368,7 +1368,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                     setEmailData({ ...emailData, message: e.target.value })
                   }
                   rows={4}
-                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
                 />
               </div>
 
@@ -1376,14 +1376,14 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                 <button
                   type="button"
                   onClick={() => setShowEmailModal(false)}
-                  className="flex-1 px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
+                  className="flex-1 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded  text-xs   hover:bg-slate-200 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={sendingEmail}
-                  className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2"
                 >
                   {sendingEmail ? (
                     <RefreshCw size={16} className="animate-spin" />
@@ -1401,21 +1401,21 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       {/* Monitor Replies Modal */}
       {showMonitorModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl flex flex-col border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="bg-white dark:bg-slate-900 rounded max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
               <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                <h3 className="text-md  text-slate-900 dark:text-white flex items-center gap-3">
                   <MessageSquare className="text-blue-600" size={20} />
                   Email Communications
                 </h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                <p className="text-xs  text-slate-400   mt-1">
                   PO: {selectedPOForMonitor?.po_number}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => fetchCommunications(selectedPOForMonitor?.id)}
-                  className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm text-slate-400 hover:text-blue-600"
+                  className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-all  text-slate-400 hover:text-blue-600"
                   title="Refresh"
                 >
                   <RefreshCw
@@ -1425,30 +1425,30 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                 </button>
                 <button
                   onClick={closeMonitorModal}
-                  className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm"
+                  className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-all "
                 >
-                  <X size={20} className="text-slate-400" />
+                  <X size={15} className="text-slate-400" />
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30 dark:bg-slate-950/30 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-2 bg-slate-50/30 dark:bg-slate-950/30 custom-scrollbar">
               {fetchingCommunications ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
-                  <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded ate-spin"></div>
+                  <p className="text-xs  text-slate-400  ">
                     Fetching replies...
                   </p>
                 </div>
               ) : communications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center">
-                  <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
-                    <Mail size={40} className="text-slate-400" />
+                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded mb-4">
+                    <Mail size={15} className="text-slate-400" />
                   </div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  <h4 className="text-xs  text-slate-900 dark:text-white  ">
                     No communications found
                   </h4>
-                  <p className="text-[10px] font-medium text-slate-500 mt-1 uppercase tracking-widest">
+                  <p className="text-xs font-medium text-slate-500 mt-1  ">
                     Replies to PO emails will appear here
                   </p>
                 </div>
@@ -1457,35 +1457,35 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   {communications.map((comm) => (
                     <div
                       key={comm.id}
-                      className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden"
+                      className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800  overflow-hidden"
                     >
-                      <div className="p-4 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex items-center justify-between">
+                      <div className="p-2 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center ${comm.is_outgoing ? "bg-indigo-100 text-indigo-600" : "bg-blue-100 text-blue-600"}`}
+                            className={`w-8 h-8 rounded-flex items-center justify-center ${comm.is_outgoing ? "bg-indigo-100 text-indigo-600" : "bg-blue-100 text-blue-600"}`}
                           >
-                            <User size={16} />
+                            <User size={15} />
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+                              <p className="text-xs  text-slate-900 dark:text-white  ">
                                 {comm.sender_email}
                               </p>
                               {comm.is_outgoing ? (
-                                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[8px] font-bold uppercase tracking-widest border border-indigo-100 dark:border-indigo-800/50">
+                                <span className="flex items-center gap-1 p-1 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[8px]    border border-indigo-100 dark:border-indigo-800/50">
                                   <Send size={8} />
-                                  SENT
+                                  Sent
                                 </span>
                               ) : (
-                                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[8px] font-bold uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/50">
+                                <span className="flex items-center gap-1 p-1 rounded bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[8px]    border border-emerald-100 dark:border-emerald-800/50">
                                   <Mail size={8} />
-                                  RECEIVED
+                                  Received
                                 </span>
                               )}
                             </div>
                             <div className="flex items-center gap-2 mt-0.5">
                               <Clock size={10} className="text-slate-400" />
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                              <span className="text-xs  text-slate-400  ">
                                 {new Date(
                                   comm.created_at || comm.received_at,
                                 ).toLocaleString("en-GB", {
@@ -1500,23 +1500,23 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           </div>
                         </div>
                         {comm.has_attachments > 0 && (
-                          <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded text-[9px] font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/30">
+                          <div className="flex items-center gap-1.5 p-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded text-xs    border border-emerald-100 dark:border-emerald-800/30">
                             <Paperclip size={10} />
                             {comm.attachments?.length || "Attached"}
                           </div>
                         )}
                       </div>
                       <div className="p-4">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-tight italic opacity-60">
+                        <h4 className="text-xs  text-slate-700 dark:text-slate-300 mb-2   italic opacity-60">
                           Subject: {comm.subject}
                         </h4>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap font-medium">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed whitespace-pre-wrap font-medium">
                           {comm.content_text}
                         </div>
 
                         {comm.attachments && comm.attachments.length > 0 && (
-                          <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                          <div className=" border-t border-slate-50 dark:border-slate-800">
+                            <p className="text-xs  text-slate-400   mb-3 flex items-center gap-2">
                               <Paperclip size={10} /> Attachments
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1526,14 +1526,14 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                                   onClick={() =>
                                     downloadAttachment(file.id, file.file_name)
                                   }
-                                  className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded group hover:border-blue-200 dark:hover:border-blue-800 transition-all text-left"
+                                  className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded group hover:border-blue-200 dark:hover:border-blue-800 transition-all text-left"
                                 >
                                   <div className="flex items-center gap-2 overflow-hidden">
                                     <FileText
                                       size={14}
                                       className="text-blue-500 shrink-0"
                                     />
-                                    <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 truncate uppercase tracking-tight">
+                                    <span className="text-xs  text-slate-500 dark:text-slate-400 truncate  ">
                                       {file.file_name}
                                     </span>
                                   </div>
@@ -1556,7 +1556,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             <div className="p-6 border-t border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end">
               <button
                 onClick={closeMonitorModal}
-                className="px-8 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm"
+                className="px-8 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded  text-xs   hover:bg-slate-50 transition-all "
               >
                 Close
               </button>
@@ -1587,36 +1587,36 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       {/* Upload Invoice Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                <Paperclip className="text-blue-600" size={20} />
+          <div className="bg-white dark:bg-slate-900 rounded max-w-md w-full max-h-[90vh] overflow-auto shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+              <h3 className="text-md  text-slate-900 dark:text-white flex items-center gap-3">
+                <Paperclip className="text-blue-600" size={15} />
                 Upload Invoice / Files
               </h3>
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm"
+                className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-all "
               >
-                <X size={20} className="text-slate-400" />
+                <X size={15} className="text-slate-400" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/50">
-                <div className="flex flex-col gap-3">
+            <div className="p-2 space-y-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded border border-blue-100 dark:border-blue-800/50">
+                <div className="flex justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+                    <p className="text-xs  text-blue-600 dark:text-blue-400   mb-1">
                       Target PO:
                     </p>
-                    <p className="text-sm font-black text-slate-900 dark:text-white uppercase">
+                    <p className="text-xs  text-slate-900 dark:text-white ">
                       {selectedPOForUpload?.po_number}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+                    <p className="text-xs  text-blue-600 dark:text-blue-400   mb-1">
                       Project Name:
                     </p>
-                    <p className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight break-words leading-relaxed">
+                    <p className="text-xs  text-slate-700 dark:text-slate-300   break-words leading-relaxed">
                       {selectedPOForUpload?.root_card_project_name || selectedPOForUpload?.project_name || "N/A (Direct PO)"}
                     </p>
                   </div>
@@ -1625,10 +1625,10 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
               {selectedPOForUpload?.attachments && selectedPOForUpload.attachments.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <p className="text-xs  text-slate-400  ">
                     Existing Invoices / Attachments
                   </p>
-                  <div className="max-h-32 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
+                  <div className="max-h-25 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
                     {selectedPOForUpload.attachments.map((file, idx) => (
                       <div
                         key={idx}
@@ -1636,7 +1636,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
                           <FileText size={14} className="text-emerald-600 shrink-0" />
-                          <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 truncate uppercase">
+                          <span className="text-xs  text-slate-500 dark:text-slate-400 truncate ">
                             {file.file_name}
                           </span>
                         </div>
@@ -1654,7 +1654,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
               )}
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                <label className="block text-xs  text-slate-400   mb-2">
                   Select Files
                 </label>
                 <div className="relative group">
@@ -1664,14 +1664,14 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                     onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   />
-                  <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 group-hover:border-blue-500 dark:group-hover:border-blue-500 rounded-xl p-8 flex flex-col items-center justify-center gap-2 transition-all bg-slate-50/30 dark:bg-slate-950/30">
-                    <div className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm text-slate-400 group-hover:text-blue-500 transition-all">
-                      <Upload size={24} />
+                  <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 group-hover:border-blue-500 dark:group-hover:border-blue-500 rounded p-2 flex flex-col items-center justify-center gap-2 transition-all bg-slate-50/30 dark:bg-slate-950/30">
+                    <div className="p-3 bg-white dark:bg-slate-800 rounded-fuext-slate-400 group-hover:text-blue-500 transition-all">
+                      <Upload size={15} />
                     </div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-tight">
+                    <p className="text-xs  text-slate-500  ">
                       Click or drag files to upload
                     </p>
-                    <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">
+                    <p className="text-xs font-medium text-slate-400  ">
                       PDF, Images, or Documents
                     </p>
                   </div>
@@ -1680,7 +1680,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
               {filesToUpload.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <p className="text-xs  text-slate-400  ">
                     Selected Files ({filesToUpload.length})
                   </p>
                   <div className="max-h-32 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
@@ -1691,11 +1691,11 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
                           <FileText size={14} className="text-blue-500 shrink-0" />
-                          <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 truncate uppercase">
+                          <span className="text-xs  text-slate-500 dark:text-slate-400 truncate ">
                             {file.name}
                           </span>
                         </div>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase">
+                        <span className="text-xs  text-slate-400 ">
                           {(file.size / 1024).toFixed(1)} KB
                         </span>
                       </div>
@@ -1708,14 +1708,14 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             <div className="p-6 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-50 dark:border-slate-800 flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="p-2 text-xs font-bold text-slate-500 hover:text-slate-700 uppercase tracking-widest transition-colors"
+                className="p-2 text-xs  text-slate-500 hover:text-slate-700   transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleFileUpload}
                 disabled={uploadingFiles || filesToUpload.length === 0}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded text-xs    shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
               >
                 {uploadingFiles ? (
                   <>

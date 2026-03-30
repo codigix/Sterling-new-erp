@@ -3,6 +3,7 @@ import axios from '../../../utils/api';
 import Button from '../../ui/Button';
 import Card, { CardContent } from '../../ui/Card';
 import DataTable from '../../ui/DataTable/DataTable';
+import Select from '../../ui/Select';
 import { STATUS_LEVELS } from '../RootCardForm/constants';
 import Swal from 'sweetalert2';
 import { showSuccess, showError } from '../../../utils/toastUtils';
@@ -129,7 +130,7 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
           <span className="font-semibold text-slate-900 dark:text-white">
             {value || '-'}
           </span>
-          <span className="text-xs text-slate-600 dark:text-slate-400">
+          <span className="text-xs text-slate-500 dark:text-slate-400">
             {row.project_code || '-'}
           </span>
         </div>
@@ -211,20 +212,19 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
         }
 
         return (
-          <div className={` ${colorClass}`}>
-            <select
+          <div className={`min-w-[150px] -mt-3 ${colorClass}`}>
+            <Select
               value={value || 'RC_CREATED'}
               onChange={(e) => handleStatusChange(row.id, e.target.value)}
               disabled={updatingStatus === row.id}
-              className=" text-xxs  focus:outline-none cursor-pointer disabled:opacity-50 w-full appearance-none outline-none border-none py-0.5"
-              style={{ color: 'inherit' }}
+              className="text-xxs !py-1"
             >
               {STATUS_LEVELS.map((level) => (
-                <option key={level.value} value={level.value} className="text-slate-900 bg-white">
+                <option key={level.value} value={level.value}>
                   {level.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         );
       },
@@ -324,7 +324,7 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
       {/* Header Section */}
       <div className="flex items-center text-xs justify-between mb-2">
         <div>
-          <h1 className="text-2xl  text-slate-900 dark:text-white text-left tracking-tight">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-left ">
             Root Cards
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-left">
@@ -359,12 +359,12 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
                 }`}
               >
-                <span className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'}`}>
+                <span className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
                   {tab.icon}
                 </span>
                 <span className="text-sm">{tab.label}</span>
                 {count > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full transition-colors duration-200 ${
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded  transition-colors duration-200 ${
                     isActive 
                       ? 'bg-blue-100 text-blue-600 ' 
                       : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'

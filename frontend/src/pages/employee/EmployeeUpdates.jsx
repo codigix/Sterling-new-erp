@@ -47,17 +47,17 @@ const EmployeeUpdates = () => {
   return (
     <div className="w-full min-h-screen bg-white space-y-2">
       <div>
-        <h1 className="text-3xl font-bold text-left dark:text-white mb-2">
+        <h1 className="text-3xl  text-left dark:text-white mb-2">
           Company Updates & Announcements
         </h1>
-        <p className="text-slate-600 dark:text-slate-400">
+        <p className="text-slate-500 dark:text-slate-400">
           Stay informed with the latest news and updates from your organization
         </p>
       </div>
 
       <div className="space-y-4">
         {updates.map((update) => (
-          <div key={update.id} className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-6  transition-all group">
+          <div key={update.id} className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded p-6  transition-all group">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/30 rounded flex items-center justify-center flex-shrink-0">
                 <Megaphone className="w-6 h-6 text-primary-600 dark:text-primary-400" />
@@ -77,7 +77,7 @@ const EmployeeUpdates = () => {
                 <p className="text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">
                   {update.description}
                 </p>
-                <div className="flex flex-wrap gap-4 text-sm text-slate-600 dark:text-slate-400 pt-3 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-200 dark:border-slate-700">
                   <div className="flex items-center gap-1">
                     <User className="w-4 h-4 flex-shrink-0" />
                     <span>{update.author}</span>
@@ -89,7 +89,7 @@ const EmployeeUpdates = () => {
                 </div>
               </div>
               <div className="flex-shrink-0">
-                <TrendingUp className="w-3 h-3 text-slate-300 dark:text-slate-600 group-hover:text-primary-500 transition" />
+                <TrendingUp className="w-3 h-3 text-slate-300 dark:text-slate-500 group-hover:text-primary-500 transition" />
               </div>
             </div>
           </div>

@@ -23,7 +23,7 @@ export const generateDesignId = (designName) => {
     .split('.')[0]; // Results in YYYYMMDDHHMMSS
     
   // Format: INITIALS-TIMESTAMP (taking last 6 digits of timestamp for brevity if preferred, 
-  // but requirement said "uppercase first letters of words + timestamp")
+  // but requirement said " first letters of words + timestamp")
   // Let's use a slightly shorter timestamp format for readability: YYMMDD-HHMM
   
   const year = now.getFullYear().toString().substr(-2);

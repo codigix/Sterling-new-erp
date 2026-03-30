@@ -97,7 +97,7 @@ const BankReconciliationPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Bank Reconciliation
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -113,7 +113,7 @@ const BankReconciliationPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6 mb-6">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+            <h2 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
               Select Bank Account
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -127,10 +127,10 @@ const BankReconciliationPage = () => {
                       : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
                   }`}
                 >
-                  <p className="font-bold text-slate-900 dark:text-white text-xs">
+                  <p className=" text-slate-900 dark:text-white text-xs">
                     {account.name}
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
                     Balance: ₹{account.balance.toLocaleString("en-IN")}
                   </p>
                 </button>
@@ -140,24 +140,24 @@ const BankReconciliationPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
                 Book Balance
               </p>
-              <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+              <p className="text-xl  text-slate-900 dark:text-white text-xs">
                 ₹{bookBalance.toLocaleString("en-IN")}
               </p>
-              <p className="text-xs text-slate-600 dark:text-slate-400 text-xs ">
+              <p className="text-xs text-slate-500 dark:text-slate-400 text-xs ">
                 As per accounting records
               </p>
             </div>
             <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
                 Statement Balance
               </p>
-              <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+              <p className="text-xl  text-slate-900 dark:text-white text-xs">
                 ₹{statementBalance.toLocaleString("en-IN")}
               </p>
-              <p className="text-xs text-slate-600 dark:text-slate-400 text-xs ">
+              <p className="text-xs text-slate-500 dark:text-slate-400 text-xs ">
                 As per bank statement
               </p>
             </div>
@@ -167,7 +167,7 @@ const BankReconciliationPage = () => {
             <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded p-6 flex items-center text-xs gap-4">
               <CheckCircle size={32} className="text-green-600 flex-shrink-0" />
               <div>
-                <p className="font-bold text-green-900 dark:text-green-100">
+                <p className=" text-green-900 dark:text-green-100">
                   Reconciliation Complete
                 </p>
                 <p className="text-sm text-green-800 dark:text-green-200">
@@ -182,7 +182,7 @@ const BankReconciliationPage = () => {
                 className="text-yellow-600 flex-shrink-0"
               />
               <div>
-                <p className="font-bold text-yellow-900 dark:text-yellow-100">
+                <p className=" text-yellow-900 dark:text-yellow-100">
                   Difference: ₹{difference.toLocaleString("en-IN")}
                 </p>
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -195,23 +195,23 @@ const BankReconciliationPage = () => {
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
             Reconciliation Summary
           </h3>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Book Balance
               </p>
-              <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+              <p className="text-xl  text-slate-900 dark:text-white text-xs">
                 ₹{bookBalance.toLocaleString("en-IN")}
               </p>
             </div>
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Add: Deposits in Transit
               </p>
-              <p className="text-lg font-bold text-green-600">
+              <p className="text-lg  text-green-600">
                 +₹
                 {deposits
                   .filter((d) => d.status === "pending")
@@ -220,10 +220,10 @@ const BankReconciliationPage = () => {
               </p>
             </div>
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Less: Cheques Outstanding
               </p>
-              <p className="text-lg font-bold text-red-600">
+              <p className="text-lg  text-red-600">
                 -₹
                 {withdrawals
                   .filter((w) => w.status === "pending")
@@ -232,10 +232,10 @@ const BankReconciliationPage = () => {
               </p>
             </div>
             <div className="border-t-2 border-slate-300 dark:border-slate-600 pt-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Adjusted Balance
               </p>
-              <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+              <p className="text-xl  text-slate-900 dark:text-white text-xs">
                 ₹
                 {(
                   bookBalance +
@@ -254,7 +254,7 @@ const BankReconciliationPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
             Deposits (Credits)
           </h3>
           <div className="space-y-3">
@@ -267,12 +267,12 @@ const BankReconciliationPage = () => {
                   <p className="font-medium text-slate-900 dark:text-white text-xs">
                     {deposit.description}
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {deposit.date}
                   </p>
                 </div>
                 <div className="text-right ml-4">
-                  <p className="font-bold text-green-600">
+                  <p className=" text-green-600">
                     +₹{deposit.amount.toLocaleString("en-IN")}
                   </p>
                   <span
@@ -291,7 +291,7 @@ const BankReconciliationPage = () => {
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
             Withdrawals (Debits)
           </h3>
           <div className="space-y-3">
@@ -304,12 +304,12 @@ const BankReconciliationPage = () => {
                   <p className="font-medium text-slate-900 dark:text-white text-xs">
                     {withdrawal.description}
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {withdrawal.date}
                   </p>
                 </div>
                 <div className="text-right ml-4">
-                  <p className="font-bold text-red-600">
+                  <p className=" text-red-600">
                     -₹{withdrawal.amount.toLocaleString("en-IN")}
                   </p>
                   <span

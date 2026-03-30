@@ -47,7 +47,7 @@ const TaskDetailPage = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
       <div className="text-center">
         <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-        <p className="text-slate-600 dark:text-slate-400">Loading task...</p>
+        <p className="text-slate-500 dark:text-slate-400">Loading task...</p>
       </div>
     </div>
   );

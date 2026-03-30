@@ -58,14 +58,14 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
         {/* Modal Header */}
         <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
               <ClipboardList size={20} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Request Traceability History</h2>
+              <h2 className="text-lg  text-slate-900 dark:text-white">Request Traceability History</h2>
               <div className="flex items-center gap-2">
                 <Info size={12} className="text-purple-500" />
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                <span className="text-[10px]   text-slate-500 tracking-wider">
                   Linked Material Requests for Plan: {planName || `PP-${planId}`}
                 </span>
               </div>
@@ -73,7 +73,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
           </div>
           <button 
             onClick={onClose} 
-            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-slate-500 dark:hover:text-slate-200"
           >
             <X size={20} />
           </button>
@@ -89,20 +89,20 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
           ) : error ? (
             <div className="text-center py-20">
               <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
-              <p className="text-slate-900 dark:text-white font-bold">{error}</p>
+              <p className="text-slate-900 dark:text-white ">{error}</p>
               <button 
                 onClick={fetchMaterialRequests}
-                className="mt-4 p-2 bg-purple-600 text-white rounded text-sm font-bold"
+                className="mt-4 p-2 bg-purple-600 text-white rounded text-sm "
               >
                 Retry
               </button>
             </div>
           ) : requests.length === 0 ? (
             <div className="text-center py-20">
-              <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+              <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800/50 rounded  flex items-center justify-center mx-auto mb-4 text-slate-300">
                 <Package size={40} />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Material Requests</h3>
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-1">No Material Requests</h3>
               <p className="text-slate-500 text-sm max-w-xs mx-auto">
                 No material requests have been initiated for this production plan yet.
               </p>
@@ -115,9 +115,9 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
                     <div className="flex items-center gap-2">
                       <Clock size={16} className="text-amber-500" />
-                      <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Active Requests</h3>
+                      <h3 className="text-xs  text-slate-800 dark:text-slate-200  tracking-wider">Active Requests</h3>
                     </div>
-                    <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold rounded-full">
+                    <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px]  rounded ">
                       {activeRequests.length}
                     </span>
                   </div>
@@ -136,9 +136,9 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
                     <div className="flex items-center gap-2">
                       <CheckCircle size={16} className="text-green-500" />
-                      <h3 className="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">Completed Archive</h3>
+                      <h3 className="text-xs  text-slate-900 dark:text-slate-200  tracking-wider">Completed Archive</h3>
                     </div>
-                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-bold rounded-full">
+                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px]  rounded ">
                       {completedRequests.length}
                     </span>
                   </div>
@@ -158,7 +158,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
         <div className="p-2 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex justify-end">
           <button 
             onClick={onClose}
-            className="px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded-xl font-bold hover:bg-black transition-all text-xs border border-slate-800 shadow-lg shadow-slate-900/20"
+            className="px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded  hover:bg-black transition-all text-xs border border-slate-800 shadow-lg shadow-slate-900/20"
           >
             Close Archive
           </button>
@@ -170,14 +170,14 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
 
 const RequestCard = ({ request, getStatusColor }) => {
   return (
-    <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-hidden">
+    <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded overflow-hidden">
       <div className="p-4 border-b border-slate-200/50 dark:border-slate-700/30 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-400">
+          <div className="w-8 h-8 rounded  bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-[10px]  text-slate-400">
             {request.id}
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+            <p className="text-xs  text-slate-900 dark:text-white  ">
               {request.mr_number}
             </p>
             <p className="text-[10px] text-slate-500 font-medium">
@@ -185,22 +185,22 @@ const RequestCard = ({ request, getStatusColor }) => {
             </p>
           </div>
         </div>
-        <span className={`px-2 py-0.5 rounded border text-[9px] font-bold uppercase tracking-wider ${getStatusColor(request.status)}`}>
+        <span className={`px-2 py-0.5 rounded border text-[9px]   tracking-wider ${getStatusColor(request.status)}`}>
           {request.status}
         </span>
       </div>
       
       <div className="p-4 bg-white/50 dark:bg-slate-800/20">
         <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Item Details</span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Requested Qty</span>
+          <span className="text-[10px]  text-slate-400  tracking-widest">Item Details</span>
+          <span className="text-[10px]  text-slate-400  tracking-widest">Requested Qty</span>
         </div>
         
         <div className="space-y-3">
           {request.items && request.items.map((item, idx) => (
             <div key={idx} className="flex items-center justify-between group">
               <div>
-                <p className="text-[13px] font-bold text-slate-900 dark:text-white flex items-center flex-wrap">
+                <p className="text-[13px]  text-slate-900 dark:text-white flex items-center flex-wrap">
                   {item.material_name || item.materialName || item.itemName || item.specification || 'Item Details Not Set'}
                   {(item.material_code || item.materialCode || item.item_code || item.itemCode) && (
                     <span className="ml-2 text-slate-500 font-medium text-[11px]">
@@ -210,7 +210,7 @@ const RequestCard = ({ request, getStatusColor }) => {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-bold text-slate-900 dark:text-white">
+                <p className="text-xs  text-slate-900 dark:text-white">
                   {parseFloat(item.quantity).toLocaleString()} {item.unit}
                 </p>
               </div>

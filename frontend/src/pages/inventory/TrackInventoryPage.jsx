@@ -142,11 +142,11 @@ const TrackInventoryPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-md font-bold text-slate-900 dark:text-white text-xs flex items-center  gap-2">
+          <h2 className="text-md  text-slate-900 dark:text-white text-xs flex items-center  gap-2">
             <TrendingUp size={24} />
             Inventory Tracking
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             Real-time inventory levels by location
           </p>
         </div>
@@ -157,7 +157,7 @@ const TrackInventoryPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search
@@ -199,14 +199,14 @@ const TrackInventoryPage = () => {
             key={item.id}
             className={`${getTrendBg(
               item.trend
-            )} border border-slate-200 dark:border-slate-700 rounded-xl p-5  transition-shadow`}
+            )} border border-slate-200 dark:border-slate-700 rounded p-5  transition-shadow`}
           >
             <div className="flex justify-between items-start mb-3">
               <div>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
                   {item.sku}
                 </p>
-                <p className="font-bold text-slate-900 dark:text-white text-xs mt-1">
+                <p className=" text-slate-900 dark:text-white text-xs mt-1">
                   {item.item}
                 </p>
               </div>
@@ -221,21 +221,21 @@ const TrackInventoryPage = () => {
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Current Quantity
                   </p>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+                  <p className="text-xl  text-slate-900 dark:text-white text-xs">
                     {item.currentQty}
                   </p>
                 </div>
                 <div
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${getTrendColor(
+                  className={`px-3 py-1 rounded  text-xs font-semibold ${getTrendColor(
                     item.trend
                   )}`}
                 >
                   {item.variance}
                 </div>
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">
                 <div
-                  className="bg-blue-500 h-2 rounded-full"
+                  className="bg-blue-500 h-2 rounded "
                   style={{
                     width: `${Math.min((item.currentQty / 100) * 10, 100)}%`,
                   }}
@@ -245,7 +245,7 @@ const TrackInventoryPage = () => {
 
             <div className="space-y-2 text-sm">
               <div className="flex items-center text-xs justify-between">
-                <span className="text-slate-600 dark:text-slate-400 flex items-center text-xs gap-2">
+                <span className="text-slate-500 dark:text-slate-400 flex items-center text-xs gap-2">
                   <MapPin size={16} />
                   Location
                 </span>
@@ -254,7 +254,7 @@ const TrackInventoryPage = () => {
                 </span>
               </div>
               <div className="flex items-center text-xs justify-between">
-                <span className="text-slate-600 dark:text-slate-400 flex items-center text-xs gap-2">
+                <span className="text-slate-500 dark:text-slate-400 flex items-center text-xs gap-2">
                   <Calendar size={16} />
                   Last Updated
                 </span>
@@ -274,29 +274,29 @@ const TrackInventoryPage = () => {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-blue-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-blue-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Total Items Tracked
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData.length}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-green-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-green-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Total Quantity
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData
               .reduce((sum, item) => sum + item.currentQty, 0)
               .toLocaleString()}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-purple-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-purple-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Locations Used
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {
               new Set(filteredData.map((item) => item.location.split("-")[0]))
                 .size

@@ -75,7 +75,7 @@ const ProjectListPage = () => {
     const config = priorityConfig[priority] || priorityConfig.medium;
     return (
       <span
-        className={`inline-flex items-center px-3 py-1 rounded-full capitalize text-xs ${config.bg} ${config.text}`}
+        className={`inline-flex items-center px-3 py-1 rounded  capitalize text-xs ${config.bg} ${config.text}`}
       >
         {priority?.toLowerCase()}
       </span>
@@ -112,10 +112,10 @@ const ProjectListPage = () => {
                   <FileText className="text-white" size={24} />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-900 dark:text-white text-xs">
+                  <h1 className="text-3xl  text-slate-900 dark:text-white text-xs">
                     Project Details
                   </h1>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                     Manage all project specifications and materials
                   </p>
                 </div>
@@ -256,7 +256,7 @@ const ProjectListPage = () => {
                               {project.title}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <code className="text-xs font-mono bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded">
+                              <code className="text-xs font-mono bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded">
                                 {project.code || "N/A"}
                               </code>
                               <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -278,7 +278,7 @@ const ProjectListPage = () => {
                         </span>
                       </td>
                       <td className="p-2">
-                        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                           <CalendarIcon size={10} />
                           {project.planned_start ? (
                             <span>
@@ -338,7 +338,7 @@ const ProjectListPage = () => {
           {/* Table Footer */}
           {filteredProjects.length > 0 && (
             <div className="p-2 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Showing {filteredProjects.length} of {projects.length} projects
               </p>
             </div>
@@ -351,7 +351,7 @@ const ProjectListPage = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+              <h3 className="text-lg  text-slate-900 dark:text-white text-xs">
                 Delete Project
               </h3>
               <button
@@ -362,7 +362,7 @@ const ProjectListPage = () => {
               </button>
             </div>
             <div className="p-6 space-y-4">
-              <p className="text-slate-600 dark:text-slate-300">
+              <p className="text-slate-500 dark:text-slate-300">
                 Are you sure you want to delete the project{" "}
                 <span className="font-semibold">{deleteConfirm.title}</span>?
                 This action cannot be undone.

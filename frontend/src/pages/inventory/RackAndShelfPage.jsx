@@ -177,11 +177,11 @@ const RackAndShelfPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-md font-bold text-slate-900 dark:text-white text-xs flex items-center  gap-2">
+          <h2 className="text-md  text-slate-900 dark:text-white text-xs flex items-center  gap-2">
             <Grid3x3 size={24} />
             Rack & Shelf Management
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             Warehouse location and capacity tracking
           </p>
         </div>
@@ -198,7 +198,7 @@ const RackAndShelfPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search
@@ -238,14 +238,14 @@ const RackAndShelfPage = () => {
         {filteredData.map((rack) => (
           <div
             key={rack.id}
-            className={`border rounded-xl p-4 ${getStatusColor(rack.status)}`}
+            className={`border rounded p-4 ${getStatusColor(rack.status)}`}
           >
             <div className="flex justify-between items-start mb-3">
               <div>
-                <p className="text-xs font-bold uppercase opacity-75">
+                <p className="text-xs   opacity-75">
                   Location
                 </p>
-                <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+                <p className="text-xl  text-slate-900 dark:text-white text-xs">
                   {rack.location}
                 </p>
                 <p className="text-xs opacity-75 mt-1">{rack.wing}</p>
@@ -259,7 +259,7 @@ const RackAndShelfPage = () => {
             <div className="bg-white dark:bg-slate-800 rounded p-3 mb-3">
               <div className="flex items-center text-xs justify-between mb-2">
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Item
                   </p>
                   <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
@@ -270,14 +270,14 @@ const RackAndShelfPage = () => {
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400">Current</p>
-                  <p className="font-bold text-slate-900 dark:text-white text-xs">
+                  <p className="text-slate-500 dark:text-slate-400">Current</p>
+                  <p className=" text-slate-900 dark:text-white text-xs">
                     {rack.current}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-600 dark:text-slate-400">Capacity</p>
-                  <p className="font-bold text-slate-900 dark:text-white text-xs">
+                  <p className="text-slate-500 dark:text-slate-400">Capacity</p>
+                  <p className=" text-slate-900 dark:text-white text-xs">
                     {rack.capacity}
                   </p>
                 </div>
@@ -289,13 +289,13 @@ const RackAndShelfPage = () => {
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Utilization
                 </p>
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                <p className="text-xs  text-slate-700 dark:text-slate-300">
                   {rack.utilization}%
                 </p>
               </div>
-              <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-slate-300 dark:bg-slate-700 rounded  h-2 overflow-hidden">
                 <div
-                  className={`h-2 rounded-full transition-all ${getUtilizationColor(
+                  className={`h-2 rounded  transition-all ${getUtilizationColor(
                     rack.utilization
                   )}`}
                   style={{ width: `${Math.min(rack.utilization, 100)}%` }}
@@ -325,27 +325,27 @@ const RackAndShelfPage = () => {
 
       {/* Warehouse Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-blue-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-blue-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Total Locations
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData.length}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-green-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-green-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Active Locations
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData.filter((r) => r.status === "active").length}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-yellow-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-yellow-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Avg. Utilization
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {Math.round(
               filteredData.reduce((sum, r) => sum + r.utilization, 0) /
                 filteredData.length
@@ -353,11 +353,11 @@ const RackAndShelfPage = () => {
             %
           </p>
         </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-red-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-red-200 dark:border-slate-600">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
             Over Capacity
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {filteredData.filter((r) => r.utilization > 100).length}
           </p>
         </div>

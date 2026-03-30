@@ -10,7 +10,9 @@ import {
   User,
   Calendar,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  ClipboardList,
+  Package
 } from "lucide-react";
 import axios from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
@@ -82,144 +84,120 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'pending': return <Badge variant="warning">Pending</Badge>;
-      case 'approved': return <Badge variant="primary">Approved</Badge>;
-      case 'partially_received': return <Badge variant="info">Partial</Badge>;
-      case 'received': return <Badge variant="success">Received</Badge>;
-      case 'cancelled': return <Badge variant="danger">Cancelled</Badge>;
-      default: return <Badge variant="gray">{status}</Badge>;
+      case 'pending': return <Badge variant="warning" className="p-0">Pending</Badge>;
+      case 'approved': return <Badge variant="primary" className="p-0">Approved</Badge>;
+      case 'partially_received': return <Badge variant="info" className="p-0">Partial</Badge>;
+      case 'received': return <Badge variant="success" className="p-0">Received</Badge>;
+      case 'cancelled': return <Badge variant="danger" className="p-0">Cancelled</Badge>;
+      default: return <Badge variant="gray" className="p-0">{status}</Badge>;
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-600 text-white rounded">
-              <ShoppingCart size={20} />
+    <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-slate-900 rounded  w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20">
+        <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-600/5 to-transparent">
+          <div className="flex items-center gap-4">
+            <div className="p-2 rounded bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+              <ClipboardList size={16} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="text-md text-slate-900 dark:text-white">
                 {loading ? "Loading..." : `Request: ${request?.request_number}`}
               </h3>
-              {!loading && <p className="text-xs text-slate-500">BOM: {request?.bom_number}</p>}
+              {!loading && <p className="text-xs text-blue-600 dark:text-blue-400 ">BOM Reference: {request?.bom_number}</p>}
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-            <X size={20} className="text-slate-400" />
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded  transition-all text-slate-400 hover:text-slate-900 dark:hover:text-white">
+            <X size={15} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-2 space-y-2">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <div className="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
-              <p className="text-sm font-medium text-slate-500">Fetching request details...</p>
+            <div className="flex flex-col items-center justify-center p-2 gap-2">
+              <div className="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded animate-spin"></div>
+              <p className="text-sm  text-slate-500">Fetching request details...</p>
             </div>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-2">
               {/* Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                <div className="p-2 bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs  mb-1">
                     <Clock size={12} /> Status
                   </div>
-                  <div className="pt-1">{getStatusBadge(request.status)}</div>
+                  <div className="p-2">{getStatusBadge(request.status)}</div>
                 </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                <div className="p-2 bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs  mb-1">
                     <FileText size={12} /> Project
                   </div>
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{request.project_name || "N/A"}</p>
+                  <p className="text-sm  text-slate-900 dark:text-white">{request.project_name || "Internal"}</p>
                 </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                <div className="p-2 bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs  mb-1">
                     <User size={12} /> Department
                   </div>
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{request.department}</p>
+                  <p className="text-sm  text-slate-900 dark:text-white">{request.department}</p>
                 </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
-                    <Calendar size={12} /> Date
+                <div className="p-2 bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs  mb-1">
+                    <Calendar size={12} /> Creation Date
                   </div>
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{new Date(request.created_at).toLocaleDateString()}</p>
+                  <p className="text-sm  text-slate-900 dark:text-white">{new Date(request.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
 
               {/* Remarks */}
               {request.remarks && (
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Remarks</h4>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 italic">"{request.remarks}"</p>
+                <div className="p-5 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100/50 rounded-2xl">
+                  <h4 className="text-xs  text-amber-600 dark:text-amber-400  mb-2 ">Observations / Remarks</h4>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic">"{request.remarks}"</p>
                 </div>
               )}
 
               {/* Items Table */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                  Requested Materials
-                  <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full text-[10px]">
-                    {request.items?.length} Items
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm  text-slate-900   flex items-center gap-2">
+                    <Package size={15} />
+                    Requested Materials
+                  </h4>
+                  <span className="text-xs  p-2 bg-slate-100 dark:bg-slate-800 rounded text-slate-500  tracking-tighter">
+                    Total {request.items?.length || 0} Items
                   </span>
-                </h4>
-                <div className="border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-                  <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                </div>
+
+                <div className=" border border-slate-200 dark:border-slate-800 overflow-hidden rounded">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-slate-50 dark:bg-slate-900  dark:border-slate-800">
                       <tr>
-                        <th className="px-4 py-3 w-12 text-center">#</th>
-                        <th className="px-4 py-3">Item Name / Group</th>
-                        <th className="px-4 py-3">Part Detail / Grade</th>
-                        <th className="px-4 py-3">Remark / Make</th>
-                        <th className="px-4 py-3 text-center">Qty</th>
-                        <th className="px-4 py-3 text-center">UOM</th>
+                        <th className="p-2 text-xs  text-slate-400  ">Material Description</th>
+                        <th className="p-2 text-xs  text-slate-400   text-center">Required Qty</th>
+                        <th className="p-2 text-xs  text-slate-400  ">Unit</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                       {request.items?.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/30 transition-colors group">
-                          <td className="px-4 py-4 text-center text-xs font-medium text-slate-400">
-                            {idx + 1}
-                          </td>
-                          <td className="px-4 py-4">
+                          <td className="p-2">
                             <div className="flex flex-col">
-                              <span className="font-bold text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors">
+                              <span className=" text-slate-900 dark:text-slate-200 text-xs group-hover:text-blue-600 transition-colors">
                                 {item.item_name}
                               </span>
-                              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-tight mt-0.5">
+                              <span className="text-xs  text-slate-400 ">
                                 {item.item_group || "NO-GROUP"}
                               </span>
                             </div>
                           </td>
-                          <td className="px-4 py-4">
-                            <div className="flex flex-col">
-                              <span className="text-xs text-slate-700 dark:text-slate-300">
-                                {item.part_detail || "-"}
-                              </span>
-                              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tight">
-                                {item.material_grade || "-"}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="flex flex-col">
-                              <span className="text-[10px] text-slate-500 italic">
-                                {item.remark || "-"}
-                              </span>
-                              <span className="text-xs text-slate-600 dark:text-slate-400">
-                                {item.make || "-"}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-center">
-                            <span className="font-black text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-800">
+                          <td className="p-2 text-center">
+                            <span className="p-1 text-blue-700 dark:text-blue-400   text-xs">
                               {item.required_quantity}
                             </span>
                           </td>
-                          <td className="px-4 py-4 text-center">
-                            <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                              {item.uom}
-                            </span>
+                          <td className="p-2">
+                            <span className="text-xs  text-slate-500 ">{item.uom}</span>
                           </td>
                         </tr>
                       ))}
@@ -230,23 +208,23 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
 
               {/* Approved Quotation Section */}
               {request.quotation && (
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 space-y-4">
+                <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-2 rounded border border-emerald-100/50 dark:border-emerald-900/20 space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-widest flex items-center gap-2">
-                      <CheckCircle2 size={16} /> Approved Vendor Quotation
+                    <h4 className="text-xs  text-emerald-600 dark:text-emerald-400   flex items-center gap-2">
+                      <CheckCircle2 size={15} /> Approved Vendor Quotation
                     </h4>
-                    <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded-full text-[10px] font-bold uppercase">
+                    <span className="p-2 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded text-xs   ">
                       {request.quotation.status}
                     </span>
                   </div>
                   
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl">
-                        <FileText size={24} />
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        <FileText size={15} />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        <p className="text-sm  text-slate-900 dark:text-white">
                           {request.quotation.quotation_number}
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -270,9 +248,9 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                             toast.error("Failed to view quotation PDF");
                           }
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-bold hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all shadow-sm"
+                        className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded text-xs  hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all  active:scale-95"
                       >
-                        <FileText size={16} />
+                        <FileText size={15} />
                         View Vendor Quotation PDF
                       </button>
                     )}
@@ -283,13 +261,14 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
           )}
         </div>
 
-        <div className="p-2 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-          <Button variant="secondary" onClick={onClose} disabled={submitting}>Close</Button>
+        <div className="p-2 border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-end gap-2 bg-slate-50/50 dark:bg-slate-900/50">
+          <Button variant="secondary" onClick={onClose} disabled={submitting} className="rounded p-2">Close</Button>
           {!loading && isProcurement && request?.status === 'approved' && !readOnly && (
             <Button 
               variant="primary" 
               icon={ArrowRight} 
               onClick={handlePOProcessing}
+              className="rounded p-2 shadow-lg shadow-blue-500/20"
             >
               PO Processing
             </Button>
@@ -301,6 +280,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 icon={XCircle} 
                 onClick={() => handleUpdateStatus('cancelled')}
                 loading={submitting}
+                className="rounded p-2"
               >
                 Cancel Request
               </Button>
@@ -309,6 +289,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 icon={CheckCircle} 
                 onClick={() => handleUpdateStatus('approved')}
                 loading={submitting}
+                className="rounded p-2  shadow-blue-500/20"
               >
                 Approve Request
               </Button>

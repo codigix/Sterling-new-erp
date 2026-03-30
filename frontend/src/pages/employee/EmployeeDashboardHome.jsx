@@ -62,10 +62,10 @@ const EmployeeDashboardHome = () => {
     <div className="w-full min-h-screen  space-y-2 ">
       {/* Header */}
       <div>
-        <h1 className="text-xl text-left font-bold">
+        <h1 className="text-xl text-left ">
           Welcome back, {user?.name || 'Employee'}!
         </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 text-left">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-left">
           {user?.designation} • {user?.department}
         </p>
       </div>
@@ -73,13 +73,13 @@ const EmployeeDashboardHome = () => {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Tasks Completed */}
-        <div className="bg-white border-2 border-green-100 dark:border-green-900/30 rounded-xl p-4  transition-all hover:border-green-300 dark:hover:border-green-700">
+        <div className="bg-white border-2 border-green-100 dark:border-green-900/30 rounded p-4  transition-all hover:border-green-300 dark:hover:border-green-700">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  text-left mb-2">
                 Tasks Completed
               </p>
-              <p className="text-xl text-left font-bold dark:text-white">
+              <p className="text-xl text-left  dark:text-white">
                 {stats.tasksCompleted}
               </p>
               <p className="text-xs text-left text-green-600 dark:text-green-400 mt-2 font-medium">
@@ -87,7 +87,7 @@ const EmployeeDashboardHome = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-50 dark:from-green-900/20 to-green-100 dark:to-green-900/30 rounded-xl flex items-center justify-center border border-green-200 dark:border-green-900/50">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-50 dark:from-green-900/20 to-green-100 dark:to-green-900/30 rounded flex items-center justify-center border border-green-200 dark:border-green-900/50">
                 <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
             </div>
@@ -95,13 +95,13 @@ const EmployeeDashboardHome = () => {
         </div>
 
         {/* In Progress */}
-        <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded-xl p-4  transition-all hover:border-blue-300 dark:hover:border-blue-700">
+        <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded p-4  transition-all hover:border-blue-300 dark:hover:border-blue-700">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  text-left mb-2">
                 In Progress
               </p>
-              <p className="text-xl text-left font-bold dark:text-white">
+              <p className="text-xl text-left  dark:text-white">
                 {stats.tasksInProgress}
               </p>
               <p className="text-xs text-left text-blue-600 dark:text-blue-400 mt-2 font-medium">
@@ -109,7 +109,7 @@ const EmployeeDashboardHome = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-blue-100 dark:to-blue-900/30 rounded-xl flex items-center justify-center border border-blue-200 dark:border-blue-900/50">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-blue-100 dark:to-blue-900/30 rounded flex items-center justify-center border border-blue-200 dark:border-blue-900/50">
                 <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
@@ -117,13 +117,13 @@ const EmployeeDashboardHome = () => {
         </div>
 
         {/* Attendance Rate */}
-        <div className="bg-white border-2 border-amber-100 dark:border-amber-900/30 rounded-xl p-4  transition-all hover:border-amber-300 dark:hover:border-amber-700">
+        <div className="bg-white border-2 border-amber-100 dark:border-amber-900/30 rounded p-4  transition-all hover:border-amber-300 dark:hover:border-amber-700">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  text-left mb-2">
                 Attendance Rate
               </p>
-              <p className="text-xl text-left font-bold dark:text-white">
+              <p className="text-xl text-left  dark:text-white">
                 {stats.attendanceRate}%
               </p>
               <p className="text-xs text-left text-amber-600 dark:text-amber-400 mt-2 font-medium">
@@ -131,7 +131,7 @@ const EmployeeDashboardHome = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-50 dark:from-amber-900/20 to-amber-100 dark:to-amber-900/30 rounded-xl flex items-center justify-center border border-amber-200 dark:border-amber-900/50">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-50 dark:from-amber-900/20 to-amber-100 dark:to-amber-900/30 rounded flex items-center justify-center border border-amber-200 dark:border-amber-900/50">
                 <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
@@ -139,13 +139,13 @@ const EmployeeDashboardHome = () => {
         </div>
 
         {/* Upcoming Tasks */}
-        <div className="bg-white border-2 border-purple-100 dark:border-purple-900/30 rounded-xl p-4  transition-all hover:border-purple-300 dark:hover:border-purple-700">
+        <div className="bg-white border-2 border-purple-100 dark:border-purple-900/30 rounded p-4  transition-all hover:border-purple-300 dark:hover:border-purple-700">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  text-left mb-2">
                 Upcoming Tasks
               </p>
-              <p className="text-xl text-left font-bold dark:text-white">
+              <p className="text-xl text-left  dark:text-white">
                 {stats.upcomingTasks}
               </p>
               <p className="text-xs text-left text-purple-600 dark:text-purple-400 mt-2 font-medium">
@@ -153,7 +153,7 @@ const EmployeeDashboardHome = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-50 dark:from-purple-900/20 to-purple-100 dark:to-purple-900/30 rounded-xl flex items-center justify-center border border-purple-200 dark:border-purple-900/50">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-50 dark:from-purple-900/20 to-purple-100 dark:to-purple-900/30 rounded flex items-center justify-center border border-purple-200 dark:border-purple-900/50">
                 <AlertCircle className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
@@ -161,13 +161,13 @@ const EmployeeDashboardHome = () => {
         </div>
 
         {/* Active Projects */}
-        <div className="bg-white border-2 border-orange-100 dark:border-orange-900/30 rounded-xl p-4  transition-all hover:border-orange-300 dark:hover:border-orange-700">
+        <div className="bg-white border-2 border-orange-100 dark:border-orange-900/30 rounded p-4  transition-all hover:border-orange-300 dark:hover:border-orange-700">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  text-left mb-2">
                 Active Projects
               </p>
-              <p className="text-xl text-left font-bold dark:text-white">
+              <p className="text-xl text-left  dark:text-white">
                 {stats.projectsActive}
               </p>
               <p className="text-xs text-left text-orange-600 dark:text-orange-400 mt-2 font-medium">
@@ -175,7 +175,7 @@ const EmployeeDashboardHome = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-50 dark:from-orange-900/20 to-orange-100 dark:to-orange-900/30 rounded-xl flex items-center justify-center border border-orange-200 dark:border-orange-900/50">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-50 dark:from-orange-900/20 to-orange-100 dark:to-orange-900/30 rounded flex items-center justify-center border border-orange-200 dark:border-orange-900/50">
                 <BarChart3 className="w-6 h-6 text-orange-600 dark:text-orange-400" />
               </div>
             </div>
@@ -183,13 +183,13 @@ const EmployeeDashboardHome = () => {
         </div>
 
         {/* Hours Logged */}
-        <div className="bg-white border-2 border-cyan-100 dark:border-cyan-900/30 rounded-xl p-4  transition-all hover:border-cyan-300 dark:hover:border-cyan-700">
+        <div className="bg-white border-2 border-cyan-100 dark:border-cyan-900/30 rounded p-4  transition-all hover:border-cyan-300 dark:hover:border-cyan-700">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-left mb-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  text-left mb-2">
                 Hours Logged
               </p>
-              <p className="text-xl text-left font-bold dark:text-white">
+              <p className="text-xl text-left  dark:text-white">
                 {stats.hoursLogged}h
               </p>
               <p className="text-xs text-left text-cyan-600 dark:text-cyan-400 mt-2 font-medium">
@@ -197,7 +197,7 @@ const EmployeeDashboardHome = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-cyan-50 dark:from-cyan-900/20 to-cyan-100 dark:to-cyan-900/30 rounded-xl flex items-center justify-center border border-cyan-200 dark:border-cyan-900/50">
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-50 dark:from-cyan-900/20 to-cyan-100 dark:to-cyan-900/30 rounded flex items-center justify-center border border-cyan-200 dark:border-cyan-900/50">
                 <Clock className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
               </div>
             </div>
@@ -208,7 +208,7 @@ const EmployeeDashboardHome = () => {
       {/* Recent Tasks & Events Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Tasks */}
-        <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-4  transition-all">
+        <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded p-4  transition-all">
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <CheckSquare className="w-3 h-3 text-blue-600 dark:text-blue-400" />
@@ -223,9 +223,9 @@ const EmployeeDashboardHome = () => {
                 <div key={i} className="flex items-start justify-between p-3 rounded bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                   <div className="flex-1">
                     <p className="font-medium text-sm text-slate-900 dark:text-white">{task.title}</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 uppercase">{task.status.replace('_', ' ')}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 ">{task.status.replace('_', ' ')}</p>
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase whitespace-nowrap ml-2 ${
+                  <span className={`text-[10px]  px-2 py-1 rounded  whitespace-nowrap ml-2 ${
                     task.priority === 'critical' || task.priority === 'high'
                       ? 'bg-red-100 text-red-800' 
                       : task.priority === 'medium'
@@ -241,7 +241,7 @@ const EmployeeDashboardHome = () => {
         </div>
 
         {/* Upcoming Events */}
-        <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded-xl p-4  transition-all">
+        <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded p-4  transition-all">
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <Calendar className="w-3 h-3 text-purple-600 dark:text-purple-400" />
@@ -257,7 +257,7 @@ const EmployeeDashboardHome = () => {
               <div key={i} className="flex items-start justify-between p-3 rounded bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                 <div className="flex-1">
                   <p className="font-medium text-sm text-slate-900 dark:text-white">{item.event}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{item.date}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{item.date}</p>
                 </div>
               </div>
             ))}

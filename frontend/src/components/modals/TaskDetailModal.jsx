@@ -52,7 +52,7 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
     <Modal isOpen={isOpen} onClose={onClose} size="lg" title={null} closeOnOverlayClick={false}>
       <div className="flex items-start justify-between p-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">{task.title}</h2>
+          <h2 className="text-2xl  text-slate-900 dark:text-white mb-3">{task.title}</h2>
           <div className="flex gap-2 flex-wrap">
             <Badge className={getStatusColor(task.status)}>
               {task.status === 'completed' ? (
@@ -64,13 +64,13 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
               )}
             </Badge>
             <Badge className={getPriorityColor(task.priority)} title={task.priority}>
-              {getPriorityIcon(task.priority)} {task.priority?.toUpperCase()}
+              {getPriorityIcon(task.priority)} {task.priority}
             </Badge>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-2 rounded  text-xshover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex-shrink-0 ml-4"
+          className="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex-shrink-0 ml-4"
           aria-label="Close modal"
         >
           <X className="w-3 h-3" />
@@ -79,7 +79,7 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
 
       <div className="space-y-2 p-6 bg-white dark:bg-slate-900 overflow-y-auto max-h-[70vh]">
         <div>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Description</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Description</p>
           <p className="text-slate-900 dark:text-white">{task.description || 'No description provided'}</p>
         </div>
 
@@ -87,49 +87,49 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
           <div className="grid grid-cols-2 gap-4">
             {task.job_card_no && (
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-100 dark:border-blue-900/30">
-                <p className="text-xs font-bold text-blue-500 dark:text-blue-400 uppercase mb-1">Job Card Number</p>
-                <p className="text-sm font-black text-blue-700 dark:text-blue-300 uppercase tracking-tight">{task.job_card_no}</p>
+                <p className="text-xs  text-blue-500 dark:text-blue-400  mb-1">Job Card Number</p>
+                <p className="text-sm  text-blue-700 dark:text-blue-300  ">{task.job_card_no}</p>
               </div>
             )}
 
             {task.root_card_code && (
               <div className="bg-violet-50 dark:bg-violet-900/20 p-3 rounded border border-violet-100 dark:border-violet-900/30">
-                <p className="text-xs font-bold text-violet-500 dark:text-violet-400 uppercase mb-1">Root Card #</p>
-                <p className="text-sm font-black text-violet-700 dark:text-violet-300 uppercase tracking-tight">{task.root_card_code}</p>
+                <p className="text-xs  text-violet-500 dark:text-violet-400  mb-1">Root Card #</p>
+                <p className="text-sm  text-violet-700 dark:text-violet-300  ">{task.root_card_code}</p>
               </div>
             )}
 
             {task.root_card_name && (
               <div className="col-span-2 bg-violet-50/50 dark:bg-violet-900/10 p-3 rounded border border-violet-100/50 dark:border-violet-900/20">
-                <p className="text-xs font-bold text-violet-500 dark:text-violet-400 uppercase mb-1">Root Card Name</p>
-                <p className="text-sm font-black text-violet-700 dark:text-violet-300 uppercase">{task.root_card_name}</p>
+                <p className="text-xs  text-violet-500 dark:text-violet-400  mb-1">Root Card Name</p>
+                <p className="text-sm  text-violet-700 dark:text-violet-300 ">{task.root_card_name}</p>
               </div>
             )}
 
             {task.work_order_no && (
               <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded border border-indigo-100 dark:border-indigo-900/30">
-                <p className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase mb-1">Work Order #</p>
-                <p className="text-sm font-black text-indigo-700 dark:text-indigo-300 uppercase">{task.work_order_no}</p>
+                <p className="text-xs  text-indigo-500 dark:text-indigo-400  mb-1">Work Order #</p>
+                <p className="text-sm  text-indigo-700 dark:text-indigo-300 ">{task.work_order_no}</p>
               </div>
             )}
 
             {task.item_name && (
               <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded border border-emerald-100 dark:border-emerald-900/30">
-                <p className="text-xs font-bold text-emerald-500 dark:text-emerald-400 uppercase mb-1">Item Name</p>
-                <p className="text-sm font-black text-emerald-700 dark:text-emerald-300 uppercase">{task.item_name}</p>
+                <p className="text-xs  text-emerald-500 dark:text-emerald-400  mb-1">Item Name</p>
+                <p className="text-sm  text-emerald-700 dark:text-emerald-300 ">{task.item_name}</p>
               </div>
             )}
 
             {task.po_number && (
               <div className="bg-slate-50 dark:bg-slate-900/20 p-3 rounded border border-slate-100 dark:border-slate-900/30">
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">PO Number</p>
-                <p className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase">{task.po_number}</p>
+                <p className="text-xs  text-slate-500 dark:text-slate-400  mb-1">PO Number</p>
+                <p className="text-sm  text-slate-700 dark:text-slate-300 ">{task.po_number}</p>
               </div>
             )}
 
             {task.started_at && (
               <div>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Started Date</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Started Date</p>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                   {new Date(task.started_at).toLocaleDateString('en-IN')} {new Date(task.started_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                 </p>
@@ -138,7 +138,7 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
 
             {task.created_at && (
               <div>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Created Date</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Created Date</p>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                   {new Date(task.created_at).toLocaleDateString('en-IN')}
                 </p>
@@ -149,7 +149,7 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
 
         <div className="pt-2 flex flex-col gap-3">
           {task.status === 'pending' ? (
-            <div className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-xl font-bold border border-amber-100 dark:border-amber-900/30 shadow-sm uppercase">
+            <div className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded  border border-amber-100 dark:border-amber-900/30 shadow-sm ">
               <Clock className="w-3 h-3 animate-pulse" />
               Waiting for Production to Start Task
             </div>

@@ -53,7 +53,7 @@ const FinancialOverviewPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Financial Overview
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -83,10 +83,10 @@ const FinancialOverviewPage = () => {
             key={metric.label}
             className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6"
           >
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               {metric.label}
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-2">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
               {metric.value}
             </p>
             <p className="text-sm text-green-600 dark:text-green-400 mt-1 font-medium">
@@ -99,7 +99,7 @@ const FinancialOverviewPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+            <h2 className="text-lg  text-slate-900 dark:text-white text-xs">
               Monthly Trends
             </h2>
             <BarChart3 size={20} className="text-blue-600" />
@@ -111,13 +111,13 @@ const FinancialOverviewPage = () => {
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     {data.month}
                   </span>
-                  <span className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                  <span className="text-sm  text-slate-900 dark:text-white text-xs">
                     ₹{(data.profit / 1000000).toFixed(1)}M
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">
                   <div
-                    className="bg-green-600 h-2 rounded-full"
+                    className="bg-green-600 h-2 rounded "
                     style={{ width: `${(data.profit / 20000000) * 100}%` }}
                   ></div>
                 </div>
@@ -128,7 +128,7 @@ const FinancialOverviewPage = () => {
 
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+            <h2 className="text-lg  text-slate-900 dark:text-white text-xs">
               Expense Distribution
             </h2>
             <Filter size={20} className="text-purple-600" />
@@ -140,13 +140,13 @@ const FinancialOverviewPage = () => {
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     {dept.dept}
                   </span>
-                  <span className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                  <span className="text-sm  text-slate-900 dark:text-white text-xs">
                     {dept.percentage}%
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">
                   <div
-                    className="bg-orange-600 h-2 rounded-full"
+                    className="bg-orange-600 h-2 rounded "
                     style={{ width: `${dept.percentage}%` }}
                   ></div>
                 </div>
@@ -157,31 +157,31 @@ const FinancialOverviewPage = () => {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+        <h2 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
           Year-to-Date Summary
         </h2>
         <div className="grid grid-cols-3 gap-4">
           <div className="p-4 bg-blue-50 dark:bg-slate-700 rounded">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total Revenue
             </p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            <p className="text-2xl  text-blue-600 dark:text-blue-400">
               ₹2,34,56,000
             </p>
           </div>
           <div className="p-4 bg-red-50 dark:bg-slate-700 rounded">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total Expenses
             </p>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+            <p className="text-2xl  text-red-600 dark:text-red-400">
               ₹1,12,34,000
             </p>
           </div>
           <div className="p-4 bg-green-50 dark:bg-slate-700 rounded">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Net Profit
             </p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+            <p className="text-2xl  text-green-600 dark:text-green-400">
               ₹1,22,22,000
             </p>
           </div>

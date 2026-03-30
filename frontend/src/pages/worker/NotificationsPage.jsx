@@ -6,6 +6,7 @@ import {
   MessageCircle,
   Trash2,
 } from "lucide-react";
+import Select from "../../components/ui/Select";
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([
@@ -166,7 +167,7 @@ const NotificationsPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Notifications
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -187,21 +188,19 @@ const NotificationsPage = () => {
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Filter by Type
-            </label>
-            <select
+          <div className="flex-1 -mt-3">
+            <Select
+              label="Filter by Type"
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="w-full sm:w-auto p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+              className="sm:w-[250px]"
             >
               <option value="all">All Notifications</option>
               <option value="alert">Alerts</option>
               <option value="notification">Notifications</option>
               <option value="request">Requests</option>
               <option value="approval">Approvals</option>
-            </select>
+            </Select>
           </div>
           <label className="flex items-center text-xs gap-2 cursor-pointer">
             <input
@@ -221,7 +220,7 @@ const NotificationsPage = () => {
         {filteredNotifications.length === 0 ? (
           <div className="text-center py-12">
             <Bell size={40} className="mx-auto text-slate-400 mb-4" />
-            <p className="text-slate-600 dark:text-slate-400 text-lg">
+            <p className="text-slate-500 dark:text-slate-400 text-lg">
               No notifications
             </p>
           </div>
@@ -272,7 +271,7 @@ const NotificationsPage = () => {
                   <p
                     className={`text-sm mb-2 ${
                       notif.read
-                        ? "text-slate-600 dark:text-slate-300"
+                        ? "text-slate-500 dark:text-slate-300"
                         : "text-blue-900 dark:text-blue-100"
                     }`}
                   >
@@ -299,7 +298,7 @@ const NotificationsPage = () => {
                       )}
                       <button
                         onClick={() => handleDelete(notif.id)}
-                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                        className="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
                       >
                         <Trash2 size={16} />
                       </button>

@@ -40,13 +40,13 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
               <ShoppingCart size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Material Request</h3>
+              <h3 className="text-lg  text-slate-900 dark:text-white">Material Request</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Requesting materials for BOM: {bom.bomNumber}</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded  transition-colors"
           >
             <X size={20} className="text-slate-400" />
           </button>
@@ -56,7 +56,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
         <div className="flex-1 overflow-y-auto p-6 space-y-2">
           <div className="space-y-4">
             <div className="flex items-center justify-between ml-1">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <h4 className="text-xs  text-slate-400  tracking-widest flex items-center gap-2">
                 <Box size={14} className="text-slate-300" />
                 Materials List
               </h4>
@@ -65,7 +65,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
             <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-200 dark:border-slate-800">
+                  <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-[10px]   tracking-widest border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="px-4 py-3.5 w-12 text-center">#</th>
                       <th className="px-4 py-3.5">Item Name / Group</th>
@@ -83,10 +83,10 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                         </td>
                         <td className="px-4 py-3.5">
                           <div className="flex flex-col">
-                            <span className="font-bold text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            <span className=" text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {item.itemName}
                             </span>
-                            <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-tight">
+                            <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500  ">
                               {item.itemGroup || "NO-GROUP"}
                             </span>
                           </div>
@@ -96,7 +96,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                             <span className="text-xs text-slate-700 dark:text-slate-300">
                               {item.partDetail || "-"}
                             </span>
-                            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-500 uppercase tracking-tight">
+                            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-500  ">
                               {item.materialGrade || "-"}
                             </span>
                           </div>
@@ -106,18 +106,18 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                             <span className="text-[10px] text-slate-500 italic">
                               {item.remark || "-"}
                             </span>
-                            <span className="text-xs text-slate-600 dark:text-slate-400">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               {item.make || "-"}
                             </span>
                           </div>
                         </td>
                         <td className="px-4 py-3.5 text-center">
-                          <span className="font-black text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-800">
+                          <span className=" text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-800">
                             {item.quantity}
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-center">
-                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px]  text-slate-500 dark:text-slate-400">
                             {item.uom}
                           </span>
                         </td>
@@ -130,7 +130,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <h4 className="text-xs  text-slate-400  tracking-widest flex items-center gap-2">
               <FileText size={14} className="text-slate-300" />
               Additional Remarks
             </h4>
@@ -138,7 +138,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
               placeholder="Enter any additional instructions or remarks for this material request..."
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none min-h-[100px] resize-none"
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded text-sm focus:ring-2 focus:ring-blue-500/20 outline-none min-h-[100px] resize-none"
             />
           </div>
 

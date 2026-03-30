@@ -588,7 +588,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
         <div className="space-y-8">
           {/* Section 1: Material Requests */}
           <div className="p-2 space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b pb-2">
+            <h3 className="text-sm  text-slate-900 flex items-center gap-2 border-b pb-2">
               <FileText size={18} className="text-purple-600" />
               Material Requests (MR)
             </h3>
@@ -602,7 +602,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
 
           {/* Section 2: RFQs (Sent) */}
           <div className="p-2 space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b pb-2">
+            <h3 className="text-sm  text-slate-900 flex items-center gap-2 border-b pb-2">
               <Send size={18} className="text-blue-600" />
               RFQs Sent (Request for Quotations)
             </h3>
@@ -616,7 +616,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
 
           {/* Section 3: Quotations */}
           <div className="p-2 space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b pb-2">
+            <h3 className="text-sm  text-slate-900 flex items-center gap-2 border-b pb-2">
               <Receipt size={18} className="text-green-600" />
               Received Quotations
             </h3>
@@ -630,7 +630,7 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
 
           {/* Section 4: Purchase Orders */}
           <div className="p-2 space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b pb-2">
+            <h3 className="text-sm  text-slate-900 flex items-center gap-2 border-b pb-2">
               <ShoppingCart size={18} className="text-amber-600" />
               Approved Purchase Orders (PO)
             </h3>

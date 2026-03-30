@@ -393,10 +393,10 @@ const ProjectDetailViewPage = () => {
               <FileText className="text-white" size={24} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white text-xs">
+              <h1 className="text-3xl  text-slate-900 dark:text-white text-xs">
                 {editMode ? "Edit Project Details" : "Project Details"}
               </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                 {projectData.productName || "Select a project to view"}
               </p>
             </div>
@@ -432,7 +432,7 @@ const ProjectDetailViewPage = () => {
                         className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700"
                       >
                         <div className="flex items-center gap-3 flex-1">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-100 dark:bg-blue-900">
+                          <div className="w-8 h-8 rounded  flex items-center justify-center bg-blue-100 dark:bg-blue-900">
                             <Clock
                               size={16}
                               className="text-blue-600 dark:text-blue-400"

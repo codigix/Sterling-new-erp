@@ -166,10 +166,10 @@ const QCManagerDashboard = () => {
               >
                 <div className="flex items-center text-xs justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                       {stat.title}
                     </p>
-                    <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-2">
+                    <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
                       {stat.value}
                     </p>
                     <p
@@ -190,7 +190,7 @@ const QCManagerDashboard = () => {
         {/* Assigned Root Cards (Quality Check) */}
         <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs flex items-center gap-2">
+            <h2 className="text-lg  text-slate-900 dark:text-white text-xs flex items-center gap-2">
               <Clock size={20} className="text-blue-600" />
               Assigned Root Cards (Quality Check)
             </h2>
@@ -215,7 +215,7 @@ const QCManagerDashboard = () => {
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
+                      <h4 className=" text-slate-900 dark:text-white line-clamp-1">
                         {task.rootCard?.title || task.title}
                       </h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -223,7 +223,7 @@ const QCManagerDashboard = () => {
                       </p>
                     </div>
                     <span
-                      className={`px-2 py-1 text-[10px] font-bold rounded-full uppercase ${
+                      className={`px-2 py-1 text-[10px]  rounded   ${
                         task.status === "pending"
                           ? "bg-amber-100 text-amber-700"
                           : "bg-blue-100 text-blue-700"
@@ -238,7 +238,7 @@ const QCManagerDashboard = () => {
                     </span>
                     <Link
                       to={`/qc-manager/qc/pending`}
-                      className="text-xs font-bold text-blue-600 hover:text-blue-700"
+                      className="text-xs  text-blue-600 hover:text-blue-700"
                     >
                       Process →
                     </Link>
@@ -258,25 +258,25 @@ const QCManagerDashboard = () => {
 
         {/* QC Metrics */}
         <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs text-left mb-4">
             Quality Metrics (This Month)
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">94.2%</div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 text-xs ">
+              <div className="text-3xl  text-green-600">94.2%</div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-xs ">
                 Pass Rate
               </p>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">1,234</div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 text-xs ">
+              <div className="text-3xl  text-blue-600">1,234</div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-xs ">
                 Items Inspected
               </p>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-red-600">74</div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 text-xs ">
+              <div className="text-3xl  text-red-600">74</div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-xs ">
                 Defects Found
               </p>
             </div>
@@ -285,7 +285,7 @@ const QCManagerDashboard = () => {
 
         {/* Quick Actions */}
         <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs text-left mb-4">
             Quick Actions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

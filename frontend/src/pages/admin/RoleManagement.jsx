@@ -223,7 +223,7 @@ const RoleManagement = () => {
       label: 'Description',
       sortable: true,
       render: (value) => (
-        <span className="text-slate-600 dark:text-slate-400 text-sm">
+        <span className="text-slate-500 dark:text-slate-400 text-sm">
           {value || 'N/A'}
         </span>
       ),
@@ -276,7 +276,7 @@ const RoleManagement = () => {
       label: 'Created',
       sortable: true,
       render: (value) => (
-        <span className="text-xs text-slate-600 dark:text-slate-400">
+        <span className="text-xs text-slate-500 dark:text-slate-400">
           {formatDate(value)}
         </span>
       ),
@@ -323,10 +323,10 @@ const RoleManagement = () => {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-bold text-left">
+          <h1 className="text-xl  text-left">
             Role Management
           </h1>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 text-left">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 text-left">
             Create and manage roles with permissions
           </p>
         </div>
@@ -344,11 +344,11 @@ const RoleManagement = () => {
         <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded p-4 border border-blue-100 dark:border-blue-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Total Roles
               </p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold text-left">
+                <span className="text-xl  text-left">
                   {roleStats.total}
                 </span>
               </div>
@@ -360,11 +360,11 @@ const RoleManagement = () => {
         <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded p-4 border border-green-100 dark:border-green-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Roles with Users
               </p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold text-left">
+                <span className="text-xl  text-left">
                   {roleStats.withUsers}
                 </span>
               </div>
@@ -376,11 +376,11 @@ const RoleManagement = () => {
         <div className="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 rounded p-4 border border-cyan-100 dark:border-cyan-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Avg Permissions
               </p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold text-left">
+                <span className="text-xl  text-left">
                   {roleStats.avgPermissions}
                 </span>
               </div>
@@ -392,11 +392,11 @@ const RoleManagement = () => {
         <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded p-4 border border-amber-100 dark:border-amber-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Permissions
               </p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold text-left">
+                <span className="text-xl  text-left">
                   {permissions.length}
                 </span>
               </div>
@@ -530,7 +530,7 @@ const RoleManagement = () => {
                         />
                         <div className="flex-1">
                           <p className="text-xs font-medium dark:text-white">{permission.name}</p>
-                          <p className="text-xs text-slate-600 dark:text-slate-400">{permission.description}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{permission.description}</p>
                         </div>
                       </label>
                     ))}

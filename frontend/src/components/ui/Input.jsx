@@ -18,7 +18,7 @@ const Input = ({
   };
 
   const inputClasses = `
-  w-full border border-slate-200 rounded bg-white text-slate-900 mb-3 text-xs placeholder-slate-500
+  w-full border border-slate-200 rounded bg-white text-slate-900 text-xs placeholder-slate-500
   focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500
   transition-colors duration-200
     ${sizeClasses[size]}
@@ -28,7 +28,7 @@ const Input = ({
   `;
 
   return (
-    <div className={`space-y-1 mt-2 ${containerClassName}`}>
+    <div className={`space-y-1  ${containerClassName}`}>
       {label && (
         <label className="block text-xs font-medium text-slate-700 mb-0.5 text-left">
           {label}

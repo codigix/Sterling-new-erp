@@ -247,10 +247,10 @@ const GRNTasksPage = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+        <h2 className="text-xl  text-slate-900 dark:text-white text-xs">
           Inventory GRN Management
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+        <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
           View GRNs and create inventory tasks
         </p>
       </div>
@@ -295,10 +295,10 @@ const GRNTasksPage = () => {
               <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+                    <h3 className="text-lg  text-slate-900 dark:text-white text-xs">
                       {getGrnNumber(selectedGrn)}
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 text-xs">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-xs">
                       {selectedGrn.vendor_name ||
                         selectedGrn.vendor ||
                         "Unknown Vendor"}
@@ -317,42 +317,42 @@ const GRNTasksPage = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded">
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       PO Number
                     </p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white text-xs mt-1">
+                    <p className="text-sm  text-slate-900 dark:text-white text-xs mt-1">
                       {selectedGrn.po_number || selectedGrn.poNo || "N/A"}
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded">
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Expected Qty
                     </p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white text-xs mt-1">
+                    <p className="text-sm  text-slate-900 dark:text-white text-xs mt-1">
                       {selectedGrn.expectedQty || selectedGrn.total_qty || "0"}
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded">
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Received Qty
                     </p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white text-xs mt-1">
+                    <p className="text-sm  text-slate-900 dark:text-white text-xs mt-1">
                       {selectedGrn.receivedQty ||
                         selectedGrn.received_qty ||
                         "0"}
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded">
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Status
                     </p>
                     <p
-                      className={`text-xs font-bold mt-1 capitalize ${
+                      className={`text-xs  mt-1 capitalize ${
                         selectedGrn.status === "completed"
                           ? "text-green-600"
                           : selectedGrn.status === "pending"
                           ? "text-yellow-600"
-                          : "text-slate-600"
+                          : "text-slate-500"
                       }`}
                     >
                       {selectedGrn.status || "pending"}
@@ -377,7 +377,7 @@ const GRNTasksPage = () => {
                               {task.title}
                             </h5>
                             <span
-                              className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                              className={`px-2 py-1 text-xs font-semibold rounded  ${getStatusColor(
                                 task.status
                               )}`}
                             >
@@ -385,7 +385,7 @@ const GRNTasksPage = () => {
                             </span>
                           </div>
                           {task.description && (
-                            <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
                               {task.description}
                             </p>
                           )}
@@ -410,7 +410,7 @@ const GRNTasksPage = () => {
                       size={32}
                       className="text-slate-400 mx-auto mb-2"
                     />
-                    <p className="text-slate-600 dark:text-slate-400">
+                    <p className="text-slate-500 dark:text-slate-400">
                       No tasks created for this GRN yet
                     </p>
                     <p className="text-xs text-slate-500 mt-1">
@@ -422,7 +422,7 @@ const GRNTasksPage = () => {
             </div>
           ) : (
             <div className="text-center py-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-500 dark:text-slate-400">
                 Select a GRN to view tasks
               </p>
             </div>

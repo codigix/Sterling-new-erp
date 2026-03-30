@@ -69,10 +69,10 @@ const DashboardHome = () => {
           >
             <div className="flex items-center text-xs justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   {stat.title}
                 </p>
-                <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-2">
+                <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
                   {stat.value}
                 </p>
                 <p

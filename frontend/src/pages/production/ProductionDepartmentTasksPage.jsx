@@ -85,11 +85,11 @@ const ProductionDepartmentTasksPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl  text-slate-900 dark:text-white flex items-center gap-2">
             <ClipboardList className="text-blue-600" />
             Production Department Tasks
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-slate-500 dark:text-slate-400">
             Monitor and manage tasks assigned to the entire production department
           </p>
         </div>
@@ -107,7 +107,7 @@ const ProductionDepartmentTasksPage = () => {
             <AlertCircle size={20} />
             {error}
           </div>
-          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 font-bold">×</button>
+          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 ">×</button>
         </div>
       )}
 
@@ -145,12 +145,12 @@ const ProductionDepartmentTasksPage = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Task Info</th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Job Card / Work Order</th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Priority</th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Assigned By</th>
-                <th className="p-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Task Info</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Job Card / Work Order</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Priority</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Status</th>
+                <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Assigned By</th>
+                <th className="p-2 text-right text-xs font-semibold text-slate-500  tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -168,14 +168,14 @@ const ProductionDepartmentTasksPage = () => {
                     <td className="p-2">
                       <div className="font-medium text-slate-900 dark:text-white">{task.task_title}</div>
                       {task.product_name && (
-                        <div className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-0.5 uppercase tracking-tight">
+                        <div className="text-xs  text-indigo-600 dark:text-indigo-400 mt-0.5  ">
                           Item: {task.product_name}
                         </div>
                       )}
                       <div className="text-xs text-slate-500 mt-1 line-clamp-1 italic font-medium">{task.task_description}</div>
                     </td>
                     <td className="p-2">
-                      <div className="text-sm text-slate-900 dark:text-white font-bold">
+                      <div className="text-sm text-slate-900 dark:text-white ">
                         {task.work_order_operation_id 
                           ? `JC-${task.work_order_no?.split('-')?.pop() || task.work_order_id || 'WO'}-${task.work_order_operation_id}` 
                           : 'N/A'}
@@ -199,7 +199,7 @@ const ProductionDepartmentTasksPage = () => {
                         {task.status.replace('_', ' ')}
                       </Badge>
                     </td>
-                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                       {task.assigned_by_name || 'System'}
                     </td>
                     <td className="p-2 text-right">
@@ -207,7 +207,7 @@ const ProductionDepartmentTasksPage = () => {
                         {task.link && task.status !== 'completed' && (
                           <button
                             onClick={() => navigate(task.link)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors flex items-center gap-1 text-xs font-bold"
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors flex items-center gap-1 text-xs "
                             title="Go to Production Entry"
                           >
                             <ArrowRight size={18} />

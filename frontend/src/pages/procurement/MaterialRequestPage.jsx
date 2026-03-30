@@ -223,58 +223,58 @@ const MaterialRequestPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total Requests
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
               {stats.total || 0}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Draft</p>
-            <p className="text-2xl font-bold text-gray-600 mt-1">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Draft</p>
+            <p className="text-2xl  text-gray-600 mt-1">
               {stats.draft || 0}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Approved
             </p>
-            <p className="text-2xl font-bold text-green-600 mt-1">
+            <p className="text-2xl  text-green-600 mt-1">
               {stats.approved || 0}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Ordered
             </p>
-            <p className="text-2xl font-bold text-indigo-600 mt-1">
+            <p className="text-2xl  text-indigo-600 mt-1">
               {stats.ordered || 0}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Received
             </p>
-            <p className="text-2xl font-bold text-emerald-600 mt-1">
+            <p className="text-2xl  text-emerald-600 mt-1">
               {stats.received || 0}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Submitted
             </p>
-            <p className="text-2xl font-bold text-blue-600 mt-1">
+            <p className="text-2xl  text-blue-600 mt-1">
               {stats.submitted || 0}
             </p>
           </div>
@@ -521,7 +521,7 @@ const MaterialRequestPage = () => {
                         {request.production_plan_name || request.customer || "Direct Request"}
                       </span>
                       {request.production_plan_id && (
-                        <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">
+                        <span className="text-[10px] text-blue-500   er">
                           Prod Plan #{request.production_plan_id}
                         </span>
                       )}

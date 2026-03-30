@@ -171,8 +171,8 @@ const ProductionPlanDetailPage = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-200 border-b-purple-600 mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400 font-medium">Syncing plan data...</p>
+          <div className="inline-block animate-spin rounded  h-12 w-12 border-4 border-purple-200 border-b-purple-600 mb-4"></div>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Syncing plan data...</p>
         </div>
       </div>
     );
@@ -182,14 +182,14 @@ const ProductionPlanDetailPage = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-6">
         <div className="text-center max-w-md bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded  flex items-center justify-center mx-auto mb-4">
             <AlertCircle size={32} />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Plan Not Found</h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">The production plan you're looking for might have been deleted or moved.</p>
+          <h2 className="text-xl  text-slate-900 dark:text-white mb-2">Plan Not Found</h2>
+          <p className="text-slate-500 dark:text-slate-400 mb-6">The production plan you're looking for might have been deleted or moved.</p>
           <button 
             onClick={() => navigate('/department/production/plans')}
-            className="w-full py-3 bg-slate-900 dark:bg-slate-700 text-white font-bold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-600 transition-all"
+            className="w-full py-3 bg-slate-900 dark:bg-slate-700 text-white  rounded hover:bg-slate-800 dark:hover:bg-slate-600 transition-all"
           >
             Back to All Plans
           </button>
@@ -206,13 +206,13 @@ const ProductionPlanDetailPage = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/department/production/plans')}
-              className="p-2 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700 group"
+              className="p-2 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700 group"
             >
               <ArrowLeft size={20} className="text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white" />
             </button>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider rounded">
+                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px]   tracking-wider rounded">
                   Plan Details
                 </span>
                 <span className="text-slate-300 dark:text-slate-700">•</span>
@@ -220,7 +220,7 @@ const ProductionPlanDetailPage = () => {
                   #{plan.id}
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-2xl  text-slate-900 dark:text-white">
                 {plan.plan_name}
               </h1>
             </div>
@@ -232,7 +232,7 @@ const ProductionPlanDetailPage = () => {
                 <button
                   onClick={handleGenerateWorkOrders}
                   disabled={generatingWorkOrders}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 disabled:bg-slate-400 transition-all text-sm shadow-lg shadow-green-600/20"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded bg-green-600 text-white  hover:bg-green-700 disabled:bg-slate-400 transition-all text-sm shadow-lg shadow-green-600/20"
                 >
                   {generatingWorkOrders ? (
                     <Loader2 size={16} className="animate-spin" />
@@ -243,14 +243,14 @@ const ProductionPlanDetailPage = () => {
                 </button>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400  hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
                 >
                   <Edit size={16} />
                   Edit Plan
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 font-bold hover:bg-red-100 dark:hover:bg-red-900/30 transition-all text-sm border border-red-100 dark:border-red-900/30"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400  hover:bg-red-100 dark:hover:bg-red-900/30 transition-all text-sm border border-red-100 dark:border-red-900/30"
                 >
                   <Trash2 size={16} />
                   Delete
@@ -260,7 +260,7 @@ const ProductionPlanDetailPage = () => {
               <>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400  hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
                 >
                   <X size={16} />
                   Cancel
@@ -268,7 +268,7 @@ const ProductionPlanDetailPage = () => {
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 disabled:bg-slate-400 shadow-lg shadow-blue-600/20 transition-all text-sm"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-2 rounded bg-blue-600 text-white  hover:bg-blue-700 disabled:bg-slate-400 shadow-lg shadow-blue-600/20 transition-all text-sm"
                 >
                   {isSaving ? (
                     <Clock size={16} className="animate-spin" />
@@ -283,14 +283,14 @@ const ProductionPlanDetailPage = () => {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-red-700 dark:text-red-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
             <AlertCircle size={18} />
             <p className="text-sm font-medium">{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-green-700 dark:text-green-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
             <CheckCircle size={18} />
             <p className="text-sm font-medium">{success}</p>
           </div>
@@ -305,9 +305,9 @@ const ProductionPlanDetailPage = () => {
                   <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
                     <Layout size={20} />
                   </div>
-                  <h3 className="font-bold text-slate-900 dark:text-white">Strategic Parameters</h3>
+                  <h3 className=" text-slate-900 dark:text-white">Strategic Parameters</h3>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${getStatusColor(plan.status)}`}>
+                <span className={`px-3 py-1 rounded  text-[10px]  tracking-wider  ${getStatusColor(plan.status)}`}>
                   {getStatusLabel(plan.status)}
                 </span>
               </div>
@@ -316,7 +316,7 @@ const ProductionPlanDetailPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <div>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Production Plan Name</p>
+                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Production Plan Name</p>
                       {isEditing ? (
                         <input
                           type="text"
@@ -325,12 +325,12 @@ const ProductionPlanDetailPage = () => {
                           className="w-full p-2.5 border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                         />
                       ) : (
-                        <p className="text-lg font-bold text-slate-900 dark:text-white">{plan.plan_name}</p>
+                        <p className="text-lg  text-slate-900 dark:text-white">{plan.plan_name}</p>
                       )}
                     </div>
 
                     <div>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Target Quantity</p>
+                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Target Quantity</p>
                       {isEditing ? (
                         <div className="flex items-center">
                           <input
@@ -339,32 +339,32 @@ const ProductionPlanDetailPage = () => {
                             onChange={(e) => setFormData({ ...formData, targetQuantity: e.target.value })}
                             className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded-l-lg bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
                           />
-                          <span className="p-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r-lg text-[10px] font-bold text-slate-500 uppercase">
+                          <span className="p-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r-lg text-[10px]  text-slate-500 ">
                             {plan.uom || 'Units'}
                           </span>
                         </div>
                       ) : (
                         <div className="flex items-end gap-2">
-                          <p className="text-lg font-bold text-slate-900 dark:text-white">{plan.target_quantity || plan.quantity || 1}</p>
-                          <span className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">{plan.uom || 'Units'}</span>
+                          <p className="text-lg  text-slate-900 dark:text-white">{plan.target_quantity || plan.quantity || 1}</p>
+                          <span className="text-[10px]  text-slate-400 mb-1  tracking-widest">{plan.uom || 'Units'}</span>
                         </div>
                       )}
                     </div>
 
                     <div>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Supervisor</p>
+                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Supervisor</p>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                        <div className="w-10 h-10 rounded  bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
                           <User size={20} />
                         </div>
-                        <p className="font-bold text-slate-700 dark:text-slate-200">{plan.supervisor_name || 'Unassigned'}</p>
+                        <p className=" text-slate-700 dark:text-slate-200">{plan.supervisor_name || 'Unassigned'}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Lifecycle Status</p>
+                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Lifecycle Status</p>
                       {isEditing ? (
                         <select
                           value={formData.status || ''}
@@ -379,16 +379,16 @@ const ProductionPlanDetailPage = () => {
                           <option value="cancelled">Cancelled</option>
                         </select>
                       ) : (
-                        <div className={`inline-flex items-center gap-2 p-2 rounded text-xs-xl font-bold text-sm ${getStatusColor(plan.status)}`}>
-                          <div className="w-2 h-2 rounded-full bg-current opacity-50" />
+                        <div className={`inline-flex items-center gap-2 p-2 rounded text-xs-xl  text-sm ${getStatusColor(plan.status)}`}>
+                          <div className="w-2 h-2 rounded  bg-current opacity-50" />
                           {getStatusLabel(plan.status)}
                         </div>
                       )}
                     </div>
 
                     <div>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2">Created On</p>
-                      <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold">
+                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Created On</p>
+                      <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 ">
                         <Calendar size={18} className="text-slate-400" />
                         {plan.created_at ? new Date(plan.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
                       </div>
@@ -397,49 +397,49 @@ const ProductionPlanDetailPage = () => {
                 </div>
 
                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-700/50">
-                  <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-3">Timeline Matrix</p>
+                  <p className="text-[10px]   tracking-widest text-slate-400 mb-3">Timeline Matrix</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-bold text-slate-500 mb-1 uppercase">Start Date</p>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
+                      <p className="text-[10px]  text-slate-500 mb-1 ">Start Date</p>
                       {isEditing ? (
                         <input
                           type="date"
                           value={formData.plannedStartDate ? formData.plannedStartDate.split('T')[0] : ''}
                           onChange={(e) => setFormData({ ...formData, plannedStartDate: e.target.value })}
-                          className="w-full bg-transparent border-none text-slate-900 dark:text-white font-bold outline-none"
+                          className="w-full bg-transparent border-none text-slate-900 dark:text-white  outline-none"
                         />
                       ) : (
-                        <p className="font-bold text-slate-900 dark:text-white">
+                        <p className=" text-slate-900 dark:text-white">
                           {plan.planned_start_date ? new Date(plan.planned_start_date).toLocaleDateString() : 'Not Set'}
                         </p>
                       )}
                     </div>
-                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-bold text-slate-500 mb-1 uppercase">Target End</p>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
+                      <p className="text-[10px]  text-slate-500 mb-1 ">Target End</p>
                       {isEditing ? (
                         <input
                           type="date"
                           value={formData.plannedEndDate ? formData.plannedEndDate.split('T')[0] : ''}
                           onChange={(e) => setFormData({ ...formData, plannedEndDate: e.target.value })}
-                          className="w-full bg-transparent border-none text-slate-900 dark:text-white font-bold outline-none"
+                          className="w-full bg-transparent border-none text-slate-900 dark:text-white  outline-none"
                         />
                       ) : (
-                        <p className="font-bold text-slate-900 dark:text-white">
+                        <p className=" text-slate-900 dark:text-white">
                           {plan.planned_end_date ? new Date(plan.planned_end_date).toLocaleDateString() : 'Not Set'}
                         </p>
                       )}
                     </div>
-                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-900/30">
-                      <p className="text-[10px] font-bold text-purple-600 dark:text-purple-400 mb-1 uppercase">Estimated Completion</p>
+                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded border border-purple-100 dark:border-purple-900/30">
+                      <p className="text-[10px]  text-purple-600 dark:text-purple-400 mb-1 ">Estimated Completion</p>
                       {isEditing ? (
                         <input
                           type="date"
                           value={formData.estimatedCompletionDate ? formData.estimatedCompletionDate.split('T')[0] : ''}
                           onChange={(e) => setFormData({ ...formData, estimatedCompletionDate: e.target.value })}
-                          className="w-full bg-transparent border-none text-purple-700 dark:text-purple-300 font-bold outline-none"
+                          className="w-full bg-transparent border-none text-purple-700 dark:text-purple-300  outline-none"
                         />
                       ) : (
-                        <p className="font-bold text-purple-700 dark:text-purple-300">
+                        <p className=" text-purple-700 dark:text-purple-300">
                           {plan.estimated_completion_date ? new Date(plan.estimated_completion_date).toLocaleDateString() : 'Pending'}
                         </p>
                       )}
@@ -448,7 +448,7 @@ const ProductionPlanDetailPage = () => {
                 </div>
 
                 <div className="mt-8">
-                  <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-3">Production Notes</p>
+                  <p className="text-[10px]   tracking-widest text-slate-400 mb-3">Production Notes</p>
                   {isEditing ? (
                     <textarea
                       value={formData.notes || ''}
@@ -458,7 +458,7 @@ const ProductionPlanDetailPage = () => {
                       placeholder="Enter production directives..."
                     />
                   ) : (
-                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-400 italic">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400 italic">
                       {plan.notes || 'No specific production directives recorded for this plan.'}
                     </div>
                   )}
@@ -473,12 +473,12 @@ const ProductionPlanDetailPage = () => {
                   <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded">
                     <ListChecks size={20} />
                   </div>
-                  <h3 className="font-bold text-slate-900 dark:text-white">Execution Stages</h3>
+                  <h3 className=" text-slate-900 dark:text-white">Execution Stages</h3>
                 </div>
                 <div className="flex gap-4">
                   <div className="text-right">
-                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Progress</p>
-                    <p className="text-sm font-black text-slate-900 dark:text-white">
+                    <p className="text-[10px]   text-slate-400 tracking-wider">Progress</p>
+                    <p className="text-sm  text-slate-900 dark:text-white">
                       {plan.completed_stages || 0} / {plan.total_stages || 0}
                     </p>
                   </div>
@@ -487,7 +487,7 @@ const ProductionPlanDetailPage = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
                   <thead>
-                    <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
+                    <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
                       <th className="p-2">Phase Name</th>
                       <th className="p-2">Type</th>
                       <th className="p-2 text-center">Status</th>
@@ -498,11 +498,11 @@ const ProductionPlanDetailPage = () => {
                     {plan.stages?.map((stage, idx) => (
                       <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="p-2">
-                          <div className="font-bold text-slate-900 dark:text-white">{stage.stage_name}</div>
+                          <div className=" text-slate-900 dark:text-white">{stage.stage_name}</div>
                           <div className="text-[11px] text-slate-500 mt-0.5 font-medium">{stage.notes || 'Standard processing'}</div>
                         </td>
                         <td className="p-2">
-                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-bold rounded uppercase">
+                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px]  rounded ">
                             {stage.stage_type || 'In-House'}
                           </span>
                         </td>
@@ -512,7 +512,7 @@ const ProductionPlanDetailPage = () => {
                           </div>
                         </td>
                         <td className="p-2">
-                          <div className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
+                          <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                             {stage.planned_start ? new Date(stage.planned_start).toLocaleDateString() : 'N/A'} - {stage.planned_end ? new Date(stage.planned_end).toLocaleDateString() : 'N/A'}
                           </div>
                         </td>
@@ -537,33 +537,33 @@ const ProductionPlanDetailPage = () => {
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                 <Box size={80} />
               </div>
-              <p className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-400 mb-4">Production Target</p>
+              <p className="text-[10px]   tracking-[0.2em] text-slate-400 mb-4">Production Target</p>
               <div className="relative z-10">
-                <h4 className="text-lg font-bold mb-1 group-hover:text-blue-400 transition-colors">{plan.product_name || 'Generic Item'}</h4>
+                <h4 className="text-lg  mb-1 group-hover:text-blue-400 transition-colors">{plan.product_name || 'Generic Item'}</h4>
                 <p className="text-xs text-slate-400 font-mono mb-6">{plan.item_code || 'ITM-XXXX'}</p>
                 
                 <div className="flex items-end gap-2">
-                  <span className="text-4xl font-black text-white">{plan.target_quantity || plan.quantity || 1}</span>
-                  <span className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-widest">{plan.uom || 'Units'}</span>
+                  <span className="text-4xl  text-white">{plan.target_quantity || plan.quantity || 1}</span>
+                  <span className="text-xs  text-slate-400 mb-1  tracking-widest">{plan.uom || 'Units'}</span>
                 </div>
               </div>
             </div>
 
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+              <p className="text-[10px]   tracking-widest text-slate-400 mb-4 flex items-center gap-2">
                 <FileText size={12} className="text-blue-500" />
                 Linked Resources
               </p>
               <div className="space-y-4">
-                <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 group cursor-pointer hover:border-blue-500/30 transition-all">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Customer / Project</p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 group cursor-pointer hover:border-blue-500/30 transition-all">
+                  <p className="text-[10px]  text-slate-500  mb-1">Customer / Project</p>
+                  <p className="text-sm  text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors">
                     {plan.customer_name || 'Direct Order'}
                   </p>
                 </div>
-                <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 group cursor-pointer hover:border-purple-500/30 transition-all">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Sales Order Ref</p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-purple-500 transition-colors">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 group cursor-pointer hover:border-purple-500/30 transition-all">
+                  <p className="text-[10px]  text-slate-500  mb-1">Sales Order Ref</p>
+                  <p className="text-sm  text-slate-900 dark:text-white group-hover:text-purple-500 transition-colors">
                     {plan.sales_order_id ? `SO-${plan.sales_order_id}` : 'Internal Plan'}
                   </p>
                 </div>
@@ -572,23 +572,23 @@ const ProductionPlanDetailPage = () => {
 
             {/* Health Indicators */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-4">Plan Intelligence</p>
+              <p className="text-[10px]   tracking-widest text-slate-400 mb-4">Plan Intelligence</p>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Timeline Health</span>
                   <div className="flex gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700" />
+                    <div className="w-1.5 h-1.5 rounded  bg-green-500" />
+                    <div className="w-1.5 h-1.5 rounded  bg-green-500" />
+                    <div className="w-1.5 h-1.5 rounded  bg-slate-200 dark:bg-slate-700" />
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Resource Load</span>
-                  <span className="text-[10px] font-bold text-amber-500 uppercase">Optimal</span>
+                  <span className="text-[10px]  text-amber-500 ">Optimal</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Risk Factor</span>
-                  <span className="text-[10px] font-bold text-green-500 uppercase">Minimal</span>
+                  <span className="text-[10px]  text-green-500 ">Minimal</span>
                 </div>
               </div>
             </div>
@@ -600,30 +600,30 @@ const ProductionPlanDetailPage = () => {
           <div className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl p-4 flex items-center justify-between">
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded bg-blue-500/20 flex items-center justify-center">
                   <Activity size={20} className="text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Current Phase</p>
-                  <p className="text-sm font-bold text-white uppercase">{plan.status === 'completed' ? 'Finalized' : 'Production Active'}</p>
+                  <p className="text-[10px]   tracking-widest text-slate-500">Current Phase</p>
+                  <p className="text-sm  text-white ">{plan.status === 'completed' ? 'Finalized' : 'Production Active'}</p>
                 </div>
               </div>
 
               <div className="hidden md:flex items-center gap-8 border-l border-slate-700/50 pl-8">
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Stages Complete</p>
-                  <p className="text-sm font-bold text-white">{Math.round(((plan.completed_stages || 0) / (plan.total_stages || 1)) * 100)}%</p>
+                  <p className="text-[10px]   tracking-widest text-slate-500">Stages Complete</p>
+                  <p className="text-sm  text-white">{Math.round(((plan.completed_stages || 0) / (plan.total_stages || 1)) * 100)}%</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Efficiency</p>
-                  <p className="text-sm font-bold text-green-400">94.2%</p>
+                  <p className="text-[10px]   tracking-widest text-slate-500">Efficiency</p>
+                  <p className="text-sm  text-green-400">94.2%</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Monitoring</span>
+              <div className="w-2 h-2 rounded  bg-blue-500 animate-pulse" />
+              <span className="text-[10px]  text-slate-400  tracking-widest">Active Monitoring</span>
             </div>
           </div>
         </div>

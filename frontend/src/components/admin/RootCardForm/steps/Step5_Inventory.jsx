@@ -24,8 +24,8 @@ export default function Step5_Inventory({ readOnly = false }) {
         icon={Package}
       >
         <div className="p-8 bg-white border border-slate-200 rounded shadow-sm">
-          <h3 className="text-xl font-bold text-slate-900 mb-4">Inventory Tracking</h3>
-          <p className="text-slate-600">Inventory tracking and management for this project.</p>
+          <h3 className="text-xl  text-slate-900 mb-4">Inventory Tracking</h3>
+          <p className="text-slate-500">Inventory tracking and management for this project.</p>
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
             <p className="text-blue-700 text-sm font-medium">This module is currently being implemented to provide real-time stock levels and warehouse integration.</p>
           </div>

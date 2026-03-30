@@ -128,7 +128,7 @@ const VendorInvoicesPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Vendor Invoices
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -153,10 +153,10 @@ const VendorInvoicesPage = () => {
             key={stat.label}
             className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4"
           >
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               {stat.label}
             </p>
-            <p className={`text-2xl font-bold mt-2 ${stat.color}`}>
+            <p className={`text-2xl  mt-2 ${stat.color}`}>
               {stat.value}
             </p>
           </div>
@@ -223,7 +223,7 @@ const VendorInvoicesPage = () => {
                     </td>
                     <td className="p-1">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        className={`px-3 py-1 rounded  text-xs font-medium ${getStatusColor(
                           invoice.status
                         )}`}
                       >
@@ -235,7 +235,7 @@ const VendorInvoicesPage = () => {
                       <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
                         <Eye
                           size={16}
-                          className="text-slate-600 dark:text-slate-400"
+                          className="text-slate-500 dark:text-slate-400"
                         />
                       </button>
                       <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
@@ -260,23 +260,23 @@ const VendorInvoicesPage = () => {
 
         <div className="space-y-4">
           <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
               Summary
             </h3>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Total Amount
                 </p>
-                <p className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+                <p className="text-xl  text-slate-900 dark:text-white text-xs">
                   ₹{totalAmount.toLocaleString("en-IN")}
                 </p>
               </div>
               <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Pending Amount
                 </p>
-                <p className="text-2xl font-bold text-yellow-600">
+                <p className="text-2xl  text-yellow-600">
                   ₹{pendingAmount.toLocaleString("en-IN")}
                 </p>
               </div>
@@ -284,7 +284,7 @@ const VendorInvoicesPage = () => {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
               Status Filter
             </h3>
             <select

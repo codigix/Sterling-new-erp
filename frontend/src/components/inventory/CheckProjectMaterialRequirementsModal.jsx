@@ -166,10 +166,10 @@ const CheckProjectMaterialRequirementsModal = ({
         {/* Header */}
         <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-2xl  text-slate-900 dark:text-white">
               Check Material Request Requirements
             </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               Review and select materials for RFQ quotation
             </p>
           </div>
@@ -191,7 +191,7 @@ const CheckProjectMaterialRequirementsModal = ({
           ) : materials.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-center">
               <AlertCircle size={40} className="text-blue-600 mb-3" />
-              <p className="text-slate-600 dark:text-slate-400 font-medium">
+              <p className="text-slate-500 dark:text-slate-400 font-medium">
                 No material requirements found yet
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
@@ -208,7 +208,7 @@ const CheckProjectMaterialRequirementsModal = ({
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <p className="text-slate-600 dark:text-slate-400">
+                      <p className="text-slate-500 dark:text-slate-400">
                         Request ID
                       </p>
                       <p className="font-medium text-slate-900 dark:text-white">
@@ -216,7 +216,7 @@ const CheckProjectMaterialRequirementsModal = ({
                       </p>
                     </div>
                     <div>
-                      <p className="text-slate-600 dark:text-slate-400">
+                      <p className="text-slate-500 dark:text-slate-400">
                         Total Materials
                       </p>
                       <p className="font-medium text-slate-900 dark:text-white">
@@ -224,7 +224,7 @@ const CheckProjectMaterialRequirementsModal = ({
                       </p>
                     </div>
                     <div>
-                      <p className="text-slate-600 dark:text-slate-400">
+                      <p className="text-slate-500 dark:text-slate-400">
                         Selected
                       </p>
                       <p className="font-medium text-slate-900 dark:text-white">
@@ -232,7 +232,7 @@ const CheckProjectMaterialRequirementsModal = ({
                       </p>
                     </div>
                     <div>
-                      <p className="text-slate-600 dark:text-slate-400">
+                      <p className="text-slate-500 dark:text-slate-400">
                         Total Cost
                       </p>
                       <p className="font-medium text-slate-900 dark:text-white">
@@ -261,7 +261,7 @@ const CheckProjectMaterialRequirementsModal = ({
                 >
                   Select All Materials
                 </label>
-                <span className="text-xs text-slate-600 dark:text-slate-400">
+                <span className="text-xs text-slate-500 dark:text-slate-400">
                   {materials.length} materials
                 </span>
               </div>
@@ -293,7 +293,7 @@ const CheckProjectMaterialRequirementsModal = ({
 
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm mt-2">
                         <div>
-                          <p className="text-slate-600 dark:text-slate-400">
+                          <p className="text-slate-500 dark:text-slate-400">
                             Quantity
                           </p>
                           <p className="font-medium text-slate-900 dark:text-white">
@@ -301,7 +301,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           </p>
                         </div>
                         <div>
-                          <p className="text-slate-600 dark:text-slate-400">
+                          <p className="text-slate-500 dark:text-slate-400">
                             Unit Price
                           </p>
                           <p className="font-medium text-slate-900 dark:text-white">
@@ -309,7 +309,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           </p>
                         </div>
                         <div>
-                          <p className="text-slate-600 dark:text-slate-400">
+                          <p className="text-slate-500 dark:text-slate-400">
                             Total
                           </p>
                           <p className="font-medium text-slate-900 dark:text-white">
@@ -321,7 +321,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           </p>
                         </div>
                         <div>
-                          <p className="text-slate-600 dark:text-slate-400">
+                          <p className="text-slate-500 dark:text-slate-400">
                             Current Stock
                           </p>
                           <p className="font-medium text-slate-900 dark:text-white">
@@ -329,7 +329,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           </p>
                         </div>
                         <div>
-                          <p className="text-slate-600 dark:text-slate-400">
+                          <p className="text-slate-500 dark:text-slate-400">
                             Status
                           </p>
                           <p
@@ -357,7 +357,7 @@ const CheckProjectMaterialRequirementsModal = ({
 
                       {material.specification && (
                         <div className="mt-2 p-2 bg-slate-100 dark:bg-slate-700 rounded text-xs">
-                          <p className="text-slate-600 dark:text-slate-400">
+                          <p className="text-slate-500 dark:text-slate-400">
                             <strong>Specification:</strong> {material.specification}
                           </p>
                         </div>

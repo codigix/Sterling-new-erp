@@ -4,7 +4,7 @@ const JobCardsPage = () => {
   return (
     <div className="flex items-center justify-center min-h-[400px]">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-slate-600">Job Cards module is currently disabled.</h2>
+        <h2 className="text-xl font-semibold text-slate-500">Job Cards module is currently disabled.</h2>
         <p className="text-slate-500 mt-2">This feature is not being used at the moment.</p>
       </div>
     </div>
@@ -100,12 +100,12 @@ const JobCardsPage = () => {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'completed': return 'text-green-600 font-bold';
-      case 'in_progress': return 'text-orange-500 font-bold';
-      case 'ready': return 'text-blue-500 font-bold';
-      case 'draft': return 'text-slate-500 font-bold';
-      case 'on_hold': return 'text-amber-600 font-bold';
-      default: return 'text-slate-500 font-bold';
+      case 'completed': return 'text-green-600 ';
+      case 'in_progress': return 'text-orange-500 ';
+      case 'ready': return 'text-blue-500 ';
+      case 'draft': return 'text-slate-500 ';
+      case 'on_hold': return 'text-amber-600 ';
+      default: return 'text-slate-500 ';
     }
   };
 
@@ -143,7 +143,7 @@ const JobCardsPage = () => {
       case 'high': return 'bg-red-100 text-red-700 border-red-200';
       case 'medium': return 'bg-amber-100 text-amber-700 border-amber-200';
       case 'low': return 'bg-blue-100 text-blue-700 border-blue-200';
-      default: return 'bg-slate-100 text-slate-600 border-slate-200';
+      default: return 'bg-slate-100 text-slate-500 border-slate-200';
     }
   };
 

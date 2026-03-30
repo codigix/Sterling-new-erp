@@ -133,15 +133,15 @@ const AdminLayout = () => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <div className="w-9 h-9 bg-indigo-600 rounded flex items-center text-xs justify-center shadow-sm">
-                  <span className="text-white font-bold text-base">
+                  <span className="text-white  text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="hidden md:flex flex-col items-start text-left leading-tight">
-                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                  <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-[11px] text-slate-600 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-semibold capitalize">
                     {user?.role || "Admin"}
                   </span>
                 </div>
@@ -151,10 +151,10 @@ const AdminLayout = () => {
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
                   <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-indigo-600 rounded-t-lg">
-                    <p className="text-sm font-bold text-white">
+                    <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-[10px] font-medium text-indigo-100 uppercase tracking-wider">
+                    <p className="text-[10px] font-medium text-indigo-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>
@@ -209,7 +209,7 @@ const AdminLayout = () => {
             {/* Admin Section */}
             <div>
               <h6
-                className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                   sidebarCollapsed ? "text-center" : ""
                 }`}
               >
@@ -291,7 +291,7 @@ const AdminLayout = () => {
                             <>
                               <span className="ml-3">{item.title}</span>
                               {item.badge && (
-                                <span className="ml-auto bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
+                                <span className="ml-auto bg-primary-600 text-white text-xs px-2 py-1 rounded ">
                                   {item.badge}
                                 </span>
                               )}
@@ -331,10 +331,10 @@ const AdminLayout = () => {
           sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
         } pt-16`}
       >
-        <div className="p-2">
+        <div className="p-4">
           {/* Breadcrumbs */}
           <div className="">
-            <nav className="  flex items-center text-xs space-x-2 text-xs text-slate-600 dark:text-slate-400">
+            <nav className="  flex items-center text-xs space-x-2 text-xs text-slate-500 dark:text-slate-400">
               <Link
                 to="/admin/dashboard"
                 className="hover: dark:hover: transition-colors"

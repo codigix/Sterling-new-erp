@@ -7,13 +7,13 @@ const Card = ({
   shadow = 'sm',
   ...props
 }) => {
-  const baseClasses = 'bg-white rounded transition-shadow duration-200';
+  const baseClasses = 'bg-white rounded transition-shadow border border-gray-200 duration-200';
 
   const shadows = {
     none: '',
     xs: 'shadow-xs',
     sm: '',
-    md: 'shadow-md ',
+    md: ' ',
     lg: 'shadow-lg hover:shadow-xl',
   };
 
@@ -46,7 +46,7 @@ const CardTitle = ({ children, className = '', ...props }) => (
 );
 
 const CardSubtitle = ({ children, className = '', ...props }) => (
-  <p className={`text-sm text-slate-600 mt-1 text-left ${className}`} {...props}>
+  <p className={`text-sm text-slate-500 mt-1 text-left ${className}`} {...props}>
     {children}
   </p>
 );

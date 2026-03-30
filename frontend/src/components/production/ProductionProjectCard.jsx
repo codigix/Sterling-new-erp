@@ -150,10 +150,10 @@ const ProductionProjectCard = ({
         <div className="flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide">
                 Root Card / Project
               </p>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">
+              <h3 className=" text-lg text-slate-900 dark:text-white">
                 {project.project_name || project.customer}
               </h3>
               <p className="text-xs text-purple-600 dark:text-purple-400 font-mono mt-1">
@@ -172,11 +172,11 @@ const ProductionProjectCard = ({
             <div className="flex-1">
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-slate-500">Overall Progress</span>
-                <span className="font-bold text-slate-900 dark:text-white">{progress}%</span>
+                <span className=" text-slate-900 dark:text-white">{progress}%</span>
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1.5">
                 <div 
-                  className="bg-purple-600 h-1.5 rounded-full transition-all duration-500"
+                  className="bg-purple-600 h-1.5 rounded  transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -198,11 +198,11 @@ const ProductionProjectCard = ({
                   className={`flex items-center justify-between p-3 rounded border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20 ${!isTaskEnabled ? 'opacity-50 grayscale' : ''}`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusColor(task.status)}`}>
+                    <div className={`w-8 h-8 rounded  flex items-center justify-center ${getStatusColor(task.status)}`}>
                       {getStatusIcon(task.status)}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                      <h4 className="text-sm  text-slate-900 dark:text-white">
                         {task.task_title || task.title}
                       </h4>
                     </div>
@@ -224,7 +224,7 @@ const ProductionProjectCard = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-purple-600 hover:text-purple-700 text-xs font-bold"
+                      className="text-purple-600 hover:text-purple-700 text-xs "
                       onClick={() => navigate(getTaskNavigationUrl(task))}
                       disabled={!isTaskEnabled}
                     >

@@ -83,7 +83,7 @@ const BudgetManagementPage = () => {
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
             Budget Management
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -104,34 +104,34 @@ const BudgetManagementPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Total Budgeted
           </p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+          <p className="text-2xl  text-blue-600 dark:text-blue-400 mt-2">
             ₹{totalBudgeted.toLocaleString("en-IN")}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Total Spent
           </p>
-          <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-2">
+          <p className="text-2xl  text-orange-600 dark:text-orange-400 mt-2">
             ₹{totalSpent.toLocaleString("en-IN")}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Remaining
           </p>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">
+          <p className="text-2xl  text-green-600 dark:text-green-400 mt-2">
             ₹{totalRemaining.toLocaleString("en-IN")}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
             Overall Utilization
           </p>
-          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+          <p className="text-2xl  text-purple-600 dark:text-purple-400 mt-2">
             {overallPercentage}%
           </p>
         </div>
@@ -162,17 +162,17 @@ const BudgetManagementPage = () => {
             >
               <div className="flex items-center text-xs justify-between mb-3">
                 <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-xs">
+                  <h3 className=" text-slate-900 dark:text-white text-xs">
                     {budget.department}
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Spent: ₹{budget.spent.toLocaleString("en-IN")} of ₹
                     {budget.budgeted.toLocaleString("en-IN")}
                   </p>
                 </div>
                 <div className="text-right">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                    className={`px-3 py-1 rounded  text-xs font-medium ${getStatusColor(
                       budget.status
                     )}`}
                   >
@@ -180,15 +180,15 @@ const BudgetManagementPage = () => {
                   </span>
                 </div>
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-3">
                 <div
-                  className={`h-3 rounded-full transition-all ${getBarColor(
+                  className={`h-3 rounded  transition-all ${getBarColor(
                     budget.percentage
                   )}`}
                   style={{ width: `${Math.min(budget.percentage, 100)}%` }}
                 ></div>
               </div>
-              <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 text-xs ">
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 text-xs ">
                 <span>₹{budget.spent.toLocaleString("en-IN")}</span>
                 <span>
                   ₹{(budget.budgeted - budget.spent).toLocaleString("en-IN")}{" "}
@@ -202,7 +202,7 @@ const BudgetManagementPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
             <TrendingUp size={20} className="text-blue-600" />
             Budget Utilization Trend
           </h3>
@@ -220,13 +220,13 @@ const BudgetManagementPage = () => {
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     {item.month}
                   </span>
-                  <span className="text-sm font-bold text-slate-900 dark:text-white text-xs">
+                  <span className="text-sm  text-slate-900 dark:text-white text-xs">
                     {item.utilization}%
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">
                   <div
-                    className="bg-blue-600 h-2 rounded-full"
+                    className="bg-blue-600 h-2 rounded "
                     style={{ width: `${item.utilization}%` }}
                   ></div>
                 </div>
@@ -236,7 +236,7 @@ const BudgetManagementPage = () => {
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
             <AlertTriangle size={20} className="text-orange-600" />
             Budget Alerts
           </h3>

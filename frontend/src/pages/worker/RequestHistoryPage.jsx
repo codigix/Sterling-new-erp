@@ -199,7 +199,7 @@ const RequestHistoryPage = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+        <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
           Request History
         </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -213,10 +213,10 @@ const RequestHistoryPage = () => {
             key={stat.label}
             className={`${stat.bgColor} rounded p-6 border border-slate-200 dark:border-slate-700`}
           >
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-300 mb-2">
               {stat.label}
             </p>
-            <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
+            <p className={`text-3xl  ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>
@@ -264,7 +264,7 @@ const RequestHistoryPage = () => {
         {filteredRequests.length === 0 ? (
           <div className="text-center py-12">
             <MessageCircle size={40} className="mx-auto text-slate-400 mb-4" />
-            <p className="text-slate-600 dark:text-slate-400 text-lg">
+            <p className="text-slate-500 dark:text-slate-400 text-lg">
               No requests found
             </p>
           </div>
@@ -284,11 +284,11 @@ const RequestHistoryPage = () => {
                   <div className="flex-1">
                     <div className="flex items-center text-xs gap-2 mb-2">
                       {getStatusIcon(request.status)}
-                      <h3 className="font-bold text-slate-900 dark:text-white text-xs">
+                      <h3 className=" text-slate-900 dark:text-white text-xs">
                         {request.title}
                       </h3>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs text-slate-500 dark:text-slate-400">
                       <div>
                         <span className="font-semibold">Type:</span>{" "}
                         {getTypeLabel(request.type)}
@@ -339,7 +339,7 @@ const RequestHistoryPage = () => {
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
                       Request Details
                     </h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                    <p className="text-sm text-slate-500 dark:text-slate-300">
                       {request.description}
                     </p>
                   </div>
@@ -349,7 +349,7 @@ const RequestHistoryPage = () => {
                       <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
                         Manager Response
                       </h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">
+                      <p className="text-sm text-slate-500 dark:text-slate-300">
                         {request.response}
                       </p>
                     </div>

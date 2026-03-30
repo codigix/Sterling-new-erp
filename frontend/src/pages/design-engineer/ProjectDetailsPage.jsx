@@ -497,10 +497,10 @@ const ProjectDetailsPage = () => {
                     <FileText className="text-white" size={24} />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white text-xs">
+                    <h1 className="text-3xl  text-slate-900 dark:text-white text-xs">
                       Root Cards
                     </h1>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                       View all root cards and design details
                     </p>
                   </div>
@@ -569,19 +569,19 @@ const ProjectDetailsPage = () => {
               <table className="w-full">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-2">
-                    <th className="p-1 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <th className="p-1 text-left text-xs  text-slate-700 dark:text-slate-300  tracking-wider">
                       Project Name
                     </th>
-                    <th className="p-1 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <th className="p-1 text-left text-xs  text-slate-700 dark:text-slate-300  tracking-wider">
                       Code
                     </th>
-                    <th className="p-1 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <th className="p-1 text-left text-xs  text-slate-700 dark:text-slate-300  tracking-wider">
                       Start Date
                     </th>
-                    <th className="p-1 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <th className="p-1 text-left text-xs  text-slate-700 dark:text-slate-300  tracking-wider">
                       End Date
                     </th>
-                    <th className="p-1 text-center text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <th className="p-1 text-center text-xs  text-slate-700 dark:text-slate-300  tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -633,7 +633,7 @@ const ProjectDetailsPage = () => {
                             </code>
                           </td>
                           <td className="p-3">
-                            <span className="text-xs text-slate-600 dark:text-slate-400">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               {project.order_date
                                 ? new Date(
                                     project.order_date,
@@ -646,7 +646,7 @@ const ProjectDetailsPage = () => {
                             </span>
                           </td>
                           <td className="p-3">
-                            <span className="text-xs text-slate-600 dark:text-slate-400">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               {project.due_date
                                 ? new Date(project.due_date).toLocaleDateString(
                                     "en-US",
@@ -663,7 +663,7 @@ const ProjectDetailsPage = () => {
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 onClick={() => handleViewProject(project)}
-                                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400 transition"
+                                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-500 dark:text-slate-400 transition"
                                 title="View Details"
                               >
                                 <Eye size={16} />
@@ -681,7 +681,7 @@ const ProjectDetailsPage = () => {
             {/* Table Footer */}
             {filteredProjects.length > 0 && (
               <div className="p-1 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Showing{" "}
                   <span className="font-semibold">
                     {filteredProjects.length}
@@ -708,11 +708,11 @@ const ProjectDetailsPage = () => {
                 <FileText className="text-white" size={15} />
               </div>
               <div>
-                <h1 className="text-md font-bold text-slate-900 dark:text-white text-xs">
+                <h1 className="text-md  text-slate-900 dark:text-white text-xs">
                   {selectedProject ? (editMode ? "Edit" : "View") : "View"} Root
                   Card Details
                 </h1>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {selectedProject?.title || "Root Card"}
                 </p>
               </div>
@@ -733,7 +733,7 @@ const ProjectDetailsPage = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-[10px]  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     Customer / Client
                   </p>
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -743,7 +743,7 @@ const ProjectDetailsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-[10px]  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     PO Number
                   </p>
                   <code className="text-xs font-mono bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
@@ -751,7 +751,7 @@ const ProjectDetailsPage = () => {
                   </code>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-[10px]  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     Order Date
                   </p>
                   <p className="text-sm text-slate-700 dark:text-slate-300">
@@ -763,7 +763,7 @@ const ProjectDetailsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-[10px]  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     Due Date
                   </p>
                   <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
@@ -1199,7 +1199,7 @@ const ProjectDetailsPage = () => {
                                   <span className="truncate">{fileName}</span>
                                 </div>
                               </td>
-                              <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
+                              <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
                                 {fileExtension}
                               </td>
                               <td className="px-4 py-3 text-center">

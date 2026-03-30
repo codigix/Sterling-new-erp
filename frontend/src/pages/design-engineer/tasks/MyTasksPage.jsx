@@ -101,7 +101,7 @@ const MyTasksPage = () => {
       case "Low":
         return "text-green-600 dark:text-green-400";
       default:
-        return "text-slate-600 dark:text-slate-400";
+        return "text-slate-500 dark:text-slate-400";
     }
   };
 
@@ -170,10 +170,10 @@ const MyTasksPage = () => {
     return (
       <div className="space-y-2">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs">
             My Tasks
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             Track your engineering tasks and assignments
           </p>
         </div>
@@ -188,16 +188,16 @@ const MyTasksPage = () => {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs">
             My Tasks
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             Track your engineering tasks and assignments
           </p>
         </div>
         <button
           onClick={fetchTasks}
-          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400 transition"
+          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-500 dark:text-slate-400 transition"
           title="Refresh tasks"
         >
           <RefreshCw size={20} />
@@ -230,7 +230,7 @@ const MyTasksPage = () => {
         {filteredTasks.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
             <Clock className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-slate-500 dark:text-slate-400">
               No tasks found for this filter
             </p>
           </div>
@@ -246,25 +246,25 @@ const MyTasksPage = () => {
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                     {task.title}
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
                     {task.project}
                   </p>
                   {task.description && (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
                       {task.description}
                     </p>
                   )}
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
                   <span
-                    className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                    className={`px-3 py-1 text-xs font-medium rounded  ${getStatusColor(
                       task.status
                     )}`}
                   >
                     {task.status}
                   </span>
                   <span
-                    className={`px-3 py-1 text-xs font-medium rounded-full border ${getPriorityColor(
+                    className={`px-3 py-1 text-xs font-medium rounded  border ${getPriorityColor(
                       task.priority
                     )}`}
                   >
@@ -278,19 +278,19 @@ const MyTasksPage = () => {
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Progress
                   </span>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                  <span className="text-sm text-slate-500 dark:text-slate-400">
                     {task.progress}%
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all"
+                    className="bg-blue-600 h-2 rounded  transition-all"
                     style={{ width: `${task.progress}%` }}
                   ></div>
                 </div>
               </div>
 
-              <div className="flex items-center text-xs gap-4 text-sm text-slate-600 dark:text-slate-400">
+              <div className="flex items-center text-xs gap-4 text-sm text-slate-500 dark:text-slate-400">
                 <div className="flex items-center text-xs gap-1">
                   <Calendar size={16} />
                   Updated: {task.dueDate}

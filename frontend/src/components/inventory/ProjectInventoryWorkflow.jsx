@@ -137,7 +137,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
 
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{projectTitle}</h2>
+        <h2 className="text-2xl  text-gray-900 mb-2">{projectTitle}</h2>
         <p className="text-gray-600">Inventory Workflow Progress</p>
       </div>
 
@@ -149,27 +149,27 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
               <BarChart3 className="w-3 h-3 text-blue-600" />
               <span className="font-semibold text-gray-900">Overall Progress</span>
             </div>
-            <span className="text-2xl font-bold text-blue-600">
+            <span className="text-2xl  text-blue-600">
               {progress.completionPercentage}%
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-gray-200 rounded  h-3 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded  transition-all duration-500"
               style={{ width: `${progress.completionPercentage}%` }}
             />
           </div>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div className="bg-green-50 border border-green-200 rounded p-3 text-center">
-              <div className="text-2xl font-bold text-green-600">{progress.completed}</div>
+              <div className="text-2xl  text-green-600">{progress.completed}</div>
               <div className="text-green-700">Completed</div>
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded p-3 text-center">
-              <div className="text-2xl font-bold text-blue-600">{progress.inProgress}</div>
+              <div className="text-2xl  text-blue-600">{progress.inProgress}</div>
               <div className="text-blue-700">In Progress</div>
             </div>
             <div className="bg-gray-50 border border-gray-200 rounded p-3 text-center">
-              <div className="text-2xl font-bold text-gray-600">{progress.pending}</div>
+              <div className="text-2xl  text-gray-600">{progress.pending}</div>
               <div className="text-gray-700">Pending</div>
             </div>
           </div>
@@ -190,7 +190,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                   onClick={() => setSelectedTask(isSelected ? null : task)}
                   className={`w-full text-left border-2 rounded p-4 transition-all ${getStatusColor(
                     task.status
-                  )} hover:shadow-md cursor-pointer`}
+                  )} hover: cursor-pointer`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 flex-1">

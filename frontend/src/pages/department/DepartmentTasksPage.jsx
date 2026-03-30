@@ -99,7 +99,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
   return (
     <div className="space-y-2 p-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white capitalize">{departmentName} Tasks</h1>
+        <h1 className="text-3xl  text-gray-900 dark:text-white capitalize">{departmentName} Tasks</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">Manage and track department tasks</p>
       </div>
 
@@ -109,7 +109,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
             <CardTitle className="text-sm font-medium text-gray-600">Total Tasks</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total || 0}</div>
+            <div className="text-2xl ">{stats.total || 0}</div>
           </CardContent>
         </Card>
 
@@ -118,7 +118,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
             <CardTitle className="text-sm font-medium text-yellow-600">Pending</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending || 0}</div>
+            <div className="text-2xl  text-yellow-600">{stats.pending || 0}</div>
           </CardContent>
         </Card>
 
@@ -127,7 +127,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
             <CardTitle className="text-sm font-medium text-blue-600">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.in_progress || 0}</div>
+            <div className="text-2xl  text-blue-600">{stats.in_progress || 0}</div>
           </CardContent>
         </Card>
 
@@ -136,7 +136,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
             <CardTitle className="text-sm font-medium text-green-600">Completed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.completed || 0}</div>
+            <div className="text-2xl  text-green-600">{stats.completed || 0}</div>
           </CardContent>
         </Card>
 
@@ -145,7 +145,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
             <CardTitle className="text-sm font-medium text-red-600">On Hold</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.on_hold || 0}</div>
+            <div className="text-2xl  text-red-600">{stats.on_hold || 0}</div>
           </CardContent>
         </Card>
 
@@ -154,7 +154,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
             <CardTitle className="text-sm font-medium text-red-700">Critical</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-700">{stats.critical_count || 0}</div>
+            <div className="text-2xl  text-red-700">{stats.critical_count || 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -206,7 +206,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
               </div>
             ) : (
               tasks.map((task) => (
-                <div key={task.id} className="p-4 border border-gray-200 rounded hover:shadow-md transition">
+                <div key={task.id} className="p-4 border border-gray-200 rounded hover: transition">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">

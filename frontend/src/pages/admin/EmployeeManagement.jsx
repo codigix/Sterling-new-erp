@@ -8,6 +8,7 @@ import Card, {
 } from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import DataTable from "../../components/ui/DataTable/DataTable";
+import Select from "../../components/ui/Select";
 import {
   Plus,
   Edit2,
@@ -278,7 +279,7 @@ const EmployeeManagement = () => {
       label: "Email",
       sortable: true,
       render: (value) => (
-        <span className="text-slate-600 dark:text-slate-400 text-sm">
+        <span className="text-slate-500 dark:text-slate-400 text-sm">
           {value}
         </span>
       ),
@@ -314,7 +315,7 @@ const EmployeeManagement = () => {
       label: "Login ID",
       sortable: true,
       render: (value) => (
-        <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
+        <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
           {value}
         </span>
       ),
@@ -379,8 +380,8 @@ const EmployeeManagement = () => {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-bold  text-left">Employee Management</h1>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 text-left">
+          <h1 className="text-xl   text-left">Employee Management</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 text-left">
             Create and manage employees with role-based access controls
           </p>
         </div>
@@ -504,30 +505,25 @@ const EmployeeManagement = () => {
                   Job Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left">
-                      Designation
-                    </label>
-                    <select
+                  <div className="-mt-3">
+                    <Select
+                      label="Designation"
                       name="designation"
                       value={formData.designation}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Select Designation"
                     >
-                      <option value="">Select Designation</option>
                       {designations.map((d) => (
                         <option key={d.id} value={d.name}>
                           {d.name}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left">
-                      Department
-                    </label>
-                    <select
+                  <div className="-mt-3">
+                    <Select
+                      label="Department"
                       name="departmentId"
                       value={formData.departmentId || ""}
                       onChange={(e) => {
@@ -542,26 +538,22 @@ const EmployeeManagement = () => {
                         });
                       }}
                       required
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Select Department"
                     >
-                      <option value="">Select Department</option>
                       {departments.map((d) => (
                         <option key={d.id} value={d.id}>
                           {d.name}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
                 </div>
               </div>
 
               {/* Role Assignment */}
-              <div>
-                <h3 className="text-sm font-semibold  dark: mb-2 flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
-                  Role Assignment
-                </h3>
-                <select
+              <div className="-mt-3">
+                <Select
+                  label="Role Assignment"
                   name="roleId"
                   value={formData.roleId || ""}
                   onChange={(e) =>
@@ -571,15 +563,14 @@ const EmployeeManagement = () => {
                     })
                   }
                   required
-                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Select Role"
                 >
-                  <option value="">Select Role</option>
                   {availableRoles.map((role) => (
                     <option key={role.id} value={role.id}>
                       {role.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               {/* Credentials */}
@@ -635,7 +626,7 @@ const EmployeeManagement = () => {
                   </div>
                 </div>
                 {!editingEmployee && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
                     Password will be displayed after employee creation
                   </p>
                 )}
@@ -673,14 +664,14 @@ const EmployeeManagement = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Employee "{selectedCredentials.name}" has been created. Share
                 these credentials:
               </p>
 
               <div className="space-y-3 bg-slate-50 dark:bg-slate-800 p-3 rounded">
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Email
                   </p>
                   <div className="flex items-center justify-between mt-1">
@@ -696,7 +687,7 @@ const EmployeeManagement = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Login ID
                   </p>
                   <div className="flex items-center justify-between mt-1">
@@ -714,7 +705,7 @@ const EmployeeManagement = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Temporary Password
                   </p>
                   <div className="flex items-center justify-between mt-1">
@@ -770,7 +761,7 @@ const EmployeeManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Email Address
                 </p>
                 <p className="text-sm font-medium text-slate-900 text-left dark:text-slate-100">
@@ -779,10 +770,10 @@ const EmployeeManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Login ID
                 </p>
-                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2 rounded  text-xsborder border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
                   <p className="font-mono text-sm text-slate-900 dark:text-slate-100">
                     {registeringEmployee.loginId}
                   </p>
@@ -796,10 +787,10 @@ const EmployeeManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Temporary Password
                 </p>
-                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2 rounded  text-xsborder border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
                   <p className="font-mono text-sm text-slate-900 dark:text-slate-100">
                     {registeringEmployee.password}
                   </p>
@@ -842,11 +833,11 @@ const EmployeeManagement = () => {
       {/* Empty State */}
       {!loading && filteredEmployees.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Users className="w-12 h-12 text-slate-300 dark:text-slate-600 mb-3" />
+          <Users className="w-12 h-12 text-slate-300 dark:text-slate-500 mb-3" />
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
             No employees found
           </h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {searchTerm
               ? "Try adjusting your search filters"
               : "Create your first employee to get started"}

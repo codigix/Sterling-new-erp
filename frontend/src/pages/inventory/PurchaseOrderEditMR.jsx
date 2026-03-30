@@ -185,12 +185,12 @@ const PurchaseOrderEditMR = () => {
             className="flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors mb-4"
           >
             <ArrowLeft size={16} />
-            <span className="text-xs font-bold uppercase tracking-widest">Back</span>
+            <span className="text-xs   tracking-widest">Back</span>
           </button>
-          <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-lg  text-slate-900 dark:text-white ">
             {formData.po_number}
           </h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Edit Purchase Order</p>
+          <p className="text-[10px]  text-slate-400  tracking-widest">Edit Purchase Order</p>
         </div>
 
         <nav className="flex-1 space-y-1">
@@ -203,30 +203,30 @@ const PurchaseOrderEditMR = () => {
                   setActiveSection(section.id);
                   document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all ${
                   activeSection === section.id 
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20" 
                   : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                 }`}
               >
                 <Icon size={18} />
-                <span className="text-xs font-bold uppercase tracking-wider">{section.label}</span>
-                {activeSection === section.id && <div className="ml-auto w-1 h-1 rounded-full bg-blue-600"></div>}
+                <span className="text-xs   tracking-wider">{section.label}</span>
+                {activeSection === section.id && <div className="ml-auto w-1 h-1 rounded  bg-blue-600"></div>}
               </button>
             );
           })}
         </nav>
 
         <div className="mt-auto pt-6 border-t border-slate-50 dark:border-slate-800">
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Order Summary</p>
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded p-4">
+            <p className="text-[10px]  text-slate-400  tracking-widest mb-2">Order Summary</p>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">Items</span>
-              <span className="text-xs font-black text-slate-900 dark:text-white">{formData.items.length}</span>
+              <span className="text-[10px]  text-slate-500 ">Items</span>
+              <span className="text-xs  text-slate-900 dark:text-white">{formData.items.length}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">Total</span>
-              <span className="text-xs font-black text-blue-600">₹{formData.total_amount.toLocaleString()}</span>
+              <span className="text-[10px]  text-slate-500 ">Total</span>
+              <span className="text-xs  text-blue-600">₹{formData.total_amount.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -241,12 +241,12 @@ const PurchaseOrderEditMR = () => {
                 <Settings className="text-white" size={24} />
               </div>
               <div>
-                <nav className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-0.5">
+                <nav className="flex items-center gap-2 text-[10px]  text-slate-400  tracking-[0.2em] mb-0.5">
                   <span>Buying</span>
                   <ChevronRight size={10} />
                   <span>Purchase Order</span>
                 </nav>
-                <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-xl  text-slate-900 dark:text-white ">
                   {formData.po_number}
                 </h2>
               </div>
@@ -254,14 +254,14 @@ const PurchaseOrderEditMR = () => {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => navigate(-1)}
-                className="px-6 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2"
+                className="px-6 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 rounded  text-xs  tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2"
               >
                 <X size={16} /> Discard
               </button>
               <button 
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
+                className="px-6 py-2.5 bg-blue-600 text-white rounded  text-xs  tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
               >
                 {submitting ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />}
                 {submitting ? "Updating..." : "Update Order"}
@@ -274,18 +274,18 @@ const PurchaseOrderEditMR = () => {
             <section id="foundation" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded text-slate-600 dark:text-slate-400">
+                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400">
                     <Settings size={18} />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Foundation <span className="text-slate-400 ml-2 font-medium">SETTINGS</span></h3>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-tight">Core order parameters and identification</p>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Foundation <span className="text-slate-400 ml-2 font-medium">SETTINGS</span></h3>
+                    <p className="text-[10px] text-slate-500  ">Core order parameters and identification</p>
                   </div>
                 </div>
               </div>
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1">
+                  <label className="block text-[10px]  text-slate-500  tracking-widest mb-2 flex items-center gap-1">
                     Order Date <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -294,13 +294,13 @@ const PurchaseOrderEditMR = () => {
                       type="date"
                       value={formData.order_date}
                       onChange={(e) => setFormData({...formData, order_date: e.target.value})}
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                       required
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
+                  <label className="block text-[10px]  text-slate-500  tracking-widest mb-2">
                     Expected Delivery Date
                   </label>
                   <div className="relative">
@@ -309,7 +309,7 @@ const PurchaseOrderEditMR = () => {
                       type="date"
                       value={formData.expected_delivery_date}
                       onChange={(e) => setFormData({...formData, expected_delivery_date: e.target.value})}
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -324,17 +324,17 @@ const PurchaseOrderEditMR = () => {
                     <User size={18} />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Vendor <span className="text-slate-400 ml-2 font-medium">PARTNER</span></h3>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-tight">Supplier selection and profile information</p>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Vendor <span className="text-slate-400 ml-2 font-medium">PARTNER</span></h3>
+                    <p className="text-[10px] text-slate-500  ">Supplier selection and profile information</p>
                   </div>
                 </div>
               </div>
               <div className="p-6">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1">
+                <label className="block text-[10px]  text-slate-500  tracking-widest mb-2 flex items-center gap-1">
                   Select Supplier <span className="text-red-500">*</span>
                 </label>
                 <select 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer"
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer"
                   value={formData.vendor_id}
                   onChange={(e) => setFormData({...formData, vendor_id: e.target.value})}
                   required
@@ -355,14 +355,14 @@ const PurchaseOrderEditMR = () => {
                     <Package size={18} />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Order <span className="text-slate-400 ml-2 font-medium">ITEMS</span></h3>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-tight">Line items and technical specifications</p>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Order <span className="text-slate-400 ml-2 font-medium">ITEMS</span></h3>
+                    <p className="text-[10px] text-slate-500  ">Line items and technical specifications</p>
                   </div>
                 </div>
                 <button 
                   type="button"
                   onClick={handleAddItem}
-                  className="flex items-center gap-2 p-2 bg-emerald-500 text-white rounded font-bold text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-md shadow-emerald-500/20"
+                  className="flex items-center gap-2 p-2 bg-emerald-500 text-white rounded  text-[10px]  tracking-widest hover:bg-emerald-600 transition-all  shadow-emerald-500/20"
                 >
                   <Plus size={14} /> Add Item
                 </button>
@@ -371,12 +371,12 @@ const PurchaseOrderEditMR = () => {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b border-slate-50 dark:border-slate-800">
-                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Item / Vendor Name</th>
-                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Quantity</th>
-                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Rate/Kg</th>
-                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Weight (Kg)</th>
-                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">Row Total</th>
-                      <th className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center w-20"></th>
+                      <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-left">Item / Vendor Name</th>
+                      <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-left">Quantity</th>
+                      <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-left">Rate/Kg</th>
+                      <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-left">Weight (Kg)</th>
+                      <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-left">Row Total</th>
+                      <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-center w-20"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -388,14 +388,14 @@ const PurchaseOrderEditMR = () => {
                             value={item.material_name}
                             onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
                             placeholder="Internal name..."
-                            className="w-full bg-transparent border-none text-[11px] font-bold text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-0 outline-none uppercase"
+                            className="w-full bg-transparent border-none text-[11px]  text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-0 outline-none "
                           />
                           <input 
                             type="text"
                             value={item.vendor_material_name}
                             onChange={(e) => handleItemChange(idx, 'vendor_material_name', e.target.value)}
                             placeholder="Vendor alternative name..."
-                            className="w-full bg-transparent border-none text-[9px] font-bold text-slate-400 placeholder:text-slate-200 focus:ring-0 outline-none uppercase"
+                            className="w-full bg-transparent border-none text-[9px]  text-slate-400 placeholder:text-slate-200 focus:ring-0 outline-none "
                           />
                         </td>
                         <td className="p-2">
@@ -404,9 +404,9 @@ const PurchaseOrderEditMR = () => {
                               type="number"
                               value={item.quantity}
                               onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
-                              className="w-20 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                              className="w-20 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.unit || "Nos"}</span>
+                            <span className="text-[10px]  text-slate-400  tracking-widest">{item.unit || "Nos"}</span>
                           </div>
                         </td>
                         <td className="p-2">
@@ -416,7 +416,7 @@ const PurchaseOrderEditMR = () => {
                               value={item.rate_per_kg}
                               onChange={(e) => handleItemChange(idx, 'rate_per_kg', e.target.value)}
                               placeholder="0.00"
-                              className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                              className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />
                           </div>
                         </td>
@@ -426,11 +426,11 @@ const PurchaseOrderEditMR = () => {
                             value={item.total_weight}
                             onChange={(e) => handleItemChange(idx, 'total_weight', e.target.value)}
                             placeholder="0.00"
-                            className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </td>
                         <td className="p-2">
-                          <span className="text-[11px] font-black text-slate-900 dark:text-white tracking-tight">₹{(Number(item.amount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                          <span className="text-[11px]  text-slate-900 dark:text-white ">₹{(Number(item.amount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                         </td>
                         <td className="p-2 text-center">
                           <button 
@@ -456,8 +456,8 @@ const PurchaseOrderEditMR = () => {
                     <Truck size={18} />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Shipping <span className="text-slate-400 ml-2 font-medium">LOGISTICS</span></h3>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-tight">Delivery coordinates and trade conditions</p>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Shipping <span className="text-slate-400 ml-2 font-medium">LOGISTICS</span></h3>
+                    <p className="text-[10px] text-slate-500  ">Delivery coordinates and trade conditions</p>
                   </div>
                 </div>
               </div>
@@ -466,14 +466,14 @@ const PurchaseOrderEditMR = () => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
                       <MapPin size={16} className="text-orange-500" />
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shipping Address</h4>
+                      <h4 className="text-[10px]  text-slate-400  tracking-widest">Shipping Address</h4>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Street Address</label>
+                      <label className="block text-[10px]  text-slate-500  tracking-widest mb-2">Street Address</label>
                       <textarea 
                         value={formData.shipping_address}
                         onChange={(e) => setFormData({...formData, shipping_address: e.target.value})}
-                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
                         rows={3}
                         placeholder="Unit / Street / Landmark"
                       />
@@ -483,15 +483,15 @@ const PurchaseOrderEditMR = () => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
                       <Briefcase size={16} className="text-orange-500" />
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Trade Controls</h4>
+                      <h4 className="text-[10px]  text-slate-400  tracking-widest">Trade Controls</h4>
                     </div>
                     <div className="grid grid-cols-1 gap-4">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Incoterm</label>
+                        <label className="block text-[10px]  text-slate-500  tracking-widest mb-2">Incoterm</label>
                         <select 
                           value={formData.incoterm}
                           onChange={(e) => setFormData({...formData, incoterm: e.target.value})}
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all cursor-pointer"
+                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all cursor-pointer"
                         >
                           <option value="EXW - Ex Works">EXW - Ex Works</option>
                           <option value="FOB - Free On Board">FOB - Free On Board</option>
@@ -499,13 +499,13 @@ const PurchaseOrderEditMR = () => {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Shipping Rule</label>
+                        <label className="block text-[10px]  text-slate-500  tracking-widest mb-2">Shipping Rule</label>
                         <input 
                           type="text"
                           value={formData.shipping_rule}
                           onChange={(e) => setFormData({...formData, shipping_rule: e.target.value})}
                           placeholder="e.g. Courier, Freight Forwarder"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -522,8 +522,8 @@ const PurchaseOrderEditMR = () => {
                     <CreditCard size={18} />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Revenue <span className="text-slate-400 ml-2 font-medium">FINANCE</span></h3>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-tight">Taxation, payment terms and commercial summary</p>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Revenue <span className="text-slate-400 ml-2 font-medium">FINANCE</span></h3>
+                    <p className="text-[10px] text-slate-500  ">Taxation, payment terms and commercial summary</p>
                   </div>
                 </div>
               </div>
@@ -534,26 +534,26 @@ const PurchaseOrderEditMR = () => {
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
                         <Shield size={16} className="text-red-500" />
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment Strategy</h4>
+                        <h4 className="text-[10px]  text-slate-400  tracking-widest">Payment Strategy</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Payment Terms</label>
+                          <label className="block text-[10px]  text-slate-500  tracking-widest mb-2">Payment Terms</label>
                           <input 
                             type="text"
                             value={formData.payment_terms}
                             onChange={(e) => setFormData({...formData, payment_terms: e.target.value})}
                             placeholder="e.g. 100% Advance"
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Payment Due Date</label>
+                          <label className="block text-[10px]  text-slate-500  tracking-widest mb-2">Payment Due Date</label>
                           <input 
                             type="date"
                             value={formData.payment_due_date}
                             onChange={(e) => setFormData({...formData, payment_due_date: e.target.value})}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -563,11 +563,11 @@ const PurchaseOrderEditMR = () => {
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
                         <Briefcase size={16} className="text-red-500" />
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Financial Modifiers</h4>
+                        <h4 className="text-[10px]  text-slate-400  tracking-widest">Financial Modifiers</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Tax Rate (%)</label>
+                          <label className="block text-[10px]  text-slate-500  tracking-widest mb-2">Tax Rate (%)</label>
                           <input 
                             type="number"
                             value={formData.tax_rate}
@@ -576,11 +576,11 @@ const PurchaseOrderEditMR = () => {
                               setFormData(prev => ({...prev, tax_rate: val}));
                               calculateTotals(formData.items, val, formData.advance_paid);
                             }}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Advance Paid</label>
+                          <label className="block text-[10px]  text-slate-500  tracking-widest mb-2">Advance Paid</label>
                           <input 
                             type="number"
                             value={formData.advance_paid}
@@ -589,7 +589,7 @@ const PurchaseOrderEditMR = () => {
                               setFormData(prev => ({...prev, advance_paid: val}));
                               calculateTotals(formData.items, formData.tax_rate, val);
                             }}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -599,46 +599,46 @@ const PurchaseOrderEditMR = () => {
                   {/* Purchase Valuation Summary */}
                   <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-full">
                     <div className="p-2 border-b border-white/5 flex items-center justify-between">
-                      <h4 className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Purchase Valuation</h4>
+                      <h4 className="text-[10px]  text-white/50  tracking-[0.2em]">Purchase Valuation</h4>
                       <Calculator size={16} className="text-white/20" />
                     </div>
                     <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-white/60">Subtotal</span>
-                          <span className="text-xs font-black text-white">₹{formData.subtotal.toLocaleString()}</span>
+                          <span className="text-xs  text-white/60">Subtotal</span>
+                          <span className="text-xs  text-white">₹{formData.subtotal.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white/60">GST Component</span>
-                            <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-bold uppercase">{formData.tax_rate}%</span>
+                            <span className="text-xs  text-white/60">GST Component</span>
+                            <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px]  ">{formData.tax_rate}%</span>
                           </div>
-                          <span className="text-xs font-black text-red-400">+ ₹{formData.tax_amount.toLocaleString()}</span>
+                          <span className="text-xs  text-red-400">+ ₹{formData.tax_amount.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-emerald-400">Advance Deduction</span>
-                          <span className="text-xs font-black text-emerald-400">- ₹{(Number(formData.advance_paid) || 0).toLocaleString()}</span>
+                          <span className="text-xs  text-emerald-400">Advance Deduction</span>
+                          <span className="text-xs  text-emerald-400">- ₹{(Number(formData.advance_paid) || 0).toLocaleString()}</span>
                         </div>
                       </div>
 
                       <div className="pt-6 border-t border-white/5">
                         <div className="flex justify-between items-end mb-4">
                           <div>
-                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Payable Balance</p>
-                            <h3 className="text-3xl font-black text-white tracking-tighter">₹{formData.payable_balance.toLocaleString()}</h3>
+                            <p className="text-[10px]  text-white/40  tracking-[0.2em] mb-1">Payable Balance</p>
+                            <h3 className="text-3xl  text-white er">₹{formData.payable_balance.toLocaleString()}</h3>
                           </div>
                           <div className="text-right">
-                            <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Currency</p>
-                            <p className="text-[10px] font-black text-white uppercase tracking-widest">INR (₹)</p>
+                            <p className="text-[9px]  text-white/30  tracking-[0.2em]">Currency</p>
+                            <p className="text-[10px]  text-white  tracking-widest">INR (₹)</p>
                           </div>
                         </div>
-                        <div className="p-3 bg-white/5 rounded-xl flex items-center gap-3">
+                        <div className="p-3 bg-white/5 rounded flex items-center gap-3">
                           <div className="p-2 bg-white/10 rounded text-emerald-400">
                             <CreditCard size={18} />
                           </div>
                           <div>
-                            <p className="text-[10px] font-bold text-white uppercase tracking-wider">Payment Channel</p>
-                            <p className="text-[9px] text-white/50 uppercase tracking-widest font-medium">Bank Transfer / NEFT</p>
+                            <p className="text-[10px]  text-white  tracking-wider">Payment Channel</p>
+                            <p className="text-[9px] text-white/50  tracking-widest font-medium">Bank Transfer / NEFT</p>
                           </div>
                         </div>
                       </div>

@@ -200,7 +200,7 @@ const DashboardContent = React.memo(({
         <>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white text-xs">
+              <h1 className="text-xl  text-slate-900 dark:text-white ">
                 Inventory Overview
               </h1>
               <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -233,14 +233,14 @@ const DashboardContent = React.memo(({
               return (
                 <div
                   key={stat.title}
-                  className={`bg-gradient-to-br ${stat.bgColor} dark:from-slate-800 dark:to-slate-700 rounded-xl p-6 border ${stat.borderColor} dark:border-slate-600  transition-shadow`}
+                  className={`bg-gradient-to-br ${stat.bgColor} dark:from-slate-800 dark:to-slate-700 rounded p-6 border ${stat.borderColor} dark:border-slate-600  transition-shadow`}
                 >
                   <div className="flex items-center text-xs justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+                      <p className="text-sm font-semibold text-slate-500 dark:text-slate-400  tracking-wide">
                         {stat.title}
                       </p>
-                      <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-2">
+                      <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
                         {stat.value}
                       </p>
                       <p
@@ -268,9 +268,9 @@ const DashboardContent = React.memo(({
           </div>
 
           {/* Assigned Root Cards Tasks Section */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs flex items-center gap-2">
+              <h3 className="text-lg  text-slate-900 dark:text-white text-xs flex items-center gap-2">
                 <Clock size={20} className="text-blue-600" />
                 Assigned Root Cards (Logistics & Inventory)
               </h3>
@@ -295,7 +295,7 @@ const DashboardContent = React.memo(({
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
+                        <h4 className=" text-slate-900 dark:text-white line-clamp-1">
                           {task.rootCard?.title || task.title}
                         </h4>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -303,7 +303,7 @@ const DashboardContent = React.memo(({
                         </p>
                       </div>
                       <span
-                        className={`px-2 py-1 text-[10px] font-bold rounded-full uppercase ${
+                        className={`px-2 py-1 text-[10px]  rounded   ${
                           task.status === "pending"
                             ? "bg-amber-100 text-amber-700"
                             : "bg-blue-100 text-blue-700"
@@ -318,7 +318,7 @@ const DashboardContent = React.memo(({
                       </span>
                       <Link
                         to={`/department/inventory/department-tasks`}
-                        className="text-xs font-bold text-blue-600 hover:text-blue-700"
+                        className="text-xs  text-blue-600 hover:text-blue-700"
                       >
                         Process →
                       </Link>
@@ -336,10 +336,10 @@ const DashboardContent = React.memo(({
             )}
           </div>
 
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-6">
             <div className="flex items-center text-xs gap-3 mb-4">
               <AlertTriangle size={24} className="text-red-600 dark:text-red-400" />
-              <h2 className="text-xl font-bold text-red-900 dark:text-red-100">
+              <h2 className="text-xl  text-red-900 dark:text-red-100">
                 Critical Stock Alerts
               </h2>
             </div>
@@ -354,14 +354,14 @@ const DashboardContent = React.memo(({
                       {alert.item}
                     </p>
                     <div className="mt-3 space-y-1 text-sm">
-                      <p className="text-slate-600 dark:text-slate-400">
+                      <p className="text-slate-500 dark:text-slate-400">
                         Current:{" "}
-                        <span className="font-bold text-red-600">
+                        <span className=" text-red-600">
                           {alert.current}
                         </span>
                       </p>
-                      <p className="text-slate-600 dark:text-slate-400">
-                        Reorder: <span className="font-bold">{alert.reorder}</span>
+                      <p className="text-slate-500 dark:text-slate-400">
+                        Reorder: <span className="">{alert.reorder}</span>
                       </p>
                     </div>
                     <Link
@@ -383,15 +383,15 @@ const DashboardContent = React.memo(({
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
             <BarChart3 size={20} />
             Inventory Trend
           </h3>
           <Line data={inventoryTrendData} options={chartOptions} />
         </div>
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
             <Activity size={20} />
             Stock Status
           </h3>
@@ -399,8 +399,8 @@ const DashboardContent = React.memo(({
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
+      <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
+        <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
           <RefreshCw size={20} />
           Stock Movement Summary
         </h3>
@@ -408,8 +408,8 @@ const DashboardContent = React.memo(({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4 flex items-center text-xs gap-2">
             <Clock size={20} />
             Recent Stock Movements
           </h3>
@@ -443,8 +443,8 @@ const DashboardContent = React.memo(({
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
+          <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
             Quick Actions
           </h3>
           <div className="space-y-3">

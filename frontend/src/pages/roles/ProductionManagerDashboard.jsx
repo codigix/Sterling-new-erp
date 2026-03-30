@@ -237,10 +237,10 @@ const ProductionManagerDashboard = () => {
             >
               <div className="flex items-center text-xs justify-between">
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     {stat.title}
                   </p>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-2">
+                  <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
                     {stat.value}
                   </p>
                   <p
@@ -261,7 +261,7 @@ const ProductionManagerDashboard = () => {
       {/* Assigned Production Planning Tasks Section */}
       <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs flex items-center gap-2">
+          <h2 className="text-lg  text-slate-900 dark:text-white text-xs flex items-center gap-2">
             <Clock size={20} className="text-blue-600" />
             Assigned Root Cards (Production Planning)
           </h2>
@@ -286,7 +286,7 @@ const ProductionManagerDashboard = () => {
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
+                    <h4 className=" text-slate-900 dark:text-white line-clamp-1">
                       {(task.rootCard?.title || task.title || '').replace(/^RC-\d{4}\s*[-:]\s*/i, '') || task.rootCard?.title || task.title}
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -294,7 +294,7 @@ const ProductionManagerDashboard = () => {
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-1 text-[10px] font-bold rounded-full uppercase ${
+                    className={`px-2 py-1 text-[10px]  rounded   ${
                       task.status === "pending"
                         ? "bg-amber-100 text-amber-700"
                         : "bg-blue-100 text-blue-700"
@@ -309,7 +309,7 @@ const ProductionManagerDashboard = () => {
                   </span>
                   <Link
                     to={`/production-manager/department-tasks`}
-                    className="text-xs font-bold text-blue-600 hover:text-blue-700"
+                    className="text-xs  text-blue-600 hover:text-blue-700"
                   >
                     Process →
                   </Link>
@@ -330,13 +330,13 @@ const ProductionManagerDashboard = () => {
       {/* Active Production Plans Overview */}
       <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-lg  text-slate-900 dark:text-white flex items-center gap-2">
             <Target size={20} className="text-blue-600" />
             Active Production Plans
           </h2>
           <Link
             to="/production-manager/planning/plans"
-            className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+            className="text-xs  text-blue-600 hover:text-blue-700 flex items-center gap-1"
           >
             Manage All <ChevronRight size={14} />
           </Link>
@@ -351,19 +351,19 @@ const ProductionManagerDashboard = () => {
             {plans.filter(p => p.status !== 'completed').slice(0, 3).map((plan, idx) => (
               <div
                 key={plan.id}
-                className="border-l-4 border-blue-500 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl hover:shadow-md transition-all"
+                className="border-l-4 border-blue-500 bg-slate-50 dark:bg-slate-900/50 p-4 rounded hover: transition-all"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-slate-900 dark:text-white truncate">
+                    <p className=" text-slate-900 dark:text-white truncate">
                       {plan.plan_name}
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1 uppercase font-semibold">
+                    <p className="text-[10px] text-slate-500 mt-1  font-semibold">
                       {plan.product_name || "Multiple Products"}
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-0.5 text-[10px] rounded-full font-bold uppercase ${
+                    className={`px-2 py-0.5 text-[10px] rounded    ${
                       plan.status === "in_progress"
                         ? "bg-blue-100 text-blue-700"
                         : plan.status === "delayed"
@@ -376,13 +376,13 @@ const ProductionManagerDashboard = () => {
                 </div>
                 
                 <div className="mt-4 space-y-2">
-                  <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                  <div className="flex justify-between text-[10px]  text-slate-500">
                     <span>PROGRESS</span>
                     <span>{plan.progress_percentage || 0}%</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1.5 overflow-hidden">
                     <div
-                      className={`h-full rounded-full ${plan.status === 'delayed' ? 'bg-red-500' : 'bg-blue-600'}`}
+                      className={`h-full rounded  ${plan.status === 'delayed' ? 'bg-red-500' : 'bg-blue-600'}`}
                       style={{ width: `${plan.progress_percentage || 0}%` }}
                     ></div>
                   </div>
@@ -393,7 +393,7 @@ const ProductionManagerDashboard = () => {
                     <Clock size={12} />
                     <span>Ends {plan.end_date ? new Date(plan.end_date).toLocaleDateString() : 'TBD'}</span>
                   </div>
-                  <Link to={`/production-manager/planning/plans`} className="text-[10px] font-bold text-blue-600">
+                  <Link to={`/production-manager/planning/plans`} className="text-[10px]  text-blue-600">
                     DETAILS
                   </Link>
                 </div>
@@ -401,7 +401,7 @@ const ProductionManagerDashboard = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
+          <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-800">
             <Package className="mx-auto text-slate-300 mb-2" size={32} />
             <p className="text-sm text-slate-500 font-medium">No active production plans.</p>
           </div>
@@ -411,7 +411,7 @@ const ProductionManagerDashboard = () => {
       {/* Production Phases by Root Card */}
       {selectedRootCard && (
         <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-left mb-4">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-left mb-4">
             Production Phases
           </h2>
           {rootCards.length > 0 && (
@@ -440,7 +440,7 @@ const ProductionManagerDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Stages Status */}
         <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs text-left mb-4">
             Stage Status
           </h2>
           <div className="space-y-3">
@@ -482,7 +482,7 @@ const ProductionManagerDashboard = () => {
 
         {/* Team Allocation */}
         <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
+          <h2 className="text-xl  text-slate-900 dark:text-white text-xs text-left mb-4">
             Team Allocation
           </h2>
           <div className="space-y-3">
@@ -500,17 +500,17 @@ const ProductionManagerDashboard = () => {
                   <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
                     {dept.department}
                   </p>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {dept.allocated} workers
                   </span>
                 </div>
-                <div className="w-full bg-slate-300 dark:bg-slate-600 rounded-full h-2">
+                <div className="w-full bg-slate-300 dark:bg-slate-600 rounded  h-2">
                   <div
-                    className="bg-green-500 h-2 rounded-full"
+                    className="bg-green-500 h-2 rounded "
                     style={{ width: `${dept.utilization}%` }}
                   ></div>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-xs">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
                   {dept.utilization}% Utilized
                 </p>
               </div>
@@ -521,7 +521,7 @@ const ProductionManagerDashboard = () => {
 
       {/* Quick Actions */}
       <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white text-xs text-left mb-4">
+        <h2 className="text-xl  text-slate-900 dark:text-white text-xs text-left mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

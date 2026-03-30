@@ -66,10 +66,10 @@ const MaterialsTab = () => {
                 <CardContent className="space-y-4 p-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
                         Current Stock
                       </p>
-                      <p className="text-lg font-bold  dark:">
+                      <p className="text-lg   dark:">
                         {material.currentStock.toLocaleString()}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -77,11 +77,11 @@ const MaterialsTab = () => {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
                         Stock Level
                       </p>
                       <p
-                        className={`text-lg font-bold ${
+                        className={`text-lg  ${
                           stockInfo.level === "Critical"
                             ? "text-red-600"
                             : stockInfo.level === "Low"
@@ -97,13 +97,13 @@ const MaterialsTab = () => {
                   </div>
 
                   <div className="space-y-1 text-xs">
-                    <div className="flex justify-between text-slate-600 dark:text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
                       <span>Min/Max:</span>
                       <span className="font-medium  dark:">
                         {material.minStock}/{material.maxStock}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-600 dark:text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
                       <span>Location:</span>
                       <span className="font-medium  dark:">
                         {material.location}
@@ -111,9 +111,9 @@ const MaterialsTab = () => {
                     </div>
                   </div>
 
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2 overflow-hidden">
                     <div
-                      className={`h-2 rounded-full transition-all duration-500 ${stockInfo.color}`}
+                      className={`h-2 rounded  transition-all duration-500 ${stockInfo.color}`}
                       style={{
                         width: `${Math.min(stockInfo.percentage, 100)}%`,
                       }}
@@ -284,10 +284,10 @@ const MaterialsTab = () => {
                     <td className="py-3 px-4 text-sm  dark:">
                       {log.quantity}
                     </td>
-                    <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400">
+                    <td className="py-3 px-4 text-sm text-slate-500 dark:text-slate-400">
                       {log.from} → {log.to}
                     </td>
-                    <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400">
+                    <td className="py-3 px-4 text-sm text-slate-500 dark:text-slate-400">
                       {log.date}
                     </td>
                     <td className="py-3 px-4">

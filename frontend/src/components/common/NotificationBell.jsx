@@ -193,15 +193,15 @@ const NotificationBell = () => {
       <button
         ref={bellRef}
         onClick={() => setShowDropdown(!showDropdown)}
-        className={`p-2 rounded-xl transition-all relative ${
+        className={`p-2 rounded transition-all relative ${
           showDropdown 
             ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' 
-            : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+            : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
         } ${unreadCount > 0 ? 'animate-pulse-red' : ''}`}
       >
         <Bell size={22} strokeWidth={unreadCount > 0 ? 2.5 : 2} />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 h-4 w-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold border-2 border-white dark:border-slate-800">
+          <span className="absolute top-1.5 right-1.5 h-4 w-4 bg-red-500 text-white text-[10px] rounded  flex items-center justify-center  border-2 border-white dark:border-slate-800">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -215,7 +215,7 @@ const NotificationBell = () => {
           {/* Header */}
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/30">
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">Notifications</h3>
+              <h3 className="text-base  text-slate-900 dark:text-white">Notifications</h3>
               <p className="text-xs text-slate-500 mt-0.5">{unreadCount} unread messages</p>
             </div>
             <div className="flex items-center gap-1">
@@ -226,7 +226,7 @@ const NotificationBell = () => {
                   title="Mark all as read"
                 >
                   <CheckCheck size={16} />
-                  <span className="text-xs font-bold uppercase tracking-wider">Mark all</span>
+                  <span className="text-xs   tracking-wider">Mark all</span>
                 </button>
               )}
               <button 
@@ -242,17 +242,17 @@ const NotificationBell = () => {
           <div className="max-h-[450px] overflow-y-auto custom-scrollbar">
             {notifications.length === 0 ? (
               <div className="py-12 px-6 text-center">
-                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Inbox className="text-slate-300 dark:text-slate-600" size={32} />
+                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded  flex items-center justify-center mx-auto mb-4">
+                  <Inbox className="text-slate-300 dark:text-slate-500" size={32} />
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1">All caught up!</h4>
+                <h4 className="text-sm  text-slate-900 dark:text-white mb-1">All caught up!</h4>
                 <p className="text-xs text-slate-500">You don't have any notifications right now.</p>
               </div>
             ) : (
               Object.entries(groupedNotifs).map(([group, notifs]) => (
                 <div key={group}>
                   <div className="px-5 py-2.5 bg-slate-50/50 dark:bg-slate-800/50 border-y border-slate-100 dark:border-slate-800">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{group}</span>
+                    <span className="text-[10px]  text-slate-500  tracking-widest">{group}</span>
                   </div>
                   <div className="divide-y divide-slate-100 dark:divide-slate-800">
                     {notifs.map(notif => {
@@ -269,12 +269,12 @@ const NotificationBell = () => {
                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-full" />
                           )}
                           <div className="flex gap-4">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${styles.bg}`}>
+                            <div className={`w-10 h-10 rounded flex items-center justify-center flex-shrink-0 ${styles.bg}`}>
                               {styles.icon}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <p className={`text-sm ${!notif.read_status ? 'font-bold text-slate-900 dark:text-white' : 'font-medium text-slate-600 dark:text-slate-400'}`}>
+                                <p className={`text-sm ${!notif.read_status ? ' text-slate-900 dark:text-white' : 'font-medium text-slate-500 dark:text-slate-400'}`}>
                                   {notif.message}
                                 </p>
                                 <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap mt-1">
@@ -282,7 +282,7 @@ const NotificationBell = () => {
                                 </span>
                               </div>
                               <div className="flex items-center justify-between mt-2">
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex items-center gap-1 text-[10px]  text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
                                   <span>VIEW DETAILS</span>
                                   <ArrowRight size={10} />
                                 </div>
@@ -312,7 +312,7 @@ const NotificationBell = () => {
                 setShowDropdown(false);
                 navigate('/notifications');
               }}
-              className="w-full py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              className="w-full py-2 text-xs  text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800 rounded transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
               View All Notifications
             </button>

@@ -41,7 +41,7 @@ const Table = ({
               {columns.map((column, index) => (
                 <th
                   key={column.key || index}
-                  className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-slate-700  tracking-wider"
                 >
                   {column.header}
                 </th>

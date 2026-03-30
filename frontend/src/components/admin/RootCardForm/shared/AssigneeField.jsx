@@ -42,7 +42,7 @@ const AssigneeField = ({ stepType, formData, updateField, employees = [], readOn
       
       <div className="space-y-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-2">
+          <label className="block text-xs font-medium text-slate-500 mb-2">
             Department: <span className="text-blue-600 font-semibold">{deptConfig.department}</span>
           </label>
         </div>

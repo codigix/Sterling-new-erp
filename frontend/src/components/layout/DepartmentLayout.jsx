@@ -180,15 +180,15 @@ const DepartmentLayout = () => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center shadow-sm">
-                  <span className="text-white font-bold text-base">
+                  <span className="text-white  text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="hidden md:flex flex-col items-start text-left leading-tight">
-                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                  <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-[11px] text-slate-600 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-semibold capitalize">
                     {user?.department || user?.role}
                   </span>
                 </div>
@@ -198,10 +198,10 @@ const DepartmentLayout = () => {
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
                   <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
-                    <p className="text-sm font-bold text-white">
+                    <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-[10px] font-medium text-blue-100 uppercase tracking-wider">
+                    <p className="text-[10px] font-medium text-blue-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>
@@ -242,7 +242,7 @@ const DepartmentLayout = () => {
             {/* Accounts Sidebar Logic */}
             {getDepartmentRole().title === "Accounts" ? (
               <div>
-                <h6 className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${sidebarCollapsed ? "text-center" : ""}`}>
+                <h6 className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${sidebarCollapsed ? "text-center" : ""}`}>
                   {!sidebarCollapsed && "ACCOUNTANT"}
                 </h6>
                 <ul className="space-y-1">
@@ -272,7 +272,7 @@ const DepartmentLayout = () => {
                               <ul className="mt-1 ml-3 border-l border-slate-200 pl-3 space-y-1">
                                 {item.submenu.map(sub => (
                                   <li key={sub.path}>
-                                    <Link to={sub.path} className={`flex items-center text-xs px-3 py-1.5 text-[11px] font-medium rounded ${isActive(sub.path) ? "bg-blue-100 text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}>
+                                    <Link to={sub.path} className={`flex items-center text-xs px-3 py-1.5 text-[11px] font-medium rounded ${isActive(sub.path) ? "bg-blue-100 text-blue-700" : "text-slate-500 hover:bg-slate-50"}`}>
                                       <sub.icon size={14} className="mr-2" />
                                       {sub.title}
                                     </Link>
@@ -305,7 +305,7 @@ const DepartmentLayout = () => {
                 {getDepartmentRole().title !== "Production" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -358,7 +358,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Engineering" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -386,7 +386,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Production" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -454,8 +454,8 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Boxes size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Released Materials</span>}
+                      
+                      {!sidebarCollapsed && <span>Released Materials</span>}
                     </Link>
                   </li>
                 </ul>
@@ -466,7 +466,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Production" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -507,7 +507,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Production" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -607,7 +607,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Procurement" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -700,7 +700,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Inventory" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -741,7 +741,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Inventory" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -797,7 +797,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Inventory" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -824,7 +824,7 @@ const DepartmentLayout = () => {
             {/* Quick Actions */}
             <div>
               <h6
-                className={`text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ${
+                className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                   sidebarCollapsed ? "text-center" : ""
                 }`}
               >

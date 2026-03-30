@@ -184,28 +184,28 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
         <div className="border-b border-slate-200 pb-8">
           <div className="flex items-center text-xs justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Root Card Workflow</h1>
-              <p className="text-slate-600">
+              <h1 className="text-4xl  text-slate-900 mb-2">Root Card Workflow</h1>
+              <p className="text-slate-500">
                 Managing order: <span className="font-semibold text-slate-900">Step {currentStep} of {WORKFLOW_STEPS.length}</span>
               </p>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-purple-600">{Math.round((currentStep / WORKFLOW_STEPS.length) * 100)}%</div>
-              <p className="text-sm text-slate-600">Progress</p>
+              <div className="text-3xl  text-purple-600">{Math.round((currentStep / WORKFLOW_STEPS.length) * 100)}%</div>
+              <p className="text-sm text-slate-500">Progress</p>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-slate-200 rounded  h-3 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-500 ease-out"
+              className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded  transition-all duration-500 ease-out"
               style={{ width: `${(currentStep / WORKFLOW_STEPS.length) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Step Tracker Cards */}
-        <div className="bg-gradient-to-b from-slate-50 to-white rounded-xl  border border-slate-200 shadow-sm">
+        <div className="bg-gradient-to-b from-slate-50 to-white rounded  border border-slate-200 shadow-sm">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-3">
             {WORKFLOW_STEPS.map((step) => {
               const stepStatus = getStepStatus(step.number);
@@ -226,12 +226,12 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                 >
                   <div className="flex flex-col items-center gap-2">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center text-xs justify-center font-bold transition-all ${
+                      className={`w-10 h-10 rounded  flex items-center text-xs justify-center  transition-all ${
                         isActive
                           ? 'bg-white text-purple-600'
                           : isCompleted
                           ? 'bg-emerald-600 text-white'
-                          : ' text-slate-600'
+                          : ' text-slate-500'
                       }`}
                     >
                       {isCompleted ? <Check className="w-3 h-3" /> : <span>{step.number}</span>}
@@ -253,17 +253,17 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
         )}
 
         {/* Main Content Card */}
-        <Card className="border border-slate-200 shadow-lg rounded-xl overflow-hidden">
+        <Card className="border border-slate-200 shadow-lg rounded overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-slate-200">
             <CardTitle className="flex items-center text-xs gap-4">
               <div className="p-4 bg-purple-600 text-white rounded">
                 <StepIcon className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-slate-900 text-black">
+                <h2 className="text-2xl  text-slate-900 text-black">
                   {WORKFLOW_STEPS[currentStep - 1]?.name}
                 </h2>
-                <p className="text-sm text-slate-600 font-normal mt-1">
+                <p className="text-sm text-slate-500 font-normal mt-1">
                   Step {currentStep} of {WORKFLOW_STEPS.length}
                 </p>
               </div>
@@ -273,14 +273,14 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
           <CardContent className="p-8 space-y-8">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-                <p className="text-slate-600 font-medium">Loading workflow data...</p>
+                <div className="animate-spin rounded  h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
+                <p className="text-slate-500 font-medium">Loading workflow data...</p>
               </div>
             ) : currentStepData ? (
               <>
                 {/* Step Status Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover: transition-shadow">
                     <div className="flex items-center text-xs justify-between mb-3">
                       <p className="text-sm font-semibold text-slate-700">Current Status</p>
                       {currentStepData.status === 'completed' ? (
@@ -291,23 +291,23 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                         <Clock className="w-3 h-3 text-slate-400" />
                       )}
                     </div>
-                    <p className="font-bold text-slate-900 capitalize">
+                    <p className=" text-slate-900 capitalize">
                       {currentStepData.status || 'Pending'}
                     </p>
                   </div>
 
-                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover: transition-shadow">
                     <p className="text-sm font-semibold text-slate-700 mb-3">Assigned To</p>
-                    <p className="font-bold text-slate-900">
+                    <p className=" text-slate-900">
                       {currentStepData.assignedEmployee?.username || (
                         <span className="text-slate-500">Not assigned</span>
                       )}
                     </p>
                   </div>
 
-                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="p-5 bg-slate-50 rounded border border-slate-200 hover: transition-shadow">
                     <p className="text-sm font-semibold text-slate-700 mb-3">Assigned Date</p>
-                    <p className="font-bold text-slate-900">
+                    <p className=" text-slate-900">
                       {currentStepData.assigned_at
                         ? new Date(currentStepData.assigned_at).toLocaleDateString()
                         : <span className="text-slate-500">Not assigned</span>}
@@ -324,7 +324,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                       </div>
                       <div>
                         <h4 className="font-semibold text-slate-900">Assign Employee</h4>
-                        <p className="text-sm text-slate-600">Assign this step to a team member</p>
+                        <p className="text-sm text-slate-500">Assign this step to a team member</p>
                       </div>
                     </div>
                     <select
@@ -358,7 +358,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                       </div>
                       <div>
                         <h4 className="font-semibold text-slate-900">Upload Documents</h4>
-                        <p className="text-sm text-slate-600">Drag and drop or select files</p>
+                        <p className="text-sm text-slate-500">Drag and drop or select files</p>
                       </div>
                     </div>
                     <input
@@ -381,7 +381,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                           ).map((doc, idx) => (
                             <li
                               key={idx}
-                              className="flex items-center text-xs gap-3 p-3 bg-white border border-slate-200 rounded hover:shadow-md transition-shadow"
+                              className="flex items-center text-xs gap-3 p-3 bg-white border border-slate-200 rounded hover: transition-shadow"
                             >
                               <FileText className="w-3 h-3 text-purple-600 flex-shrink-0" />
                               <span className="text-sm text-slate-700 font-medium">
@@ -431,7 +431,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
                     </button>
                     <button
                       onClick={() => handleUpdateStepStatus(currentStepData.id, 'completed')}
-                      className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors font-semibold shadow-md "
+                      className="flex-1 px-6 py-3 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors font-semibold  "
                     >
                       ✓ Complete Step
                     </button>
@@ -452,7 +452,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
               </>
             ) : (
               <div className="text-center py-12">
-                <p className="text-slate-600 font-medium">Loading step information...</p>
+                <p className="text-slate-500 font-medium">Loading step information...</p>
               </div>
             )}
           </CardContent>
@@ -479,7 +479,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
             {currentStep === WORKFLOW_STEPS.length && getStepStatus(WORKFLOW_STEPS.length) === 'completed' && (
               <button
                 onClick={onComplete}
-                className="px-6 py-3 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors font-semibold shadow-md "
+                className="px-6 py-3 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors font-semibold  "
               >
                 ✓ Complete Workflow
               </button>
@@ -489,7 +489,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
           <button
             onClick={handleNext}
             disabled={currentStep === WORKFLOW_STEPS.length}
-            className="px-6 py-3 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 transition-colors flex items-center text-xs gap-2 font-semibold shadow-md "
+            className="px-6 py-3 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 transition-colors flex items-center text-xs gap-2 font-semibold  "
           >
             Next
             <ChevronRight className="w-4 h-4" />

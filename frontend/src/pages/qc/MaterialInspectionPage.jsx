@@ -240,7 +240,7 @@ const MaterialInspectionPage = () => {
     <div className="space-y-2 p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
             <ClipboardCheck className="text-blue-600" size={24} />
             Material Inspection
           </h1>
@@ -272,7 +272,7 @@ const MaterialInspectionPage = () => {
               <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-2xl shadow-sm flex items-center justify-center mb-4">
                 <Layers size={40} className="text-slate-300" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No Project Selected</h3>
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-2">No Project Selected</h3>
               <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto text-sm">
                 Select a project from the dropdown above to view its materials pending quality inspection.
               </p>
@@ -280,32 +280,32 @@ const MaterialInspectionPage = () => {
           ) : loading ? (
             <div className="h-full min-h-[400px] flex items-center justify-center">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Loading Materials...</p>
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded  animate-spin"></div>
+                <p className="text-sm  text-slate-500  tracking-widest">Loading Materials...</p>
               </div>
             </div>
           ) : materials.length === 0 ? (
             <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-slate-200 p-12 text-center">
               <Package size={48} className="text-slate-300 mb-4" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">No Materials Found</h3>
+              <h3 className="text-lg  text-slate-900 dark:text-white">No Materials Found</h3>
               <p className="text-slate-500">All materials for this project have been inspected.</p>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 flex items-center justify-between">
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                  <h3 className="text-sm  text-slate-900 dark:text-white   flex items-center gap-2">
                     <Package size={16} className="text-blue-600" />
                     Pending Materials for {selectedRootCard.projectName}
                   </h3>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-widest">
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded  text-[10px]   tracking-widest">
                     {materials.length} Items
                   </span>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
-                    <thead className="bg-slate-50/30 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                    <thead className="bg-slate-50/30 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100">
                       <tr>
                         <th className="p-2">ITEM NAME / GROUP</th>
                         <th className="p-2">REFERENCE</th>
@@ -328,12 +328,12 @@ const MaterialInspectionPage = () => {
                             >
                               <td className="p-2">
                                 <div className="flex items-center gap-3">
-                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                                  <div className={`w-10 h-10 rounded flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
                                     <Package size={20} />
                                   </div>
                                   <div>
-                                    <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{item.material_name}</h4>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{item.item_group}</p>
+                                    <h4 className="text-sm  text-slate-900 dark:text-white  ">{item.material_name}</h4>
+                                    <p className="text-[10px]  text-slate-400  tracking-widest mt-0.5">{item.item_group}</p>
                                   </div>
                                 </div>
                               </td>
@@ -341,7 +341,7 @@ const MaterialInspectionPage = () => {
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-1.5">
                                     <FileText size={12} className="text-slate-400" />
-                                    <span className="text-xs font-bold text-slate-700">{item.grn_number}</span>
+                                    <span className="text-xs  text-slate-700">{item.grn_number}</span>
                                   </div>
                                   <div className="flex items-center gap-1.5">
                                     <Tag size={12} className="text-slate-400" />
@@ -349,18 +349,18 @@ const MaterialInspectionPage = () => {
                                   </div>
                                 </div>
                               </td>
-                              <td className="p-2 text-center text-xs font-bold text-slate-500">{item.ordered_qty}</td>
-                              <td className="p-2 text-center text-xs font-bold text-slate-500">{item.invoice_quantity || item.received_qty}</td>
+                              <td className="p-2 text-center text-xs  text-slate-500">{item.ordered_qty}</td>
+                              <td className="p-2 text-center text-xs  text-slate-500">{item.invoice_quantity || item.received_qty}</td>
                               <td className="p-2 text-center">
-                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded text-xs font-black">
+                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded text-xs ">
                                   {item.received_qty}
                                 </span>
                               </td>
-                              <td className="p-2 text-center text-xs font-bold text-orange-500">{item.rejected_quantity || 0}</td>
-                              <td className="p-2 text-center text-xs font-bold text-blue-500">{item.overage || 0}</td>
+                              <td className="p-2 text-center text-xs  text-orange-500">{item.rejected_quantity || 0}</td>
+                              <td className="p-2 text-center text-xs  text-blue-500">{item.overage || 0}</td>
                               <td className="p-2 text-right">
                                 <div className="flex items-center justify-end gap-2">
-                                  <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest border ${
+                                  <span className={`px-2 py-1 rounded text-[9px]   tracking-widest border ${
                                     item.status === 'QC COMPLETED' 
                                       ? 'bg-green-50 text-green-600 border-green-100' 
                                       : 'bg-purple-50 text-purple-600 border-purple-100'
@@ -377,10 +377,10 @@ const MaterialInspectionPage = () => {
                                 <td colSpan="8" className="px-12 py-6">
                                   <div className="bg-white dark:bg-slate-900 border border-slate-200 rounded-2xl shadow-sm overflow-hidden animate-in slide-in-from-top-2 duration-200">
                                     <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-                                      <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                      <h5 className="text-[10px]  text-slate-500  tracking-widest flex items-center gap-2">
                                         <Tag size={12} /> Material Tags (ST Numbers)
                                       </h5>
-                                      <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">
+                                      <span className="text-[10px]  text-blue-600  tracking-widest">
                                         {item.serials?.length || 0} Units Tracked
                                       </span>
                                     </div>
@@ -388,7 +388,7 @@ const MaterialInspectionPage = () => {
                                     {item.serials && item.serials.length > 0 ? (
                                       <div className="overflow-x-auto">
                                         <table className="w-full text-left">
-                                          <thead className="bg-slate-50/50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                          <thead className="bg-slate-50/50 text-[9px]  text-slate-400  tracking-widest border-b border-slate-100">
                                             <tr>
                                               <th className="p-2 w-12 text-center">#</th>
                                               <th className="p-2">Item Code</th>
@@ -401,7 +401,7 @@ const MaterialInspectionPage = () => {
                                                   {item.serials?.some(s => s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
                                                     <button 
                                                       onClick={(e) => { e.stopPropagation(); handleApproveAll(item); }}
-                                                      className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-600 text-white rounded text-[8px] font-black uppercase tracking-tighter hover:bg-blue-700 transition-colors shadow-sm"
+                                                      className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-600 text-white rounded text-[8px]   er hover:bg-blue-700 transition-colors shadow-sm"
                                                       title="Approve All Pending"
                                                     >
                                                       <CheckCheck size={10} /> Approve All
@@ -418,17 +418,17 @@ const MaterialInspectionPage = () => {
                                                   <td className="p-2 text-[11px] font-medium text-slate-400 text-center">
                                                     {sIdx + 1}
                                                   </td>
-                                                  <td className="p-2 text-[11px] font-bold text-slate-700">
+                                                  <td className="p-2 text-[11px]  text-slate-700">
                                                     {s.item_code || s.serial_number.replace('ST-', '')}
                                                   </td>
-                                                  <td className="p-2 text-[11px] text-slate-600">
+                                                  <td className="p-2 text-[11px] text-slate-500">
                                                     {item.material_name}
                                                   </td>
-                                                  <td className="p-2 text-[11px] font-bold text-blue-600">
+                                                  <td className="p-2 text-[11px]  text-blue-600">
                                                     {s.serial_number}
                                                   </td>
                                                   <td className="p-2">
-                                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                                                    <span className={`text-[9px] px-2 py-0.5 rounded    ${
                                                       s.inspection_status === 'Accepted' ? 'bg-green-100 text-green-700' :
                                                       s.inspection_status === 'Rejected' ? 'bg-red-100 text-red-700' :
                                                       s.inspection_status === 'Sent for Inspection' ? 'bg-blue-100 text-blue-700' :
@@ -499,10 +499,10 @@ const MaterialInspectionPage = () => {
                                               {s.inspection_status === 'Rejected' && s.rejection_reason && (
                                                 <tr className="bg-red-50/30">
                                                   <td colSpan="6" className="px-8 py-2">
-                                                    <div className="flex items-start gap-2 text-[10px] text-red-600 font-bold">
+                                                    <div className="flex items-start gap-2 text-[10px] text-red-600 ">
                                                       <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
                                                       <div className="flex flex-col gap-0.5">
-                                                        <span className="uppercase tracking-widest text-[8px] opacity-70">Rejection Reason:</span>
+                                                        <span className=" tracking-widest text-[8px] opacity-70">Rejection Reason:</span>
                                                         <p className="italic font-medium">{s.rejection_reason}</p>
                                                       </div>
                                                     </div>
@@ -532,9 +532,9 @@ const MaterialInspectionPage = () => {
                                               
                                               if (!allProcessed) {
                                                 return (
-                                                  <div className="flex items-center gap-2 text-amber-500 bg-amber-50 p-2 rounded-xl border border-amber-100">
+                                                  <div className="flex items-center gap-2 text-amber-500 bg-amber-50 p-2 rounded border border-amber-100">
                                                     <Clock size={14} className="animate-spin-slow" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">
+                                                    <span className="text-[10px]   tracking-widest">
                                                       Processing: {item.serials?.filter(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected').length} / {item.serials?.length} ST Numbers Done
                                                     </span>
                                                   </div>
@@ -543,7 +543,7 @@ const MaterialInspectionPage = () => {
 
                                               return (
                                                 <div className="flex flex-col gap-2">
-                                                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                                  <p className="text-[10px]  text-slate-500  tracking-widest flex items-center gap-2">
                                                     <FileText size={14} className="text-blue-500" /> 
                                                     Required Quality Reports (Outsource)
                                                   </p>
@@ -551,17 +551,17 @@ const MaterialInspectionPage = () => {
                                                   <div className="flex items-center gap-4">
                                                     {/* Accepted Items Document */}
                                                     {hasAccepted && (
-                                                      <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.common_document_path ? 'bg-green-50 border-green-200' : 'bg-white border-blue-200 border-dashed hover:border-blue-400'}`}>
+                                                      <div className={`flex items-center h-10 px-4 rounded border transition-all ${item.common_document_path ? 'bg-green-50 border-green-200' : 'bg-white border-blue-200 border-dashed hover:border-blue-400'}`}>
                                                         {item.common_document_path ? (
                                                           <button 
                                                             onClick={() => window.open(getServerUrl(item.common_document_path), '_blank')}
-                                                            className="flex items-center gap-2 text-[10px] font-black text-green-700 uppercase"
+                                                            className="flex items-center gap-2 text-[10px]  text-green-700 "
                                                           >
                                                             <CheckCircle size={14} /> Accepted Items Report
                                                             <Eye size={14} className="ml-1 opacity-60" />
                                                           </button>
                                                         ) : (
-                                                          <label className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase cursor-pointer">
+                                                          <label className="flex items-center gap-2 text-[10px]  text-blue-600  cursor-pointer">
                                                             <Upload size={14} /> Upload Accepted Report
                                                             <input 
                                                               type="file" 
@@ -575,17 +575,17 @@ const MaterialInspectionPage = () => {
 
                                                     {/* Rejected Items Document */}
                                                     {hasRejected && (
-                                                      <div className={`flex items-center h-10 px-4 rounded-xl border transition-all ${item.rejected_document_path ? 'bg-red-50 border-red-200' : 'bg-white border-red-200 border-dashed hover:border-red-400'}`}>
+                                                      <div className={`flex items-center h-10 px-4 rounded border transition-all ${item.rejected_document_path ? 'bg-red-50 border-red-200' : 'bg-white border-red-200 border-dashed hover:border-red-400'}`}>
                                                         {item.rejected_document_path ? (
                                                           <button 
                                                             onClick={() => window.open(getServerUrl(item.rejected_document_path), '_blank')}
-                                                            className="flex items-center gap-2 text-[10px] font-black text-red-700 uppercase"
+                                                            className="flex items-center gap-2 text-[10px]  text-red-700 "
                                                           >
                                                             <XCircle size={14} /> Rejected Items Report
                                                             <Eye size={14} className="ml-1 opacity-60" />
                                                           </button>
                                                         ) : (
-                                                          <label className="flex items-center gap-2 text-[10px] font-black text-red-600 uppercase cursor-pointer">
+                                                          <label className="flex items-center gap-2 text-[10px]  text-red-600  cursor-pointer">
                                                             <Upload size={14} /> Upload Rejected Report
                                                             <input 
                                                               type="file" 
@@ -599,7 +599,7 @@ const MaterialInspectionPage = () => {
 
                                                     {/* Missing Reports Indicator */}
                                                     {((hasAccepted && !item.common_document_path) || (hasRejected && !item.rejected_document_path)) && (
-                                                      <div className="flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-700 rounded text-[9px] font-black uppercase border border-amber-200 animate-pulse">
+                                                      <div className="flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-700 rounded text-[9px]   border border-amber-200 animate-pulse">
                                                         <AlertTriangle size={12} /> Upload Required
                                                       </div>
                                                     )}
@@ -611,7 +611,7 @@ const MaterialInspectionPage = () => {
                                         ) : (
                                           <div className="flex items-center gap-2 text-slate-400 italic">
                                             <CheckCircle size={14} />
-                                            <span className="text-[10px] font-bold uppercase tracking-widest">Inhouse inspection - No documents required</span>
+                                            <span className="text-[10px]   tracking-widest">Inhouse inspection - No documents required</span>
                                           </div>
                                         )}
                                       </div>
@@ -627,7 +627,7 @@ const MaterialInspectionPage = () => {
                                         if (isFullyDone) {
                                           if (item.grn_status === 'qc_completed') {
                                             return (
-                                              <div className="flex items-center gap-2 p-2 bg-emerald-600 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-200">
+                                              <div className="flex items-center gap-2 p-2 bg-emerald-600 text-white rounded text-xs  shadow-lg shadow-emerald-200">
                                                 <CheckCircle size={14} />
                                                 QC COMPLETED
                                               </div>
@@ -639,7 +639,7 @@ const MaterialInspectionPage = () => {
                                                 e.stopPropagation();
                                                 handleFinalizeQC(item.grn_id);
                                               }}
-                                              className="flex items-center gap-2 p-2 bg-green-600 text-white rounded-xl text-xs font-black shadow-lg shadow-green-200 hover:bg-green-700 transition-all"
+                                              className="flex items-center gap-2 p-2 bg-green-600 text-white rounded text-xs  shadow-lg shadow-green-200 hover:bg-green-700 transition-all"
                                             >
                                               <CheckCircle size={14} />
                                               FINALIZE QC
@@ -657,7 +657,7 @@ const MaterialInspectionPage = () => {
                                               }
                                               navigate(`/department/quality/inspection/${item.grn_id}`);
                                             }}
-                                            className={`p-2 rounded-xl text-xs font-black shadow-lg transition-all flex items-center gap-2 ${
+                                            className={`p-2 rounded text-xs  shadow-lg transition-all flex items-center gap-2 ${
                                               (isOutsource && (needsAcceptedDoc || needsRejectedDoc)) ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none' : 'bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'
                                             }`}
                                           >
@@ -693,13 +693,13 @@ const MaterialInspectionPage = () => {
                   <AlertTriangle size={20} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Rejection Reason</h3>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{rejectionModal.serialNumber}</p>
+                  <h3 className="text-sm  text-slate-900 dark:text-white  ">Rejection Reason</h3>
+                  <p className="text-[10px]  text-slate-500  tracking-widest">{rejectionModal.serialNumber}</p>
                 </div>
               </div>
               <button 
                 onClick={() => setRejectionModal({ ...rejectionModal, isOpen: false })}
-                className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all shadow-sm text-slate-400 hover:text-red-500"
+                className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded transition-all shadow-sm text-slate-400 hover:text-red-500"
               >
                 <X size={20} />
               </button>
@@ -707,7 +707,7 @@ const MaterialInspectionPage = () => {
 
             <div className="p-6 space-y-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <label className="text-[10px]  text-slate-400  tracking-widest flex items-center gap-2">
                   <MessageSquare size={12} /> Reason for Rejection
                 </label>
                 <textarea
@@ -722,13 +722,13 @@ const MaterialInspectionPage = () => {
               <div className="flex items-center gap-3 pt-2">
                 <button
                   onClick={() => setRejectionModal({ ...rejectionModal, isOpen: false })}
-                  className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                  className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl  text-[10px]  tracking-widest hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={submitRejection}
-                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 shadow-lg shadow-red-200 dark:shadow-none transition-all"
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-2xl  text-[10px]  tracking-widest hover:bg-red-700 shadow-lg shadow-red-200 dark:shadow-none transition-all"
                 >
                   Confirm Rejection
                 </button>

@@ -44,7 +44,7 @@ const InventoryTasksPage = () => {
   if (loading) {
     return (
       <div className="flex items-center text-xs justify-center py-12">
-        <p className="text-slate-600">Loading inventory data...</p>
+        <p className="text-slate-500">Loading inventory data...</p>
       </div>
     );
   }
@@ -77,40 +77,40 @@ const InventoryTasksPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total SKUs
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
               {stats.totalSKUs}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total Quantity
             </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+            <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
               {stats.totalQuantity}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Low Stock Items
             </p>
-            <p className="text-2xl font-bold text-yellow-600 mt-1">
+            <p className="text-2xl  text-yellow-600 mt-1">
               {stats.lowStock}
             </p>
           </div>
         </Card>
         <Card>
           <div className="p-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Pending Issuance
             </p>
-            <p className="text-2xl font-bold text-blue-600 mt-1">
+            <p className="text-2xl  text-blue-600 mt-1">
               {stats.pendingIssuance}
             </p>
           </div>
@@ -199,7 +199,7 @@ const InventoryTasksPage = () => {
                     <td className="p-1 text-sm text-slate-700 dark:text-slate-300">
                       {item.batch}
                     </td>
-                    <td className="p-1 text-sm text-center font-bold">
+                    <td className="p-1 text-sm text-center ">
                       {item.quantity}
                     </td>
                     <td className="p-1 text-sm text-slate-700 dark:text-slate-300">
@@ -282,7 +282,7 @@ const InventoryTasksPage = () => {
                     <td className="p-1 text-sm text-slate-700 dark:text-slate-300">
                       {issuance.sku}
                     </td>
-                    <td className="p-1 text-sm text-center font-bold">
+                    <td className="p-1 text-sm text-center ">
                       {issuance.quantity}
                     </td>
                     <td className="p-1 text-sm text-slate-700 dark:text-slate-300">

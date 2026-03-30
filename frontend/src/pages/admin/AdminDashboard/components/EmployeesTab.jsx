@@ -146,7 +146,7 @@ const EmployeesTab = () => {
       case "Poor":
         return "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-400";
       default:
-        return "text-slate-600 bg-slate-100 dark: dark:text-slate-400";
+        return "text-slate-500 bg-slate-100 dark: dark:text-slate-400";
     }
   };
 
@@ -167,10 +167,10 @@ const EmployeesTab = () => {
                 <UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Top Performers
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   18
                 </p>
               </div>
@@ -185,10 +185,10 @@ const EmployeesTab = () => {
                 <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Avg Efficiency
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   89%
                 </p>
               </div>
@@ -203,10 +203,10 @@ const EmployeesTab = () => {
                 <Target className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Avg Quality
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   4.5/5.0
                 </p>
               </div>
@@ -221,10 +221,10 @@ const EmployeesTab = () => {
                 <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Avg Attendance
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   97%
                 </p>
               </div>
@@ -248,7 +248,7 @@ const EmployeesTab = () => {
                 className="flex items-center text-xs p-4 border border-slate-200 dark:border-slate-700 rounded"
               >
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center text-xs justify-center">
+                  <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded  flex items-center text-xs justify-center">
                     <span className="text-lg font-semibold text-primary-600 dark:text-primary-400">
                       {employee.name
                         .split(" ")
@@ -266,7 +266,7 @@ const EmployeesTab = () => {
                       {employee.status}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
                     {employee.role} • {employee.department}
                   </p>
                   <div className="grid grid-cols-3 gap-4 text-sm">

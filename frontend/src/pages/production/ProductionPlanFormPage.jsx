@@ -18,29 +18,29 @@ const SectionHeader = ({ title, subtitle, section, isExpanded, onToggle, icon: I
     <div className="flex items-center gap-6">
       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-2xl transform transition-all group-hover:scale-110 ${colorClass || 'bg-indigo-600 shadow-indigo-500/30'}`}>
         <div className="flex flex-col items-center">
-          <span className="text-[22px] font-black leading-none mb-1 drop-shadow-md tracking-tighter">{number}</span>
-          {Icon && <Icon size={24} className="drop-shadow-md" />}
+          <span className="text-[22px]  leading-none mb-1 drop- er">{number}</span>
+          {Icon && <Icon size={24} className="drop-" />}
         </div>
       </div>
       <div className="flex items-center gap-5">
         <div>
-          <h3 className="font-black text-[18px] text-slate-900 dark:text-white uppercase tracking-tight">
+          <h3 className=" text-[18px] text-slate-900 dark:text-white  ">
             {title}
           </h3>
           {subtitle && (
-            <p className="text-[13px] text-slate-600 dark:text-slate-400 font-bold mt-1">
+            <p className="text-[13px] text-slate-500 dark:text-slate-400  mt-1">
               {subtitle}
             </p>
           )}
         </div>
         {badge && (
-          <span className="px-4 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[12px] font-black uppercase rounded-xl border-2 border-blue-200 dark:border-blue-700 shadow-sm">
+          <span className="px-4 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[12px]   rounded border-2 border-blue-200 dark:border-blue-700 shadow-sm">
             {badge}
           </span>
         )}
       </div>
     </div>
-    <div className={`p-2.5 rounded-full shadow-md transition-all ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'}`}>
+    <div className={`p-2.5 rounded   transition-all ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'}`}>
       {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
     </div>
   </div>
@@ -176,7 +176,7 @@ const ProductionPlanFormPage = () => {
                   className={`w-full p-2 border border-slate-200 dark:border-slate-600 rounded-l bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none text-sm ${isViewMode ? 'cursor-not-allowed opacity-75' : ''}`}
                   placeholder="1"
                 />
-                <span className="p-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r text-xs font-bold text-slate-500 uppercase">
+                <span className="p-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r text-xs  text-slate-500 ">
                   UNIT
                 </span>
               </div>
@@ -276,7 +276,7 @@ const ProductionPlanFormPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
+                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
                   <th className="p-2">No.</th>
                   <th className="p-2">Item Code</th>
                   <th className="p-2">Bom No.</th>
@@ -302,10 +302,10 @@ const ProductionPlanFormPage = () => {
                               <Package size={14} className="text-blue-500" />
                             </div>
                             <div>
-                              <div className="font-bold text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors uppercase">
+                              <div className=" text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors ">
                                 {fg.itemCode}
                               </div>
-                              <div className="text-[10px] text-slate-500 uppercase font-medium">
+                              <div className="text-[10px] text-slate-500  font-medium">
                                 {fg.productName}
                               </div>
                             </div>
@@ -323,21 +323,21 @@ const ProductionPlanFormPage = () => {
                           </div>
                         </td>
                         <td className="p-2 text-center">
-                          <span className="text-sm font-black text-blue-600 dark:text-blue-400">
+                          <span className="text-sm  text-blue-600 dark:text-blue-400">
                             {fg.plannedQty}
                           </span>
                         </td>
-                        <td className="p-2 text-center text-[10px] font-bold text-slate-400 uppercase">
+                        <td className="p-2 text-center text-[10px]  text-slate-400 ">
                           {fg.uom || 'Nos'}
                         </td>
                         <td className="p-2">
-                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-xs font-medium">
+                          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium">
                             <Package size={14} className="text-slate-400" />
                             {fg.warehouse}
                           </div>
                         </td>
                         <td className="p-2">
-                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-xs font-medium">
+                          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium">
                             <Calendar size={14} className="text-slate-400" />
                             {fg.startDate}
                           </div>
@@ -351,11 +351,11 @@ const ProductionPlanFormPage = () => {
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded">
                                   <Layers size={14} className="text-blue-500" />
                                 </div>
-                                <h5 className="text-[11px] font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest">Raw Materials from BOM</h5>
+                                <h5 className="text-[11px]  text-slate-900 dark:text-slate-100  tracking-widest">Raw Materials from BOM</h5>
                               </div>
                               <table className="w-full text-[11px]">
                                 <thead>
-                                  <tr className="text-slate-400 uppercase tracking-wider font-bold">
+                                  <tr className="text-slate-400  tracking-wider ">
                                     <th className="px-3 py-2 text-left w-12">No.</th>
                                     <th className="px-3 py-2 text-left">Item</th>
                                     <th className="px-3 py-2 text-center">Qty Per Unit</th>
@@ -366,27 +366,27 @@ const ProductionPlanFormPage = () => {
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                                   {fg.rawMaterials.map((rm, rmIdx) => (
                                     <tr key={rmIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                      <td className="px-3 py-3 text-slate-400 font-bold">{rmIdx + 1}</td>
+                                      <td className="px-3 py-3 text-slate-400 ">{rmIdx + 1}</td>
                                       <td className="px-3 py-3">
-                                        <div className="font-black text-black dark:text-white uppercase text-[12px] tracking-tight">
+                                        <div className=" text-black dark:text-white  text-[12px] ">
                                           {rm.specification || rm.itemName || 'Unnamed Material'}
                                         </div>
                                         {(rm.itemName && rm.itemName !== rm.specification) && (
-                                          <div className="text-[11px] text-slate-600 dark:text-slate-400 font-bold mt-0.5">{rm.itemName}</div>
+                                          <div className="text-[11px] text-slate-500 dark:text-slate-400  mt-0.5">{rm.itemName}</div>
                                         )}
                                       </td>
                                       <td className="px-3 py-3 text-center">
-                                        <span className="font-black text-slate-700 dark:text-slate-300">
+                                        <span className=" text-slate-700 dark:text-slate-300">
                                           {rm.qtyPerUnit || rm.quantity || '--'}
                                         </span>
                                       </td>
                                       <td className="px-3 py-3 text-right">
-                                        <span className="font-black text-blue-600 dark:text-blue-400 text-sm">
+                                        <span className=" text-blue-600 dark:text-blue-400 text-sm">
                                           {rm.requiredQty}
                                         </span>
                                       </td>
                                       <td className="px-3 py-3 text-left pl-6">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        <span className="text-[10px]  text-slate-400  tracking-widest">
                                           {rm.uom || 'KG'}
                                         </span>
                                       </td>
@@ -424,7 +424,7 @@ const ProductionPlanFormPage = () => {
     const consolidateMaterials = (mats) => {
       const consolidated = {};
       mats.forEach(m => {
-        // Normalize key: prioritize itemCode, then specification, then name. Trim and uppercase for robust matching.
+        // Normalize key: prioritize itemCode, then specification, then name. Trim and  for robust matching.
         const rawKey = m.itemCode || m.specification || m.itemName || 'unknown';
         const key = String(rawKey).trim().toUpperCase();
         
@@ -490,13 +490,13 @@ const ProductionPlanFormPage = () => {
             {coreMaterials.length > 0 && (
               <>
                 <div className="p-2 bg-orange-50/50 dark:bg-orange-900/10 flex items-center gap-3 border-b border-orange-100 dark:border-orange-900/20">
-                  <div className="w-2 h-2 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50" />
-                  <h4 className="text-[11px] font-black text-orange-700 dark:text-orange-400 uppercase tracking-widest">Core Materials</h4>
+                  <div className="w-2 h-2 rounded  bg-orange-500 shadow-sm shadow-orange-500/50" />
+                  <h4 className="text-[11px]  text-orange-700 dark:text-orange-400  tracking-widest">Core Materials</h4>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
                     <thead>
-                      <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
+                      <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
                         <th className="p-2">Item</th>
                         <th className="p-2 text-center">Required Qty</th>
                         <th className="p-2">Warehouse</th>
@@ -508,31 +508,31 @@ const ProductionPlanFormPage = () => {
                       {coreMaterials.map((m, idx) => (
                         <tr key={`core-${idx}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
                           <td className="p-2">
-                            <div className="font-black text-black dark:text-white uppercase text-[13px] tracking-tight">{m.specification || m.itemName || 'Unnamed Material'}</div>
+                            <div className=" text-black dark:text-white  text-[13px] ">{m.specification || m.itemName || 'Unnamed Material'}</div>
                             {(m.itemName && m.itemName !== m.specification) && (
-                              <div className="text-[11px] text-slate-600 dark:text-slate-400 font-bold mt-0.5 italic">{m.itemName}</div>
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400  mt-0.5 italic">{m.itemName}</div>
                             )}
                           </td>
                           <td className="p-2 text-center">
                             <div className="flex flex-col items-center">
-                              <span className="text-sm font-black text-orange-600 dark:text-orange-400">{m.requiredQty}</span>
-                              <span className="text-[10px] text-slate-400 font-black uppercase">{m.uom || 'KG'}</span>
+                              <span className="text-sm  text-orange-600 dark:text-orange-400">{m.requiredQty}</span>
+                              <span className="text-[10px] text-slate-400  ">{m.uom || 'KG'}</span>
                             </div>
                           </td>
                           <td className="p-2">
-                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 text-xs font-bold">
+                            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs ">
                               <Package size={14} className="text-slate-400" />
                               <span>{m.warehouse || m.location || '-'}</span>
                             </div>
                           </td>
                           <td className="p-2">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 rounded text-[10px] font-black text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 w-fit">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 rounded text-[10px]  text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 w-fit">
                               <Layers size={10} className="text-orange-500" />
                               {m.bomRef || 'N/A'}
                             </div>
                           </td>
                           <td className="p-2 text-center">
-                            <span className="text-slate-300 font-bold">--</span>
+                            <span className="text-slate-300 ">--</span>
                           </td>
                         </tr>
                       ))}
@@ -544,13 +544,13 @@ const ProductionPlanFormPage = () => {
 
             {/* Exploded Components Section */}
             <div className="p-2 bg-red-50/50 dark:bg-red-900/10 flex items-center gap-3 border-y border-red-100 dark:border-red-900/20">
-              <div className="w-2 h-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
-              <h4 className="text-[11px] font-black text-red-700 dark:text-red-400 uppercase tracking-widest">Exploded Components</h4>
+              <div className="w-2 h-2 rounded  bg-red-500 shadow-sm shadow-red-500/50" />
+              <h4 className="text-[11px]  text-red-700 dark:text-red-400  tracking-widest">Exploded Components</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
+                  <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
                     <th className="p-2">Component Specification</th>
                     <th className="p-2 text-center">Required Qty</th>
                     <th className="p-2">Source Assembly</th>
@@ -561,29 +561,29 @@ const ProductionPlanFormPage = () => {
                   {explodedComponents.map((m, idx) => (
                     <tr key={`exp-${idx}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
                       <td className="p-2">
-                        <div className="font-black text-black dark:text-white uppercase text-[13px] tracking-tight">
+                        <div className=" text-black dark:text-white  text-[13px] ">
                           {m.specification || m.itemName || 'Unnamed Component'}
                         </div>
                         {(m.itemName && m.itemName !== m.specification) && (
-                          <div className="text-[11px] text-slate-600 dark:text-slate-400 font-bold mt-0.5 italic">{m.itemName}</div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400  mt-0.5 italic">{m.itemName}</div>
                         )}
                       </td>
                       <td className="p-2 text-center">
                         <div className="flex flex-col items-center">
-                          <span className="text-sm font-black text-red-600 dark:text-red-400">
+                          <span className="text-sm  text-red-600 dark:text-red-400">
                             {m.requiredQty}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-black uppercase">{m.uom || 'KG'}</span>
+                          <span className="text-[10px] text-slate-400  ">{m.uom || 'KG'}</span>
                         </div>
                       </td>
                       <td className="p-2">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-black text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 w-fit">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px]  text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 w-fit">
                           <Activity size={10} className="text-red-500" />
                           {m.sourceAssemblyCode || 'ROOT'}
                         </div>
                       </td>
                       <td className="p-2">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-[10px] font-black text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-800 w-fit">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-[10px]  text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-800 w-fit">
                           <FileText size={10} className="text-blue-500" />
                           {m.bomRef || 'N/A'}
                         </div>
@@ -628,7 +628,7 @@ const ProductionPlanFormPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
+                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
                   <th className="p-2">No.</th>
                   <th className="p-2">Sub Assembly Item Code</th>
                   <th className="p-2">Target Warehouse</th>
@@ -654,10 +654,10 @@ const ProductionPlanFormPage = () => {
                               <Package size={14} className="text-red-500" />
                             </div>
                             <div>
-                              <div className="font-bold text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors uppercase">
+                              <div className=" text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors ">
                                 {sa.itemCode}
                               </div>
-                              <div className="text-[10px] text-slate-500 uppercase font-medium">
+                              <div className="text-[10px] text-slate-500  font-medium">
                                 {sa.itemName || 'Sub Assembly'}
                               </div>
                             </div>
@@ -667,23 +667,23 @@ const ProductionPlanFormPage = () => {
                           </div>
                         </td>
                         <td className="p-2">
-                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                             <Package size={14} className="text-slate-400" />
                             <span className="font-medium">{sa.targetWarehouse}</span>
                           </div>
                         </td>
                         <td className="p-2">
-                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-xs">
+                          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
                             <Calendar size={14} className="text-slate-400" />
                             <span className="font-medium">{sa.scheduledDate}</span>
                           </div>
                         </td>
                         <td className="p-2 text-center">
                           <div className="flex flex-col items-center">
-                            <span className="text-md font-bold text-slate-900 dark:text-white">
+                            <span className="text-md  text-slate-900 dark:text-white">
                               {sa.requiredQty}
                             </span>
-                            <span className="text-[10px] text-slate-400 uppercase font-bold">
+                            <span className="text-[10px] text-slate-400  ">
                               {sa.uom}
                             </span>
                           </div>
@@ -695,7 +695,7 @@ const ProductionPlanFormPage = () => {
                           </div>
                         </td>
                         <td className="p-2 text-center">
-                          <span className="px-2 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-[10px] font-bold uppercase tracking-wider border border-red-100 dark:border-red-800">
+                          <span className="px-2 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-[10px]   tracking-wider border border-red-100 dark:border-red-800">
                             {sa.manufacturingType || 'In House'}
                           </span>
                         </td>
@@ -708,11 +708,11 @@ const ProductionPlanFormPage = () => {
                                 <div className="p-1.5 bg-red-50 dark:bg-red-900/20 rounded">
                                   <Layers size={14} className="text-red-500" />
                                 </div>
-                                <h5 className="text-[11px] font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest">Raw Materials from BOM</h5>
+                                <h5 className="text-[11px]  text-slate-900 dark:text-slate-100  tracking-widest">Raw Materials from BOM</h5>
                               </div>
                               <table className="w-full text-[11px]">
                                 <thead>
-                                  <tr className="text-slate-400 uppercase tracking-wider font-bold">
+                                  <tr className="text-slate-400  tracking-wider ">
                                     <th className="px-3 py-2 text-left w-12">No.</th>
                                     <th className="px-3 py-2 text-left">Item</th>
                                     <th className="px-3 py-2 text-center">Qty Per Unit</th>
@@ -723,27 +723,27 @@ const ProductionPlanFormPage = () => {
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                                   {sa.rawMaterials.map((rm, rmIdx) => (
                                     <tr key={rmIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                      <td className="px-3 py-3 text-slate-400 font-bold">{rmIdx + 1}</td>
+                                      <td className="px-3 py-3 text-slate-400 ">{rmIdx + 1}</td>
                                       <td className="px-3 py-3">
-                                        <div className="font-black text-black dark:text-white uppercase text-[12px] tracking-tight">
+                                        <div className=" text-black dark:text-white  text-[12px] ">
                                           {rm.specification || rm.itemName || 'Unnamed Material'}
                                         </div>
                                         {(rm.itemName && rm.itemName !== rm.specification) && (
-                                          <div className="text-[11px] text-slate-600 dark:text-slate-400 font-bold mt-0.5">{rm.itemName}</div>
+                                          <div className="text-[11px] text-slate-500 dark:text-slate-400  mt-0.5">{rm.itemName}</div>
                                         )}
                                       </td>
                                       <td className="px-3 py-3 text-center">
-                                        <span className="font-black text-slate-700 dark:text-slate-300">
+                                        <span className=" text-slate-700 dark:text-slate-300">
                                           {rm.qtyPerUnit || rm.quantity || '--'}
                                         </span>
                                       </td>
                                       <td className="px-3 py-3 text-right">
-                                        <span className="font-black text-red-600 dark:text-red-400 text-sm">
+                                        <span className=" text-red-600 dark:text-red-400 text-sm">
                                           {rm.requiredQty}
                                         </span>
                                       </td>
                                       <td className="px-3 py-3 text-left pl-6">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        <span className="text-[10px]  text-slate-400  tracking-widest">
                                           {rm.uom || 'KG'}
                                         </span>
                                       </td>
@@ -777,7 +777,7 @@ const ProductionPlanFormPage = () => {
   );
 
   const renderManufacturingFlowSection = () => (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
       <SectionHeader 
         title="MANUFACTURING FLOW" 
         section="phases" 
@@ -791,14 +791,14 @@ const ProductionPlanFormPage = () => {
         <div className="p-6 border-t border-slate-100 dark:border-slate-700/50 space-y-2 animate-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-bold text-slate-900 dark:text-white">Active Production Phases</h4>
+              <h4 className="text-sm  text-slate-900 dark:text-white">Active Production Phases</h4>
               <p className="text-xs text-slate-500 mt-1">Define sequence of operations and resource allocation</p>
             </div>
             {!showStageForm && (
               <button
                 type="button"
                 onClick={() => setShowStageForm(true)}
-                className="inline-flex items-center gap-2 p-2 bg-purple-600 hover:bg-purple-700 text-white rounded font-bold transition-all text-xs shadow-sm hover:shadow-purple-500/20"
+                className="inline-flex items-center gap-2 p-2 bg-purple-600 hover:bg-purple-700 text-white rounded  transition-all text-xs shadow-sm hover:shadow-purple-500/20"
               >
                 <Plus size={16} />
                 Add Phase
@@ -808,10 +808,10 @@ const ProductionPlanFormPage = () => {
 
           {/* New Phase Form */}
           {showStageForm && (
-            <div className="p-5 border-2 border-dashed border-purple-200 dark:border-purple-900/50 bg-purple-50/30 dark:bg-purple-900/10 rounded-xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-2 border-dashed border-purple-200 dark:border-purple-900/50 bg-purple-50/30 dark:bg-purple-900/10 rounded space-y-4 animate-in zoom-in-95 duration-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Phase Name</label>
+                  <label className="text-xs  text-slate-500 ">Phase Name</label>
                   <input
                     type="text"
                     name="stageName"
@@ -822,7 +822,7 @@ const ProductionPlanFormPage = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Type</label>
+                  <label className="text-xs  text-slate-500 ">Type</label>
                   <select
                     name="stageType"
                     value={newStage.stageType}
@@ -838,7 +838,7 @@ const ProductionPlanFormPage = () => {
               {newStage.stageType === 'in_house' && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase">Employee</label>
+                    <label className="text-xs  text-slate-500 ">Employee</label>
                     <select
                       name="assignedEmployeeId"
                       value={newStage.assignedEmployeeId}
@@ -854,7 +854,7 @@ const ProductionPlanFormPage = () => {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase">Facility</label>
+                    <label className="text-xs  text-slate-500 ">Facility</label>
                     <select
                       name="facilityId"
                       value={newStage.facilityId}
@@ -868,7 +868,7 @@ const ProductionPlanFormPage = () => {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase">Target Warehouse</label>
+                    <label className="text-xs  text-slate-500 ">Target Warehouse</label>
                     <select
                       name="targetWarehouse"
                       value={newStage.targetWarehouse}
@@ -886,7 +886,7 @@ const ProductionPlanFormPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Timeline</label>
+                  <label className="text-xs  text-slate-500 ">Timeline</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="date"
@@ -906,7 +906,7 @@ const ProductionPlanFormPage = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Notes</label>
+                  <label className="text-xs  text-slate-500 ">Notes</label>
                   <input
                     type="text"
                     name="notes"
@@ -922,14 +922,14 @@ const ProductionPlanFormPage = () => {
                 <button
                   type="button"
                   onClick={addStage}
-                  className="p-2 bg-purple-600 text-white rounded font-bold text-sm hover:bg-purple-700 transition-colors"
+                  className="p-2 bg-purple-600 text-white rounded  text-sm hover:bg-purple-700 transition-colors"
                 >
                   Confirm Phase
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowStageForm(false)}
-                  className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded  text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
                   Cancel
                 </button>
@@ -946,7 +946,7 @@ const ProductionPlanFormPage = () => {
               return (
                 <div 
                   key={stage.id} 
-                  className={`relative p-5 rounded-xl border-2 transition-all ${
+                  className={`relative p-5 rounded border-2 transition-all ${
                     isEditing 
                       ? 'border-purple-500 bg-purple-50/10' 
                       : isAuto
@@ -958,13 +958,13 @@ const ProductionPlanFormPage = () => {
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="flex-1 min-w-[240px]">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${
+                          <span className={`w-6 h-6 rounded  flex items-center justify-center text-[10px]  ${
                             isAuto ? 'bg-blue-500 text-white' : 'bg-slate-900 dark:bg-slate-700 text-white'
                           }`}>
                             {index + 1}
                           </span>
-                          <h5 className="font-bold text-slate-900 dark:text-white">{stage.stageName}</h5>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                          <h5 className=" text-slate-900 dark:text-white">{stage.stageName}</h5>
+                          <span className={`px-2 py-0.5 rounded text-[10px]   tracking-wider ${
                             stage.stageType === 'in_house' 
                               ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' 
                               : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
@@ -972,7 +972,7 @@ const ProductionPlanFormPage = () => {
                             {stage.stageType === 'in_house' ? 'In House' : 'Outsource'}
                           </span>
                           {isAuto && (
-                            <span className="flex items-center gap-1 text-[10px] font-bold text-blue-500 uppercase tracking-wider">
+                            <span className="flex items-center gap-1 text-[10px]  text-blue-500  tracking-wider">
                               <Zap size={10} fill="currentColor" />
                               Auto
                             </span>
@@ -981,25 +981,25 @@ const ProductionPlanFormPage = () => {
                         
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-[11px]">
                           <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-bold">Resources</span>
+                            <span className="text-slate-400  ">Resources</span>
                             <p className="font-medium text-slate-700 dark:text-slate-300">
                               {stage.assignedEmployeeId ? getEmployeeName(stage.assignedEmployeeId) : 'Unassigned'}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-bold">Facility</span>
+                            <span className="text-slate-400  ">Facility</span>
                             <p className="font-medium text-slate-700 dark:text-slate-300">
                               {stage.facilityId ? getFacilityName(stage.facilityId) : 'N/A'}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-bold">Timeline</span>
+                            <span className="text-slate-400  ">Timeline</span>
                             <p className="font-medium text-slate-700 dark:text-slate-300">
                               {stage.plannedStartDate} → {stage.plannedEndDate}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-bold">Target</span>
+                            <span className="text-slate-400  ">Target</span>
                             <p className="font-medium text-slate-700 dark:text-slate-300">
                               {stage.targetWarehouse || 'N/A'}
                             </p>
@@ -1011,7 +1011,7 @@ const ProductionPlanFormPage = () => {
                         <button
                           type="button"
                           onClick={() => startEditStage(stage)}
-                          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-600 transition-colors"
+                          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-500 transition-colors"
                         >
                           <Edit2 size={16} />
                         </button>
@@ -1047,14 +1047,14 @@ const ProductionPlanFormPage = () => {
                         <button
                           type="button"
                           onClick={saveEditedStage}
-                          className="px-4 py-1.5 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                          className="px-4 py-1.5 bg-purple-600 text-white rounded text-xs  hover:bg-purple-700"
                         >
                           Save Changes
                         </button>
                         <button
                           type="button"
                           onClick={cancelEditStage}
-                          className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded text-xs font-bold"
+                          className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded text-xs "
                         >
                           Cancel
                         </button>
@@ -1066,7 +1066,7 @@ const ProductionPlanFormPage = () => {
             })}
             
             {formData.stages.length === 0 && (
-              <div className="py-12 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center text-slate-400 gap-3">
+              <div className="py-12 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded flex flex-col items-center justify-center text-slate-400 gap-3">
                 <Activity size={32} strokeWidth={1.5} />
                 <p className="text-sm font-medium">No production phases defined yet</p>
               </div>
@@ -1975,26 +1975,26 @@ const ProductionPlanFormPage = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700 group"
+              className="p-2 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700 group"
             >
               <ArrowLeft size={20} className="text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white" />
             </button>
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider rounded border border-blue-100 dark:border-blue-800">
+                  <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px]   tracking-wider rounded border border-blue-100 dark:border-blue-800">
                     PP
                   </span>
                   <span className="text-slate-300 dark:text-slate-700">/</span>
-                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                  <span className="text-[10px]  text-slate-500 dark:text-slate-400  tracking-widest">
                     {id ? (isViewMode ? 'View Production Plan' : 'Edit Production Plan') : 'New Production Plan'}
                   </span>
                 </div>
-                <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider rounded border border-slate-200 dark:border-slate-700">
+                <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px]   tracking-wider rounded border border-slate-200 dark:border-slate-700">
                   {formData.procurementStatus?.toLowerCase() || 'draft'}
                 </span>
               </div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+              <h1 className="text-xl  text-slate-900 dark:text-white  ">
                 {id ? (isViewMode ? `Production Plan: ${formData.planName}` : `Edit Plan: ${formData.planName}`) : 'New Production Plan'}
               </h1>
             </div>
@@ -2005,7 +2005,7 @@ const ProductionPlanFormPage = () => {
               <button
                 type="button"
                 onClick={() => setIsViewMode(false)}
-                className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 shadow-lg shadow-purple-600/20 transition-all text-sm"
+                className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded bg-purple-600 text-white  hover:bg-purple-700 shadow-lg shadow-purple-600/20 transition-all text-sm"
               >
                 <Edit2 size={18} />
                 Edit Plan
@@ -2015,14 +2015,14 @@ const ProductionPlanFormPage = () => {
                 <button
                   type="button"
                   onClick={() => id ? setIsViewMode(true) : navigate(-1)}
-                  className="text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-white transition-all text-sm px-2"
+                  className="text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-white transition-all text-sm px-2"
                 >
                   {id ? 'Cancel Editing' : 'Discard Changes'}
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs bg-slate-900 dark:bg-slate-700 text-white font-bold hover:bg-black dark:hover:bg-slate-800 disabled:bg-slate-400 transition-all text-xs border border-slate-800 dark:border-slate-600 shadow-sm"
+                  className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs bg-slate-900 dark:bg-slate-700 text-white  hover:bg-black dark:hover:bg-slate-800 disabled:bg-slate-400 transition-all text-xs border border-slate-800 dark:border-slate-600 shadow-sm"
                 >
                   {loading ? (
                     <Loader2 size={14} className="animate-spin" />
@@ -2037,14 +2037,14 @@ const ProductionPlanFormPage = () => {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-red-700 dark:text-red-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
             <AlertCircle size={18} />
             <p className="text-sm font-medium">{error}</p>
           </div>
         )}
         
         {success && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-green-700 dark:text-green-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
             <CheckCircle size={18} />
             <p className="text-sm font-medium">{success}</p>
           </div>
@@ -2065,7 +2065,7 @@ const ProductionPlanFormPage = () => {
                   const el = document.getElementById(`section-${tab.id}`);
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className="flex items-center gap-2 p-2 text-[10px] font-black transition-all border-b-2 border-transparent hover:text-purple-600 text-slate-500 uppercase tracking-widest"
+                className="flex items-center gap-2 p-2 text-[10px]  transition-all border-b-2 border-transparent hover:text-purple-600 text-slate-500  tracking-widest"
               >
                 <span className="opacity-40">{tab.num}</span>
                 <tab.icon size={14} />
@@ -2073,7 +2073,7 @@ const ProductionPlanFormPage = () => {
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-bold rounded-md hover:bg-indigo-700 transition-all uppercase tracking-wider shadow-sm">
+          <button className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-[10px]  rounded-md hover:bg-indigo-700 transition-all  tracking-wider shadow-sm">
             <Activity size={14} />
             Production Progress
             <ChevronDown size={14} />
@@ -2102,9 +2102,9 @@ const ProductionPlanFormPage = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
             <div className="flex items-center gap-8 w-full md:w-auto">
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Plan Status</span>
+                <span className="text-[10px]   text-slate-400 tracking-wider">Plan Status</span>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded border border-slate-200 dark:border-slate-700">
+                  <span className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-[10px]  rounded border border-slate-200 dark:border-slate-700">
                     {formData.procurementStatus || 'Draft'}
                   </span>
                   <span className="text-slate-400 text-xs font-medium">{formData.procurementStatus || 'Draft'}</span>
@@ -2112,8 +2112,8 @@ const ProductionPlanFormPage = () => {
               </div>
               <div className="h-10 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Materials</span>
-                <span className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                <span className="text-[10px]   text-slate-400 tracking-wider">Materials</span>
+                <span className="text-sm  text-slate-900 dark:text-white mt-0.5">
                   {materials?.length || 0} Items Calculated
                 </span>
               </div>
@@ -2123,7 +2123,7 @@ const ProductionPlanFormPage = () => {
               <button 
                 onClick={handleCreateWorkOrderAction}
                 disabled={loading || generatingWorkOrders || (!formData.salesOrderId && !formData.rootCardId)}
-                className="inline-flex items-center gap-2 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs font-bold hover:bg-black transition-all shadow-md disabled:bg-slate-400"
+                className="inline-flex items-center gap-2 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs  hover:bg-black transition-all  disabled:bg-slate-400"
               >
                 {generatingWorkOrders ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -2140,7 +2140,7 @@ const ProductionPlanFormPage = () => {
                   console.log('planId:', id || planId);
                   setShowMaterialRequestModal(true);
                 }}
-                className="inline-flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-300 text-xs font-bold  transition-all shadow-sm"
+                className="inline-flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-300 text-xs   transition-all shadow-sm"
               >
                 <Package size={14} className="text-blue-500" />
                 Material Request
@@ -2149,7 +2149,7 @@ const ProductionPlanFormPage = () => {
               <button 
                 onClick={handleSubmit}
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded font-bold  transition-all text-xs border border-slate-800 hover:bg-black dark:border-slate-600 shadow-md"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded   transition-all text-xs border border-slate-800 hover:bg-black dark:border-slate-600 "
                 
               >
                 {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}

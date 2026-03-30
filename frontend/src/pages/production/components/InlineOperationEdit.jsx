@@ -59,13 +59,13 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
   return (
     <div className="col-span-12 mt-2 mb-4 animate-in slide-in-from-top-2 duration-200">
-      <div className="bg-blue-50/50 border-2 border-blue-200 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-blue-50/50 border-2 border-blue-200 rounded overflow-hidden shadow-sm">
         <div className="bg-blue-600 p-2 flex items-center justify-between">
           <div className="flex items-center gap-2 text-white">
             <div className="p-1 bg-white/20 rounded-md">
               <Activity size={14} />
             </div>
-            <span className="text-xs font-bold uppercase tracking-wider">Modify Operational Step</span>
+            <span className="text-xs   tracking-wider">Modify Operational Step</span>
             <span className="text-[10px] opacity-70 font-mono">JC-{operation.id}</span>
           </div>
           <button 
@@ -80,12 +80,12 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Operation */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Operation</label>
+              <label className="block text-[10px]  text-slate-400  mb-1">Operation</label>
               <div className="relative group">
                 <Activity size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   value={formData.operationName}
                   onChange={(e) => setFormData({ ...formData, operationName: e.target.value })}
                   required
@@ -95,11 +95,11 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Workstation */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Workstation</label>
+              <label className="block text-[10px]  text-slate-400  mb-1">Workstation</label>
               <div className="relative">
                 <Layers size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <select
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   value={formData.workstation}
                   onChange={(e) => setFormData({ ...formData, workstation: e.target.value })}
                 >
@@ -113,9 +113,9 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Status */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
+              <label className="block text-[10px]  text-slate-400  mb-1">Status</label>
               <select
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
@@ -128,9 +128,9 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Type */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Type</label>
+              <label className="block text-[10px]  text-slate-400  mb-1">Type</label>
               <select
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value, operatorId: e.target.value === 'outsource' ? '' : formData.operatorId })}
               >
@@ -142,11 +142,11 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
             {/* Vendor (Shows for Outsource) */}
             {formData.type === 'outsource' && (
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Vendor</label>
+                <label className="block text-[10px]  text-slate-400  mb-1">Vendor</label>
                 <div className="relative">
                   <Users size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <select
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-indigo-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-indigo-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     value={formData.vendorId}
                     onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
                     required
@@ -163,11 +163,11 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
             {/* Operator (Shows for In-House) */}
             {formData.type === 'in-house' && (
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Operator</label>
+                <label className="block text-[10px]  text-slate-400  mb-1">Operator</label>
                 <div className="relative">
                   <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <select
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     value={formData.operatorId}
                     onChange={(e) => setFormData({ ...formData, operatorId: e.target.value })}
                   >
@@ -184,12 +184,12 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Planned Qty */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Planned Qty</label>
+              <label className="block text-[10px]  text-slate-400  mb-1">Planned Qty</label>
               <div className="relative">
                 <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="number"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs "
                   value={formData.plannedQty}
                   disabled
                 />
@@ -198,27 +198,27 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Produced Qty */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Produced Qty</label>
+              <label className="block text-[10px]  text-slate-400  mb-1">Produced Qty</label>
               <div className="relative">
                 <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="number"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   value={formData.producedQty}
                   onChange={(e) => setFormData({ ...formData, producedQty: e.target.value })}
                 />
               </div>
-              <p className="text-[9px] text-emerald-600 font-bold mt-1">Limit: {formData.plannedQty}.00</p>
+              <p className="text-[9px] text-emerald-600  mt-1">Limit: {formData.plannedQty}.00</p>
             </div>
 
             {/* Start Date */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Start Date</label>
+              <label className="block text-[10px]  text-slate-400  mb-1">Start Date</label>
               <div className="relative">
                 <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="date"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   value={formData.plannedStartDate}
                   onChange={(e) => setFormData({ ...formData, plannedStartDate: e.target.value })}
                 />
@@ -227,12 +227,12 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* End Date */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">End Date</label>
+              <label className="block text-[10px]  text-slate-400  mb-1">End Date</label>
               <div className="relative">
                 <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="date"
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   value={formData.plannedEndDate}
                   onChange={(e) => setFormData({ ...formData, plannedEndDate: e.target.value })}
                 />
@@ -244,7 +244,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
              <button
                 type="button"
                 onClick={() => onDelete(operation.id)}
-                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 rounded text-xs font-bold transition-all"
+                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 rounded text-xs  transition-all"
               >
                 <Trash2 size={14} />
                 Delete Step
@@ -254,17 +254,17 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="p-2 text-xs font-bold text-slate-500 hover:text-slate-700 hover:bg-white rounded transition-all"
+                  className="p-2 text-xs  text-slate-500 hover:text-slate-700 hover:bg-white rounded transition-all"
                 >
                   Discard
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white text-xs font-bold rounded hover:bg-blue-700 transition-all shadow-md shadow-blue-200 disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white text-xs  rounded hover:bg-blue-700 transition-all  shadow-blue-200 disabled:opacity-50"
                 >
                   {loading ? (
-                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded  animate-spin" />
                   ) : (
                     <Check size={14} />
                   )}

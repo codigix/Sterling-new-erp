@@ -90,7 +90,7 @@ const ProductionTab = ({ production }) => {
       case "Critical Delay":
         return "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-400";
       default:
-        return "text-slate-600 bg-slate-100 dark: dark:text-slate-400";
+        return "text-slate-500 bg-slate-100 dark: dark:text-slate-400";
     }
   };
 
@@ -105,7 +105,7 @@ const ProductionTab = ({ production }) => {
       case "Low":
         return "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400";
       default:
-        return "text-slate-600 bg-slate-100 dark: dark:text-slate-400";
+        return "text-slate-500 bg-slate-100 dark: dark:text-slate-400";
     }
   };
 
@@ -124,10 +124,10 @@ const ProductionTab = ({ production }) => {
                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   On Track
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   12
                 </p>
               </div>
@@ -142,10 +142,10 @@ const ProductionTab = ({ production }) => {
                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Delayed
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   8
                 </p>
               </div>
@@ -160,10 +160,10 @@ const ProductionTab = ({ production }) => {
                 <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Critical
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   3
                 </p>
               </div>
@@ -178,10 +178,10 @@ const ProductionTab = ({ production }) => {
                 <Timer className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Avg Delay
                 </p>
-                <p className="text-xl font-bold  text-left">
+                <p className="text-xl   text-left">
                   5.2 days
                 </p>
               </div>
@@ -213,13 +213,13 @@ const ProductionTab = ({ production }) => {
                       {item.status}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
                     {item.stage}
                   </p>
                   <div className="flex items-center text-xs mb-2">
-                    <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 mr-4">
+                    <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded  h-2 mr-4">
                       <div
-                        className={`h-2 rounded-full ${
+                        className={`h-2 rounded  ${
                           item.status === "On Track"
                             ? "bg-green-500"
                             : item.status === "Delayed"
@@ -229,7 +229,7 @@ const ProductionTab = ({ production }) => {
                         style={{ width: `${item.progress}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm text-slate-600 dark:text-slate-400">
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
                       {item.progress}%
                     </span>
                   </div>
@@ -303,15 +303,15 @@ const ProductionTab = ({ production }) => {
                         {bottleneck.impact}
                       </Badge>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       {bottleneck.count} occurrences •{" "}
                       {bottleneck.affectedProjects} projects affected
                     </p>
                   </div>
                   <div className="ml-4">
-                    <div className="w-16 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                    <div className="w-16 bg-slate-200 dark:bg-slate-700 rounded  h-2">
                       <div
-                        className={`h-2 rounded-full ${
+                        className={`h-2 rounded  ${
                           bottleneck.impact === "Critical"
                             ? "bg-red-500"
                             : bottleneck.impact === "High"

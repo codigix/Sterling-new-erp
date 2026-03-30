@@ -90,7 +90,7 @@ const StockMovementsPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <RefreshCw size={40} className="text-blue-600 animate-spin" />
-        <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Syncing Ledger Records...</p>
+        <p className="text-xs  text-slate-400  tracking-[0.2em]">Syncing Ledger Records...</p>
       </div>
     );
   }
@@ -111,11 +111,11 @@ const StockMovementsPage = () => {
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Inventory</span>
-              <span className="text-slate-300 dark:text-slate-600">›</span>
-              <span className="text-xs font-bold text-slate-900 dark:text-slate-400 uppercase tracking-widest">Stock Ledger</span>
+              <span className="text-xs  text-slate-500  tracking-widest">Inventory</span>
+              <span className="text-slate-300 dark:text-slate-500">›</span>
+              <span className="text-xs  text-slate-900 dark:text-slate-400  tracking-widest">Stock Ledger</span>
             </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl  text-slate-900 dark:text-white ">
               Material Movements
             </h1>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -126,7 +126,7 @@ const StockMovementsPage = () => {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-3"
+            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs  tracking-widest transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-3"
           >
             <Plus size={18} /> Add Entry
           </button>
@@ -137,12 +137,12 @@ const StockMovementsPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, idx) => (
           <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
-            <div className={`p-3 rounded-xl bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600`}>
+            <div className={`p-3 rounded bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600`}>
                <stat.icon size={24} />
             </div>
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{stat.label}</p>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white leading-none tracking-tight">{stat.value}</h3>
+              <p className="text-[10px]  text-slate-400  tracking-widest mb-0.5">{stat.label}</p>
+              <h3 className="text-xl  text-slate-900 dark:text-white leading-none ">{stat.value}</h3>
             </div>
           </div>
         ))}
@@ -152,7 +152,7 @@ const StockMovementsPage = () => {
       <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
         <div className="flex flex-col lg:flex-row items-end gap-6">
           <div className="flex-1 w-full space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Search Parameters</label>
+            <label className="text-[10px]  text-slate-400  tracking-widest ml-1">Search Parameters</label>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input
@@ -166,11 +166,11 @@ const StockMovementsPage = () => {
           </div>
 
           <div className="w-full lg:w-48 space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date Range</label>
+            <label className="text-[10px]  text-slate-400  tracking-widest ml-1">Date Range</label>
             <div className="relative">
               <input
                 type="date"
-                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold outline-none"
+                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs  outline-none"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
@@ -178,12 +178,12 @@ const StockMovementsPage = () => {
           </div>
 
           <div className="flex gap-2 w-full lg:w-auto">
-            <button className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-3.5 bg-slate-900 dark:bg-slate-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10">
+            <button className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-3.5 bg-slate-900 dark:bg-slate-700 text-white rounded-2xl  text-xs  tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10">
               <Filter size={16} /> Apply Filter
             </button>
             <button 
               onClick={fetchStockMovements}
-              className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-500 hover:text-blue-600 transition-all hover:shadow-md"
+              className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-500 hover:text-blue-600 transition-all hover:"
             >
               <RefreshCw size={20} />
             </button>
@@ -197,14 +197,14 @@ const StockMovementsPage = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-12 text-center"></th>
-                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Movement Log</th>
-                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Material Identity</th>
-                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Project & Vendor Context</th>
-                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Type</th>
-                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Quantity</th>
-                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference</th>
-                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest w-12 text-center"></th>
+                <th className="px-8 py-5 text-[10px]  text-slate-400  tracking-widest">Movement Log</th>
+                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest">Material Identity</th>
+                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest">Project & Vendor Context</th>
+                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest text-center">Type</th>
+                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest text-right">Quantity</th>
+                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest">Reference</th>
+                <th className="px-8 py-5 text-[10px]  text-slate-400  tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -225,16 +225,16 @@ const StockMovementsPage = () => {
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <Calendar size={12} className="text-slate-400" />
-                            <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{m.date}</p>
+                            <p className="text-xs  text-slate-900 dark:text-white  ">{m.date}</p>
                           </div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{m.reference_type}</p>
+                          <p className="text-[9px]  text-slate-400  tracking-[0.2em]">{m.reference_type}</p>
                         </div>
                       </td>
                       <td className="px-6 py-6">
                         <div className="space-y-1">
-                          <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight line-clamp-1">{m.material_name}</p>
+                          <p className="text-sm  text-slate-900 dark:text-white   line-clamp-1">{m.material_name}</p>
                           <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 font-mono">
+                            <span className="text-[9px]  text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 font-mono">
                               {m.item_code}
                             </span>
                           </div>
@@ -244,20 +244,20 @@ const StockMovementsPage = () => {
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-2">
                             <ShieldCheck size={14} className="text-indigo-500" />
-                            <p className="font-black text-slate-900 dark:text-white text-[10px] uppercase tracking-tight leading-tight line-clamp-1">
+                            <p className=" text-slate-900 dark:text-white text-[10px]   leading-tight line-clamp-1">
                               {m.project_name || "GENERAL PROJECT STOCK"}
                             </p>
                           </div>
                           <div className="flex items-center gap-2 ml-5">
                              <Zap size={10} className="text-slate-300" />
-                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[150px]">
+                             <p className="text-[10px]  text-slate-400  tracking-widest truncate max-w-[150px]">
                                {m.vendor_name || "N/A"}
                              </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-6 text-center">
-                        <span className={`px-3 py-1.5 rounded font-black text-[10px] uppercase tracking-widest border ${
+                        <span className={`px-3 py-1.5 rounded  text-[10px]  tracking-widest border ${
                           m.type === 'IN' 
                             ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                             : 'bg-red-50 text-red-600 border-red-100'
@@ -267,15 +267,15 @@ const StockMovementsPage = () => {
                       </td>
                       <td className="px-6 py-6 text-right">
                         <div className="flex flex-col items-end">
-                          <span className={`text-sm font-black tracking-tight ${m.type === 'IN' ? 'text-emerald-600' : 'text-red-600'}`}>
+                          <span className={`text-sm   ${m.type === 'IN' ? 'text-emerald-600' : 'text-red-600'}`}>
                             {m.type === 'IN' ? '+' : '-'}{Number(m.quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })}
                           </span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{m.uom}</span>
+                          <span className="text-[9px]  text-slate-400  tracking-widest">{m.uom}</span>
                         </div>
                       </td>
                       <td className="px-6 py-6">
                         <div className="space-y-1">
-                          <p className="text-[10px] font-black text-indigo-600 uppercase tracking-tight bg-indigo-50 px-2 py-1 rounded border border-indigo-100 w-fit">
+                          <p className="text-[10px]  text-indigo-600   bg-indigo-50 px-2 py-1 rounded border border-indigo-100 w-fit">
                              {m.reference_no}
                           </p>
                           <p className="text-[10px] text-slate-400 italic font-medium truncate max-w-[150px] ml-1">
@@ -298,10 +298,10 @@ const StockMovementsPage = () => {
                         <td colSpan="8" className="px-12 py-8">
                           <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden animate-in slide-in-from-top-4 duration-300">
                              <div className="px-8 py-4 border-b border-slate-50 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <h4 className="text-[10px]  text-slate-400  tracking-widest flex items-center gap-2">
                                   <Boxes size={14} /> Tracking Serial Numbers (ST Codes)
                                 </h4>
-                                <div className="text-[10px] font-bold text-slate-500 bg-white dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-100 dark:border-slate-700">
+                                <div className="text-[10px]  text-slate-500 bg-white dark:bg-slate-900 px-3 py-1 rounded  border border-slate-100 dark:border-slate-700">
                                   {m.serials?.length || 0} items moved in this transaction
                                 </div>
                              </div>
@@ -310,25 +310,25 @@ const StockMovementsPage = () => {
                                <table className="w-full text-left text-xs">
                                  <thead>
                                    <tr className="bg-slate-50/30 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700">
-                                     <th className="px-8 py-3 font-black text-slate-400 uppercase tracking-widest w-16 text-center">#</th>
-                                     <th className="px-6 py-3 font-black text-slate-400 uppercase tracking-widest">Item Code</th>
-                                     <th className="px-6 py-3 font-black text-slate-400 uppercase tracking-widest">Item Name</th>
-                                     <th className="px-6 py-3 font-black text-indigo-500 uppercase tracking-widest text-right">ST Number</th>
+                                     <th className="px-8 py-3  text-slate-400  tracking-widest w-16 text-center">#</th>
+                                     <th className="px-6 py-3  text-slate-400  tracking-widest">Item Code</th>
+                                     <th className="px-6 py-3  text-slate-400  tracking-widest">Item Name</th>
+                                     <th className="px-6 py-3  text-indigo-500  tracking-widest text-right">ST Number</th>
                                    </tr>
                                  </thead>
                                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700 font-medium">
                                    {m.serials && m.serials.length > 0 ? (
                                      m.serials.map((st, sIdx) => (
                                        <tr key={sIdx} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors">
-                                         <td className="px-8 py-4 text-slate-400 font-bold text-center">{sIdx + 1}</td>
-                                         <td className="p-2 font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight">
+                                         <td className="px-8 py-4 text-slate-400  text-center">{sIdx + 1}</td>
+                                         <td className="p-2  text-slate-700 dark:text-slate-300  ">
                                            {st.serial_number.replace(/^ST-/, "")}
                                          </td>
-                                         <td className="p-2 text-slate-600 dark:text-slate-400 uppercase tracking-tight">
+                                         <td className="p-2 text-slate-500 dark:text-slate-400  ">
                                            {m.material_name}
                                          </td>
                                          <td className="p-2 text-right">
-                                           <span className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-[10px] font-black uppercase tracking-tight border border-indigo-100 dark:border-indigo-800">
+                                           <span className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-[10px]    border border-indigo-100 dark:border-indigo-800">
                                              {st.serial_number}
                                            </span>
                                          </td>
@@ -336,7 +336,7 @@ const StockMovementsPage = () => {
                                      ))
                                    ) : (
                                      <tr>
-                                       <td colSpan="4" className="px-8 py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                       <td colSpan="4" className="px-8 py-12 text-center text-slate-400   tracking-widest text-[10px]">
                                          No individual serial tracking records for this movement
                                        </td>
                                      </tr>
@@ -357,7 +357,7 @@ const StockMovementsPage = () => {
                     <div className="flex flex-col items-center gap-4 text-slate-400">
                       <FileText size={48} className="opacity-10" />
                       <div className="space-y-1">
-                        <p className="text-sm font-black uppercase tracking-widest">No movements recorded</p>
+                        <p className="text-sm   tracking-widest">No movements recorded</p>
                         <p className="text-xs font-medium">Synchronize ledger to see live transactions</p>
                       </div>
                     </div>

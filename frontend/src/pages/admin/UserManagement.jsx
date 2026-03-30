@@ -3,6 +3,7 @@ import axios from '../../utils/api';
 import Button from '../../components/ui/Button';
 import Card, { CardContent } from '../../components/ui/Card';
 import DataTable from '../../components/ui/DataTable/DataTable';
+import Select from '../../components/ui/Select';
 import {
   Plus,
   Edit2,
@@ -203,7 +204,7 @@ const UserManagement = () => {
       label: 'Email',
       sortable: true,
       render: (value) => (
-        <span className="text-slate-600 dark:text-slate-400 text-sm">
+        <span className="text-slate-500 dark:text-slate-400 text-sm">
           {value || 'N/A'}
         </span>
       ),
@@ -223,7 +224,7 @@ const UserManagement = () => {
       label: 'Created',
       sortable: true,
       render: (value) => (
-        <span className="text-xs text-slate-600 dark:text-slate-400">
+        <span className="text-xs text-slate-500 dark:text-slate-400">
           {value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
         </span>
       ),
@@ -266,10 +267,10 @@ const UserManagement = () => {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-bold  text-left">
+          <h1 className="text-xl   text-left">
             User Management
           </h1>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 text-left">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 text-left">
             Create and manage system users and their roles
           </p>
         </div>
@@ -287,11 +288,11 @@ const UserManagement = () => {
         <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded p-4 border border-blue-100 dark:border-blue-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Total Users
               </p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold  text-left">
+                <span className="text-xl   text-left">
                   {userStats.total}
                 </span>
               </div>
@@ -303,11 +304,11 @@ const UserManagement = () => {
         <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded p-4 border border-green-100 dark:border-green-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Active Users
               </p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold  text-left">
+                <span className="text-xl   text-left">
                   {userStats.active}
                 </span>
               </div>
@@ -319,11 +320,11 @@ const UserManagement = () => {
         <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded p-4 border border-red-100 dark:border-red-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Admins
               </p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold  text-left">
+                <span className="text-xl   text-left">
                   {userStats.admins}
                 </span>
               </div>
@@ -335,11 +336,11 @@ const UserManagement = () => {
         <div className="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 rounded p-4 border border-cyan-100 dark:border-cyan-800 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide text-left">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Roles Available
               </p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold  text-left">
+                <span className="text-xl   text-left">
                   {roles.length}
                 </span>
               </div>
@@ -363,18 +364,19 @@ const UserManagement = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <select
-              className="px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-sm  dark: focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-            >
-              <option value="">All Roles</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
+            <div className="min-w-[200px] -mt-3">
+              <Select
+                placeholder="All Roles"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -457,24 +459,21 @@ const UserManagement = () => {
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-sm font-medium  dark: mb-1.5">
-                    Role <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-sm  dark: focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <div className="-mt-3">
+                  <Select
+                    label="Role"
                     name="roleId"
                     value={formData.roleId}
                     onChange={handleInputChange}
+                    placeholder="Select a role..."
                     required
                   >
-                    <option value="">Select a role...</option>
                     {roles.map((role) => (
                       <option key={role.id} value={role.id}>
                         {role.name}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
                 <div>

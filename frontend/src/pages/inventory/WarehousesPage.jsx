@@ -147,7 +147,7 @@ const WarehousesPage = () => {
             <Warehouse className="text-amber-600 dark:text-amber-400" size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Warehouses</h1>
+            <h1 className="text-2xl  text-slate-900 dark:text-white">Warehouses</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Manage storage locations and inventory warehouses
             </p>
@@ -156,7 +156,7 @@ const WarehousesPage = () => {
         <div className="flex items-center gap-3">
           <button 
             onClick={fetchWarehouses}
-            className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50 transition-colors"
           >
             <RefreshCw size={18} />
           </button>
@@ -171,7 +171,7 @@ const WarehousesPage = () => {
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-6 flex flex-col md:flex-row gap-4 items-center">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-4 mb-6 flex flex-col md:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
@@ -185,7 +185,7 @@ const WarehousesPage = () => {
         <div className="flex gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-48">
             <select
-              className="w-full appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-600 dark:text-slate-300"
+              className="w-full appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-500 dark:text-slate-300"
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
             >
@@ -209,7 +209,7 @@ const WarehousesPage = () => {
               <LayoutGrid size={20} />
             </button>
           </div>
-          <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50">
+          <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
             <LayoutGrid size={18} />
             Columns
           </button>
@@ -221,27 +221,27 @@ const WarehousesPage = () => {
           <RefreshCw className="animate-spin text-amber-600" size={32} />
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Code</th>
-                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Type</th>
-                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Location</th>
-                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Capacity</th>
-                <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider">Code</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider">Name</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider">Type</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider">Location</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider">Capacity</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
               {filteredWarehouses.length > 0 ? (
                 filteredWarehouses.map((wh) => (
                   <tr key={wh.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                    <td className="p-2 text-sm font-medium text-slate-900 dark:text-white uppercase">{wh.code}</td>
-                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400 font-medium">{wh.name}</td>
-                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">{wh.type}</td>
-                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">{wh.location}</td>
-                    <td className="p-2 text-sm text-slate-600 dark:text-slate-400">{wh.storage_capacity}</td>
+                    <td className="p-2 text-sm font-medium text-slate-900 dark:text-white ">{wh.code}</td>
+                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400 font-medium">{wh.name}</td>
+                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">{wh.type}</td>
+                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">{wh.location}</td>
+                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">{wh.storage_capacity}</td>
                     <td className="p-2 text-right">
                       <div className="flex justify-end gap-2">
                         <button 
@@ -279,13 +279,13 @@ const WarehousesPage = () => {
                 <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded">
                   <Warehouse className="text-amber-600 dark:text-amber-400" size={20} />
                 </div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-xl  text-slate-900 dark:text-white">
                   {editingId ? "Edit Warehouse" : "Create New Warehouse"}
                 </h2>
               </div>
               <button 
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded  transition-colors"
               >
                 <X size={20} className="text-slate-500" />
               </button>

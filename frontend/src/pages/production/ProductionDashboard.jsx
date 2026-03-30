@@ -109,30 +109,30 @@ const ProductionDashboard = () => {
   ];
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 p-4">
       {/* Page Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Production Dashboard</h1>
-          <p className="text-slate-600 dark:text-slate-400 text-xs">Overview of manufacturing activities and performance</p>
+          <h1 className="text-xl  text-slate-900 dark:text-white">Production Dashboard</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs">Overview of manufacturing activities and performance</p>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <div
               key={stat.title}
-              className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700  transition-shadow"
+              className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700  transition-shadow"
             >
               <div className="flex items-center text-xs justify-between">
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  <p className="text-sm  text-slate-500 dark:text-slate-400">
                     {stat.title}
                   </p>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-2">
+                  <p className="text-xl  text-slate-900 dark:text-white  mt-2">
                     {stat.value}
                   </p>
                   <p
@@ -143,7 +143,7 @@ const ProductionDashboard = () => {
                     {stat.positive ? "↑" : "↓"} {stat.change}
                   </p>
                 </div>
-                <Icon size={32} className="text-blue-500" />
+                <Icon size={20} className="text-blue-500" />
               </div>
             </div>
           );
@@ -151,28 +151,28 @@ const ProductionDashboard = () => {
       </div>
 
       {/* Assigned Production Planning Tasks Section */}
-      <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white text-xs flex items-center gap-2">
-            <Clock size={20} className="text-blue-600" />
+      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700 ">
+        <div className="flex items-center justify-between ">
+          <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2">
+            <Clock size={15} className="text-blue-600" />
             Assigned Root Cards (Production Planning)
           </h2>
         </div>
 
         {loadingTasks ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="animate-spin text-blue-600" size={32} />
+          <div className="flex justify-center p-2">
+            <Loader2 className="animate-spin text-blue-600" size={15} />
           </div>
         ) : departmentTasks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 mt-3 lg:grid-cols-3 gap-2">
             {departmentTasks.slice(0, 6).map((task) => (
               <div
                 key={task.id}
-                className="border border-slate-200 dark:border-slate-700 rounded p-4 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
+                className="border border-slate-200 dark:border-slate-700 rounded p-2 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1">
+                    <h4 className=" text-sm text-slate-900 dark:text-white line-clamp-1">
                       {task.rootCard?.title || task.title}
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -180,7 +180,7 @@ const ProductionDashboard = () => {
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-1 text-[10px] font-bold rounded-full uppercase ${
+                    className={`p-1 text-xs  rounded  ${
                       task.status === "pending"
                         ? "bg-amber-100 text-amber-700"
                         : "bg-blue-100 text-blue-700"
@@ -195,7 +195,7 @@ const ProductionDashboard = () => {
                   </span>
                   <Link
                     to={`/department/production/root-cards/${task.rootCard?.id || task.rootCardId}`}
-                    className="text-xs font-bold text-blue-600 hover:text-blue-700"
+                    className="text-xs  text-blue-600 hover:text-blue-700"
                   >
                     View Card →
                   </Link>
@@ -204,9 +204,9 @@ const ProductionDashboard = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-700">
-            <Package className="mx-auto text-slate-300 mb-2" size={40} />
-            <p className="text-slate-500 dark:text-slate-400 font-medium">
+          <div className="text-center p-2 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-700">
+            <Package className="mx-auto text-slate-300 mb-2" size={15} />
+            <p className="text-slate-500 dark:text-slate-400 ">
               No active production planning tasks assigned.
             </p>
           </div>
@@ -214,42 +214,42 @@ const ProductionDashboard = () => {
       </div>
 
       {/* Active Production Plans Overview */}
-      <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Target size={20} className="text-blue-600" />
+          <h2 className="text-md text-slate-900 dark:text-white flex items-center gap-2">
+            <Target size={15} className="text-blue-600" />
             Active Production Plans
           </h2>
           <Link
             to="/department/production/plans"
-            className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+            className="text-xs  text-blue-600 hover:text-blue-700 flex items-center gap-1"
           >
             Manage All <ChevronRight size={14} />
           </Link>
         </div>
         
         {loadingPlans ? (
-          <div className="flex justify-center py-6">
-            <Loader2 className="animate-spin text-blue-600" size={24} />
+          <div className="flex justify-center p-2">
+            <Loader2 className="animate-spin text-blue-600" size={15} />
           </div>
         ) : plans.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {plans.filter(p => p.status !== 'completed').slice(0, 3).map((plan, idx) => (
               <div
                 key={plan.id}
-                className="border-l-4 border-blue-500 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl hover:shadow-md transition-all"
+                className="border-l-4 border-blue-500 bg-slate-50 dark:bg-slate-900/50 p-2 rounded hover: transition-all"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-slate-900 dark:text-white truncate">
+                    <p className=" text-slate-900 dark:text-white truncate">
                       {plan.plan_name}
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1 uppercase font-semibold">
+                    <p className="text-[10px] text-slate-500 mt-1  font-semibold">
                       {plan.product_name || "Multiple Products"}
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-0.5 text-[10px] rounded-full font-bold uppercase ${
+                    className={`px-2 py-0.5 text-[10px] rounded    ${
                       plan.status === "in_progress"
                         ? "bg-blue-100 text-blue-700"
                         : plan.status === "delayed"
@@ -262,13 +262,13 @@ const ProductionDashboard = () => {
                 </div>
                 
                 <div className="mt-4 space-y-2">
-                  <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                  <div className="flex justify-between text-[10px]  text-slate-500">
                     <span>PROGRESS</span>
                     <span>{plan.progress_percentage || 0}%</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1.5 overflow-hidden">
                     <div
-                      className={`h-full rounded-full ${plan.status === 'delayed' ? 'bg-red-500' : 'bg-blue-600'}`}
+                      className={`h-full rounded  ${plan.status === 'delayed' ? 'bg-red-500' : 'bg-blue-600'}`}
                       style={{ width: `${plan.progress_percentage || 0}%` }}
                     ></div>
                   </div>
@@ -281,7 +281,7 @@ const ProductionDashboard = () => {
                   </div>
                   <Link
                     to={`/department/production/plans/${plan.id}`}
-                    className="text-[10px] font-bold text-blue-600 hover:text-blue-700"
+                    className="text-[10px]  text-blue-600 hover:text-blue-700"
                   >
                     DETAILS
                   </Link>
@@ -290,23 +290,23 @@ const ProductionDashboard = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
+          <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-800">
             <Package className="mx-auto text-slate-300 mb-2" size={32} />
-            <p className="text-sm text-slate-500 font-medium">No active production plans.</p>
+            <p className="text-sm text-slate-500 ">No active production plans.</p>
           </div>
         )}
       </div>
 
       {/* Recent Work Orders Overview */}
-      <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2">
             <FileText size={20} className="text-indigo-600" />
             Recent Work Orders
           </h2>
           <Link
             to="/department/production/work-orders"
-            className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+            className="text-xs  text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
           >
             All Orders <ChevronRight size={14} />
           </Link>
@@ -314,33 +314,33 @@ const ProductionDashboard = () => {
         
         {loadingWorkOrders ? (
           <div className="flex justify-center py-6">
-            <Loader2 className="animate-spin text-indigo-600" size={24} />
+            <Loader2 className="animate-spin text-indigo-600" size={15} />
           </div>
         ) : workOrders.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700">
-                  <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order ID</th>
-                  <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Item Name</th>
-                  <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Qty</th>
-                  <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="pb-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">Action</th>
+                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider">Order ID</th>
+                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider">Item Name</th>
+                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider text-center">Qty</th>
+                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider">Status</th>
+                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                 {workOrders.slice(0, 5).map((order) => (
                   <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
-                    <td className="py-4 text-xs font-bold text-slate-900 dark:text-white">{order.work_order_no}</td>
+                    <td className="py-4 text-xs  text-slate-900 dark:text-white">{order.work_order_no}</td>
                     <td className="py-4">
-                      <p className="text-xs font-bold text-slate-700 dark:text-slate-300 line-clamp-1">{order.item_name}</p>
-                      <p className="text-[10px] text-slate-400 uppercase">{order.project_name || 'Stock'}</p>
+                      <p className="text-xs  text-slate-700 dark:text-slate-300 line-clamp-1">{order.item_name}</p>
+                      <p className="text-[10px] text-slate-400 ">{order.project_name || 'Stock'}</p>
                     </td>
-                    <td className="py-4 text-center text-xs font-bold text-slate-600 dark:text-slate-400">
+                    <td className="py-4 text-center text-xs  text-slate-500 dark:text-slate-400">
                       {order.quantity} {order.unit}
                     </td>
                     <td className="py-4">
-                      <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase border ${
+                      <span className={`px-2 py-0.5 text-[9px]  rounded   border ${
                         order.status === 'completed' ? 'bg-green-50 text-green-600 border-green-100' :
                         order.status === 'in_progress' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                         'bg-slate-50 text-slate-500 border-slate-200'
@@ -351,7 +351,7 @@ const ProductionDashboard = () => {
                     <td className="py-4 text-right">
                       <Link
                         to={`/department/production/work-orders/${order.id}`}
-                        className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800"
+                        className="text-[10px]  text-indigo-600 hover:text-indigo-800"
                       >
                         VIEW
                       </Link>
@@ -362,28 +362,28 @@ const ProductionDashboard = () => {
             </table>
           </div>
         ) : (
-          <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
+          <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-800">
             <FileText className="mx-auto text-slate-300 mb-2" size={32} />
-            <p className="text-sm text-slate-500 font-medium">No work orders found.</p>
+            <p className="text-sm text-slate-500 ">No work orders found.</p>
           </div>
         )}
       </div>
 
       {/* Production Phases by Root Card */}
       {selectedRootCard && (
-        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white text-left mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
+          <h2 className="text-md  text-slate-900 dark:text-white text-left mb-4">
             Production Phases
           </h2>
           {rootCards.length > 0 && (
             <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                 Select Root Card
               </label>
               <select
                 value={selectedRootCard || ''}
                 onChange={(e) => setSelectedRootCard(parseInt(e.target.value))}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 text-xs rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {rootCards.map((rc) => (
                   <option key={rc.id} value={rc.id}>
@@ -398,10 +398,10 @@ const ProductionDashboard = () => {
       )}
 
       {/* Manufacturing Stages Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {/* Stages Status */}
-        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white text-left mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
+          <h2 className="text-md  text-slate-900 dark:text-white text-left mb-4">
             Stage Status
           </h2>
           <div className="space-y-3">
@@ -413,16 +413,16 @@ const ProductionDashboard = () => {
             ].map((stage, idx) => (
               <div
                 key={idx}
-                className="flex items-center text-xs justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded"
+                className="flex items-center text-xs justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded"
               >
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white text-sm">
+                  <p className=" text-slate-900 dark:text-white text-xs">
                     {stage.name}
                   </p>
                 </div>
-                <div className="flex items-center text-xs gap-3">
+                <div className="flex items-center text-xs gap-2">
                   <span
-                    className={`px-2 py-1 text-xs rounded font-medium ${
+                    className={`p-1 text-xs rounded  ${
                       stage.status === "Active"
                         ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                         : stage.status === "Pending"
@@ -442,11 +442,11 @@ const ProductionDashboard = () => {
         </div>
 
         {/* Team Allocation */}
-        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white text-left mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
+          <h2 className="text-md  text-slate-900 dark:text-white text-left mb-4">
             Team Allocation
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {[
               { department: "Cutting & Prep", allocated: 8, utilization: 85 },
               { department: "Welding", allocated: 6, utilization: 92 },
@@ -455,23 +455,23 @@ const ProductionDashboard = () => {
             ].map((dept, idx) => (
               <div
                 key={idx}
-                className="p-3 bg-slate-50 dark:bg-slate-700 rounded"
+                className="p-2 bg-slate-50 dark:bg-slate-700 rounded"
               >
-                <div className="flex justify-between items-center mb-2">
-                  <p className="font-medium text-slate-900 dark:text-white text-sm">
+                <div className="flex justify-between items-center mb-1">
+                  <p className=" text-slate-900 dark:text-white text-xs">
                     {dept.department}
                   </p>
-                  <span className="text-xs text-slate-600 dark:text-slate-400">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {dept.allocated} workers
                   </span>
                 </div>
-                <div className="w-full bg-slate-300 dark:bg-slate-600 rounded-full h-2">
+                <div className="w-full bg-slate-300 dark:bg-slate-600 rounded  h-1">
                   <div
-                    className="bg-green-500 h-2 rounded-full"
+                    className="bg-green-500 h-1 rounded "
                     style={{ width: `${dept.utilization}%` }}
                   ></div>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   {dept.utilization}% Utilized
                 </p>
               </div>
@@ -481,20 +481,20 @@ const ProductionDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white text-left mb-4">
+      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
+        <h2 className="text-md  text-slate-900 dark:text-white text-left mb-4">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           <Link
             to="/department/production/plans"
-            className="p-4 bg-blue-50 dark:bg-blue-900 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
+            className="p-2 bg-blue-50 dark:bg-blue-900 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
           >
             <Clock
-              size={24}
+              size={15}
               className="text-blue-600 dark:text-blue-300 mb-2"
             />
-            <p className="font-medium text-blue-900 dark:text-blue-100">
+            <p className=" text-blue-900 dark:text-blue-100">
               Production Plans
             </p>
           </Link>
@@ -503,10 +503,10 @@ const ProductionDashboard = () => {
             className="p-4 bg-green-50 dark:bg-green-900 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
           >
             <Factory
-              size={24}
+              size={15}
               className="text-green-600 dark:text-green-300 mb-2"
             />
-            <p className="font-medium text-green-900 dark:text-green-100">
+            <p className=" text-green-900 dark:text-green-100">
               Active Stages
             </p>
           </Link>
@@ -515,10 +515,10 @@ const ProductionDashboard = () => {
             className="p-4 bg-purple-50 dark:bg-purple-900 rounded hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
           >
             <Users
-              size={24}
+              size={15}
               className="text-purple-600 dark:text-purple-300 mb-2"
             />
-            <p className="font-medium text-purple-900 dark:text-purple-100">
+            <p className=" text-purple-900 dark:text-purple-100">
               Assign Tasks
             </p>
           </Link>

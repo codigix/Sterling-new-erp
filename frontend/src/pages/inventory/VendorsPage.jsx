@@ -310,15 +310,15 @@ const VendorsPage = () => {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 p-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-md font-bold text-slate-900 dark:text-white text-xs flex items-center  gap-2">
-            <Truck size={24} />
+          <h2 className="text-md  text-slate-900 dark:text-white  flex items-center  gap-2">
+            <Truck size={15} />
             Vendor Management
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
             Manage and track vendor relationships
           </p>
         </div>
@@ -327,18 +327,18 @@ const VendorsPage = () => {
             onClick={() => setShowAddModal(true)}
             className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium"
           >
-            <Plus size={18} />
+            <Plus size={15} />
             Add Vendor
           </button>
           <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Download size={18} />
+            <Download size={15} />
             Export List
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+      <div className="">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative md:col-span-2">
             <Search
@@ -355,7 +355,7 @@ const VendorsPage = () => {
           </div>
 
           <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={18} />
+            <Filter size={15} />
             Advanced Filter
           </button>
         </div>
@@ -364,17 +364,17 @@ const VendorsPage = () => {
       {/* Vendors Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {loading ? (
-          <div className="col-span-2 flex justify-center items-center py-12">
+          <div className="col-span-2 flex justify-center items-center p-2">
             <p className="text-slate-500 dark:text-slate-400">
               Loading vendors...
             </p>
           </div>
         ) : error ? (
-          <div className="col-span-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-4">
+          <div className="col-span-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-2">
             <p className="text-red-600 dark:text-red-400">{error}</p>
           </div>
         ) : vendors.length === 0 ? (
-          <div className="col-span-2 text-center py-12">
+          <div className="col-span-2 text-center p-2">
             <p className="text-slate-500 dark:text-slate-400">
               No vendors found
             </p>
@@ -383,11 +383,11 @@ const VendorsPage = () => {
           vendors.map((vendor) => (
             <div
               key={vendor.id}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6  transition-shadow"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2  transition-shadow"
             >
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start ">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white text-xs">
+                  <h3 className="text-md  text-slate-900 dark:text-white">
                     {vendor.name}
                   </h3>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -408,17 +408,17 @@ const VendorsPage = () => {
 
                       return categories.length > 0 ? (
                         categories.map((cat, idx) => (
-                          <span key={idx} className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                          <span key={idx} className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 p-1 rounded">
                             {cat}
                           </span>
                         ))
                       ) : (
-                        <span className="text-xs bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
+                        <span className="text-xs bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 p-1 rounded">
                           No category
                         </span>
                       );
                     })()}
-                    <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded capitalize">
+                    <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 p-1 rounded capitalize">
                       {(vendor.vendor_type || "material_supplier").replace(
                         /_/g,
                         " "
@@ -427,7 +427,7 @@ const VendorsPage = () => {
                   </div>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                  className={`p-1 rounded text-xs  ${getStatusColor(
                     vendor.status
                   )}`}
                 >
@@ -436,10 +436,10 @@ const VendorsPage = () => {
                 </span>
               </div>
 
-              <div className="space-y-2 mb-4 text-sm">
+              <div className="space-y-2 my-4 text-sm">
                 {vendor.email && (
-                  <div className="flex items-center text-xs gap-2 text-slate-600 dark:text-slate-400">
-                    <Mail size={16} />
+                  <div className="flex items-center text-xs gap-2 text-slate-500 dark:text-slate-400">
+                    <Mail size={15} />
                     <a
                       href={`mailto:${vendor.email}`}
                       className="hover:text-blue-600 dark:hover:text-blue-400"
@@ -449,8 +449,8 @@ const VendorsPage = () => {
                   </div>
                 )}
                 {vendor.mobile_number && (
-                  <div className="flex items-center text-xs gap-2 text-slate-600 dark:text-slate-400">
-                    <Phone size={16} />
+                  <div className="flex items-center text-xs gap-2 text-slate-500 dark:text-slate-400">
+                    <Phone size={15} />
                     <a
                       href={`tel:${vendor.mobile_number}`}
                       className="hover:text-blue-600 dark:hover:text-blue-400"
@@ -460,8 +460,8 @@ const VendorsPage = () => {
                   </div>
                 )}
                 {(vendor.city || vendor.state) && (
-                  <div className="flex items-center text-xs gap-2 text-slate-600 dark:text-slate-400">
-                    <MapPin size={16} />
+                  <div className="flex items-center text-xs gap-2 text-slate-500 dark:text-slate-400">
+                    <MapPin size={15} />
                     <span>{[vendor.city, vendor.state].filter(Boolean).join(", ")}</span>
                   </div>
                 )}
@@ -472,14 +472,14 @@ const VendorsPage = () => {
                   onClick={() => handleEditVendor(vendor)}
                   className="flex-1 flex items-center text-xs justify-center gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm"
                 >
-                  <Edit size={16} />
+                  <Edit size={15} />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDeleteVendor(vendor.id)}
                   className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={15} />
                 </button>
               </div>
             </div>
@@ -489,19 +489,19 @@ const VendorsPage = () => {
 
       {/* Vendor Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-blue-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-2 border border-blue-200 dark:border-slate-600">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Vendors
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {stats.total || 0}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded-xl p-4 border border-green-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-2 border border-green-200 dark:border-slate-600">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Active Vendors
           </p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white text-xs mt-1">
+          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {stats.active_count || 0}
           </p>
         </div>
@@ -517,16 +517,16 @@ const VendorsPage = () => {
           }}
         >
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col"
+            className="bg-white dark:bg-slate-800 rounded w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-800 flex justify-between items-center px-8 py-6 border-b border-slate-200 dark:border-slate-600">
+            <div className="sticky top-0  flex justify-between items-center p-2 border-b border-slate-200 dark:border-slate-600">
               <div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white text-xs">
+                <h3 className="text-md  text-slate-900 dark:text-white">
                   {editingVendor ? "Edit Vendor" : "Add New Vendor"}
                 </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 text-xs">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-xs">
                   {editingVendor ? `Updating: ${editingVendor.vendor_code}` : "Fill in the vendor details below"}
                 </p>
               </div>
@@ -538,43 +538,43 @@ const VendorsPage = () => {
                 }}
                 className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
               >
-                <X size={24} className="text-slate-600 dark:text-slate-400" />
+                <X size={15} className="text-slate-500 dark:text-slate-400" />
               </button>
             </div>
 
             {/* Form Content */}
             <form
               onSubmit={editingVendor ? handleUpdateVendor : handleAddVendor}
-              className="overflow-y-auto flex-1 px-8 py-6 space-y-4"
+              className="overflow-y-auto flex-1 p-2"
             >
               {/* Section: Basic Information */}
-              <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+              <div className="border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleSection("basic")}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 >
-                  <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider">
-                    <Building2 size={16} className="text-blue-500" />
+                  <div className="flex items-center gap-2 text-slate-900 dark:text-white  text-xs  ">
+                    <Building2 size={15} className="text-blue-500" />
                     Basic Information
                   </div>
-                  {expandedSections.basic ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {expandedSections.basic ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                 </button>
                 
                 {expandedSections.basic && (
-                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendor Code</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Vendor Code</label>
                       <input
                         type="text"
                         name="vendor_code"
                         value={formData.vendor_code}
                         disabled
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900 font-bold text-blue-600"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900  text-blue-600"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendor Name *</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Vendor Name *</label>
                       <input
                         type="text"
                         name="name"
@@ -582,16 +582,16 @@ const VendorsPage = () => {
                         onChange={handleFormChange}
                         required
                         placeholder="Enter vendor name"
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendor Type *</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Vendor Type *</label>
                       <select
                         name="vendor_type"
                         value={formData.vendor_type}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       >
                         <option value="material_supplier">Material Supplier</option>
                         <option value="service_vendor">Service Vendor</option>
@@ -599,19 +599,19 @@ const VendorsPage = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Status</label>
                       <select
                         name="status"
                         value={formData.status}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       >
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                       </select>
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendor Category (Multi-select)</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Vendor Category (Multi-select)</label>
                       <div className="flex flex-wrap gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900">
                         {VENDOR_CATEGORIES.map(cat => (
                           <button
@@ -624,10 +624,10 @@ const VendorsPage = () => {
                                 : [...current, cat];
                               setFormData(prev => ({ ...prev, category: updated }));
                             }}
-                            className={`px-2 py-1 text-[10px] font-bold rounded-full transition-all ${
+                            className={`p-1 text-xs  rounded transition-all ${
                               Array.isArray(formData.category) && formData.category.includes(cat)
-                                ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
+                                ? "bg-blue-600 text-white  shadow-blue-500/20"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200"
                             }`}
                           >
                             {cat}
@@ -640,104 +640,104 @@ const VendorsPage = () => {
               </div>
 
               {/* Section: Contact Information */}
-              <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+              <div className="border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleSection("contact")}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 >
-                  <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider">
-                    <UserCheck size={16} className="text-emerald-500" />
+                  <div className="flex items-center gap-2 text-slate-900 dark:text-white  text-xs  ">
+                    <UserCheck size={15} className="text-emerald-500" />
                     Contact Information
                   </div>
-                  {expandedSections.contact ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {expandedSections.contact ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                 </button>
                 
                 {expandedSections.contact && (
-                  <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-2 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Contact Person Name</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Contact Person Name</label>
                       <input
                         type="text"
                         name="contact_person_name"
                         value={formData.contact_person_name}
                         onChange={handleFormChange}
                         placeholder="Full Name"
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Designation</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Designation</label>
                       <input
                         type="text"
                         name="designation"
                         value={formData.designation}
                         onChange={handleFormChange}
                         placeholder="e.g. Sales Manager"
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Mobile Number</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Mobile Number</label>
                       <input
                         type="text"
                         name="mobile_number"
                         value={formData.mobile_number}
                         onChange={handleFormChange}
                         placeholder="+91 XXXXXXXXXX"
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Email</label>
                       <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleFormChange}
                         placeholder="vendor@example.com"
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Address</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Address</label>
                       <input
                         type="text"
                         name="address"
                         value={formData.address}
                         onChange={handleFormChange}
                         placeholder="Plot No, Industrial Area..."
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">City</label>
+                      <label className="block text-xs  text-slate-500  mb-1">City</label>
                       <input
                         type="text"
                         name="city"
                         value={formData.city}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">State</label>
+                      <label className="block text-xs  text-slate-500  mb-1">State</label>
                       <input
                         type="text"
                         name="state"
                         value={formData.state}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pincode</label>
+                      <label className="block text-xs  text-slate-500  mb-1">Pincode</label>
                       <input
                         type="text"
                         name="pincode"
                         value={formData.pincode}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
+                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
                       />
                     </div>
                   </div>
@@ -754,7 +754,7 @@ const VendorsPage = () => {
                   setShowEditModal(false);
                   setEditingVendor(null);
                 }}
-                className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-bold text-xs uppercase"
+                className="p-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors  text-xs "
               >
                 Cancel
               </button>
@@ -762,11 +762,11 @@ const VendorsPage = () => {
                 type="button"
                 onClick={editingVendor ? handleUpdateVendor : handleAddVendor}
                 disabled={submitting}
-                className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all font-bold text-xs uppercase shadow-lg shadow-blue-500/20 disabled:opacity-50 flex items-center gap-2"
+                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all  text-xs   shadow-blue-500/20 disabled:opacity-50 flex items-center gap-2"
               >
                 {submitting ? (
                   <>
-                    <Loader2 size={16} className="animate-spin" />
+                    <Loader2 size={15} className="animate-spin" />
                     Processing...
                   </>
                 ) : (

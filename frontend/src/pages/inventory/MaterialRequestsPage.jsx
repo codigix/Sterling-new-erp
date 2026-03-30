@@ -389,7 +389,7 @@ const MaterialRequestDetailModal = ({
 
     return (
       <span
-        className={`px-3 py-1 rounded-full text-xs font-bold border ${styles[s] || styles.draft} uppercase tracking-wider`}
+        className={`px-3 py-1 rounded  text-xs  border ${styles[s] || styles.draft}  tracking-wider`}
       >
         {displayNames[s] || s}
       </span>
@@ -401,7 +401,7 @@ const MaterialRequestDetailModal = ({
       <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
             Material Request: {request.mr_number}
           </h2>
           <button
@@ -415,47 +415,47 @@ const MaterialRequestDetailModal = ({
         {/* Content */}
         <div className="p-6 overflow-y-auto flex-1 bg-slate-50/30 dark:bg-slate-900/50">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-            <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <Activity size={20} className="text-orange-500 mb-2" />
-              <span className="text-[10px] uppercase font-bold text-slate-400 mb-1">
+              <span className="text-[10px]   text-slate-400 mb-1">
                 Status
               </span>
               {getStatusBadge(request.status)}
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <RefreshCw size={20} className="text-blue-500 mb-2" />
-              <span className="text-[10px] uppercase font-bold text-slate-400 mb-1">
+              <span className="text-[10px]   text-slate-400 mb-1">
                 Purpose
               </span>
-              <p className="text-sm font-bold text-slate-900 dark:text-white">
+              <p className="text-sm  text-slate-900 dark:text-white">
                 {request.purpose || "Material Issue"}
               </p>
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <Warehouse size={20} className="text-purple-500 mb-2" />
-              <span className="text-[10px] uppercase font-bold text-slate-400 mb-1">
+              <span className="text-[10px]   text-slate-400 mb-1">
                 Department
               </span>
-              <p className="text-sm font-bold text-slate-900 dark:text-white">
+              <p className="text-sm  text-slate-900 dark:text-white">
                 {request.department || "Production"}
               </p>
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <User size={20} className="text-green-500 mb-2" />
-              <span className="text-[10px] uppercase font-bold text-slate-400 mb-1">
+              <span className="text-[10px]   text-slate-400 mb-1">
                 Requested By
               </span>
-              <p className="text-sm font-bold text-slate-900 dark:text-white">
+              <p className="text-sm  text-slate-900 dark:text-white">
                 {request.requested_by_name || "System"}
               </p>
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <PlusCircle size={20} className="text-indigo-500 mb-2" />
-              <span className="text-[10px] uppercase font-bold text-slate-400 mb-1">
+              <span className="text-[10px]   text-slate-400 mb-1">
                 Linked PO
               </span>
               <p
-                className={`text-sm font-bold ${request.po_number ? "text-blue-600" : "text-slate-400"}`}
+                className={`text-sm  ${request.po_number ? "text-blue-600" : "text-slate-400"}`}
               >
                 {request.po_number || "None"}
               </p>
@@ -468,14 +468,14 @@ const MaterialRequestDetailModal = ({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <List size={18} className="text-slate-400" />
-                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  <h3 className="text-sm  text-slate-700 dark:text-slate-300  tracking-wider">
                     Line Items
                   </h3>
                 </div>
                 <button
                   onClick={fetchStockLevels}
                   disabled={loadingStock}
-                  className="text-[10px] font-bold text-blue-600 flex items-center gap-1 uppercase tracking-widest hover:underline disabled:opacity-50"
+                  className="text-[10px]  text-blue-600 flex items-center gap-1  tracking-widest hover:underline disabled:opacity-50"
                 >
                   <RefreshCw
                     size={12}
@@ -484,10 +484,10 @@ const MaterialRequestDetailModal = ({
                   Refresh Stock
                 </button>
               </div>
-              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden shadow-sm">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-[10px]   text-slate-500 tracking-wider">
                       <th className="px-6 py-3 text-left">Item Details</th>
                       <th className="px-6 py-3 text-center">Quantity</th>
                       <th className="px-6 py-3 text-center">Stock Level</th>
@@ -510,7 +510,7 @@ const MaterialRequestDetailModal = ({
                           >
                             <td className="p-2">
                               <div>
-                                <p className="font-bold text-slate-900 dark:text-white uppercase">
+                                <p className=" text-slate-900 dark:text-white ">
                                   {item.material_name}
                                 </p>
                                 <p className="text-xs text-slate-400 font-medium mt-0.5">
@@ -519,20 +519,20 @@ const MaterialRequestDetailModal = ({
                               </div>
                             </td>
                             <td className="p-2 text-center">
-                              <span className="font-bold text-slate-900 dark:text-white">
+                              <span className=" text-slate-900 dark:text-white">
                                 {item.quantity} {item.unit}
                               </span>
                             </td>
                             <td className="p-2 text-center">
                               <div className="flex flex-col items-center">
                                 <span
-                                  className={`text-sm font-bold ${Number(stockQty || 0) >= Number(item.quantity || 0) && Number(stockQty || 0) > 0 ? "text-emerald-600" : Number(stockQty || 0) > 0 ? "text-amber-600" : "text-red-600"}`}
+                                  className={`text-sm  ${Number(stockQty || 0) >= Number(item.quantity || 0) && Number(stockQty || 0) > 0 ? "text-emerald-600" : Number(stockQty || 0) > 0 ? "text-amber-600" : "text-red-600"}`}
                                 >
                                   {Number(stockQty || 0).toFixed(3)} {item.unit}
                                 </span>
                                 <div className="flex flex-col items-center gap-1 mt-1">
                                   {selectedWarehouse ? (
-                                    <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[9px] font-bold text-slate-500 uppercase">
+                                    <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[9px]  text-slate-500 ">
                                       <Warehouse size={10} />
                                       {warehouses.find(
                                         (w) =>
@@ -546,14 +546,14 @@ const MaterialRequestDetailModal = ({
                                       .map((wh, i) => (
                                         <div
                                           key={i}
-                                          className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase"
+                                          className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded text-[9px]  text-blue-600 dark:text-blue-400 "
                                         >
                                           <Warehouse size={10} />
                                           {wh.trim()}
                                         </div>
                                       ))
                                   ) : (
-                                    <span className="text-[9px] text-slate-400 uppercase font-medium italic">
+                                    <span className="text-[9px] text-slate-400  font-medium italic">
                                       Not in any warehouse
                                     </span>
                                   )}
@@ -563,15 +563,15 @@ const MaterialRequestDetailModal = ({
                             <td className="p-2 text-center">
                               {stockQty >= Number(item.quantity || 0) &&
                               stockQty > 0 ? (
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-600 whitespace-nowrap">
+                                <span className="px-2 py-0.5 rounded text-[10px]   bg-emerald-100 text-emerald-600 whitespace-nowrap">
                                   in stock
                                 </span>
                               ) : (
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-100 text-red-600 whitespace-nowrap">
+                                <span className="px-2 py-0.5 rounded text-[10px]   bg-red-100 text-red-600 whitespace-nowrap">
                                   out of stock
                                 </span>
                               )}
-                              <p className="text-[10px] text-slate-400 mt-1 uppercase font-medium">
+                              <p className="text-[10px] text-slate-400 mt-1  font-medium">
                                 {item.status}
                               </p>
                             </td>
@@ -589,11 +589,11 @@ const MaterialRequestDetailModal = ({
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <Warehouse size={18} className="text-slate-400" />
-                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <h3 className="text-sm  text-slate-700 dark:text-slate-300  tracking-wider">
                       Fulfillment Source
                     </h3>
                   </div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">
+                  <label className="text-[10px]  text-slate-400  mb-2 block">
                     Select Warehouse
                   </label>
                   <select
@@ -620,18 +620,18 @@ const MaterialRequestDetailModal = ({
                 <div className="pt-6 border-t border-slate-100 dark:border-slate-700">
                   <div className="flex items-center gap-2 mb-4">
                     <FileText size={18} className="text-slate-400" />
-                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <h3 className="text-sm  text-slate-700 dark:text-slate-300  tracking-wider">
                       Request Summary
                     </h3>
                   </div>
                   {!allInStock ? (
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-xl space-y-3">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded space-y-3">
                       <div className="flex gap-3">
                         <AlertCircle
                           size={16}
                           className="text-amber-600 mt-0.5"
                         />
-                        <p className="text-xs font-bold text-amber-800 dark:text-amber-400 leading-tight">
+                        <p className="text-xs  text-amber-800 dark:text-amber-400 leading-tight">
                           Insufficient Stock: Some items are not available in
                           the selected warehouse.
                         </p>
@@ -642,13 +642,13 @@ const MaterialRequestDetailModal = ({
                       </p>
                     </div>
                   ) : (
-                    <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-xl space-y-3">
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded space-y-3">
                       <div className="flex gap-3">
                         <CheckCircle
                           size={16}
                           className="text-emerald-600 mt-0.5"
                         />
-                        <p className="text-xs font-bold text-emerald-800 dark:text-emerald-400 leading-tight">
+                        <p className="text-xs  text-emerald-800 dark:text-emerald-400 leading-tight">
                           All Items In Stock: You can proceed to release all
                           materials.
                         </p>
@@ -657,7 +657,7 @@ const MaterialRequestDetailModal = ({
                   )}
                   <div className="mt-4 space-y-2">
                     <div className="flex justify-between text-[11px] font-medium">
-                      <span className="text-slate-500 uppercase">
+                      <span className="text-slate-500 ">
                         Required By
                       </span>
                       <span className="text-slate-900 dark:text-white flex items-center gap-1">
@@ -668,7 +668,7 @@ const MaterialRequestDetailModal = ({
                       </span>
                     </div>
                     <div className="flex justify-between text-[11px] font-medium">
-                      <span className="text-slate-500 uppercase">
+                      <span className="text-slate-500 ">
                         Created On
                       </span>
                       <span className="text-slate-900 dark:text-white">
@@ -679,9 +679,9 @@ const MaterialRequestDetailModal = ({
                 </div>
 
                 {request.quotation && (
-                  <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/30 space-y-3">
+                  <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded border border-emerald-100 dark:border-emerald-900/30 space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-[10px] font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-widest flex items-center gap-1.5">
+                      <h4 className="text-[10px]  text-emerald-900 dark:text-emerald-300  tracking-widest flex items-center gap-1.5">
                         <ShieldCheck size={14} /> Approved Quotation
                       </h4>
                     </div>
@@ -689,7 +689,7 @@ const MaterialRequestDetailModal = ({
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <FileText size={16} className="text-emerald-600" />
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                        <span className="text-xs  text-slate-900 dark:text-white">
                           {request.quotation.quotation_number}
                         </span>
                       </div>
@@ -709,7 +709,7 @@ const MaterialRequestDetailModal = ({
                               Swal.fire("Error", "Failed to view quotation PDF", "error");
                             }
                           }}
-                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px] font-bold hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all shadow-sm flex items-center justify-center gap-2"
+                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px]  hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all shadow-sm flex items-center justify-center gap-2"
                         >
                           <Download size={12} />
                           VIEW VENDOR QUOTATION
@@ -727,14 +727,14 @@ const MaterialRequestDetailModal = ({
         <div className="p-2 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
           <button
             onClick={handleDelete}
-            className="flex items-center gap-2 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-xs font-bold transition-all"
+            className="flex items-center gap-2 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-xs  transition-all"
           >
             <Trash2 size={16} /> Remove Request
           </button>
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-6 py-2 text-slate-500 hover:text-slate-700 text-xs font-bold uppercase tracking-wider"
+              className="px-6 py-2 text-slate-500 hover:text-slate-700 text-xs   tracking-wider"
             >
               Cancel
             </button>
@@ -742,7 +742,7 @@ const MaterialRequestDetailModal = ({
               <button
                 onClick={handleApproveRequest}
                 disabled={approving}
-                className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 font-bold rounded transition-all text-xs uppercase flex items-center gap-2"
+                className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700  rounded transition-all text-xs  flex items-center gap-2"
               >
                 {approving ? "Approving..." : "Approve Request"} <CheckCircle size={16} />
               </button>
@@ -755,7 +755,7 @@ const MaterialRequestDetailModal = ({
                   <button
                     onClick={handleReleaseMaterial}
                     disabled={releasing || !allInStock || request.status !== "approved"}
-                    className={`px-6 py-2 ${!allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"} font-bold rounded transition-all text-xs uppercase flex items-center gap-2 disabled:opacity-50`}
+                    className={`px-6 py-2 ${!allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"}  rounded transition-all text-xs  flex items-center gap-2 disabled:opacity-50`}
                   >
                     {releasing ? "Releasing..." : "Release Material"}{" "}
                     <ShieldCheck size={16} />
@@ -767,7 +767,7 @@ const MaterialRequestDetailModal = ({
                         : () => handleCreateQuotation(true)
                     }
                     disabled={creatingPO || request.po_count > 0 || allInStock || request.status !== "approved"}
-                    className={`px-6 py-2 ${request.po_count > 0 || allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20"} font-bold rounded transition-all text-xs uppercase flex items-center gap-2`}
+                    className={`px-6 py-2 ${request.po_count > 0 || allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20"}  rounded transition-all text-xs  flex items-center gap-2`}
                   >
                     {creatingPO
                       ? "Creating..."
@@ -987,7 +987,7 @@ const MaterialRequestsPage = () => {
         )}
         <div className="relative flex justify-between items-center w-full mx-auto p-4">
           {/* Progress Line */}
-          <div className="absolute top-[20px] left-0 w-full h-1 bg-slate-100 dark:bg-slate-700 z-0 rounded-full" />
+          <div className="absolute top-[20px] left-0 w-full h-1 bg-slate-100 dark:bg-slate-700 z-0 rounded " />
 
           {steps.map((step, idx) => {
             const stepStatus = getStepStatus(step.id, idx);
@@ -1003,7 +1003,7 @@ const MaterialRequestsPage = () => {
                   disabled={localLoading}
                   title={`Go to ${step.label}`}
                   className={`
-                    w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 z-10
+                    w-10 h-10 rounded flex items-center justify-center transition-all duration-500 z-10
                     ${
                       stepStatus === "completed"
                         ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:scale-110"
@@ -1020,7 +1020,7 @@ const MaterialRequestsPage = () => {
                 <div className="mt-4 text-center">
                   <span
                     className={`
-                    block text-[11px] font-bold uppercase tracking-widest transition-colors duration-500 whitespace-nowrap
+                    block text-[11px]   tracking-widest transition-colors duration-500 whitespace-nowrap
                     ${
                       stepStatus === "completed"
                         ? "text-emerald-600"
@@ -1032,7 +1032,7 @@ const MaterialRequestsPage = () => {
                   >
                     {step.label}
                   </span>
-                  <span className="block text-[9px] font-medium text-slate-400 mt-0.5 uppercase tracking-tighter opacity-80">
+                  <span className="block text-[9px] font-medium text-slate-400 mt-0.5  er opacity-80">
                     {step.subLabel}
                   </span>
                 </div>
@@ -1416,7 +1416,7 @@ const MaterialRequestsPage = () => {
             />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-xl  text-slate-900 dark:text-white">
               Material Requests
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
@@ -1441,7 +1441,7 @@ const MaterialRequestsPage = () => {
           </div>
           <button
             onClick={fetchMaterialRequests}
-            className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50 transition-colors"
           >
             <RefreshCw size={18} />
             Refresh
@@ -1518,9 +1518,9 @@ const MaterialRequestsPage = () => {
                       : stat.label,
                   );
                 }}
-                className={`p-4 rounded-xl border transition-all text-left bg-white dark:bg-slate-800 ${
+                className={`p-4 rounded border transition-all text-left bg-white dark:bg-slate-800 ${
                   activeTab === stat.label.toLowerCase()
-                    ? "border-blue-500 ring-1 ring-blue-500 shadow-md"
+                    ? "border-blue-500 ring-1 ring-blue-500 "
                     : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
                 }`}
               >
@@ -1535,7 +1535,7 @@ const MaterialRequestsPage = () => {
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                   {stat.label}
                 </p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                <p className="text-2xl  text-slate-900 dark:text-white mt-1">
                   {stat.value}
                 </p>
               </button>
@@ -1543,7 +1543,7 @@ const MaterialRequestsPage = () => {
           </div>
 
           {/* Filters and Search */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-6 flex flex-col md:flex-row gap-4">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-4 mb-6 flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -1560,7 +1560,7 @@ const MaterialRequestsPage = () => {
             <div className="flex gap-3">
               <div className="relative">
                 <select
-                  className="appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600 dark:text-slate-300"
+                  className="appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-500 dark:text-slate-300"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -1577,11 +1577,11 @@ const MaterialRequestsPage = () => {
                   size={16}
                 />
               </div>
-              <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50">
+              <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
                 <LayoutGrid size={18} />
                 Columns
               </button>
-              <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-50">
+              <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
                 <Download size={18} />
                 Export
               </button>
@@ -1589,27 +1589,27 @@ const MaterialRequestsPage = () => {
           </div>
 
           {/* Table */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
             <table className="w-full text-left">
               <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="p-2 w-10"></th>
-                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
                     ID
                   </th>
-                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
                     Requester
                   </th>
-                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
                     Status
                   </th>
-                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
                     Required By
                   </th>
-                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
                     Availability
                   </th>
-                  <th className="p-2 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider text-right">
                     Actions
                   </th>
                 </tr>
@@ -1632,13 +1632,13 @@ const MaterialRequestsPage = () => {
                         <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
                           {req.mr_number || `MR-${req.id}`}
                         </td>
-                        <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                        <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                           {req.created_by_name || "System"}
                         </td>
                         <td className="p-2">
                           {getStatusBadge(req.status)}
                         </td>
-                        <td className="p-2 text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                        <td className="p-2 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                           <Clock size={14} className="text-slate-400" />
                           {req.required_date
                             ? new Date(req.required_date).toLocaleDateString()
@@ -1700,13 +1700,13 @@ const MaterialRequestsPage = () => {
               className="flex flex-col h-full overflow-hidden"
             >
               <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-xl  text-slate-900 dark:text-white">
                   Create Material Request
                 </h2>
                 <button
                   type="button"
                   onClick={() => setShowNewRequestModal(false)}
-                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-slate-400"
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded  text-slate-400"
                 >
                   <X size={20} />
                 </button>
@@ -1721,7 +1721,7 @@ const MaterialRequestsPage = () => {
                         <ClipboardList className="text-blue-600" size={20} />
                       </div>
                       <div>
-                        <h3 className="font-bold text-slate-900 dark:text-white">
+                        <h3 className=" text-slate-900 dark:text-white">
                           Request Details
                         </h3>
                         <p className="text-xs text-slate-500">
@@ -1732,7 +1732,7 @@ const MaterialRequestsPage = () => {
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <label className="block text-xs  text-slate-500  tracking-wider mb-2">
                           Sales Order / Root Card{" "}
                           <span className="text-red-500">*</span>
                         </label>
@@ -1762,7 +1762,7 @@ const MaterialRequestsPage = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <label className="block text-xs  text-slate-500  tracking-wider mb-2">
                           Department
                         </label>
                         <select
@@ -1783,7 +1783,7 @@ const MaterialRequestsPage = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <label className="block text-xs  text-slate-500  tracking-wider mb-2">
                           Required By <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
@@ -1803,7 +1803,7 @@ const MaterialRequestsPage = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <label className="block text-xs  text-slate-500  tracking-wider mb-2">
                           Purpose
                         </label>
                         <div className="space-y-2">
@@ -1821,10 +1821,10 @@ const MaterialRequestsPage = () => {
                                   purpose: purpose.id,
                                 })
                               }
-                              className={`w-full flex items-center gap-3 p-3 border rounded-xl transition-all ${
+                              className={`w-full flex items-center gap-3 p-3 border rounded transition-all ${
                                 newRequest.purpose === purpose.id
                                   ? "bg-blue-50 border-blue-500 text-blue-700"
-                                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-blue-300"
+                                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-blue-300"
                               }`}
                             >
                               <div
@@ -1850,7 +1850,7 @@ const MaterialRequestsPage = () => {
                           <Warehouse size={20} />
                         </div>
                         <div>
-                          <h3 className="font-bold text-slate-900 dark:text-white">
+                          <h3 className=" text-slate-900 dark:text-white">
                             Requested Items
                           </h3>
                           <p className="text-xs text-slate-500">
@@ -1862,7 +1862,7 @@ const MaterialRequestsPage = () => {
 
                     <div className="grid grid-cols-12 gap-4 mb-6 items-end">
                       <div className="col-span-5">
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <label className="block text-xs  text-slate-500  tracking-wider mb-2">
                           Item <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -1879,7 +1879,7 @@ const MaterialRequestsPage = () => {
                         />
                       </div>
                       <div className="col-span-3">
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <label className="block text-xs  text-slate-500  tracking-wider mb-2">
                           Quantity <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -1897,7 +1897,7 @@ const MaterialRequestsPage = () => {
                         />
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <label className="block text-xs  text-slate-500  tracking-wider mb-2">
                           UOM
                         </label>
                         <select
@@ -1928,17 +1928,17 @@ const MaterialRequestsPage = () => {
                       </div>
                     </div>
 
-                    <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800">
+                    <div className="border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800">
                       <table className="w-full">
                         <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
                           <tr>
-                            <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase">
+                            <th className="px-4 py-3 text-left text-xs  text-slate-500 ">
                               Item Info
                             </th>
-                            <th className="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase">
+                            <th className="px-4 py-3 text-center text-xs  text-slate-500 ">
                               Qty
                             </th>
-                            <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase">
+                            <th className="px-4 py-3 text-right text-xs  text-slate-500 ">
                               Actions
                             </th>
                           </tr>
@@ -1992,11 +1992,11 @@ const MaterialRequestsPage = () => {
                     </div>
 
                     <div className="mt-6">
-                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                      <label className="block text-xs  text-slate-500  tracking-wider mb-2 flex items-center gap-1">
                         <FileText size={14} /> Notes & Special Instructions
                       </label>
                       <textarea
-                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
                         rows="3"
                         placeholder="Add any additional notes for this material request..."
                         value={newRequest.notes}
@@ -2016,14 +2016,14 @@ const MaterialRequestsPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowNewRequestModal(false)}
-                  className="px-6 py-2 bg-emerald-500 text-white font-bold rounded hover:bg-emerald-600 transition-colors"
+                  className="px-6 py-2 bg-emerald-500 text-white  rounded hover:bg-emerald-600 transition-colors"
                 >
                   Cancel
                 </button>
                 <div className="flex gap-3">
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 flex items-center gap-2"
+                    className="px-6 py-2 bg-blue-600 text-white  rounded hover:bg-blue-700 flex items-center gap-2"
                   >
                     <CheckCircle size={18} /> Create Request
                   </button>

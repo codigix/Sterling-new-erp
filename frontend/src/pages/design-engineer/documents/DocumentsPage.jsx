@@ -296,10 +296,10 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-xl  text-slate-900 dark:text-white">
               Design Documents
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-slate-500 dark:text-slate-400 mt-1">
               Manage design drawings and project documentation
             </p>
           </div>
@@ -333,7 +333,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
             {showRootCardDropdown && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded shadow-lg z-10">
                 {rootCards.length === 0 ? (
-                  <div className="p-2 text-slate-600 dark:text-slate-400">
+                  <div className="p-2 text-slate-500 dark:text-slate-400">
                     No root cards available
                   </div>
                 ) : (
@@ -367,10 +367,10 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               setActiveTab("raw-designs");
               setSearchTerm("");
             }}
-            className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+            className={` font-medium text-sm border-b-2 transition-colors ${
               activeTab === "raw-designs"
                 ? "border-blue-600 text-blue-600 dark:text-blue-400"
-                : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300"
+                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300"
             }`}
           >
             Raw Design Drawings
@@ -380,10 +380,10 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               setActiveTab("required-docs");
               setSearchTerm("");
             }}
-            className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+            className={` font-medium text-sm border-b-2 transition-colors ${
               activeTab === "required-docs"
                 ? "border-blue-600 text-blue-600 dark:text-blue-400"
-                : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300"
+                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300"
             }`}
           >
             Required Documents
@@ -408,7 +408,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-500 dark:text-slate-400">
                 Loading documents...
               </p>
             </div>
@@ -418,7 +418,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
             </div>
           ) : getTabContent().length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-slate-600 dark:text-slate-400 mb-3">
+              <p className="text-slate-500 dark:text-slate-400 mb-3">
                 No documents found for the selected root card
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -431,19 +431,19 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700">
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                    <th className=" text-left text-xs  text-slate-700 dark:text-slate-300 ">
                       Name
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                    <th className=" text-left text-xs  text-slate-700 dark:text-slate-300 ">
                       Version
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                    <th className=" text-left text-xs  text-slate-700 dark:text-slate-300 ">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                    <th className=" text-left text-xs  text-slate-700 dark:text-slate-300 ">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                    <th className=" text-left text-xs  text-slate-700 dark:text-slate-300 ">
                       Actions
                     </th>
                   </tr>
@@ -457,12 +457,12 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                       <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
                         {item.name || item.title}
                       </td>
-                      <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                      <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                         {item.version}
                       </td>
                       <td className="p-2">
                         <span
-                          className={`px-3 py-1 text-xs font-medium rounded-full ${
+                          className={`px-3 py-1 text-xs font-medium rounded  ${
                             item.status === "Final" || item.status === "Approved"
                               ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                               : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
@@ -471,7 +471,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           {item.status || "Draft"}
                         </span>
                       </td>
-                      <td className="p-2 text-sm text-slate-600 dark:text-slate-400">
+                      <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                         {new Date(item.createdAt || item.date).toLocaleDateString()}
                       </td>
                       <td className="p-2 flex items-center gap-2">
@@ -512,7 +512,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-slate-800 rounded max-w-md w-full mx-4 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 Upload Document
               </h3>
               <button
@@ -665,10 +665,10 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-slate-800 rounded max-w-sm w-full mx-4 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            <h3 className="text-lg  text-slate-900 dark:text-white mb-4">
               Delete Document
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+            <p className="text-slate-500 dark:text-slate-400 mb-6">
               Are you sure you want to delete this document? This action cannot be undone.
             </p>
             <div className="flex gap-3">
@@ -697,10 +697,10 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
       {showApprovalModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-slate-800 rounded max-w-sm w-full mx-4 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            <h3 className="text-lg  text-slate-900 dark:text-white mb-4">
               Approve Document
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-4">
+            <p className="text-slate-500 dark:text-slate-400 mb-4">
               Document: <strong>{selectedItem?.name || selectedItem?.title}</strong>
             </p>
             <div className="mb-6">

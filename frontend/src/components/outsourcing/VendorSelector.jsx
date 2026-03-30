@@ -40,7 +40,7 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
           Select a Vendor for Outsourcing
         </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
           Choose the vendor who will handle this production phase.
         </p>
       </div>
@@ -67,7 +67,7 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
                 <h4 className="font-semibold text-slate-900 dark:text-white">{vendor.name}</h4>
-                <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                <div className="mt-2 space-y-1 text-sm text-slate-500 dark:text-slate-400">
                   {vendor.contact && <p>Contact: {vendor.contact}</p>}
                   {vendor.email && <p>Email: {vendor.email}</p>}
                   {vendor.category && <p>Category: {vendor.category}</p>}

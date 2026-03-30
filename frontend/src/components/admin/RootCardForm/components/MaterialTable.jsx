@@ -139,7 +139,7 @@ export default function MaterialTable({
                     <button
                       type="button"
                       onClick={() => onView(material)}
-                      className="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center text-xs justify-center transition-colors"
+                      className="w-8 h-8 rounded  bg-indigo-600 hover:bg-indigo-700 text-white flex items-center text-xs justify-center transition-colors"
                       title="View Details"
                     >
                       <FileText size={16} />
@@ -147,7 +147,7 @@ export default function MaterialTable({
                     <button
                       type="button"
                       onClick={() => onEdit(material)}
-                      className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center text-xs justify-center transition-colors"
+                      className="w-8 h-8 rounded  bg-blue-600 hover:bg-blue-700 text-white flex items-center text-xs justify-center transition-colors"
                       title="Edit"
                     >
                       <Edit2 size={16} />
@@ -155,7 +155,7 @@ export default function MaterialTable({
                     <button
                       type="button"
                       onClick={() => onDelete(material.id)}
-                      className="w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center text-xs justify-center transition-colors"
+                      className="w-8 h-8 rounded  bg-red-600 hover:bg-red-700 text-white flex items-center text-xs justify-center transition-colors"
                       title="Delete"
                     >
                       <Trash2 size={16} />

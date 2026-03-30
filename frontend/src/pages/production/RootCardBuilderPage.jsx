@@ -95,7 +95,7 @@ const RootCardBuilderPage = () => {
       case 'low':
         return 'text-green-600 dark:text-green-400';
       default:
-        return 'text-slate-600 dark:text-slate-400';
+        return 'text-slate-500 dark:text-slate-400';
     }
   };
 
@@ -209,7 +209,7 @@ const RootCardBuilderPage = () => {
       label: 'Status',
       sortable: true,
       render: (value) => (
-        <Badge className={`px-2 py-1 rounded-full text-[10px] font-bold ${getStatusColor(value)}`}>
+        <Badge className={`px-2 py-1 rounded  text-[10px]  ${getStatusColor(value)}`}>
           {getStatusLabel(value)}
         </Badge>
       ),
@@ -234,38 +234,38 @@ const RootCardBuilderPage = () => {
         <div>
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Overview</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card shadow="sm" className="p-6 hover:shadow-md transition-shadow">
+            <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Total Root Cards</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalRootCards || 0}</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Total Root Cards</p>
+                  <p className="text-3xl  text-slate-900 dark:text-white">{stats.totalRootCards || 0}</p>
                 </div>
                 <BarChart3 size={32} className="text-blue-500 opacity-20 flex-shrink-0" />
               </div>
             </Card>
-            <Card shadow="sm" className="p-6 hover:shadow-md transition-shadow">
+            <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">In Progress</p>
-                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.inProgressRootCards || 0}</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">In Progress</p>
+                  <p className="text-3xl  text-purple-600 dark:text-purple-400">{stats.inProgressRootCards || 0}</p>
                 </div>
                 <div className="h-10 w-10 rounded bg-purple-100 dark:bg-purple-900/30 flex-shrink-0"></div>
               </div>
             </Card>
-            <Card shadow="sm" className="p-6 hover:shadow-md transition-shadow">
+            <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Planning</p>
-                  <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{stats.planningRootCards || 0}</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Planning</p>
+                  <p className="text-3xl  text-orange-600 dark:text-orange-400">{stats.planningRootCards || 0}</p>
                 </div>
                 <div className="h-10 w-10 rounded bg-orange-100 dark:bg-orange-900/30 flex-shrink-0"></div>
               </div>
             </Card>
-            <Card shadow="sm" className="p-6 hover:shadow-md transition-shadow">
+            <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Completed</p>
-                  <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.completedRootCards || 0}</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Completed</p>
+                  <p className="text-3xl  text-green-600 dark:text-green-400">{stats.completedRootCards || 0}</p>
                 </div>
                 <div className="h-10 w-10 rounded bg-green-100 dark:bg-green-900/30 flex-shrink-0"></div>
               </div>
@@ -277,8 +277,8 @@ const RootCardBuilderPage = () => {
       <Card shadow="md" padding="none" className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
         <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Root Cards</h2>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Manage and track all production root cards</p>
+            <h2 className="text-xl  text-slate-900 dark:text-white">Root Cards</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage and track all production root cards</p>
           </div>
         </div>
 
@@ -294,7 +294,7 @@ const RootCardBuilderPage = () => {
             />
           </div>
           <div className="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700">
-            <Filter size={16} className="text-slate-600 dark:text-slate-400" />
+            <Filter size={16} className="text-slate-500 dark:text-slate-400" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}

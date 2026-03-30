@@ -51,7 +51,7 @@ const RootCardDetailPage = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-          <p className="text-slate-600 dark:text-slate-400">Loading root card...</p>
+          <p className="text-slate-500 dark:text-slate-400">Loading root card...</p>
         </div>
       </div>
     );
