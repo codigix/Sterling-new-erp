@@ -90,7 +90,7 @@ const StockMovementsPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <RefreshCw size={40} className="text-blue-600 animate-spin" />
-        <p className="text-xs  text-slate-400  tracking-[0.2em]">Syncing Ledger Records...</p>
+        <p className="text-xs  text-slate-400  ">Syncing Ledger Records...</p>
       </div>
     );
   }
@@ -102,23 +102,24 @@ const StockMovementsPage = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+   <>
+    <div className="p-4">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg shadow-slate-200 dark:shadow-none">
-            <TrendingUp size={24} />
+          <div className="p-2 rounded bg-slate-900 flex items-center justify-center text-white  shadow-slate-200 dark:shadow-none">
+            <TrendingUp size={15} />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs  text-slate-500  tracking-widest">Inventory</span>
+              <span className="text-xs  text-slate-500  ">Inventory</span>
               <span className="text-slate-300 dark:text-slate-500">›</span>
-              <span className="text-xs  text-slate-900 dark:text-slate-400  tracking-widest">Stock Ledger</span>
+              <span className="text-xs  text-slate-900 dark:text-slate-400  ">Stock Ledger</span>
             </div>
-            <h1 className="text-2xl  text-slate-900 dark:text-white ">
+            <h1 className="text-xl  text-slate-900 dark:text-white ">
               Material Movements
             </h1>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs  text-slate-500 dark:text-slate-400">
               Complete audit trail of stock ins and outs with project context
             </p>
           </div>
@@ -126,22 +127,22 @@ const StockMovementsPage = () => {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs  tracking-widest transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-3"
+            className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-3"
           >
-            <Plus size={18} /> Add Entry
+            <Plus size={15} /> Add Entry
           </button>
         </div>
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3  my-5 gap-2">
         {stats.map((stat, idx) => (
-          <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
-            <div className={`p-3 rounded bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600`}>
-               <stat.icon size={24} />
+          <div key={idx} className="bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-800  flex items-center gap-4">
+            <div className={`p-2 rounded bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600`}>
+               <stat.icon size={15} />
             </div>
             <div>
-              <p className="text-[10px]  text-slate-400  tracking-widest mb-0.5">{stat.label}</p>
+              <p className="text-xs mb-2  text-slate-400   mb-0.5">{stat.label}</p>
               <h3 className="text-xl  text-slate-900 dark:text-white leading-none ">{stat.value}</h3>
             </div>
           </div>
@@ -149,16 +150,16 @@ const StockMovementsPage = () => {
       </div>
 
       {/* Filters Card */}
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
-        <div className="flex flex-col lg:flex-row items-end gap-6">
+      <div className="my-5">
+        <div className="flex flex-col lg:flex-row items-end gap-2">
           <div className="flex-1 w-full space-y-2">
-            <label className="text-[10px]  text-slate-400  tracking-widest ml-1">Search Parameters</label>
+            <label className="text-xs mb-2  text-slate-400   ml-1">Search Parameters</label>
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
               <input
                 type="text"
                 placeholder="Search by code, material, project, or reference..."
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-slate-900 outline-none transition-all"
+                className="w-full pl-12 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-slate-900 outline-none transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -166,11 +167,11 @@ const StockMovementsPage = () => {
           </div>
 
           <div className="w-full lg:w-48 space-y-2">
-            <label className="text-[10px]  text-slate-400  tracking-widest ml-1">Date Range</label>
+            <label className="text-xs mb-2  text-slate-400   ml-1">Date Range</label>
             <div className="relative">
               <input
                 type="date"
-                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs  outline-none"
+                className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
@@ -178,33 +179,33 @@ const StockMovementsPage = () => {
           </div>
 
           <div className="flex gap-2 w-full lg:w-auto">
-            <button className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-3.5 bg-slate-900 dark:bg-slate-700 text-white rounded-2xl  text-xs  tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10">
-              <Filter size={16} /> Apply Filter
+            <button className="flex-1 lg:flex-none flex items-center justify-center gap-3 p-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded  text-xs   hover:bg-slate-800 transition-all  shadow-slate-900/10">
+              <Filter size={15} /> Apply Filter
             </button>
             <button 
               onClick={fetchStockMovements}
-              className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-500 hover:text-blue-600 transition-all hover:"
+              className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:text-blue-600 transition-all hover:"
             >
-              <RefreshCw size={20} />
+              <RefreshCw size={15} />
             </button>
           </div>
         </div>
       </div>
 
       {/* Ledger Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-800  overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest w-12 text-center"></th>
-                <th className="px-8 py-5 text-[10px]  text-slate-400  tracking-widest">Movement Log</th>
-                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest">Material Identity</th>
-                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest">Project & Vendor Context</th>
-                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest text-center">Type</th>
-                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest text-right">Quantity</th>
-                <th className="px-6 py-5 text-[10px]  text-slate-400  tracking-widest">Reference</th>
-                <th className="px-8 py-5 text-[10px]  text-slate-400  tracking-widest text-right">Actions</th>
+                <th className="p-2 text-xs mb-2  text-slate-400   w-12 text-center"></th>
+                <th className="p-2 text-xs mb-2  text-slate-400  ">Movement Log</th>
+                <th className="p-2 text-xs mb-2  text-slate-400  ">Material Identity</th>
+                <th className="p-2 text-xs mb-2  text-slate-400  ">Project & Vendor Context</th>
+                <th className="p-2 text-xs mb-2  text-slate-400   text-center">Type</th>
+                <th className="p-2 text-xs mb-2  text-slate-400   text-right">Quantity</th>
+                <th className="p-2 text-xs mb-2  text-slate-400  ">Reference</th>
+                <th className="p-2 text-xs mb-2  text-slate-400   text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -213,51 +214,51 @@ const StockMovementsPage = () => {
                 return (
                   <React.Fragment key={m.id}>
                     <tr className={`group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors ${isExpanded ? 'bg-indigo-50/20 dark:bg-indigo-900/10' : ''}`}>
-                      <td className="px-6 py-6 text-center">
+                      <td className="p-2 text-center">
                         <button 
                           onClick={() => setExpandedMovement(isExpanded ? null : m.id)}
-                          className={`p-1.5 rounded transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
+                          className={`p-1 rounded transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
                         >
                           {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
                       </td>
-                      <td className="px-8 py-6">
+                      <td className="p-2">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <Calendar size={12} className="text-slate-400" />
                             <p className="text-xs  text-slate-900 dark:text-white  ">{m.date}</p>
                           </div>
-                          <p className="text-[9px]  text-slate-400  tracking-[0.2em]">{m.reference_type}</p>
+                          <p className="text-xs  text-slate-400  ">{m.reference_type}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-6">
+                      <td className="p-2">
                         <div className="space-y-1">
-                          <p className="text-sm  text-slate-900 dark:text-white   line-clamp-1">{m.material_name}</p>
+                          <p className="text-xs  text-slate-900 dark:text-white   line-clamp-1">{m.material_name}</p>
                           <div className="flex items-center gap-2">
-                            <span className="text-[9px]  text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 font-mono">
+                            <span className="text-xs  text-blue-600 bg-blue-50 p-1 rounded border border-blue-100 font-mono">
                               {m.item_code}
                             </span>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-6">
-                        <div className="space-y-1.5">
+                      <td className="p-2">
+                        <div className="">
                           <div className="flex items-center gap-2">
                             <ShieldCheck size={14} className="text-indigo-500" />
-                            <p className=" text-slate-900 dark:text-white text-[10px]   leading-tight line-clamp-1">
+                            <p className=" text-slate-900 dark:text-white text-xs mb-2   leading-tight line-clamp-1">
                               {m.project_name || "GENERAL PROJECT STOCK"}
                             </p>
                           </div>
-                          <div className="flex items-center gap-2 ml-5">
+                          <div className="flex items-center gap-2 ">
                              <Zap size={10} className="text-slate-300" />
-                             <p className="text-[10px]  text-slate-400  tracking-widest truncate max-w-[150px]">
+                             <p className="text-xs mb-2  text-slate-400   truncate max-w-[150px]">
                                {m.vendor_name || "N/A"}
                              </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-6 text-center">
-                        <span className={`px-3 py-1.5 rounded  text-[10px]  tracking-widest border ${
+                      <td className="p-2 text-center">
+                        <span className={`p-1 rounded  text-xs mb-2   border ${
                           m.type === 'IN' 
                             ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                             : 'bg-red-50 text-red-600 border-red-100'
@@ -265,28 +266,28 @@ const StockMovementsPage = () => {
                           {m.type === 'IN' ? 'Receipt (IN)' : 'Issue (OUT)'}
                         </span>
                       </td>
-                      <td className="px-6 py-6 text-right">
-                        <div className="flex flex-col items-end">
-                          <span className={`text-sm   ${m.type === 'IN' ? 'text-emerald-600' : 'text-red-600'}`}>
+                      <td className="p-2 text-right">
+                        <div className="flex flex gap-1 items-end">
+                          <span className={`text-xs   ${m.type === 'IN' ? 'text-emerald-600' : 'text-red-600'}`}>
                             {m.type === 'IN' ? '+' : '-'}{Number(m.quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })}
                           </span>
-                          <span className="text-[9px]  text-slate-400  tracking-widest">{m.uom}</span>
+                          <span className="text-xs  text-slate-400  ">{m.uom}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-6">
+                      <td className="p-2">
                         <div className="space-y-1">
-                          <p className="text-[10px]  text-indigo-600   bg-indigo-50 px-2 py-1 rounded border border-indigo-100 w-fit">
+                          <p className="text-xs mb-2  text-indigo-600   bg-indigo-50 p-1 rounded border border-indigo-100 w-fit">
                              {m.reference_no}
                           </p>
-                          <p className="text-[10px] text-slate-400 italic font-medium truncate max-w-[150px] ml-1">
+                          <p className="text-xs mb-2 text-slate-400 italic  truncate max-w-[150px] ml-1">
                             {m.remarks}
                           </p>
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <td className="p-2 text-right">
+                        <div className="flex justify-end gap-2  group-hover:opacity-100 transition-opacity">
                           <button className="p-2 text-slate-400 hover:text-red-600 transition-colors">
-                            <Trash2 size={18} />
+                            <Trash2 size={15} />
                           </button>
                         </div>
                       </td>
@@ -295,13 +296,13 @@ const StockMovementsPage = () => {
                     {/* Expandable Serial Detail Breakdown */}
                     {isExpanded && (
                       <tr className="bg-slate-50/50 dark:bg-slate-900/50">
-                        <td colSpan="8" className="px-12 py-8">
-                          <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden animate-in slide-in-from-top-4 duration-300">
-                             <div className="px-8 py-4 border-b border-slate-50 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
-                                <h4 className="text-[10px]  text-slate-400  tracking-widest flex items-center gap-2">
+                        <td colSpan="8" className="p-2">
+                          <div className="bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  overflow-hidden animate-in slide-in-from-top-4 duration-300">
+                             <div className="p-2 border-b border-slate-50 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+                                <h4 className="text-xs mb-2  text-slate-400   flex items-center gap-2">
                                   <Boxes size={14} /> Tracking Serial Numbers (ST Codes)
                                 </h4>
-                                <div className="text-[10px]  text-slate-500 bg-white dark:bg-slate-900 px-3 py-1 rounded  border border-slate-100 dark:border-slate-700">
+                                <div className="text-xs mb-2  text-slate-500 bg-white dark:bg-slate-900 px-3 py-1 rounded  border border-slate-100 dark:border-slate-700">
                                   {m.serials?.length || 0} items moved in this transaction
                                 </div>
                              </div>
@@ -310,17 +311,17 @@ const StockMovementsPage = () => {
                                <table className="w-full text-left text-xs">
                                  <thead>
                                    <tr className="bg-slate-50/30 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700">
-                                     <th className="px-8 py-3  text-slate-400  tracking-widest w-16 text-center">#</th>
-                                     <th className="px-6 py-3  text-slate-400  tracking-widest">Item Code</th>
-                                     <th className="px-6 py-3  text-slate-400  tracking-widest">Item Name</th>
-                                     <th className="px-6 py-3  text-indigo-500  tracking-widest text-right">ST Number</th>
+                                     <th className="p-2  text-slate-400   w-16 text-center">#</th>
+                                     <th className="p-2  text-slate-400  ">Item Code</th>
+                                     <th className="p-2  text-slate-400  ">Item Name</th>
+                                     <th className="p-2  text-indigo-500   text-right">ST Number</th>
                                    </tr>
                                  </thead>
-                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-700 font-medium">
+                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-700 ">
                                    {m.serials && m.serials.length > 0 ? (
                                      m.serials.map((st, sIdx) => (
                                        <tr key={sIdx} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors">
-                                         <td className="px-8 py-4 text-slate-400  text-center">{sIdx + 1}</td>
+                                         <td className="p-2 text-slate-400  text-center">{sIdx + 1}</td>
                                          <td className="p-2  text-slate-700 dark:text-slate-300  ">
                                            {st.serial_number.replace(/^ST-/, "")}
                                          </td>
@@ -328,7 +329,7 @@ const StockMovementsPage = () => {
                                            {m.material_name}
                                          </td>
                                          <td className="p-2 text-right">
-                                           <span className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-[10px]    border border-indigo-100 dark:border-indigo-800">
+                                           <span className="p-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-xs mb-2    border border-indigo-100 dark:border-indigo-800">
                                              {st.serial_number}
                                            </span>
                                          </td>
@@ -336,7 +337,7 @@ const StockMovementsPage = () => {
                                      ))
                                    ) : (
                                      <tr>
-                                       <td colSpan="4" className="px-8 py-12 text-center text-slate-400   tracking-widest text-[10px]">
+                                       <td colSpan="4" className="p-4 text-center text-slate-400    text-xs mb-2">
                                          No individual serial tracking records for this movement
                                        </td>
                                      </tr>
@@ -357,8 +358,8 @@ const StockMovementsPage = () => {
                     <div className="flex flex-col items-center gap-4 text-slate-400">
                       <FileText size={48} className="opacity-10" />
                       <div className="space-y-1">
-                        <p className="text-sm   tracking-widest">No movements recorded</p>
-                        <p className="text-xs font-medium">Synchronize ledger to see live transactions</p>
+                        <p className="text-sm   ">No movements recorded</p>
+                        <p className="text-xs ">Synchronize ledger to see live transactions</p>
                       </div>
                     </div>
                   </td>
@@ -369,12 +370,14 @@ const StockMovementsPage = () => {
         </div>
       </div>
 
-      <CreateStockEntryModal 
+      
+    </div>
+    <CreateStockEntryModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onEntryCreated={fetchStockMovements}
       />
-    </div>
+   </>
   );
 };
 

@@ -144,29 +144,29 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-800 rounded overflow-auto max-h-[90vh] w-full max-w-5xl my-8 border border-slate-200 dark:border-slate-700">
+    <div className="fixed inset-0 z-[110] flex justify-center items-start sm:items-center p-4 bg-slate-900/70 backdrop-blur-md animate-in fade-in duration-300 overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded  w-full max-w-5xl my-auto border border-white/20 animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col max-h-[95vh]">
         {/* Header */}
-        <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
+        <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-indigo-600/5 to-transparent flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="p-2 rounded bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
               <Package size={15} />
             </div>
             <div>
-              <h2 className="text-md  text-slate-900 dark:text-white ">
+              <h2 className="text-xl  text-slate-900 dark:text-white">
                 Create Stock Entry
               </h2>
-              <p className="text-slate-500 dark:text-slate-400 font-medium text-xs">
+              <p className="text-slate-500 dark:text-slate-400 text-xs">
                 Record material receipts and issues with project context
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-3 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-all group">
-            <X size={15} className="text-slate-400 group-hover:text-slate-500 transition-colors" />
+          <button onClick={onClose} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all text-slate-400 hover:text-slate-900 dark:hover:text-white">
+            <X size={20} />
           </button>
         </div>
 
-        <div className="p-2 space-y-2  ">
+        <div className="flex-1 overflow-y-auto p-2">
           {/* Section 1: Transaction Metadata */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
             <div className="space-y-2 lg:col-span-2">
@@ -181,7 +181,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                       onChange={handleInputChange}
                       className="w-full pl-12 pr-4 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition-all  text-xs"
                     >
-                      <option value="">MANUAL ENTRY</option>
+                      <option value="">Manual Entry</option>
                       {grns.map(grn => (
                         <option key={grn.id} value={grn.id}>{grn.grn_number} - {grn.vendor_name}</option>
                       ))}
@@ -264,10 +264,10 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
             </div>
           </div>
 
-          <div className="h-px bg-slate-100 dark:bg-slate-700" />
+         
 
           {/* Section 2: Material Selection */}
-          <div className="space-y-2">
+          <div className="">
             <h3 className="text-xs  text-slate-400  flex items-center gap-2">
               <LayoutGrid size={14} /> Line Items Selection
             </h3>
@@ -404,25 +404,25 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-2 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
+        <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row justify-between items-center gap-4 flex-shrink-0">
           <button 
             onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200  text-xs   transition-all"
+            className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200  text-xs transition-all"
           >
             Cancel Transaction
           </button>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button 
               onClick={() => handleSubmit(true)}
               disabled={loading}
-              className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 rounded  text-xs   hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all "
+              className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 rounded  text-xs hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all "
             >
               Save as Draft
             </button>
             <button 
               onClick={() => handleSubmit(false)}
               disabled={loading}
-              className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
+              className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs transition-all shadow-xl shadow-indigo-500/25 active:scale-95 flex items-center justify-center gap-2"
             >
               {loading ? "PROCESSING..." : "Commit Entry"}
             </button>
