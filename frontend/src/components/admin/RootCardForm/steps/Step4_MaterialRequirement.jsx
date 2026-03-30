@@ -644,17 +644,6 @@ export default function Step4_MaterialRequirement({ readOnly = false }) {
         </div>
       </FormSection>
 
-      <div className="mt-8">
-        <AssigneeField 
-          label="Assign to Inventory Manager"
-          department="Inventory Management"
-          value={formData.inventoryManager || "Inventory (Default)"}
-          onChange={(val) => updateField("inventoryManager", val)}
-          description="This person will receive notifications for all materialRequirements updates"
-          readOnly={readOnly}
-        />
-      </div>
-
       {/* Item Add/Edit Modal */}
       <Modal 
         isOpen={showItemModal} 

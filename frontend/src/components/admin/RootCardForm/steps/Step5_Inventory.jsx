@@ -1,7 +1,6 @@
 import React from "react";
 import { Package } from "lucide-react";
 import FormSection from "../shared/FormSection";
-import AssigneeField from "../shared/AssigneeField";
 import { useFormData, useRootCardContext } from "../hooks";
 
 export default function Step5_Inventory({ readOnly = false }) {
@@ -10,14 +9,6 @@ export default function Step5_Inventory({ readOnly = false }) {
 
   return (
     <div className="space-y-2">
-      <AssigneeField
-        stepType="inventory"
-        formData={state.formData}
-        updateField={updateField}
-        employees={state.employees}
-        readOnly={readOnly}
-      />
-      
       <FormSection
         title="Inventory Management"
         subtitle="Track material availability and warehouse status"

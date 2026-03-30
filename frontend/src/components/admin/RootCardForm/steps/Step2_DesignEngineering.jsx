@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { FileText, Eye, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import FormSection from "../shared/FormSection";
-import AssigneeField from "../shared/AssigneeField";
 import { useRootCardContext } from "../hooks";
 import axios from "../../../../utils/api";
 import { getServerUrl } from "../../../../utils/fileUtils";

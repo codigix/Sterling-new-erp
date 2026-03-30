@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Zap, AlertCircle, Hammer, TrendingUp, PackageCheck, FileText, Loader2, Eye, Send, Edit2, Trash2 } from "lucide-react";
 import axios from "../../../../utils/api";
 import Badge from "../../../ui/Badge";
@@ -97,9 +97,6 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
         <span>Setup: {row.setupTime}m</span>
       </div>
     )},
-    { key: "cost", label: "Total Cost", render: (val) => (
-      <span className=" text-slate-900">₹{parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-    )},
   ];
 
   if (loading && boms.length === 0) {
@@ -147,27 +144,6 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
               View BOM Details
             </Button>
           </div>
-          
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center gap-4 p-4 rounded bg-amber-50/50 border border-amber-100">
-              <div className="p-3 rounded bg-amber-100 text-amber-600">
-                <Hammer size={24} />
-              </div>
-              <div>
-                <p className="text-xs font-medium text-slate-500 ">Operation Cost</p>
-                <p className="text-2xl  text-slate-900">₹{parseFloat(boms[0].operationCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded bg-purple-50/50 border border-purple-100">
-              <div className="p-3 rounded bg-purple-100 text-purple-600">
-                <TrendingUp size={24} />
-              </div>
-              <div>
-                <p className="text-xs font-medium text-slate-500 ">Total BOM Cost</p>
-                <p className="text-2xl  text-slate-900">₹{parseFloat(boms[0].totalCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-              </div>
-            </div>
-          </div>
         </div>
       ) : (
         <div className="p-12 text-center bg-slate-50 rounded border-2 border-dashed border-slate-200">
@@ -186,29 +162,6 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
           size="xl"
         >
           <ModalBody className="p-0">
-            <div className="p-6 bg-slate-50 border-b border-slate-200">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 bg-white p-4 rounded border border-slate-200">
-                    <div className={`p-2 rounded bg-amber-50 text-amber-600`}>
-                      <Hammer size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-medium text-slate-500 ">Operation Cost</p>
-                      <p className="text-lg  text-slate-900">₹{selectedBOM.costs?.operationCost?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 bg-white p-4 rounded border border-slate-200">
-                    <div className={`p-2 rounded bg-purple-50 text-purple-600`}>
-                      <TrendingUp size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-medium text-slate-500 ">Total BOM Cost</p>
-                      <p className="text-lg  text-slate-900">₹{selectedBOM.costs?.totalBOMCost?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
-                    </div>
-                  </div>
-                </div>
-            </div>
-
             <div className="p-6 space-y-8">
               <section>
                 <h3 className=" text-slate-900 flex items-center gap-2 text-sm  tracking-wide mb-4">

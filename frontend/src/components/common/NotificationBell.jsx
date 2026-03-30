@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
   Bell, Trash2, Eye, CheckCheck, Inbox, 
   Settings, User, Info, AlertTriangle, 
@@ -88,7 +88,7 @@ const NotificationBell = () => {
     }, {});
   };
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
     try {
       // Send both department and role to ensure we catch all relevant notifications
@@ -100,13 +100,13 @@ const NotificationBell = () => {
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
-  };
+  }, [user?.id, user?.department, user?.role]);
 
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 60000);
     return () => clearInterval(interval);
-  }, [user?.id, user?.department]);
+  }, [fetchNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -239,7 +239,7 @@ const NotificationBell = () => {
           </div>
 
           {/* Content */}
-          <div className=" overflow-y-auto custom-scrollbar">
+          <div className="max-h-[400px] overflow-y-auto custom-scrollbar scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
             {notifications.length === 0 ? (
               <div className="p-2 text-center">
                 <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded  flex items-center justify-center mx-auto">
