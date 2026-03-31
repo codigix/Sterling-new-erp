@@ -12,20 +12,6 @@ const ProductionDashboard = () => {
   const [selectedRootCard, setSelectedRootCard] = useState(null);
   const [departmentTasks, setDepartmentTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
-  const [workOrders, setWorkOrders] = useState([]);
-  const [loadingWorkOrders, setLoadingWorkOrders] = useState(true);
-
-  const fetchWorkOrders = useCallback(async () => {
-    try {
-      setLoadingWorkOrders(true);
-      const response = await axios.get('/production/work-orders');
-      setWorkOrders(response.data || []);
-    } catch (error) {
-      console.error('Error fetching work orders:', error);
-    } finally {
-      setLoadingWorkOrders(false);
-    }
-  }, []);
 
   const fetchPlans = useCallback(async () => {
     try {
@@ -74,8 +60,7 @@ const ProductionDashboard = () => {
     fetchRootCards();
     fetchTasks();
     fetchPlans();
-    fetchWorkOrders();
-  }, [fetchTasks, fetchPlans, fetchRootCards, fetchWorkOrders]);
+  }, [fetchTasks, fetchPlans, fetchRootCards]);
 
   const stats = [
     {
@@ -297,77 +282,7 @@ const ProductionDashboard = () => {
         )}
       </div>
 
-      {/* Recent Work Orders Overview */}
-      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2">
-            <FileText size={20} className="text-indigo-600" />
-            Recent Work Orders
-          </h2>
-          <Link
-            to="/department/production/work-orders"
-            className="text-xs  text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
-          >
-            All Orders <ChevronRight size={14} />
-          </Link>
-        </div>
-        
-        {loadingWorkOrders ? (
-          <div className="flex justify-center py-6">
-            <Loader2 className="animate-spin text-indigo-600" size={15} />
-          </div>
-        ) : workOrders.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700">
-                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider">Order ID</th>
-                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider">Item Name</th>
-                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider text-center">Qty</th>
-                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider">Status</th>
-                  <th className="pb-3 text-[10px]  text-slate-400  tracking-wider text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                {workOrders.slice(0, 5).map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
-                    <td className="py-4 text-xs  text-slate-900 dark:text-white">{order.work_order_no}</td>
-                    <td className="py-4">
-                      <p className="text-xs  text-slate-700 dark:text-slate-300 line-clamp-1">{order.item_name}</p>
-                      <p className="text-[10px] text-slate-400 ">{order.project_name || 'Stock'}</p>
-                    </td>
-                    <td className="py-4 text-center text-xs  text-slate-500 dark:text-slate-400">
-                      {order.quantity} {order.unit}
-                    </td>
-                    <td className="py-4">
-                      <span className={`px-2 py-0.5 text-[9px]  rounded   border ${
-                        order.status === 'completed' ? 'bg-green-50 text-green-600 border-green-100' :
-                        order.status === 'in_progress' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                        'bg-slate-50 text-slate-500 border-slate-200'
-                      }`}>
-                        {order.status?.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="py-4 text-right">
-                      <Link
-                        to={`/department/production/work-orders/${order.id}`}
-                        className="text-[10px]  text-indigo-600 hover:text-indigo-800"
-                      >
-                        VIEW
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-800">
-            <FileText className="mx-auto text-slate-300 mb-2" size={32} />
-            <p className="text-sm text-slate-500 ">No work orders found.</p>
-          </div>
-        )}
-      </div>
+      {/* Recent Work Orders Overview Removed */}
 
       {/* Production Phases by Root Card */}
       {selectedRootCard && (

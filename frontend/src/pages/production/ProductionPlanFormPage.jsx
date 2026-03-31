@@ -1926,36 +1926,36 @@ const ProductionPlanFormPage = () => {
     }
   };
 
-  const handleCreateWorkOrderAction = async () => {
-    let currentPlanId = planId;
-    
-    if (!currentPlanId) {
-      console.log('[handleCreateWorkOrderAction] No planId, saving plan first...');
-      currentPlanId = await handleSubmit(null, false);
-      if (!currentPlanId) {
-        console.error('[handleCreateWorkOrderAction] Failed to save plan, aborting work order generation');
-        return;
-      }
-    }
-
-    setGeneratingWorkOrders(true);
-    try {
-      console.log('[handleCreateWorkOrderAction] Generating work orders for plan:', currentPlanId);
-      const response = await axios.post(`/production/plans/${currentPlanId}/generate-work-orders`);
-      setSuccess(`✓ ${response.data.message}`);
-      
-      // Navigate to work orders list after a short delay so user can see the success message
-      setTimeout(() => {
-        setSuccess('');
-        navigate('/department/production/work-orders');
-      }, 1500);
-    } catch (err) {
-      console.error('Error generating work orders:', err);
-      setError('Failed to generate work orders: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setGeneratingWorkOrders(false);
-    }
-  };
+  // const handleCreateWorkOrderAction = async () => {
+  //   let currentPlanId = planId;
+  //   
+  //   if (!currentPlanId) {
+  //     console.log('[handleCreateWorkOrderAction] No planId, saving plan first...');
+  //     currentPlanId = await handleSubmit(null, false);
+  //     if (!currentPlanId) {
+  //       console.error('[handleCreateWorkOrderAction] Failed to save plan, aborting work order generation');
+  //       return;
+  //     }
+  //   }
+  //
+  //   setGeneratingWorkOrders(true);
+  //   try {
+  //     console.log('[handleCreateWorkOrderAction] Generating work orders for plan:', currentPlanId);
+  //     const response = await axios.post(`/production/plans/${currentPlanId}/generate-work-orders`);
+  //     setSuccess(`✓ ${response.data.message}`);
+  //     
+  //     // Navigate to work orders list after a short delay so user can see the success message
+  //     setTimeout(() => {
+  //       setSuccess('');
+  //       navigate('/department/production/work-orders');
+  //     }, 1500);
+  //   } catch (err) {
+  //     console.error('Error generating work orders:', err);
+  //     setError('Failed to generate work orders: ' + (err.response?.data?.message || err.message));
+  //   } finally {
+  //     setGeneratingWorkOrders(false);
+  //   }
+  // };
 
   const getEmployeeName = (id) => {
     const employee = employees.find(e => e.id == id);
@@ -2120,7 +2120,7 @@ const ProductionPlanFormPage = () => {
             </div>
 
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full md:w-auto">
-              <button 
+              {/* <button 
                 onClick={handleCreateWorkOrderAction}
                 disabled={loading || generatingWorkOrders || (!formData.salesOrderId && !formData.rootCardId)}
                 className="inline-flex items-center gap-2 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs  hover:bg-black transition-all  disabled:bg-slate-400"
@@ -2131,7 +2131,7 @@ const ProductionPlanFormPage = () => {
                   <Zap size={14} className="text-yellow-400" />
                 )}
                 Work Orders
-              </button>
+              </button> */}
               <button 
                 onClick={() => {
                   console.log('--- ProductionPlanFormPage Modal Trigger Debug ---');

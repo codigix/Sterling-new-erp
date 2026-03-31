@@ -149,12 +149,6 @@ const ProductionTasksPage = () => {
           >
             Manufacturing Stages
           </button>
-          <button
-            onClick={() => navigate("/department/production/work-orders")}
-            className="p-2 rounded font-medium bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors whitespace-nowrap"
-          >
-            Work Orders
-          </button>
         </div>
         <div className="flex gap-2">
           <button className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
@@ -162,11 +156,17 @@ const ProductionTasksPage = () => {
             Filter
           </button>
           <button
-            onClick={() => navigate("/department/production/work-orders/new")}
+            onClick={() => {
+              if (activeTab === "rootcards") {
+                navigate("/department/production/root-cards/new-root-card");
+              } else {
+                navigate("/department/production/plans/new");
+              }
+            }}
             className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
             <Plus size={18} />
-            New {activeTab === "rootcards" ? "Root Card" : "Work Order"}
+            New {activeTab === "rootcards" ? "Root Card" : "Plan"}
           </button>
         </div>
       </div>

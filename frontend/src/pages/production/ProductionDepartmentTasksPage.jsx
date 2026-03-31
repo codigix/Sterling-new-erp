@@ -72,9 +72,7 @@ const ProductionDepartmentTasksPage = () => {
     const matchesSearch = 
       (task.task_title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (task.root_card_code || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (task.po_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (jobCardNo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (task.work_order_no || '').toLowerCase().includes(searchTerm.toLowerCase());
+      (task.po_number || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
     
@@ -146,7 +144,6 @@ const ProductionDepartmentTasksPage = () => {
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700">
                 <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Task Info</th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Job Card / Work Order</th>
                 <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Priority</th>
                 <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Status</th>
                 <th className="p-2 text-left text-xs font-semibold text-slate-500  tracking-wider">Assigned By</th>
@@ -173,16 +170,6 @@ const ProductionDepartmentTasksPage = () => {
                         </div>
                       )}
                       <div className="text-xs text-slate-500 mt-1 line-clamp-1 italic font-medium">{task.task_description}</div>
-                    </td>
-                    <td className="p-2">
-                      <div className="text-sm text-slate-900 dark:text-white ">
-                        {task.work_order_operation_id 
-                          ? `JC-${task.work_order_no?.split('-')?.pop() || task.work_order_id || 'WO'}-${task.work_order_operation_id}` 
-                          : 'N/A'}
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        WO: {task.work_order_no || 'N/A'}
-                      </div>
                     </td>
                     <td className="p-2">
                       <Badge className={`

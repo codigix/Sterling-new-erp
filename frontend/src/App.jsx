@@ -75,13 +75,8 @@ import ProductionRootCardDetailPage from "./pages/production/RootCardDetailPage"
 import ProductionPlansPage from "./pages/production/ProductionPlansPage";
 import ProductionPlanDetailPage from "./pages/production/ProductionPlanDetailPage";
 import ProductionPlanFormPage from "./pages/production/ProductionPlanFormPage";
-import WorkOrdersPage from "./pages/production/WorkOrdersPage";
-import WorkOrderFormPage from "./pages/production/WorkOrderFormPage";
-import WorkOrderDetailPage from "./pages/production/WorkOrderDetailPage";
-// import JobCardsPage from "./pages/production/JobCardsPage";
 import WorkstationsPage from "./pages/production/WorkstationsPage";
 import WorkstationFormPage from "./pages/production/WorkstationFormPage";
-import ProductionEntryPage from "./pages/production/ProductionEntryPage";
 import MaterialRequestsPage from "./pages/production/MaterialRequestsPage";
 import ReleasedMaterialsPage from "./pages/production/ReleasedMaterialsPage";
 import ProductionDepartmentTasksPage from "./pages/production/ProductionDepartmentTasksPage";
@@ -193,17 +188,11 @@ function App() {
                 <Route path="production/plans" element={<ProductionPlansPage />} />
                 <Route path="production/plans/new" element={<ProductionPlanFormPage />} />
                 <Route path="production/plans/:id" element={<ProductionPlanFormPage />} />
-                <Route path="production/work-orders" element={<WorkOrdersPage />} />
-                <Route path="production/work-orders/new" element={<WorkOrderFormPage />} />
-                <Route path="production/work-orders/:id" element={<WorkOrderDetailPage />} />
-                <Route path="production/work-orders/edit/:id" element={<WorkOrderFormPage />} />
-                {/* <Route path="production/job-cards" element={<JobCardsPage />} /> */}
                 <Route path="production/workstations" element={<WorkstationsPage />} />
                 <Route path="production/workstations/new" element={<WorkstationFormPage />} />
                 <Route path="production/workstations/edit/:id" element={<WorkstationFormPage />} />
                 <Route path="production/department-tasks" element={<ProductionDepartmentTasksPage />} />
                 <Route path="production/workflow-tasks" element={<ProductionWorkflowTasksPage />} />
-                <Route path="production/operations/:id/entry" element={<ProductionEntryPage />} />
               </Route>
               
               <Route path="/department/quality/*" element={<QualityDepartmentDashboard />} />
@@ -218,7 +207,6 @@ function App() {
                 <Route path="alerts" element={<EmployeeAlerts />} />
                 <Route path="updates" element={<EmployeeUpdates />} />
                 <Route path="settings" element={<EmployeeSettings />} />
-                <Route path="operations/:id/entry" element={<ProductionEntryPage />} />
               </Route>
               
               {/* Legacy Employee Portal */}

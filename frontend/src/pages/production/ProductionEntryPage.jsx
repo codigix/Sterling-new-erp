@@ -222,31 +222,31 @@ const ProductionEntryPage = () => {
     }
   };
 
-  const handleCompleteProductionEntry = async () => {
-    const result = await Swal.fire({
-      title: 'Complete Production Entry?',
-      text: "This will mark the production entry task as finished and close this operation.",
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#4f46e5',
-      cancelButtonColor: '#64748b',
-      confirmButtonText: 'Yes, complete it!'
-    });
-
-    if (result.isConfirmed) {
-      setSubmitting(true);
-      try {
-        await axios.post(`/production/work-orders/operations/${id}/complete-entry`);
-        showSuccess('The production entry has been finalized.');
-        navigate('/department/production/job-cards');
-      } catch (err) {
-        console.error('Error completing production entry:', err);
-        showError('Failed to complete production entry task');
-      } finally {
-        setSubmitting(false);
-      }
-    }
-  };
+  // const handleCompleteProductionEntry = async () => {
+  //   const result = await Swal.fire({
+  //     title: 'Complete Production Entry?',
+  //     text: "This will mark the production entry task as finished and close this operation.",
+  //     icon: 'question',
+  //     showCancelButton: true,
+  //     confirmButtonColor: '#4f46e5',
+  //     cancelButtonColor: '#64748b',
+  //     confirmButtonText: 'Yes, complete it!'
+  //   });
+  //
+  //   if (result.isConfirmed) {
+  //     setSubmitting(true);
+  //     try {
+  //       await axios.post(`/production/work-orders/operations/${id}/complete-entry`);
+  //       showSuccess('The production entry has been finalized.');
+  //       navigate('/department/production/job-cards');
+  //     } catch (err) {
+  //       console.error('Error completing production entry:', err);
+  //       showError('Failed to complete production entry task');
+  //     } finally {
+  //       setSubmitting(false);
+  //     }
+  //   }
+  // };
 
   if (loading) {
     return (

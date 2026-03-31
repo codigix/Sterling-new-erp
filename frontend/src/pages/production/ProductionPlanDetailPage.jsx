@@ -15,7 +15,6 @@ const ProductionPlanDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({});
-  const [generatingWorkOrders, setGeneratingWorkOrders] = useState(false);
   const [success, setSuccess] = useState('');
   const pollingIntervalRef = useRef(null);
 
@@ -110,24 +109,6 @@ const ProductionPlanDetailPage = () => {
       navigate('/department/production/plans');
     } catch (err) {
       setError(err.message || 'Failed to delete plan');
-    }
-  };
-
-  const handleGenerateWorkOrders = async () => {
-    setGeneratingWorkOrders(true);
-    setError(null);
-    setSuccess('');
-    try {
-      const response = await axios.post(`/production/plans/${id}/generate-work-orders`);
-      setSuccess(`✓ ${response.data.message}`);
-      // Refresh to show any updated status if applicable
-      fetchPlanDetail(false);
-      setTimeout(() => setSuccess(''), 5000);
-    } catch (err) {
-      console.error('Error generating work orders:', err);
-      setError('Failed to generate work orders: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setGeneratingWorkOrders(false);
     }
   };
 
@@ -229,18 +210,6 @@ const ProductionPlanDetailPage = () => {
           <div className="flex items-center gap-3">
             {!isEditing ? (
               <>
-                <button
-                  onClick={handleGenerateWorkOrders}
-                  disabled={generatingWorkOrders}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded bg-green-600 text-white  hover:bg-green-700 disabled:bg-slate-400 transition-all text-sm shadow-lg shadow-green-600/20"
-                >
-                  {generatingWorkOrders ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Zap size={16} />
-                  )}
-                  Generate Work Orders
-                </button>
                 <button
                   onClick={() => setIsEditing(true)}
                   className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400  hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
