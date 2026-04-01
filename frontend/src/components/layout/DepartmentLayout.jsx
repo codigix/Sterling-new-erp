@@ -29,6 +29,10 @@ import {
   Warehouse,
   Clock,
   FileCheck,
+  Settings2,
+  History as HistoryIcon,
+  PackageCheck,
+  Plus
 } from "lucide-react";
 
 const DepartmentLayout = () => {
@@ -446,74 +450,29 @@ const DepartmentLayout = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      to="/department/production/released-materials"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
-                        isActive("/department/production/released-materials")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      
-                      {!sidebarCollapsed && <span>Released Materials</span>}
-                    </Link>
+                    <div className="group flex items-center">
+                      <Link
+                        to="/department/production/released-materials"
+                        className={`flex-1 flex items-center text-xs px-3 py-2 text-xs font-medium rounded-l transition-colors ${
+                          isActive("/department/production/released-materials")
+                            ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        <PackageCheck size={18} className="flex-shrink-0" />
+                        {!sidebarCollapsed && <span className="ml-3">Released Materials</span>}
+                      </Link>
+                      {!sidebarCollapsed && (
+                        <Link 
+                          to="/department/production/released-materials"
+                          className="px-2 py-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-r hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          title="View Materials"
+                        >
+                          <Plus size={14} />
+                        </Link>
+                      )}
+                    </div>
                   </li>
-                </ul>
-              </div>
-            )}
-
-            {/* BOM Menu - Only show for Production department */}
-            {getDepartmentRole().title === "Production" && (
-              <div>
-                <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
-                    sidebarCollapsed ? "text-center" : ""
-                  }`}
-                >
-                  {!sidebarCollapsed && "Bill of Materials"}
-                </h6>
-                <ul className="space-y-1">
-                  <li>
-                    <Link
-                      to="/department/production/bom/create"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
-                        isActive("/department/production/bom/create")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <FileText size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Create BOM</span>}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/department/production/bom/view"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
-                        isActive("/department/production/bom/view")
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      <BarChart3 size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">View BOMs</span>}
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            {/* Production Flow Menu - Only show for Production department */}
-            {getDepartmentRole().title === "Production" && (
-              <div>
-                <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
-                    sidebarCollapsed ? "text-center" : ""
-                  }`}
-                >
-                  {!sidebarCollapsed && "Production Flow"}
-                </h6>
-                <ul className="space-y-1">
                   <li>
                     <Link
                       to="/department/production/plans"
@@ -525,6 +484,32 @@ const DepartmentLayout = () => {
                     >
                       <ClipboardList size={18} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Production Plans</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/production/updates"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                        isActive("/department/production/updates")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <HistoryIcon size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Production Updates</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/production/operations"
+                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                        isActive("/department/production/operations")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Settings2 size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Operations</span>}
                     </Link>
                   </li>
                   <li>
@@ -569,6 +554,7 @@ const DepartmentLayout = () => {
                 </ul>
               </div>
             )}
+
 
             {/* Production Tools Menu - Only show for Production department */}
             {getDepartmentRole().title === "Production" && (

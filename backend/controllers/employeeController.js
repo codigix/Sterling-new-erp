@@ -127,7 +127,18 @@ const getEmployeeProjects = async (req, res) => {
   }
 };
 
+const getEmployeeList = async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT id, full_name as fullName, email as username, role, department, designation FROM users WHERE role = 'employee' ORDER BY full_name ASC");
+    res.json({ success: true, employees: rows });
+  } catch (error) {
+    console.error('Error fetching employee list:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = {
   getEmployeeTasks,
-  getEmployeeProjects
+  getEmployeeProjects,
+  getEmployeeList
 };

@@ -6,6 +6,7 @@ require('dotenv').config({ path: '../.env' });
 
 const db = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const rootCardRoutes = require('./routes/rootCardRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
@@ -17,6 +18,7 @@ const purchaseOrderRoutes = require('./routes/purchaseOrderRoutes');
 const qualityRoutes = require('./routes/qualityRoutes');
 const grnRoutes = require('./routes/grnRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
+const productionRoutes = require('./routes/productionRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 
 const path = require('path');
@@ -44,6 +46,7 @@ app.use('/uploads', express.static(path.resolve(__dirname, process.env.UPLOAD_PA
 // Routes
 app.use('/api/design-drawings', designDrawingRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/employee', employeeRoutes);
 app.use('/api/root-cards', rootCardRoutes);
 app.use('/api/notifications', notificationRoutes);
@@ -89,6 +92,10 @@ app.use('/api/department/inventory/vendors', quotationRoutes);
 app.use('/api/production/root-cards', rootCardRoutes);
 app.use('/api/department/procurement/root-cards', rootCardRoutes);
 app.use('/api/department/inventory/root-cards', rootCardRoutes);
+
+// New Production Flow Routes
+app.use('/api/production', productionRoutes);
+app.use('/api/department/production', productionRoutes);
 
 // Test Route
 app.get('/api/test', async (req, res) => {

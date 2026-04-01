@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../utils/api";
+import Swal from "sweetalert2";
 import Card, {
   CardContent,
   CardTitle,
   CardHeader,
 } from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import { Modal, ModalBody, ModalFooter } from "../../components/ui/Modal";
 import DataTable from "../../components/ui/DataTable/DataTable";
 import Select from "../../components/ui/Select";
 import {
@@ -21,6 +23,8 @@ import {
   Users,
   LogIn,
   Mail,
+  X,
+  Loader2,
 } from "lucide-react";
 
 const EmployeeManagement = () => {
@@ -31,8 +35,6 @@ const EmployeeManagement = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showCredentialsDialog, setShowCredentialsDialog] = useState(false);
-  const [selectedCredentials, setSelectedCredentials] = useState(null);
   const [showRegisterDialog, setShowRegisterDialog] = useState(false);
   const [registeringEmployee, setRegisteringEmployee] = useState(null);
   const [formData, setFormData] = useState({
@@ -53,7 +55,7 @@ const EmployeeManagement = () => {
 
   const fetchDepartments = useCallback(async () => {
     try {
-      const response = await axios.get("/employee/portal/departments");
+      const response = await axios.get("/admin/departments");
       setDepartments(response.data || []);
     } catch (err) {
       console.error("Failed to fetch departments:", err);
@@ -121,11 +123,8 @@ const EmployeeManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (!formData.roleId) {
-        setError("Please select a role");
-        return;
-      }
-
+      const finalRoleId = formData.roleId || 2; // Default to Employee role (ID 2)
+      
       const autoLoginId =
         formData.loginId ||
         generateLoginId(formData.firstName, formData.lastName);
@@ -139,7 +138,7 @@ const EmployeeManagement = () => {
         designation: formData.designation,
         department: formData.department,
         departmentId: formData.departmentId,
-        roleId: formData.roleId,
+        roleId: finalRoleId,
         loginId: autoLoginId,
         actions: formData.actions,
       };
@@ -150,15 +149,40 @@ const EmployeeManagement = () => {
 
       if (editingEmployee) {
         await axios.put(`/admin/employee-list/${editingEmployee.id}`, data);
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Employee updated successfully",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         await axios.post("/admin/employee-list", data);
-        setSelectedCredentials({
-          name: `${formData.firstName} ${formData.lastName}`,
-          loginId: autoLoginId,
-          password: finalPassword,
-          email: formData.email,
+        Swal.fire({
+          icon: "warning",
+          title: "Account Created Successfully",
+          html: `
+            <div class="text-left bg-slate-50 p-4 rounded-lg border border-slate-200 mt-4 space-y-3">
+              <div class="mb-3">
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Employee Name</p>
+                <p class="text-sm font-semibold text-slate-800">${formData.firstName} ${formData.lastName}</p>
+              </div>
+              <div class="mb-3">
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Login ID</p>
+                <p class="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block">${autoLoginId}</p>
+              </div>
+              <div class="mb-3">
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Password</p>
+                <p class="text-sm font-mono text-amber-600 bg-amber-50 px-2 py-1 rounded inline-block">${finalPassword}</p>
+              </div>
+              <div class="mt-4 p-2 bg-amber-100/50 border border-amber-200 rounded text-[11px] text-amber-700">
+                ⚠️ Please share these credentials with the employee. They must change their password upon first login.
+              </div>
+            </div>
+          `,
+          confirmButtonText: "Close",
+          confirmButtonColor: "#2563eb",
         });
-        setShowCredentialsDialog(true);
       }
 
       await fetchEmployees();
@@ -199,12 +223,33 @@ const EmployeeManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this employee?")) {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
       try {
         await axios.delete(`/admin/employee-list/${id}`);
         await fetchEmployees();
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Employee has been deleted.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } catch (err) {
-        setError("Failed to delete employee");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to delete employee",
+        });
       }
     }
   };
@@ -285,28 +330,12 @@ const EmployeeManagement = () => {
       ),
     },
     {
-      key: "designation",
-      label: "Designation",
-      sortable: true,
-      render: (value) => <span className=" dark: text-sm">{value}</span>,
-    },
-    {
-      key: "department",
-      label: "Department",
-      sortable: true,
-      render: (value) => (
-        <span className="inline-block  rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-          {value}
-        </span>
-      ),
-    },
-    {
       key: "roleId",
       label: "Role",
       sortable: true,
-      render: (value) => (
+      render: (value, row) => (
         <span className="inline-block  rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-          {availableRoles.find((r) => r.id === value)?.name || "N/A"}
+          {availableRoles.find((r) => r.id === value)?.name || row.role || "Employee"}
         </span>
       ),
     },
@@ -389,7 +418,6 @@ const EmployeeManagement = () => {
           onClick={() => {
             setShowForm(true);
             setEditingEmployee(null);
-            const tempPassword = generatePassword();
             setFormData({
               firstName: "",
               lastName: "",
@@ -399,7 +427,7 @@ const EmployeeManagement = () => {
               departmentId: null,
               roleId: null,
               loginId: "",
-              password: tempPassword,
+              password: "",
               actions: [],
             });
           }}
@@ -431,311 +459,183 @@ const EmployeeManagement = () => {
         />
       </div>
 
-      {/* Form */}
+      {/* Form Modal */}
       {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">
-              {editingEmployee ? "Edit Employee" : "New Employee"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Personal Information */}
-              <div>
-                <h3 className="text-sm font-semibold  dark: mb-2">
-                  Personal Information
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-[0.5px] flex items-center justify-center p-4 z-50 transition-all duration-300">
+          <div className="rounded-xl shadow-2xl w-full max-w-lg max-h-[95vh] overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 animate-in fade-in scale-95 duration-300">
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-slate-700 dark:text-white text-left">
+                  {editingEmployee ? "Edit Employee" : "Create New Employee"}
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="John"
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="Doe"
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 text-left mt-0.5">
+                  {editingEmployee 
+                    ? "Update employee profile and credentials" 
+                    : "Register a new employee to the system"}
+                </p>
               </div>
+              <button
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingEmployee(null);
+                }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all ml-4"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              {/* Contact Information */}
-              <div>
-                <h3 className="text-sm font-semibold  dark: mb-2">
-                  Contact Information
-                </h3>
+            <form onSubmit={handleSubmit} className="overflow-hidden flex flex-col">
+              <div className="p-6 space-y-5 overflow-auto max-h-[calc(90vh-140px)] bg-white dark:bg-slate-900">
+                {/* Personal Information */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="john.doe@sterling.com"
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Job Information */}
-              <div>
-                <h3 className="text-sm font-semibold  dark: mb-2">
-                  Job Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="-mt-3">
-                    <Select
-                      label="Designation"
-                      name="designation"
-                      value={formData.designation}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="Select Designation"
-                    >
-                      {designations.map((d) => (
-                        <option key={d.id} value={d.name}>
-                          {d.name}
-                        </option>
-                      ))}
-                    </Select>
+                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-3 ml-0.5">
+                    Personal Information
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 text-left ml-0.5">
+                        First Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="e.g. John"
+                        className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 text-left ml-0.5">
+                        Last Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="e.g. Doe"
+                        className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
+                    </div>
                   </div>
-                  <div className="-mt-3">
-                    <Select
-                      label="Department"
-                      name="departmentId"
-                      value={formData.departmentId || ""}
-                      onChange={(e) => {
-                        const deptId = parseInt(e.target.value);
-                        const selectedDept = departments.find(
-                          (d) => d.id === deptId
-                        );
-                        setFormData({
-                          ...formData,
-                          departmentId: deptId || null,
-                          department: selectedDept ? selectedDept.name : "",
-                        });
-                      }}
-                      required
-                      placeholder="Select Department"
-                    >
-                      {departments.map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {d.name}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                </div>
-              </div>
 
-              {/* Role Assignment */}
-              <div className="-mt-3">
-                <Select
-                  label="Role Assignment"
-                  name="roleId"
-                  value={formData.roleId || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      roleId: parseInt(e.target.value),
-                    })
-                  }
-                  required
-                  placeholder="Select Role"
-                >
-                  {availableRoles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-
-              {/* Credentials */}
-              <div>
-                <h3 className="text-sm font-semibold dark:mb-2 flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  {editingEmployee
-                    ? "Login Credentials (Update Password)"
-                    : "Login Credentials"}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left">
-                      Login ID
+                  <div className="mt-4">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 text-left ml-0.5">
+                      Email Address <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      name="loginId"
-                      value={
-                        formData.loginId ||
-                        (editingEmployee
-                          ? ""
-                          : generateLoginId(
-                              formData.firstName,
-                              formData.lastName
-                            ))
-                      }
-                      onChange={handleInputChange}
-                      readOnly={editingEmployee}
-                      className={`w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded text-sm ${
-                        editingEmployee
-                          ? "bg-slate-50 dark:bg-slate-800"
-                          : "bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      }`}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left">
-                      {editingEmployee
-                        ? "New Password (leave blank to keep current)"
-                        : "Password"}
-                    </label>
-                    <input
-                      type="text"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder={
-                        editingEmployee ? "Enter new password" : "Enter password"
-                      }
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="john.doe@sterling.com"
+                        className="w-full pl-10 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
+                    </div>
                   </div>
                 </div>
-                {!editingEmployee && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                    Password will be displayed after employee creation
-                  </p>
-                )}
+
+                {/* Account Access */}
+                <div className="pt-2">
+                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-3 ml-0.5">
+                    Account Access
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 text-left ml-0.5">
+                        Login ID
+                      </label>
+                      <input
+                        type="text"
+                        name="loginId"
+                        value={
+                          formData.loginId ||
+                          (editingEmployee
+                            ? ""
+                            : generateLoginId(
+                                formData.firstName,
+                                formData.lastName
+                              ))
+                        }
+                        onChange={handleInputChange}
+                        readOnly={editingEmployee}
+                        className={`w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg transition-all ${
+                          editingEmployee
+                            ? "bg-slate-50 dark:bg-slate-800/50 text-slate-500 italic"
+                            : "bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 text-left ml-0.5">
+                        {editingEmployee ? "Update Password" : "Set Password"} <span className="text-red-500">{editingEmployee ? "" : "*"}</span>
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                          type="password"
+                          name="password"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          required={!editingEmployee}
+                          placeholder={editingEmployee ? "Leave blank to keep same" : "••••••••"}
+                          className="w-full pl-10 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fixed Information */}
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-600">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                        <Shield className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-700 dark:text-white">Employee Role</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Default permissions applied</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold rounded-full uppercase">Active</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 mt-6">
-                <Button
+              <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 flex justify-end gap-3">
+                <button
                   type="button"
                   onClick={() => {
                     setShowForm(false);
                     setEditingEmployee(null);
                   }}
-                  variant="secondary"
-                  className="text-xs"
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 text-xs font-semibold text-slate-700 dark:text-slate-300 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-all"
                 >
                   Cancel
-                </Button>
-                <Button type="submit" className="text-xs">
-                  {editingEmployee ? "Update Employee" : "Create Employee"}
-                </Button>
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-lg shadow-green-600/20 flex items-center gap-2 transition-all active:scale-95"
+                >
+                  {loading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  )}
+                  {editingEmployee ? "Update Account" : "Create Account"}
+                </button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Credentials Dialog */}
-      {showCredentialsDialog && selectedCredentials && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md m-4">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="w-3 h-3 text-green-600" />
-                Employee Created Successfully
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Employee "{selectedCredentials.name}" has been created. Share
-                these credentials:
-              </p>
-
-              <div className="space-y-3 bg-slate-50 dark:bg-slate-800 p-3 rounded">
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Email
-                  </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="font-mono text-sm">
-                      {selectedCredentials.email}
-                    </p>
-                    <button
-                      onClick={() => copyToClipboard(selectedCredentials.email)}
-                      className="text-xs  bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Login ID
-                  </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="font-mono text-sm">
-                      {selectedCredentials.loginId}
-                    </p>
-                    <button
-                      onClick={() =>
-                        copyToClipboard(selectedCredentials.loginId)
-                      }
-                      className="text-xs  bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Temporary Password
-                  </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="font-mono text-sm">
-                      {selectedCredentials.password}
-                    </p>
-                    <button
-                      onClick={() =>
-                        copyToClipboard(selectedCredentials.password)
-                      }
-                      className="text-xs  bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
-                ⚠️ The employee must change their password on first login
-              </p>
-
-              <Button
-                onClick={() => setShowCredentialsDialog(false)}
-                className="w-full"
-              >
-                Close
-              </Button>
-            </CardContent>
-          </Card>
+          </div>
         </div>
       )}
 

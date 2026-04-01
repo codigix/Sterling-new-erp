@@ -1,0 +1,253 @@
+import React, { useState } from "react";
+import { 
+  Plus, 
+  Search, 
+  Filter, 
+  Calendar, 
+  Clock, 
+  User, 
+  LayoutDashboard,
+  Trash2,
+  Edit2,
+  CheckCircle2,
+  AlertTriangle,
+  Send,
+  History,
+  Target,
+  PackageCheck
+} from "lucide-react";
+import ProductionUpdateModal from "./ProductionUpdateModal";
+
+const DailyProductionUpdateTab = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date(Date.now() - 86400000).toISOString().split('T')[0]);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  
+  // Mock data for production updates
+  const productionUpdates = [
+    {
+      id: 1,
+      date: "2026-03-30",
+      projectName: "Commercial Building Structure - A1",
+      operationName: "Cutting",
+      employeeName: "John Doe",
+      actualStartTime: "08:15",
+      actualEndTime: "12:30",
+      breakTime: 30,
+      actualHours: 3.75,
+      qtyCompleted: 12,
+      pendingQty: 38,
+      reworkQty: 1,
+      scrapQty: 0,
+      status: "Partially Completed",
+      remarks: "Material hardness was higher than expected",
+    },
+    {
+      id: 2,
+      date: "2026-03-30",
+      projectName: "Industrial Storage Tank - T5",
+      operationName: "Welding",
+      employeeName: "Mike Smith",
+      actualStartTime: "09:00",
+      actualEndTime: "13:00",
+      breakTime: 0,
+      actualHours: 4.0,
+      qtyCompleted: 1,
+      pendingQty: 1,
+      reworkQty: 0,
+      scrapQty: 0,
+      status: "In Progress",
+      remarks: "Main seam welding completed",
+    },
+    {
+      id: 3,
+      date: "2026-03-30",
+      projectName: "Steel Platform Assembly",
+      operationName: "Fabrication",
+      employeeName: "David Lee",
+      actualStartTime: "08:00",
+      actualEndTime: "17:00",
+      breakTime: 60,
+      actualHours: 8.0,
+      qtyCompleted: 5,
+      pendingQty: 5,
+      reworkQty: 0,
+      scrapQty: 0,
+      status: "Completed",
+      remarks: "All fabrication done. Ready for QC.",
+      canSendToQC: true,
+    }
+  ];
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "Completed":
+        return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+      case "Partially Completed":
+        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+      case "In Progress":
+        return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+      case "Delayed":
+        return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+      default:
+        return "bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Date and Form Header */}
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="flex flex-col md:flex-row gap-6 items-end justify-between">
+          <div className="w-full md:w-auto space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Work Date (Previous Day)</label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="date" 
+                className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-48 text-slate-900 dark:text-white"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div className="flex gap-3 w-full md:w-auto">
+            <button 
+              onClick={() => setIsUpdateModalOpen(true)}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors shadow-lg w-full md:w-auto uppercase tracking-widest"
+            >
+              <History size={18} />
+              New Work Entry
+            </button>
+            <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 w-full md:w-auto uppercase tracking-widest">
+              <Plus size={18} />
+              Import Planned Assignments
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Production Update Table */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <PackageCheck size={20} className="text-green-600" />
+            Actual Production Updates for {new Date(selectedDate).toLocaleDateString()}
+          </h3>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <input 
+                type="text" 
+                placeholder="Search by project or operator..." 
+                className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+            <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+              <Filter size={16} className="text-slate-500" />
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700">
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Operator</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Project / Operation</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Actual Time</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Output</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+              {productionUpdates.map((update) => (
+                <tr key={update.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-all group">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center font-bold text-xs">
+                        {update.employeeName.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-tight">{update.employeeName}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm font-medium text-slate-900 dark:text-white line-clamp-1">{update.projectName}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">{update.operationName}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+                        <Clock size={12} className="text-blue-500" />
+                        {update.actualStartTime} - {update.actualEndTime}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 ml-5 uppercase">Total: {update.actualHours.toFixed(2)}h</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="flex gap-2">
+                        <div className="flex flex-col items-center px-2 py-0.5 bg-green-50 dark:bg-green-900/20 rounded border border-green-100 dark:border-green-800">
+                          <span className="text-[8px] font-bold text-green-600 uppercase">Comp</span>
+                          <span className="text-xs font-bold text-green-700 dark:text-green-400">{update.qtyCompleted}</span>
+                        </div>
+                        <div className="flex flex-col items-center px-2 py-0.5 bg-slate-50 dark:bg-slate-700 rounded border border-slate-100 dark:border-slate-600">
+                          <span className="text-[8px] font-bold text-slate-500 uppercase">Pend</span>
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{update.pendingQty}</span>
+                        </div>
+                      </div>
+                      {(update.reworkQty > 0 || update.scrapQty > 0) && (
+                        <div className="flex gap-2">
+                          {update.reworkQty > 0 && (
+                            <span className="text-[9px] text-amber-600 font-bold flex items-center gap-0.5">
+                              <AlertTriangle size={10} /> {update.reworkQty} REWORK
+                            </span>
+                          )}
+                          {update.scrapQty > 0 && (
+                            <span className="text-[9px] text-red-600 font-bold flex items-center gap-0.5">
+                              <AlertTriangle size={10} /> {update.scrapQty} SCRAP
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${getStatusBadge(update.status)}`}>
+                      {update.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      {update.canSendToQC && (
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-[10px] font-bold hover:bg-blue-200 transition-colors uppercase">
+                          <Send size={12} /> Send to QC
+                        </button>
+                      )}
+                      <button className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        <Edit2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Update Modal */}
+      <ProductionUpdateModal 
+        isOpen={isUpdateModalOpen} 
+        onClose={() => setIsUpdateModalOpen(false)} 
+        date={selectedDate}
+      />
+    </div>
+  );
+};
+
+export default DailyProductionUpdateTab;
+

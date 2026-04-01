@@ -1,0 +1,319 @@
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "../../utils/api";
+import { toast } from "react-toastify";
+import {
+  Plus,
+  Search,
+  Settings2,
+  Trash2,
+  Edit2,
+  ChevronRight,
+  Filter,
+  X,
+  Save,
+  Wrench,
+  Factory,
+  Truck,
+  Loader2
+} from "lucide-react";
+
+const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    type: "In-house",
+    description: ""
+  });
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
+      <div className="bg-white dark:bg-slate-950 w-full max-w-md rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col animate-in zoom-in duration-200">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-600 text-white rounded">
+              <Plus size={18} />
+            </div>
+            <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Create New Operation</h2>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="p-6 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Name</label>
+              <input
+                type="text"
+                required
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold focus:ring-1 focus:ring-indigo-500 outline-none"
+                placeholder="E.G. Cutting, Welding..."
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Type</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, type: "In-house" })}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded text-[10px] font-black uppercase tracking-widest border transition-all ${
+                    formData.type === "In-house"
+                      ? "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 text-indigo-600"
+                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500"
+                  }`}
+                >
+                  <Factory size={14} /> In-house
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, type: "Outsource" })}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded text-[10px] font-black uppercase tracking-widest border transition-all ${
+                    formData.type === "Outsource"
+                      ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-600"
+                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500"
+                  }`}
+                >
+                  <Truck size={14} /> Outsource
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Description (Optional)</label>
+              <textarea
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold h-24 outline-none focus:ring-1 focus:ring-indigo-500"
+                placeholder="ADDITIONAL DETAILS..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 bg-slate-50/50 dark:bg-slate-900/50">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={onClose}
+              className="px-6 py-2 text-[10px] font-black uppercase text-slate-500 hover:bg-slate-100 rounded transition-all disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-8 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase rounded shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              Save Operation
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const OperationsPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [operations, setOperations] = useState([]);
+
+  const fetchOperations = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get("/production/operations");
+      if (response.data.success) {
+        setOperations(response.data.operations);
+      }
+    } catch (error) {
+      console.error("Error fetching operations:", error);
+      toast.error("Failed to load operations");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOperations();
+  }, [fetchOperations]);
+
+  const handleSaveOperation = async (newOp) => {
+    setSaveLoading(true);
+    try {
+      const response = await axios.post("/production/operations", newOp);
+      if (response.data.success) {
+        toast.success("Operation created successfully");
+        setIsModalOpen(false);
+        fetchOperations();
+      }
+    } catch (error) {
+      console.error("Error creating operation:", error);
+      toast.error(error.response?.data?.message || "Failed to create operation");
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDeleteOperation = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this operation?")) return;
+
+    try {
+      const response = await axios.delete(`/production/operations/${id}`);
+      if (response.data.success) {
+        toast.success("Operation deleted successfully");
+        setOperations(operations.filter((op) => op.id !== id));
+      }
+    } catch (error) {
+      console.error("Error deleting operation:", error);
+      toast.error("Failed to delete operation");
+    }
+  };
+
+  const filteredOps = operations.filter(op => 
+    op.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-6 lg:p-8">
+      {/* Page Header */}
+      <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-sm text-indigo-600">
+            <Settings2 size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Manufacturing Operations</h1>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Global Operation Dictionary for Planning</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-8 py-3 bg-indigo-600 text-white rounded text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
+        >
+          <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+          Create New Operation
+        </button>
+      </div>
+
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Table/List Area */}
+        <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="relative flex-1 w-full max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <input
+                type="text"
+                placeholder="SEARCH OPERATIONS..."
+                className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-black focus:ring-1 focus:ring-indigo-500 outline-none uppercase tracking-widest"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <button className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2 hover:bg-slate-50 transition-all">
+                <Filter size={14} /> Filter
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto min-h-[400px]">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <Loader2 className="animate-spin text-indigo-600 mb-4" size={32} />
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading operations...</p>
+              </div>
+            ) : filteredOps.length > 0 ? (
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/30 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
+                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Name</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Type</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Description</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {filteredOps.map((op) => (
+                    <tr key={op.id} className="hover:bg-indigo-50/10 dark:hover:bg-indigo-900/10 transition-all">
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
+                            <Wrench size={16} />
+                          </div>
+                          <span className="text-xs font-black text-slate-900 dark:text-white tracking-tight">
+                            {op.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className={`px-2.5 py-1 text-[9px] font-black rounded uppercase tracking-widest border flex items-center gap-1.5 w-fit ${
+                          op.type === "In-house"
+                            ? "bg-blue-100 text-blue-700 border-blue-200"
+                            : "bg-amber-100 text-amber-700 border-amber-200"
+                        }`}>
+                          {op.type === "In-house" ? <Factory size={10} /> : <Truck size={10} />}
+                          {op.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-tight">
+                        {op.description || "NO DESCRIPTION"}
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                            <Edit2 size={16} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteOperation(op.id)}
+                            className="p-2 text-slate-400 hover:text-red-600 transition-colors"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                          <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+                            <ChevronRight size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <Settings2 size={48} className="mb-4 opacity-10" />
+                <p className="text-[10px] font-black uppercase tracking-widest">No Operations Found</p>
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  className="mt-4 text-[9px] font-black text-indigo-600 uppercase hover:underline"
+                >
+                  Click here to create your first operation
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <CreateOperationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveOperation}
+        loading={saveLoading}
+      />
+    </div>
+  );
+};
+
+export default OperationsPage;

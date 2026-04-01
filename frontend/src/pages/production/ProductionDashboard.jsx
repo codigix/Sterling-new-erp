@@ -282,8 +282,6 @@ const ProductionDashboard = () => {
         )}
       </div>
 
-      {/* Recent Work Orders Overview Removed */}
-
       {/* Production Phases by Root Card */}
       {selectedRootCard && (
         <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">

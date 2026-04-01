@@ -72,7 +72,8 @@ import ProductionTasksPage from "./pages/production/ProductionTasksPage";
 import ProductionDashboard from "./pages/production/ProductionDashboard";
 import RootCardBuilderPage from "./pages/production/RootCardBuilderPage";
 import ProductionRootCardDetailPage from "./pages/production/RootCardDetailPage";
-import ProductionPlansPage from "./pages/production/ProductionPlansPage";
+import DailyProductionPlanningPage from "./pages/production/DailyProductionPlanningPage";
+import OperationsPage from "./pages/production/OperationsPage";
 import ProductionPlanDetailPage from "./pages/production/ProductionPlanDetailPage";
 import ProductionPlanFormPage from "./pages/production/ProductionPlanFormPage";
 import WorkstationsPage from "./pages/production/WorkstationsPage";
@@ -81,6 +82,7 @@ import MaterialRequestsPage from "./pages/production/MaterialRequestsPage";
 import ReleasedMaterialsPage from "./pages/production/ReleasedMaterialsPage";
 import ProductionDepartmentTasksPage from "./pages/production/ProductionDepartmentTasksPage";
 import ProductionWorkflowTasksPage from "./pages/production/ProductionWorkflowTasksPage";
+import DailyProductionUpdatesPage from "./pages/production/DailyProductionUpdatesPage";
 
 // Employee Portal
 import EmployeePortalPage from "./pages/employee/EmployeePortalPage";
@@ -185,9 +187,9 @@ function App() {
                 <Route path="production/bom/view" element={<ViewBOMsPage />} />
                 <Route path="production/bom/view/:id" element={<BOMDetailsPage />} />
 
-                <Route path="production/plans" element={<ProductionPlansPage />} />
-                <Route path="production/plans/new" element={<ProductionPlanFormPage />} />
-                <Route path="production/plans/:id" element={<ProductionPlanFormPage />} />
+                <Route path="production/plans" element={<DailyProductionPlanningPage />} />
+                <Route path="production/updates" element={<DailyProductionUpdatesPage />} />
+                <Route path="production/operations" element={<OperationsPage />} />
                 <Route path="production/workstations" element={<WorkstationsPage />} />
                 <Route path="production/workstations/new" element={<WorkstationFormPage />} />
                 <Route path="production/workstations/edit/:id" element={<WorkstationFormPage />} />
