@@ -58,6 +58,18 @@ const StockBalancePage = () => {
           type: item.material_type || item.category || "RAW_MATERIAL",
           project_name: item.project_name,
           vendor_name: item.vendor_name,
+          length_mm: item.length_mm || item.length,
+          width_mm: item.width_mm || item.width,
+          thickness_mm: item.thickness_mm || item.thickness,
+          diameter_mm: item.diameter_mm || item.diameter,
+          outer_diameter_mm: item.outer_diameter_mm || item.outer_diameter || item.outerDiameter,
+          height_mm: item.height_mm || item.height,
+          length: Number(item.length_mm || item.length || 0),
+          width: Number(item.width_mm || item.width || 0),
+          thickness: Number(item.thickness_mm || item.thickness || 0),
+          diameter: Number(item.diameter_mm || item.diameter || 0),
+          outer_diameter: Number(item.outer_diameter_mm || item.outer_diameter || item.outerDiameter || 0),
+          height: Number(item.height_mm || item.height || 0),
           serials: item.serials || []
         };
       });
@@ -219,26 +231,49 @@ const StockBalancePage = () => {
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {filteredData.map((item) => {
-                const isExpanded = expandedItem === item.id;
-                return (
-                  <React.Fragment key={item.id}>
-                    <tr className={`group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors ${isExpanded ? 'bg-cyan-50/20 dark:bg-cyan-900/10' : ''}`}>
-                      <td className="p-2 text-center">
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setExpandedItem(isExpanded ? null : item.id);
-                          }}
-                          className={`p-1 rounded transition-all ${isExpanded ? 'bg-cyan-100 text-cyan-600' : 'bg-slate-100 text-slate-400'}`}
-                        >
-                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </button>
-                      </td>
-                      <td className="p-2">
-                        <p className="text-xs  text-slate-900 dark:text-white   line-clamp-2 leading-tight">
-                          {item.name}
-                        </p>
-                      </td>
+    const isExpanded = expandedItem === item.id;
+    const renderDimensions = (it, fallback = null) => {
+      const dims = [];
+      const l = Number(it.length_mm || it.length || (fallback?.length_mm || fallback?.length || 0));
+      const w = Number(it.width_mm || it.width || (fallback?.width_mm || fallback?.width || 0));
+      const t = Number(it.thickness_mm || it.thickness || (fallback?.thickness_mm || fallback?.thickness || 0));
+      const d = Number(it.diameter_mm || it.diameter || (fallback?.diameter_mm || fallback?.diameter || 0));
+      const od = Number(it.outer_diameter_mm || it.outer_diameter || it.outerDiameter || (fallback?.outer_diameter_mm || fallback?.outer_diameter || fallback?.outerDiameter || 0));
+      const h = Number(it.height_mm || it.height || (fallback?.height_mm || fallback?.height || 0));
+
+      if (l) dims.push(`L:${l}`);
+      if (w) dims.push(`W:${w}`);
+      if (t) dims.push(`T:${t}`);
+      if (d) dims.push(`D:${d}`);
+      if (od) dims.push(`OD:${od}`);
+      if (h) dims.push(`H:${h}`);
+      return dims.length > 0 ? dims.join(" ") : "-";
+    };
+
+    return (
+      <React.Fragment key={item.id}>
+        <tr className={`group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors ${isExpanded ? 'bg-cyan-50/20 dark:bg-cyan-900/10' : ''}`}>
+          <td className="p-2 text-center">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedItem(isExpanded ? null : item.id);
+              }}
+              className={`p-1 rounded transition-all ${isExpanded ? 'bg-cyan-100 text-cyan-600' : 'bg-slate-100 text-slate-400'}`}
+            >
+              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+          </td>
+          <td className="p-2">
+            <div className="space-y-1">
+              <p className="text-xs  text-slate-900 dark:text-white   line-clamp-2 leading-tight">
+                {item.name}
+              </p>
+              <div className="text-[10px] text-blue-600 font-mono">
+                {renderDimensions(item)}
+              </div>
+            </div>
+          </td>
                       <td className="p-2 text-right">
                         <div className="flex flex-col items-end gap-1">
                           <div className="flex items-center gap-2">
@@ -294,6 +329,7 @@ const StockBalancePage = () => {
                                      <th className="p-2  text-slate-400   text-center">#</th>
                                      <th className="p-2  text-slate-400  ">Item Code</th>
                                      <th className="p-2  text-slate-400  ">Item Name</th>
+                                     <th className="p-2  text-slate-400  ">Dimensions</th>
                                      <th className="p-2  text-cyan-500   text-right">ST Number</th>
                                    </tr>
                                  </thead>
@@ -308,6 +344,11 @@ const StockBalancePage = () => {
                                          <td className="p-2 text-slate-500 dark:text-slate-400  ">
                                            {item.name}
                                          </td>
+                                         <td className="p-2">
+                                           <div className="text-[10px] text-blue-600 font-mono">
+                                             {renderDimensions(st, item)}
+                                           </div>
+                                         </td>
                                          <td className="p-2 text-right">
                                            <span className="p-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 rounded text-xs    border border-cyan-100 dark:border-cyan-800">
                                              {st.serial_number}
@@ -317,7 +358,7 @@ const StockBalancePage = () => {
                                      ))
                                    ) : (
                                      <tr>
-                                       <td colSpan="4" className="p-2 text-center text-slate-400    text-xs">
+                                       <td colSpan="5" className="p-2 text-center text-slate-400    text-xs">
                                          No individual pieces tracking found for this item
                                        </td>
                                      </tr>

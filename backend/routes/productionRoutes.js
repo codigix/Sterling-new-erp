@@ -15,11 +15,16 @@ router.get('/plans', productionController.getDailyPlans);
 router.post('/plans', productionController.createDailyPlan);
 router.get('/plans/:id', productionController.getDailyPlanDetails);
 router.put('/plans/:id', productionController.updateDailyPlan);
+router.delete('/plans/:id', productionController.deleteDailyPlan);
 router.post('/assignments', productionController.addAssignment);
 
 // Production Update Routes
 router.get('/updates', productionController.getProductionUpdates);
 router.post('/updates', productionController.createProductionUpdate);
 router.post('/send-to-qc', productionController.sendToQC);
+
+// MCR Routes
+router.get('/mcr/materials', productionController.getReleasedMaterialsForMCR);
+router.post('/mcr/save', productionController.saveMCR);
 
 module.exports = router;

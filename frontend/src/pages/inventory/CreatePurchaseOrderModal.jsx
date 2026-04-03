@@ -177,7 +177,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           rate_per_kg: item.rate_per_kg || 0,
           total_weight: item.total_weight || 0,
           rate: item.rate || item.unit_price || 0,
-          amount: item.amount || (item.total_weight * (item.rate_per_kg || 0)) || (item.quantity * (item.rate || item.unit_price || 0))
+          amount: item.amount || (item.total_weight * (item.rate_per_kg || 0)) || (item.quantity * (item.rate || item.unit_price || 0)),
+          length: item.length || null,
+          width: item.width || null,
+          thickness: item.thickness || null,
+          diameter: item.diameter || null,
+          outer_diameter: item.outer_diameter || null,
+          height: item.height || null
         }));
 
         calculateTotals(initialItems, formData.tax_template);
@@ -219,7 +225,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           rate_per_kg: 0,
           total_weight: 0,
           rate: 0,
-          amount: 0
+          amount: 0,
+          length: item.length || null,
+          width: item.width || null,
+          thickness: item.thickness || null,
+          diameter: item.diameter || null,
+          outer_diameter: item.outer_diameter || null,
+          height: item.height || null
         }));
 
         calculateTotals(initialItems, formData.tax_template);
@@ -337,6 +349,34 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const renderDimensionsText = (item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const parts = [];
+    if (group === "plate" || group === "plates") {
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+      if (item.width) parts.push(`W: ${Number(item.width)}`);
+      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+    } else if (group === "round bar") {
+      if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+    } else if (group === "pipe") {
+      if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
+      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+    } else if (group === "block") {
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+      if (item.width) parts.push(`W: ${Number(item.width)}`);
+      if (item.height) parts.push(`H: ${Number(item.height)}`);
+    }
+    
+    if (parts.length === 0) return null;
+    return (
+      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+        Dim: {parts.join(" \u00d7 ")} mm
+      </div>
+    );
   };
 
   if (!isOpen) return null;
@@ -510,15 +550,19 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                                 <p className="text-xs text-slate-500  ">
                                   {item.item_group || "N/A"}
                                 </p>
+                                {renderDimensionsText(item)}
                               </>
                             ) : (
-                              <input 
-                                type="text"
-                                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Item name..."
-                                value={item.material_name}
-                                onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
-                              />
+                              <div className="flex flex-col gap-1">
+                                <input 
+                                  type="text"
+                                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Item name..."
+                                  value={item.material_name}
+                                  onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
+                                />
+                                {renderDimensionsText(item)}
+                              </div>
                             )}
                           </td>
                           <td className="p-2 text-center">

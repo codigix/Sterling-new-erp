@@ -137,7 +137,13 @@ const QCInspectionsPage = () => {
           st_numbers: m.serials?.map(s => ({
             st_code: s.serial_number,
             item_code: s.item_code,
-            status: s.inspection_status?.toUpperCase()
+            status: s.inspection_status?.toUpperCase(),
+            length: s.dimensions?.length || null,
+            width: s.dimensions?.width || null,
+            thickness: s.dimensions?.thickness || null,
+            diameter: s.dimensions?.diameter || null,
+            outer_diameter: s.dimensions?.outer_diameter || null,
+            height: s.dimensions?.height || null
           })) || []
         }))
       };
@@ -778,6 +784,18 @@ const QCInspectionsPage = () => {
                                         <p className="text-xs  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
                                           {s.serial_number}
                                         </p>
+                                        <div className="text-[10px] text-slate-500 font-mono">
+                                          {s.dimensions && (
+                                            <>
+                                              {s.dimensions.length ? `L:${Number(s.dimensions.length)} ` : ''}
+                                              {s.dimensions.width ? `W:${Number(s.dimensions.width)} ` : ''}
+                                              {s.dimensions.thickness ? `T:${Number(s.dimensions.thickness)} ` : ''}
+                                              {s.dimensions.diameter ? `D:${Number(s.dimensions.diameter)} ` : ''}
+                                              {s.dimensions.outer_diameter ? `OD:${Number(s.dimensions.outer_diameter)} ` : ''}
+                                              {s.dimensions.height ? `H:${Number(s.dimensions.height)} ` : ''}
+                                            </>
+                                          )}
+                                        </div>
                                         <div className={`mt-1 px-2 py-0.5 rounded text-[8px]   er w-fit ${
                                           s.inspection_status === 'Accepted' 
                                             ? 'bg-green-50 text-green-600' 

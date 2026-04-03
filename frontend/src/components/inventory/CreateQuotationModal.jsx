@@ -153,13 +153,25 @@ const CreateQuotationModal = ({
             "make",
             "remark",
           ];
+          const numberFields = [
+            "quantity",
+            "unit_price",
+            "total_weight",
+            "rate_per_kg",
+            "length",
+            "width",
+            "thickness",
+            "diameter",
+            "outer_diameter",
+            "height"
+          ];
           return {
             ...item,
             [field]: stringFields.includes(field)
               ? value
-              : value === ""
-              ? ""
-              : parseFloat(value) || 0,
+              : numberFields.includes(field)
+              ? (value === "" ? "" : parseFloat(value) || 0)
+              : value,
           };
         }
         return item;
@@ -181,6 +193,86 @@ const CreateQuotationModal = ({
         total_amount: newTotal,
       };
     });
+  };
+
+  const renderDimensionFields = (item, index) => {
+    const group = (item.item_group || "").toLowerCase();
+    
+    // Dimension input component helper
+    const DimInput = ({ label, field, placeholder }) => (
+      <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+        <label className="text-[9px] text-slate-500 uppercase font-medium">{label}</label>
+        <input
+          type="number"
+          value={item[field] !== null && item[field] !== undefined ? Number(item[field]) : ""}
+          onChange={(e) => handleItemChange(index, field, e.target.value)}
+          placeholder={placeholder}
+          className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+        />
+      </div>
+    );
+
+    if (group === "plate" || group === "plates") {
+      return (
+        <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+          <DimInput label="Length (mm)" field="length" placeholder="L" />
+          <DimInput label="Width (mm)" field="width" placeholder="W" />
+          <DimInput label="Thk (mm)" field="thickness" placeholder="T" />
+        </div>
+      );
+    } else if (group === "round bar") {
+      return (
+        <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+          <DimInput label="Diameter (mm)" field="diameter" placeholder="Dia" />
+          <DimInput label="Length (mm)" field="length" placeholder="L" />
+        </div>
+      );
+    } else if (group === "pipe") {
+      return (
+        <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+          <DimInput label="OD (mm)" field="outer_diameter" placeholder="OD" />
+          <DimInput label="Thk (mm)" field="thickness" placeholder="T" />
+          <DimInput label="Length (mm)" field="length" placeholder="L" />
+        </div>
+      );
+    } else if (group === "block") {
+      return (
+        <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+          <DimInput label="Length (mm)" field="length" placeholder="L" />
+          <DimInput label="Width (mm)" field="width" placeholder="W" />
+          <DimInput label="Height (mm)" field="height" placeholder="H" />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const renderDimensionsText = (item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const parts = [];
+    if (group === "plate" || group === "plates") {
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+      if (item.width) parts.push(`W: ${Number(item.width)}`);
+      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+    } else if (group === "round bar") {
+      if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+    } else if (group === "pipe") {
+      if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
+      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+    } else if (group === "block") {
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+      if (item.width) parts.push(`W: ${Number(item.width)}`);
+      if (item.height) parts.push(`H: ${Number(item.height)}`);
+    }
+    
+    if (parts.length === 0) return null;
+    return (
+      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+        Dim: {parts.join(" \u00d7 ")} mm
+      </div>
+    );
   };
 
   const handleAnalyzeFile = async (e) => {
@@ -327,7 +419,13 @@ const CreateQuotationModal = ({
             material_grade: item.material_grade || "",
             part_detail: item.part_detail || "",
             make: item.make || "",
-            remark: item.remark || ""
+            remark: item.remark || "",
+            length: item.length || null,
+            width: item.width || null,
+            thickness: item.thickness || null,
+            diameter: item.diameter || null,
+            outer_diameter: item.outer_diameter || null,
+            height: item.height || null
           })),
         }));
       }
@@ -366,7 +464,13 @@ const CreateQuotationModal = ({
           make: item.make || "",
           remark: item.remark || "",
           total_weight: item.total_weight || 0,
-          rate_per_kg: item.rate_per_kg || 0
+          rate_per_kg: item.rate_per_kg || 0,
+          length: item.length || null,
+          width: item.width || null,
+          thickness: item.thickness || null,
+          diameter: item.diameter || null,
+          outer_diameter: item.outer_diameter || null,
+          height: item.height || null
         })),
         notes: `Response to ${selectedQuote.quotation_number}`,
       }));
@@ -492,7 +596,7 @@ const CreateQuotationModal = ({
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-slate-800 rounded  w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col"
+        className="bg-white dark:bg-slate-800 rounded  w-full max-w-6xl max-h-[95vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center p-2 border-b border-slate-200 dark:border-slate-600">
@@ -989,6 +1093,7 @@ const CreateQuotationModal = ({
                                     disabled
                                     className="w-full p-1 text-xs  text-slate-500  border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
                                   />
+                                  {formData.type === "inbound" && renderDimensionFields(item, index)}
                                 </div>
                               </td>
                               {formData.type === "inbound" && (
@@ -1039,6 +1144,7 @@ const CreateQuotationModal = ({
                                         disabled={preFilledMaterials}
                                         className="w-full p-1 text-xs  text-slate-500  border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
                                       />
+                                      {renderDimensionsText(item)}
                                     </div>
                                   </td>
                                   <td className="p-2">

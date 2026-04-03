@@ -26,7 +26,12 @@ import {
   Loader2,
   Eye,
   Package,
-  Pencil
+  Pencil,
+  Edit2,
+  Check,
+  FileText,
+  Scissors,
+  PlusCircle
 } from "lucide-react";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 
@@ -203,13 +208,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       remarks: newAssignment.remarks
     };
 
-    if (editingAssignmentId) {
-      setDailyPlan(dailyPlan.map(a => a.id === editingAssignmentId ? entry : a));
-      setEditingAssignmentId(null);
-      toast.success("Assignment updated");
-    } else {
-      setDailyPlan([...dailyPlan, entry]);
-    }
+    setDailyPlan([...dailyPlan, entry]);
+    toast.success("Assignment added to plan");
     
     setNewAssignment({
       operation: "",
@@ -221,18 +221,44 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     });
   };
 
+  const updateAssignment = (id, field, value) => {
+    setDailyPlan(prev => prev.map(a => {
+      if (a.id === id) {
+        let updated = { ...a, [field]: value };
+        
+        // Handle related fields
+        if (field === 'operator_name') {
+          const op = operators.find(o => o.value === value);
+          updated.operator_id = op ? op.id : null;
+        } else if (field === 'operation_name') {
+          const op = operations.find(o => o.value === value || o.name === value);
+          updated.operation_id = op ? op.id : null;
+        }
+
+        // Calculate total hours if time fields change
+        const startTimeStr = field === 'start_time' ? value : updated.start_time;
+        const endTimeStr = field === 'end_time' ? value : updated.end_time;
+        const breakTime = field === 'break_time' ? parseInt(value || 0) : updated.break_time;
+
+        const start = new Date(`2000-01-01T${startTimeStr}`);
+        const end = new Date(`2000-01-01T${endTimeStr}`);
+        
+        if (end > start) {
+          let diffHrs = (end - start) / (1000 * 60 * 60);
+          let breakHrs = (breakTime || 0) / 60;
+          updated.total_hours = Math.max(0, diffHrs - breakHrs);
+        } else {
+          updated.total_hours = 0;
+        }
+        
+        return updated;
+      }
+      return a;
+    }));
+  };
+
   const editAssignment = (assignment) => {
     setEditingAssignmentId(assignment.id);
-    setNewAssignment({
-      operation: assignment.operation_name,
-      operator: assignment.operator_name,
-      startTime: assignment.start_time,
-      endTime: assignment.end_time,
-      breakTime: assignment.break_time || "60",
-      remarks: assignment.remarks || ""
-    });
-    // Scroll to form or ensure section is expanded
-    setExpandedSections(prev => ({ ...prev, allocation: true }));
   };
 
   const removeAssignment = (id) => {
@@ -354,6 +380,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                             onChange={(val) => setNewAssignment({...newAssignment, operator: val})}
                             placeholder="SELECT OPERATOR..."
                             className="text-xs font-bold text-slate-900"
+                            allowCustom={true}
                           />
                         </div>
                         <div className="space-y-1.5 lg:col-span-1">
@@ -364,6 +391,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                             onChange={(val) => setNewAssignment({...newAssignment, operation: val})}
                             placeholder="SEARCH OPERATION..."
                             className="text-xs font-bold text-slate-900"
+                            allowCustom={true}
                           />
                         </div>
                         <div className="grid grid-cols-3 gap-2 lg:col-span-2">
@@ -395,10 +423,10 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                         <div className="flex items-end lg:col-span-1">
                           <button 
                             onClick={handleAddAssignment}
-                            className={`w-full h-[38px] ${editingAssignmentId ? "bg-amber-600 hover:bg-amber-700" : "bg-indigo-600 hover:bg-indigo-700"} text-white rounded font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2`}
+                            className="w-full h-[38px] bg-indigo-600 hover:bg-indigo-700 text-white rounded font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2"
                           >
-                            {editingAssignmentId ? <Save size={14} /> : <Plus size={14} />}
-                            {editingAssignmentId ? "Update Item" : "Add to Plan"}
+                            <Plus size={14} />
+                            Add to Plan
                           </button>
                         </div>
                       </div>
@@ -418,36 +446,96 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {dailyPlan.map((entry) => (
-                              <tr key={entry.id} className="hover:bg-indigo-50/10 transition-all">
-                                <td className="px-4 py-3">
-                                  <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">{entry.projectName}</p>
-                                  <span className="text-[8px] font-bold text-slate-400 uppercase">{entry.projectRef}</span>
-                                </td>
-                                <td className="px-4 py-3">
-                                  <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded">{entry.operation_name}</span>
-                                </td>
-                                <td className="px-4 py-3">
-                                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">{entry.operator_name}</span>
-                                  <p className="text-[8px] text-slate-400">{entry.start_time} - {entry.end_time}</p>
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  <span className="text-[10px] font-black text-slate-900 dark:text-white">{entry.total_hours.toFixed(1)}h</span>
-                                </td>
-                                {mode !== "view" && (
-                                  <td className="px-4 py-3 text-right">
-                                    <div className="flex items-center justify-end gap-1">
-                                      <button onClick={() => editAssignment(entry)} className="p-1.5 text-slate-300 hover:text-amber-600 transition-colors">
-                                        <Pencil size={14} />
-                                      </button>
-                                      <button onClick={() => removeAssignment(entry.id)} className="p-1.5 text-slate-300 hover:text-red-600 transition-colors">
-                                        <Trash2 size={14} />
-                                      </button>
-                                    </div>
+                            {dailyPlan.map((entry) => {
+                              const isEditing = editingAssignmentId === entry.id;
+                              return (
+                                <tr key={entry.id} className="hover:bg-indigo-50/10 transition-all">
+                                  <td className="px-4 py-3">
+                                    <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">{entry.projectName}</p>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase">{entry.projectRef}</span>
                                   </td>
-                                )}
-                              </tr>
-                            ))}
+                                  <td className="px-4 py-3">
+                                    {isEditing ? (
+                                      <SearchableSelect 
+                                        name={`op-name-${entry.id}`}
+                                        id={`op-name-${entry.id}`}
+                                        options={operations}
+                                        value={entry.operation_name}
+                                        onChange={(val) => updateAssignment(entry.id, "operation_name", val)}
+                                        placeholder="OPERATION..."
+                                        className="text-[10px] font-bold"
+                                        allowCustom={true}
+                                      />
+                                    ) : (
+                                      <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded">{entry.operation_name}</span>
+                                    )}
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    {isEditing ? (
+                                      <div className="space-y-1">
+                                        <SearchableSelect 
+                                          name={`worker-name-${entry.id}`}
+                                          id={`worker-name-${entry.id}`}
+                                          options={operators}
+                                          value={entry.operator_name}
+                                          onChange={(val) => updateAssignment(entry.id, "operator_name", val)}
+                                          placeholder="OPERATOR..."
+                                          className="text-[10px] font-bold"
+                                          allowCustom={true}
+                                        />
+                                        <div className="flex gap-1">
+                                          <input 
+                                            type="time" 
+                                            className="px-1 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-[9px] font-bold outline-none w-full"
+                                            value={entry.start_time}
+                                            onChange={(e) => updateAssignment(entry.id, "start_time", e.target.value)}
+                                          />
+                                          <input 
+                                            type="time" 
+                                            className="px-1 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-[9px] font-bold outline-none w-full"
+                                            value={entry.end_time}
+                                            onChange={(e) => updateAssignment(entry.id, "end_time", e.target.value)}
+                                          />
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <>
+                                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">{entry.operator_name}</span>
+                                        <p className="text-[8px] text-slate-400">{entry.start_time} - {entry.end_time}</p>
+                                      </>
+                                    )}
+                                  </td>
+                                  <td className="px-4 py-3 text-center">
+                                    <span className="text-[10px] font-black text-slate-900 dark:text-white">{entry.total_hours.toFixed(1)}h</span>
+                                  </td>
+                                  {mode !== "view" && (
+                                    <td className="px-4 py-3 text-right">
+                                      <div className="flex items-center justify-end gap-1">
+                                        {isEditing ? (
+                                          <>
+                                            <button onClick={() => setEditingAssignmentId(null)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors" title="Save">
+                                              <Check size={14} />
+                                            </button>
+                                            <button onClick={() => setEditingAssignmentId(null)} className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors" title="Cancel">
+                                              <X size={14} />
+                                            </button>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <button onClick={() => editAssignment(entry)} className="p-1.5 text-slate-300 hover:text-amber-600 transition-colors">
+                                              <Edit2 size={14} />
+                                            </button>
+                                            <button onClick={() => removeAssignment(entry.id)} className="p-1.5 text-slate-300 hover:text-red-600 transition-colors">
+                                              <Trash2 size={14} />
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
+                                    </td>
+                                  )}
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
@@ -644,8 +732,675 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   );
 };
 
+const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
+  const [group, setGroup] = useState(item.item_group || "PLATE / SHEET");
+  const [rawDetails, setRawDetails] = useState({
+    length: 8000,
+    width: 1200,
+    thickness: 20,
+    diameter: 20,
+    od: 60,
+    kerf: 3,
+    processed_qty: 1
+  });
+
+  const [parts, setParts] = useState([
+    { code: "P1", l: 500, w: 300, qty: 1, id: Date.now() }
+  ]);
+
+  const results = useMemo(() => {
+    const { length, width, thickness, diameter, od, kerf, processed_qty } = rawDetails;
+    const qty = parseInt(processed_qty || 1);
+    
+    if (group.includes("PLATE") || group.includes("SHEET")) {
+      let partsPerPlate = 0;
+      let usedArea = 0;
+      
+      parts.forEach(p => {
+        const pL = parseFloat(p.l) + parseFloat(kerf);
+        const pW = parseFloat(p.w) + parseFloat(kerf);
+        const perRow = Math.floor(width / pW);
+        const rows = Math.floor(length / pL);
+        const fits = perRow * rows;
+        partsPerPlate += fits;
+        usedArea += (p.l * p.w * p.qty) / 1000000; // m2
+      });
+
+      const rawArea = (length * width) / 1000000;
+      const totalRawArea = rawArea * qty;
+      const totalUsedArea = usedArea * qty;
+      const scrapArea = totalRawArea - totalUsedArea;
+      const scrapPercent = (scrapArea / totalRawArea) * 100;
+
+      return {
+        partsPerRaw: Math.floor(partsPerPlate),
+        totalParts: Math.floor(partsPerPlate * qty),
+        scrapPercent: scrapPercent.toFixed(1),
+        totalScrap: scrapArea.toFixed(2) + " m²"
+      };
+    } else if (group.includes("ROUND") || group.includes("BAR") || group.includes("PIPE")) {
+      const rawLen = parseFloat(length || 6000);
+      let totalFits = 0;
+      let usedLen = 0;
+
+      parts.forEach(p => {
+        const fits = Math.floor(rawLen / (parseFloat(p.l) + parseFloat(kerf)));
+        totalFits += fits;
+        usedLen += (parseFloat(p.l) * parseFloat(p.qty));
+      });
+
+      const totalRawLen = rawLen * qty;
+      const totalUsedLen = usedLen * qty;
+      const scrapLen = totalRawLen - totalUsedLen;
+      const scrapPercent = (scrapLen / totalRawLen) * 100;
+
+      return {
+        partsPerRaw: Math.floor(totalFits),
+        totalParts: Math.floor(totalFits * qty),
+        scrapPercent: scrapPercent.toFixed(1),
+        totalScrap: scrapLen.toFixed(0) + " mm"
+      };
+    }
+
+    return { partsPerRaw: 0, totalParts: 0, scrapPercent: 0, totalScrap: 0 };
+  }, [group, rawDetails, parts]);
+
+  return (
+    <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* 1. Raw Material Details */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-1.5 bg-indigo-600 text-white rounded-lg shadow-lg shadow-indigo-600/20">
+              <Settings2 size={16} />
+            </div>
+            <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Raw Material Context</h4>
+          </div>
+          
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm space-y-3">
+            <div>
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Item Group</label>
+              <select 
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-[10px] font-bold outline-none"
+                value={group}
+                onChange={(e) => setGroup(e.target.value)}
+              >
+                <option value="PLATE / SHEET">PLATE / SHEET</option>
+                <option value="ROUND BAR">ROUND BAR</option>
+                <option value="PIPE / TUBE">PIPE / TUBE</option>
+                <option value="BLOCK / SOLID">BLOCK / SOLID</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {(group.includes("PLATE") || group.includes("BLOCK")) && (
+                <>
+                  <div>
+                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Length (mm)</label>
+                    <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded px-3 py-2 text-[10px] font-bold" value={rawDetails.length} onChange={(e) => setRawDetails({...rawDetails, length: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Width (mm)</label>
+                    <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded px-3 py-2 text-[10px] font-bold" value={rawDetails.width} onChange={(e) => setRawDetails({...rawDetails, width: e.target.value})} />
+                  </div>
+                </>
+              )}
+              {group.includes("ROUND") && (
+                <div>
+                  <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Diameter (Ø)</label>
+                  <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded px-3 py-2 text-[10px] font-bold" value={rawDetails.diameter} onChange={(e) => setRawDetails({...rawDetails, diameter: e.target.value})} />
+                </div>
+              )}
+              <div className="col-span-2">
+                <label className="text-[9px] font-black text-indigo-600 uppercase block mb-1">Processed Quantity (Nos)</label>
+                <input 
+                  type="number" 
+                  className="w-full bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded px-3 py-2 text-xs font-black text-indigo-700" 
+                  value={rawDetails.processed_qty} 
+                  onChange={(e) => setRawDetails({...rawDetails, processed_qty: e.target.value})}
+                  min="1"
+                  max={serials.length}
+                />
+                <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase italic">Max Available: {serials.length} Pieces</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Part Requirements */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-emerald-600 text-white rounded-lg">
+                <Target size={16} />
+              </div>
+              <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Cutting Plan</h4>
+            </div>
+            <button 
+              onClick={() => setParts([...parts, { code: "P"+(parts.length+1), l: 100, w: 100, qty: 1, id: Date.now() }])}
+              className="p-1 bg-emerald-50 text-emerald-600 rounded border border-emerald-100 hover:bg-emerald-100 transition-colors"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+                <tr>
+                  <th className="p-2 text-[8px] font-black text-slate-400 uppercase">Part</th>
+                  <th className="p-2 text-[8px] font-black text-slate-400 uppercase">L (mm)</th>
+                  {group.includes("PLATE") && <th className="p-2 text-[8px] font-black text-slate-400 uppercase">W (mm)</th>}
+                  <th className="p-2 text-[8px] font-black text-slate-400 uppercase">Qty</th>
+                  <th className="p-2"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                {parts.map((p, idx) => (
+                  <tr key={p.id}>
+                    <td className="p-2"><input className="w-10 bg-transparent text-[10px] font-bold outline-none uppercase" value={p.code} onChange={(e) => {
+                      const newParts = [...parts];
+                      newParts[idx].code = e.target.value;
+                      setParts(newParts);
+                    }} /></td>
+                    <td className="p-2"><input type="number" className="w-12 bg-transparent text-[10px] font-black outline-none" value={p.l} onChange={(e) => {
+                      const newParts = [...parts];
+                      newParts[idx].l = e.target.value;
+                      setParts(newParts);
+                    }} /></td>
+                    {group.includes("PLATE") && (
+                      <td className="p-2"><input type="number" className="w-12 bg-transparent text-[10px] font-black outline-none" value={p.w} onChange={(e) => {
+                        const newParts = [...parts];
+                        newParts[idx].w = e.target.value;
+                        setParts(newParts);
+                      }} /></td>
+                    )}
+                    <td className="p-2"><input type="number" className="w-10 bg-transparent text-[10px] font-black outline-none text-emerald-600" value={p.qty} onChange={(e) => {
+                      const newParts = [...parts];
+                      newParts[idx].qty = e.target.value;
+                      setParts(newParts);
+                    }} /></td>
+                    <td className="p-2">
+                      <button onClick={() => setParts(parts.filter(pt => pt.id !== p.id))} className="text-slate-300 hover:text-red-500 transition-colors">
+                        <Trash2 size={12} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* 3. Calculated Results */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-1.5 bg-amber-500 text-white rounded-lg">
+              <Activity size={16} />
+            </div>
+            <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Execution Summary</h4>
+          </div>
+
+          <div className="bg-indigo-600 text-white p-5 rounded-xl shadow-xl shadow-indigo-600/20 space-y-4 relative overflow-hidden group">
+            <Zap className="absolute -right-4 -top-4 text-white/10 w-24 h-24 group-hover:scale-110 transition-transform duration-500" />
+            
+            <div className="grid grid-cols-2 gap-4 relative z-10">
+              <div className="space-y-1">
+                <p className="text-[8px] font-bold text-indigo-200 uppercase tracking-widest">Yield / Piece</p>
+                <p className="text-xl font-black tracking-tighter">{results.partsPerRaw} <span className="text-[10px]">PCS</span></p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[8px] font-bold text-indigo-200 uppercase tracking-widest">Total Produced</p>
+                <p className="text-xl font-black tracking-tighter text-emerald-300">{results.totalParts} <span className="text-[10px]">PCS</span></p>
+              </div>
+              <div className="space-y-1 col-span-2 border-t border-white/10 pt-4">
+                <div className="flex justify-between items-center mb-1">
+                  <p className="text-[8px] font-bold text-indigo-200 uppercase tracking-widest">Total Scrap Loss</p>
+                  <p className="text-[9px] font-black bg-white/20 px-2 py-0.5 rounded">{results.scrapPercent}%</p>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-amber-400 h-full rounded-full transition-all duration-500" style={{ width: `${results.scrapPercent}%` }}></div>
+                </div>
+                <p className="text-[10px] font-black text-white/80 mt-1 uppercase italic tracking-tighter">{results.totalScrap} Wastage</p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex gap-2 relative z-10">
+              <button 
+                onClick={() => onSave({ ...results, group, rawDetails, parts })}
+                className="flex-1 bg-white text-indigo-600 py-2 rounded text-[10px] font-black uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg"
+              >
+                Accept & Apply
+              </button>
+              <button 
+                onClick={onCancel}
+                className="px-4 py-2 bg-indigo-500 text-white rounded text-[10px] font-black uppercase tracking-widest hover:bg-indigo-400 transition-colors"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MCRReportModal = ({ isOpen, onClose, plan }) => {
+  const [loading, setLoading] = useState(false);
+  const [materials, setMaterials] = useState([]);
+  const [reportEntries, setReportEntries] = useState([]); // The summary table
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItemCode, setSelectedItemCode] = useState("");
+  
+  // Current Form State (Manual Entry)
+  const [cuttingForm, setCuttingForm] = useState({
+    raw_l: "",
+    raw_w: "",
+    raw_thk: "",
+    produced_qty: 1,
+    is_finished: false
+  });
+
+  useEffect(() => {
+    if (isOpen && plan) {
+      fetchMaterials();
+      setSelectedItem(null);
+      setSelectedItemCode("");
+      setReportEntries([]);
+      resetForm();
+    }
+  }, [isOpen, plan]);
+
+  const resetForm = () => {
+    setCuttingForm({
+      raw_l: "",
+      raw_w: "",
+      raw_thk: "",
+      produced_qty: 1,
+      is_finished: false
+    });
+    setSelectedItem(null);
+    setSelectedItemCode("");
+  };
+
+  const fetchMaterials = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/production/mcr/materials?project_names=${plan.project_names}`);
+      if (response.data.success) {
+        setMaterials(response.data.movements);
+      }
+    } catch (error) {
+      console.error("Error fetching materials for MCR:", error);
+      toast.error("Failed to load materials");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const uniqueItemOptions = useMemo(() => {
+    const items = new Map();
+    materials.forEach((entry) => {
+      entry.items.forEach((item) => {
+        if (!items.has(item.item_code)) {
+          items.set(item.item_code, {
+            value: item.item_code,
+            label: `${item.item_name} (${item.item_code})`,
+            item_name: item.item_name,
+            item_group: item.item_group || "PLATE / SHEET",
+            material_grade: item.material_grade || "N/A"
+          });
+        }
+      });
+    });
+    return Array.from(items.values());
+  }, [materials]);
+
+  const stOptions = useMemo(() => {
+    if (!selectedItemCode) return [];
+    const options = [];
+    materials.forEach((entry) => {
+      const item = entry.items.find(i => i.item_code === selectedItemCode);
+      if (item) {
+        item.serials.forEach(serial => {
+          // Allow multiple pieces from same ST number
+          const isInSession = reportEntries.some(re => re.full_data?.selectedSerial === serial.serial_number);
+          
+          options.push({
+            value: serial.serial_number,
+            label: `${serial.serial_number}${serial.inspection_status === "CUT" ? " (ALREADY CUT)" : ""}${isInSession ? " (IN TABLE)" : ""}`,
+            item: item,
+            entry_no: entry.entry_no,
+            remaining: 1,
+            item_group: item.item_group || "PLATE / SHEET"
+          });
+        });
+      }
+    });
+    return options;
+  }, [materials, selectedItemCode, reportEntries]);
+
+  const handleAddToTable = () => {
+    if (!selectedItem || !cuttingForm.raw_l) {
+      toast.warn("Please complete the material configuration first");
+      return;
+    }
+
+    const newEntry = {
+      id: Date.now(),
+      item_name: selectedItem.item.item_name,
+      item_code: selectedItem.item.item_code,
+      item_group: selectedItem.item_group,
+      processed_qty: 1,
+      raw_dims: `${cuttingForm.raw_l}x${cuttingForm.raw_w || 0}x${cuttingForm.raw_thk}`,
+      full_data: { 
+        ...cuttingForm, 
+        selectedItem, 
+        selectedSerial: selectedItem.value,
+        entry_no: selectedItem.entry_no
+      }
+    };
+
+    setReportEntries([...reportEntries, newEntry]);
+    
+    // Reset selections but keep item if needed
+    setSelectedItem(null);
+    setCuttingForm({
+      raw_l: "",
+      raw_w: "",
+      raw_thk: "",
+      produced_qty: 1,
+      is_finished: false
+    });
+    toast.success(`ST Code ${selectedItem.value} added to report`);
+  };
+
+  const handleFinalizeMCR = async () => {
+    if (reportEntries.length === 0) {
+      toast.warn("Add at least one item to the report table");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const pieces = [];
+      const calculations = [];
+
+      for (const entry of reportEntries) {
+        pieces.push({
+          serial_number: entry.full_data.selectedSerial,
+          item_code: entry.item_code,
+          is_finished: entry.full_data.is_finished,
+          remarks: `MCR Entry`
+        });
+
+        calculations.push({
+          serial_number: entry.full_data.selectedSerial,
+          item_group: entry.item_group,
+          scrap_percent: 0,
+          total_parts_produced: parseInt(entry.full_data.produced_qty || 1),
+          raw_details: entry.full_data
+        });
+      }
+
+      const response = await axios.post("/production/mcr/save", {
+        plan_id: plan.id,
+        work_date: plan.plan_date,
+        pieces,
+        calculations
+      });
+
+      if (response.data.success) {
+        toast.success("Full Material Cutting Report Finalized");
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error finalizing MCR:", error);
+      toast.error("Failed to save report");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-xl shadow-2xl flex flex-col max-h-[98vh] overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-indigo-600 text-white rounded-lg">
+              <Scissors size={20} />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Material Cutting Report (MCR)</h3>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{plan.project_names}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={20} className="text-slate-400" /></button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 bg-slate-50/50">
+          <div className="space-y-4">
+            
+            {/* 1. CONFIGURATION FORM (BOM Style) */}
+            <div className="bg-white dark:bg-slate-900 p-5 rounded border border-slate-200 shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                
+                {/* Row 1: Item & Group & ST Code */}
+                <div className="md:col-span-4 space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Item Name / Code *</label>
+                  <SearchableSelect 
+                    options={uniqueItemOptions}
+                    value={selectedItemCode}
+                    onChange={(val) => {
+                      setSelectedItemCode(val);
+                      setSelectedItem(null);
+                    }}
+                    placeholder="SEARCH MATERIALS..."
+                  />
+                </div>
+
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Item Group</label>
+                  <input 
+                    type="text" 
+                    readOnly 
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-1.5 text-xs font-bold text-slate-500" 
+                    value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group : ""} 
+                    placeholder="GROUP..."
+                  />
+                </div>
+
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Material Grade</label>
+                  <input 
+                    type="text" 
+                    readOnly 
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-1.5 text-xs font-bold text-slate-500" 
+                    value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.material_grade : ""} 
+                    placeholder="GRADE..."
+                  />
+                </div>
+
+                <div className="md:col-span-4 space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Select ST Code *</label>
+                  <SearchableSelect 
+                    options={stOptions}
+                    value={selectedItem?.value}
+                    onChange={(val) => setSelectedItem(stOptions.find(o => o.value === val))}
+                    placeholder="SELECT ST#"
+                    disabled={!selectedItemCode}
+                  />
+                </div>
+
+                {/* Row 2: Cutting Dimensions & Produced Qty */}
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                    <Settings2 size={12}/> Length (mm)
+                  </label>
+                  <input 
+                    type="number" 
+                    placeholder="L" 
+                    className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                    value={cuttingForm.raw_l} 
+                    onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
+                  />
+                </div>
+
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                    <Settings2 size={12}/> Width (mm)
+                  </label>
+                  <input 
+                    type="number" 
+                    placeholder="W" 
+                    disabled={selectedItemCode && !uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("PLATE") && !uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("SHEET")}
+                    className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none disabled:bg-slate-50 disabled:text-slate-300" 
+                    value={cuttingForm.raw_w} 
+                    onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
+                  />
+                </div>
+
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                    <Settings2 size={12}/> Thickness (mm)
+                  </label>
+                  <input 
+                    type="number" 
+                    placeholder="T" 
+                    className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                    value={cuttingForm.raw_thk} 
+                    onChange={(e) => setCuttingForm({...cuttingForm, raw_thk: e.target.value})} 
+                  />
+                </div>
+
+                <div className="md:col-span-3 space-y-1.5">
+                  <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest block flex items-center gap-1">
+                    Produced Qty *
+                  </label>
+                  <input 
+                    type="number" 
+                    placeholder="PCS" 
+                    min="1"
+                    className="w-full bg-indigo-50/50 border border-indigo-100 rounded px-3 py-1.5 text-xs font-black text-indigo-700 focus:border-indigo-500 outline-none" 
+                    value={cuttingForm.produced_qty} 
+                    onChange={(e) => setCuttingForm({...cuttingForm, produced_qty: e.target.value})} 
+                  />
+                </div>
+
+                <div className="md:col-span-1 space-y-1.5 text-center">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                    Fin?
+                  </label>
+                  <div className="flex items-center justify-center h-[30px]">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" 
+                      checked={cuttingForm.is_finished} 
+                      onChange={(e) => setCuttingForm({...cuttingForm, is_finished: e.target.checked})} 
+                    />
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <button 
+                    onClick={handleAddToTable}
+                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Plus size={14} /> Add to Report
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. SUMMARY TABLE (The List) */}
+            <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 shadow-sm overflow-hidden min-h-[200px]">
+              <div className="px-6 py-3 bg-slate-900 text-white flex justify-between items-center">
+                <h4 className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><Clipboard size={14}/> Reported Items Summary</h4>
+                <span className="text-[10px] font-black bg-white/20 px-3 py-1 rounded-full">{reportEntries.length} Items Configured</span>
+              </div>
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
+                  <tr>
+                    <th className="px-6 py-3">#</th>
+                    <th className="px-6 py-3">Item Details</th>
+                    <th className="px-6 py-3">ST Code</th>
+                    <th className="px-6 py-3 text-center">Item Group</th>
+                    <th className="px-6 py-3 text-center">Cutting Dims (mm)</th>
+                    <th className="px-6 py-3 text-center">Produced Qty</th>
+                    <th className="px-6 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50 font-bold">
+                  {reportEntries.length === 0 ? (
+                    <tr><td colSpan="7" className="px-6 py-12 text-center text-slate-400 text-[10px] uppercase italic">No items added to report yet. Use the form above.</td></tr>
+                  ) : (
+                    reportEntries.map((entry, idx) => (
+                      <tr key={entry.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 py-4 text-[10px] text-slate-400">{idx + 1}</td>
+                        <td className="px-6 py-4">
+                          <p className="text-[10px] font-black text-slate-900 uppercase">{entry.item_name}</p>
+                          <p className="text-[8px] text-slate-400">{entry.item_code}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded text-[10px] font-black">
+                            {entry.full_data?.selectedSerial}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">{entry.item_group}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center text-slate-700 text-[10px] font-black">
+                          {entry.raw_dims}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-[10px] font-black">
+                            {entry.full_data?.produced_qty} PCS
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button 
+                            onClick={() => setReportEntries(reportEntries.filter(e => e.id !== entry.id))} 
+                            className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-all"
+                          >
+                            <Trash2 size={14}/>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
+          <button onClick={onClose} className="px-6 py-2 border border-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-50">Cancel</button>
+          <button 
+            onClick={handleFinalizeMCR}
+            disabled={loading || reportEntries.length === 0}
+            className="px-8 py-2 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50"
+          >
+            {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            Finalize Full MCR Report
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DailyProductionPlanningPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMCRModalOpen, setIsMCRModalOpen] = useState(false);
+  const [selectedPlanForMCR, setSelectedPlanForMCR] = useState(null);
   const [modalMode, setModalMode] = useState("create"); // "create", "edit", "view"
   const [selectedPlanData, setSelectedPlanData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -757,6 +1512,24 @@ const DailyProductionPlanningPage = () => {
       toast.error(error.response?.data?.message || "Failed to save plan");
     } finally {
       setModalLoading(false);
+    }
+  };
+
+  const handleDeletePlan = async (planId) => {
+    if (!window.confirm("Are you sure you want to delete this production plan? This action cannot be undone.")) return;
+    
+    setLoading(true);
+    try {
+      const response = await axios.delete(`/production/plans/${planId}`);
+      if (response.data.success) {
+        toast.success("Production plan deleted successfully");
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Error deleting plan:", error);
+      toast.error(error.response?.data?.message || "Failed to delete production plan");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -935,6 +1708,25 @@ const DailyProductionPlanningPage = () => {
                             >
                               <Pencil size={18} />
                             </button>
+                            {plan.operation_names?.toLowerCase().includes("cutting") && (
+                              <button 
+                                onClick={() => {
+                                  setSelectedPlanForMCR(plan);
+                                  setIsMCRModalOpen(true);
+                                }}
+                                className="p-2 text-indigo-400 hover:text-indigo-600 transition-colors"
+                                title="Generate MCR"
+                              >
+                                <Scissors size={18} />
+                              </button>
+                            )}
+                            <button 
+                              onClick={() => handleDeletePlan(plan.id)}
+                              className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                              title="Delete Plan"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -962,6 +1754,12 @@ const DailyProductionPlanningPage = () => {
         loading={modalLoading}
         mode={modalMode}
         initialData={selectedPlanData}
+      />
+
+      <MCRReportModal 
+        isOpen={isMCRModalOpen}
+        onClose={() => setIsMCRModalOpen(false)}
+        plan={selectedPlanForMCR}
       />
     </div>
   );

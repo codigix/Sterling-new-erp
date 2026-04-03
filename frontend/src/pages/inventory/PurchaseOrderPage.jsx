@@ -456,18 +456,45 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       "Total",
     ];
 
-    const tableRows = (po.items || []).map((item, index) => [
-      index + 1,
-      {
-        content: `${item.material_name || "N/A"}\n${item.item_group || "-"}`,
-        styles: { fontStyle: "bold" },
-      },
-      item.quantity ? parseFloat(item.quantity).toString() : "0",
-      item.unit || item.uom || "Nos",
-      `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      item.total_weight ? parseFloat(item.total_weight).toString() : "0",
-      `INR ${Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-    ]);
+    const tableRows = (po.items || []).map((item, index) => {
+      // Helper for dimension text
+      const getDimText = (item) => {
+        const group = (item.item_group || "").toLowerCase();
+        const parts = [];
+        if (group === "plate" || group === "plates") {
+          if (item.length) parts.push(`L: ${Number(item.length)}`);
+          if (item.width) parts.push(`W: ${Number(item.width)}`);
+          if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+        } else if (group === "round bar") {
+          if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
+          if (item.length) parts.push(`L: ${Number(item.length)}`);
+        } else if (group === "pipe") {
+          if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
+          if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+          if (item.length) parts.push(`L: ${Number(item.length)}`);
+        } else if (group === "block") {
+          if (item.length) parts.push(`L: ${Number(item.length)}`);
+          if (item.width) parts.push(`W: ${Number(item.width)}`);
+          if (item.height) parts.push(`H: ${Number(item.height)}`);
+        }
+        return parts.length > 0 ? `\nDim: ${parts.join(" \u00d7 ")} mm` : "";
+      };
+
+      const dimText = getDimText(item);
+
+      return [
+        index + 1,
+        {
+          content: `${item.material_name || "N/A"}\n${item.item_group || "-"}${dimText}`,
+          styles: { fontStyle: "bold" },
+        },
+        item.quantity ? parseFloat(item.quantity).toString() : "0",
+        item.unit || item.uom || "Nos",
+        `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        item.total_weight ? parseFloat(item.total_weight).toString() : "0",
+        `INR ${Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      ];
+    });
 
     autoTable(doc, {
       startY: 80,

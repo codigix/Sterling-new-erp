@@ -33,7 +33,7 @@ const initialBOMState = {
 };
 
 const UOMOptions = ["Nos", "Kg", "pcs", "m", "l", "set", "Box"];
-const ItemGroupOptions = ["Plates & Blocks", "round bar", "paint"];
+const ItemGroupOptions = ["Plates", "round bar", "paint", "Pipe", "Block"];
 const StatusOptions = [
   { label: "Draft", value: "draft" },
   { label: "Active", value: "active" },
@@ -192,7 +192,13 @@ const CreateBOMPage = () => {
     materialGrade: "",
     partDetail: "",
     remark: "",
-    make: ""
+    make: "",
+    length: "",
+    width: "",
+    thickness: "",
+    diameter: "",
+    outerDiameter: "",
+    height: ""
   });
 
   const [bomData, setBomData] = useState({
@@ -260,7 +266,13 @@ const CreateBOMPage = () => {
         materialGrade: "",
         partDetail: "",
         remark: "",
-        make: ""
+        make: "",
+        length: "",
+        width: "",
+        thickness: "",
+        diameter: "",
+        outerDiameter: "",
+        height: ""
       });
     }
 
@@ -549,7 +561,7 @@ const CreateBOMPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate("/design-engineer/dashboard")}
+              onClick={() => navigate("/department/production/bom/view")}
               className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded transition-all"
             >
               <ChevronLeft size={15} className="text-slate-500 dark:text-slate-400" />
@@ -692,6 +704,141 @@ const CreateBOMPage = () => {
                         allowCustom={true}
                       />
                     </div>
+
+                    {/* Plates: Length, Width, Thickness */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("plate") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Width (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.width}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, width: e.target.value }))}
+                            placeholder="Width"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Thickness (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.thickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, thickness: e.target.value }))}
+                            placeholder="Thickness"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Round Bar: Diameter, Length */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("round bar") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Diameter (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.diameter}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, diameter: e.target.value }))}
+                            placeholder="Diameter"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Pipe: Outer Diameter, Thickness, Length */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("pipe") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Outer Diameter (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.outerDiameter}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, outerDiameter: e.target.value }))}
+                            placeholder="Outer Diameter"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Thickness (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.thickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, thickness: e.target.value }))}
+                            placeholder="Thickness"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Block: Block Length, Width, Height */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("block") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Block Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Width (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.width}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, width: e.target.value }))}
+                            placeholder="Width"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Height (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.height}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, height: e.target.value }))}
+                            placeholder="Height"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
                     <div className="md:col-span-3">
                       <label className="block text-xs  text-slate-900 dark:text-slate-100   mb-1.5 ml-1">Material Grade</label>
                       <input
@@ -835,12 +982,61 @@ const CreateBOMPage = () => {
                                     placeholder="Grade"
                                     className="w-full  bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
                                   />
+                                  
+                                  {/* Editable Dimensions in Table */}
+                                  {row.itemGroup?.toLowerCase().includes("plate") && (
+                                    <div className="grid grid-cols-3 gap-1">
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-[10px]" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("round bar") && (
+                                    <div className="grid grid-cols-2 gap-1">
+                                      <input type="number" value={row.diameter} onChange={(e) => updateTableRow("materials", row.id, "diameter", e.target.value)} placeholder="D" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-[10px]" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("pipe") && (
+                                    <div className="grid grid-cols-3 gap-1">
+                                      <input type="number" value={row.outerDiameter} onChange={(e) => updateTableRow("materials", row.id, "outerDiameter", e.target.value)} placeholder="OD" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-[10px]" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("block") && (
+                                    <div className="grid grid-cols-3 gap-1">
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.height} onChange={(e) => updateTableRow("materials", row.id, "height", e.target.value)} placeholder="H" className="w-full p-1 border rounded text-[10px]" />
+                                    </div>
+                                  )}
                                 </div>
                               ) : (
                                 <div className="flex flex-col">
                                   <span className="text-xs text-slate-700 dark:text-slate-300">
                                     {row.partDetail || "-"}
                                   </span>
+                                  {row.itemGroup?.toLowerCase().includes("plate") && (row.length || row.width || row.thickness) && (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                      Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.thickness || 0)} mm
+                                    </span>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("round bar") && (row.diameter || row.length) && (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                      Dim: Dia:{Number(row.diameter || 0)}, L:{Number(row.length || 0)} mm
+                                    </span>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("pipe") && (row.outerDiameter || row.thickness || row.length) && (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                      Dim: OD:{Number(row.outerDiameter || 0)}, Thk:{Number(row.thickness || 0)}, L:{Number(row.length || 0)} mm
+                                    </span>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("block") && (row.length || row.width || row.height) && (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                      Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.height || 0)} mm
+                                    </span>
+                                  )}
                                   <span className="text-xs  text-slate-500 dark:text-slate-400  ">{row.materialGrade || "-"}</span>
                                 </div>
                               )}

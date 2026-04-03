@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../utils/api";
-import { Loader2, Package, Factory, Clock, CheckCircle, AlertTriangle, Users, TrendingUp, FileText, ShoppingCart, ChevronRight, Target } from "lucide-react";
+import { Loader2, Package, Factory, Clock, CheckCircle, AlertTriangle, Users, TrendingUp, FileText, ShoppingCart, ChevronRight, Target, Layers } from "lucide-react";
 import ProductionPhasesDisplay from "../../components/production/ProductionPhasesDisplay";
 
 const ProductionDashboard = () => {
@@ -12,6 +12,7 @@ const ProductionDashboard = () => {
   const [selectedRootCard, setSelectedRootCard] = useState(null);
   const [departmentTasks, setDepartmentTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
+  const [bomCount, setBomCount] = useState(0);
 
   const fetchPlans = useCallback(async () => {
     try {
@@ -22,6 +23,15 @@ const ProductionDashboard = () => {
       console.error('Error fetching production plans:', error);
     } finally {
       setLoadingPlans(false);
+    }
+  }, []);
+
+  const fetchBOMCount = useCallback(async () => {
+    try {
+      const response = await axios.get('/engineering/bom/comprehensive');
+      setBomCount(response.data.boms?.length || response.data?.length || 0);
+    } catch (error) {
+      console.error('Error fetching BOM count:', error);
     }
   }, []);
 
@@ -60,7 +70,8 @@ const ProductionDashboard = () => {
     fetchRootCards();
     fetchTasks();
     fetchPlans();
-  }, [fetchTasks, fetchPlans, fetchRootCards]);
+    fetchBOMCount();
+  }, [fetchTasks, fetchPlans, fetchRootCards, fetchBOMCount]);
 
   const stats = [
     {
@@ -91,6 +102,14 @@ const ProductionDashboard = () => {
       positive: true,
       icon: AlertTriangle,
     },
+    {
+      title: "Active BOMs",
+      value: bomCount.toString(),
+      change: "BOM Revisions",
+      positive: true,
+      icon: Layers,
+      path: "/department/production/bom/view"
+    },
   ];
 
   return (
@@ -104,32 +123,44 @@ const ProductionDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
         {stats.map((stat) => {
           const Icon = stat.icon;
-          return (
+          const CardContent = (
+            <div className="flex items-center text-xs justify-between">
+              <div>
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
+                  {stat.title}
+                </p>
+                <p className="text-xl  text-slate-900 dark:text-white  mt-2">
+                  {stat.value}
+                </p>
+                <p
+                  className={`text-sm mt-2 ${
+                    stat.positive ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {stat.positive ? "↑" : "→"} {stat.change}
+                </p>
+              </div>
+              <Icon size={20} className="text-blue-500" />
+            </div>
+          );
+
+          return stat.path ? (
+            <Link
+              key={stat.title}
+              to={stat.path}
+              className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700  transition-all hover:border-blue-500 hover:shadow-md block"
+            >
+              {CardContent}
+            </Link>
+          ) : (
             <div
               key={stat.title}
               className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700  transition-shadow"
             >
-              <div className="flex items-center text-xs justify-between">
-                <div>
-                  <p className="text-sm  text-slate-500 dark:text-slate-400">
-                    {stat.title}
-                  </p>
-                  <p className="text-xl  text-slate-900 dark:text-white  mt-2">
-                    {stat.value}
-                  </p>
-                  <p
-                    className={`text-sm mt-2 ${
-                      stat.positive ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
-                    {stat.positive ? "↑" : "↓"} {stat.change}
-                  </p>
-                </div>
-                <Icon size={20} className="text-blue-500" />
-              </div>
+              {CardContent}
             </div>
           );
         })}

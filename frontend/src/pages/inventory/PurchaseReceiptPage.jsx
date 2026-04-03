@@ -691,6 +691,17 @@ const PurchaseReceiptPage = () => {
                               <h4 className="text-xs  text-slate-900 dark:text-white  ">
                                 {item.material_name || item.description || "N/A"}
                               </h4>
+                              {(item.length || item.width || item.thickness || item.diameter || item.outer_diameter || item.height) && (
+                                <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                  Dim: {item.length && `L:${Number(item.length)} `}
+                                  {item.width && `W:${Number(item.width)} `}
+                                  {item.thickness && `T:${Number(item.thickness)} `}
+                                  {item.diameter && `Dia:${Number(item.diameter)} `}
+                                  {item.outer_diameter && `OD:${Number(item.outer_diameter)} `}
+                                  {item.height && `H:${Number(item.height)} `}
+                                  mm
+                                </div>
+                              )}
                               <p className="text-[10px] font-medium text-slate-500  tracking-wider">
                                 {item.material_code || item.item_code || "N/A"}
                               </p>

@@ -155,13 +155,19 @@ const createPurchaseOrder = async (req, res) => {
                     item.rate_per_kg || 0,
                     item.total_weight || 0,
                     finalRate, 
-                    item.amount || (item.total_weight * (item.rate_per_kg || 0)) || (finalQty * finalRate)
+                    item.amount || (item.total_weight * (item.rate_per_kg || 0)) || (finalQty * finalRate),
+                    item.length || null,
+                    item.width || null,
+                    item.thickness || null,
+                    item.diameter || null,
+                    item.outer_diameter || null,
+                    item.height || null
                 ];
             });
 
             await connection.query(
                 `INSERT INTO purchase_order_items 
-                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount) 
+                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height) 
                 VALUES ?`,
                 [itemValues]
             );
@@ -227,12 +233,18 @@ const updatePurchaseOrder = async (req, res) => {
                 item.rate_per_kg || 0,
                 item.total_weight || 0,
                 item.rate || 0, 
-                item.amount || 0
+                item.amount || 0,
+                item.length || null,
+                item.width || null,
+                item.thickness || null,
+                item.diameter || null,
+                item.outer_diameter || null,
+                item.height || null
             ]);
 
             await connection.query(
                 `INSERT INTO purchase_order_items 
-                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount) 
+                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height) 
                 VALUES ?`,
                 [itemValues]
             );
@@ -582,9 +594,25 @@ const createPurchaseReceipt = async (req, res) => {
 
             // Insert GRN item
             await connection.query(
-                `INSERT INTO grn_items (grn_id, po_item_id, item_code, material_name, ordered_qty, received_qty, received_weight, rate_per_kg, unit) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [grnId, po_item_id, finalItemCode, material_name, item.ordered_qty || 0, received_qty, item.received_weight || 0, item.rate_per_kg || 0, unit]
+                `INSERT INTO grn_items (grn_id, po_item_id, item_code, material_name, ordered_qty, received_qty, received_weight, rate_per_kg, unit, length, width, thickness, diameter, outer_diameter, height) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    grnId, 
+                    po_item_id, 
+                    finalItemCode, 
+                    material_name, 
+                    item.ordered_qty || 0, 
+                    received_qty, 
+                    item.received_weight || 0, 
+                    item.rate_per_kg || 0, 
+                    unit,
+                    item.length || null,
+                    item.width || null,
+                    item.thickness || null,
+                    item.diameter || null,
+                    item.outer_diameter || null,
+                    item.height || null
+                ]
             );
 
             // Generate ST numbers if requested
@@ -623,9 +651,23 @@ const createPurchaseReceipt = async (req, res) => {
                     }
                     
                     await connection.query(
-                        `INSERT INTO inventory_serials (serial_number, item_code, purchase_order_id, item_id, item_name, grn_id, status) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                        [serial_number, itemCodePerPiece, purchase_order_id, po_item_id, material_name, grnId, 'Pending']
+                        `INSERT INTO inventory_serials (serial_number, item_code, purchase_order_id, item_id, item_name, grn_id, status, length, width, thickness, diameter, outer_diameter, height) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            serial_number, 
+                            itemCodePerPiece, 
+                            purchase_order_id, 
+                            po_item_id, 
+                            material_name, 
+                            grnId, 
+                            'Pending',
+                            item.length || null,
+                            item.width || null,
+                            item.thickness || null,
+                            item.diameter || null,
+                            item.outer_diameter || null,
+                            item.height || null
+                        ]
                     );
                 }
             }
@@ -822,9 +864,9 @@ const addGRNToStock = async (req, res) => {
         for (const item of items) {
             // Insert Stock Entry Item
             await connection.query(
-                `INSERT INTO stock_entry_items (stock_entry_id, item_code, item_name, quantity, uom, valuation_rate) 
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                [stockEntryId, item.item_code, item.material_name, item.received_qty, item.unit || 'Nos', item.rate_per_kg || 0]
+                `INSERT INTO stock_entry_items (stock_entry_id, item_code, item_name, quantity, uom, valuation_rate, length, width, thickness, diameter, outer_diameter, height) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [stockEntryId, item.item_code, item.material_name, item.received_qty, item.unit || 'Nos', item.rate_per_kg || 0, item.length, item.width, item.thickness, item.diameter, item.outer_diameter, item.height]
             );
 
             // Record Movement in Ledger (IN)
@@ -835,8 +877,8 @@ const addGRNToStock = async (req, res) => {
             const currentBalance = (lastBalance[0]?.balance_qty || 0);
             const newBalance = parseFloat(currentBalance) + parseFloat(item.received_qty);
 
-            const ledgerSql = `INSERT INTO stock_ledger (item_code, material_name, posting_date, posting_time, voucher_type, voucher_no, actual_qty, uom, balance_qty, project_name, vendor_name, valuation_rate, remarks) 
-                 VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const ledgerSql = `INSERT INTO stock_ledger (item_code, material_name, posting_date, posting_time, voucher_type, voucher_no, actual_qty, uom, balance_qty, project_name, vendor_name, valuation_rate, remarks, length, width, thickness, diameter, outer_diameter, height) 
+                 VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             
             const ledgerValues = [
                 item.item_code, 
@@ -850,7 +892,13 @@ const addGRNToStock = async (req, res) => {
                 grn.project_name || null, 
                 grn.vendor_name || null, 
                 item.rate_per_kg || 0, 
-                `Receipt against ${grn.grn_number}`
+                `Receipt against ${grn.grn_number}`,
+                item.length,
+                item.width,
+                item.thickness,
+                item.diameter,
+                item.outer_diameter,
+                item.height
             ];
 
             await connection.query(ledgerSql, ledgerValues);
@@ -982,9 +1030,9 @@ const releaseGRNMaterial = async (req, res) => {
             if (item.accepted_qty > 0) {
                 // Insert Stock Entry Item
                 await connection.query(
-                    `INSERT INTO stock_entry_items (stock_entry_id, item_code, item_name, quantity, uom, valuation_rate) 
-                     VALUES (?, ?, ?, ?, ?, ?)`,
-                    [stockEntryId, item.item_code, item.material_name, item.accepted_qty, item.unit || 'Nos', item.rate_per_kg || 0]
+                    `INSERT INTO stock_entry_items (stock_entry_id, item_code, item_name, quantity, uom, valuation_rate, length, width, thickness, diameter, outer_diameter, height) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [stockEntryId, item.item_code, item.material_name, item.accepted_qty, item.unit || 'Nos', item.rate_per_kg || 0, item.length, item.width, item.thickness, item.diameter, item.outer_diameter, item.height]
                 );
 
                 // Update Ledger (OUT)
@@ -996,9 +1044,9 @@ const releaseGRNMaterial = async (req, res) => {
                 const newBalance = parseFloat(currentBalance) - parseFloat(item.accepted_qty);
 
                 await connection.query(
-                    `INSERT INTO stock_ledger (item_code, material_name, posting_date, posting_time, voucher_type, voucher_no, actual_qty, uom, balance_qty, project_name, vendor_name, valuation_rate, remarks) 
-                     VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [item.item_code, item.material_name, new Date().toISOString().split('T')[0], 'Stock Entry', entry_no, -item.accepted_qty, item.unit || 'Nos', newBalance, grn.project_name || null, grn.vendor_name || null, item.rate_per_kg || 0, `Released for Production from ${grn.grn_number}`]
+                    `INSERT INTO stock_ledger (item_code, material_name, posting_date, posting_time, voucher_type, voucher_no, actual_qty, uom, balance_qty, project_name, vendor_name, valuation_rate, remarks, length, width, thickness, diameter, outer_diameter, height) 
+                     VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [item.item_code, item.material_name, new Date().toISOString().split('T')[0], 'Stock Entry', entry_no, -item.accepted_qty, item.unit || 'Nos', newBalance, grn.project_name || null, grn.vendor_name || null, item.rate_per_kg || 0, `Released for Production from ${grn.grn_number}`, item.length, item.width, item.thickness, item.diameter, item.outer_diameter, item.height]
                 );
 
                 // Update serials to 'Used'
@@ -1015,7 +1063,13 @@ const releaseGRNMaterial = async (req, res) => {
                     itemGroup: item.item_group,
                     quantity: item.shortage_to_order,
                     uom: item.unit,
-                    remark: `Shortage/Rejection against original order from GRN ${grn.grn_number}`
+                    remark: `Shortage/Rejection against original order from GRN ${grn.grn_number}`,
+                    length: item.length,
+                    width: item.width,
+                    thickness: item.thickness,
+                    diameter: item.diameter,
+                    outer_diameter: item.outer_diameter,
+                    height: item.height
                 });
             }
         }
@@ -1064,11 +1118,11 @@ const releaseGRNMaterial = async (req, res) => {
             const mrId = mrResult.insertId;
 
             const mrItemValues = shortageItems.map(si => [
-                mrId, si.itemName, si.itemGroup, si.quantity, si.uom, si.remark
+                mrId, si.itemName, si.itemGroup, si.quantity, si.uom, si.remark, si.length, si.width, si.thickness, si.diameter, si.outer_diameter, si.height
             ]);
 
             await connection.query(
-                `INSERT INTO material_request_items (material_request_id, item_name, item_group, required_quantity, uom, remark) 
+                `INSERT INTO material_request_items (material_request_id, item_name, item_group, required_quantity, uom, remark, length, width, thickness, diameter, outer_diameter, height) 
                  VALUES ?`,
                 [mrItemValues]
             );

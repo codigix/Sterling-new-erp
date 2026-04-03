@@ -63,7 +63,13 @@ const StockMovementsPage = () => {
             project_name: entry.project_name,
             vendor_name: entry.vendor_name,
             remarks: entry.remarks || `${entry.entry_type} for ${item.item_code}`,
-            serials: item.serials || []
+            serials: item.serials || [],
+            length: item.length_mm || item.length,
+            width: item.width_mm || item.width,
+            thickness: item.thickness_mm || item.thickness,
+            diameter: item.diameter_mm || item.diameter,
+            outer_diameter: item.outer_diameter_mm || item.outer_diameter,
+            height: item.height_mm || item.height
           });
         });
       });
@@ -201,6 +207,7 @@ const StockMovementsPage = () => {
                 <th className="p-2 text-xs mb-2  text-slate-400   w-12 text-center"></th>
                 <th className="p-2 text-xs mb-2  text-slate-400  ">Movement Log</th>
                 <th className="p-2 text-xs mb-2  text-slate-400  ">Material Identity</th>
+                <th className="p-2 text-xs mb-2  text-slate-400  ">Dimensions</th>
                 <th className="p-2 text-xs mb-2  text-slate-400  ">Project & Vendor Context</th>
                 <th className="p-2 text-xs mb-2  text-slate-400   text-center">Type</th>
                 <th className="p-2 text-xs mb-2  text-slate-400   text-right">Quantity</th>
@@ -211,6 +218,24 @@ const StockMovementsPage = () => {
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {filteredMovements.map((m) => {
                 const isExpanded = expandedMovement === m.id;
+                const renderDimensions = (it, fallback = null) => {
+                  const dims = [];
+                  const l = Number(it.length || (fallback?.length || 0));
+                  const w = Number(it.width || (fallback?.width || 0));
+                  const t = Number(it.thickness || (fallback?.thickness || 0));
+                  const d = Number(it.diameter || (fallback?.diameter || 0));
+                  const od = Number(it.outer_diameter || (fallback?.outer_diameter || 0));
+                  const h = Number(it.height || (fallback?.height || 0));
+
+                  if (l) dims.push(`L: ${l}`);
+                  if (w) dims.push(`W: ${w}`);
+                  if (t) dims.push(`T: ${t}`);
+                  if (d) dims.push(`Dia: ${d}`);
+                  if (od) dims.push(`OD: ${od}`);
+                  if (h) dims.push(`H: ${h}`);
+                  return dims.length > 0 ? dims.join(" × ") : "-";
+                };
+
                 return (
                   <React.Fragment key={m.id}>
                     <tr className={`group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors ${isExpanded ? 'bg-indigo-50/20 dark:bg-indigo-900/10' : ''}`}>
@@ -240,6 +265,9 @@ const StockMovementsPage = () => {
                             </span>
                           </div>
                         </div>
+                      </td>
+                      <td className="p-2 text-slate-500 dark:text-slate-400 text-[10px]">
+                        {renderDimensions(m)}
                       </td>
                       <td className="p-2">
                         <div className="">
@@ -314,6 +342,7 @@ const StockMovementsPage = () => {
                                      <th className="p-2  text-slate-400   w-16 text-center">#</th>
                                      <th className="p-2  text-slate-400  ">Item Code</th>
                                      <th className="p-2  text-slate-400  ">Item Name</th>
+                                     <th className="p-2  text-slate-400  ">Dimensions</th>
                                      <th className="p-2  text-indigo-500   text-right">ST Number</th>
                                    </tr>
                                  </thead>
@@ -327,6 +356,9 @@ const StockMovementsPage = () => {
                                          </td>
                                          <td className="p-2 text-slate-500 dark:text-slate-400  ">
                                            {m.material_name}
+                                         </td>
+                                         <td className="p-2 text-slate-500 dark:text-slate-400 text-[10px]">
+                                           {renderDimensions(st, m)}
                                          </td>
                                          <td className="p-2 text-right">
                                            <span className="p-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-xs mb-2    border border-indigo-100 dark:border-indigo-800">

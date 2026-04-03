@@ -168,6 +168,18 @@ const SerialTagTrackingPage = () => {
                     </td>
                     <td className="p-2">
                       <p className=" text-slate-900 dark:text-white">{item.item_name}</p>
+                      <div className="text-[10px] text-blue-600 font-mono">
+                        {item.length || item.width || item.thickness || item.diameter || item.outer_diameter || item.height ? (
+                          <>
+                            {item.length ? `L:${Number(item.length)} ` : ''}
+                            {item.width ? `W:${Number(item.width)} ` : ''}
+                            {item.thickness ? `T:${Number(item.thickness)} ` : ''}
+                            {item.diameter ? `D:${Number(item.diameter)} ` : ''}
+                            {item.outer_diameter ? `OD:${Number(item.outer_diameter)} ` : ''}
+                            {item.height ? `H:${Number(item.height)} ` : ''}
+                          </>
+                        ) : null}
+                      </div>
                       <p className="text-[10px] text-slate-500 font-medium">ID: {item.id}</p>
                     </td>
                     <td className="p-2">

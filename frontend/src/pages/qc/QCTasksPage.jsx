@@ -334,6 +334,18 @@ const QCTasksPage = () => {
                                               <p className="text-[11px]  text-slate-700 dark:text-slate-200   font-mono truncate" title={st.st_code}>
                                                 {st.st_code}
                                               </p>
+                                              <div className="text-[10px] text-slate-500 font-mono mt-1">
+                                                {st.length || st.width || st.thickness || st.diameter || st.outer_diameter || st.height ? (
+                                                  <>
+                                                    {st.length ? `L:${Number(st.length)} ` : ''}
+                                                    {st.width ? `W:${Number(st.width)} ` : ''}
+                                                    {st.thickness ? `T:${Number(st.thickness)} ` : ''}
+                                                    {st.diameter ? `D:${Number(st.diameter)} ` : ''}
+                                                    {st.outer_diameter ? `OD:${Number(st.outer_diameter)} ` : ''}
+                                                    {st.height ? `H:${Number(st.height)} ` : ''}
+                                                  </>
+                                                ) : null}
+                                              </div>
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-50 dark:border-slate-800">

@@ -88,6 +88,34 @@ const GRNProcessingPage = () => {
     return `${typeCode}-${shortSize}`;
   };
 
+  const renderDimensionsText = (item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const parts = [];
+    if (group === "plate" || group === "plates") {
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+      if (item.width) parts.push(`W: ${Number(item.width)}`);
+      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+    } else if (group === "round bar") {
+      if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+    } else if (group === "pipe") {
+      if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
+      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+    } else if (group === "block") {
+      if (item.length) parts.push(`L: ${Number(item.length)}`);
+      if (item.width) parts.push(`W: ${Number(item.width)}`);
+      if (item.height) parts.push(`H: ${Number(item.height)}`);
+    }
+    
+    if (parts.length === 0) return null;
+    return (
+      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+        Dim: {parts.join(" \u00d7 ")} mm
+      </div>
+    );
+  };
+
   const fetchPODetails = async (id) => {
     setLoadingPO(true);
     try {
@@ -109,6 +137,12 @@ const GRNProcessingPage = () => {
           received_weight: parseFloat(item.total_weight) || 0,
           rate: parseFloat(item.rate) || 0,
           amount: parseFloat(item.amount) || 0,
+          length: item.length || null,
+          width: item.width || null,
+          thickness: item.thickness || null,
+          diameter: item.diameter || null,
+          outer_diameter: item.outer_diameter || null,
+          height: item.height || null,
           generate_st: true
         };
       });
@@ -464,7 +498,10 @@ const GRNProcessingPage = () => {
                           </div>
                           <div className="space-y-1">
                             <p className="text-sm  text-slate-900 dark:text-white   line-clamp-2">{item.material_name}</p>
-                            <p className="text-xs  text-slate-400  ">{item.item_group || "N/A"}</p>
+                            <div className="flex flex-col gap-0.5">
+                              <p className="text-xs  text-slate-400  ">{item.item_group || "N/A"}</p>
+                              {renderDimensionsText(item)}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -881,6 +918,7 @@ const GRNProcessingPage = () => {
                                   </div>
                                   <div className="space-y-0.5">
                                     <h4 className="text-xs  text-slate-900 dark:text-white  ">{item.material_name}</h4>
+                                    {renderDimensionsText(item)}
                                     <div className="flex flex-col gap-0.5">
                                       <span className="text-xs  text-slate-400  ">
                                         {item.item_code ? `${item.item_code} • ` : ''}

@@ -96,6 +96,26 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                             <span className="text-xs text-slate-700 dark:text-slate-300">
                               {item.partDetail || "-"}
                             </span>
+                            {item.itemGroup?.toLowerCase().includes("plate") && (item.length || item.width || item.thickness) && (
+                              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.thickness || 0)} mm
+                              </span>
+                            )}
+                            {item.itemGroup?.toLowerCase().includes("round bar") && (item.diameter || item.length) && (
+                              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                Dim: Dia:{Number(item.diameter || 0)}, L:{Number(item.length || 0)} mm
+                              </span>
+                            )}
+                            {item.itemGroup?.toLowerCase().includes("pipe") && (item.outerDiameter || item.thickness || item.length) && (
+                              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                Dim: OD:{Number(item.outerDiameter || 0)}, Thk:{Number(item.thickness || 0)}, L:{Number(item.length || 0)} mm
+                              </span>
+                            )}
+                            {item.itemGroup?.toLowerCase().includes("block") && (item.length || item.width || item.height) && (
+                              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.height || 0)} mm
+                              </span>
+                            )}
                             <span className="text-[10px] font-medium text-slate-500 dark:text-slate-500  ">
                               {item.materialGrade || "-"}
                             </span>

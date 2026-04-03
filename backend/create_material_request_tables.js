@@ -38,6 +38,14 @@ const createMaterialRequestTables = async () => {
         uom VARCHAR(50),
         remark TEXT,
         received_quantity DECIMAL(15, 4) DEFAULT 0,
+        warehouse VARCHAR(255),
+        operation VARCHAR(255),
+        length DECIMAL(15, 4) DEFAULT 0,
+        width DECIMAL(15, 4) DEFAULT 0,
+        thickness DECIMAL(15, 4) DEFAULT 0,
+        diameter DECIMAL(15, 4) DEFAULT 0,
+        outer_diameter DECIMAL(15, 4) DEFAULT 0,
+        height DECIMAL(15, 4) DEFAULT 0,
         FOREIGN KEY (material_request_id) REFERENCES material_requests(id) ON DELETE CASCADE
       )
     `);

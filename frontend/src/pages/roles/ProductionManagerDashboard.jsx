@@ -20,7 +20,8 @@ import {
   ShoppingCart,
   ChevronRight,
   Target,
-  Monitor
+  Monitor,
+  Layers
 } from "lucide-react";
 
 const ProductionManagerDashboard = () => {
@@ -46,6 +47,11 @@ const ProductionManagerDashboard = () => {
           title: "Production Plans",
           path: "/production-manager/planning/plans",
           icon: Clock,
+        },
+        {
+          title: "BOM",
+          path: "/department/production/bom/view",
+          icon: Layers,
         },
         {
           title: "Production Specifications",

@@ -186,6 +186,26 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                               <span className=" text-slate-900 dark:text-slate-200 text-xs group-hover:text-blue-600 transition-colors">
                                 {item.item_name}
                               </span>
+                              {item.item_group?.toLowerCase().includes("plate") && (item.length || item.width || item.thickness) && (
+                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                  Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.thickness || 0)} mm
+                                </span>
+                              )}
+                              {item.item_group?.toLowerCase().includes("round bar") && (item.diameter || item.length) && (
+                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                  Dim: Dia:{Number(item.diameter || 0)}, L:{Number(item.length || 0)} mm
+                                </span>
+                              )}
+                              {item.item_group?.toLowerCase().includes("pipe") && (item.outer_diameter || item.thickness || item.length) && (
+                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                  Dim: OD:{Number(item.outer_diameter || 0)}, Thk:{Number(item.thickness || 0)}, L:{Number(item.length || 0)} mm
+                                </span>
+                              )}
+                              {item.item_group?.toLowerCase().includes("block") && (item.length || item.width || item.height) && (
+                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                  Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.height || 0)} mm
+                                </span>
+                              )}
                               <span className="text-xs  text-slate-400 ">
                                 {item.item_group || "NO-GROUP"}
                               </span>

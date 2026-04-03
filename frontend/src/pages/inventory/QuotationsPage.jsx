@@ -384,9 +384,33 @@ const QuotationsPage = ({ defaultTab }) => {
     ];
 
     const tableRows = (quotation.items || []).map((item) => {
+      // Helper for dimension text
+      const getDimText = (item) => {
+        const group = (item.item_group || "").toLowerCase();
+        const parts = [];
+        if (group === "plate" || group === "plates") {
+          if (item.length) parts.push(`L: ${Number(item.length)}`);
+          if (item.width) parts.push(`W: ${Number(item.width)}`);
+          if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+        } else if (group === "round bar") {
+          if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
+          if (item.length) parts.push(`L: ${Number(item.length)}`);
+        } else if (group === "pipe") {
+          if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
+          if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+          if (item.length) parts.push(`L: ${Number(item.length)}`);
+        } else if (group === "block") {
+          if (item.length) parts.push(`L: ${Number(item.length)}`);
+          if (item.width) parts.push(`W: ${Number(item.width)}`);
+          if (item.height) parts.push(`H: ${Number(item.height)}`);
+        }
+        return parts.length > 0 ? `\nDim: ${parts.join(" \u00d7 ")} mm` : "";
+      };
+
       if (quotation.type === "inbound") {
+        const dimText = getDimText(item);
         return [
-          item.vendor_item_name || item.item_name || "N/A", // Replacement logic
+          (item.vendor_item_name || item.item_name || "N/A") + dimText,
           item.quantity ? parseFloat(item.quantity).toString() : "0",
           item.unit || "N/A",
           `INR ${item.rate_per_kg || 0}`,
@@ -394,8 +418,9 @@ const QuotationsPage = ({ defaultTab }) => {
           `INR ${(item.total_weight * item.rate_per_kg || 0).toFixed(2)}`
         ];
       } else {
+        const dimText = getDimText(item);
         return [
-          item.item_name || "N/A",
+          (item.item_name || "N/A") + dimText,
           item.item_group || "N/A",
           item.material_grade || "N/A",
           item.part_detail || "N/A",
@@ -726,6 +751,12 @@ const QuotationsPage = ({ defaultTab }) => {
         material_grade: item.material_grade || "",
         make: item.make || "",
         remark: item.remark || "",
+        length: item.length || null,
+        width: item.width || null,
+        thickness: item.thickness || null,
+        diameter: item.diameter || null,
+        outer_diameter: item.outer_diameter || null,
+        height: item.height || null,
       })),
       notes: `Response to ${quote.quotation_number}`,
       type: "inbound",

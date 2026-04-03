@@ -237,6 +237,7 @@ const StockEntriesPage = () => {
                                      <th className="p-2  text-slate-400   w-16">#</th>
                                      <th className="p-2  text-slate-400  ">Item Code</th>
                                      <th className="p-2  text-slate-400  ">Material Name</th>
+                                     <th className="p-2  text-slate-400  ">Dimensions</th>
                                      <th className="p-2  text-slate-400   text-center">Qty / UOM</th>
                                      <th className="p-2  text-slate-400   text-right">Serial Tags</th>
                                    </tr>
@@ -244,6 +245,24 @@ const StockEntriesPage = () => {
                                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700 font-medium">
                                    {items.map((item, i) => {
                                      const isItemExpanded = expandedItem === i;
+                                     const renderDimensions = (it, fallback = null) => {
+                                       const dims = [];
+                                       const l = Number(it.length_mm || it.length || (fallback?.length_mm || fallback?.length || 0));
+                                       const w = Number(it.width_mm || it.width || (fallback?.width_mm || fallback?.width || 0));
+                                       const t = Number(it.thickness_mm || it.thickness || (fallback?.thickness_mm || fallback?.thickness || 0));
+                                       const d = Number(it.diameter_mm || it.diameter || (fallback?.diameter_mm || fallback?.diameter || 0));
+                                       const od = Number(it.outer_diameter_mm || it.outer_diameter || (fallback?.outer_diameter_mm || fallback?.outer_diameter || 0));
+                                       const h = Number(it.height_mm || it.height || (fallback?.height_mm || fallback?.height || 0));
+
+                                       if (l) dims.push(`L: ${l}`);
+                                       if (w) dims.push(`W: ${w}`);
+                                       if (t) dims.push(`T: ${t}`);
+                                       if (d) dims.push(`Dia: ${d}`);
+                                       if (od) dims.push(`OD: ${od}`);
+                                       if (h) dims.push(`H: ${h}`);
+                                       return dims.length > 0 ? dims.join(" × ") : "-";
+                                     };
+
                                      return (
                                        <React.Fragment key={i}>
                                          <tr 
@@ -256,6 +275,9 @@ const StockEntriesPage = () => {
                                            </td>
                                            <td className="p-2  text-slate-700 dark:text-slate-300  ">
                                              {item.item_name}
+                                           </td>
+                                           <td className="p-2 text-slate-500 dark:text-slate-400 text-[10px]">
+                                             {renderDimensions(item)}
                                            </td>
                                            <td className="p-2 text-center">
                                              <div className="flex flex-col items-center">
@@ -291,6 +313,7 @@ const StockEntriesPage = () => {
                                                      <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
                                                        <th className="p-2 text-xs  text-slate-400   w-12 text-center">#</th>
                                                        <th className="p-2 text-xs  text-slate-400  ">Item Code</th>
+                                                       <th className="p-2 text-xs  text-slate-400  ">Dimensions</th>
                                                        <th className="p-2 text-xs  text-slate-400  ">Name</th>
                                                        <th className="p-2 text-xs  text-indigo-400   text-right">ST Code</th>
                                                      </tr>
@@ -304,6 +327,9 @@ const StockEntriesPage = () => {
                                                          <tr key={sIdx} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                                                            <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
                                                            <td className="p-2 text-xs  text-slate-700 dark:text-slate-300  ">{itemCodePerPiece}</td>
+                                                           <td className="p-2 text-[10px] text-slate-500  ">
+                                                             {renderDimensions(stObj, item)}
+                                                           </td>
                                                            <td className="p-2 text-xs  text-slate-500 dark:text-slate-400  ">{item.item_name}</td>
                                                            <td className="p-2 text-xs  text-indigo-600   text-right">{stCode}</td>
                                                          </tr>

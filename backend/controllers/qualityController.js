@@ -176,7 +176,15 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
           status: s.status,
           inspection_status: s.inspection_status || 'Pending',
           document_path: s.document_path,
-          rejection_reason: s.rejection_reason
+          rejection_reason: s.rejection_reason,
+          dimensions: {
+            length: s.length,
+            width: s.width,
+            thickness: s.thickness,
+            diameter: s.diameter,
+            outer_diameter: s.outer_diameter,
+            height: s.height
+          }
         }))
       };
     });
@@ -280,8 +288,19 @@ exports.createFinalQCReport = async (req, res) => {
                 if (item.st_numbers && item.st_numbers.length > 0) {
                     for (const st of item.st_numbers) {
                         await connection.query(
-                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status) VALUES (?, ?, ?, ?)`,
-                            [reportItemId, st.st_code, st.item_code || st.st_code.replace('ST-', ''), st.status]
+                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            [
+                                reportItemId, 
+                                st.st_code, 
+                                st.item_code || st.st_code.replace('ST-', ''), 
+                                st.status,
+                                st.length || null,
+                                st.width || null,
+                                st.thickness || null,
+                                st.diameter || null,
+                                st.outer_diameter || null,
+                                st.height || null
+                            ]
                         );
                     }
                 }
@@ -330,7 +349,7 @@ exports.getFinalQCReports = async (req, res) => {
             // Fetch ST numbers for each item
             for (const item of items) {
                 const [stNumbers] = await db.query(
-                    'SELECT st_code, item_code, status FROM quality_final_report_st_numbers WHERE report_item_id = ?',
+                    'SELECT st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height FROM quality_final_report_st_numbers WHERE report_item_id = ?',
                     [item.id]
                 );
                 item.st_numbers = stNumbers;
@@ -451,7 +470,15 @@ exports.getGRNStNumbers = async (req, res) => {
                 serial_number: row.serial_number,
                 item_code: row.item_code,
                 status: row.status,
-                inspection_status: row.inspection_status || 'Pending'
+                inspection_status: row.inspection_status || 'Pending',
+                dimensions: {
+                    length: row.length,
+                    width: row.width,
+                    thickness: row.thickness,
+                    diameter: row.diameter,
+                    outer_diameter: row.outer_diameter,
+                    height: row.height
+                }
             });
             return acc;
         }, {});

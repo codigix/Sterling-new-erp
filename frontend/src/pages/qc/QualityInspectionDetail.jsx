@@ -390,6 +390,7 @@ const QualityInspectionDetail = () => {
                     <thead>
                       <tr className="bg-slate-50/30 border-b border-slate-100 dark:border-slate-700 text-slate-400 text-xs   ">
                         <th className="p-2 text-left">ST Number</th>
+                        <th className="p-2 text-left">Dimensions</th>
                         <th className="p-2 text-left">Current Status</th>
                         <th className="p-2 text-center">Action</th>
                         {inspectionType === 'Outsource' && <th className="p-2 text-center">Doc</th>}
@@ -401,6 +402,21 @@ const QualityInspectionDetail = () => {
                         <tr key={s.serial_number} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/50 transition-colors">
                           <td className="p-2  text-slate-700 dark:text-white">
                             {s.serial_number}
+                          </td>
+                          <td className="p-2">
+                            <div className="text-[10px] text-slate-500 font-mono">
+                              {s.dimensions && (
+                                <>
+                                  {s.dimensions.length ? `L: ${Number(s.dimensions.length)} ` : ''}
+                                  {s.dimensions.width ? `W: ${Number(s.dimensions.width)} ` : ''}
+                                  {s.dimensions.thickness ? `T: ${Number(s.dimensions.thickness)} ` : ''}
+                                  {s.dimensions.diameter ? `Dia: ${Number(s.dimensions.diameter)} ` : ''}
+                                  {s.dimensions.outer_diameter ? `OD: ${Number(s.dimensions.outer_diameter)} ` : ''}
+                                  {s.dimensions.height ? `H: ${Number(s.dimensions.height)} ` : ''}
+                                  {!s.dimensions.length && !s.dimensions.width && !s.dimensions.thickness && !s.dimensions.diameter && !s.dimensions.outer_diameter && !s.dimensions.height && '-'}
+                                </>
+                              )}
+                            </div>
                           </td>
                           <td className="p-2">
                             <span className={`text-xs p-1 rounded     ${

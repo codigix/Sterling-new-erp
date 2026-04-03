@@ -59,13 +59,19 @@ const createBOM = async (req, res) => {
           0, // Rate removed from logic
           0, // Total removed from logic
           m.warehouse || null,
-          m.operation || null
+          m.operation || null,
+          m.length || 0,
+          m.width || 0,
+          m.thickness || 0,
+          m.diameter || 0,
+          m.outerDiameter || 0,
+          m.height || 0
         ];
       });
 
       await connection.query(
         `INSERT INTO bom_materials 
-        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation) 
+        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height) 
         VALUES ?`,
         [materialValues]
       );
@@ -173,12 +179,20 @@ const updateBOM = async (req, res) => {
           m.quantity || 0,
           m.uom || '',
           0, // Rate removed from logic
-          0  // Total removed from logic
+          0,  // Total removed from logic
+          m.warehouse || null,
+          m.operation || null,
+          m.length || 0,
+          m.width || 0,
+          m.thickness || 0,
+          m.diameter || 0,
+          m.outerDiameter || 0,
+          m.height || 0
         ];
       });
       await connection.query(
         `INSERT INTO bom_materials 
-        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount) 
+        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height) 
         VALUES ?`,
         [materialValues]
       );
@@ -273,6 +287,12 @@ const getBOMById = async (req, res) => {
         uom: m.uom,
         warehouse: m.warehouse,
         operation: m.operation,
+        length: m.length,
+        width: m.width,
+        thickness: m.thickness,
+        diameter: m.diameter,
+        outerDiameter: m.outer_diameter,
+        height: m.height,
         ratePerKg: m.rate_per_kg,
         totalWeight: m.total_weight,
         rate: 0,

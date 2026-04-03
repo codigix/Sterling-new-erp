@@ -438,15 +438,15 @@ const DepartmentLayout = () => {
                   </li>
                   <li>
                     <Link
-                      to="/department/production/material-requests"
+                      to="/department/production/bom/view"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
-                        isActive("/department/production/material-requests")
+                        isActive("/department/production/bom/view") || location.pathname.includes("/production/bom")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <ShoppingCart size={18} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Material Requests</span>}
+                      <Layers size={18} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">BOM</span>}
                     </Link>
                   </li>
                   <li>

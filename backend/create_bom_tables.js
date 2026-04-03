@@ -40,6 +40,14 @@ const createBOMTables = async () => {
         rate_per_kg DECIMAL(15, 2) DEFAULT 0,
         total_weight DECIMAL(15, 4) DEFAULT 0,
         total_amount DECIMAL(15, 2) DEFAULT 0,
+        warehouse VARCHAR(255),
+        operation VARCHAR(255),
+        length DECIMAL(15, 4) DEFAULT 0,
+        width DECIMAL(15, 4) DEFAULT 0,
+        thickness DECIMAL(15, 4) DEFAULT 0,
+        diameter DECIMAL(15, 4) DEFAULT 0,
+        outer_diameter DECIMAL(15, 4) DEFAULT 0,
+        height DECIMAL(15, 4) DEFAULT 0,
         FOREIGN KEY (bom_id) REFERENCES boms(id) ON DELETE CASCADE
       )
     `);

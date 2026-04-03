@@ -156,12 +156,18 @@ const createQuotation = async (req, res) => {
                 item.part_detail || '',
                 item.make || '',
                 item.remark || '',
-                item.item_group || ''
+                item.item_group || '',
+                item.length || null,
+                item.width || null,
+                item.thickness || null,
+                item.diameter || null,
+                item.outer_diameter || null,
+                item.height || null
             ]);
 
             await connection.query(
                 `INSERT INTO quotation_items 
-                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group) 
+                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group, length, width, thickness, diameter, outer_diameter, height) 
                 VALUES ?`,
                 [itemValues]
             );
@@ -954,14 +960,20 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
                 m.warehouse,
                 m.operation,
                 alternative ? alternative.rate_per_kg : (m.rate_per_kg || 0),
-                alternative ? alternative.total_weight : (m.total_weight || 0)
+                alternative ? alternative.total_weight : (m.total_weight || 0),
+                alternative ? (alternative.length || m.length) : m.length,
+                alternative ? (alternative.width || m.width) : m.width,
+                alternative ? (alternative.thickness || m.thickness) : m.thickness,
+                alternative ? (alternative.diameter || m.diameter) : m.diameter,
+                alternative ? (alternative.outer_diameter || m.outer_diameter) : m.outer_diameter,
+                alternative ? (alternative.height || m.height) : m.height
             ];
         });
 
         if (newMaterialValues.length > 0) {
             await connection.query(
                 `INSERT INTO bom_materials 
-                (bom_id, item_name, vendor_item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, rate_per_kg, total_weight) 
+                (bom_id, item_name, vendor_item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, rate_per_kg, total_weight, length, width, thickness, diameter, outer_diameter, height) 
                 VALUES ?`,
                 [newMaterialValues]
             );

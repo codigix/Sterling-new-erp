@@ -73,6 +73,9 @@ exports.getDailyPlans = async (req, res) => {
          FROM daily_operator_assignments a 
          JOIN root_cards r ON a.root_card_id = r.id 
          WHERE a.plan_id = p.id), '') as project_names,
+        IFNULL((SELECT GROUP_CONCAT(DISTINCT a.operation_name SEPARATOR ', ') 
+         FROM daily_operator_assignments a 
+         WHERE a.plan_id = p.id), '') as operation_names,
         IFNULL((SELECT GROUP_CONCAT(DISTINCT a.root_card_id SEPARATOR ', ') 
          FROM daily_operator_assignments a 
          WHERE a.plan_id = p.id), '') as root_card_ids,
@@ -198,6 +201,17 @@ exports.updateDailyPlan = async (req, res) => {
   }
 };
 
+exports.deleteDailyPlan = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM daily_production_plans WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Daily plan deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting daily plan:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 exports.addAssignment = async (req, res) => {
   const { plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks } = req.body;
   
@@ -317,6 +331,114 @@ exports.sendToQC = async (req, res) => {
     if (connection) await connection.rollback();
     console.error('Error sending to QC:', error);
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+exports.getReleasedMaterialsForMCR = async (req, res) => {
+  const { project_names } = req.query;
+  const names = project_names ? project_names.split(',') : [];
+  
+  try {
+    if (names.length === 0) return res.json({ success: true, movements: [] });
+
+    // 1. Get Stock Entries of type 'Material Issue' for these project names
+    const [entries] = await db.query(`
+      SELECT se.* 
+      FROM stock_entries se 
+      WHERE se.entry_type = 'Material Issue' 
+      AND se.project_name IN (?)
+      ORDER BY se.created_at DESC
+    `, [names]);
+
+    const entriesWithItems = [];
+    for (let entry of entries) {
+      // Join with bom_materials to get item_group
+      const [items] = await db.query(`
+        SELECT sei.*, bm.item_group, bm.material_grade
+        FROM stock_entry_items sei
+        LEFT JOIN boms b ON b.root_card_id = (SELECT id FROM root_cards WHERE project_name = ? LIMIT 1)
+        LEFT JOIN bom_materials bm ON bm.bom_id = b.id AND bm.item_name = sei.item_name
+        WHERE sei.stock_entry_id = ?
+      `, [entry.project_name, entry.id]);
+      
+      const itemsWithSerials = [];
+      for (let item of items) {
+        const [serialRows] = await db.query(
+          'SELECT serial_number, status, inspection_status FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
+          [entry.id, `${item.item_code}%`, item.item_name]
+        );
+        itemsWithSerials.push({ ...item, serials: serialRows });
+      }
+      entriesWithItems.push({ ...entry, items: itemsWithSerials });
+    }
+
+    res.json({ success: true, movements: entriesWithItems });
+  } catch (error) {
+    console.error('Error fetching materials for MCR:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.saveMCR = async (req, res) => {
+  const { plan_id, work_date, pieces, calculations } = req.body;
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    for (const piece of pieces) {
+      // 1. Update serial number status to 'Cut' or 'Processed'
+      // Only set to 'Used' if the operator marked it as finished
+      const newStatus = piece.is_finished ? 'Used' : 'Available';
+      
+      await connection.query(
+        'UPDATE inventory_serials SET status = ?, inspection_status = "CUT" WHERE serial_number = ?',
+        [newStatus, piece.serial_number]
+      );
+
+      // 2. Fetch assignment details
+      const [assignments] = await connection.query(
+        'SELECT * FROM daily_operator_assignments WHERE plan_id = ? AND (operation_name LIKE "%CUTTING%" OR operation_name LIKE "%Cutting%") LIMIT 1',
+        [plan_id]
+      );
+
+      if (assignments.length > 0) {
+        const a = assignments[0];
+        
+        // Find if there are specific calculations for this piece/item
+        const calc = calculations?.find(c => c.serial_number === piece.serial_number) || 
+                     calculations?.find(c => c.item_code === piece.item_code);
+
+        // 3. Insert into daily_production_updates
+        const [updateResult] = await connection.query(
+          `INSERT INTO daily_production_updates 
+          (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
+           operator_name, operator_id, actual_start, actual_end, break_time, actual_hours, 
+           qty_completed, status, remarks) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURTIME(), CURTIME(), 0, 0, ?, "Completed", ?)`,
+          [
+            work_date, plan_id, a.id, a.root_card_id, a.operation_id, a.operation_name,
+            a.operator_name, a.operator_id, 
+            calc ? calc.total_parts_produced : 1,
+            piece.remarks || `MCR entry for ${piece.serial_number}. Scrap: ${calc?.scrap_percent || 0}%`
+          ]
+        );
+
+        const updateId = updateResult.insertId;
+
+        // 4. Save Cutting Details if available (simplified for now until table exists)
+        // You might need to create material_cutting_reports table
+      }
+    }
+
+    await connection.commit();
+    res.json({ success: true, message: 'MCR saved successfully' });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error('Error saving MCR:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   } finally {
     if (connection) connection.release();
   }
