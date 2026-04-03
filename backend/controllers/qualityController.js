@@ -74,13 +74,9 @@ exports.getQCReadyRootCards = async (req, res) => {
 
 exports.getGRNMaterialsForInspection = async (req, res) => {
   try {
-    const { rootCardId } = req.query;
+    const { rootCardId, grnNumber } = req.query;
     
-    if (!rootCardId) {
-      return res.status(400).json({ message: 'Root Card ID is required' });
-    }
-
-    const [rows] = await db.query(`
+    let query = `
       SELECT 
         gi.*, 
         g.grn_number, 
@@ -97,8 +93,21 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       JOIN vendors v ON g.vendor_id = v.id
       JOIN quotations q ON po.quotation_id = q.id
       JOIN purchase_order_items poi ON gi.po_item_id = poi.id
-      WHERE q.root_card_id = ? AND (g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released'))
-    `, [rootCardId]);
+      WHERE (g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released'))
+    `;
+    const queryParams = [];
+
+    if (rootCardId) {
+      query += ` AND q.root_card_id = ?`;
+      queryParams.push(rootCardId);
+    }
+
+    if (grnNumber) {
+      query += ` AND g.grn_number LIKE ?`;
+      queryParams.push(`%${grnNumber}%`);
+    }
+
+    const [rows] = await db.query(query, queryParams);
 
     // Fetch serials for these GRN items
     const grnIds = [...new Set(rows.map(r => r.grn_id))];
@@ -265,8 +274,8 @@ exports.createFinalQCReport = async (req, res) => {
             for (const item of materials) {
                 const [itemResult] = await connection.query(
                     `INSERT INTO quality_final_report_items 
-                     (report_id, material_name, item_code, item_group, material_id, received_qty, unit, accepted_qty, rejected_qty, accepted_report, rejected_report) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                     (report_id, material_name, item_code, item_group, material_id, received_qty, unit, accepted_qty, rejected_qty, accepted_report, rejected_report, length, width, thickness, diameter, outer_diameter, height) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         reportId, 
                         item.material_name, 
@@ -278,7 +287,13 @@ exports.createFinalQCReport = async (req, res) => {
                         item.accepted_qty, 
                         item.rejected_qty, 
                         item.accepted_report, 
-                        item.rejected_report
+                        item.rejected_report,
+                        item.length || null,
+                        item.width || null,
+                        item.thickness || null,
+                        item.diameter || null,
+                        item.outer_diameter || null,
+                        item.height || null
                     ]
                 );
 
@@ -342,7 +357,7 @@ exports.getFinalQCReports = async (req, res) => {
         const reports = [];
         for (const report of rows) {
             const [items] = await db.query(
-                'SELECT * FROM quality_final_report_items WHERE report_id = ?',
+                'SELECT id, material_name, item_code, item_group, received_qty, unit, accepted_qty, rejected_qty, length, width, thickness, diameter, outer_diameter, height FROM quality_final_report_items WHERE report_id = ?',
                 [report.id]
             );
 
@@ -447,6 +462,8 @@ exports.getGRNStNumbers = async (req, res) => {
     try {
         const [rows] = await db.query(`
             SELECT s.*, gi.material_name as itemName, gi.po_item_id,
+                   gi.length as itemLength, gi.width as itemWidth, gi.thickness as itemThickness,
+                   gi.diameter as itemDiameter, gi.outer_diameter as itemOuterDiameter, gi.height as itemHeight,
                    qi.common_document_path as acceptedDoc,
                    qi.rejected_document_path as rejectedDoc
             FROM inventory_serials s
@@ -463,6 +480,14 @@ exports.getGRNStNumbers = async (req, res) => {
                     po_item_id: row.po_item_id,
                     acceptedDoc: row.acceptedDoc,
                     rejectedDoc: row.rejectedDoc,
+                    itemDimensions: {
+                        length: row.itemLength,
+                        width: row.itemWidth,
+                        thickness: row.itemThickness,
+                        diameter: row.itemDiameter,
+                        outer_diameter: row.itemOuterDiameter,
+                        height: row.itemHeight
+                    },
                     serials: []
                 };
             }

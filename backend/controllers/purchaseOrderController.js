@@ -161,13 +161,23 @@ const createPurchaseOrder = async (req, res) => {
                     item.thickness || null,
                     item.diameter || null,
                     item.outer_diameter || null,
-                    item.height || null
+                    item.height || null,
+                    item.material_type || null,
+                    item.density || 0,
+                    item.unit_weight || 0,
+                    item.total_weight || 0,
+                    item.vendor_length || null,
+                    item.vendor_width || null,
+                    item.vendor_thickness || null,
+                    item.vendor_diameter || null,
+                    item.vendor_outer_diameter || null,
+                    item.vendor_height || null
                 ];
             });
 
             await connection.query(
                 `INSERT INTO purchase_order_items 
-                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height) 
+                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight_alt, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height) 
                 VALUES ?`,
                 [itemValues]
             );
@@ -239,12 +249,16 @@ const updatePurchaseOrder = async (req, res) => {
                 item.thickness || null,
                 item.diameter || null,
                 item.outer_diameter || null,
-                item.height || null
+                item.height || null,
+                item.material_type || null,
+                item.density || 0,
+                item.unit_weight || 0,
+                item.total_weight || 0
             ]);
 
             await connection.query(
                 `INSERT INTO purchase_order_items 
-                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height) 
+                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight) 
                 VALUES ?`,
                 [itemValues]
             );
@@ -594,8 +608,8 @@ const createPurchaseReceipt = async (req, res) => {
 
             // Insert GRN item
             await connection.query(
-                `INSERT INTO grn_items (grn_id, po_item_id, item_code, material_name, ordered_qty, received_qty, received_weight, rate_per_kg, unit, length, width, thickness, diameter, outer_diameter, height) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO grn_items (grn_id, po_item_id, item_code, material_name, ordered_qty, received_qty, received_weight, rate_per_kg, unit, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     grnId, 
                     po_item_id, 
@@ -603,7 +617,7 @@ const createPurchaseReceipt = async (req, res) => {
                     material_name, 
                     item.ordered_qty || 0, 
                     received_qty, 
-                    item.received_weight || 0, 
+                    item.received_weight || item.total_weight || 0, 
                     item.rate_per_kg || 0, 
                     unit,
                     item.length || null,
@@ -611,7 +625,11 @@ const createPurchaseReceipt = async (req, res) => {
                     item.thickness || null,
                     item.diameter || null,
                     item.outer_diameter || null,
-                    item.height || null
+                    item.height || null,
+                    item.material_type || null,
+                    item.density || 0,
+                    item.unit_weight || 0,
+                    item.total_weight || 0
                 ]
             );
 

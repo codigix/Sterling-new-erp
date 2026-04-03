@@ -65,13 +65,17 @@ const createBOM = async (req, res) => {
           m.thickness || 0,
           m.diameter || 0,
           m.outerDiameter || 0,
-          m.height || 0
+          m.height || 0,
+          m.materialType || null,
+          m.density || 0,
+          m.unitWeight || m.calculatedWeight || 0,
+          m.totalWeight || 0
         ];
       });
 
       await connection.query(
         `INSERT INTO bom_materials 
-        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height) 
+        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight) 
         VALUES ?`,
         [materialValues]
       );
@@ -187,12 +191,16 @@ const updateBOM = async (req, res) => {
           m.thickness || 0,
           m.diameter || 0,
           m.outerDiameter || 0,
-          m.height || 0
+          m.height || 0,
+          m.materialType || null,
+          m.density || 0,
+          m.unitWeight || m.calculatedWeight || 0,
+          m.totalWeight || 0
         ];
       });
       await connection.query(
         `INSERT INTO bom_materials 
-        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height) 
+        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight) 
         VALUES ?`,
         [materialValues]
       );
@@ -293,8 +301,11 @@ const getBOMById = async (req, res) => {
         diameter: m.diameter,
         outerDiameter: m.outer_diameter,
         height: m.height,
-        ratePerKg: m.rate_per_kg,
+        materialType: m.material_type,
+        density: m.density,
+        unitWeight: m.unit_weight,
         totalWeight: m.total_weight,
+        ratePerKg: m.rate_per_kg,
         rate: 0,
         totalAmount: 0
       };

@@ -162,12 +162,21 @@ const createQuotation = async (req, res) => {
                 item.thickness || null,
                 item.diameter || null,
                 item.outer_diameter || null,
-                item.height || null
+                item.height || null,
+                item.material_type || null,
+                item.density || 0,
+                item.unit_weight || 0,
+                item.vendor_length || null,
+                item.vendor_width || null,
+                item.vendor_thickness || null,
+                item.vendor_diameter || null,
+                item.vendor_outer_diameter || null,
+                item.vendor_height || null
             ]);
 
             await connection.query(
                 `INSERT INTO quotation_items 
-                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group, length, width, thickness, diameter, outer_diameter, height) 
+                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height) 
                 VALUES ?`,
                 [itemValues]
             );
@@ -838,17 +847,27 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
             return;
         }
 
-        // 1. Check if any item has vendor_item_name that is actually different
-        const itemsWithAlternatives = (quotationItems || []).filter(item => 
-            item.vendor_item_name && 
-            item.vendor_item_name.trim() !== '' && 
-            item.vendor_item_name.trim().toLowerCase() !== (item.item_name || "").trim().toLowerCase()
-        );
+        // 1. Check if any item has vendor_item_name or dimensions that are actually different
+        const itemsWithAlternatives = (quotationItems || []).filter(item => {
+            const hasDifferentName = item.vendor_item_name && 
+                item.vendor_item_name.trim() !== '' && 
+                item.vendor_item_name.trim().toLowerCase() !== (item.item_name || "").trim().toLowerCase();
+            
+            const hasDifferentDimensions = 
+                (item.vendor_length !== null && item.vendor_length !== undefined && parseFloat(item.vendor_length) !== parseFloat(item.length)) ||
+                (item.vendor_width !== null && item.vendor_width !== undefined && parseFloat(item.vendor_width) !== parseFloat(item.width)) ||
+                (item.vendor_thickness !== null && item.vendor_thickness !== undefined && parseFloat(item.vendor_thickness) !== parseFloat(item.thickness)) ||
+                (item.vendor_diameter !== null && item.vendor_diameter !== undefined && parseFloat(item.vendor_diameter) !== parseFloat(item.diameter)) ||
+                (item.vendor_outer_diameter !== null && item.vendor_outer_diameter !== undefined && parseFloat(item.vendor_outer_diameter) !== parseFloat(item.outer_diameter)) ||
+                (item.vendor_height !== null && item.vendor_height !== undefined && parseFloat(item.vendor_height) !== parseFloat(item.height));
+
+            return hasDifferentName || hasDifferentDimensions;
+        });
         
-        console.log(`Found ${itemsWithAlternatives.length} items with different vendor names among ${quotationItems?.length || 0} items`);
+        console.log(`Found ${itemsWithAlternatives.length} items with different vendor details among ${quotationItems?.length || 0} items`);
         
         if (itemsWithAlternatives.length === 0) {
-            console.log('No different vendor material names found. Skipping BOM versioning.');
+            console.log('No different vendor details found. Skipping BOM versioning.');
             return;
         }
 
@@ -961,12 +980,12 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
                 m.operation,
                 alternative ? alternative.rate_per_kg : (m.rate_per_kg || 0),
                 alternative ? alternative.total_weight : (m.total_weight || 0),
-                alternative ? (alternative.length || m.length) : m.length,
-                alternative ? (alternative.width || m.width) : m.width,
-                alternative ? (alternative.thickness || m.thickness) : m.thickness,
-                alternative ? (alternative.diameter || m.diameter) : m.diameter,
-                alternative ? (alternative.outer_diameter || m.outer_diameter) : m.outer_diameter,
-                alternative ? (alternative.height || m.height) : m.height
+                (alternative && alternative.vendor_length !== null && alternative.vendor_length !== undefined) ? alternative.vendor_length : (alternative ? alternative.length : m.length),
+                (alternative && alternative.vendor_width !== null && alternative.vendor_width !== undefined) ? alternative.vendor_width : (alternative ? alternative.width : m.width),
+                (alternative && alternative.vendor_thickness !== null && alternative.vendor_thickness !== undefined) ? alternative.vendor_thickness : (alternative ? alternative.thickness : m.thickness),
+                (alternative && alternative.vendor_diameter !== null && alternative.vendor_diameter !== undefined) ? alternative.vendor_diameter : (alternative ? alternative.diameter : m.diameter),
+                (alternative && alternative.vendor_outer_diameter !== null && alternative.vendor_outer_diameter !== undefined) ? alternative.vendor_outer_diameter : (alternative ? alternative.outer_diameter : m.outer_diameter),
+                (alternative && alternative.vendor_height !== null && alternative.vendor_height !== undefined) ? alternative.vendor_height : (alternative ? alternative.height : m.height)
             ];
         });
 

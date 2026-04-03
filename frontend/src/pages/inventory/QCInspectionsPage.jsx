@@ -99,9 +99,36 @@ const QCInspectionsPage = () => {
       const response = await axios.get("/qc/portal/materials-for-inspection", {
         params: { rootCardId: inspection.rootCardId }
       });
+      
+      const grnMaterials = response.data.filter(m => Number(m.grn_id) === Number(inspection.dbId));
+      
+      // Enhance materials with fallback dimensions for serials
+      const enhancedMaterials = grnMaterials.map(item => {
+        const itemDimensions = {
+          length: item.length,
+          width: item.width,
+          thickness: item.thickness,
+          diameter: item.diameter,
+          outer_diameter: item.outer_diameter,
+          height: item.height
+        };
+
+        const enhancedSerials = (item.serials || []).map(s => {
+          const serialDimensions = s.dimensions || {};
+          const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '');
+          
+          return {
+            ...s,
+            dimensions: hasSerialDims ? serialDimensions : itemDimensions
+          };
+        });
+
+        return { ...item, serials: enhancedSerials };
+      });
+
       setReportData({
         ...inspection,
-        materials: response.data.filter(m => Number(m.grn_id) === Number(inspection.dbId))
+        materials: enhancedMaterials
       });
       setExpandedReportItems({});
       setShowReportModal(true);
@@ -111,6 +138,29 @@ const QCInspectionsPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderDimensions = (dimensions) => {
+    if (!dimensions) return "-";
+    const parts = [];
+    const fields = [
+      { key: 'length', label: 'L' },
+      { key: 'width', label: 'W' },
+      { key: 'thickness', label: 'T' },
+      { key: 'diameter', label: 'Dia' },
+      { key: 'outer_diameter', label: 'OD' },
+      { key: 'height', label: 'H' }
+    ];
+
+    fields.forEach(field => {
+      const value = parseFloat(dimensions[field.key]);
+      if (value > 0) {
+        // parseFloat(val.toFixed(4)) removes trailing zeros
+        parts.push(`${field.label}: ${parseFloat(value.toFixed(4))}`);
+      }
+    });
+
+    return parts.length > 0 ? parts.join(" \u00D7 ") : "-";
   };
 
   const handleCreateReport = async () => {
@@ -134,6 +184,12 @@ const QCInspectionsPage = () => {
           rejected_qty: m.serials?.filter(s => s.inspection_status === 'Rejected').length || 0,
           accepted_report: m.common_document_path,
           rejected_report: m.rejected_document_path,
+          length: m.length || null,
+          width: m.width || null,
+          thickness: m.thickness || null,
+          diameter: m.diameter || null,
+          outer_diameter: m.outer_diameter || null,
+          height: m.height || null,
           st_numbers: m.serials?.map(s => ({
             st_code: s.serial_number,
             item_code: s.item_code,
@@ -680,6 +736,7 @@ const QCInspectionsPage = () => {
                     <thead>
                       <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                         <th className="p-2 text-xs  text-slate-400  ">Material & ST Numbers</th>
+                        <th className="p-2 text-xs  text-slate-400  ">Dimensions</th>
                         <th className="px-4 py-4 text-xs  text-slate-400   text-center">Received Qty</th>
                         <th className="px-4 py-4 text-xs  text-slate-400   text-center">Summary Status</th>
                         <th className="p-2 text-xs  text-slate-400   text-right">Reports</th>
@@ -713,6 +770,18 @@ const QCInspectionsPage = () => {
                                     </p>
                                     <p className="text-xs  text-slate-400  ">{item.item_group}</p>
                                   </div>
+                                </div>
+                              </td>
+                              <td className="p-2">
+                                <div className="text-[10px] text-slate-500 font-mono">
+                                  {renderDimensions({
+                                    length: item.length,
+                                    width: item.width,
+                                    thickness: item.thickness,
+                                    diameter: item.diameter,
+                                    outer_diameter: item.outer_diameter,
+                                    height: item.height
+                                  })}
                                 </div>
                               </td>
                               <td className="px-4 py-5 text-center">

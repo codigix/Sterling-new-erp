@@ -34,6 +34,12 @@ const initialBOMState = {
 
 const UOMOptions = ["Nos", "Kg", "pcs", "m", "l", "set", "Box"];
 const ItemGroupOptions = ["Plates", "round bar", "paint", "Pipe", "Block"];
+const MaterialTypeOptions = [
+  { label: "Mild Steel / Carbon Steel", value: "7.85" },
+  { label: "Stainless Steel (304/316)", value: "8.00" },
+  { label: "Aluminum", value: "2.70" },
+  { label: "Copper", value: "8.96" }
+];
 const StatusOptions = [
   { label: "Draft", value: "draft" },
   { label: "Active", value: "active" },
@@ -190,6 +196,8 @@ const CreateBOMPage = () => {
     warehouse: "", 
     operation: "",
     materialGrade: "",
+    materialType: "",
+    density: 0,
     partDetail: "",
     remark: "",
     make: "",
@@ -198,8 +206,72 @@ const CreateBOMPage = () => {
     thickness: "",
     diameter: "",
     outerDiameter: "",
-    height: ""
+    height: "",
+    calculatedWeight: 0
   });
+
+  const calculateItemWeight = useCallback((item) => {
+    const group = item.itemGroup?.toLowerCase() || "";
+    const density = parseFloat(item.density) || 0;
+    let unitWeight = 0;
+
+    if (density <= 0) return 0;
+
+    const L = parseFloat(item.length) || 0;
+    const W = parseFloat(item.width) || 0;
+    const T = parseFloat(item.thickness) || 0;
+    const D = parseFloat(item.diameter) || 0;
+    const OD = parseFloat(item.outerDiameter) || 0;
+    const H = parseFloat(item.height) || 0;
+
+    if (group.includes("plate") || group.includes("block")) {
+      const thick = group.includes("plate") ? T : H;
+      // Weight = (L * W * T * density) / 1,000,000
+      unitWeight = (L * W * thick * density) / 1000000;
+    } 
+    else if (group.includes("round bar")) {
+      // Weight = (PI * r^2 * L * density) / 1,000,000
+      const radius = D / 2;
+      unitWeight = (Math.PI * Math.pow(radius, 2) * L * density) / 1000000;
+    } 
+    else if (group.includes("pipe")) {
+      // Weight = (PI * (OR^2 - IR^2) * L * density) / 1,000,000
+      const outerRadius = OD / 2;
+      const innerRadius = outerRadius - T;
+      if (innerRadius >= 0) {
+        unitWeight = (Math.PI * (Math.pow(outerRadius, 2) - Math.pow(innerRadius, 2)) * L * density) / 1000000;
+      }
+    }
+
+    return unitWeight;
+  }, []);
+
+  // Update calculated weight whenever dimensions, density or group changes
+  useEffect(() => {
+    const unitWeight = calculateItemWeight(newMaterial);
+    const totalWeight = unitWeight * (parseFloat(newMaterial.quantity) || 0);
+    
+    if (unitWeight !== newMaterial.calculatedWeight) {
+      setNewMaterial(prev => ({ 
+        ...prev, 
+        calculatedWeight: unitWeight,
+        // If UOM is Kg, automatically update quantity to match total weight if it's currently 1 or 0
+        quantity: prev.uom === "Kg" && (prev.quantity === 1 || prev.quantity === 0) ? totalWeight.toFixed(3) : prev.quantity
+      }));
+    }
+  }, [
+    newMaterial.length, 
+    newMaterial.width, 
+    newMaterial.thickness, 
+    newMaterial.height, 
+    newMaterial.diameter, 
+    newMaterial.outerDiameter, 
+    newMaterial.density, 
+    newMaterial.itemGroup,
+    newMaterial.quantity,
+    newMaterial.uom,
+    calculateItemWeight
+  ]);
 
   const [bomData, setBomData] = useState({
     ...initialBOMState,
@@ -255,7 +327,13 @@ const CreateBOMPage = () => {
 
     if (section === "materials") {
       if (!newMaterial.itemName) return;
-      newItem = { ...newMaterial, id: Date.now() };
+      newItem = { 
+        ...newMaterial, 
+        id: Date.now(),
+        // Save the current weight in the item
+        unitWeight: parseFloat(newMaterial.calculatedWeight) || 0,
+        totalWeight: (parseFloat(newMaterial.calculatedWeight) || 0) * (parseFloat(newMaterial.quantity) || 0)
+      };
       resetState = () => setNewMaterial({ 
         itemName: "", 
         quantity: 1, 
@@ -264,6 +342,8 @@ const CreateBOMPage = () => {
         warehouse: "", 
         operation: "",
         materialGrade: "",
+        materialType: "",
+        density: 0,
         partDetail: "",
         remark: "",
         make: "",
@@ -272,7 +352,8 @@ const CreateBOMPage = () => {
         thickness: "",
         diameter: "",
         outerDiameter: "",
-        height: ""
+        height: "",
+        calculatedWeight: 0
       });
     }
 
@@ -704,8 +785,32 @@ const CreateBOMPage = () => {
                         allowCustom={true}
                       />
                     </div>
-
-                    {/* Plates: Length, Width, Thickness */}
+                    <div className="md:col-span-3">
+                      <SearchableSelect
+                        label="Material Type (Density)"
+                        options={MaterialTypeOptions}
+                        value={newMaterial.density}
+                        onChange={(val) => {
+                          const selected = MaterialTypeOptions.find(opt => opt.value === val);
+                          setNewMaterial(prev => ({ 
+                            ...prev, 
+                            density: val,
+                            materialType: selected ? selected.label : ""
+                          }));
+                        }}
+                        placeholder="Select material"
+                      />
+                    </div>
+                    <div className="md:col-span-3">
+                      <label className="block text-xs  text-slate-900 dark:text-slate-100   mb-1.5 ml-1">Material Grade</label>
+                      <input
+                        type="text"
+                        value={newMaterial.materialGrade}
+                        onChange={(e) => setNewMaterial(prev => ({ ...prev, materialGrade: e.target.value }))}
+                        placeholder="Grade"
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                      />
+                    </div>
                     {newMaterial.itemGroup?.toLowerCase().includes("plate") && (
                       <>
                         <div className="md:col-span-3">
@@ -840,16 +945,6 @@ const CreateBOMPage = () => {
                     )}
 
                     <div className="md:col-span-3">
-                      <label className="block text-xs  text-slate-900 dark:text-slate-100   mb-1.5 ml-1">Material Grade</label>
-                      <input
-                        type="text"
-                        value={newMaterial.materialGrade}
-                        onChange={(e) => setNewMaterial(prev => ({ ...prev, materialGrade: e.target.value }))}
-                        placeholder="Grade"
-                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
-                      />
-                    </div>
-                    <div className="md:col-span-3">
                       <label className="block text-xs  text-slate-900 dark:text-slate-100   mb-1.5 ml-1">Part Detail</label>
                       <input
                         type="text"
@@ -903,6 +998,39 @@ const CreateBOMPage = () => {
                         className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
                       />
                     </div>
+
+                    {newMaterial.calculatedWeight > 0 && (
+                      <div className="md:col-span-12 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded border border-blue-100 dark:border-blue-900/20 flex items-center justify-between mb-2">
+                        <div className="flex gap-6">
+                          <div>
+                            <span className="text-[10px] text-blue-500 uppercase font-semibold block">Unit Weight</span>
+                            <span className="text-sm font-bold text-blue-700 dark:text-blue-400">
+                              {Number(newMaterial.calculatedWeight.toFixed(3))} Kg
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-blue-500 uppercase font-semibold block">Total Weight</span>
+                            <span className="text-sm font-bold text-blue-700 dark:text-blue-400">
+                              {Number((newMaterial.calculatedWeight * (parseFloat(newMaterial.quantity) || 0)).toFixed(3))} Kg
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-blue-500 uppercase font-semibold block">Material</span>
+                            <span className="text-sm font-medium text-blue-700 dark:text-blue-400">{newMaterial.materialType} ({newMaterial.density})</span>
+                          </div>
+                        </div>
+                        {newMaterial.uom === "Kg" && (
+                          <button 
+                            type="button"
+                            onClick={() => setNewMaterial(prev => ({ ...prev, quantity: Number((prev.calculatedWeight * (parseFloat(prev.quantity) || 1)).toFixed(3)) }))}
+                            className="text-[10px] bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
+                          >
+                            Apply to Qty
+                          </button>
+                        )}
+                      </div>
+                    )}
+
                     <div className="md:col-span-12 flex justify-end">
                       <button 
                         onClick={() => handleAddItem("materials")}
@@ -928,6 +1056,7 @@ const CreateBOMPage = () => {
                         <th className="px-4 py-3  text-slate-500 dark:text-slate-400  ">Item Name / Group</th>
                         <th className="px-4 py-3  text-slate-500 dark:text-slate-400  ">Part Detail / Grade</th>
                         <th className="px-4 py-3  text-slate-500 dark:text-slate-400  ">Remark / Make</th>
+                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400   text-center">Weight (Kg)</th>
                         <th className="px-4 py-3  text-slate-500 dark:text-slate-400   text-center">Qty</th>
                         <th className="px-4 py-3  text-slate-500 dark:text-slate-400  ">UOM</th>
                         <th className="px-4 py-3  text-slate-500 dark:text-slate-400   text-center">Actions</th>
@@ -961,6 +1090,26 @@ const CreateBOMPage = () => {
                               ) : (
                                 <div className="flex flex-col">
                                   <span className=" text-slate-700 dark:text-slate-200">{row.itemName}</span>
+                                  {row.itemGroup?.toLowerCase().includes("plate") && (row.length || row.width || row.thickness) && (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                      Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.thickness || 0)} mm
+                                    </span>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("round bar") && (row.diameter || row.length) && (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                      Dim: Dia:{Number(row.diameter || 0)}, L:{Number(row.length || 0)} mm
+                                    </span>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("pipe") && (row.outerDiameter || row.thickness || row.length) && (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                      Dim: OD:{Number(row.outerDiameter || 0)}, Thk:{Number(row.thickness || 0)}, L:{Number(row.length || 0)} mm
+                                    </span>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("block") && (row.length || row.width || row.height) && (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                      Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.height || 0)} mm
+                                    </span>
+                                  )}
                                   <span className="text-xs  text-slate-500 dark:text-slate-400  ">{row.itemGroup || "NO-GROUP"}</span>
                                 </div>
                               )}
@@ -1017,26 +1166,6 @@ const CreateBOMPage = () => {
                                   <span className="text-xs text-slate-700 dark:text-slate-300">
                                     {row.partDetail || "-"}
                                   </span>
-                                  {row.itemGroup?.toLowerCase().includes("plate") && (row.length || row.width || row.thickness) && (
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
-                                      Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.thickness || 0)} mm
-                                    </span>
-                                  )}
-                                  {row.itemGroup?.toLowerCase().includes("round bar") && (row.diameter || row.length) && (
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
-                                      Dim: Dia:{Number(row.diameter || 0)}, L:{Number(row.length || 0)} mm
-                                    </span>
-                                  )}
-                                  {row.itemGroup?.toLowerCase().includes("pipe") && (row.outerDiameter || row.thickness || row.length) && (
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
-                                      Dim: OD:{Number(row.outerDiameter || 0)}, Thk:{Number(row.thickness || 0)}, L:{Number(row.length || 0)} mm
-                                    </span>
-                                  )}
-                                  {row.itemGroup?.toLowerCase().includes("block") && (row.length || row.width || row.height) && (
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
-                                      Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.height || 0)} mm
-                                    </span>
-                                  )}
                                   <span className="text-xs  text-slate-500 dark:text-slate-400  ">{row.materialGrade || "-"}</span>
                                 </div>
                               )}
@@ -1069,6 +1198,18 @@ const CreateBOMPage = () => {
                               )}
                             </td>
                             <td className="px-4 py-3 text-center">
+                              <div className="flex flex-col items-center">
+                                <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                                  {Number((parseFloat(row.totalWeight || row.total || 0) || (parseFloat(row.calculatedWeight || row.unitWeight || 0) * parseFloat(row.quantity || 0))).toFixed(3))} Kg
+                                </span>
+                                {(parseFloat(row.unitWeight) > 0 || parseFloat(row.calculatedWeight) > 0) && (
+                                  <span className="text-[10px] text-slate-400">
+                                    Unit: {Number(parseFloat(row.unitWeight || row.calculatedWeight || 0).toFixed(3))}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-center">
                               {isEditing ? (
                                 <input
                                   type="number"
@@ -1086,7 +1227,7 @@ const CreateBOMPage = () => {
                                   className="w-20 .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-emerald-500/20 outline-none"
                                 />
                               ) : (
-                                <span className="text-xs text-slate-500 dark:text-slate-400">{row.quantity}</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400">{Number(parseFloat(row.quantity || 0).toFixed(4))}</span>
                               )}
                             </td>
                             <td className="px-4 py-3">

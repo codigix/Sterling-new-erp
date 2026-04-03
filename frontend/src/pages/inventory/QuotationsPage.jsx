@@ -103,9 +103,22 @@ const QuotationsPage = ({ defaultTab }) => {
         
         const preFilled = items.map(item => ({
           item_name: item.item_name || item.material_name || item.description || "",
-          quantity: item.quantity || 0,
-          unit: item.unit || "",
+          quantity: item.quantity || item.required_quantity || 0,
+          unit: item.unit || item.uom || "",
           unit_price: 0,
+          total_weight: item.total_weight || item.totalWeight || 0,
+          unit_weight: item.unit_weight || item.unitWeight || 0,
+          item_group: item.item_group || "",
+          material_grade: item.material_grade || "",
+          part_detail: item.part_detail || "",
+          make: item.make || "",
+          remark: item.remark || "",
+          length: item.length || null,
+          width: item.width || null,
+          thickness: item.thickness || null,
+          diameter: item.diameter || null,
+          outer_diameter: item.outer_diameter || null,
+          height: item.height || null
         }));
 
         setInitialData({
@@ -379,6 +392,7 @@ const QuotationsPage = ({ defaultTab }) => {
       "Part Detail",
       "Make",
       "Remark",
+      "Weight (Kg)",
       "Qty",
       "Unit",
     ];
@@ -426,6 +440,7 @@ const QuotationsPage = ({ defaultTab }) => {
           item.part_detail || "N/A",
           item.make || "N/A",
           item.remark || "N/A",
+          item.total_weight ? `${Number(parseFloat(item.total_weight).toFixed(3))}` : "0",
           item.quantity ? parseFloat(item.quantity).toString() : "0",
           item.unit || "N/A",
         ];
@@ -446,13 +461,14 @@ const QuotationsPage = ({ defaultTab }) => {
       5: { cellWidth: 30 }, // Total
     } : {
       0: { cellWidth: "auto" }, // Item Name
-      1: { cellWidth: 20 }, // Group
+      1: { cellWidth: 15 }, // Group
       2: { cellWidth: 15 }, // Grade
-      3: { cellWidth: 20 }, // Part Detail
+      3: { cellWidth: 15 }, // Part Detail
       4: { cellWidth: 15 }, // Make
-      5: { cellWidth: 20 }, // Remark
-      6: { cellWidth: 12 }, // Qty
-      7: { cellWidth: 12 }, // Unit
+      5: { cellWidth: 15 }, // Remark
+      6: { cellWidth: 20 }, // Weight
+      7: { cellWidth: 12 }, // Qty
+      8: { cellWidth: 12 }, // Unit
     };
 
     autoTable(doc, {

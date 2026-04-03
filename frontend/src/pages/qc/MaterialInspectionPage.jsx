@@ -35,6 +35,7 @@ const MaterialInspectionPage = () => {
   const [rootCards, setRootCards] = useState([]);
   const [selectedRootCard, setSelectedRootCard] = useState(null);
   const [selectedRootCardId, setSelectedRootCardId] = useState(searchParams.get("rootCardId") || "");
+  const [grnNumber, setGrnNumber] = useState(searchParams.get("grnNumber") || "");
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingRC, setLoadingRC] = useState(true);
@@ -53,10 +54,18 @@ const MaterialInspectionPage = () => {
   }, []);
 
   useEffect(() => {
-    if (rootCards.length > 0 && selectedRootCardId) {
-      handleRootCardChange(selectedRootCardId);
+    // Initial fetch of materials when rootCards are loaded OR search params change
+    if (rootCards.length > 0) {
+      if (selectedRootCardId) {
+        const rc = rootCards.find(card => String(card.id) === String(selectedRootCardId));
+        if (rc) setSelectedRootCard(rc);
+      }
+      fetchMaterials(selectedRootCardId, grnNumber);
+    } else if (rootCards.length === 0 && !loadingRC) {
+      // Fallback if no root cards but we still want to fetch all materials
+      fetchMaterials(selectedRootCardId, grnNumber);
     }
-  }, [rootCards, selectedRootCardId]);
+  }, [rootCards, loadingRC, selectedRootCardId, grnNumber]);
 
   const fetchReadyRootCards = async () => {
     try {
@@ -71,13 +80,41 @@ const MaterialInspectionPage = () => {
     }
   };
 
-  const fetchMaterials = async (rootCardId, silent = false) => {
+  const fetchMaterials = async (rootCardId, grnNum, silent = false) => {
     try {
       if (!silent) setLoading(true);
       const response = await axios.get("/qc/portal/materials-for-inspection", {
-        params: { rootCardId }
+        params: { 
+          rootCardId: rootCardId || undefined,
+          grnNumber: grnNum || undefined
+        }
       });
-      setMaterials(response.data);
+      
+      // Enhance materials with fallback dimensions for serials
+      const enhancedMaterials = response.data.map(item => {
+        const itemDimensions = {
+          length: item.length,
+          width: item.width,
+          thickness: item.thickness,
+          diameter: item.diameter,
+          outer_diameter: item.outer_diameter,
+          height: item.height
+        };
+
+        const enhancedSerials = (item.serials || []).map(s => {
+          const serialDimensions = s.dimensions || {};
+          const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '');
+          
+          return {
+            ...s,
+            dimensions: hasSerialDims ? serialDimensions : itemDimensions
+          };
+        });
+
+        return { ...item, serials: enhancedSerials };
+      });
+
+      setMaterials(enhancedMaterials);
     } catch (error) {
       console.error("Error fetching materials:", error);
       showError("Failed to load materials for inspection");
@@ -86,16 +123,42 @@ const MaterialInspectionPage = () => {
     }
   };
 
+  const renderDimensions = (dimensions) => {
+    if (!dimensions) return "-";
+    const parts = [];
+    const fields = [
+      { key: 'length', label: 'L' },
+      { key: 'width', label: 'W' },
+      { key: 'thickness', label: 'T' },
+      { key: 'diameter', label: 'Dia' },
+      { key: 'outer_diameter', label: 'OD' },
+      { key: 'height', label: 'H' }
+    ];
+
+    fields.forEach(field => {
+      const value = parseFloat(dimensions[field.key]);
+      if (value > 0) {
+        // parseFloat(val.toFixed(4)) removes trailing zeros
+        parts.push(`${field.label}: ${parseFloat(value.toFixed(4))}`);
+      }
+    });
+
+    return parts.length > 0 ? parts.join(" \u00D7 ") : "-";
+  };
+
   const handleRootCardChange = (id) => {
     setSelectedRootCardId(id);
     const rc = rootCards.find(card => String(card.id) === String(id));
     if (rc) {
       setSelectedRootCard(rc);
-      fetchMaterials(rc.id);
     } else {
       setSelectedRootCard(null);
-      setMaterials([]);
     }
+    setExpandedItem(null);
+  };
+
+  const handleGrnFilterChange = (e) => {
+    setGrnNumber(e.target.value);
     setExpandedItem(null);
   };
 
@@ -207,7 +270,7 @@ const MaterialInspectionPage = () => {
       });
 
       showSuccess(`${type} items report uploaded successfully`);
-      fetchMaterials(selectedRootCardId);
+      fetchMaterials(selectedRootCardId, grnNumber);
     } catch (error) {
       console.error("Error uploading consolidated document:", error);
       showError("Failed to upload report");
@@ -221,7 +284,7 @@ const MaterialInspectionPage = () => {
       setLoading(true);
       await axios.post(`/qc/grn/${grnId}/finalize`);
       showSuccess("QC Finalized successfully");
-      fetchMaterials(selectedRootCardId);
+      fetchMaterials(selectedRootCardId, grnNumber);
       fetchReadyRootCards(); // Refresh the dropdown list as well
     } catch (error) {
       console.error("Error finalizing QC:", error);
@@ -245,60 +308,73 @@ const MaterialInspectionPage = () => {
             Material Inspection
           </h1>
           <p className="text-slate-500 text-xs dark:text-slate-400 mt-1">
-            Select a project to inspect its incoming materials
+            Filter materials by project or GRN number to inspect incoming items
           </p>
         </div>
       </div>
 
-      <div className=" dark:bg-slate-800 rounded dark:border-slate-700 ">
-        <div className="">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className=" dark:bg-slate-800 rounded dark:border-slate-700 ">
           <SearchableSelect
             label="Filter by Root Card (Project)"
             options={rootCardOptions}
             value={selectedRootCardId}
             onChange={handleRootCardChange}
-            placeholder="Search and select a root card..."
+            placeholder="All Projects"
             className="w-full"
             disabled={loadingRC}
           />
         </div>
+        <div className="flex flex-col">
+          <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            Filter by GRN Number
+          </label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input
+              type="text"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              placeholder="Enter GRN number (e.g. GRN-2024-001)"
+              value={grnNumber}
+              onChange={handleGrnFilterChange}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="w-full">
+      <div className="w-full pt-2">
         {/* Materials List */}
         <div className="w-full">
-          {!selectedRootCard ? (
-            <div className="w-full  flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/30 rounded border-2 border-dashed border-slate-200 dark:border-slate-700 p-6 text-center">
-              <div className="p-2 bg-white dark:bg-slate-800 rounded-2xl  flex items-center justify-center mb-4">
-                <Layers size={15} className="text-slate-300" />
-              </div>
-              <h3 className="text-md  text-slate-900 dark:text-white mb-2">No Project Selected</h3>
-              <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto text-xs">
-                Select a project from the dropdown above to view its materials pending quality inspection.
-              </p>
-            </div>
-          ) : loading ? (
-            <div className="h-full  flex items-center justify-center">
+          {loading ? (
+            <div className="h-64 flex items-center justify-center">
               <div className="flex flex-col items-center gap-3">
-                <div className="p-2 border-4 border-blue-600 border-t-transparent rounded  animate-spin"></div>
-                <p className="text-xs  text-slate-500  ">Loading Materials...</p>
+                <div className="p-2 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-xs text-slate-500">Loading Materials...</p>
               </div>
             </div>
           ) : materials.length === 0 ? (
-            <div className="h-full  flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/30 rounded border border-slate-200 p-5 text-center">
-              <Package size={48} className="text-slate-300" />
-              <h3 className="text-sm  text-slate-900 dark:text-white">No Materials Found</h3>
-              <p className="text-slate-500 text-xs">All materials for this project have been inspected.</p>
+            <div className="h-64 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/30 rounded border-2 border-dashed border-slate-200 dark:border-slate-700 p-6 text-center">
+              <Package size={48} className="text-slate-300 mb-4" />
+              <h3 className="text-sm font-medium text-slate-900 dark:text-white">No Materials Found</h3>
+              <p className="text-slate-500 text-xs mt-1">
+                {selectedRootCardId || grnNumber 
+                  ? "No pending materials match your current filters."
+                  : "There are no pending materials for quality inspection at the moment."}
+              </p>
             </div>
           ) : (
             <div className="">
               <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 overflow-hidden">
                 <div className="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 flex items-center justify-between">
-                  <h3 className="text-sm  text-slate-900 dark:text-white   flex items-center gap-2">
+                  <h3 className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2">
                     <Package size={16} className="text-blue-600" />
-                    Pending Materials for {selectedRootCard.projectName}
+                    {selectedRootCard 
+                      ? `Pending Materials for ${selectedRootCard.projectName}` 
+                      : grnNumber 
+                        ? `Materials for GRN: ${grnNumber}` 
+                        : "All Pending Materials"}
                   </h3>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded  text-xs   ">
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
                     {materials.length} Items
                   </span>
                 </div>
@@ -309,6 +385,7 @@ const MaterialInspectionPage = () => {
                       <tr>
                         <th className="p-2">ITEM NAME / GROUP</th>
                         <th className="p-2">REFERENCE</th>
+                        <th className="p-2">DIMENSIONS</th>
                         <th className="p-2 text-center">ORDERED</th>
                         <th className="p-2 text-center">INVOICE</th>
                         <th className="p-2 text-center">RECEIVED QTY</th>
@@ -347,6 +424,18 @@ const MaterialInspectionPage = () => {
                                     <Tag size={12} className="text-slate-400" />
                                     <span className="text-xs  text-slate-500">PO: {item.po_number}</span>
                                   </div>
+                                </div>
+                              </td>
+                              <td className="p-2">
+                                <div className="text-[10px] text-slate-500 font-mono">
+                                  {renderDimensions({
+                                    length: item.length,
+                                    width: item.width,
+                                    thickness: item.thickness,
+                                    diameter: item.diameter,
+                                    outer_diameter: item.outer_diameter,
+                                    height: item.height
+                                  })}
                                 </div>
                               </td>
                               <td className="p-2 text-center text-xs  text-slate-500">{item.ordered_qty}</td>
@@ -393,6 +482,7 @@ const MaterialInspectionPage = () => {
                                               <th className="p-2 text-center">#</th>
                                               <th className="p-2">Item Code</th>
                                               <th className="p-2">Name</th>
+                                              <th className="p-2">Dimensions</th>
                                               <th className="p-2">ST Code</th>
                                               <th className="p-2">Status</th>
                                               <th className="p-2 text-center">
@@ -423,6 +513,9 @@ const MaterialInspectionPage = () => {
                                                   </td>
                                                   <td className="p-2 text-xs text-slate-500">
                                                     {item.material_name}
+                                                  </td>
+                                                  <td className="p-2 text-[10px] text-slate-400 font-mono">
+                                                    {renderDimensions(s.dimensions)}
                                                   </td>
                                                   <td className="p-2 text-xs  text-blue-600">
                                                     {s.serial_number}

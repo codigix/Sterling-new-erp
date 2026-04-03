@@ -51,13 +51,19 @@ const QualityInspectionDetail = () => {
         ...item,
         acceptedDoc: item.acceptedDoc || null,
         rejectedDoc: item.rejectedDoc || null,
-        serials: item.serials.map(s => ({
-          ...s,
-          item_code: s.item_code,
-          tempStatus: s.inspection_status === 'Pending' ? '' : s.inspection_status,
-          notes: '',
-          doc: null
-        }))
+        serials: item.serials.map(s => {
+          const serialDimensions = s.dimensions || {};
+          const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '');
+          
+          return {
+            ...s,
+            item_code: s.item_code,
+            tempStatus: s.inspection_status === 'Pending' ? '' : s.inspection_status,
+            notes: '',
+            doc: null,
+            dimensions: hasSerialDims ? serialDimensions : item.itemDimensions
+          };
+        })
       })));
       
       if (grnRes.data.grn.inspection_type) {
@@ -285,6 +291,28 @@ const QualityInspectionDetail = () => {
     }
   };
 
+  const renderDimensions = (dimensions) => {
+    if (!dimensions) return "-";
+    const parts = [];
+    const fields = [
+      { key: 'length', label: 'L' },
+      { key: 'width', label: 'W' },
+      { key: 'thickness', label: 'T' },
+      { key: 'diameter', label: 'Dia' },
+      { key: 'outer_diameter', label: 'OD' },
+      { key: 'height', label: 'H' }
+    ];
+
+    fields.forEach(field => {
+      const value = parseFloat(dimensions[field.key]);
+      if (value > 0) {
+        parts.push(`${field.label}: ${parseFloat(value.toFixed(4))}`);
+      }
+    });
+
+    return parts.length > 0 ? parts.join(" \u00D7 ") : "-";
+  };
+
   if (loading) return <div className="p-8 text-center">Loading...</div>;
 
   const hasAnyAccepted = items.some(item => item.serials.some(s => s.tempStatus === 'Accepted'));
@@ -405,17 +433,7 @@ const QualityInspectionDetail = () => {
                           </td>
                           <td className="p-2">
                             <div className="text-[10px] text-slate-500 font-mono">
-                              {s.dimensions && (
-                                <>
-                                  {s.dimensions.length ? `L: ${Number(s.dimensions.length)} ` : ''}
-                                  {s.dimensions.width ? `W: ${Number(s.dimensions.width)} ` : ''}
-                                  {s.dimensions.thickness ? `T: ${Number(s.dimensions.thickness)} ` : ''}
-                                  {s.dimensions.diameter ? `Dia: ${Number(s.dimensions.diameter)} ` : ''}
-                                  {s.dimensions.outer_diameter ? `OD: ${Number(s.dimensions.outer_diameter)} ` : ''}
-                                  {s.dimensions.height ? `H: ${Number(s.dimensions.height)} ` : ''}
-                                  {!s.dimensions.length && !s.dimensions.width && !s.dimensions.thickness && !s.dimensions.diameter && !s.dimensions.outer_diameter && !s.dimensions.height && '-'}
-                                </>
-                              )}
+                              {renderDimensions(s.dimensions)}
                             </div>
                           </td>
                           <td className="p-2">

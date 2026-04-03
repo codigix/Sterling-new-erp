@@ -27,6 +27,29 @@ const ReleasedMaterialsPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
 
+  const formatDimensions = (item) => {
+    const parts = [];
+    const fields = [
+      { key: 'length', label: 'L' },
+      { key: 'width', label: 'W' },
+      { key: 'thickness', label: 'T' },
+      { key: 'diameter', label: 'D' },
+      { key: 'outer_diameter', label: 'OD' },
+      { key: 'height', label: 'H' }
+    ];
+
+    fields.forEach(field => {
+      const value = parseFloat(item[field.key]);
+      if (value > 0) {
+        // parseFloat(toNumber).toString() removes trailing zeros
+        parts.push(`${field.label}:${parseFloat(value.toFixed(4))}`);
+      }
+    });
+
+    return parts.length > 0 ? parts.join(" × ") : "-";
+  };
+
+
   useEffect(() => {
     fetchReleasedMaterials();
   }, []);
@@ -197,6 +220,7 @@ const ReleasedMaterialsPage = () => {
                     <thead className="bg-slate-50 text-xs  text-slate-400   border-b border-slate-100">
                       <tr>
                         <th className="p-2">Item Details</th>
+                        <th className="p-2">Dimensions</th>
                         <th className="p-2 text-center">Released Qty</th>
                         <th className="p-2 text-center">Unit</th>
                         <th className="p-2 text-right">ST Numbers</th>
@@ -222,6 +246,11 @@ const ReleasedMaterialsPage = () => {
                                   </div>
                                 </div>
                               </td>
+                              <td className="p-2">
+                                <span className="text-[10px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                                  {formatDimensions(item)}
+                                </span>
+                              </td>
                               <td className="p-2 text-center">
                                 <span className="p-1  text-emerald-600 text-xs">
                                   {item.quantity}
@@ -246,6 +275,7 @@ const ReleasedMaterialsPage = () => {
                                           <th className="p-2 text-[8px]  text-slate-400   w-12 text-center">#</th>
                                           <th className="p-2 text-[8px]  text-slate-400  ">Item Code</th>
                                           <th className="p-2 text-[8px]  text-indigo-400  ">ST Code</th>
+                                          <th className="p-2 text-[8px]  text-slate-400">Dimensions</th>
                                           <th className="p-2 text-[8px]  text-emerald-400   text-right">QC STATUS</th>
                                         </tr>
                                       </thead>
@@ -258,6 +288,9 @@ const ReleasedMaterialsPage = () => {
                                               <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
                                               <td className="p-2 text-xs  text-slate-700  ">{itemCodePerPiece}</td>
                                               <td className="p-2 text-xs  text-indigo-600  ">{stCode}</td>
+                                              <td className="p-2 text-[9px] text-slate-500 italic">
+                                                {formatDimensions(stObj)}
+                                              </td>
                                               <td className="p-2 text-right">
                                                 <span className="px-2 py-0.5 rounded text-[8px]   er bg-emerald-50 text-emerald-600 border border-emerald-100">
                                                   {stObj.inspection_status || 'ACCEPTED'}

@@ -101,6 +101,28 @@ const QCTasksPage = () => {
     r.vendor_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const renderDimensions = (dimensions) => {
+    if (!dimensions) return null;
+    const parts = [];
+    const fields = [
+      { key: 'length', label: 'L' },
+      { key: 'width', label: 'W' },
+      { key: 'thickness', label: 'T' },
+      { key: 'diameter', label: 'D' },
+      { key: 'outer_diameter', label: 'OD' },
+      { key: 'height', label: 'H' }
+    ];
+
+    fields.forEach(field => {
+      const value = parseFloat(dimensions[field.key]);
+      if (value > 0) {
+        parts.push(`${field.label}:${parseFloat(value.toFixed(4))}`);
+      }
+    });
+
+    return parts.length > 0 ? parts.join(" \u00D7 ") : null;
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -335,16 +357,7 @@ const QCTasksPage = () => {
                                                 {st.st_code}
                                               </p>
                                               <div className="text-[10px] text-slate-500 font-mono mt-1">
-                                                {st.length || st.width || st.thickness || st.diameter || st.outer_diameter || st.height ? (
-                                                  <>
-                                                    {st.length ? `L:${Number(st.length)} ` : ''}
-                                                    {st.width ? `W:${Number(st.width)} ` : ''}
-                                                    {st.thickness ? `T:${Number(st.thickness)} ` : ''}
-                                                    {st.diameter ? `D:${Number(st.diameter)} ` : ''}
-                                                    {st.outer_diameter ? `OD:${Number(st.outer_diameter)} ` : ''}
-                                                    {st.height ? `H:${Number(st.height)} ` : ''}
-                                                  </>
-                                                ) : null}
+                                                {renderDimensions(st)}
                                               </div>
                                             </div>
 

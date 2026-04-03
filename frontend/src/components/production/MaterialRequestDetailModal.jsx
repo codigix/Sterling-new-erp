@@ -173,7 +173,8 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                   <table className="w-full text-xs text-left">
                     <thead className="bg-slate-50 dark:bg-slate-900  dark:border-slate-800">
                       <tr>
-                        <th className="p-2 text-xs  text-slate-400  ">Material Description</th>
+                        <th className="p-2 text-xs  text-slate-400 w-1/3">Material Description</th>
+                        <th className="p-2 text-xs  text-slate-400   text-center">Weight (Kg)</th>
                         <th className="p-2 text-xs  text-slate-400   text-center">Required Qty</th>
                         <th className="p-2 text-xs  text-slate-400  ">Unit</th>
                       </tr>
@@ -212,8 +213,20 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                             </div>
                           </td>
                           <td className="p-2 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                                {Number(parseFloat(item.total_weight || 0).toFixed(3))} Kg
+                              </span>
+                              {parseFloat(item.unit_weight) > 0 && (
+                                <span className="text-[10px] text-slate-400">
+                                  Unit: {Number(parseFloat(item.unit_weight || 0).toFixed(3))}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-2 text-center">
                             <span className="p-1 text-blue-700 dark:text-blue-400   text-xs">
-                              {item.required_quantity}
+                              {Number(parseFloat(item.required_quantity || 0).toFixed(4))}
                             </span>
                           </td>
                           <td className="p-2">

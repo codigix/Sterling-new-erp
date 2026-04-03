@@ -32,7 +32,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
         {/* Header */}
         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
@@ -71,6 +71,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                       <th className="px-4 py-3.5">Item Name / Group</th>
                       <th className="px-4 py-3.5">Part Detail / Grade</th>
                       <th className="px-4 py-3.5">Remark / Make</th>
+                      <th className="px-4 py-3.5 text-center">Weight (Kg)</th>
                       <th className="px-4 py-3.5 text-center">Qty</th>
                       <th className="px-4 py-3.5 text-center">UOM</th>
                     </tr>
@@ -85,16 +86,6 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                           <div className="flex flex-col">
                             <span className=" text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {item.itemName}
-                            </span>
-                            <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500  ">
-                              {item.itemGroup || "NO-GROUP"}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-slate-700 dark:text-slate-300">
-                              {item.partDetail || "-"}
                             </span>
                             {item.itemGroup?.toLowerCase().includes("plate") && (item.length || item.width || item.thickness) && (
                               <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
@@ -116,6 +107,16 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                                 Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.height || 0)} mm
                               </span>
                             )}
+                            <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500  ">
+                              {item.itemGroup || "NO-GROUP"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex flex-col">
+                            <span className="text-xs text-slate-700 dark:text-slate-300">
+                              {item.partDetail || "-"}
+                            </span>
                             <span className="text-[10px] font-medium text-slate-500 dark:text-slate-500  ">
                               {item.materialGrade || "-"}
                             </span>
@@ -132,8 +133,20 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                           </div>
                         </td>
                         <td className="px-4 py-3.5 text-center">
+                          <div className="flex flex-col items-center">
+                            <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                              {Number((parseFloat(item.totalWeight || item.total || 0) || (parseFloat(item.calculatedWeight || item.unitWeight || 0) * parseFloat(item.quantity || 0))).toFixed(3))} Kg
+                            </span>
+                            {(parseFloat(item.unitWeight) > 0 || parseFloat(item.calculatedWeight) > 0) && (
+                              <span className="text-[10px] text-slate-400">
+                                Unit: {Number(parseFloat(item.unitWeight || item.calculatedWeight || 0).toFixed(3))}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
                           <span className=" text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800  rounded border border-slate-100 dark:border-slate-800">
-                            {item.quantity}
+                            {Number(parseFloat(item.quantity || 0).toFixed(4))}
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-center">

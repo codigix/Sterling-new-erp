@@ -19,6 +19,308 @@ import axios from "../../utils/api";
 import { toast } from "react-toastify";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
 
+const renderDimensionFields = (item, index, handleItemChange) => {
+  const group = (item.item_group || "").toLowerCase();
+  
+  if (group === "plate" || group === "plates") {
+    return (
+      <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Length (mm)</label>
+          <input
+            type="number"
+            value={item.length !== null && item.length !== undefined ? Number(item.length) : ""}
+            onChange={(e) => handleItemChange(index, "length", e.target.value)}
+            placeholder="L"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Width (mm)</label>
+          <input
+            type="number"
+            value={item.width !== null && item.width !== undefined ? Number(item.width) : ""}
+            onChange={(e) => handleItemChange(index, "width", e.target.value)}
+            placeholder="W"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Thk (mm)</label>
+          <input
+            type="number"
+            value={item.thickness !== null && item.thickness !== undefined ? Number(item.thickness) : ""}
+            onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
+            placeholder="T"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+    );
+  } else if (group === "round bar") {
+    return (
+      <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Diameter (mm)</label>
+          <input
+            type="number"
+            value={item.diameter !== null && item.diameter !== undefined ? Number(item.diameter) : ""}
+            onChange={(e) => handleItemChange(index, "diameter", e.target.value)}
+            placeholder="Dia"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Length (mm)</label>
+          <input
+            type="number"
+            value={item.length !== null && item.length !== undefined ? Number(item.length) : ""}
+            onChange={(e) => handleItemChange(index, "length", e.target.value)}
+            placeholder="L"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+    );
+  } else if (group === "pipe") {
+    return (
+      <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">OD (mm)</label>
+          <input
+            type="number"
+            value={item.outer_diameter !== null && item.outer_diameter !== undefined ? Number(item.outer_diameter) : ""}
+            onChange={(e) => handleItemChange(index, "outer_diameter", e.target.value)}
+            placeholder="OD"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Thk (mm)</label>
+          <input
+            type="number"
+            value={item.thickness !== null && item.thickness !== undefined ? Number(item.thickness) : ""}
+            onChange={(e) => handleItemChange(index, "thickness", e.target.value)}
+            placeholder="T"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Length (mm)</label>
+          <input
+            type="number"
+            value={item.length !== null && item.length !== undefined ? Number(item.length) : ""}
+            onChange={(e) => handleItemChange(index, "length", e.target.value)}
+            placeholder="L"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+    );
+  } else if (group === "block") {
+    return (
+      <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Length (mm)</label>
+          <input
+            type="number"
+            value={item.length !== null && item.length !== undefined ? Number(item.length) : ""}
+            onChange={(e) => handleItemChange(index, "length", e.target.value)}
+            placeholder="L"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Width (mm)</label>
+          <input
+            type="number"
+            value={item.width !== null && item.width !== undefined ? Number(item.width) : ""}
+            onChange={(e) => handleItemChange(index, "width", e.target.value)}
+            placeholder="W"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Height (mm)</label>
+          <input
+            type="number"
+            value={item.height !== null && item.height !== undefined ? Number(item.height) : ""}
+            onChange={(e) => handleItemChange(index, "height", e.target.value)}
+            placeholder="H"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+const renderVendorDimensionFields = (item, index, handleItemChange) => {
+  const group = (item.item_group || "").toLowerCase();
+  
+  if (group === "plate" || group === "plates") {
+    return (
+      <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Length (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_length !== null && item.vendor_length !== undefined ? item.vendor_length : ""}
+            onChange={(e) => handleItemChange(index, "vendor_length", e.target.value)}
+            placeholder="L"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Width (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_width !== null && item.vendor_width !== undefined ? item.vendor_width : ""}
+            onChange={(e) => handleItemChange(index, "vendor_width", e.target.value)}
+            placeholder="W"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Thk (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_thickness !== null && item.vendor_thickness !== undefined ? item.vendor_thickness : ""}
+            onChange={(e) => handleItemChange(index, "vendor_thickness", e.target.value)}
+            placeholder="T"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+    );
+  } else if (group === "round bar") {
+    return (
+      <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Diameter (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_diameter !== null && item.vendor_diameter !== undefined ? item.vendor_diameter : ""}
+            onChange={(e) => handleItemChange(index, "vendor_diameter", e.target.value)}
+            placeholder="Dia"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Length (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_length !== null && item.vendor_length !== undefined ? item.vendor_length : ""}
+            onChange={(e) => handleItemChange(index, "vendor_length", e.target.value)}
+            placeholder="L"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+    );
+  } else if (group === "pipe") {
+    return (
+      <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">OD (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_outer_diameter !== null && item.vendor_outer_diameter !== undefined ? item.vendor_outer_diameter : ""}
+            onChange={(e) => handleItemChange(index, "vendor_outer_diameter", e.target.value)}
+            placeholder="OD"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Thk (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_thickness !== null && item.vendor_thickness !== undefined ? item.vendor_thickness : ""}
+            onChange={(e) => handleItemChange(index, "vendor_thickness", e.target.value)}
+            placeholder="T"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Length (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_length !== null && item.vendor_length !== undefined ? item.vendor_length : ""}
+            onChange={(e) => handleItemChange(index, "vendor_length", e.target.value)}
+            placeholder="L"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+    );
+  } else if (group === "block") {
+    return (
+      <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Length (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_length !== null && item.vendor_length !== undefined ? item.vendor_length : ""}
+            onChange={(e) => handleItemChange(index, "vendor_length", e.target.value)}
+            placeholder="L"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Width (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_width !== null && item.vendor_width !== undefined ? item.vendor_width : ""}
+            onChange={(e) => handleItemChange(index, "vendor_width", e.target.value)}
+            placeholder="W"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+          <label className="text-[9px] text-slate-500 uppercase font-medium">Height (mm)</label>
+          <input
+            type="number"
+            value={item.vendor_height !== null && item.vendor_height !== undefined ? item.vendor_height : ""}
+            onChange={(e) => handleItemChange(index, "vendor_height", e.target.value)}
+            placeholder="H"
+            className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+const renderDimensionsText = (item) => {
+  const group = (item.item_group || "").toLowerCase();
+  const parts = [];
+  if (group === "plate" || group === "plates") {
+    if (item.length) parts.push(`L: ${Number(item.length)}`);
+    if (item.width) parts.push(`W: ${Number(item.width)}`);
+    if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+  } else if (group === "round bar") {
+    if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
+    if (item.length) parts.push(`L: ${Number(item.length)}`);
+  } else if (group === "pipe") {
+    if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
+    if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
+    if (item.length) parts.push(`L: ${Number(item.length)}`);
+  } else if (group === "block") {
+    if (item.length) parts.push(`L: ${Number(item.length)}`);
+    if (item.width) parts.push(`W: ${Number(item.width)}`);
+    if (item.height) parts.push(`H: ${Number(item.height)}`);
+  }
+  
+  if (parts.length === 0) return null;
+  return (
+    <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+      Dim: {parts.join(" \u00d7 ")} mm
+    </div>
+  );
+};
+
 const CreateQuotationModal = ({
   isOpen,
   onClose,
@@ -127,6 +429,18 @@ const CreateQuotationModal = ({
           unit_price: "",
           total_weight: "",
           rate_per_kg: "",
+          length: "",
+          width: "",
+          thickness: "",
+          diameter: "",
+          outer_diameter: "",
+          height: "",
+          vendor_length: "",
+          vendor_width: "",
+          vendor_thickness: "",
+          vendor_diameter: "",
+          vendor_outer_diameter: "",
+          vendor_height: "",
         },
       ],
     }));
@@ -163,7 +477,13 @@ const CreateQuotationModal = ({
             "thickness",
             "diameter",
             "outer_diameter",
-            "height"
+            "height",
+            "vendor_length",
+            "vendor_width",
+            "vendor_thickness",
+            "vendor_diameter",
+            "vendor_outer_diameter",
+            "vendor_height"
           ];
           return {
             ...item,
@@ -193,86 +513,6 @@ const CreateQuotationModal = ({
         total_amount: newTotal,
       };
     });
-  };
-
-  const renderDimensionFields = (item, index) => {
-    const group = (item.item_group || "").toLowerCase();
-    
-    // Dimension input component helper
-    const DimInput = ({ label, field, placeholder }) => (
-      <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
-        <label className="text-[9px] text-slate-500 uppercase font-medium">{label}</label>
-        <input
-          type="number"
-          value={item[field] !== null && item[field] !== undefined ? Number(item[field]) : ""}
-          onChange={(e) => handleItemChange(index, field, e.target.value)}
-          placeholder={placeholder}
-          className="w-full p-1 text-[10px] border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
-        />
-      </div>
-    );
-
-    if (group === "plate" || group === "plates") {
-      return (
-        <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
-          <DimInput label="Length (mm)" field="length" placeholder="L" />
-          <DimInput label="Width (mm)" field="width" placeholder="W" />
-          <DimInput label="Thk (mm)" field="thickness" placeholder="T" />
-        </div>
-      );
-    } else if (group === "round bar") {
-      return (
-        <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
-          <DimInput label="Diameter (mm)" field="diameter" placeholder="Dia" />
-          <DimInput label="Length (mm)" field="length" placeholder="L" />
-        </div>
-      );
-    } else if (group === "pipe") {
-      return (
-        <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
-          <DimInput label="OD (mm)" field="outer_diameter" placeholder="OD" />
-          <DimInput label="Thk (mm)" field="thickness" placeholder="T" />
-          <DimInput label="Length (mm)" field="length" placeholder="L" />
-        </div>
-      );
-    } else if (group === "block") {
-      return (
-        <div className="flex flex-row gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
-          <DimInput label="Length (mm)" field="length" placeholder="L" />
-          <DimInput label="Width (mm)" field="width" placeholder="W" />
-          <DimInput label="Height (mm)" field="height" placeholder="H" />
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const renderDimensionsText = (item) => {
-    const group = (item.item_group || "").toLowerCase();
-    const parts = [];
-    if (group === "plate" || group === "plates") {
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-      if (item.width) parts.push(`W: ${Number(item.width)}`);
-      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-    } else if (group === "round bar") {
-      if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-    } else if (group === "pipe") {
-      if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
-      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-    } else if (group === "block") {
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-      if (item.width) parts.push(`W: ${Number(item.width)}`);
-      if (item.height) parts.push(`H: ${Number(item.height)}`);
-    }
-    
-    if (parts.length === 0) return null;
-    return (
-      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
-        Dim: {parts.join(" \u00d7 ")} mm
-      </div>
-    );
   };
 
   const handleAnalyzeFile = async (e) => {
@@ -414,7 +654,8 @@ const CreateQuotationModal = ({
             unit: item.uom || item.unit || "",
             unit_price: 0,
             rate_per_kg: 0,
-            total_weight: 0,
+            total_weight: item.total_weight || item.totalWeight || 0,
+            unit_weight: item.unit_weight || item.unitWeight || 0,
             item_group: item.item_group || "",
             material_grade: item.material_grade || "",
             part_detail: item.part_detail || "",
@@ -425,7 +666,13 @@ const CreateQuotationModal = ({
             thickness: item.thickness || null,
             diameter: item.diameter || null,
             outer_diameter: item.outer_diameter || null,
-            height: item.height || null
+            height: item.height || null,
+            vendor_length: null,
+            vendor_width: null,
+            vendor_thickness: null,
+            vendor_diameter: null,
+            vendor_outer_diameter: null,
+            vendor_height: null
           })),
         }));
       }
@@ -464,13 +711,20 @@ const CreateQuotationModal = ({
           make: item.make || "",
           remark: item.remark || "",
           total_weight: item.total_weight || 0,
+          unit_weight: item.unit_weight || 0,
           rate_per_kg: item.rate_per_kg || 0,
           length: item.length || null,
           width: item.width || null,
           thickness: item.thickness || null,
           diameter: item.diameter || null,
           outer_diameter: item.outer_diameter || null,
-          height: item.height || null
+          height: item.height || null,
+          vendor_length: null,
+          vendor_width: null,
+          vendor_thickness: null,
+          vendor_diameter: null,
+          vendor_outer_diameter: null,
+          vendor_height: null
         })),
         notes: `Response to ${selectedQuote.quotation_number}`,
       }));
@@ -937,7 +1191,7 @@ const CreateQuotationModal = ({
                       </div>
                     </div>
 
-                    <div className="flex flex-col">
+                    {/* <div className="flex flex-col">
                       <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                         Quotation Document (PDF/Image)
                       </label>
@@ -978,7 +1232,7 @@ const CreateQuotationModal = ({
                           )}
                         </label>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
@@ -1012,21 +1266,24 @@ const CreateQuotationModal = ({
                             <th className="p-2 text-center text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-12">
                               #
                             </th>
-                            <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700">
+                            <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-1/4">
                               Item Name / Group
                             </th>
                             {formData.type === "inbound" && (
-                              <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700">
+                              <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-1/4">
                                 Vendor Material Name
                               </th>
                             )}
                             {formData.type === "outbound" && (
                               <>
-                                <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700">
+                                <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-1/4">
                                   Part Detail / Grade
                                 </th>
                                 <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700">
                                   Remark / Make
+                                </th>
+                                <th className="p-2 text-center text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-24">
+                                  Weight (Kg)
                                 </th>
                               </>
                             )}
@@ -1093,23 +1350,27 @@ const CreateQuotationModal = ({
                                     disabled
                                     className="w-full p-1 text-xs  text-slate-500  border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
                                   />
-                                  {formData.type === "inbound" && renderDimensionFields(item, index)}
+                                  {(formData.type === "outbound" || formData.type === "inbound") && renderDimensionsText(item)}
                                 </div>
                               </td>
                               {formData.type === "inbound" && (
                                 <td className="p-2">
-                                  <textarea
-                                    value={item.vendor_item_name}
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        "vendor_item_name",
-                                        e.target.value
-                                      )
-                                    }
-                                    placeholder="Vendor Material Name (if different)"
-                                    className="w-full  text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all resize-none h-12"
-                                  />
+                                  <div className="flex flex-col gap-2">
+                                    <input
+                                      type="text"
+                                      value={item.vendor_item_name}
+                                      onChange={(e) =>
+                                        handleItemChange(
+                                          index,
+                                          "vendor_item_name",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="Vendor Material Name (if different)"
+                                      className="w-full p-2 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
+                                    />
+                                    {renderVendorDimensionFields(item, index, handleItemChange)}
+                                  </div>
                                 </td>
                               )}
                               {formData.type === "outbound" && (
@@ -1144,7 +1405,6 @@ const CreateQuotationModal = ({
                                         disabled={preFilledMaterials}
                                         className="w-full p-1 text-xs  text-slate-500  border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
                                       />
-                                      {renderDimensionsText(item)}
                                     </div>
                                   </td>
                                   <td className="p-2">
@@ -1181,10 +1441,24 @@ const CreateQuotationModal = ({
                                   </td>
                                 </>
                               )}
+                              {formData.type === "outbound" && (
+                                <td className="p-2 text-center w-24">
+                                  <div className="flex flex-col items-center">
+                                    <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                                      {Number(parseFloat(item.total_weight || 0).toFixed(3))} Kg
+                                    </span>
+                                    {parseFloat(item.unit_weight) > 0 && (
+                                      <span className="text-[10px] text-slate-400">
+                                        Unit: {Number(parseFloat(item.unit_weight || 0).toFixed(3))}
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+                              )}
                               <td className="p-2 w-24">
                                 <input
                                   type="number"
-                                  value={item.quantity}
+                                  value={Number(parseFloat(item.quantity || 0))}
                                   onChange={(e) =>
                                     handleItemChange(
                                       index,
@@ -1237,7 +1511,7 @@ const CreateQuotationModal = ({
                                   <td className="p-2 ">
                                     <input
                                       type="number"
-                                      value={item.total_weight}
+                                      value={item.total_weight ? Number(parseFloat(item.total_weight)) : ""}
                                       onChange={(e) =>
                                         handleItemChange(
                                           index,
