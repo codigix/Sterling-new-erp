@@ -366,7 +366,7 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
       const itemsWithSerials = [];
       for (let item of items) {
         const [serialRows] = await db.query(
-          'SELECT serial_number, status, inspection_status FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
+          'SELECT serial_number, status, inspection_status, length, width, thickness FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
           [entry.id, `${item.item_code}%`, item.item_name]
         );
         itemsWithSerials.push({ ...item, serials: serialRows });
@@ -389,14 +389,36 @@ exports.saveMCR = async (req, res) => {
     await connection.beginTransaction();
 
     for (const piece of pieces) {
-      // 1. Update serial number status to 'Cut' or 'Processed'
-      // Only set to 'Used' if the operator marked it as finished
-      const newStatus = piece.is_finished ? 'Used' : 'Available';
+      // 1. Update serial number dimensions and status
+      // If it's finished or returned to stock, mark original as Used
+      const markAsUsed = piece.is_finished || piece.return_to_stock;
+      const newStatus = markAsUsed ? 'Used' : 'Available';
       
       await connection.query(
-        'UPDATE inventory_serials SET status = ?, inspection_status = "CUT" WHERE serial_number = ?',
-        [newStatus, piece.serial_number]
+        'UPDATE inventory_serials SET status = ?, inspection_status = "CUT", length = ?, width = ?, thickness = ? WHERE serial_number = ?',
+        [newStatus, piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.serial_number]
       );
+
+      // If operator wants to return remnant to stock, create a NEW serial with remnant dimensions
+      if (piece.return_to_stock && !piece.is_finished) {
+        // Fetch original record to copy details
+        const [originals] = await connection.query('SELECT * FROM inventory_serials WHERE serial_number = ?', [piece.serial_number]);
+        if (originals.length > 0) {
+          const orig = originals[0];
+          const newSerialNumber = `${piece.serial_number}-R${Date.now().toString().slice(-3)}`; // Derivate ST Number
+          
+          await connection.query(
+            `INSERT INTO inventory_serials 
+            (serial_number, purchase_order_id, item_id, item_name, item_code, receipt_id, status, location, length, width, thickness, inspection_status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              newSerialNumber, orig.purchase_order_id, orig.item_id, orig.item_name, orig.item_code, orig.receipt_id, 
+              'Available', orig.location || 'Main Warehouse', 
+              piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, 'Available'
+            ]
+          );
+        }
+      }
 
       // 2. Fetch assignment details
       const [assignments] = await connection.query(

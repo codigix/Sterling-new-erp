@@ -116,8 +116,8 @@ const createStockEntry = async (req, res) => {
                     if (availableSerials.length > 0) {
                         const idsToUpdate = availableSerials.map(s => s.id);
                         await connection.query(
-                            'UPDATE inventory_serials SET status = "Used", issued_in_entry_id = ? WHERE id IN (?)',
-                            [stockEntryId, idsToUpdate]
+                            'UPDATE inventory_serials SET status = "Used", issued_in_entry_id = ?, length = ?, width = ?, thickness = ? WHERE id IN (?)',
+                            [stockEntryId, item.length || 0, item.width || 0, item.thickness || 0, idsToUpdate]
                         );
                     }
                 }

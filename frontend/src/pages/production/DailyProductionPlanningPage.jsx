@@ -1000,7 +1000,9 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     raw_w: "",
     raw_thk: "",
     produced_qty: 1,
-    is_finished: false
+    is_finished: false,
+    cutting_axis: "L", // "L" or "W"
+    return_to_stock: false
   });
 
   useEffect(() => {
@@ -1019,7 +1021,9 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       raw_w: "",
       raw_thk: "",
       produced_qty: 1,
-      is_finished: false
+      is_finished: false,
+      cutting_axis: "L",
+      return_to_stock: false
     });
     setSelectedItem(null);
     setSelectedItemCode("");
@@ -1074,13 +1078,57 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
             item: item,
             entry_no: entry.entry_no,
             remaining: 1,
-            item_group: item.item_group || "PLATE / SHEET"
+            item_group: item.item_group || "PLATE / SHEET",
+            dims: {
+              l: serial.length || 0,
+              w: serial.width || 0,
+              t: serial.thickness || 0
+            }
           });
         });
       }
     });
     return options;
   }, [materials, selectedItemCode, reportEntries]);
+
+  const remainingDims = useMemo(() => {
+    if (!selectedItem || !selectedItem.dims) return null;
+    const group = (selectedItem.item_group || "").toUpperCase();
+    
+    const pieceL = parseFloat(cuttingForm.raw_l) || 0;
+    const pieceW = parseFloat(cuttingForm.raw_w) || 0;
+    const pieceT = parseFloat(cuttingForm.raw_thk) || 0;
+    const qty = parseFloat(cuttingForm.produced_qty) || 0;
+    
+    const rawL = parseFloat(selectedItem.dims.l) || 0;
+    const rawW = parseFloat(selectedItem.dims.w) || 0;
+    const rawT = parseFloat(selectedItem.dims.t) || 0;
+    
+    // Default: remain the same
+    let resL = rawL;
+    let resW = rawW;
+    let resT = rawT;
+
+    if (group.includes("PLATE") || group.includes("SHEET")) {
+      if (cuttingForm.cutting_axis === "L") resL = Math.max(0, rawL - (pieceL * qty));
+      else resW = Math.max(0, rawW - (pieceW * qty));
+    } 
+    else if (group.includes("ROUND") || group.includes("PIPE") || group.includes("TUBE") || group.includes("BAR")) {
+      // Linear items only reduce length
+      resL = Math.max(0, rawL - (pieceL * qty));
+    }
+    else if (group.includes("BLOCK")) {
+      if (cuttingForm.cutting_axis === "L") resL = Math.max(0, rawL - (pieceL * qty));
+      else if (cuttingForm.cutting_axis === "W") resW = Math.max(0, rawW - (pieceW * qty));
+      else resT = Math.max(0, rawT - (pieceT * qty));
+    }
+    else {
+      // General fallback (Linear)
+      resL = Math.max(0, rawL - (pieceL * qty));
+    }
+
+    return { l: resL, w: resW, t: resT };
+  }, [selectedItem, cuttingForm]);
 
   const handleAddToTable = () => {
     if (!selectedItem || !cuttingForm.raw_l) {
@@ -1105,6 +1153,28 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
     setReportEntries([...reportEntries, newEntry]);
     
+    // Update local state to reflect reduced parent size for immediate reuse
+    if (remainingDims) {
+      setMaterials(prev => prev.map(entry => ({
+        ...entry,
+        items: entry.items.map(item => ({
+          ...item,
+          serials: item.serials.map(serial => {
+            if (serial.serial_number === selectedItem.value) {
+              return {
+                ...serial,
+                length: remainingDims.l,
+                width: remainingDims.w,
+                thickness: remainingDims.t,
+                inspection_status: "CUT"
+              };
+            }
+            return serial;
+          })
+        }))
+      })));
+    }
+
     // Reset selections but keep item if needed
     setSelectedItem(null);
     setCuttingForm({
@@ -1112,7 +1182,9 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       raw_w: "",
       raw_thk: "",
       produced_qty: 1,
-      is_finished: false
+      is_finished: false,
+      cutting_axis: "L",
+      return_to_stock: false
     });
     toast.success(`ST Code ${selectedItem.value} added to report`);
   };
@@ -1129,10 +1201,32 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       const calculations = [];
 
       for (const entry of reportEntries) {
+        // Calculate new dims for backend update
+        const rawL = entry.full_data.selectedItem.dims.l;
+        const rawW = entry.full_data.selectedItem.dims.w;
+        const pieceL = parseFloat(entry.full_data.raw_l) || 0;
+        const pieceW = parseFloat(entry.full_data.raw_w) || 0;
+        const qty = parseFloat(entry.full_data.produced_qty) || 0;
+        
+        let newL = rawL;
+        let newW = rawW;
+        
+        if (entry.full_data.cutting_axis === "L") {
+          newL = Math.max(0, rawL - (pieceL * qty));
+        } else {
+          newW = Math.max(0, rawW - (pieceW * qty));
+        }
+
         pieces.push({
           serial_number: entry.full_data.selectedSerial,
           item_code: entry.item_code,
           is_finished: entry.full_data.is_finished,
+          return_to_stock: entry.full_data.return_to_stock,
+          new_dims: {
+            l: newL,
+            w: newW,
+            t: entry.full_data.selectedItem.dims.t
+          },
           remarks: `MCR Entry`
         });
 
@@ -1154,6 +1248,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
       if (response.data.success) {
         toast.success("Full Material Cutting Report Finalized");
+        fetchMaterials();
         onClose();
       }
     } catch (error) {
@@ -1231,16 +1326,35 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                   <SearchableSelect 
                     options={stOptions}
                     value={selectedItem?.value}
-                    onChange={(val) => setSelectedItem(stOptions.find(o => o.value === val))}
+                    onChange={(val) => {
+                      const sel = stOptions.find(o => o.value === val);
+                      setSelectedItem(sel);
+                      if (sel && sel.dims) {
+                        setCuttingForm(prev => ({
+                          ...prev,
+                          raw_l: "", // Reset so operator can enter Piece Length
+                          raw_w: "", // Reset so operator can enter Piece Width
+                          raw_thk: Number(sel.dims.t) || "" // Keep thickness same
+                        }));
+                      }
+                    }}
                     placeholder="SELECT ST#"
                     disabled={!selectedItemCode}
                   />
+                  {selectedItem && selectedItem.dims && (
+                    <div className="flex justify-between px-1">
+                      <span className="text-[8px] font-black text-indigo-500 uppercase">Size: {Number(selectedItem.dims.l)}x{Number(selectedItem.dims.w)}x{Number(selectedItem.dims.t)}</span>
+                      {remainingDims && (
+                        <span className="text-[8px] font-black text-emerald-600 uppercase">Left: {Number(remainingDims.l.toFixed(2))}x{Number(remainingDims.w.toFixed(2))}x{Number(remainingDims.t)}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Row 2: Cutting Dimensions & Produced Qty */}
-                <div className="md:col-span-2 space-y-1.5">
+                <div className="md:col-span-1.5 space-y-1.5">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                    <Settings2 size={12}/> Length (mm)
+                    <Settings2 size={12}/> Piece L (mm)
                   </label>
                   <input 
                     type="number" 
@@ -1251,9 +1365,9 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                   />
                 </div>
 
-                <div className="md:col-span-2 space-y-1.5">
+                <div className="md:col-span-1.5 space-y-1.5">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                    <Settings2 size={12}/> Width (mm)
+                    <Settings2 size={12}/> Piece W (mm)
                   </label>
                   <input 
                     type="number" 
@@ -1265,9 +1379,9 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                   />
                 </div>
 
-                <div className="md:col-span-2 space-y-1.5">
+                <div className="md:col-span-1.5 space-y-1.5">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                    <Settings2 size={12}/> Thickness (mm)
+                    <Settings2 size={12}/> Piece T (mm)
                   </label>
                   <input 
                     type="number" 
@@ -1278,7 +1392,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                   />
                 </div>
 
-                <div className="md:col-span-3 space-y-1.5">
+                <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest block flex items-center gap-1">
                     Produced Qty *
                   </label>
@@ -1292,9 +1406,47 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                   />
                 </div>
 
+                <div className="md:col-span-1.5 space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                    Axis
+                  </label>
+                  <select 
+                    className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-[10px] font-black focus:border-indigo-500 outline-none"
+                    value={cuttingForm.cutting_axis}
+                    onChange={(e) => setCuttingForm({...cuttingForm, cutting_axis: e.target.value})}
+                    disabled={selectedItemCode && (
+                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("ROUND") || 
+                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("PIPE") ||
+                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("BAR")
+                    )}
+                  >
+                    <option value="L">LENGTH</option>
+                    {(selectedItemCode && (
+                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("PLATE") || 
+                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("SHEET") ||
+                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("BLOCK")
+                    )) && <option value="W">WIDTH</option>}
+                    {(selectedItemCode && uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("BLOCK")) && <option value="T">THICKNESS</option>}
+                  </select>
+                </div>
+
                 <div className="md:col-span-1 space-y-1.5 text-center">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
-                    Fin?
+                    Add to Inventory
+                  </label>
+                  <div className="flex items-center justify-center h-[30px]">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" 
+                      checked={cuttingForm.return_to_stock} 
+                      onChange={(e) => setCuttingForm({...cuttingForm, return_to_stock: e.target.checked})} 
+                    />
+                  </div>
+                </div>
+
+                <div className="md:col-span-1 space-y-1.5 text-center">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                    Consumed?
                   </label>
                   <div className="flex items-center justify-center h-[30px]">
                     <input 
