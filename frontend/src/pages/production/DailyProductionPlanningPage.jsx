@@ -1002,6 +1002,8 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     produced_qty: 1,
     is_finished: false,
     cutting_axis: "L", // "L" or "W"
+    design: "Rectangular", // "Rectangular", "Circular", "Other"
+    diameter: "",
     return_to_stock: false
   });
 
@@ -1023,6 +1025,8 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       produced_qty: 1,
       is_finished: false,
       cutting_axis: "L",
+      design: "Rectangular",
+      diameter: "",
       return_to_stock: false
     });
     setSelectedItem(null);
@@ -1074,8 +1078,8 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       const item = entry.items.find(i => i.item_code === selectedItemCode);
       if (item) {
         item.serials.forEach(serial => {
-          // Filter out serials that are fully consumed or used
-          if (serial.status === "Used" || Number(serial.length) <= 0) return;
+          // Filter out serials that are fully consumed (length <= 0)
+          if (Number(serial.length) <= 0) return;
 
           // Allow multiple pieces from same ST number if not finished
           const isInSession = reportEntries.some(re => re.full_data?.selectedSerial === serial.serial_number);
@@ -1111,9 +1115,15 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
   const remainingInfo = useMemo(() => {
     if (!selectedItem || !selectedItem.dims) return null;
     const group = (selectedItem.item_group || "").toUpperCase();
+    const isLinear = group.includes("ROUND") || group.includes("BAR") || group.includes("PIPE") || group.includes("TUBE");
     
-    const pieceL = parseFloat(cuttingForm.raw_l) || 0;
-    const pieceW = parseFloat(cuttingForm.raw_w) || 0;
+    // For Circular designs, L and W are the diameter
+    const isCircular = cuttingForm.design === "Circular" && !isLinear;
+    const effectiveL = isCircular ? parseFloat(cuttingForm.diameter) || 0 : parseFloat(cuttingForm.raw_l) || 0;
+    const effectiveW = isCircular ? parseFloat(cuttingForm.diameter) || 0 : (isLinear ? 1 : (parseFloat(cuttingForm.raw_w) || 0));
+    
+    const pieceL = effectiveL;
+    const pieceW = effectiveW;
     const pieceT = parseFloat(cuttingForm.raw_thk) || 0;
     const qty = parseFloat(cuttingForm.produced_qty) || 0;
     
@@ -1129,18 +1139,70 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     let resW = rawW;
     let resT = rawT;
 
-    if (group.includes("PLATE") || group.includes("SHEET")) {
-      if (cuttingForm.cutting_axis === "L") resL = Math.max(0, rawL - (pieceL * qty));
-      else resW = Math.max(0, rawW - (pieceW * qty));
+    // Grid Calculation
+    let maxPerRowL = 0;
+    let maxPerRowW = 0;
+    let totalMaxPieces = 0;
+
+    if (pieceL > 0) {
+      if (isLinear) {
+        totalMaxPieces = Math.floor(rawL / pieceL);
+      } else if (pieceW > 0) {
+        maxPerRowL = Math.floor(rawL / pieceL);
+        maxPerRowW = Math.floor(rawW / pieceW);
+        totalMaxPieces = maxPerRowL * maxPerRowW;
+      }
+    }
+
+    if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+      if (qty > 0 && pieceL > 0 && pieceW > 0) {
+        if (cuttingForm.cutting_axis === "L") {
+          const pPerRowL = Math.floor(rawL / pieceL);
+          if (pPerRowL > 0) {
+            const rowsNeeded = Math.ceil(qty / pPerRowL);
+            const maxRowsPossible = Math.floor(rawW / pieceW);
+            
+            if (rowsNeeded === 1) {
+              resL = Math.max(0, rawL - (pieceL * qty));
+            } else {
+              resW = Math.max(0, rawW - (rowsNeeded * pieceW));
+              resL = rawL;
+              
+              // If we are in the last possible row, show the remaining strip in that row
+              if (resW === 0 && rowsNeeded === maxRowsPossible && (qty % pPerRowL !== 0)) {
+                resW = pieceW;
+                resL = Math.max(0, rawL - ((qty % pPerRowL) * pieceL));
+              }
+            }
+          }
+        } else if (cuttingForm.cutting_axis === "W") {
+          const pPerColW = Math.floor(rawW / pieceW);
+          if (pPerColW > 0) {
+            const colsNeeded = Math.ceil(qty / pPerColW);
+            const maxColsPossible = Math.floor(rawL / pieceL);
+            
+            if (colsNeeded === 1) {
+              resW = Math.max(0, rawW - (pieceW * qty));
+            } else {
+              resL = Math.max(0, rawL - (colsNeeded * pieceL));
+              resW = rawW;
+              
+              // If we are in the last possible column, show the remaining strip in that column
+              if (resL === 0 && colsNeeded === maxColsPossible && (qty % pPerColW !== 0)) {
+                resL = pieceL;
+                resW = Math.max(0, rawW - ((qty % pPerColW) * pieceW));
+              }
+            }
+          }
+        } else {
+          // Thickness axis (for blocks)
+          resT = Math.max(0, rawT - (pieceT * qty));
+        }
+      }
     } 
-    else if (group.includes("ROUND") || group.includes("PIPE") || group.includes("TUBE") || group.includes("BAR")) {
+    else if (isLinear) {
       // Linear items only reduce length
       resL = Math.max(0, rawL - (pieceL * qty));
-    }
-    else if (group.includes("BLOCK")) {
-      if (cuttingForm.cutting_axis === "L") resL = Math.max(0, rawL - (pieceL * qty));
-      else if (cuttingForm.cutting_axis === "W") resW = Math.max(0, rawW - (pieceW * qty));
-      else resT = Math.max(0, rawT - (pieceT * qty));
     }
     else {
       // General fallback (Linear)
@@ -1153,7 +1215,9 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     
     if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
       weight = (resL * resW * resT * density) / 1000000;
-      currentWeight = (pieceL * pieceW * pieceT * density * qty) / 1000000;
+      // If circular, use πr² instead of L*W
+      const areaPerPiece = isCircular ? (Math.PI * Math.pow(pieceL / 2, 2)) : (pieceL * pieceW);
+      currentWeight = (areaPerPiece * pieceT * density * qty) / 1000000;
     } 
     else if (group.includes("ROUND") || group.includes("BAR")) {
       weight = (Math.PI * Math.pow(rawD / 2, 2) * resL * density) / 1000000;
@@ -1166,17 +1230,24 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       currentWeight = (area * pieceL * density * qty) / 1000000;
     }
     else {
-      // Linear fallback
       weight = (resL * resW * resT * density) / 1000000;
       currentWeight = (pieceL * pieceW * pieceT * density * qty) / 1000000;
     }
 
-    return { l: resL, w: resW, t: resT, weight, currentWeight };
+    return { l: resL, w: resW, t: resT, weight, currentWeight, totalMaxPieces };
   }, [selectedItem, cuttingForm]);
 
   const handleAddToTable = () => {
-    if (!selectedItem || !cuttingForm.raw_l) {
+    const isCircular = cuttingForm.design === "Circular";
+    const pieceL = isCircular ? cuttingForm.diameter : cuttingForm.raw_l;
+    
+    if (!selectedItem || !pieceL) {
       toast.warn("Please complete the material configuration first");
+      return;
+    }
+
+    if (remainingInfo && parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces) {
+      toast.error(`Only ${remainingInfo.totalMaxPieces} pieces are possible for these dimensions in this sheet!`);
       return;
     }
 
@@ -1231,6 +1302,8 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       produced_qty: 1,
       is_finished: false,
       cutting_axis: "L",
+      design: "Rectangular",
+      diameter: "",
       return_to_stock: false
     });
     toast.success(`ST Code ${selectedItem.value} added to report`);
@@ -1256,22 +1329,57 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
         const rawOD = entry.full_data.selectedItem.dims.od;
         const density = entry.full_data.selectedItem.density || 7.85;
         const group = (entry.item_group || "").toUpperCase();
+        const isLinear = group.includes("ROUND") || group.includes("BAR") || group.includes("PIPE") || group.includes("TUBE");
+        const isCircular = entry.full_data.design === "Circular" && !isLinear;
 
-        const pieceL = parseFloat(entry.full_data.raw_l) || 0;
-        const pieceW = parseFloat(entry.full_data.raw_w) || 0;
-        const pieceT = parseFloat(entry.full_data.raw_thk) || 0;
+        const pL = isCircular ? parseFloat(entry.full_data.diameter) || 0 : parseFloat(entry.full_data.raw_l) || 0;
+        const pW = isCircular ? parseFloat(entry.full_data.diameter) || 0 : (isLinear ? 1 : (parseFloat(entry.full_data.raw_w) || 0));
+        const pT = parseFloat(entry.full_data.raw_thk) || 0;
         const qty = parseFloat(entry.full_data.produced_qty) || 0;
         
         let newL = rawL;
         let newW = rawW;
         let newT = rawT;
         
-        if (entry.full_data.cutting_axis === "L") {
-          newL = Math.max(0, rawL - (pieceL * qty));
-        } else if (entry.full_data.cutting_axis === "W") {
-          newW = Math.max(0, rawW - (pieceW * qty));
-        } else if (entry.full_data.cutting_axis === "T") {
-          newT = Math.max(0, rawT - (pieceT * qty));
+        if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+          if (entry.full_data.cutting_axis === "L") {
+            const pPerRowL = Math.floor(rawL / pL);
+            if (pPerRowL > 0) {
+              const rowsNeeded = Math.ceil(qty / pPerRowL);
+              const maxRowsPossible = Math.floor(rawW / pW);
+              
+              if (rowsNeeded === 1) {
+                newL = Math.max(0, rawL - (pL * qty));
+              } else {
+                newW = Math.max(0, rawW - (rowsNeeded * pW));
+                if (newW === 0 && rowsNeeded === maxRowsPossible && (qty % pPerRowL !== 0)) {
+                  newW = pW;
+                  newL = Math.max(0, rawL - ((qty % pPerRowL) * pL));
+                }
+              }
+            }
+          } else if (entry.full_data.cutting_axis === "W") {
+            const pPerColW = Math.floor(rawW / pW);
+            if (pPerColW > 0) {
+              const colsNeeded = Math.ceil(qty / pPerColW);
+              const maxColsPossible = Math.floor(rawL / pL);
+              
+              if (colsNeeded === 1) {
+                newW = Math.max(0, rawW - (pW * qty));
+              } else {
+                newL = Math.max(0, rawL - (colsNeeded * pL));
+                if (newL === 0 && colsNeeded === maxColsPossible && (qty % pPerColW !== 0)) {
+                  newL = pL;
+                  newW = Math.max(0, rawW - ((qty % pPerColW) * pW));
+                }
+              }
+            }
+          } else if (entry.full_data.cutting_axis === "T") {
+            newT = Math.max(0, rawT - (pT * qty));
+          }
+        } else {
+          // Linear items only reduce length
+          newL = Math.max(0, rawL - (pL * qty));
         }
 
         // Calculate Remnant Weight
@@ -1455,33 +1563,65 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                 </div>
 
                 {/* Row 2: Dynamic Cutting Dimensions based on Item Group */}
+                {/* Design Selection - Only for plates/sheets/blocks */}
+                {(!selectedItemGroup.includes("ROUND") && !selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PIPE") && !selectedItemGroup.includes("TUBE") && selectedItemCode) && (
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Select Design</label>
+                    <select 
+                      className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
+                      value={cuttingForm.design}
+                      onChange={(e) => setCuttingForm({...cuttingForm, design: e.target.value})}
+                    >
+                      <option value="Rectangular">Rectangular</option>
+                      <option value="Circular">Circular</option>
+                    </select>
+                  </div>
+                )}
+
                 {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET") || !selectedItemGroup) && (
                   <>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12}/> Piece L (mm)
-                      </label>
-                      <input 
-                        type="number" 
-                        placeholder="L" 
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                        value={cuttingForm.raw_l} 
-                        onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
-                      />
-                    </div>
+                    {cuttingForm.design === "Circular" ? (
+                      <div className="md:col-span-2 space-y-1.5">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                          <Settings2 size={12}/> Diameter (mm)
+                        </label>
+                        <input 
+                          type="number" 
+                          placeholder="DIA" 
+                          className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                          value={cuttingForm.diameter} 
+                          onChange={(e) => setCuttingForm({...cuttingForm, diameter: e.target.value})} 
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="md:col-span-1.5 space-y-1.5">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                            <Settings2 size={12}/> Piece L (mm)
+                          </label>
+                          <input 
+                            type="number" 
+                            placeholder="L" 
+                            className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                            value={cuttingForm.raw_l} 
+                            onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
+                          />
+                        </div>
 
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12}/> Piece W (mm)
-                      </label>
-                      <input 
-                        type="number" 
-                        placeholder="W" 
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                        value={cuttingForm.raw_w} 
-                        onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
-                      />
-                    </div>
+                        <div className="md:col-span-1.5 space-y-1.5">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                            <Settings2 size={12}/> Piece W (mm)
+                          </label>
+                          <input 
+                            type="number" 
+                            placeholder="W" 
+                            className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                            value={cuttingForm.raw_w} 
+                            onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
+                          />
+                        </div>
+                      </>
+                    )}
 
                     <div className="md:col-span-1.5 space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
@@ -1508,13 +1648,13 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                         type="number" 
                         placeholder="DIA" 
                         className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                        value={cuttingForm.raw_thk} 
-                        onChange={(e) => setCuttingForm({...cuttingForm, raw_thk: e.target.value})} 
+                        value={selectedItem?.dims?.d || ""} 
+                        readOnly
                       />
                     </div>
                     <div className="md:col-span-1.5 space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12}/> Length (mm)
+                        <Settings2 size={12}/> Cut Length (mm)
                       </label>
                       <input 
                         type="number" 
@@ -1537,8 +1677,8 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                         type="number" 
                         placeholder="OD" 
                         className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                        value={cuttingForm.raw_w} 
-                        onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
+                        value={selectedItem?.dims?.od || ""} 
+                        readOnly
                       />
                     </div>
                     <div className="md:col-span-1.5 space-y-1.5">
@@ -1549,13 +1689,13 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                         type="number" 
                         placeholder="T" 
                         className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                        value={cuttingForm.raw_thk} 
-                        onChange={(e) => setCuttingForm({...cuttingForm, raw_thk: e.target.value})} 
+                        value={selectedItem?.dims?.t || ""} 
+                        readOnly
                       />
                     </div>
                     <div className="md:col-span-1.5 space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12}/> Length (mm)
+                        <Settings2 size={12}/> Cut Length (mm)
                       </label>
                       <input 
                         type="number" 
@@ -1570,30 +1710,47 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
                 {selectedItemGroup.includes("BLOCK") && (
                   <>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12}/> Block L (mm)
-                      </label>
-                      <input 
-                        type="number" 
-                        placeholder="L" 
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                        value={cuttingForm.raw_l} 
-                        onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
-                      />
-                    </div>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12}/> Width (mm)
-                      </label>
-                      <input 
-                        type="number" 
-                        placeholder="W" 
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                        value={cuttingForm.raw_w} 
-                        onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
-                      />
-                    </div>
+                    {cuttingForm.design === "Circular" ? (
+                      <div className="md:col-span-2 space-y-1.5">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                          <Settings2 size={12}/> Diameter (mm)
+                        </label>
+                        <input 
+                          type="number" 
+                          placeholder="DIA" 
+                          className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                          value={cuttingForm.diameter} 
+                          onChange={(e) => setCuttingForm({...cuttingForm, diameter: e.target.value})} 
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="md:col-span-1.5 space-y-1.5">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                            <Settings2 size={12}/> Block L (mm)
+                          </label>
+                          <input 
+                            type="number" 
+                            placeholder="L" 
+                            className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                            value={cuttingForm.raw_l} 
+                            onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
+                          />
+                        </div>
+                        <div className="md:col-span-1.5 space-y-1.5">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                            <Settings2 size={12}/> Width (mm)
+                          </label>
+                          <input 
+                            type="number" 
+                            placeholder="W" 
+                            className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                            value={cuttingForm.raw_w} 
+                            onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
+                          />
+                        </div>
+                      </>
+                    )}
                     <div className="md:col-span-1.5 space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
                         <Settings2 size={12}/> Height (mm)
@@ -1613,14 +1770,29 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                   <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest block flex items-center gap-1">
                     Produced Qty *
                   </label>
-                  <input 
-                    type="number" 
-                    placeholder="PCS" 
-                    min="1"
-                    className="w-full bg-indigo-50/50 border border-indigo-100 rounded px-3 py-1.5 text-xs font-black text-indigo-700 focus:border-indigo-500 outline-none" 
-                    value={cuttingForm.produced_qty} 
-                    onChange={(e) => setCuttingForm({...cuttingForm, produced_qty: e.target.value})} 
-                  />
+                  <div className="relative">
+                    <input 
+                      type="number" 
+                      placeholder="PCS" 
+                      min="1"
+                      className={`w-full bg-indigo-50/50 border rounded px-3 py-1.5 text-xs font-black text-indigo-700 focus:border-indigo-500 outline-none pr-10 ${remainingInfo && parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces ? 'border-red-500' : 'border-indigo-100'}`} 
+                      value={cuttingForm.produced_qty} 
+                      onChange={(e) => setCuttingForm({...cuttingForm, produced_qty: e.target.value})} 
+                    />
+                    {remainingInfo && (
+                      <div className="absolute top-full left-0 mt-1 whitespace-nowrap z-10">
+                        {parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces ? (
+                          <span className="text-[8px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 uppercase animate-pulse">
+                            Warning: Only {remainingInfo.totalMaxPieces} pieces possible!
+                          </span>
+                        ) : (
+                          <span className="text-[8px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 uppercase">
+                            Max: {remainingInfo.totalMaxPieces} pieces possible
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="md:col-span-1.5 space-y-1.5">

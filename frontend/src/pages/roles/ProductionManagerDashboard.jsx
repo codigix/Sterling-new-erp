@@ -4,7 +4,7 @@ import RoleDashboardLayout from "../../components/layout/RoleDashboardLayout";
 import ProductionPhasesDisplay from "../../components/production/ProductionPhasesDisplay";
 import axios from "../../utils/api";
 import { Loader2, Package } from "lucide-react";
-import ProductionPlansPage from "../production/ProductionPlansPage";
+import DailyProductionPlanningPage from "../production/DailyProductionPlanningPage";
 import ProductionPlanFormPage from "../production/ProductionPlanFormPage";
 import ProductionTasksPage from "../department/ProductionTasksPage";
 import WorkstationsPage from "../production/WorkstationsPage";
@@ -617,7 +617,7 @@ const ProductionManagerDashboard = () => {
       <Routes>
         <Route path="/" element={<DashboardContent />} />
         <Route path="/dashboard" element={<DashboardContent />} />
-        <Route path="/planning/plans" element={<ProductionPlansPage />} />
+        <Route path="/planning/plans" element={<DailyProductionPlanningPage />} />
         <Route path="/planning/plans/new" element={<ProductionPlanFormPage />} />
         {/* Incomplete Missing Routes */}
         <Route path="/department-tasks" element={<ProductionTasksPage />} />
