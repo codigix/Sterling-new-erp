@@ -1062,6 +1062,11 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     return Array.from(items.values());
   }, [materials]);
 
+  const selectedItemGroup = useMemo(() => {
+    if (!selectedItemCode) return "";
+    return uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group?.toUpperCase() || "";
+  }, [selectedItemCode, uniqueItemOptions]);
+
   const stOptions = useMemo(() => {
     if (!selectedItemCode) return [];
     const options = [];
@@ -1069,9 +1074,16 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       const item = entry.items.find(i => i.item_code === selectedItemCode);
       if (item) {
         item.serials.forEach(serial => {
-          // Allow multiple pieces from same ST number
+          // Filter out serials that are fully consumed or used
+          if (serial.status === "Used" || Number(serial.length) <= 0) return;
+
+          // Allow multiple pieces from same ST number if not finished
           const isInSession = reportEntries.some(re => re.full_data?.selectedSerial === serial.serial_number);
           
+          // If the item is in session AND it was marked as finished/consumed in the session, don't show it
+          const isFinishedInSession = reportEntries.some(re => re.full_data?.selectedSerial === serial.serial_number && re.full_data?.is_finished);
+          if (isFinishedInSession) return;
+
           options.push({
             value: serial.serial_number,
             label: `${serial.serial_number}${serial.inspection_status === "CUT" ? " (ALREADY CUT)" : ""}${isInSession ? " (IN TABLE)" : ""}`,
@@ -1080,10 +1092,15 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
             remaining: 1,
             item_group: item.item_group || "PLATE / SHEET",
             dims: {
-              l: serial.length || 0,
-              w: serial.width || 0,
-              t: serial.thickness || 0
-            }
+              l: Number(serial.length) || Number(item.length) || 0,
+              w: Number(serial.width) || Number(item.width) || 0,
+              t: Number(serial.thickness) || Number(serial.height) || Number(item.thickness) || Number(item.height) || 0,
+              d: Number(serial.diameter) || Number(item.diameter) || 0,
+              od: Number(serial.outer_diameter) || Number(item.outer_diameter) || 0,
+              h: Number(serial.height) || Number(serial.thickness) || Number(item.height) || Number(item.thickness) || 0
+            },
+            density: serial.density || item.density || 0,
+            unit_weight: serial.unit_weight || item.unit_weight || 0
           });
         });
       }
@@ -1091,7 +1108,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     return options;
   }, [materials, selectedItemCode, reportEntries]);
 
-  const remainingDims = useMemo(() => {
+  const remainingInfo = useMemo(() => {
     if (!selectedItem || !selectedItem.dims) return null;
     const group = (selectedItem.item_group || "").toUpperCase();
     
@@ -1103,6 +1120,9 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     const rawL = parseFloat(selectedItem.dims.l) || 0;
     const rawW = parseFloat(selectedItem.dims.w) || 0;
     const rawT = parseFloat(selectedItem.dims.t) || 0;
+    const rawD = parseFloat(selectedItem.dims.d) || 0;
+    const rawOD = parseFloat(selectedItem.dims.od) || 0;
+    const density = parseFloat(selectedItem.density) || 7.85;
     
     // Default: remain the same
     let resL = rawL;
@@ -1127,7 +1147,31 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       resL = Math.max(0, rawL - (pieceL * qty));
     }
 
-    return { l: resL, w: resW, t: resT };
+    // Calculate Weights
+    let weight = 0;
+    let currentWeight = 0;
+    
+    if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+      weight = (resL * resW * resT * density) / 1000000;
+      currentWeight = (pieceL * pieceW * pieceT * density * qty) / 1000000;
+    } 
+    else if (group.includes("ROUND") || group.includes("BAR")) {
+      weight = (Math.PI * Math.pow(rawD / 2, 2) * resL * density) / 1000000;
+      currentWeight = (Math.PI * Math.pow(rawD / 2, 2) * pieceL * density * qty) / 1000000;
+    }
+    else if (group.includes("PIPE") || group.includes("TUBE")) {
+      const innerRadius = (rawOD / 2) - rawT;
+      const area = Math.PI * (Math.pow(rawOD / 2, 2) - Math.pow(innerRadius, 2));
+      weight = (area * resL * density) / 1000000;
+      currentWeight = (area * pieceL * density * qty) / 1000000;
+    }
+    else {
+      // Linear fallback
+      weight = (resL * resW * resT * density) / 1000000;
+      currentWeight = (pieceL * pieceW * pieceT * density * qty) / 1000000;
+    }
+
+    return { l: resL, w: resW, t: resT, weight, currentWeight };
   }, [selectedItem, cuttingForm]);
 
   const handleAddToTable = () => {
@@ -1141,8 +1185,10 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       item_name: selectedItem.item.item_name,
       item_code: selectedItem.item.item_code,
       item_group: selectedItem.item_group,
+      material_grade: selectedItem.item.material_grade || uniqueItemOptions.find(o => o.value === selectedItemCode)?.material_grade || "N/A",
       processed_qty: 1,
       raw_dims: `${cuttingForm.raw_l}x${cuttingForm.raw_w || 0}x${cuttingForm.raw_thk}`,
+      weight: remainingInfo.currentWeight,
       full_data: { 
         ...cuttingForm, 
         selectedItem, 
@@ -1154,7 +1200,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     setReportEntries([...reportEntries, newEntry]);
     
     // Update local state to reflect reduced parent size for immediate reuse
-    if (remainingDims) {
+    if (remainingInfo) {
       setMaterials(prev => prev.map(entry => ({
         ...entry,
         items: entry.items.map(item => ({
@@ -1163,10 +1209,11 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
             if (serial.serial_number === selectedItem.value) {
               return {
                 ...serial,
-                length: remainingDims.l,
-                width: remainingDims.w,
-                thickness: remainingDims.t,
-                inspection_status: "CUT"
+                length: remainingInfo.l,
+                width: remainingInfo.w,
+                thickness: remainingInfo.t,
+                inspection_status: "CUT",
+                status: cuttingForm.is_finished ? "Used" : serial.status
               };
             }
             return serial;
@@ -1204,17 +1251,44 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
         // Calculate new dims for backend update
         const rawL = entry.full_data.selectedItem.dims.l;
         const rawW = entry.full_data.selectedItem.dims.w;
+        const rawT = entry.full_data.selectedItem.dims.t;
+        const rawD = entry.full_data.selectedItem.dims.d;
+        const rawOD = entry.full_data.selectedItem.dims.od;
+        const density = entry.full_data.selectedItem.density || 7.85;
+        const group = (entry.item_group || "").toUpperCase();
+
         const pieceL = parseFloat(entry.full_data.raw_l) || 0;
         const pieceW = parseFloat(entry.full_data.raw_w) || 0;
+        const pieceT = parseFloat(entry.full_data.raw_thk) || 0;
         const qty = parseFloat(entry.full_data.produced_qty) || 0;
         
         let newL = rawL;
         let newW = rawW;
+        let newT = rawT;
         
         if (entry.full_data.cutting_axis === "L") {
           newL = Math.max(0, rawL - (pieceL * qty));
-        } else {
+        } else if (entry.full_data.cutting_axis === "W") {
           newW = Math.max(0, rawW - (pieceW * qty));
+        } else if (entry.full_data.cutting_axis === "T") {
+          newT = Math.max(0, rawT - (pieceT * qty));
+        }
+
+        // Calculate Remnant Weight
+        let newWeight = 0;
+        if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+          newWeight = (newL * newW * newT * density) / 1000000;
+        } 
+        else if (group.includes("ROUND") || group.includes("BAR")) {
+          newWeight = (Math.PI * Math.pow(rawD / 2, 2) * newL * density) / 1000000;
+        }
+        else if (group.includes("PIPE") || group.includes("TUBE")) {
+          const innerRadius = (rawOD / 2) - rawT;
+          const area = Math.PI * (Math.pow(rawOD / 2, 2) - Math.pow(innerRadius, 2));
+          newWeight = (area * newL * density) / 1000000;
+        }
+        else {
+          newWeight = (newL * newW * newT * density) / 1000000;
         }
 
         pieces.push({
@@ -1225,8 +1299,10 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
           new_dims: {
             l: newL,
             w: newW,
-            t: entry.full_data.selectedItem.dims.t
+            t: newT
           },
+          new_weight: newWeight,
+          unit_weight: entry.weight / (qty || 1), // Piece weight
           remarks: `MCR Entry`
         });
 
@@ -1330,10 +1406,16 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                       const sel = stOptions.find(o => o.value === val);
                       setSelectedItem(sel);
                       if (sel && sel.dims) {
+                        const group = selectedItemGroup;
+                        let initialW = "";
+                        if (group.includes("PIPE") || group.includes("TUBE")) initialW = Number(sel.dims.od) || "";
+                        else if (group.includes("ROUND") || group.includes("BAR")) initialW = Number(sel.dims.d) || "";
+                        else if (!(group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK"))) initialW = Number(sel.dims.w) || "";
+
                         setCuttingForm(prev => ({
                           ...prev,
                           raw_l: "", // Reset so operator can enter Piece Length
-                          raw_w: "", // Reset so operator can enter Piece Width
+                          raw_w: initialW, 
                           raw_thk: Number(sel.dims.t) || "" // Keep thickness same
                         }));
                       }
@@ -1343,54 +1425,189 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                   />
                   {selectedItem && selectedItem.dims && (
                     <div className="flex justify-between px-1">
-                      <span className="text-[8px] font-black text-indigo-500 uppercase">Size: {Number(selectedItem.dims.l)}x{Number(selectedItem.dims.w)}x{Number(selectedItem.dims.t)}</span>
-                      {remainingDims && (
-                        <span className="text-[8px] font-black text-emerald-600 uppercase">Left: {Number(remainingDims.l.toFixed(2))}x{Number(remainingDims.w.toFixed(2))}x{Number(remainingDims.t)}</span>
+                      <span className="text-[8px] font-black text-indigo-500 uppercase">
+                        Size: {(() => {
+                          const { l, w, t, d, od } = selectedItem.dims;
+                          const group = selectedItemGroup;
+                          const fmt = (v) => parseFloat(Number(v).toFixed(4));
+                          if (group.includes("PIPE") || group.includes("TUBE")) return `Ø${fmt(od)} x ${fmt(t)}thk x ${fmt(l)}L`;
+                          if (group.includes("ROUND") || group.includes("BAR")) return `Ø${fmt(d)} x ${fmt(l)}L`;
+                          if (group.includes("BLOCK")) return `${fmt(l)}L x ${fmt(w)}W x ${fmt(t)}H`;
+                          return `${fmt(l)} x ${fmt(w)} x ${fmt(t)}`;
+                        })()}
+                      </span>
+                      {remainingInfo && (
+                        <span className="text-[8px] font-black text-emerald-600 uppercase">
+                          Left: {(() => {
+                            const { l, w, t } = remainingInfo;
+                            const { d, od } = selectedItem.dims;
+                            const group = selectedItemGroup;
+                            const fmt = (v) => parseFloat(Number(v).toFixed(4));
+                            if (group.includes("PIPE") || group.includes("TUBE")) return `Ø${fmt(od)} x ${fmt(t)}thk x ${fmt(l)}L`;
+                            if (group.includes("ROUND") || group.includes("BAR")) return `Ø${fmt(d)} x ${fmt(l)}L`;
+                            if (group.includes("BLOCK")) return `${fmt(l)}L x ${fmt(w)}W x ${fmt(t)}H`;
+                            return `${fmt(l)} x ${fmt(w)} x ${fmt(t)}`;
+                          })()} | Weight: {remainingInfo.weight.toFixed(3)} Kg
+                        </span>
                       )}
                     </div>
                   )}
                 </div>
 
-                {/* Row 2: Cutting Dimensions & Produced Qty */}
-                <div className="md:col-span-1.5 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                    <Settings2 size={12}/> Piece L (mm)
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="L" 
-                    className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                    value={cuttingForm.raw_l} 
-                    onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
-                  />
-                </div>
+                {/* Row 2: Dynamic Cutting Dimensions based on Item Group */}
+                {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET") || !selectedItemGroup) && (
+                  <>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Piece L (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="L" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_l} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
+                      />
+                    </div>
 
-                <div className="md:col-span-1.5 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                    <Settings2 size={12}/> Piece W (mm)
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="W" 
-                    disabled={selectedItemCode && !uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("PLATE") && !uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("SHEET")}
-                    className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none disabled:bg-slate-50 disabled:text-slate-300" 
-                    value={cuttingForm.raw_w} 
-                    onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
-                  />
-                </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Piece W (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="W" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_w} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
+                      />
+                    </div>
 
-                <div className="md:col-span-1.5 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                    <Settings2 size={12}/> Piece T (mm)
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="T" 
-                    className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
-                    value={cuttingForm.raw_thk} 
-                    onChange={(e) => setCuttingForm({...cuttingForm, raw_thk: e.target.value})} 
-                  />
-                </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Piece T (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="T" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_thk} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_thk: e.target.value})} 
+                      />
+                    </div>
+                  </>
+                )}
+
+                {(selectedItemGroup.includes("ROUND") || (selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PLATE"))) && (
+                  <>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Diameter (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="DIA" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_thk} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_thk: e.target.value})} 
+                      />
+                    </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Length (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="L" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_l} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
+                      />
+                    </div>
+                  </>
+                )}
+
+                {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && (
+                  <>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> OD (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="OD" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_w} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
+                      />
+                    </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Thk (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="T" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_thk} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_thk: e.target.value})} 
+                      />
+                    </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Length (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="L" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_l} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
+                      />
+                    </div>
+                  </>
+                )}
+
+                {selectedItemGroup.includes("BLOCK") && (
+                  <>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Block L (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="L" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_l} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_l: e.target.value})} 
+                      />
+                    </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Width (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="W" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_w} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_w: e.target.value})} 
+                      />
+                    </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12}/> Height (mm)
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="H" 
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none" 
+                        value={cuttingForm.raw_thk} 
+                        onChange={(e) => setCuttingForm({...cuttingForm, raw_thk: e.target.value})} 
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest block flex items-center gap-1">
@@ -1415,18 +1632,19 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                     value={cuttingForm.cutting_axis}
                     onChange={(e) => setCuttingForm({...cuttingForm, cutting_axis: e.target.value})}
                     disabled={selectedItemCode && (
-                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("ROUND") || 
-                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("PIPE") ||
-                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("BAR")
+                      selectedItemGroup.includes("ROUND") || 
+                      selectedItemGroup.includes("PIPE") ||
+                      selectedItemGroup.includes("TUBE") ||
+                      (selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PLATE"))
                     )}
                   >
                     <option value="L">LENGTH</option>
                     {(selectedItemCode && (
-                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("PLATE") || 
-                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("SHEET") ||
-                      uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("BLOCK")
+                      selectedItemGroup.includes("PLATE") || 
+                      selectedItemGroup.includes("SHEET") ||
+                      selectedItemGroup.includes("BLOCK")
                     )) && <option value="W">WIDTH</option>}
-                    {(selectedItemCode && uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group.toUpperCase().includes("BLOCK")) && <option value="T">THICKNESS</option>}
+                    {(selectedItemCode && selectedItemGroup.includes("BLOCK")) && <option value="T">THICKNESS</option>}
                   </select>
                 </div>
 
@@ -1482,6 +1700,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                     <th className="px-6 py-3">Item Details</th>
                     <th className="px-6 py-3">ST Code</th>
                     <th className="px-6 py-3 text-center">Item Group</th>
+                    <th className="px-6 py-3 text-center">Material Grade</th>
                     <th className="px-6 py-3 text-center">Cutting Dims (mm)</th>
                     <th className="px-6 py-3 text-center">Produced Qty</th>
                     <th className="px-6 py-3"></th>
@@ -1489,7 +1708,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                 </thead>
                 <tbody className="divide-y divide-slate-50 font-bold">
                   {reportEntries.length === 0 ? (
-                    <tr><td colSpan="7" className="px-6 py-12 text-center text-slate-400 text-[10px] uppercase italic">No items added to report yet. Use the form above.</td></tr>
+                    <tr><td colSpan="8" className="px-6 py-12 text-center text-slate-400 text-[10px] uppercase italic">No items added to report yet. Use the form above.</td></tr>
                   ) : (
                     reportEntries.map((entry, idx) => (
                       <tr key={entry.id} className="hover:bg-slate-50/50 transition-colors">
@@ -1506,12 +1725,15 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                         <td className="px-6 py-4 text-center">
                           <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">{entry.item_group}</span>
                         </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">{entry.material_grade}</span>
+                        </td>
                         <td className="px-6 py-4 text-center text-slate-700 text-[10px] font-black">
                           {entry.raw_dims}
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-[10px] font-black">
-                            {entry.full_data?.produced_qty} PCS
+                            {entry.full_data?.produced_qty} NOS
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">

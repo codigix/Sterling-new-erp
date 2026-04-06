@@ -85,7 +85,8 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
           materialType: m.materialType || null,
           quantity: m.requiredQty || 0,
           unit: m.uom || 'Nos',
-          specification: m.specification || null
+          specification: m.specification || null,
+          density: m.density || 0
         }))
       };
       console.log('Payload:', JSON.stringify(payload, null, 2));

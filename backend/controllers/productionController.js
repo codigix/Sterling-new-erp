@@ -366,7 +366,7 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
       const itemsWithSerials = [];
       for (let item of items) {
         const [serialRows] = await db.query(
-          'SELECT serial_number, status, inspection_status, length, width, thickness FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
+          'SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
           [entry.id, `${item.item_code}%`, item.item_name]
         );
         itemsWithSerials.push({ ...item, serials: serialRows });
@@ -395,8 +395,8 @@ exports.saveMCR = async (req, res) => {
       const newStatus = markAsUsed ? 'Used' : 'Available';
       
       await connection.query(
-        'UPDATE inventory_serials SET status = ?, inspection_status = "CUT", length = ?, width = ?, thickness = ? WHERE serial_number = ?',
-        [newStatus, piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.serial_number]
+        'UPDATE inventory_serials SET status = ?, inspection_status = "CUT", length = ?, width = ?, thickness = ?, unit_weight = ?, total_weight = ? WHERE serial_number = ?',
+        [newStatus, piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.new_weight, piece.new_weight, piece.serial_number]
       );
 
       // If operator wants to return remnant to stock, create a NEW serial with remnant dimensions
@@ -409,12 +409,12 @@ exports.saveMCR = async (req, res) => {
           
           await connection.query(
             `INSERT INTO inventory_serials 
-            (serial_number, purchase_order_id, item_id, item_name, item_code, receipt_id, status, location, length, width, thickness, inspection_status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (serial_number, purchase_order_id, item_id, item_name, item_code, receipt_id, status, location, length, width, thickness, unit_weight, total_weight, density, inspection_status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               newSerialNumber, orig.purchase_order_id, orig.item_id, orig.item_name, orig.item_code, orig.receipt_id, 
               'Available', orig.location || 'Main Warehouse', 
-              piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, 'Available'
+              piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.new_weight, piece.new_weight, orig.density, 'Available'
             ]
           );
         }

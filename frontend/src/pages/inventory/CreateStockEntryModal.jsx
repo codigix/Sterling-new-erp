@@ -28,8 +28,19 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
     quantity: 1,
     uom: "Kg",
     batch_no: "",
-    valuation_rate: 0
+    valuation_rate: 0,
+    unit_weight: 0,
+    total_weight: 0,
+    density: 0
   });
+
+  // Calculate total weight when quantity or unit weight changes
+  useEffect(() => {
+    setCurrentItem(prev => ({
+      ...prev,
+      total_weight: (prev.quantity || 0) * (prev.unit_weight || 0)
+    }));
+  }, [currentItem.quantity, currentItem.unit_weight]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,7 +86,9 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
           item_code: selectedMat.itemCode || selectedMat.item_code || "",
           item_name: selectedMat.itemName || selectedMat.item_name || "",
           uom: selectedMat.unit || "Kg",
-          valuation_rate: selectedMat.unit_cost || 0
+          valuation_rate: selectedMat.unit_cost || 0,
+          unit_weight: selectedMat.unit_weight || 0,
+          density: selectedMat.density || 0
         }));
       } else {
         setCurrentItem(prev => ({ ...prev, [name]: value }));
@@ -104,7 +117,10 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
       quantity: 1,
       uom: "Kg",
       batch_no: "",
-      valuation_rate: 0
+      valuation_rate: 0,
+      unit_weight: 0,
+      total_weight: 0,
+      density: 0
     });
   };
 
@@ -319,6 +335,31 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                     value={currentItem.valuation_rate}
                     onChange={handleCurrentItemChange}
                     className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-xs  "
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                <div className="space-y-2">
+                  <label className="text-xs  text-slate-400   ml-1">Unit Weight (Kg)</label>
+                  <input 
+                    type="number"
+                    name="unit_weight"
+                    step="0.0001"
+                    value={currentItem.unit_weight}
+                    onChange={handleCurrentItemChange}
+                    className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-xs  "
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs  text-slate-400   ml-1">Total Weight (Kg)</label>
+                  <input 
+                    type="number"
+                    name="total_weight"
+                    step="0.0001"
+                    value={currentItem.total_weight}
+                    readOnly
+                    className="w-full p-2 bg-slate-100 dark:bg-slate-700 border border-transparent rounded text-xs  text-slate-500   outline-none "
                   />
                 </div>
               </div>

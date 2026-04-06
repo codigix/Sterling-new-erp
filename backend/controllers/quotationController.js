@@ -37,9 +37,9 @@ const getQuotations = async (req, res) => {
             params.push(status);
         }
         if (search) {
-            query += " AND (q.quotation_number LIKE ? OR v.name LIKE ? OR mr.request_number LIKE ?)";
+            query += " AND (q.quotation_number LIKE ? OR v.name LIKE ? OR mr.request_number LIKE ? OR rc.project_name LIKE ?)";
             const searchVal = `%${search}%`;
-            params.push(searchVal, searchVal, searchVal);
+            params.push(searchVal, searchVal, searchVal, searchVal);
         }
 
         query += " ORDER BY q.created_at DESC";

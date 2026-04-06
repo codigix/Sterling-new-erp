@@ -15,7 +15,7 @@ import {
   CheckCircle,
   X,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Trash2,
   Briefcase,
   Loader2,
@@ -977,6 +977,9 @@ const QuotationsPage = ({ defaultTab }) => {
                   <th className="p-2 text-left text-xs  text-slate-900 dark:text-white">
                     Vendor
                   </th>
+                  <th className="p-2 text-left text-xs  text-slate-900 dark:text-white">
+                    Project
+                  </th>
                   {activeTab === "inbound" && (
                     <th className="p-2 text-right text-xs   text-slate-900 dark:text-white">
                       Total Amount
@@ -1026,10 +1029,13 @@ const QuotationsPage = ({ defaultTab }) => {
                     <td className="p-2 text-xs text-slate-700 dark:text-slate-300 ">
                       {quote.vendor_name}
                     </td>
+                    <td className="p-2 text-xs text-slate-700 dark:text-slate-300 ">
+                      {quote.project_name || "N/A"}
+                    </td>
                     {activeTab === "inbound" && (
                       <td className="p-2 text-right">
                         <p className=" text-slate-900 dark:text-white text-xs flex items-center justify-end gap-1">
-                          <DollarSign size={14} />
+                          <IndianRupee size={14} />
                           {quote.total_amount
                             ? quote.total_amount.toLocaleString()
                             : "0"}

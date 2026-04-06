@@ -223,6 +223,7 @@ const ReleasedMaterialsPage = () => {
                         <th className="p-2">Dimensions</th>
                         <th className="p-2 text-center">Released Qty</th>
                         <th className="p-2 text-center">Unit</th>
+                        <th className="p-2 text-center">Weight (Kg)</th>
                         <th className="p-2 text-right">ST Numbers</th>
                       </tr>
                     </thead>
@@ -259,6 +260,16 @@ const ReleasedMaterialsPage = () => {
                               <td className="p-2 text-center">
                                 <span className="text-xs  text-slate-500 ">{item.uom}</span>
                               </td>
+                              <td className="p-2 text-center">
+                                <div className="flex flex-col items-center">
+                                  <span className="text-xs text-slate-900">
+                                    {Number(item.total_weight || 0).toFixed(3)} Kg
+                                  </span>
+                                  <span className="text-[8px] text-slate-400">
+                                    Unit: {Number(item.unit_weight || 0).toFixed(3)}
+                                  </span>
+                                </div>
+                              </td>
                               <td className="p-2 text-right">
                                 <span className="text-xs  text-blue-600 rounded   ">
                                   {item.serials?.length || 0} Pieces
@@ -276,6 +287,7 @@ const ReleasedMaterialsPage = () => {
                                           <th className="p-2 text-[8px]  text-slate-400  ">Item Code</th>
                                           <th className="p-2 text-[8px]  text-indigo-400  ">ST Code</th>
                                           <th className="p-2 text-[8px]  text-slate-400">Dimensions</th>
+                                          <th className="p-2 text-[8px]  text-slate-400">Weight</th>
                                           <th className="p-2 text-[8px]  text-emerald-400   text-right">QC STATUS</th>
                                         </tr>
                                       </thead>
@@ -283,6 +295,7 @@ const ReleasedMaterialsPage = () => {
                                         {item.serials.map((stObj, sIdx) => {
                                           const stCode = stObj.serial_number;
                                           const itemCodePerPiece = stCode.replace('ST-', '');
+                                          const pieceWeight = stObj.unit_weight || stObj.total_weight || item.unit_weight || 0;
                                           return (
                                             <tr key={sIdx} className="hover:bg-slate-50 transition-colors">
                                               <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
@@ -290,6 +303,9 @@ const ReleasedMaterialsPage = () => {
                                               <td className="p-2 text-xs  text-indigo-600  ">{stCode}</td>
                                               <td className="p-2 text-[9px] text-slate-500 italic">
                                                 {formatDimensions(stObj)}
+                                              </td>
+                                              <td className="p-2 text-[9px] text-slate-500">
+                                                {Number(pieceWeight).toFixed(3)} Kg
                                               </td>
                                               <td className="p-2 text-right">
                                                 <span className="px-2 py-0.5 rounded text-[8px]   er bg-emerald-50 text-emerald-600 border border-emerald-100">

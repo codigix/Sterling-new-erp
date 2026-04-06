@@ -19,6 +19,36 @@ async function updateSchema() {
             console.warn('- rate_per_kg already exists or error:', e.message);
         }
         
+        // Add unit_weight and total_weight to purchase_receipt_items
+        try {
+            await db.query(`ALTER TABLE purchase_receipt_items ADD COLUMN unit_weight DECIMAL(15, 4) DEFAULT 0.0000`);
+            console.log('- Added unit_weight to purchase_receipt_items');
+        } catch (e) {
+            console.warn('- unit_weight already exists or error:', e.message);
+        }
+
+        try {
+            await db.query(`ALTER TABLE purchase_receipt_items ADD COLUMN total_weight DECIMAL(15, 4) DEFAULT 0.0000`);
+            console.log('- Added total_weight to purchase_receipt_items');
+        } catch (e) {
+            console.warn('- total_weight already exists or error:', e.message);
+        }
+
+        // Add to grn_items too if it exists
+        try {
+            await db.query(`ALTER TABLE grn_items ADD COLUMN unit_weight DECIMAL(15, 4) DEFAULT 0.0000`);
+            console.log('- Added unit_weight to grn_items');
+        } catch (e) {
+            console.warn('- unit_weight already exists in grn_items or error:', e.message);
+        }
+
+        try {
+            await db.query(`ALTER TABLE grn_items ADD COLUMN total_weight DECIMAL(15, 4) DEFAULT 0.0000`);
+            console.log('- Added total_weight to grn_items');
+        } catch (e) {
+            console.warn('- total_weight already exists in grn_items or error:', e.message);
+        }
+        
         console.log('Schema updated successfully');
         process.exit(0);
     } catch (error) {

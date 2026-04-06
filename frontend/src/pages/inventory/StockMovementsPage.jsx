@@ -69,7 +69,8 @@ const StockMovementsPage = () => {
             thickness: item.thickness_mm || item.thickness,
             diameter: item.diameter_mm || item.diameter,
             outer_diameter: item.outer_diameter_mm || item.outer_diameter,
-            height: item.height_mm || item.height
+            height: item.height_mm || item.height,
+            density: item.density
           });
         });
       });

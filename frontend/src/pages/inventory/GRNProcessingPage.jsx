@@ -134,6 +134,7 @@ const GRNProcessingPage = () => {
           unit: item.unit || item.uom || "Units",
           rate_per_kg: parseFloat(item.rate_per_kg) || 0,
           total_weight: parseFloat(item.total_weight) || 0,
+          unit_weight: parseFloat(item.unit_weight) || (item.quantity > 0 ? (parseFloat(item.total_weight) || 0) / parseFloat(item.quantity) : 0),
           received_weight: parseFloat(item.total_weight) || 0,
           rate: parseFloat(item.rate) || 0,
           amount: parseFloat(item.amount) || 0,
@@ -161,8 +162,8 @@ const GRNProcessingPage = () => {
     newItems[idx][field] = value;
     
     // Auto-calculate received weight if rate_per_kg or total_weight is involved
-    if (field === 'received_qty' && newItems[idx].rate_per_kg > 0) {
-      const perUnitWeight = newItems[idx].total_weight / newItems[idx].ordered_qty;
+    if (field === 'received_qty') {
+      const perUnitWeight = parseFloat(newItems[idx].unit_weight) || (newItems[idx].ordered_qty > 0 ? newItems[idx].total_weight / newItems[idx].ordered_qty : 0);
       newItems[idx].received_weight = parseFloat((value * perUnitWeight).toFixed(4));
     }
 
@@ -517,7 +518,7 @@ const GRNProcessingPage = () => {
                       <td className="px-4 py-6 text-center">
                         <div className="flex flex-col items-center">
                           <span className="text-sm  text-slate-900 dark:text-white">{parseFloat(item.received_weight || 0).toFixed(3)} Kg</span>
-                          <span className="text-xs  text-slate-400 ">Target: {item.total_weight.toFixed(3)}</span>
+                          <span className="text-xs  text-slate-400 ">Unit Weight: {item.unit_weight?.toFixed(3) || "0.000"}</span>
                         </div>
                       </td>
                       <td className="px-6 py-6">

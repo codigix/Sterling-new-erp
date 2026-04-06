@@ -183,7 +183,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           thickness: item.thickness || null,
           diameter: item.diameter || null,
           outer_diameter: item.outer_diameter || null,
-          height: item.height || null
+          height: item.height || null,
+          unit_weight: item.unit_weight || 0,
+          material_type: item.material_type || null,
+          density: item.density || 0
         }));
 
         calculateTotals(initialItems, formData.tax_template);
@@ -231,7 +234,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           thickness: item.thickness || null,
           diameter: item.diameter || null,
           outer_diameter: item.outer_diameter || null,
-          height: item.height || null
+          height: item.height || null,
+          total_weight: item.total_weight || 0,
+          unit_weight: item.unit_weight || 0,
+          material_type: item.material_type || null,
+          density: item.density || 0
         }));
 
         calculateTotals(initialItems, formData.tax_template);

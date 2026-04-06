@@ -239,6 +239,7 @@ const StockEntriesPage = () => {
                                      <th className="p-2  text-slate-400  ">Material Name</th>
                                      <th className="p-2  text-slate-400  ">Dimensions</th>
                                      <th className="p-2  text-slate-400   text-center">Qty / UOM</th>
+                                     <th className="p-2  text-slate-400   text-center">Weight (Kg)</th>
                                      <th className="p-2  text-slate-400   text-right">Serial Tags</th>
                                    </tr>
                                  </thead>
@@ -285,6 +286,12 @@ const StockEntriesPage = () => {
                                                 <span className="text-xs  text-slate-400 ">{item.uom}</span>
                                              </div>
                                            </td>
+                                           <td className="p-2 text-center">
+                                             <div className="flex flex-col items-center">
+                                                <span className=" text-slate-900 dark:text-white">{Number(item.total_weight || 0).toFixed(3)} Kg</span>
+                                                <span className="text-[10px] text-slate-400">Unit: {Number(item.unit_weight || 0).toFixed(3)}</span>
+                                             </div>
+                                           </td>
                                            <td className="p-2 text-right">
                                              <div className="flex flex-wrap justify-end gap-1">
                                                 {item.serials && item.serials.length > 0 ? (
@@ -314,6 +321,7 @@ const StockEntriesPage = () => {
                                                        <th className="p-2 text-xs  text-slate-400   w-12 text-center">#</th>
                                                        <th className="p-2 text-xs  text-slate-400  ">Item Code</th>
                                                        <th className="p-2 text-xs  text-slate-400  ">Dimensions</th>
+                                                       <th className="p-2 text-xs  text-slate-400  ">Weight</th>
                                                        <th className="p-2 text-xs  text-slate-400  ">Name</th>
                                                        <th className="p-2 text-xs  text-indigo-400   text-right">ST Code</th>
                                                      </tr>
@@ -322,6 +330,7 @@ const StockEntriesPage = () => {
                                                      {item.serials.map((stObj, sIdx) => {
                                                        const stCode = typeof stObj === 'string' ? stObj : stObj.serial_number;
                                                        const itemCodePerPiece = stCode.replace(/^ST-/, "");
+                                                       const pieceWeight = stObj.unit_weight || stObj.total_weight || item.unit_weight || 0;
                                                        
                                                        return (
                                                          <tr key={sIdx} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
@@ -329,6 +338,9 @@ const StockEntriesPage = () => {
                                                            <td className="p-2 text-xs  text-slate-700 dark:text-slate-300  ">{itemCodePerPiece}</td>
                                                            <td className="p-2 text-[10px] text-slate-500  ">
                                                              {renderDimensions(stObj, item)}
+                                                           </td>
+                                                           <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
+                                                              {Number(pieceWeight).toFixed(3)} Kg
                                                            </td>
                                                            <td className="p-2 text-xs  text-slate-500 dark:text-slate-400  ">{item.item_name}</td>
                                                            <td className="p-2 text-xs  text-indigo-600   text-right">{stCode}</td>

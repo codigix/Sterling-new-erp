@@ -58,18 +58,20 @@ const StockBalancePage = () => {
           type: item.material_type || item.category || "RAW_MATERIAL",
           project_name: item.project_name,
           vendor_name: item.vendor_name,
+          unit_weight: item.unit_weight || 0,
+          total_weight: item.total_weight || 0,
           length_mm: item.length_mm || item.length,
           width_mm: item.width_mm || item.width,
           thickness_mm: item.thickness_mm || item.thickness,
           diameter_mm: item.diameter_mm || item.diameter,
           outer_diameter_mm: item.outer_diameter_mm || item.outer_diameter || item.outerDiameter,
           height_mm: item.height_mm || item.height,
-          length: Number(item.length_mm || item.length || 0),
-          width: Number(item.width_mm || item.width || 0),
-          thickness: Number(item.thickness_mm || item.thickness || 0),
-          diameter: Number(item.diameter_mm || item.diameter || 0),
-          outer_diameter: Number(item.outer_diameter_mm || item.outer_diameter || item.outerDiameter || 0),
-          height: Number(item.height_mm || item.height || 0),
+          length: Number(item.length || item.length_mm || 0),
+          width: Number(item.width || item.width_mm || 0),
+          thickness: Number(item.thickness || item.thickness_mm || 0),
+          diameter: Number(item.diameter || item.diameter_mm || 0),
+          outer_diameter: Number(item.outer_diameter || item.outer_diameter_mm || item.outerDiameter || 0),
+          height: Number(item.height || item.height_mm || 0),
           serials: item.serials || []
         };
       });
@@ -219,6 +221,9 @@ const StockBalancePage = () => {
                   Stock Balance
                 </th>
                 <th className="p-2 text-xs  text-slate-400   text-center">
+                  Weight (Kg)
+                </th>
+                <th className="p-2 text-xs  text-slate-400   text-center">
                   Unit
                 </th>
                 <th className="p-2 text-xs  text-slate-400   text-center">
@@ -288,6 +293,16 @@ const StockBalancePage = () => {
                         </div>
                       </td>
                       <td className="p-2 text-center">
+                        <div className="flex flex-col items-center">
+                           <span className="text-xs  text-slate-900 dark:text-white">
+                              {Number(item.total_weight || 0).toFixed(3)} Kg
+                           </span>
+                           <span className="text-[10px] text-slate-400">
+                              Unit: {Number(item.unit_weight || 0).toFixed(3)}
+                           </span>
+                        </div>
+                      </td>
+                      <td className="p-2 text-center">
                         <span className="text-xs  text-slate-400  ">{item.unit}</span>
                       </td>
                       <td className="p-2 text-center">
@@ -330,12 +345,15 @@ const StockBalancePage = () => {
                                      <th className="p-2  text-slate-400  ">Item Code</th>
                                      <th className="p-2  text-slate-400  ">Item Name</th>
                                      <th className="p-2  text-slate-400  ">Dimensions</th>
+                                     <th className="p-2  text-slate-400   text-center">Weight</th>
                                      <th className="p-2  text-cyan-500   text-right">ST Number</th>
                                    </tr>
                                  </thead>
                                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700 ">
                                    {item.serials && item.serials.length > 0 ? (
-                                     item.serials.map((st, sIdx) => (
+                                     item.serials.map((st, sIdx) => {
+                                       const pieceWeight = st.unit_weight || st.total_weight || item.unit_weight || 0;
+                                       return (
                                        <tr key={sIdx} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors">
                                          <td className="p-2 text-slate-400  text-center">{sIdx + 1}</td>
                                          <td className="p-2  text-slate-700 dark:text-slate-300  ">
@@ -349,16 +367,19 @@ const StockBalancePage = () => {
                                              {renderDimensions(st, item)}
                                            </div>
                                          </td>
+                                         <td className="p-2 text-center text-slate-500 dark:text-slate-400">
+                                            {Number(pieceWeight).toFixed(3)} Kg
+                                         </td>
                                          <td className="p-2 text-right">
                                            <span className="p-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 rounded text-xs    border border-cyan-100 dark:border-cyan-800">
                                              {st.serial_number}
                                            </span>
                                          </td>
                                        </tr>
-                                     ))
+                                     )})
                                    ) : (
                                      <tr>
-                                       <td colSpan="5" className="p-2 text-center text-slate-400    text-xs">
+                                       <td colSpan="6" className="p-2 text-center text-slate-400    text-xs">
                                          No individual pieces tracking found for this item
                                        </td>
                                      </tr>

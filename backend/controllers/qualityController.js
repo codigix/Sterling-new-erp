@@ -186,6 +186,7 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
           inspection_status: s.inspection_status || 'Pending',
           document_path: s.document_path,
           rejection_reason: s.rejection_reason,
+          density: s.density,
           dimensions: {
             length: s.length,
             width: s.width,
@@ -274,8 +275,8 @@ exports.createFinalQCReport = async (req, res) => {
             for (const item of materials) {
                 const [itemResult] = await connection.query(
                     `INSERT INTO quality_final_report_items 
-                     (report_id, material_name, item_code, item_group, material_id, received_qty, unit, accepted_qty, rejected_qty, accepted_report, rejected_report, length, width, thickness, diameter, outer_diameter, height) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                     (report_id, material_name, item_code, item_group, material_id, received_qty, unit, accepted_qty, rejected_qty, accepted_report, rejected_report, length, width, thickness, diameter, outer_diameter, height, density) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         reportId, 
                         item.material_name, 
@@ -293,7 +294,8 @@ exports.createFinalQCReport = async (req, res) => {
                         item.thickness || null,
                         item.diameter || null,
                         item.outer_diameter || null,
-                        item.height || null
+                        item.height || null,
+                        item.density || 0
                     ]
                 );
 
@@ -303,7 +305,7 @@ exports.createFinalQCReport = async (req, res) => {
                 if (item.st_numbers && item.st_numbers.length > 0) {
                     for (const st of item.st_numbers) {
                         await connection.query(
-                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                             [
                                 reportItemId, 
                                 st.st_code, 
@@ -314,7 +316,8 @@ exports.createFinalQCReport = async (req, res) => {
                                 st.thickness || null,
                                 st.diameter || null,
                                 st.outer_diameter || null,
-                                st.height || null
+                                st.height || null,
+                                st.density || 0
                             ]
                         );
                     }
@@ -357,14 +360,14 @@ exports.getFinalQCReports = async (req, res) => {
         const reports = [];
         for (const report of rows) {
             const [items] = await db.query(
-                'SELECT id, material_name, item_code, item_group, received_qty, unit, accepted_qty, rejected_qty, length, width, thickness, diameter, outer_diameter, height FROM quality_final_report_items WHERE report_id = ?',
+                'SELECT id, material_name, item_code, item_group, received_qty, unit, accepted_qty, rejected_qty, length, width, thickness, diameter, outer_diameter, height, density FROM quality_final_report_items WHERE report_id = ?',
                 [report.id]
             );
 
             // Fetch ST numbers for each item
             for (const item of items) {
                 const [stNumbers] = await db.query(
-                    'SELECT st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height FROM quality_final_report_st_numbers WHERE report_item_id = ?',
+                    'SELECT st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density FROM quality_final_report_st_numbers WHERE report_item_id = ?',
                     [item.id]
                 );
                 item.st_numbers = stNumbers;
