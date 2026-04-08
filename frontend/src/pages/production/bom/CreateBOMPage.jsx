@@ -38,7 +38,8 @@ const MaterialTypeOptions = [
   { label: "Mild Steel / Carbon Steel", value: "7.85" },
   { label: "Stainless Steel (304/316)", value: "8.00" },
   { label: "Aluminum", value: "2.70" },
-  { label: "Copper", value: "8.96" }
+  { label: "Copper", value: "8.96" },
+  { label: "Chemical", value: "1.10" }
 ];
 const StatusOptions = [
   { label: "Draft", value: "draft" },

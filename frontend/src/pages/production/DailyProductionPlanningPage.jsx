@@ -83,7 +83,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     operation: "",
     operator: "",
     startTime: "09:00",
-    endTime: "17:00",
+    endTime: "",
     breakTime: "60",
     remarks: ""
   });
@@ -163,9 +163,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   };
 
   const currentLoad = useMemo(() => {
+    if (!newAssignment.startTime || !newAssignment.endTime) return 0;
+    
     const start = new Date(`2000-01-01T${newAssignment.startTime}`);
     const end = new Date(`2000-01-01T${newAssignment.endTime}`);
-    if (end <= start) return 0;
+    
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return 0;
+    
     let diffHrs = (end - start) / (1000 * 60 * 60);
     let breakHrs = parseInt(newAssignment.breakTime || 0) / 60;
     return Math.max(0, diffHrs - breakHrs);
@@ -180,14 +184,18 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     const start = new Date(`2000-01-01T${newAssignment.startTime}`);
     const end = new Date(`2000-01-01T${newAssignment.endTime}`);
 
-    if (end <= start) {
+    // Allow empty to indicate "not set" or "open ended"
+    if (newAssignment.endTime && end <= start) {
       toast.error("End time must be after start time");
       return;
     }
 
-    let diffHrs = (end - start) / (1000 * 60 * 60);
-    let breakHrs = parseInt(newAssignment.breakTime || 0) / 60;
-    const totalHours = Math.max(0, diffHrs - breakHrs);
+    let totalHours = 0;
+    if (newAssignment.endTime && end > start) {
+      let diffHrs = (end - start) / (1000 * 60 * 60);
+      let breakHrs = parseInt(newAssignment.breakTime || 0) / 60;
+      totalHours = Math.max(0, diffHrs - breakHrs);
+    }
 
     const operator = operators.find(o => o.value === newAssignment.operator);
     const operation = operations.find(o => o.value === newAssignment.operation || o.name === newAssignment.operation);
@@ -215,7 +223,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       operation: "",
       operator: "",
       startTime: "09:00",
-      endTime: "17:00",
+      endTime: "",
       breakTime: "60",
       remarks: ""
     });
@@ -243,7 +251,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
         const start = new Date(`2000-01-01T${startTimeStr}`);
         const end = new Date(`2000-01-01T${endTimeStr}`);
 
-        if (end > start) {
+        if (endTimeStr !== "00:00" && end > start) {
           let diffHrs = (end - start) / (1000 * 60 * 60);
           let breakHrs = (breakTime || 0) / 60;
           updated.total_hours = Math.max(0, diffHrs - breakHrs);
@@ -377,63 +385,76 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                 >
                   <div className="space-y-6">
                     {mode !== "view" && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded border border-slate-100 dark:border-slate-800">
-                        <div className="space-y-1.5 lg:col-span-1">
-                          <label className="text-[9px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Select Operator</label>
-                          <SearchableSelect
-                            options={operators}
-                            value={newAssignment.operator}
-                            onChange={(val) => setNewAssignment({ ...newAssignment, operator: val })}
-                            placeholder="SELECT OPERATOR..."
-                            className="text-xs font-bold text-slate-900"
-                            allowCustom={true}
-                          />
-                        </div>
-                        <div className="space-y-1.5 lg:col-span-1">
-                          <label className="text-[9px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Operation</label>
-                          <SearchableSelect
-                            options={operations}
-                            value={newAssignment.operation}
-                            onChange={(val) => setNewAssignment({ ...newAssignment, operation: val })}
-                            placeholder="SEARCH OPERATION..."
-                            className="text-xs font-bold text-slate-900"
-                            allowCustom={true}
-                          />
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 lg:col-span-2">
-                          <div className="space-y-1.5">
+                      <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded border border-slate-100 dark:border-slate-800 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                          <div className="md:col-span-3 space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Operator</label>
+                            <SearchableSelect
+                              options={operators}
+                              value={newAssignment.operator}
+                              onChange={(val) => setNewAssignment({ ...newAssignment, operator: val })}
+                              placeholder="SELECT OPERATOR..."
+                              className="text-xs font-bold text-slate-900"
+                              allowCustom={true}
+                            />
+                          </div>
+                          <div className="md:col-span-3 space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Operation</label>
+                            <SearchableSelect
+                              options={operations}
+                              value={newAssignment.operation}
+                              onChange={(val) => setNewAssignment({ ...newAssignment, operation: val })}
+                              placeholder="SEARCH OPERATION..."
+                              className="text-xs font-bold text-slate-900"
+                              allowCustom={true}
+                            />
+                          </div>
+                          <div className="md:col-span-2 space-y-1.5">
                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Start Time</label>
                             <input
                               type="time"
-                              className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-bold outline-none"
+                              className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-bold outline-none"
                               value={newAssignment.startTime}
                               onChange={(e) => setNewAssignment({ ...newAssignment, startTime: e.target.value })}
                             />
                           </div>
-                          <div className="space-y-1.5">
+                          <div className="md:col-span-2 space-y-1.5">
                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">End Time</label>
                             <input
                               type="time"
-                              className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-bold outline-none"
+                              className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-bold outline-none"
                               value={newAssignment.endTime}
                               onChange={(e) => setNewAssignment({ ...newAssignment, endTime: e.target.value })}
                             />
                           </div>
-                          <div className="space-y-1.5">
-                            <label className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Live Load</label>
-                            <div className="w-full px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded text-sm font-black text-indigo-600 flex items-center justify-center">
+                          <div className="md:col-span-2 space-y-1.5">
+                            <label className="text-[9px] font-black text-indigo-500 uppercase tracking-widest text-center block">Load</label>
+                            <div className="w-full px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded text-sm font-black text-indigo-600 flex items-center justify-center">
                               {currentLoad.toFixed(1)}h
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-end lg:col-span-1">
-                          <button
-                            onClick={handleAddAssignment}
-                            className="w-full h-[38px] bg-indigo-600 hover:bg-indigo-700 text-white rounded font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2"
-                          >
-                            <Plus size={14} />
-                            Add to Plan
-                          </button>
+
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                          <div className="md:col-span-10 space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Remarks / Special Instructions</label>
+                            <input
+                              type="text"
+                              placeholder="Add instructions or remarks..."
+                              className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-medium outline-none placeholder:text-slate-300"
+                              value={newAssignment.remarks}
+                              onChange={(e) => setNewAssignment({ ...newAssignment, remarks: e.target.value })}
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <button
+                              onClick={handleAddAssignment}
+                              className="w-full h-[38px] bg-indigo-600 hover:bg-indigo-700 text-white rounded font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2"
+                            >
+                              <Plus size={14} />
+                              Add
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -503,11 +524,19 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                                             onChange={(e) => updateAssignment(entry.id, "end_time", e.target.value)}
                                           />
                                         </div>
+                                        <input
+                                          type="text"
+                                          placeholder="Remark..."
+                                          className="px-1 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-[9px] font-medium outline-none w-full"
+                                          value={entry.remarks || ""}
+                                          onChange={(e) => updateAssignment(entry.id, "remarks", e.target.value)}
+                                        />
                                       </div>
                                     ) : (
                                       <>
                                         <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">{entry.operator_name}</span>
                                         <p className="text-[8px] text-slate-400">{entry.start_time} - {entry.end_time}</p>
+                                        {entry.remarks && <p className="text-[8px] text-indigo-500 font-bold uppercase mt-0.5">{entry.remarks}</p>}
                                       </>
                                     )}
                                   </td>
@@ -1628,11 +1657,11 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
             {/* 1. CONFIGURATION FORM (BOM Style) */}
             <div className="bg-white dark:bg-slate-900 p-5 rounded border border-slate-200 shadow-sm">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
 
                 {/* Row 1: Item & Group & ST Code */}
                 <div className="md:col-span-4 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Item Name / Code *</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block whitespace-nowrap">Item Name / Code *</label>
                   <SearchableSelect
                     options={uniqueItemOptions}
                     value={selectedItemCode}
@@ -1645,29 +1674,29 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                 </div>
 
                 <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Item Group</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block whitespace-nowrap">Item Group</label>
                   <input
                     type="text"
                     readOnly
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-1.5 text-xs font-bold text-slate-500"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-xs font-bold text-slate-500"
                     value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group : ""}
                     placeholder="GROUP..."
                   />
                 </div>
 
                 <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Material Grade</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block whitespace-nowrap">Material Grade</label>
                   <input
                     type="text"
                     readOnly
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-1.5 text-xs font-bold text-slate-500"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-xs font-bold text-slate-500"
                     value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.material_grade : ""}
                     placeholder="GRADE..."
                   />
                 </div>
 
                 <div className="md:col-span-4 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Select ST Code *</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block whitespace-nowrap">Select ST Code *</label>
                   <SearchableSelect
                     options={stOptions}
                     value={selectedItem?.value}
@@ -1692,32 +1721,26 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                     placeholder="SELECT ST#"
                     disabled={!selectedItemCode}
                   />
-                  {selectedItem && selectedItem.dims && (
-                    <div className="flex justify-between px-1">
-                      {/* Size display hidden as per request */}
-                      {remainingInfo && (
-                        <div className="flex flex-col items-end gap-1 mt-1">
-                          <div className="flex gap-2">
-                            <span className="text-[9px] font-black text-indigo-600 uppercase bg-indigo-50 px-2 py-1 rounded shadow-sm border border-indigo-100 flex items-center gap-1">
-                              <Activity size={10} /> ST Current: {remainingInfo.initialSTWeight.toFixed(3)} Kg
-                            </span>
-                            <span className="text-[9px] font-black text-rose-600 uppercase bg-rose-50 px-2 py-1 rounded shadow-sm border border-rose-100 flex items-center gap-1">
-                              <Scissors size={10} /> Consumed: {remainingInfo.currentWeight.toFixed(3)} Kg
-                            </span>
-                            <span className="text-[9px] font-black text-emerald-600 uppercase bg-emerald-50 px-2 py-1 rounded shadow-sm border border-emerald-100 flex items-center gap-1">
-                              <Save size={10} /> Remaining: {remainingInfo.weight.toFixed(3)} Kg
-                            </span>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="text-[8px] font-bold text-slate-400 uppercase">
-                              Single Piece: {remainingInfo.singlePieceWeight.toFixed(3)} Kg
-                            </span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase">
-                              Scrap: {remainingInfo.scrapWeight.toFixed(3)} Kg ({remainingInfo.scrapPercent.toFixed(1)}%)
-                            </span>
-                          </div>
+                  {selectedItem && selectedItem.dims && remainingInfo && (
+                    <div className="mt-2 space-y-2">
+                      <div className="flex gap-1.5">
+                        <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-800 p-1.5 rounded border border-slate-100 dark:border-slate-700">
+                          <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Current</span>
+                          <span className="text-[10px] font-black text-indigo-600 truncate">{remainingInfo.initialSTWeight.toFixed(3)} KG</span>
                         </div>
-                      )}
+                        <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-800 p-1.5 rounded border border-slate-100 dark:border-slate-700">
+                          <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Used</span>
+                          <span className="text-[10px] font-black text-rose-600 truncate">{remainingInfo.currentWeight.toFixed(3)} KG</span>
+                        </div>
+                        <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-800 p-1.5 rounded border border-slate-100 dark:border-slate-700">
+                          <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Rem.</span>
+                          <span className="text-[10px] font-black text-emerald-600 truncate">{remainingInfo.weight.toFixed(3)} KG</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center px-1">
+                        <span className="text-[8px] font-bold text-slate-400 uppercase">Piece: {remainingInfo.singlePieceWeight.toFixed(3)} KG</span>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase">Loss: {remainingInfo.scrapPercent.toFixed(1)}%</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1951,6 +1974,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                     <th className="px-6 py-3 text-center">Item Group</th>
                     <th className="px-6 py-3 text-center">Material Grade</th>
                     <th className="px-6 py-3 text-center">Cutting Dims (mm)</th>
+                    <th className="px-6 py-3 text-center">Weight (KG)</th>
                     <th className="px-6 py-3 text-center">Produced Qty</th>
                     <th className="px-6 py-3"></th>
                   </tr>
@@ -1979,6 +2003,16 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                         </td>
                         <td className="px-6 py-4 text-center text-slate-700 text-[10px] font-black">
                           {entry.dims}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                              Unit: {(parseFloat(entry.weight || 0) / (parseInt(entry.full_data?.produced_qty || 1))).toFixed(3)} KG
+                            </span>
+                            <span className="text-[10px] font-black text-indigo-600">
+                              Total: {parseFloat(entry.weight || 0).toFixed(3)} KG
+                            </span>
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-[10px] font-black">

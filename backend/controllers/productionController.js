@@ -451,14 +451,15 @@ exports.saveMCR = async (req, res) => {
       await connection.query(
         `INSERT INTO material_cutting_report_items 
         (mcr_id, serial_number, item_code, item_name, item_group, material_grade, design, produced_qty, cutting_axis, 
-         raw_l, raw_w, raw_t, new_l, new_w, new_t, weight_consumed, scrap_weight, is_finished, remarks) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         raw_l, raw_w, raw_t, new_l, new_w, new_t, weight_consumed, unit_weight_consumed, scrap_weight, is_finished, remarks) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           mcrId, piece.serial_number, piece.item_code, piece.item_name, piece.item_group, piece.material_grade, piece.design || 'Rectangular',
           piece.produced_qty, piece.cutting_axis || 'L',
           piece.raw_dims.l, piece.raw_dims.w, piece.raw_dims.t,
           piece.new_dims.l, piece.new_dims.w, piece.new_dims.t,
           calc ? calc.currentWeight : 0,
+          piece.unit_weight || 0,
           calc ? calc.scrapWeight : 0,
           piece.is_finished ? 1 : 0,
           piece.remarks || ''
@@ -510,7 +511,7 @@ exports.getMCRDetails = async (req, res) => {
     const [mcr] = await db.query('SELECT * FROM material_cutting_reports WHERE plan_id = ?', [plan_id]);
     if (mcr.length === 0) return res.json({ success: false, message: 'MCR not found' });
 
-    const [items] = await db.query('SELECT * FROM material_cutting_report_items WHERE mcr_id = ?', [mcr[0].id]);
+    const [items] = await db.query('SELECT *, weight_consumed as total_weight_consumed FROM material_cutting_report_items WHERE mcr_id = ?', [mcr[0].id]);
 
     res.json({
       success: true,
@@ -523,8 +524,8 @@ exports.getMCRDetails = async (req, res) => {
 
         return {
           ...item,
-          is_finished: !!item.is_finished,
-          dims,
+          weight: item.weight_consumed,
+          unit_weight_consumed: item.unit_weight_consumed || (item.weight_consumed / (item.produced_qty || 1)),
           full_data: {
             selectedSerial: item.serial_number,
             design: item.design,
