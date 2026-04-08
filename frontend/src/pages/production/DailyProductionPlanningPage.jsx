@@ -1096,14 +1096,22 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     try {
       const response = await axios.get(`/production/mcr/${plan.id}`);
       if (response.data.success) {
-        const savedItems = response.data.items.map(item => ({
-          ...item,
-          full_data: {
-            ...item.full_data,
-            // Re-map serial object for dropdown selection
-            selectedSerial: item.serial_number
-          }
-        }));
+        const savedItems = response.data.items.map(item => {
+          const raw = item.full_data?.raw_dims || { l: item.raw_l, w: item.raw_w, t: item.raw_t };
+          const dims = item.design === "Circular" 
+            ? `Ø${parseFloat(raw.l).toString()}x${parseFloat(raw.t).toString()}` 
+            : `${parseFloat(raw.l).toString()}x${parseFloat(raw.w).toString()}x${parseFloat(raw.t).toString()}`;
+
+          return {
+            ...item,
+            dims,
+            full_data: {
+              ...item.full_data,
+              // Re-map serial object for dropdown selection
+              selectedSerial: item.serial_number
+            }
+          };
+        });
         setReportEntries(savedItems);
       }
     } catch (error) {
