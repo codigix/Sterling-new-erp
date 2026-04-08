@@ -375,14 +375,13 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
       const itemsWithSerials = [];
       for (let item of items) {
         // Fetch serials that are NOT fully used.
-        // We link by entry ID and item code pattern. 
-        // We use LIKE for item_code because serials might have suffixes like -001, -002
+        // Match by item_name as primary unique identifier because codes can be generic (GEN-SIZE)
         const [serialRows] = await db.query(
-          "SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND (status IS NULL OR status != 'Consumed') AND (total_weight > 0.001 OR total_weight IS NULL)",
-          [entry.id, `${item.item_code}%`]
+          "SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density FROM inventory_serials WHERE issued_in_entry_id = ? AND item_name = ? AND (status IS NULL OR status != 'Consumed') AND (total_weight > 0.001 OR total_weight IS NULL)",
+          [entry.id, item.item_name]
         );
 
-        console.log(`Item ${item.item_name} (Code: ${item.item_code}): Found ${serialRows.length} serials with issued_in_entry_id = ${entry.id}`);
+        console.log(`Item ${item.item_name} (Code: ${item.item_code}): Found ${serialRows.length} serials with issued_in_entry_id = ${entry.id} matching name exactly`);
 
         // Only add item if it has serials
         if (serialRows.length > 0) {

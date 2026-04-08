@@ -270,7 +270,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       toast.error("Add at least one assignment to the plan");
       return;
     }
-    onSave({ plan_date: planDate, assignments: dailyPlan });
+
+    // Ensure we use the original plan date when editing
+    const finalDate = (mode === "edit" || mode === "view")
+      ? (initialData?.plan?.plan_date?.split('T')[0] || planDate)
+      : planDate;
+
+    onSave({ plan_date: finalDate, assignments: dailyPlan });
   };
 
   if (!isOpen) return null;
@@ -1084,9 +1090,12 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       if (!entry.items || !Array.isArray(entry.items)) return;
       
       entry.items.forEach((item) => {
-        if (item && item.item_code && !items.has(item.item_code)) {
-          items.set(item.item_code, {
-            value: item.item_code,
+        // Use a composite key because different items can share same item_code (e.g. GEN-SIZE)
+        const itemKey = `${item.item_name || item.material_name}_${item.item_code}`;
+        if (item && item.item_code && !items.has(itemKey)) {
+          items.set(itemKey, {
+            value: itemKey, // Use key as value for selection
+            item_code: item.item_code,
             label: `${item.item_name || item.material_name} (${item.item_code})`,
             item_name: item.item_name || item.material_name,
             item_group: item.item_group || "PLATE / SHEET",
@@ -1106,8 +1115,13 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
   const stOptions = useMemo(() => {
     if (!selectedItemCode) return [];
     const options = [];
+    
+    // selectedItemCode is now our composite key: "item_name_item_code"
+    const [selName] = selectedItemCode.split('_');
+
     materials.forEach((entry) => {
-      const item = entry.items.find(i => i.item_code === selectedItemCode);
+      // Find item that matches BOTH name and code (to distinguish GEN-SIZE items)
+      const item = entry.items.find(i => `${i.item_name || i.material_name}_${i.item_code}` === selectedItemCode);
       if (item) {
         item.serials.forEach(serial => {
           // Hide if the item is finished/consumed
@@ -1596,8 +1610,14 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
               <Scissors size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Material Cutting Report (MCR)</h3>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{plan.project_names}</p>
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Material Cutting Report (MCR)</h3>
+                <span className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-900/50 flex items-center gap-1.5">
+                  <Calendar size={10} />
+                  {new Date(plan.plan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </span>
+              </div>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{plan.project_names}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={20} className="text-slate-400" /></button>
@@ -1703,65 +1723,34 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                 </div>
 
                 {/* Row 2: Dynamic Cutting Dimensions based on Item Group */}
-                {/* Design Selection - Only for plates/sheets/blocks */}
-                {(!selectedItemGroup.includes("ROUND") && !selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PIPE") && !selectedItemGroup.includes("TUBE") && selectedItemCode) && (
-                  <div className="md:col-span-2 space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Select Design</label>
-                    <select
-                      className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                      value={cuttingForm.design}
-                      onChange={(e) => setCuttingForm({ ...cuttingForm, design: e.target.value })}
-                    >
-                      <option value="Rectangular">Rectangular</option>
-                      <option value="Circular">Circular</option>
-                    </select>
-                  </div>
-                )}
 
                 {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET") || !selectedItemGroup) && (
                   <>
-                    {cuttingForm.design === "Circular" ? (
-                      <div className="md:col-span-2 space-y-1.5">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                          <Settings2 size={12} /> Diameter (mm)
-                        </label>
-                        <input
-                          type="number"
-                          placeholder="DIA"
-                          className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                          value={cuttingForm.diameter}
-                          onChange={(e) => setCuttingForm({ ...cuttingForm, diameter: e.target.value })}
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <div className="md:col-span-1.5 space-y-1.5">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                            <Settings2 size={12} /> Piece L (mm)
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="L"
-                            className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                            value={cuttingForm.raw_l}
-                            onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })}
-                          />
-                        </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12} /> Piece L (mm)
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="L"
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
+                        value={cuttingForm.raw_l}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })}
+                      />
+                    </div>
 
-                        <div className="md:col-span-1.5 space-y-1.5">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                            <Settings2 size={12} /> Piece W (mm)
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="W"
-                            className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                            value={cuttingForm.raw_w}
-                            onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })}
-                          />
-                        </div>
-                      </>
-                    )}
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12} /> Piece W (mm)
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="W"
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
+                        value={cuttingForm.raw_w}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })}
+                      />
+                    </div>
 
                     <div className="md:col-span-1.5 space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
@@ -1850,47 +1839,30 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
                 {selectedItemGroup.includes("BLOCK") && (
                   <>
-                    {cuttingForm.design === "Circular" ? (
-                      <div className="md:col-span-2 space-y-1.5">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                          <Settings2 size={12} /> Diameter (mm)
-                        </label>
-                        <input
-                          type="number"
-                          placeholder="DIA"
-                          className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                          value={cuttingForm.diameter}
-                          onChange={(e) => setCuttingForm({ ...cuttingForm, diameter: e.target.value })}
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <div className="md:col-span-1.5 space-y-1.5">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                            <Settings2 size={12} /> Block L (mm)
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="L"
-                            className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                            value={cuttingForm.raw_l}
-                            onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })}
-                          />
-                        </div>
-                        <div className="md:col-span-1.5 space-y-1.5">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                            <Settings2 size={12} /> Width (mm)
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="W"
-                            className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                            value={cuttingForm.raw_w}
-                            onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })}
-                          />
-                        </div>
-                      </>
-                    )}
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12} /> Block L (mm)
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="L"
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
+                        value={cuttingForm.raw_l}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })}
+                      />
+                    </div>
+                    <div className="md:col-span-1.5 space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Settings2 size={12} /> Width (mm)
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="W"
+                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
+                        value={cuttingForm.raw_w}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })}
+                      />
+                    </div>
                     <div className="md:col-span-1.5 space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
                         <Settings2 size={12} /> Height (mm)
