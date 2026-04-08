@@ -73,6 +73,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   const [fetchingMaterials, setFetchingMaterials] = useState(false);
   const [entryOptions, setEntryOptions] = useState([]);
   const [selectedReleaseEntry, setSelectedReleaseEntry] = useState(null);
+  const [localPlanDate, setLocalPlanDate] = useState(planDate);
   const [expandedSections, setExpandedSections] = useState({
     project: true,
     allocation: true,
@@ -93,7 +94,9 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
   // Sync initial data when in edit/view mode
   useEffect(() => {
-    if ((mode === "edit" || mode === "view") && initialData?.assignments) {
+    if ((mode === "edit" || mode === "view") && initialData?.plan?.plan_date) {
+      const pDate = initialData.plan.plan_date.split('T')[0];
+      setLocalPlanDate(pDate);
       const assignments = initialData.assignments.map(a => ({
         ...a,
         id: a.id,
@@ -117,12 +120,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
         }
       }
     } else {
+      setLocalPlanDate(planDate);
       setDailyPlan([]);
       setSelectedProject(null);
     }
     setEditingAssignmentId(null);
     setSelectedReleaseEntry(null);
-  }, [mode, initialData, isOpen, projects]);
+  }, [mode, initialData, isOpen, projects, planDate]);
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -279,12 +283,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       return;
     }
 
-    // Ensure we use the original plan date when editing
-    const finalDate = (mode === "edit" || mode === "view")
-      ? (initialData?.plan?.plan_date?.split('T')[0] || planDate)
-      : planDate;
-
-    onSave({ plan_date: finalDate, assignments: dailyPlan });
+    onSave({ plan_date: localPlanDate, assignments: dailyPlan });
   };
 
   if (!isOpen) return null;
@@ -302,9 +301,23 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">
                 {mode === "view" ? "View Production Plan" : mode === "edit" ? "Edit Production Plan" : "Daily Production Planning"}
               </h2>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                {mode === "view" ? "Read-only plan view" : "Planning Workspace"} for {new Date(initialData?.plan?.plan_date || planDate).toLocaleDateString()}
-              </p>
+              {mode === "view" ? (
+                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                  Read-only plan view for {new Date(localPlanDate).toLocaleDateString()}
+                </p>
+              ) : (
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                    Planning Workspace for
+                  </p>
+                  <input
+                    type="date"
+                    className="text-[10px] font-black text-indigo-600 bg-transparent border-b border-indigo-200 focus:border-indigo-500 outline-none uppercase"
+                    value={localPlanDate}
+                    onChange={(e) => setLocalPlanDate(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -1039,7 +1052,10 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
     cutting_axis: "L", // "L" or "W"
     design: "Rectangular", // "Rectangular", "Circular", "Other"
     diameter: "",
-    return_to_stock: false
+    return_to_stock: false,
+    return_l: "",
+    return_w: "",
+    return_t: ""
   });
 
   useEffect(() => {
@@ -1069,7 +1085,10 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       cutting_axis: "L",
       design: "Rectangular",
       diameter: "",
-      return_to_stock: false
+      return_to_stock: false,
+      return_l: "",
+      return_w: "",
+      return_t: ""
     });
     setSelectedItem(null);
     setSelectedItemCode("");
@@ -1165,14 +1184,14 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
           if (serial.status === "Consumed") return;
           if (Number(serial.length) <= 0) return;
 
+          // HIDE ONLY IF the item is already in report and marked as FINISHED or RETURNED TO STOCK
+          const isFullyUsedInSession = reportEntries.some(re => 
+            re.full_data?.selectedSerial === serial.serial_number && 
+            (re.full_data?.is_finished || re.full_data?.return_to_stock)
+          );
+          if (isFullyUsedInSession) return;
 
-          // Allow multiple pieces from same ST number if not finished
           const isInSession = reportEntries.some(re => re.full_data?.selectedSerial === serial.serial_number);
-
-          // If the item is in session AND it was marked as finished/consumed in the session, don't show it
-          const isFinishedInSession = reportEntries.some(re => re.full_data?.selectedSerial === serial.serial_number && re.full_data?.is_finished);
-          if (isFinishedInSession) return;
-
           const isCut = serial.inspection_status === "C" || serial.inspection_status === "CUT";
 
           // Calculate weight if it's 0 in DB (to prevent missing weight in UI)
@@ -1200,6 +1219,31 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
             }
           }
 
+          // Calculate Absolute Original Weight (from issued dimensions)
+          let absoluteOriginalWeight = Number(item.unit_weight) || 0;
+          if (absoluteOriginalWeight <= 0) {
+            const density = Number(item.density) || Number(serial.density) || 7.85;
+            const { l, w, t, d, od } = {
+              l: Number(item.length) || 0,
+              w: Number(item.width) || 0,
+              t: Number(item.thickness) || Number(item.height) || 0,
+              d: Number(item.diameter) || 0,
+              od: Number(item.outer_diameter) || 0
+            };
+            const group = (item.item_group || "").toUpperCase();
+            if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+              absoluteOriginalWeight = (l * w * t * density) / 1000000;
+            } else if (group.includes("ROUND") || group.includes("BAR")) {
+              absoluteOriginalWeight = (Math.PI * Math.pow(d / 2, 2) * l * density) / 1000000;
+            } else if (group.includes("PIPE") || group.includes("TUBE")) {
+              const innerRadius = (od / 2) - t;
+              const area = Math.PI * (Math.pow(od / 2, 2) - Math.pow(innerRadius, 2));
+              absoluteOriginalWeight = (area * l * density) / 1000000;
+            } else {
+              absoluteOriginalWeight = (l * w * t * density) / 1000000;
+            }
+          }
+
           const isConsumed = serial.status === "Consumed";
           
           options.push({
@@ -1218,7 +1262,8 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
               h: Number(serial.height) || Number(serial.thickness) || Number(item.height) || Number(item.thickness) || 0
             },
             density: serial.density || item.density || 0,
-            unit_weight: currentWeight || serial.unit_weight || item.unit_weight || 0
+            unit_weight: currentWeight || serial.unit_weight || item.unit_weight || 0,
+            absoluteOriginalWeight: absoluteOriginalWeight
           });
         });
       }
@@ -1333,6 +1378,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
     // Calculate Weights
     const initialSTWeight = parseFloat(selectedItem.unit_weight) || 0;
+    const absoluteOriginalWeight = parseFloat(selectedItem.absoluteOriginalWeight) || initialSTWeight;
     let weight = 0;
     let currentWeight = 0;
 
@@ -1381,6 +1427,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
       scrapWeight,
       scrapPercent,
       initialSTWeight,
+      absoluteOriginalWeight,
       singlePieceWeight: currentWeight / (qty || 1)
     };
   }, [selectedItem, cuttingForm]);
@@ -1419,7 +1466,12 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
         ...cuttingForm,
         selectedItem,
         selectedSerial: selectedItem.value,
-        entry_no: selectedItem.entry_no
+        entry_no: selectedItem.entry_no,
+        return_dims: cuttingForm.return_to_stock ? {
+          l: parseFloat(cuttingForm.return_l || 0),
+          w: parseFloat(cuttingForm.return_w || 0),
+          t: parseFloat(cuttingForm.return_t || 0)
+        } : null
       }
     };
 
@@ -1440,7 +1492,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                 thickness: remainingInfo.t,
                 unit_weight: remainingInfo.weight,
                 inspection_status: "CUT",
-                status: cuttingForm.is_finished ? "Consumed" : serial.status
+                status: (cuttingForm.is_finished || cuttingForm.return_to_stock) ? "Consumed" : serial.status
               };
             }
             return serial;
@@ -1585,6 +1637,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
           cutting_axis: entry.full_data.cutting_axis,
           is_finished: entry.full_data.is_finished,
           return_to_stock: entry.full_data.return_to_stock,
+          return_dims: entry.full_data.return_dims,
           raw_dims: {
             l: pL,
             w: pW,
@@ -1624,6 +1677,7 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
       if (response.data.success) {
         toast.success("Full Material Cutting Report Finalized");
+        if (props.onRefresh) props.onRefresh();
         fetchMaterials();
         onClose();
       }
@@ -1722,7 +1776,10 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                           ...prev,
                           raw_l: "", // Reset so operator can enter Piece Length
                           raw_w: initialW,
-                          raw_thk: Number(sel.dims.t) || "" // Keep thickness same
+                          raw_thk: Number(sel.dims.t) || "", // Keep thickness same
+                          return_l: "", 
+                          return_w: "",
+                          return_t: ""
                         }));
                       }
                     }}
@@ -1746,8 +1803,14 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                         </div>
                       </div>
                       <div className="flex justify-between items-center px-1">
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">Piece: {remainingInfo.singlePieceWeight.toFixed(3)} KG</span>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">Loss: {remainingInfo.scrapPercent.toFixed(1)}%</span>
+                        <span className="text-[8px] font-black text-slate-500 uppercase flex items-center gap-1">
+                          <div className="w-1 h-1 rounded-full bg-indigo-500"></div>
+                          ORIGINAL WEIGHT: {remainingInfo.absoluteOriginalWeight.toFixed(3)} KG
+                        </span>
+                        <span className="text-[8px] font-black text-rose-500 uppercase flex items-center gap-1">
+                          <div className="w-1 h-1 rounded-full bg-rose-500"></div>
+                          SCRAP WEIGHT: {remainingInfo.scrapWeight.toFixed(3)} KG
+                        </span>
                       </div>
                     </div>
                   )}
@@ -1930,36 +1993,80 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
                 <div className="md:col-span-1 space-y-1.5 text-center">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
-                    Add to Inventory
+                    Inventory
                   </label>
                   <div className="flex items-center justify-center h-[30px]">
                     <input
                       type="checkbox"
                       className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
                       checked={cuttingForm.return_to_stock}
-                      onChange={(e) => setCuttingForm({ ...cuttingForm, return_to_stock: e.target.checked })}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setCuttingForm(prev => ({ 
+                          ...prev, 
+                          return_to_stock: checked,
+                          return_l: "",
+                          return_w: "",
+                          return_t: ""
+                        }));
+                      }}
                     />
                   </div>
                 </div>
 
-                <div className="md:col-span-1 space-y-1.5 text-center">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
-                    Consumed?
-                  </label>
-                  <div className="flex items-center justify-center h-[30px]">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                      checked={cuttingForm.is_finished}
-                      onChange={(e) => setCuttingForm({ ...cuttingForm, is_finished: e.target.checked })}
-                    />
+                {cuttingForm.return_to_stock ? (
+                  <div className="md:col-span-4 grid grid-cols-3 gap-2 bg-emerald-50/50 p-1.5 rounded border border-emerald-100">
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter block">Ret. L</label>
+                      <input
+                        type="number"
+                        placeholder="L"
+                        className="w-full bg-white border border-emerald-200 rounded px-2 py-1 text-[10px] font-black text-emerald-700 outline-none focus:border-emerald-500"
+                        value={cuttingForm.return_l}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter block">Ret. W</label>
+                      <input
+                        type="number"
+                        placeholder="W"
+                        className="w-full bg-white border border-emerald-200 rounded px-2 py-1 text-[10px] font-black text-emerald-700 outline-none focus:border-emerald-500"
+                        value={cuttingForm.return_w}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter block">Ret. T</label>
+                      <input
+                        type="number"
+                        placeholder="T"
+                        className="w-full bg-white border border-emerald-200 rounded px-2 py-1 text-[10px] font-black text-emerald-700 outline-none focus:border-emerald-500"
+                        value={cuttingForm.return_t}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })}
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="md:col-span-1 space-y-1.5 text-center">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                      Consumed?
+                    </label>
+                    <div className="flex items-center justify-center h-[30px]">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                        checked={cuttingForm.is_finished}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, is_finished: e.target.checked })}
+                      />
+                    </div>
+                  </div>
+                )}
 
-                <div className="md:col-span-2">
+                <div className={`md:col-span-2 ${!cuttingForm.return_to_stock ? 'md:col-offset-2' : ''}`}>
                   <button
                     onClick={handleAddToTable}
-                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+                    className="w-full h-[38px] mt-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
                   >
                     <Plus size={14} /> Add to Report
                   </button>
@@ -2438,6 +2545,7 @@ const DailyProductionPlanningPage = () => {
         isOpen={isMCRModalOpen}
         onClose={() => setIsMCRModalOpen(false)}
         plan={selectedPlanForMCR}
+        onRefresh={fetchData}
       />
     </div>
   );

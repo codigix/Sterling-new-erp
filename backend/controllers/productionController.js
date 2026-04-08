@@ -438,21 +438,119 @@ exports.saveMCR = async (req, res) => {
 
       // ONLY update inventory if it's a NEW cutting entry
       if (piece.is_new) {
-        const markAsUsed = piece.is_finished;
+        const markAsUsed = piece.is_finished || piece.return_to_stock;
         const newStatus = markAsUsed ? 'Consumed' : 'Used';
 
+        // Update Original Serial (Reduce dimensions to remnant or mark consumed)
         await connection.query(
           'UPDATE inventory_serials SET status = ?, inspection_status = "C", length = ?, width = ?, thickness = ?, unit_weight = ?, total_weight = ? WHERE serial_number = ?',
           [newStatus, piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.new_weight, piece.new_weight, piece.serial_number]
         );
+
+        // Handle "Add to Inventory" (Return to Stock)
+        if (piece.return_to_stock && piece.return_dims) {
+          try {
+            const { l, w, t } = piece.return_dims;
+            
+            // 1. Generate New ST Number (Suffix original with -R and timestamp)
+            const baseSerial = piece.serial_number.split(' (')[0];
+            const timestamp = Date.now().toString().slice(-4);
+            const newSerial = `${baseSerial}-R${timestamp}`;
+
+            // 2. Fetch original serial info to clone properties (PO ID, Item ID, etc.)
+            const [originalSerial] = await connection.query(
+              'SELECT * FROM inventory_serials WHERE serial_number = ?',
+              [piece.serial_number]
+            );
+
+            if (originalSerial.length > 0) {
+              const os = originalSerial[0];
+              const density = parseFloat(os.density) || 7.85;
+              const group = (piece.item_group || "").toUpperCase();
+              
+              // 3. Calculate Remnant Weight based on return dimensions
+              let returnWeight = 0;
+              const fL = parseFloat(l) || 0;
+              const fW = parseFloat(w) || 0;
+              const fT = parseFloat(t) || 0;
+
+              if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+                returnWeight = (fL * fW * fT * density) / 1000000;
+              } else if (group.includes("ROUND") || group.includes("BAR")) {
+                const dia = parseFloat(os.diameter) || 0;
+                returnWeight = (Math.PI * Math.pow(dia / 2, 2) * fL * density) / 1000000;
+              } else if (group.includes("PIPE") || group.includes("TUBE")) {
+                const od = parseFloat(os.outer_diameter) || 0;
+                const thk = parseFloat(os.thickness) || 0;
+                const innerRadius = (od / 2) - thk;
+                const area = Math.PI * (Math.pow(od / 2, 2) - Math.pow(innerRadius, 2));
+                returnWeight = (area * fL * density) / 1000000;
+              } else {
+                returnWeight = (fL * fW * fT * density) / 1000000;
+              }
+
+              // 4. Generate New Item Name based on dimensions
+              let newItemName = piece.item_name;
+              if (group.includes("PLATE") || group.includes("SHEET")) {
+                newItemName = `${fL}x${fW}x${fT} mm Plate (OFF-CUT)`;
+              }
+
+              // 5. Insert New Serial into inventory
+              await connection.query(
+                `INSERT INTO inventory_serials 
+                (serial_number, purchase_order_id, item_id, item_name, item_code, grn_id, status, location, 
+                 length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, 
+                 issued_in_entry_id, material_grade, inspection_status) 
+                VALUES (?, ?, ?, ?, ?, ?, 'Available', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'C')`,
+                [
+                  newSerial, os.purchase_order_id, os.item_id, newItemName, os.item_code, os.grn_id,
+                  os.location || 'Workshop', fL, fW, fT, os.diameter, os.outer_diameter, os.height,
+                  returnWeight, returnWeight, density, os.issued_in_entry_id, os.material_grade
+                ]
+              );
+
+              // 6. Record in Stock Ledger
+              const [lastBalance] = await connection.query(
+                'SELECT balance_qty FROM stock_ledger WHERE item_code = ? ORDER BY id DESC LIMIT 1',
+                [os.item_code]
+              );
+              const currentBalance = (lastBalance[0]?.balance_qty || 0);
+              const newBalance = parseFloat(currentBalance) + 1;
+
+              // Fetch project name from stock_entry if issued_in_entry_id exists
+              let projectName = null;
+              if (os.issued_in_entry_id) {
+                const [se] = await connection.query('SELECT project_name FROM stock_entries WHERE id = ?', [os.issued_in_entry_id]);
+                if (se.length > 0) projectName = se[0].project_name;
+              }
+
+              await connection.query(
+                `INSERT INTO stock_ledger (
+                  item_code, material_name, posting_date, posting_time, voucher_type, voucher_no, 
+                  actual_qty, uom, balance_qty, remarks, length, width, thickness, 
+                  unit_weight, total_weight, density, project_name
+                ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                  os.item_code, newItemName, formattedDate, 'MCR Return', mcrId, 
+                  1, 'NOS', newBalance, `Off-cut return from ${piece.serial_number}`,
+                  fL, fW, fT, returnWeight, returnWeight, density, projectName
+                ]
+              );
+            }
+          } catch (err) {
+            console.error('Error adding remnant to inventory:', err);
+            throw err; // Re-throw to trigger rollback if something fails
+          }
+        }
       }
 
       // ALWAYS insert items back into the report table for visual tracking
       await connection.query(
         `INSERT INTO material_cutting_report_items 
         (mcr_id, serial_number, item_code, item_name, item_group, material_grade, design, produced_qty, cutting_axis, 
-         raw_l, raw_w, raw_t, new_l, new_w, new_t, weight_consumed, unit_weight_consumed, scrap_weight, is_finished, remarks) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         raw_l, raw_w, raw_t, new_l, new_w, new_t, weight_consumed, unit_weight_consumed, scrap_weight, is_finished, 
+         return_to_stock, return_l, return_w, return_t, remarks) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           mcrId, piece.serial_number, piece.item_code, piece.item_name, piece.item_group, piece.material_grade, piece.design || 'Rectangular',
           piece.produced_qty, piece.cutting_axis || 'L',
@@ -462,6 +560,10 @@ exports.saveMCR = async (req, res) => {
           piece.unit_weight || 0,
           calc ? calc.scrapWeight : 0,
           piece.is_finished ? 1 : 0,
+          piece.return_to_stock ? 1 : 0,
+          piece.return_dims?.l || 0,
+          piece.return_dims?.w || 0,
+          piece.return_dims?.t || 0,
           piece.remarks || ''
         ]
       );
