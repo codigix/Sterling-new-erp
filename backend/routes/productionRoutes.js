@@ -25,6 +25,7 @@ router.post('/send-to-qc', productionController.sendToQC);
 
 // MCR Routes
 router.get('/mcr/materials', productionController.getReleasedMaterialsForMCR);
+router.get('/mcr/:plan_id', productionController.getMCRDetails);
 router.post('/mcr/save', productionController.saveMCR);
 
 module.exports = router;

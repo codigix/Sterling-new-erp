@@ -13,12 +13,12 @@ exports.getRootCards = async (req, res) => {
       LEFT JOIN quotations q ON rc.id = q.root_card_id
       WHERE rc.status IN ('Released', 'Production', 'Partially Completed')
     `;
-    
+
     if (assignedOnly === 'true') {
       // Logic for "assignedOnly" - e.g., root cards that have approved designs
       // Assuming design_status column or similar
     }
-    
+
     const [rows] = await db.query(query);
     res.json({ success: true, rootCards: rows });
   } catch (error) {
@@ -81,8 +81,10 @@ exports.getDailyPlans = async (req, res) => {
          WHERE a.plan_id = p.id), '') as root_card_ids,
         (SELECT COUNT(DISTINCT root_card_id) FROM daily_operator_assignments WHERE plan_id = p.id) as projects_count,
         (SELECT COUNT(DISTINCT operator_id) FROM daily_operator_assignments WHERE plan_id = p.id) as operators_count,
-        (SELECT IFNULL(SUM(total_hours), 0) FROM daily_operator_assignments WHERE plan_id = p.id) as total_workload
+        (SELECT IFNULL(SUM(total_hours), 0) FROM daily_operator_assignments WHERE plan_id = p.id) as total_workload,
+        m.id as mcr_id
       FROM daily_production_plans p
+      LEFT JOIN material_cutting_reports m ON p.id = m.plan_id
       ORDER BY p.plan_date DESC
     `);
     res.json({ success: true, plans: rows });
@@ -111,7 +113,7 @@ exports.createDailyPlan = async (req, res) => {
     // 2. Insert Assignments if provided
     if (assignments && assignments.length > 0) {
       const assignmentValues = assignments.map(a => [
-        planId, a.root_card_id, a.operation_id, a.operation_name, a.operator_name, a.operator_id, 
+        planId, a.root_card_id, a.operation_id, a.operation_name, a.operator_name, a.operator_id,
         a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
       ]);
 
@@ -178,7 +180,7 @@ exports.updateDailyPlan = async (req, res) => {
     // 3. Insert New Assignments
     if (assignments && assignments.length > 0) {
       const assignmentValues = assignments.map(a => [
-        id, a.root_card_id, a.operation_id, a.operation_name, a.operator_name, a.operator_id, 
+        id, a.root_card_id, a.operation_id, a.operation_name, a.operator_name, a.operator_id,
         a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
       ]);
 
@@ -214,7 +216,7 @@ exports.deleteDailyPlan = async (req, res) => {
 
 exports.addAssignment = async (req, res) => {
   const { plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks } = req.body;
-  
+
   try {
     const [result] = await db.query(
       `INSERT INTO daily_operator_assignments 
@@ -246,10 +248,10 @@ exports.getProductionUpdates = async (req, res) => {
 };
 
 exports.createProductionUpdate = async (req, res) => {
-  const { 
-    work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
-    operator_name, operator_id, actual_start, actual_end, break_time, actual_hours, 
-    qty_completed, status, remarks 
+  const {
+    work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name,
+    operator_name, operator_id, actual_start, actual_end, break_time, actual_hours,
+    qty_completed, status, remarks
   } = req.body;
 
   try {
@@ -259,9 +261,9 @@ exports.createProductionUpdate = async (req, res) => {
        operator_name, operator_id, actual_start, actual_end, break_time, actual_hours, 
        qty_completed, status, remarks) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
-       operator_name, operator_id, actual_start, actual_end, break_time || 0, actual_hours, 
-       qty_completed, status, remarks || '']
+      [work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name,
+        operator_name, operator_id, actual_start, actual_end, break_time || 0, actual_hours,
+        qty_completed, status, remarks || '']
     );
     res.json({ success: true, id: result.insertId, message: 'Production update recorded' });
   } catch (error) {
@@ -338,8 +340,10 @@ exports.sendToQC = async (req, res) => {
 
 exports.getReleasedMaterialsForMCR = async (req, res) => {
   const { project_names } = req.query;
-  const names = project_names ? project_names.split(',') : [];
-  
+  // Trim spaces after split to avoid mismatch with " Project B"
+  const names = project_names ? project_names.split(',').map(n => n.trim()) : [];
+  console.log('Fetching materials for MCR. Projects:', names);
+
   try {
     if (names.length === 0) return res.json({ success: true, movements: [] });
 
@@ -352,8 +356,11 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
       ORDER BY se.created_at DESC
     `, [names]);
 
+    console.log(`Found ${entries.length} stock entries`);
+
     const entriesWithItems = [];
     for (let entry of entries) {
+      console.log(`Processing entry: ${entry.entry_no} (ID: ${entry.id}) for project: ${entry.project_name}`);
       // Join with bom_materials to get item_group
       const [items] = await db.query(`
         SELECT sei.*, bm.item_group, bm.material_grade
@@ -362,16 +369,30 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
         LEFT JOIN bom_materials bm ON bm.bom_id = b.id AND bm.item_name = sei.item_name
         WHERE sei.stock_entry_id = ?
       `, [entry.project_name, entry.id]);
-      
+
+      console.log(`Found ${items.length} items in entry ${entry.entry_no}`);
+
       const itemsWithSerials = [];
       for (let item of items) {
+        // Fetch serials that are NOT fully used.
+        // We link by entry ID and item code pattern. 
+        // We use LIKE for item_code because serials might have suffixes like -001, -002
         const [serialRows] = await db.query(
-          'SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
-          [entry.id, `${item.item_code}%`, item.item_name]
+          "SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND (status IS NULL OR status != 'Consumed') AND (total_weight > 0.001 OR total_weight IS NULL)",
+          [entry.id, `${item.item_code}%`]
         );
-        itemsWithSerials.push({ ...item, serials: serialRows });
+
+        console.log(`Item ${item.item_name} (Code: ${item.item_code}): Found ${serialRows.length} serials with issued_in_entry_id = ${entry.id}`);
+
+        // Only add item if it has serials
+        if (serialRows.length > 0) {
+          itemsWithSerials.push({ ...item, serials: serialRows });
+        }
       }
-      entriesWithItems.push({ ...entry, items: itemsWithSerials });
+
+      if (itemsWithSerials.length > 0) {
+        entriesWithItems.push({ ...entry, items: itemsWithSerials });
+      }
     }
 
     res.json({ success: true, movements: entriesWithItems });
@@ -388,70 +409,88 @@ exports.saveMCR = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Ensure work_date is in YYYY-MM-DD format for MySQL
+    const formattedDate = work_date ? work_date.split('T')[0] : new Date().toISOString().split('T')[0];
+
+    // 1. Check if MCR already exists for this plan
+    const [existingMcr] = await connection.query(
+      'SELECT id FROM material_cutting_reports WHERE plan_id = ?',
+      [plan_id]
+    );
+
+    let mcrId;
+    if (existingMcr.length > 0) {
+      mcrId = existingMcr[0].id;
+      // Update date and clean slate for items
+      await connection.query('UPDATE material_cutting_reports SET work_date = ? WHERE id = ?', [formattedDate, mcrId]);
+      await connection.query('DELETE FROM material_cutting_report_items WHERE mcr_id = ?', [mcrId]);
+    } else {
+      const [mcrResult] = await connection.query(
+        'INSERT INTO material_cutting_reports (plan_id, work_date) VALUES (?, ?)',
+        [plan_id, formattedDate]
+      );
+      mcrId = mcrResult.insertId;
+    }
+
     for (const piece of pieces) {
-      // 1. Update serial number dimensions and status
-      // If it's finished or returned to stock, mark original as Used
-      const markAsUsed = piece.is_finished || piece.return_to_stock;
-      const newStatus = markAsUsed ? 'Used' : 'Available';
-      
+      // Find calculation details for this piece
+      const calc = calculations?.find(c => c.serial_number === piece.serial_number) ||
+        calculations?.find(c => c.item_code === piece.item_code);
+
+      // ONLY update inventory if it's a NEW cutting entry
+      if (piece.is_new) {
+        const markAsUsed = piece.is_finished;
+        const newStatus = markAsUsed ? 'Consumed' : 'Used';
+
+        await connection.query(
+          'UPDATE inventory_serials SET status = ?, inspection_status = "C", length = ?, width = ?, thickness = ?, unit_weight = ?, total_weight = ? WHERE serial_number = ?',
+          [newStatus, piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.new_weight, piece.new_weight, piece.serial_number]
+        );
+      }
+
+      // ALWAYS insert items back into the report table for visual tracking
       await connection.query(
-        'UPDATE inventory_serials SET status = ?, inspection_status = "CUT", length = ?, width = ?, thickness = ?, unit_weight = ?, total_weight = ? WHERE serial_number = ?',
-        [newStatus, piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.new_weight, piece.new_weight, piece.serial_number]
+        `INSERT INTO material_cutting_report_items 
+        (mcr_id, serial_number, item_code, item_name, item_group, material_grade, design, produced_qty, cutting_axis, 
+         raw_l, raw_w, raw_t, new_l, new_w, new_t, weight_consumed, scrap_weight, is_finished, remarks) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          mcrId, piece.serial_number, piece.item_code, piece.item_name, piece.item_group, piece.material_grade, piece.design || 'Rectangular',
+          piece.produced_qty, piece.cutting_axis || 'L',
+          piece.raw_dims.l, piece.raw_dims.w, piece.raw_dims.t,
+          piece.new_dims.l, piece.new_dims.w, piece.new_dims.t,
+          calc ? calc.currentWeight : 0,
+          calc ? calc.scrapWeight : 0,
+          piece.is_finished ? 1 : 0,
+          piece.remarks || ''
+        ]
       );
 
-      // If operator wants to return remnant to stock, create a NEW serial with remnant dimensions
-      if (piece.return_to_stock && !piece.is_finished) {
-        // Fetch original record to copy details
-        const [originals] = await connection.query('SELECT * FROM inventory_serials WHERE serial_number = ?', [piece.serial_number]);
-        if (originals.length > 0) {
-          const orig = originals[0];
-          const newSerialNumber = `${piece.serial_number}-R${Date.now().toString().slice(-3)}`; // Derivate ST Number
-          
+      // 3. Fetch assignment details for daily production update
+      // ONLY add production performance update if it's a NEW entry
+      if (piece.is_new) {
+        const [assignments] = await connection.query(
+          'SELECT * FROM daily_operator_assignments WHERE plan_id = ? AND (operation_name LIKE "%CUTTING%" OR operation_name LIKE "%Cutting%") LIMIT 1',
+          [plan_id]
+        );
+
+        if (assignments.length > 0) {
+          const a = assignments[0];
+
           await connection.query(
-            `INSERT INTO inventory_serials 
-            (serial_number, purchase_order_id, item_id, item_name, item_code, receipt_id, status, location, length, width, thickness, unit_weight, total_weight, density, inspection_status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO daily_production_updates 
+            (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
+            operator_name, operator_id, actual_start, actual_end, break_time, actual_hours, 
+            qty_completed, status, remarks) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURTIME(), CURTIME(), 0, 0, ?, "Completed", ?)`,
             [
-              newSerialNumber, orig.purchase_order_id, orig.item_id, orig.item_name, orig.item_code, orig.receipt_id, 
-              'Available', orig.location || 'Main Warehouse', 
-              piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.new_weight, piece.new_weight, orig.density, 'Available'
+              formattedDate, plan_id, a.id, a.root_card_id, a.operation_id, a.operation_name,
+              a.operator_name, a.operator_id,
+              piece.produced_qty,
+              piece.remarks || `MCR entry for ${piece.serial_number}. Scrap: ${calc?.scrap_percent || 0}%`
             ]
           );
         }
-      }
-
-      // 2. Fetch assignment details
-      const [assignments] = await connection.query(
-        'SELECT * FROM daily_operator_assignments WHERE plan_id = ? AND (operation_name LIKE "%CUTTING%" OR operation_name LIKE "%Cutting%") LIMIT 1',
-        [plan_id]
-      );
-
-      if (assignments.length > 0) {
-        const a = assignments[0];
-        
-        // Find if there are specific calculations for this piece/item
-        const calc = calculations?.find(c => c.serial_number === piece.serial_number) || 
-                     calculations?.find(c => c.item_code === piece.item_code);
-
-        // 3. Insert into daily_production_updates
-        const [updateResult] = await connection.query(
-          `INSERT INTO daily_production_updates 
-          (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
-           operator_name, operator_id, actual_start, actual_end, break_time, actual_hours, 
-           qty_completed, status, remarks) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURTIME(), CURTIME(), 0, 0, ?, "Completed", ?)`,
-          [
-            work_date, plan_id, a.id, a.root_card_id, a.operation_id, a.operation_name,
-            a.operator_name, a.operator_id, 
-            calc ? calc.total_parts_produced : 1,
-            piece.remarks || `MCR entry for ${piece.serial_number}. Scrap: ${calc?.scrap_percent || 0}%`
-          ]
-        );
-
-        const updateId = updateResult.insertId;
-
-        // 4. Save Cutting Details if available (simplified for now until table exists)
-        // You might need to create material_cutting_reports table
       }
     }
 
@@ -460,8 +499,50 @@ exports.saveMCR = async (req, res) => {
   } catch (error) {
     if (connection) await connection.rollback();
     console.error('Error saving MCR:', error);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error: ' + error.message });
   } finally {
     if (connection) connection.release();
+  }
+};
+
+exports.getMCRDetails = async (req, res) => {
+  const { plan_id } = req.params;
+  try {
+    const [mcr] = await db.query('SELECT * FROM material_cutting_reports WHERE plan_id = ?', [plan_id]);
+    if (mcr.length === 0) return res.json({ success: false, message: 'MCR not found' });
+
+    const [items] = await db.query('SELECT * FROM material_cutting_report_items WHERE mcr_id = ?', [mcr[0].id]);
+
+    res.json({
+      success: true,
+      mcr: mcr[0],
+      items: items.map(item => {
+        const fL = Number(item.raw_l);
+        const fW = Number(item.raw_w);
+        const fT = Number(item.raw_t);
+        const dims = item.design === 'Circular' ? `Ø${fL}x${fT}` : `${fL}x${fW}x${fT}`;
+
+        return {
+          ...item,
+          is_finished: !!item.is_finished,
+          dims,
+          full_data: {
+            selectedSerial: item.serial_number,
+            design: item.design,
+            produced_qty: item.produced_qty,
+            cutting_axis: item.cutting_axis,
+            raw_l: item.raw_l,
+            raw_w: item.raw_w,
+            raw_thk: item.raw_t,
+            raw_dims: { l: item.raw_l, w: item.raw_w, t: item.raw_t },
+            new_dims: { l: item.new_l, w: item.new_w, t: item.new_t },
+            is_finished: !!item.is_finished
+          }
+        };
+      })
+    });
+  } catch (error) {
+    console.error('Error fetching MCR details:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
