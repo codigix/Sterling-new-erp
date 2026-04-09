@@ -135,7 +135,7 @@ const RegisterPage = () => {
                     onClick={() => handleDeptSelect(dept.id)}
                   >
                     <Icon size={14} />
-                    <span className="text-[10px] font-medium text-center leading-tight">{dept.name}</span>
+                    <span className="text-xs font-medium text-center leading-tight">{dept.name}</span>
                   </button>
                 );
               })}
@@ -192,8 +192,8 @@ const RegisterPage = () => {
             </div>
           </div>
 
-          {error && <div className="p-1.5 bg-red-50 text-red-700 rounded-md text-[10px] border border-red-100">{error}</div>}
-          {success && <div className="p-1.5 bg-green-50 text-green-700 rounded-md text-[10px] border border-green-100">Account created successfully!</div>}
+          {error && <div className="p-1.5 bg-red-50 text-red-700 rounded-md text-xs border border-red-100">{error}</div>}
+          {success && <div className="p-1.5 bg-green-50 text-green-700 rounded-md text-xs border border-green-100">Account created successfully!</div>}
 
           <button
             type="submit"
@@ -210,7 +210,7 @@ const RegisterPage = () => {
       </div>
 
       <div className="mt-4 text-center opacity-60">
-        <p className="text-[11px] text-slate-500">© 2026 Sterling Manufacturing. Secure Enterprise Access.</p>
+        <p className="text-xs text-slate-500">© 2026 Sterling Manufacturing. Secure Enterprise Access.</p>
       </div>
     </div>
   );

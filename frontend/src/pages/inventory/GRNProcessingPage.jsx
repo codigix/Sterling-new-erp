@@ -110,7 +110,7 @@ const GRNProcessingPage = () => {
     
     if (parts.length === 0) return null;
     return (
-      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
         Dim: {parts.join(" \u00d7 ")} mm
       </div>
     );
@@ -578,7 +578,7 @@ const GRNProcessingPage = () => {
           </div>
         </div>
         <div>
-          <p className="text-[11px]  text-slate-500 dark:text-slate-400 mb-1">{stat.label}</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-400 mb-1">{stat.label}</p>
           <div className="flex items-baseline gap-2">
             <span className="text-xl  text-slate-900 dark:text-white leading-none">{stat.value}</span>
           </div>

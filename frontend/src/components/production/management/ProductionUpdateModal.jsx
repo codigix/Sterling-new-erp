@@ -83,10 +83,10 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
               <PackageCheck size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+              <h2 className="text-xl  text-slate-900 dark:text-white  tracking-tight">
                 Daily Production Update
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase font-bold tracking-widest flex items-center gap-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1    flex items-center gap-1">
                 <Calendar size={12} /> Actual Work for {new Date(date).toLocaleDateString()}
               </p>
             </div>
@@ -101,9 +101,9 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Project & Operation */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Project</label>
+              <label className="text-xs  text-slate-500  ">Project</label>
               <select 
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium uppercase"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
                 value={formData.projectId}
                 onChange={(e) => setFormData({...formData, projectId: e.target.value})}
               >
@@ -113,9 +113,9 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Operation</label>
+              <label className="text-xs  text-slate-500  ">Operation</label>
               <select 
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium uppercase"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
                 value={formData.operationId}
                 onChange={(e) => setFormData({...formData, operationId: e.target.value})}
               >
@@ -125,9 +125,9 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Operator</label>
+              <label className="text-xs  text-slate-500  ">Operator</label>
               <select 
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium uppercase"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
                 value={formData.employeeId}
                 onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
               >
@@ -138,57 +138,57 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
 
             {/* Timing */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Actual Start</label>
+              <label className="text-xs  text-slate-500  ">Actual Start</label>
               <input 
                 type="time"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
                 value={formData.actualStartTime}
                 onChange={(e) => setFormData({...formData, actualStartTime: e.target.value})}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Actual End</label>
+              <label className="text-xs  text-slate-500  ">Actual End</label>
               <input 
                 type="time"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
                 value={formData.actualEndTime}
                 onChange={(e) => setFormData({...formData, actualEndTime: e.target.value})}
               />
             </div>
 
-            <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl border border-green-100 dark:border-green-800/50 flex flex-col justify-center items-center">
-              <p className="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-widest">Actual Hours</p>
-              <h4 className="text-xl font-black text-green-700 dark:text-green-300">{actualHours.toFixed(2)} Hrs</h4>
+            <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded border border-green-100 dark:border-green-800/50 flex flex-col justify-center items-center">
+              <p className="text-xs  text-green-600 dark:text-green-400  ">Actual Hours</p>
+              <h4 className="text-xl  text-green-700 dark:text-green-300">{actualHours.toFixed(2)} Hrs</h4>
             </div>
 
             {/* Quantities */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Qty Completed</label>
+              <label className="text-xs  text-slate-500  ">Qty Completed</label>
               <input 
                 type="number"
                 placeholder="0"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-bold text-green-600"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  text-green-600"
                 value={formData.qtyCompleted}
                 onChange={(e) => setFormData({...formData, qtyCompleted: e.target.value})}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Pending Qty</label>
+              <label className="text-xs  text-slate-500  ">Pending Qty</label>
               <input 
                 type="number"
                 placeholder="0"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
                 value={formData.pendingQty}
                 onChange={(e) => setFormData({...formData, pendingQty: e.target.value})}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Work Status</label>
+              <label className="text-xs  text-slate-500  ">Work Status</label>
               <select 
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-bold uppercase"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  "
                 value={formData.status}
                 onChange={(e) => setFormData({...formData, status: e.target.value})}
               >
@@ -197,37 +197,37 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
+              <label className="text-xs  text-slate-500   flex items-center gap-1">
                 <AlertTriangle size={12} className="text-amber-500" /> Rework Qty
               </label>
               <input 
                 type="number"
                 placeholder="0"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium text-amber-600"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium text-amber-600"
                 value={formData.reworkQty}
                 onChange={(e) => setFormData({...formData, reworkQty: e.target.value})}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
+              <label className="text-xs  text-slate-500   flex items-center gap-1">
                 <AlertTriangle size={12} className="text-red-500" /> Scrap Qty
               </label>
               <input 
                 type="number"
                 placeholder="0"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium text-red-600"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium text-red-600"
                 value={formData.scrapQty}
                 onChange={(e) => setFormData({...formData, scrapQty: e.target.value})}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Break Time (Min)</label>
+              <label className="text-xs  text-slate-500  ">Break Time (Min)</label>
               <input 
                 type="number"
                 placeholder="60"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
                 value={formData.breakTime}
                 onChange={(e) => setFormData({...formData, breakTime: e.target.value})}
               />
@@ -235,11 +235,11 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
 
             {/* Remarks */}
             <div className="md:col-span-3 space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Remarks / Production Notes</label>
+              <label className="text-xs  text-slate-500  ">Remarks / Production Notes</label>
               <textarea 
                 rows="2"
                 placeholder="Enter any issues, delays, or production notes..."
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.remarks}
                 onChange={(e) => setFormData({...formData, remarks: e.target.value})}
               />
@@ -251,12 +251,12 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
         <div className="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex justify-end gap-3">
           <button 
             onClick={onClose}
-            className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors uppercase tracking-widest"
+            className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded text-sm  hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors  "
           >
             Cancel
           </button>
           <button 
-            className="px-8 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20 flex items-center gap-2 uppercase tracking-widest"
+            className="px-8 py-2.5 bg-green-600 text-white rounded text-sm  hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20 flex items-center gap-2  "
           >
             <Save size={18} /> Save Update
           </button>

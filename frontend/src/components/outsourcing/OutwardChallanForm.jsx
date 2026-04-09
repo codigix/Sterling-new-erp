@@ -293,7 +293,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                 {item.materialId === null ? (
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                     <div className="md:col-span-4">
-                      <label className="text-[10px]  text-slate-400  mb-1 block">
+                      <label className="text-xs  text-slate-400  mb-1 block">
                         Select Material *
                       </label>
                       <select
@@ -317,7 +317,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="text-[10px]  text-slate-400  mb-1 block">
+                      <label className="text-xs  text-slate-400  mb-1 block">
                         Quantity *
                       </label>
                       <input
@@ -332,7 +332,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="text-[10px]  text-slate-400  mb-1 block">
+                      <label className="text-xs  text-slate-400  mb-1 block">
                         Unit
                       </label>
                       <input
@@ -345,7 +345,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                     </div>
 
                     <div className="md:col-span-3">
-                      <label className="text-[10px]  text-slate-400  mb-1 block">
+                      <label className="text-xs  text-slate-400  mb-1 block">
                         Remarks
                       </label>
                       <input
@@ -372,13 +372,13 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                     <div className="md:col-span-3">
-                      <p className="text-[10px]  text-slate-400  mb-1">Material Details</p>
+                      <p className="text-xs  text-slate-400  mb-1">Material Details</p>
                       <p className="text-sm  text-slate-900 dark:text-white leading-tight">{item.itemName}</p>
-                      <p className="text-[10px]  text-indigo-600 dark:text-indigo-400">{item.itemCode}</p>
+                      <p className="text-xs  text-indigo-600 dark:text-indigo-400">{item.itemCode}</p>
                     </div>
 
                     <div className="md:col-span-2">
-                      <p className="text-[10px]  text-slate-400  mb-1 text-center">Released</p>
+                      <p className="text-xs  text-slate-400  mb-1 text-center">Released</p>
                       <div className="bg-indigo-50 dark:bg-indigo-900/20 .5 rounded border border-indigo-100 dark:border-indigo-800 text-center">
                         <span className="text-sm  text-indigo-700 dark:text-indigo-300">
                           {item.availableQuantity} {item.unit}
@@ -387,7 +387,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="text-[10px]  text-slate-400  mb-1 block text-center">
+                      <label className="text-xs  text-slate-400  mb-1 block text-center">
                         Issue Qty *
                       </label>
                       <input
@@ -403,7 +403,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                     </div>
 
                     <div className="md:col-span-4">
-                      <label className="text-[10px]  text-slate-400  mb-1 block">
+                      <label className="text-xs  text-slate-400  mb-1 block">
                         Remarks
                       </label>
                       <input
@@ -439,7 +439,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
         <button
           type="submit"
           disabled={loading || selectedItems.length === 0}
-          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded   tracking-widest text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2 group"
+          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded    text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2 group"
         >
           {loading ? (
             <Loader className="w-3 h-3 animate-spin" />

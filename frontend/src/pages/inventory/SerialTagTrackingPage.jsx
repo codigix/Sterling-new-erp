@@ -74,7 +74,7 @@ const SerialTagTrackingPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
-            <Barcode size={24} className="text-blue-600" />
+            <Barcode size={15} className="text-blue-600" />
             Serial Tag (ST) Tracking
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
@@ -97,11 +97,11 @@ const SerialTagTrackingPage = () => {
             <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-[10px]  text-slate-400  tracking-widest">{stat.title}</p>
+                  <p className="text-xs  text-slate-400  ">{stat.title}</p>
                   <h3 className="text-2xl  text-slate-900 dark:text-white mt-1">{stat.value}</h3>
                 </div>
                 <div className={`p-3 rounded bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600 dark:text-${stat.color}-400`}>
-                  <Icon size={24} />
+                  <Icon size={15} />
                 </div>
               </div>
             </div>
@@ -148,27 +148,27 @@ const SerialTagTrackingPage = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-                  <th className="p-2 text-[10px]  text-slate-400  tracking-widest">
+                  <th className="p-2 text-xs  text-slate-400  ">
                     <div className="flex items-center gap-1">ST Number <ArrowUpDown size={12} /></div>
                   </th>
-                  <th className="p-2 text-[10px]  text-slate-400  tracking-widest">Material Name</th>
-                  <th className="p-2 text-[10px]  text-slate-400  tracking-widest">Source Document</th>
-                  <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-center">Receipt Date</th>
-                  <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-center">Status</th>
-                  <th className="p-2 text-[10px]  text-slate-400  tracking-widest text-right">Actions</th>
+                  <th className="p-2 text-xs  text-slate-400  ">Material Name</th>
+                  <th className="p-2 text-xs  text-slate-400  ">Source Document</th>
+                  <th className="p-2 text-xs  text-slate-400   text-center">Receipt Date</th>
+                  <th className="p-2 text-xs  text-slate-400   text-center">Status</th>
+                  <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                 {filteredData.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
                     <td className="p-2">
-                      <span className=" bg-blue-600 text-white rounded text-[10px]   tracking-widest shadow-sm">
+                      <span className=" bg-blue-600 text-white rounded text-xs    shadow-sm">
                         {item.serial_number}
                       </span>
                     </td>
                     <td className="p-2">
                       <p className=" text-slate-900 dark:text-white">{item.item_name}</p>
-                      <div className="text-[10px] text-blue-600 font-mono">
+                      <div className="text-xs text-blue-600 font-mono">
                         {item.length || item.width || item.thickness || item.diameter || item.outer_diameter || item.height ? (
                           <>
                             {item.length ? `L:${Number(item.length)} ` : ''}
@@ -180,14 +180,14 @@ const SerialTagTrackingPage = () => {
                           </>
                         ) : null}
                       </div>
-                      <p className="text-[10px] text-slate-500 font-medium">ID: {item.id}</p>
+                      <p className="text-xs text-slate-500 font-medium">ID: {item.id}</p>
                     </td>
                     <td className="p-2">
                       <div className="flex flex-col">
                         <span className="text-xs  text-slate-700 flex items-center gap-1">
                           <FileText size={12} /> {item.po_number || 'Internal Transfer'}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-medium">
+                        <span className="text-xs text-slate-400 font-medium">
                           Receipt: {item.receipt_number || 'Direct Entry'}
                         </span>
                       </div>
@@ -195,11 +195,11 @@ const SerialTagTrackingPage = () => {
                     <td className="p-2 text-center">
                       <div className="flex flex-col items-center">
                         <span className="text-xs  text-slate-700">{new Date(item.receipt_date || item.created_at).toLocaleDateString()}</span>
-                        <span className="text-[10px] text-slate-400 font-medium">{new Date(item.receipt_date || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-xs text-slate-400 font-medium">{new Date(item.receipt_date || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     </td>
                     <td className="p-2 text-center">
-                      <span className={`px-3 py-1 rounded  text-[10px]   tracking-widest border ${getStatusColor(item.status)}`}>
+                      <span className={`px-3 py-1 rounded  text-xs    border ${getStatusColor(item.status)}`}>
                         {item.status}
                       </span>
                     </td>

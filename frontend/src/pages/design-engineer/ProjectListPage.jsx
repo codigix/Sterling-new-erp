@@ -109,7 +109,7 @@ const ProjectListPage = () => {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center">
-                  <FileText className="text-white" size={24} />
+                  <FileText className="text-white" size={15} />
                 </div>
                 <div>
                   <h1 className="text-3xl  text-slate-900 dark:text-white text-xs">

@@ -37,7 +37,7 @@ export default function WizardHeader({ mode = 'create' }) {
           <React.Fragment key={step.number}>
             <div
               onClick={() => handleStepClick(step.number)}
-              className={`min-w-max .5 rounded text-xs font-medium transition-colors cursor-pointer ${
+              className={`min-w-max p-2 rounded text-xs font-medium transition-colors cursor-pointer ${
                 currentStep === step.number
                   ? "bg-purple-600 text-white"
                   : currentStep > step.number

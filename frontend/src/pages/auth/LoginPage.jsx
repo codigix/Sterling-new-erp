@@ -146,7 +146,7 @@ const LoginPage = () => {
           </div>
 
           {error && (
-            <div className="p-1.5 bg-red-50 text-red-700 rounded-md text-[10px] border border-red-100">
+            <div className="p-1.5 bg-red-50 text-red-700 rounded-md text-xs border border-red-100">
               {error}
             </div>
           )}
@@ -165,7 +165,7 @@ const LoginPage = () => {
         </form>
 
         <div className="mt-4 p-3 bg-slate-50 rounded border border-slate-100">
-          <div className="flex items-center gap-2 text-slate-500 text-[10px] font-semibold mb-3  tracking-wider">
+          <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold mb-3  tracking-wider">
             <Users size={12} className="text-blue-500" />
             <span>Quick Access</span>
           </div>
@@ -177,7 +177,7 @@ const LoginPage = () => {
                 onClick={() => setFormData({ username: item.email, password: item.password })}
                 className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-md hover:border-blue-400 hover:shadow-sm transition-all text-center group"
               >
-                <span className="text-[10px] font-medium text-slate-700 group-hover:text-blue-600">
+                <span className="text-xs font-medium text-slate-700 group-hover:text-blue-600">
                   {item.label}
                 </span>
               </button>
@@ -187,7 +187,7 @@ const LoginPage = () => {
       </div>
 
       <div className="mt-4 text-center opacity-60">
-        <p className="text-[11px] text-slate-500">© 2026 Sterling Manufacturing. Secure Enterprise Access.</p>
+        <p className="text-xs text-slate-500">© 2026 Sterling Manufacturing. Secure Enterprise Access.</p>
       </div>
     </div>
   );

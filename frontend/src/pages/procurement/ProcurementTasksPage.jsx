@@ -203,7 +203,7 @@ const ProcurementTasksPage = () => {
               </div>
             </div>
             <div className=" border-t border-slate-50 dark:border-slate-700/50">
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{stat.description}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{stat.description}</p>
             </div>
           </div>
         ))}
@@ -242,7 +242,7 @@ const ProcurementTasksPage = () => {
                 placeholder="Search requests..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2.5 w-full lg:w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="pl-10 pr-4 py-2.5 w-full lg:w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
             </div>
           </div>
@@ -261,13 +261,13 @@ const ProcurementTasksPage = () => {
             <div className="overflow-x-auto animate-in fade-in duration-500">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-[11px]   ">
-                    <th className="px-6 py-4">Request Details</th>
-                    <th className="px-6 py-4">Context</th>
-                    <th className="px-6 py-4">Project</th>
-                    <th className="px-6 py-4">Date</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
+                  <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs   ">
+                    <th className="p-2">Request Details</th>
+                    <th className="p-2">Context</th>
+                    <th className="p-2">Project</th>
+                    <th className="p-2">Date</th>
+                    <th className="p-2">Status</th>
+                    <th className="p-2 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -279,21 +279,21 @@ const ProcurementTasksPage = () => {
                       )
                       .map((req) => (
                         <tr key={req.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors group">
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div className="flex flex-col">
                               <span className=" text-slate-900 dark:text-white text-sm">{req.request_number}</span>
-                              <span className="text-[10px] text-slate-400 font-medium">REQ-ID: {req.id}</span>
+                              <span className="text-xs text-slate-400 font-medium">REQ-ID: {req.id}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center gap-1.5">
-                                <Badge className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-none">GRN: {req.bom_number || "N/A"}</Badge>
+                                <Badge className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-none">GRN: {req.bom_number || "N/A"}</Badge>
                               </div>
-                              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Root Card: {req.root_card_id || "N/A"}</span>
+                              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Root Card: {req.root_card_id || "N/A"}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div className="flex items-center gap-2">
                               <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs ">
                                 {req.project_name?.charAt(0) || "G"}
@@ -301,18 +301,18 @@ const ProcurementTasksPage = () => {
                               <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{req.project_name || "General Project"}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                               <Calendar size={14} />
                               <span className="text-xs">{new Date(req.created_at).toLocaleDateString()}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
-                            <Badge variant="outline" className={`${getStatusColor(req.status)} text-[10px] py-1 border uppercase`}>
+                          <td className="p-2">
+                            <Badge variant="outline" className={`${getStatusColor(req.status)} text-xs py-1 border `}>
                               {req.status}
                             </Badge>
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="p-2 text-right">
                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => handleViewShortageDetail(req)}
@@ -352,14 +352,14 @@ const ProcurementTasksPage = () => {
             <div className="overflow-x-auto animate-in fade-in duration-500">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-[11px]   ">
-                    <th className="px-6 py-4">PR Number</th>
-                    <th className="px-6 py-4">Project Details</th>
-                    <th className="px-6 py-4 text-center">Items</th>
-                    <th className="px-6 py-4">Total Amount</th>
-                    <th className="px-6 py-4">Required Date</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
+                  <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs   ">
+                    <th className="p-2">PR Number</th>
+                    <th className="p-2">Project Details</th>
+                    <th className="p-2 text-center">Items</th>
+                    <th className="p-2">Total Amount</th>
+                    <th className="p-2">Required Date</th>
+                    <th className="p-2">Status</th>
+                    <th className="p-2 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -370,26 +370,26 @@ const ProcurementTasksPage = () => {
                     )
                     .map((pr) => (
                       <tr key={pr.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors group text-sm">
-                        <td className="px-6 py-4  text-blue-600 dark:text-blue-400">#{pr.id}</td>
-                        <td className="px-6 py-4 text-slate-700 dark:text-slate-300 font-medium">{pr.project}</td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="p-2  text-blue-600 dark:text-blue-400">#{pr.id}</td>
+                        <td className="p-2 text-slate-700 dark:text-slate-300 font-medium">{pr.project}</td>
+                        <td className="p-2 text-center">
                           <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg  text-xs">{pr.items}</span>
                         </td>
-                        <td className="px-6 py-4  text-slate-900 dark:text-white">
+                        <td className="p-2  text-slate-900 dark:text-white">
                           {typeof pr.totalAmount === 'number' ? `₹${pr.totalAmount.toLocaleString()}` : pr.totalAmount}
                         </td>
-                        <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                        <td className="p-2 text-slate-500 dark:text-slate-400">
                           <div className="flex items-center gap-2">
                             <Clock size={14} className="text-slate-400" />
                             {pr.requiredDate}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <Badge variant="outline" className={`${getStatusColor(pr.status)} text-[10px] py-1 border`}>
-                            {pr.status?.to()}
+                        <td className="p-2">
+                          <Badge variant="outline" className={`${getStatusColor(pr.status)} text-xs py-1 border`}>
+                            {pr.status?.toUpperCase()}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="p-2 text-right">
                           <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-all ">
                               <Eye size={16} />
@@ -411,14 +411,14 @@ const ProcurementTasksPage = () => {
             <div className="overflow-x-auto animate-in fade-in duration-500">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-[11px]   ">
-                    <th className="px-6 py-4">Order ID</th>
-                    <th className="px-6 py-4">Vendor</th>
-                    <th className="px-6 py-4">PO Number</th>
-                    <th className="px-6 py-4">Amount</th>
-                    <th className="px-6 py-4">Expected Delivery</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
+                  <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs   ">
+                    <th className="p-2">Order ID</th>
+                    <th className="p-2">Vendor</th>
+                    <th className="p-2">PO Number</th>
+                    <th className="p-2">Amount</th>
+                    <th className="p-2">Expected Delivery</th>
+                    <th className="p-2">Status</th>
+                    <th className="p-2 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -430,29 +430,29 @@ const ProcurementTasksPage = () => {
                     )
                     .map((po) => (
                       <tr key={po.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors group text-sm">
-                        <td className="px-6 py-4  text-slate-900 dark:text-white">#{po.id}</td>
-                        <td className="px-6 py-4">
+                        <td className="p-2  text-slate-900 dark:text-white">#{po.id}</td>
+                        <td className="p-2">
                           <div className="flex items-center gap-2">
                             <Truck size={14} className="text-slate-400" />
                             <span className="font-medium text-slate-700 dark:text-slate-300">{po.vendor}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium font-mono">{po.poNumber}</td>
-                        <td className="px-6 py-4  text-emerald-600 dark:text-emerald-400">
+                        <td className="p-2 text-slate-500 dark:text-slate-400 font-medium font-mono">{po.poNumber}</td>
+                        <td className="p-2  text-emerald-600 dark:text-emerald-400">
                           {typeof po.amount === 'number' ? `₹${po.amount.toLocaleString()}` : po.amount}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="p-2">
                           <div className="flex items-center gap-2 text-slate-500">
                             <Calendar size={14} />
                             {po.expectedDelivery}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <Badge variant="outline" className={`${getStatusColor(po.status)} text-[10px] py-1 border uppercase`}>
+                        <td className="p-2">
+                          <Badge variant="outline" className={`${getStatusColor(po.status)} text-xs py-1 border `}>
                             {po.status}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="p-2 text-right">
                           <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-all ">
                               <Eye size={16} />
@@ -481,40 +481,40 @@ const ProcurementTasksPage = () => {
                   <div key={quote.id} className="group relative  border border-slate-200 dark:border-slate-700 p-5  hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                        <div className="w-10 h-10 rounded bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
                           <FileText size={20} />
                         </div>
                         <div>
                           <h4 className="text-sm  text-slate-900 dark:text-white ">{quote.vendor}</h4>
-                          <p className="text-[10px]  text-slate-400  tracking-widest">Quote ID: {quote.id}</p>
+                          <p className="text-xs  text-slate-400  ">Quote ID: {quote.id}</p>
                         </div>
                       </div>
-                      <Badge variant="outline" className={`${getStatusColor(quote.status)} text-[9px] py-0.5 border uppercase`}>
+                      <Badge variant="outline" className={`${getStatusColor(quote.status)} text-xs py-0.5 border `}>
                         {quote.status}
                       </Badge>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-5">
-                      <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                        <p className="text-[10px] text-slate-400   mb-1">Total Amount</p>
+                      <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded">
+                        <p className="text-xs text-slate-400   mb-1">Total Amount</p>
                         <p className="text-sm  text-slate-900 dark:text-white">{quote.amount}</p>
                       </div>
-                      <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                        <p className="text-[10px] text-slate-400   mb-1">Total Items</p>
+                      <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded">
+                        <p className="text-xs text-slate-400   mb-1">Total Items</p>
                         <p className="text-sm  text-slate-900 dark:text-white">{quote.items}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 mb-6 px-1">
                       <Clock size={14} className="text-rose-500" />
-                      <span className="text-[11px] text-slate-500 font-medium">Expires: <span className="text-rose-600 dark:text-rose-400 ">{quote.expiryDate}</span></span>
+                      <span className="text-xs text-slate-500 font-medium">Expires: <span className="text-rose-600 dark:text-rose-400 ">{quote.expiryDate}</span></span>
                     </div>
 
                     <div className="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-                      <button className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs  transition-all shadow-md shadow-emerald-500/10 active:scale-95">
+                      <button className="flex-1 py-2.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs  transition-all shadow-md shadow-emerald-500/10 active:scale-95">
                         Accept Quote
                       </button>
-                      <button className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs  transition-all active:scale-95">
+                      <button className="flex-1 py-2.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs  transition-all active:scale-95">
                         View Details
                       </button>
                     </div>
@@ -528,11 +528,11 @@ const ProcurementTasksPage = () => {
       {/* Shortage Detail Modal */}
       {showShortageDetail && selectedShortage && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-slate-900/70 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-white/20 animate-in zoom-in-95 duration-300">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-white/20 animate-in zoom-in-95 duration-300">
             <div className="relative p-6 border-b dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-blue-600/5 to-transparent">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-                  <AlertTriangle size={24} />
+                  <AlertTriangle size={15} />
                 </div>
                 <div>
                   <h3 className="text-xl  text-slate-900 dark:text-white">
@@ -552,16 +552,16 @@ const ProcurementTasksPage = () => {
             <div className="flex-1 overflow-y-auto p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="p-4 bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl">
-                  <p className="text-[10px] text-slate-400   tracking-widest mb-1">Project Assignment</p>
+                  <p className="text-xs text-slate-400    mb-1">Project Assignment</p>
                   <p className="text-sm  text-slate-900 dark:text-white">{selectedShortage.project_name || "General/Internal"}</p>
                 </div>
                 <div className="p-4 bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl">
-                  <p className="text-[10px] text-slate-400   tracking-widest mb-1">Creation Date</p>
+                  <p className="text-xs text-slate-400    mb-1">Creation Date</p>
                   <p className="text-sm  text-slate-900 dark:text-white">{new Date(selectedShortage.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="p-4 bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl">
-                  <p className="text-[10px] text-slate-400   tracking-widest mb-1">Status</p>
-                  <Badge variant="outline" className={`${getStatusColor(selectedShortage.status)} text-[10px] border uppercase`}>
+                  <p className="text-xs text-slate-400    mb-1">Status</p>
+                  <Badge variant="outline" className={`${getStatusColor(selectedShortage.status)} text-xs border `}>
                     {selectedShortage.status}
                   </Badge>
                 </div>
@@ -569,7 +569,7 @@ const ProcurementTasksPage = () => {
 
             {selectedShortage.remarks && (
               <div className="p-5 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-10">
-                <p className="text-[10px] text-amber-600 dark:text-amber-400   tracking-widest mb-2 flex items-center gap-2">
+                <p className="text-xs text-amber-600 dark:text-amber-400    mb-2 flex items-center gap-2">
                   <FileText size={14} />
                   Observations / Remarks
                 </p>
@@ -579,11 +579,11 @@ const ProcurementTasksPage = () => {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs  text-slate-400  tracking-widest flex items-center gap-2">
+                <h4 className="text-xs  text-slate-400   flex items-center gap-2">
                   <Package size={16} />
                   Requested Materials
                 </h4>
-                <span className="text-[10px]  px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-500  tracking-tighter">
+                <span className="text-xs  px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-500  ">
                   Total {selectedShortage.items?.length || 0} Items
                 </span>
               </div>
@@ -592,9 +592,9 @@ const ProcurementTasksPage = () => {
                 <table className="w-full text-left">
                   <thead className="bg-slate-50 dark:bg-slate-900 border-b dark:border-slate-800">
                     <tr>
-                      <th className="px-6 py-4 text-[10px]  text-slate-400  ">Material Description</th>
-                      <th className="px-6 py-4 text-[10px]  text-slate-400   text-center">Required Qty</th>
-                      <th className="px-6 py-4 text-[10px]  text-slate-400  ">Unit</th>
+                      <th className="p-2 text-xs  text-slate-400  ">Material Description</th>
+                      <th className="p-2 text-xs  text-slate-400   text-center">Required Qty</th>
+                      <th className="p-2 text-xs  text-slate-400  ">Unit</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -603,18 +603,18 @@ const ProcurementTasksPage = () => {
                     ) : (
                       selectedShortage.items?.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900 transition-colors">
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <div className="flex flex-col">
                               <span className=" text-slate-800 dark:text-slate-200 text-sm">{item.item_name}</span>
-                              <span className="text-[10px] text-slate-400 font-medium tracking-tight">SKU: {item.sku || "N/A"}</span>
+                              <span className="text-xs text-slate-400 font-medium tracking-tight">SKU: {item.sku || "N/A"}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td className="p-2 text-center">
                             <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg  text-sm">
                               {item.required_quantity}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="p-2">
                             <span className="text-xs  text-slate-500 ">{item.uom}</span>
                           </td>
                         </tr>
@@ -629,7 +629,7 @@ const ProcurementTasksPage = () => {
           <div className="p-6 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row justify-end gap-3">
             <button
               onClick={() => setShowShortageDetail(false)}
-              className="px-6 py-3 rounded-xl text-sm  text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all active:scale-95"
+              className="px-6 py-3 rounded text-sm  text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all active:scale-95"
             >
               Close
             </button>
@@ -638,7 +638,7 @@ const ProcurementTasksPage = () => {
                 setShowShortageDetail(false);
                 handleCreatePOFromShortage(selectedShortage);
               }}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm  transition-all shadow-lg shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2"
+              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm  transition-all shadow-lg shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2"
             >
               <ShoppingCart size={18} />
               Convert to Purchase Order

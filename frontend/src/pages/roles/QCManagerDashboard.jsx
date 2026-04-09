@@ -223,7 +223,7 @@ const QCManagerDashboard = () => {
                       </p>
                     </div>
                     <span
-                      className={` text-[10px]  rounded   ${
+                      className={` text-xs  rounded   ${
                         task.status === "pending"
                           ? "bg-amber-100 text-amber-700"
                           : "bg-blue-100 text-blue-700"
@@ -233,7 +233,7 @@ const QCManagerDashboard = () => {
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-4">
-                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                       PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                     </span>
                     <Link
@@ -294,7 +294,7 @@ const QCManagerDashboard = () => {
               className="p-4 bg-blue-50 dark:bg-blue-900 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
             >
               <Clock
-                size={24}
+                size={15}
                 className="text-blue-600 dark:text-blue-300 mb-2"
               />
               <p className="font-medium text-blue-900 dark:text-blue-100">
@@ -306,7 +306,7 @@ const QCManagerDashboard = () => {
               className="p-4 bg-green-50 dark:bg-green-900 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
             >
               <CheckCircle
-                size={24}
+                size={15}
                 className="text-green-600 dark:text-green-300 mb-2"
               />
               <p className="font-medium text-green-900 dark:text-green-100">
@@ -318,7 +318,7 @@ const QCManagerDashboard = () => {
               className="p-4 bg-purple-50 dark:bg-purple-900 rounded hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
             >
               <TrendingUp
-                size={24}
+                size={15}
                 className="text-purple-600 dark:text-purple-300 mb-2"
               />
               <p className="font-medium text-purple-900 dark:text-purple-100">
@@ -330,7 +330,7 @@ const QCManagerDashboard = () => {
               className="p-4 bg-red-50 dark:bg-red-900 rounded hover:bg-red-100 dark:hover:bg-red-800 transition-colors"
             >
               <AlertCircle
-                size={24}
+                size={15}
                 className="text-red-600 dark:text-red-300 mb-2"
               />
               <p className="font-medium text-red-900 dark:text-red-100">NCRs</p>

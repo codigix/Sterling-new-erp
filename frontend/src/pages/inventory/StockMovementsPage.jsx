@@ -267,7 +267,7 @@ const StockMovementsPage = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="p-2 text-slate-500 dark:text-slate-400 text-[10px]">
+                      <td className="p-2 text-slate-500 dark:text-slate-400 text-xs">
                         {renderDimensions(m)}
                       </td>
                       <td className="p-2">
@@ -358,7 +358,7 @@ const StockMovementsPage = () => {
                                          <td className="p-2 text-slate-500 dark:text-slate-400  ">
                                            {m.material_name}
                                          </td>
-                                         <td className="p-2 text-slate-500 dark:text-slate-400 text-[10px]">
+                                         <td className="p-2 text-slate-500 dark:text-slate-400 text-xs">
                                            {renderDimensions(st, m)}
                                          </td>
                                          <td className="p-2 text-right">

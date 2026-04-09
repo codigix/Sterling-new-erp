@@ -193,7 +193,7 @@ const RootCardBuilderPage = () => {
             value.map((step, index) => (
               <Badge 
                 key={`${row.id}-step-${step.stepId || index}`}
-                className={`text-[10px] px-1.5 py-0.5 rounded ${getStepColor(step.stepId)}`}
+                className={`text-xs px-1.5 py-0.5 rounded ${getStepColor(step.stepId)}`}
               >
                 {getStepLabel(step.stepId)}
               </Badge>
@@ -209,7 +209,7 @@ const RootCardBuilderPage = () => {
       label: 'Status',
       sortable: true,
       render: (value) => (
-        <Badge className={` rounded  text-[10px]  ${getStatusColor(value)}`}>
+        <Badge className={` rounded  text-xs  ${getStatusColor(value)}`}>
           {getStatusLabel(value)}
         </Badge>
       ),

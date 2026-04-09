@@ -169,10 +169,10 @@ const DashboardHome = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs  text-slate-400  tracking-tighter">
+                    <p className="text-xs  text-slate-400  ">
                       {new Date(report.created_at).toLocaleDateString()}
                     </p>
-                    <span className="inline-block px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 text-[9px]  mt-1 ">
+                    <span className="inline-block px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 text-xs  mt-1 ">
                       {report.inspection_type}
                     </span>
                   </div>
@@ -258,7 +258,7 @@ const DashboardHome = () => {
                     {Math.floor(Math.random() * 20) + 5}
                   </div>
                 </div>
-                <span className="text-xs  text-slate-400  tracking-tighter">{day}</span>
+                <span className="text-xs  text-slate-400  ">{day}</span>
               </div>
             ))}
           </div>

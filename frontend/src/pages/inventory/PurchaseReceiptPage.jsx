@@ -302,7 +302,7 @@ const PurchaseReceiptPage = () => {
           <div className="flex items-baseline gap-2">
             <span className="text-2xl  text-slate-900 dark:text-white leading-none">{stat.value}</span>
           </div>
-          <p className="text-[10px] font-medium text-slate-500 dark:text-slate-500 mt-2  tracking-wider">{stat.description}</p>
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-500 mt-2  tracking-wider">{stat.description}</p>
         </div>
         <div className="absolute -right-4 -bottom-4 opacity-10">
           <Icon size={80} />
@@ -321,13 +321,13 @@ const PurchaseReceiptPage = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200 dark:shadow-none">
-            <Truck size={24} />
+            <Truck size={15} />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs  text-blue-600 dark:text-blue-400  tracking-widest">Buying</span>
+              <span className="text-xs  text-blue-600 dark:text-blue-400  ">Buying</span>
               <span className="text-slate-300 dark:text-slate-500">›</span>
-              <span className="text-xs  text-slate-500 dark:text-slate-400  tracking-widest">Procurement</span>
+              <span className="text-xs  text-slate-500 dark:text-slate-400  ">Procurement</span>
             </div>
             <h1 className="text-2xl  text-slate-900 dark:text-white ">
               Purchase Receipts
@@ -421,7 +421,7 @@ const PurchaseReceiptPage = () => {
             <div className="flex items-center gap-3">
               {activeTab === "grn_request" && (
                 <div className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50/50 dark:bg-slate-900">
-                  <span className="text-[10px]  text-slate-400  tracking-widest">Status:</span>
+                  <span className="text-xs  text-slate-400  ">Status:</span>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
@@ -446,19 +446,19 @@ const PurchaseReceiptPage = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900/50">
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
                       GRN Number
                     </th>
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
                       Supplier
                     </th>
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800 text-center">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
                       Receipt Date
                     </th>
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800 text-center">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800 text-center">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
                       Actions
                     </th>
                   </tr>
@@ -474,7 +474,7 @@ const PurchaseReceiptPage = () => {
                           <h4 className="text-xs  text-slate-900 dark:text-white   leading-tight">
                             {grn.grnNo}
                           </h4>
-                          <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                             PO: {grn.poNo}
                           </p>
                         </div>
@@ -492,14 +492,14 @@ const PurchaseReceiptPage = () => {
                       <td className="px-4 py-4 text-center">
                         <div className="inline-flex items-center gap-1.5  rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                           <Calendar size={12} className="text-slate-400" />
-                          <span className="text-[10px]  text-slate-500 dark:text-slate-400">
+                          <span className="text-xs  text-slate-500 dark:text-slate-400">
                             {grn.receivedDate ? new Date(grn.receivedDate).toLocaleDateString() : 'N/A'}
                           </span>
                         </div>
                       </td>
                       <td className="px-4 py-4 text-center">
                         <span
-                          className={`px-3 py-1 rounded  text-[10px]   tracking-widest ${
+                          className={`px-3 py-1 rounded  text-xs    ${
                             grn.status === "completed" ? "bg-green-100 text-green-700" :
                             grn.status === "pending" ? "bg-slate-100 text-slate-700" :
                             grn.status === "qc_pending" ? "bg-purple-100 text-purple-700" :
@@ -517,7 +517,7 @@ const PurchaseReceiptPage = () => {
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleViewGRN(grn)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-[10px]   tracking-wider hover:bg-blue-100 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-xs   tracking-wider hover:bg-blue-100 transition-colors"
                           >
                             <Eye size={14} /> View Details
                           </button>
@@ -537,16 +537,16 @@ const PurchaseReceiptPage = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900/50">
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
                       Material Name
                     </th>
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800 text-center">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
                       In Stock
                     </th>
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800 text-center">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
                       Unit
                     </th>
-                    <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest border-b border-slate-100 dark:border-slate-800 text-center">
+                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
                       Warehouse
                     </th>
                   </tr>
@@ -567,7 +567,7 @@ const PurchaseReceiptPage = () => {
                           <h4 className="text-xs  text-slate-900 dark:text-white   leading-tight">
                             {stock.itemName}
                           </h4>
-                          <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                             {stock.itemCode}
                           </p>
                         </div>
@@ -578,14 +578,14 @@ const PurchaseReceiptPage = () => {
                         </span>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <span className="text-[10px]  text-slate-500  tracking-widest">
+                        <span className="text-xs  text-slate-500  ">
                           {stock.unit}
                         </span>
                       </td>
                       <td className="px-4 py-4 text-center">
                         <div className="inline-flex items-center gap-1.5  rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                           <Warehouse size={12} className="text-slate-400" />
-                          <span className="text-[10px]  text-slate-500 dark:text-slate-400">
+                          <span className="text-xs  text-slate-500 dark:text-slate-400">
                             {stock.warehouse || 'Main Warehouse'}
                           </span>
                         </div>
@@ -622,12 +622,12 @@ const PurchaseReceiptPage = () => {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 p-4 rounded border border-slate-100 dark:border-slate-700 flex items-center gap-4">
                   <div className={`w-12 h-12 rounded flex items-center justify-center ${selectedGRN.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
-                    {selectedGRN.status === 'completed' ? <CheckCircle size={24} /> : <Clock size={24} />}
+                    {selectedGRN.status === 'completed' ? <CheckCircle size={15} /> : <Clock size={15} />}
                   </div>
                   <div>
-                    <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Status</p>
+                    <p className="text-xs  text-slate-400   mb-1">Status</p>
                     <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded  text-[10px]   tracking-widest ${selectedGRN.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                      <span className={`px-2 py-0.5 rounded  text-xs    ${selectedGRN.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                         {selectedGRN.status}
                       </span>
                     </div>
@@ -635,10 +635,10 @@ const PurchaseReceiptPage = () => {
                 </div>
                 <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 p-4 rounded border border-slate-100 dark:border-slate-700 flex items-center gap-4">
                   <div className="w-12 h-12 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
-                    <Calendar size={24} />
+                    <Calendar size={15} />
                   </div>
                   <div>
-                    <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Receipt Date</p>
+                    <p className="text-xs  text-slate-400   mb-1">Receipt Date</p>
                     <p className="text-sm  text-slate-900 dark:text-white">
                       {selectedGRN.receivedDate ? new Date(selectedGRN.receivedDate).toLocaleDateString() : new Date().toLocaleDateString()}
                     </p>
@@ -650,7 +650,7 @@ const PurchaseReceiptPage = () => {
                 <div className="p-4 rounded border border-slate-100 dark:border-slate-700 space-y-2">
                   <div className="flex items-center gap-2 text-slate-400 mb-1">
                     <Truck size={14} />
-                    <span className="text-[10px]   tracking-widest">PO Reference</span>
+                    <span className="text-xs   ">PO Reference</span>
                   </div>
                   <p className="text-sm  text-slate-900 dark:text-white flex items-center gap-2">
                     <LayoutGrid size={14} className="text-blue-500" />
@@ -660,7 +660,7 @@ const PurchaseReceiptPage = () => {
                 <div className="p-4 rounded border border-slate-100 dark:border-slate-700 space-y-2">
                   <div className="flex items-center gap-2 text-slate-400 mb-1">
                     <User size={14} />
-                    <span className="text-[10px]   tracking-widest">Supplier</span>
+                    <span className="text-xs   ">Supplier</span>
                   </div>
                   <p className="text-sm  text-slate-900 dark:text-white flex items-center gap-2">
                     <Warehouse size={14} className="text-blue-500" />
@@ -678,9 +678,9 @@ const PurchaseReceiptPage = () => {
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 dark:bg-slate-900/50">
                       <tr>
-                        <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest">Item</th>
-                        <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest text-center">Received Qty</th>
-                        <th className="px-4 py-3 text-[10px]  text-slate-400  tracking-widest text-center">Unit</th>
+                        <th className="px-4 py-3 text-xs  text-slate-400  ">Item</th>
+                        <th className="px-4 py-3 text-xs  text-slate-400   text-center">Received Qty</th>
+                        <th className="px-4 py-3 text-xs  text-slate-400   text-center">Unit</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -692,7 +692,7 @@ const PurchaseReceiptPage = () => {
                                 {item.material_name || item.description || "N/A"}
                               </h4>
                               {(item.length || item.width || item.thickness || item.diameter || item.outer_diameter || item.height) && (
-                                <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                   Dim: {item.length && `L:${Number(item.length)} `}
                                   {item.width && `W:${Number(item.width)} `}
                                   {item.thickness && `T:${Number(item.thickness)} `}
@@ -702,7 +702,7 @@ const PurchaseReceiptPage = () => {
                                   mm
                                 </div>
                               )}
-                              <p className="text-[10px] font-medium text-slate-500  tracking-wider">
+                              <p className="text-xs font-medium text-slate-500  tracking-wider">
                                 {item.material_code || item.item_code || "N/A"}
                               </p>
                             </div>
@@ -713,7 +713,7 @@ const PurchaseReceiptPage = () => {
                             </span>
                           </td>
                           <td className="px-4 py-4 text-center">
-                            <span className="text-[10px]  text-slate-500  tracking-widest">
+                            <span className="text-xs  text-slate-500  ">
                               {item.unit || 'Units'}
                             </span>
                           </td>
@@ -728,13 +728,13 @@ const PurchaseReceiptPage = () => {
             <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 flex items-center justify-between gap-4">
               <button 
                 onClick={() => handlePrintGRN(selectedGRN)}
-                className="flex items-center gap-1.5 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded  text-[10px]  tracking-wider  transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded  text-xs  tracking-wider  transition-all active:scale-95"
               >
                 <Printer size={16} /> Print GRN
               </button>
               <button 
                 onClick={() => setShowViewModal(false)}
-                className="px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded  text-[10px]  tracking-wider hover:bg-slate-800 transition-colors"
+                className="px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded  text-xs  tracking-wider hover:bg-slate-800 transition-colors"
               >
                 Close
               </button>

@@ -417,14 +417,14 @@ const MaterialRequestDetailModal = ({
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
             <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <Activity size={20} className="text-orange-500 mb-2" />
-              <span className="text-[10px]   text-slate-400 mb-1">
+              <span className="text-xs   text-slate-400 mb-1">
                 Status
               </span>
               {getStatusBadge(request.status)}
             </div>
             <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <RefreshCw size={20} className="text-blue-500 mb-2" />
-              <span className="text-[10px]   text-slate-400 mb-1">
+              <span className="text-xs   text-slate-400 mb-1">
                 Purpose
               </span>
               <p className="text-sm  text-slate-900 dark:text-white">
@@ -433,7 +433,7 @@ const MaterialRequestDetailModal = ({
             </div>
             <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <Warehouse size={20} className="text-purple-500 mb-2" />
-              <span className="text-[10px]   text-slate-400 mb-1">
+              <span className="text-xs   text-slate-400 mb-1">
                 Department
               </span>
               <p className="text-sm  text-slate-900 dark:text-white">
@@ -442,7 +442,7 @@ const MaterialRequestDetailModal = ({
             </div>
             <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <User size={20} className="text-green-500 mb-2" />
-              <span className="text-[10px]   text-slate-400 mb-1">
+              <span className="text-xs   text-slate-400 mb-1">
                 Requested By
               </span>
               <p className="text-sm  text-slate-900 dark:text-white">
@@ -451,7 +451,7 @@ const MaterialRequestDetailModal = ({
             </div>
             <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
               <PlusCircle size={20} className="text-indigo-500 mb-2" />
-              <span className="text-[10px]   text-slate-400 mb-1">
+              <span className="text-xs   text-slate-400 mb-1">
                 Linked PO
               </span>
               <p
@@ -475,7 +475,7 @@ const MaterialRequestDetailModal = ({
                 <button
                   onClick={fetchStockLevels}
                   disabled={loadingStock}
-                  className="text-[10px]  text-blue-600 flex items-center gap-1  tracking-widest hover:underline disabled:opacity-50"
+                  className="text-xs  text-blue-600 flex items-center gap-1   hover:underline disabled:opacity-50"
                 >
                   <RefreshCw
                     size={12}
@@ -487,7 +487,7 @@ const MaterialRequestDetailModal = ({
               <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden shadow-sm">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-[10px]   text-slate-500 tracking-wider">
+                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-xs   text-slate-500 tracking-wider">
                       <th className="px-6 py-3 text-left">Item Details</th>
                       <th className="px-6 py-3 text-center">Quantity</th>
                       <th className="px-6 py-3 text-center">Stock Level</th>
@@ -532,7 +532,7 @@ const MaterialRequestDetailModal = ({
                                 </span>
                                 <div className="flex flex-col items-center gap-1 mt-1">
                                   {selectedWarehouse ? (
-                                    <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[9px]  text-slate-500 ">
+                                    <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-500 ">
                                       <Warehouse size={10} />
                                       {warehouses.find(
                                         (w) =>
@@ -546,14 +546,14 @@ const MaterialRequestDetailModal = ({
                                       .map((wh, i) => (
                                         <div
                                           key={i}
-                                          className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded text-[9px]  text-blue-600 dark:text-blue-400 "
+                                          className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded text-xs  text-blue-600 dark:text-blue-400 "
                                         >
                                           <Warehouse size={10} />
                                           {wh.trim()}
                                         </div>
                                       ))
                                   ) : (
-                                    <span className="text-[9px] text-slate-400  font-medium italic">
+                                    <span className="text-xs text-slate-400  font-medium italic">
                                       Not in any warehouse
                                     </span>
                                   )}
@@ -563,15 +563,15 @@ const MaterialRequestDetailModal = ({
                             <td className="p-2 text-center">
                               {stockQty >= Number(item.quantity || 0) &&
                               stockQty > 0 ? (
-                                <span className="px-2 py-0.5 rounded text-[10px]   bg-emerald-100 text-emerald-600 whitespace-nowrap">
+                                <span className="px-2 py-0.5 rounded text-xs   bg-emerald-100 text-emerald-600 whitespace-nowrap">
                                   in stock
                                 </span>
                               ) : (
-                                <span className="px-2 py-0.5 rounded text-[10px]   bg-red-100 text-red-600 whitespace-nowrap">
+                                <span className="px-2 py-0.5 rounded text-xs   bg-red-100 text-red-600 whitespace-nowrap">
                                   out of stock
                                 </span>
                               )}
-                              <p className="text-[10px] text-slate-400 mt-1  font-medium">
+                              <p className="text-xs text-slate-400 mt-1  font-medium">
                                 {item.status}
                               </p>
                             </td>
@@ -593,7 +593,7 @@ const MaterialRequestDetailModal = ({
                       Fulfillment Source
                     </h3>
                   </div>
-                  <label className="text-[10px]  text-slate-400  mb-2 block">
+                  <label className="text-xs  text-slate-400  mb-2 block">
                     Select Warehouse
                   </label>
                   <select
@@ -610,7 +610,7 @@ const MaterialRequestDetailModal = ({
                   </select>
                   <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30 rounded flex gap-3">
                     <AlertCircle size={14} className="text-orange-600 mt-0.5" />
-                    <p className="text-[10px] text-orange-700 dark:text-orange-400 font-medium leading-relaxed">
+                    <p className="text-xs text-orange-700 dark:text-orange-400 font-medium leading-relaxed">
                       Changing the warehouse will trigger a real-time stock
                       verification for all line items.
                     </p>
@@ -636,7 +636,7 @@ const MaterialRequestDetailModal = ({
                           the selected warehouse.
                         </p>
                       </div>
-                      <p className="text-[10px] text-amber-700 dark:text-amber-500 font-medium pl-7">
+                      <p className="text-xs text-amber-700 dark:text-amber-500 font-medium pl-7">
                         You can create a Purchase Order for the out-of-stock
                         items.
                       </p>
@@ -656,7 +656,7 @@ const MaterialRequestDetailModal = ({
                     </div>
                   )}
                   <div className="mt-4 space-y-2">
-                    <div className="flex justify-between text-[11px] font-medium">
+                    <div className="flex justify-between text-xs font-medium">
                       <span className="text-slate-500 ">
                         Required By
                       </span>
@@ -667,7 +667,7 @@ const MaterialRequestDetailModal = ({
                           : "N/A"}
                       </span>
                     </div>
-                    <div className="flex justify-between text-[11px] font-medium">
+                    <div className="flex justify-between text-xs font-medium">
                       <span className="text-slate-500 ">
                         Created On
                       </span>
@@ -681,7 +681,7 @@ const MaterialRequestDetailModal = ({
                 {request.quotation && (
                   <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded border border-emerald-100 dark:border-emerald-900/30 space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-[10px]  text-emerald-900 dark:text-emerald-300  tracking-widest flex items-center gap-1.5">
+                      <h4 className="text-xs  text-emerald-900 dark:text-emerald-300   flex items-center gap-1.5">
                         <ShieldCheck size={14} /> Approved Quotation
                       </h4>
                     </div>
@@ -709,7 +709,7 @@ const MaterialRequestDetailModal = ({
                               Swal.fire("Error", "Failed to view quotation PDF", "error");
                             }
                           }}
-                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px]  hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all shadow-sm flex items-center justify-center gap-2"
+                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs  hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all shadow-sm flex items-center justify-center gap-2"
                         >
                           <Download size={12} />
                           VIEW VENDOR QUOTATION
@@ -982,7 +982,7 @@ const MaterialRequestsPage = () => {
       <div className="py-10 px-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 my-4 mx-8 animate-in slide-in-from-top-4 duration-500 shadow-sm relative">
         {localLoading && (
           <div className="absolute inset-0 bg-white/50 dark:bg-slate-800/50 z-20 flex items-center justify-center rounded-2xl">
-            <RefreshCw className="animate-spin text-blue-600" size={24} />
+            <RefreshCw className="animate-spin text-blue-600" size={15} />
           </div>
         )}
         <div className="relative flex justify-between items-center w-full mx-auto p-4">
@@ -1020,7 +1020,7 @@ const MaterialRequestsPage = () => {
                 <div className="mt-4 text-center">
                   <span
                     className={`
-                    block text-[11px]   tracking-widest transition-colors duration-500 whitespace-nowrap
+                    block text-xs    transition-colors duration-500 whitespace-nowrap
                     ${
                       stepStatus === "completed"
                         ? "text-emerald-600"
@@ -1032,7 +1032,7 @@ const MaterialRequestsPage = () => {
                   >
                     {step.label}
                   </span>
-                  <span className="block text-[9px] font-medium text-slate-400 mt-0.5  er opacity-80">
+                  <span className="block text-xs font-medium text-slate-400 mt-0.5  er opacity-80">
                     {step.subLabel}
                   </span>
                 </div>
@@ -1412,7 +1412,7 @@ const MaterialRequestsPage = () => {
           <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded">
             <ClipboardList
               className="text-blue-600 dark:text-blue-400"
-              size={24}
+              size={15}
             />
           </div>
           <div>

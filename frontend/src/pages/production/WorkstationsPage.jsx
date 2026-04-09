@@ -83,7 +83,7 @@ const WorkstationsPage = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center text-white shadow-lg shadow-blue-200">
-            <Monitor size={24} />
+            <Monitor size={15} />
           </div>
           <div>
             <h1 className="text-2xl  text-slate-900">Workstations</h1>
@@ -120,7 +120,7 @@ const WorkstationsPage = () => {
         {statsCards.map((stat, i) => (
           <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-4 shadow-sm">
             <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded flex items-center justify-center`}>
-              <stat.icon size={24} />
+              <stat.icon size={15} />
             </div>
             <div>
               <p className="text-xs  text-slate-400  tracking-wider">{stat.label}</p>
@@ -224,12 +224,12 @@ const WorkstationsPage = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="p-2 text-[10px]  text-slate-500  tracking-wider">Workstation</th>
-                  <th className="p-2 text-[10px]  text-slate-500  tracking-wider">Class</th>
-                  <th className="p-2 text-[10px]  text-slate-500  tracking-wider">Building</th>
-                  <th className="p-2 text-[10px]  text-slate-500  tracking-wider">Utilization</th>
-                  <th className="p-2 text-[10px]  text-slate-500  tracking-wider">Status</th>
-                  <th className="p-2 text-[10px]  text-slate-500  tracking-wider text-right">Actions</th>
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">Workstation</th>
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">Class</th>
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">Building</th>
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">Utilization</th>
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider">Status</th>
+                  <th className="p-2 text-xs  text-slate-500  tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -238,7 +238,7 @@ const WorkstationsPage = () => {
                     <td className="p-2">
                       <div>
                         <p className="text-sm  text-slate-900">{ws.display_name}</p>
-                        <p className="text-[10px]  text-slate-400  tracking-wider">{ws.workstation_id}</p>
+                        <p className="text-xs  text-slate-400  tracking-wider">{ws.workstation_id}</p>
                       </div>
                     </td>
                     <td className="p-2 text-xs  text-slate-500">{ws.equipment_class || 'N/A'}</td>
@@ -252,7 +252,7 @@ const WorkstationsPage = () => {
                       </div>
                     </td>
                     <td className="p-2">
-                      <span className={`px-2.5 py-1 rounded  text-[10px]   border ${ws.operational_status === 'Operational' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                      <span className={`px-2.5 py-1 rounded  text-xs   border ${ws.operational_status === 'Operational' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                         {ws.operational_status}
                       </span>
                     </td>

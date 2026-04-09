@@ -54,7 +54,7 @@ const NotificationsPage = () => {
       case "success":
         return {
           bg: "bg-emerald-50 dark:bg-emerald-900/10",
-          icon: <CheckCircle2 size={24} className="text-emerald-500" />,
+          icon: <CheckCircle2 size={15} className="text-emerald-500" />,
           border: "border-l-4 border-emerald-500",
           badge:
             "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
@@ -63,7 +63,7 @@ const NotificationsPage = () => {
       case "error":
         return {
           bg: "bg-red-50 dark:bg-red-900/10",
-          icon: <AlertTriangle size={24} className="text-red-500" />,
+          icon: <AlertTriangle size={15} className="text-red-500" />,
           border: "border-l-4 border-red-500",
           badge: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
         };
@@ -71,7 +71,7 @@ const NotificationsPage = () => {
       case "on_hold":
         return {
           bg: "bg-amber-50 dark:bg-amber-900/10",
-          icon: <AlertTriangle size={24} className="text-amber-500" />,
+          icon: <AlertTriangle size={15} className="text-amber-500" />,
           border: "border-l-4 border-amber-500",
           badge:
             "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
@@ -79,7 +79,7 @@ const NotificationsPage = () => {
       default:
         return {
           bg: "bg-blue-50 dark:bg-blue-900/10",
-          icon: <Info size={24} className="text-blue-500" />,
+          icon: <Info size={15} className="text-blue-500" />,
           border: "border-l-4 border-blue-500",
           badge:
             "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
@@ -270,12 +270,12 @@ const NotificationsPage = () => {
                             <div>
                               <div className="flex items-center gap-2 mb-1">
                                 <span
-                                  className={`px-2 py-0.5 rounded text-[10px]   tracking-wider ${styles.badge}`}
+                                  className={`px-2 py-0.5 rounded text-xs   tracking-wider ${styles.badge}`}
                                 >
                                   {notif.alert_type?.replace("_", " ")}
                                 </span>
                                 {notif.priority === "high" && (
-                                  <span className="flex items-center gap-1 text-[10px]  text-red-600 bg-red-50 px-2 py-0.5 rounded ">
+                                  <span className="flex items-center gap-1 text-xs  text-red-600 bg-red-50 px-2 py-0.5 rounded ">
                                     <AlertTriangle size={10} />
                                     Urgent
                                   </span>
@@ -291,7 +291,7 @@ const NotificationsPage = () => {
                                 {notif.message}
                               </h3>
                             </div>
-                            <div className="text-[11px]  text-slate-400 flex items-center gap-1.5">
+                            <div className="text-xs  text-slate-400 flex items-center gap-1.5">
                               <Clock size={12} />
                               {new Date(notif.created_at).toLocaleTimeString(
                                 "en-IN",

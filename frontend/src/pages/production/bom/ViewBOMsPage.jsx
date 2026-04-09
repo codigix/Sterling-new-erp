@@ -228,7 +228,7 @@ const ViewBOMsPage = () => {
             <span className=" text-slate-900 text-xs truncate max-w-[150px]" title={rc?.project_name}>
               {rc?.project_name || 'N/A'}
             </span>
-            <span className="text-[10px] text-slate-500 font-mono">
+            <span className="text-xs text-slate-500 font-mono">
               {rc?.title || rc?.id || 'N/A'}
             </span>
           </div>
@@ -279,7 +279,7 @@ const ViewBOMsPage = () => {
             val === 'request_sent' ? 'info' : 
             'warning'
           }
-          className="capitalize text-[10px]"
+          className="capitalize text-xs"
         >
           {val?.replace('_', ' ')}
         </Badge>

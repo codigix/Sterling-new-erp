@@ -144,7 +144,7 @@ const WarehousesPage = () => {
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded">
-            <Warehouse className="text-amber-600 dark:text-amber-400" size={24} />
+            <Warehouse className="text-amber-600 dark:text-amber-400" size={15} />
           </div>
           <div>
             <h1 className="text-2xl  text-slate-900 dark:text-white">Warehouses</h1>

@@ -56,7 +56,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
         <div className="flex-1 overflow-y-auto p-6 space-y-2">
           <div className="space-y-4">
             <div className="flex items-center justify-between ml-1">
-              <h4 className="text-xs  text-slate-400  tracking-widest flex items-center gap-2">
+              <h4 className="text-xs  text-slate-400   flex items-center gap-2">
                 <Box size={14} className="text-slate-300" />
                 Materials List
               </h4>
@@ -65,7 +65,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
             <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-[10px]   tracking-widest border-b border-slate-200 dark:border-slate-800">
+                  <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-xs    border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="px-4 py-3.5 w-12 text-center">#</th>
                       <th className="px-4 py-3.5">Item Name / Group</th>
@@ -88,26 +88,26 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                               {item.itemName}
                             </span>
                             {item.itemGroup?.toLowerCase().includes("plate") && (item.length || item.width || item.thickness) && (
-                              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                 Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.thickness || 0)} mm
                               </span>
                             )}
                             {item.itemGroup?.toLowerCase().includes("round bar") && (item.diameter || item.length) && (
-                              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                 Dim: Dia:{Number(item.diameter || 0)}, L:{Number(item.length || 0)} mm
                               </span>
                             )}
                             {item.itemGroup?.toLowerCase().includes("pipe") && (item.outerDiameter || item.thickness || item.length) && (
-                              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                 Dim: OD:{Number(item.outerDiameter || 0)}, Thk:{Number(item.thickness || 0)}, L:{Number(item.length || 0)} mm
                               </span>
                             )}
                             {item.itemGroup?.toLowerCase().includes("block") && (item.length || item.width || item.height) && (
-                              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                 Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.height || 0)} mm
                               </span>
                             )}
-                            <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500  ">
+                            <span className="text-xs font-medium text-slate-400 dark:text-slate-500  ">
                               {item.itemGroup || "NO-GROUP"}
                             </span>
                           </div>
@@ -117,14 +117,14 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                             <span className="text-xs text-slate-700 dark:text-slate-300">
                               {item.partDetail || "-"}
                             </span>
-                            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-500  ">
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-500  ">
                               {item.materialGrade || "-"}
                             </span>
                           </div>
                         </td>
                         <td className="px-4 py-3.5">
                           <div className="flex flex-col">
-                            <span className="text-[10px] text-slate-500 italic">
+                            <span className="text-xs text-slate-500 italic">
                               {item.remark || "-"}
                             </span>
                             <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -138,7 +138,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                               {Number((parseFloat(item.totalWeight || item.total || 0) || (parseFloat(item.calculatedWeight || item.unitWeight || 0) * parseFloat(item.quantity || 0))).toFixed(3))} Kg
                             </span>
                             {(parseFloat(item.unitWeight) > 0 || parseFloat(item.calculatedWeight) > 0) && (
-                              <span className="text-[10px] text-slate-400">
+                              <span className="text-xs text-slate-400">
                                 Unit: {Number(parseFloat(item.unitWeight || item.calculatedWeight || 0).toFixed(3))}
                               </span>
                             )}
@@ -150,7 +150,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-center">
-                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[10px]  text-slate-500 dark:text-slate-400">
+                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-500 dark:text-slate-400">
                             {item.uom}
                           </span>
                         </td>
@@ -163,7 +163,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs  text-slate-400  tracking-widest flex items-center gap-2">
+            <h4 className="text-xs  text-slate-400   flex items-center gap-2">
               <FileText size={14} className="text-slate-300" />
               Additional Remarks
             </h4>

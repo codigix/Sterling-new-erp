@@ -195,7 +195,7 @@ const AuditLogs = () => {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-semibold text-slate-500  tracking-widest mb-1">{stat.label}</p>
+                    <p className="text-xs font-semibold text-slate-500   mb-1">{stat.label}</p>
                     <p className="text-2xl  ">{stat.value}</p>
                   </div>
                   <div className={`${colorBg} p-3 rounded flex-shrink-0`}>

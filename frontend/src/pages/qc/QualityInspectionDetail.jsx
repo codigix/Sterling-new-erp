@@ -432,7 +432,7 @@ const QualityInspectionDetail = () => {
                             {s.serial_number}
                           </td>
                           <td className="p-2">
-                            <div className="text-[10px] text-slate-500 font-mono">
+                            <div className="text-xs text-slate-500 font-mono">
                               {renderDimensions(s.dimensions)}
                             </div>
                           </td>

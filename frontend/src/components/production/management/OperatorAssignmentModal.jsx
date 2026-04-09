@@ -72,10 +72,10 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
               <User size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+              <h2 className="text-xl  text-slate-900 dark:text-white  tracking-tight">
                 New Operator Assignment
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase font-bold tracking-widest flex items-center gap-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1    flex items-center gap-1">
                 <Calendar size={12} /> Planning for {new Date(date).toLocaleDateString()}
               </p>
             </div>
@@ -90,11 +90,11 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Project Selection */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+              <label className="text-xs  text-slate-500   flex items-center gap-1.5">
                 <LayoutDashboard size={14} className="text-blue-500" /> Select Project
               </label>
               <select 
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium uppercase"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
                 value={formData.projectId}
                 onChange={(e) => setFormData({...formData, projectId: e.target.value})}
               >
@@ -105,11 +105,11 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
 
             {/* Operation Selection */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+              <label className="text-xs  text-slate-500   flex items-center gap-1.5">
                 <Settings2 size={14} className="text-blue-500" /> Select Operation
               </label>
               <select 
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium uppercase"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
                 value={formData.operationId}
                 onChange={(e) => setFormData({...formData, operationId: e.target.value})}
               >
@@ -120,11 +120,11 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
 
             {/* Employee Selection */}
             <div className="md:col-span-2 space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+              <label className="text-xs  text-slate-500   flex items-center gap-1.5">
                 <User size={14} className="text-blue-500" /> Assign Operator / Employee
               </label>
               <select 
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium uppercase"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
                 value={formData.employeeId}
                 onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
               >
@@ -135,57 +135,57 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
 
             {/* Time Slots */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+              <label className="text-xs  text-slate-500   flex items-center gap-1.5">
                 <Clock size={14} className="text-blue-500" /> Start Time
               </label>
               <input 
                 type="time"
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
                 value={formData.startTime}
                 onChange={(e) => setFormData({...formData, startTime: e.target.value})}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+              <label className="text-xs  text-slate-500   flex items-center gap-1.5">
                 <Clock size={14} className="text-blue-500" /> End Time
               </label>
               <input 
                 type="time"
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
                 value={formData.endTime}
                 onChange={(e) => setFormData({...formData, endTime: e.target.value})}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+              <label className="text-xs  text-slate-500   flex items-center gap-1.5">
                 <Clock size={14} className="text-blue-500" /> Break Time (Minutes)
               </label>
               <input 
                 type="number"
                 placeholder="60"
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
                 value={formData.breakTime}
                 onChange={(e) => setFormData({...formData, breakTime: e.target.value})}
               />
             </div>
 
             {/* Total Hours Display */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/50 flex flex-col justify-center items-center">
-              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Calculated Man-Hours</p>
-              <h4 className="text-2xl font-black text-blue-700 dark:text-blue-300">{totalHours.toFixed(2)} Hrs</h4>
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded border border-blue-100 dark:border-blue-800/50 flex flex-col justify-center items-center">
+              <p className="text-xs  text-blue-600 dark:text-blue-400   mb-1">Calculated Man-Hours</p>
+              <h4 className="text-2xl  text-blue-700 dark:text-blue-300">{totalHours.toFixed(2)} Hrs</h4>
             </div>
 
             {/* Remarks */}
             <div className="md:col-span-2 space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+              <label className="text-xs  text-slate-500   flex items-center gap-1.5">
                 Remarks / Special Instructions
               </label>
               <textarea 
                 rows="3"
                 placeholder="Enter any specific instructions for the operator..."
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.remarks}
                 onChange={(e) => setFormData({...formData, remarks: e.target.value})}
               />
@@ -193,7 +193,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
           </div>
 
           {/* Overlap Warning (UI Placeholder) */}
-          <div className="mt-6 flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800/50 text-amber-700 dark:text-amber-400">
+          <div className="mt-6 flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-100 dark:border-amber-800/50 text-amber-700 dark:text-amber-400">
             <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
             <p className="text-xs font-medium">
               System will automatically check for overlapping assignments for the selected operator on {new Date(date).toLocaleDateString()} before saving.
@@ -205,12 +205,12 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
         <div className="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex justify-end gap-3">
           <button 
             onClick={onClose}
-            className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors uppercase tracking-widest"
+            className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded text-sm  hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors  "
           >
             Cancel
           </button>
           <button 
-            className="px-8 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2 uppercase tracking-widest"
+            className="px-8 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2  "
           >
             <Save size={18} /> Confirm Assignment
           </button>

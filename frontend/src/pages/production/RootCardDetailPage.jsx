@@ -187,7 +187,7 @@ const RootCardDetailPage = () => {
           onClick={() => navigate('/department/production/root-cards')}
           className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
         >
-          <ArrowLeft size={24} className="text-slate-500 dark:text-slate-400" />
+          <ArrowLeft size={15} className="text-slate-500 dark:text-slate-400" />
         </button>
         <div>
           <h1 className="text-3xl  text-slate-900 dark:text-white">{card.title}</h1>

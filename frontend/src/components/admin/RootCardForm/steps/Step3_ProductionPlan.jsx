@@ -64,13 +64,13 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
     { key: "partDetail", label: "Part Detail / Grade", render: (val, row) => (
       <div className="flex flex-col">
         <span className="text-xs">{val || "-"}</span>
-        <span className="text-[10px] text-slate-500 ">{row.materialGrade || "-"}</span>
+        <span className="text-xs text-slate-500 ">{row.materialGrade || "-"}</span>
       </div>
     )},
     { key: "warehouse", label: "WH / Operation", render: (val, row) => (
       <div className="flex flex-col">
         <span className="text-xs text-blue-600 ">{val || "-"}</span>
-        <span className="text-[10px] text-amber-600 font-medium italic">{row.operation || "-"}</span>
+        <span className="text-xs text-amber-600 font-medium italic">{row.operation || "-"}</span>
       </div>
     )},
     { key: "quantity", label: "QTY", render: (val, row) => `${val} ${row.uom}` },
@@ -87,12 +87,12 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
       <div className="flex flex-col">
         <span className="text-xs font-medium text-slate-700">{row.type === 'outsource' ? (row.vendorName || '-') : (val || '-')}</span>
         {row.type === 'outsource' && row.subcontractWarehouse && (
-          <span className="text-[10px] text-slate-500 italic">Wh: {row.subcontractWarehouse}</span>
+          <span className="text-xs text-slate-500 italic">Wh: {row.subcontractWarehouse}</span>
         )}
       </div>
     )},
     { key: "cycleTime", label: "Time (Min)", render: (val, row) => (
-      <div className="flex flex-col text-[10px]">
+      <div className="flex flex-col text-xs">
         <span>Cycle: {val}m</span>
         <span>Setup: {row.setupTime}m</span>
       </div>

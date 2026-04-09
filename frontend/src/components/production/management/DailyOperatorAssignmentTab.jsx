@@ -25,14 +25,14 @@ const DailyOperatorAssignmentTab = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-600/20">
-            <CalendarClock size={24} />
+          <div className="p-3 bg-blue-600 text-white rounded shadow-lg shadow-blue-600/20">
+            <CalendarClock size={15} />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tighter">Daily Operator Assignment</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Morning Planning & Resource Allocation</p>
+            <h2 className="text-lg  text-slate-900 dark:text-white  ">Daily Operator Assignment</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-xs    mt-0.5">Morning Planning & Resource Allocation</p>
           </div>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
@@ -40,28 +40,28 @@ const DailyOperatorAssignmentTab = () => {
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
             <input 
               type="date" 
-              className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+              className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm  outline-none focus:ring-2 focus:ring-blue-500 "
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
             />
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs  transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
           >
             <Plus size={16} /> New Assignment
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
-          <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Active Assignments for {selectedDate}</h3>
+          <h3 className="text-xs  text-slate-500 dark:text-slate-400  ">Active Assignments for {selectedDate}</h3>
           <div className="flex gap-4 items-center">
-            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+            <div className="flex items-center gap-2 text-xs  text-slate-500">
               <span className="w-2 h-2 bg-blue-500 rounded-full"></span> 12.5 Total Planned Man-Hours
             </div>
-            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+            <div className="flex items-center gap-2 text-xs  text-slate-500">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span> 3/10 Operators Active
             </div>
           </div>
@@ -71,38 +71,38 @@ const DailyOperatorAssignmentTab = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-700">
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Project & Operation</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Employee / Operator</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Time Slot</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Load (H)</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                <th className="p-2 text-xs  text-slate-400  ">Project & Operation</th>
+                <th className="p-2 text-xs  text-slate-400  ">Employee / Operator</th>
+                <th className="p-2 text-xs  text-slate-400  ">Time Slot</th>
+                <th className="p-2 text-xs  text-slate-400   text-center">Load (H)</th>
+                <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {currentAssignments.map((assignment) => (
                 <tr key={assignment.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-tight">{assignment.project}</p>
-                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{assignment.operation}</span>
+                  <td className="p-2">
+                    <p className="text-xs  text-slate-900 dark:text-white  tracking-tight">{assignment.project}</p>
+                    <span className="text-xs  text-blue-600  ">{assignment.operation}</span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
                         <User size={14} />
                       </div>
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{assignment.operator}</span>
+                      <span className="text-xs  text-slate-700 dark:text-slate-300">{assignment.operator}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="p-2">
                     <div className="flex flex-col">
-                      <span className="text-xs font-black text-slate-900 dark:text-white">{assignment.start} - {assignment.end}</span>
-                      <span className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Standard Shift</span>
+                      <span className="text-xs  text-slate-900 dark:text-white">{assignment.start} - {assignment.end}</span>
+                      <span className="text-xs text-slate-400   ">Standard Shift</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs font-black text-slate-900 dark:text-white">{assignment.load}h</span>
+                  <td className="p-2 text-center">
+                    <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs  text-slate-900 dark:text-white">{assignment.load}h</span>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="p-2 text-right">
                     <button className="p-2 text-slate-300 hover:text-red-500 transition-colors">
                       <X size={16} />
                     </button>

@@ -192,7 +192,7 @@ const DepartmentLayout = () => {
                   <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-xs text-slate-500 dark:text-slate-300 font-semibold capitalize">
                     {user?.department || user?.role}
                   </span>
                 </div>
@@ -205,7 +205,7 @@ const DepartmentLayout = () => {
                     <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-[10px] font-medium text-blue-100  tracking-wider">
+                    <p className="text-xs font-medium text-blue-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>
@@ -276,7 +276,7 @@ const DepartmentLayout = () => {
                               <ul className="mt-1 ml-3 border-l border-slate-200 pl-3 space-y-1">
                                 {item.submenu.map(sub => (
                                   <li key={sub.path}>
-                                    <Link to={sub.path} className={`flex items-center text-xs px-3 py-1.5 text-[11px] font-medium rounded ${isActive(sub.path) ? "bg-blue-100 text-blue-700" : "text-slate-500 hover:bg-slate-50"}`}>
+                                    <Link to={sub.path} className={`flex items-center text-xs px-3 py-1.5 text-xs font-medium rounded ${isActive(sub.path) ? "bg-blue-100 text-blue-700" : "text-slate-500 hover:bg-slate-50"}`}>
                                       <sub.icon size={14} className="mr-2" />
                                       {sub.title}
                                     </Link>

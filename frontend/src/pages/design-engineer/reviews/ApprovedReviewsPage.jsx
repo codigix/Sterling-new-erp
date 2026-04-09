@@ -103,7 +103,7 @@ const ApprovedReviewsPage = () => {
                 <div>
                   <div className="flex items-center text-xs gap-2 mb-2">
                     <CheckCircle
-                      size={24}
+                      size={15}
                       className="text-green-600 dark:text-green-400"
                     />
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white">

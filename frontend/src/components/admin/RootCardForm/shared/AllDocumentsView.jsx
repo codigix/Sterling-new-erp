@@ -83,14 +83,14 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
                       {file.name}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded  font-medium">
+                      <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded  font-medium">
                         {file.step}
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded  font-medium">
+                      <span className="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded  font-medium">
                         {file.category}
                       </span>
                       {file.size && (
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-xs text-slate-400">
                           {(file.size / 1024).toFixed(1)} KB
                         </span>
                       )}

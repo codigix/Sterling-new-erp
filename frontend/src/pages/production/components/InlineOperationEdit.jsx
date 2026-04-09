@@ -66,7 +66,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
               <Activity size={14} />
             </div>
             <span className="text-xs   tracking-wider">Modify Operational Step</span>
-            <span className="text-[10px] opacity-70 font-mono">JC-{operation.id}</span>
+            <span className="text-xs opacity-70 font-mono">JC-{operation.id}</span>
           </div>
           <button 
             onClick={onCancel}
@@ -80,7 +80,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Operation */}
             <div>
-              <label className="block text-[10px]  text-slate-400  mb-1">Operation</label>
+              <label className="block text-xs  text-slate-400  mb-1">Operation</label>
               <div className="relative group">
                 <Activity size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -95,7 +95,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Workstation */}
             <div>
-              <label className="block text-[10px]  text-slate-400  mb-1">Workstation</label>
+              <label className="block text-xs  text-slate-400  mb-1">Workstation</label>
               <div className="relative">
                 <Layers size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <select
@@ -113,7 +113,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Status */}
             <div>
-              <label className="block text-[10px]  text-slate-400  mb-1">Status</label>
+              <label className="block text-xs  text-slate-400  mb-1">Status</label>
               <select
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 value={formData.status}
@@ -128,7 +128,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Type */}
             <div>
-              <label className="block text-[10px]  text-slate-400  mb-1">Type</label>
+              <label className="block text-xs  text-slate-400  mb-1">Type</label>
               <select
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 value={formData.type}
@@ -142,7 +142,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
             {/* Vendor (Shows for Outsource) */}
             {formData.type === 'outsource' && (
               <div>
-                <label className="block text-[10px]  text-slate-400  mb-1">Vendor</label>
+                <label className="block text-xs  text-slate-400  mb-1">Vendor</label>
                 <div className="relative">
                   <Users size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <select
@@ -163,7 +163,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
             {/* Operator (Shows for In-House) */}
             {formData.type === 'in-house' && (
               <div>
-                <label className="block text-[10px]  text-slate-400  mb-1">Operator</label>
+                <label className="block text-xs  text-slate-400  mb-1">Operator</label>
                 <div className="relative">
                   <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <select
@@ -184,7 +184,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Planned Qty */}
             <div>
-              <label className="block text-[10px]  text-slate-400  mb-1">Planned Qty</label>
+              <label className="block text-xs  text-slate-400  mb-1">Planned Qty</label>
               <div className="relative">
                 <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -198,7 +198,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* Produced Qty */}
             <div>
-              <label className="block text-[10px]  text-slate-400  mb-1">Produced Qty</label>
+              <label className="block text-xs  text-slate-400  mb-1">Produced Qty</label>
               <div className="relative">
                 <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -208,12 +208,12 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                   onChange={(e) => setFormData({ ...formData, producedQty: e.target.value })}
                 />
               </div>
-              <p className="text-[9px] text-emerald-600  mt-1">Limit: {formData.plannedQty}.00</p>
+              <p className="text-xs text-emerald-600  mt-1">Limit: {formData.plannedQty}.00</p>
             </div>
 
             {/* Start Date */}
             <div>
-              <label className="block text-[10px]  text-slate-400  mb-1">Start Date</label>
+              <label className="block text-xs  text-slate-400  mb-1">Start Date</label>
               <div className="relative">
                 <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -227,7 +227,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
             {/* End Date */}
             <div>
-              <label className="block text-[10px]  text-slate-400  mb-1">End Date</label>
+              <label className="block text-xs  text-slate-400  mb-1">End Date</label>
               <div className="relative">
                 <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input

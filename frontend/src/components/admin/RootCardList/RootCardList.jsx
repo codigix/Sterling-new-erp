@@ -364,7 +364,7 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
                 </span>
                 <span className="text-sm">{tab.label}</span>
                 {count > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded  transition-colors duration-200 ${
+                  <span className={`text-xs px-1.5 py-0.5 rounded  transition-colors duration-200 ${
                     isActive 
                       ? 'bg-blue-100 text-blue-600 ' 
                       : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'

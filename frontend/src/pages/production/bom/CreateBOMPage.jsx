@@ -710,7 +710,7 @@ const CreateBOMPage = () => {
                 />
               </div>
             </div>
-            <p className="text-[11px]  text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5">
+            <p className="text-xs  text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5">
                   <span className="w-1 h-1 rounded  bg-blue-500"></span>
                   Selecting a root card will automatically populate product information and link this BOM to its project.
                 </p>
@@ -727,7 +727,7 @@ const CreateBOMPage = () => {
             {!isRootCardSelected ? (
               <div className="text-center py-12 bg-slate-50/50 dark:bg-slate-800/20 rounded border-2 border-dashed border-slate-200 dark:border-slate-800">
                 <div className="mx-auto w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded  flex items-center justify-center mb-3">
-                  <Plus size={24} className="text-slate-400" />
+                  <Plus size={15} className="text-slate-400" />
                 </div>
                 <h4 className="text-sm  text-slate-900 dark:text-white mb-1">No Root Card Selected</h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Please select a Root Card in Product Information to start adding materials.</p>
@@ -1004,19 +1004,19 @@ const CreateBOMPage = () => {
                       <div className="md:col-span-12 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded border border-blue-100 dark:border-blue-900/20 flex items-center justify-between mb-2">
                         <div className="flex gap-6">
                           <div>
-                            <span className="text-[10px] text-blue-500 uppercase font-semibold block">Unit Weight</span>
-                            <span className="text-sm font-bold text-blue-700 dark:text-blue-400">
+                            <span className="text-xs text-blue-500  font-semibold block">Unit Weight</span>
+                            <span className="text-sm  text-blue-700 dark:text-blue-400">
                               {Number(newMaterial.calculatedWeight.toFixed(3))} Kg
                             </span>
                           </div>
                           <div>
-                            <span className="text-[10px] text-blue-500 uppercase font-semibold block">Total Weight</span>
-                            <span className="text-sm font-bold text-blue-700 dark:text-blue-400">
+                            <span className="text-xs text-blue-500  font-semibold block">Total Weight</span>
+                            <span className="text-sm  text-blue-700 dark:text-blue-400">
                               {Number((newMaterial.calculatedWeight * (parseFloat(newMaterial.quantity) || 0)).toFixed(3))} Kg
                             </span>
                           </div>
                           <div>
-                            <span className="text-[10px] text-blue-500 uppercase font-semibold block">Material</span>
+                            <span className="text-xs text-blue-500  font-semibold block">Material</span>
                             <span className="text-sm font-medium text-blue-700 dark:text-blue-400">{newMaterial.materialType} ({newMaterial.density})</span>
                           </div>
                         </div>
@@ -1024,7 +1024,7 @@ const CreateBOMPage = () => {
                           <button 
                             type="button"
                             onClick={() => setNewMaterial(prev => ({ ...prev, quantity: Number((prev.calculatedWeight * (parseFloat(prev.quantity) || 1)).toFixed(3)) }))}
-                            className="text-[10px] bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
+                            className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
                           >
                             Apply to Qty
                           </button>
@@ -1092,22 +1092,22 @@ const CreateBOMPage = () => {
                                 <div className="flex flex-col">
                                   <span className=" text-slate-700 dark:text-slate-200">{row.itemName}</span>
                                   {row.itemGroup?.toLowerCase().includes("plate") && (row.length || row.width || row.thickness) && (
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                       Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.thickness || 0)} mm
                                     </span>
                                   )}
                                   {row.itemGroup?.toLowerCase().includes("round bar") && (row.diameter || row.length) && (
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                       Dim: Dia:{Number(row.diameter || 0)}, L:{Number(row.length || 0)} mm
                                     </span>
                                   )}
                                   {row.itemGroup?.toLowerCase().includes("pipe") && (row.outerDiameter || row.thickness || row.length) && (
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                       Dim: OD:{Number(row.outerDiameter || 0)}, Thk:{Number(row.thickness || 0)}, L:{Number(row.length || 0)} mm
                                     </span>
                                   )}
                                   {row.itemGroup?.toLowerCase().includes("block") && (row.length || row.width || row.height) && (
-                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                       Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.height || 0)} mm
                                     </span>
                                   )}
@@ -1136,29 +1136,29 @@ const CreateBOMPage = () => {
                                   {/* Editable Dimensions in Table */}
                                   {row.itemGroup?.toLowerCase().includes("plate") && (
                                     <div className="grid grid-cols-3 gap-1">
-                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-[10px]" />
-                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-[10px]" />
-                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-xs" />
                                     </div>
                                   )}
                                   {row.itemGroup?.toLowerCase().includes("round bar") && (
                                     <div className="grid grid-cols-2 gap-1">
-                                      <input type="number" value={row.diameter} onChange={(e) => updateTableRow("materials", row.id, "diameter", e.target.value)} placeholder="D" className="w-full p-1 border rounded text-[10px]" />
-                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.diameter} onChange={(e) => updateTableRow("materials", row.id, "diameter", e.target.value)} placeholder="D" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
                                     </div>
                                   )}
                                   {row.itemGroup?.toLowerCase().includes("pipe") && (
                                     <div className="grid grid-cols-3 gap-1">
-                                      <input type="number" value={row.outerDiameter} onChange={(e) => updateTableRow("materials", row.id, "outerDiameter", e.target.value)} placeholder="OD" className="w-full p-1 border rounded text-[10px]" />
-                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-[10px]" />
-                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.outerDiameter} onChange={(e) => updateTableRow("materials", row.id, "outerDiameter", e.target.value)} placeholder="OD" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
                                     </div>
                                   )}
                                   {row.itemGroup?.toLowerCase().includes("block") && (
                                     <div className="grid grid-cols-3 gap-1">
-                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-[10px]" />
-                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-[10px]" />
-                                      <input type="number" value={row.height} onChange={(e) => updateTableRow("materials", row.id, "height", e.target.value)} placeholder="H" className="w-full p-1 border rounded text-[10px]" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.height} onChange={(e) => updateTableRow("materials", row.id, "height", e.target.value)} placeholder="H" className="w-full p-1 border rounded text-xs" />
                                     </div>
                                   )}
                                 </div>
@@ -1204,7 +1204,7 @@ const CreateBOMPage = () => {
                                   {Number((parseFloat(row.totalWeight || row.total || 0) || (parseFloat(row.calculatedWeight || row.unitWeight || 0) * parseFloat(row.quantity || 0))).toFixed(3))} Kg
                                 </span>
                                 {(parseFloat(row.unitWeight) > 0 || parseFloat(row.calculatedWeight) > 0) && (
-                                  <span className="text-[10px] text-slate-400">
+                                  <span className="text-xs text-slate-400">
                                     Unit: {Number(parseFloat(row.unitWeight || row.calculatedWeight || 0).toFixed(3))}
                                   </span>
                                 )}

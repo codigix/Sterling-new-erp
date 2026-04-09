@@ -281,7 +281,7 @@ const ProductionEntryPage = () => {
         </select>
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-xs  text-slate-500">Page 1 of 0 <span className="text-[10px] opacity-60">(0 total)</span></span>
+        <span className="text-xs  text-slate-500">Page 1 of 0 <span className="text-xs opacity-60">(0 total)</span></span>
         <div className="flex items-center gap-1">
           <button className="p-1.5 rounded border border-slate-200 text-slate-400 hover:bg-slate-50 transition-all disabled:opacity-50" disabled>
             <ChevronLeft size={16} />
@@ -311,7 +311,7 @@ const ProductionEntryPage = () => {
                   </span>
                 </h1>
               </div>
-              <div className="flex items-center gap-2 text-[11px]  text-slate-400  tracking-wider">
+              <div className="flex items-center gap-2 text-xs  text-slate-400  tracking-wider">
                 JC - {operation.id} - {operation.work_order_no} 
                 <span className="w-1 h-1 bg-slate-300 rounded " />
                 {format(new Date(), 'd MMMM yyyy')}
@@ -335,41 +335,41 @@ const ProductionEntryPage = () => {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-center gap-4 flex-1">
               <div className="w-12 h-12 bg-slate-50 rounded flex items-center justify-center text-slate-400 border border-slate-100">
-                <Box size={24} />
+                <Box size={15} />
               </div>
               <div>
-                <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Target Item</p>
+                <p className="text-xs  text-slate-400   mb-1">Target Item</p>
                 <h2 className="text-base  text-slate-900 leading-tight mb-0.5">{operation.item_name}</h2>
-                <p className="text-[11px]  text-indigo-600  er">{operation.item_code}</p>
+                <p className="text-xs  text-indigo-600  er">{operation.item_code}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-3 md:grid-cols-6 gap-8 border-l border-slate-100 pl-8">
               <div>
-                <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Planned</p>
-                <p className="text-sm  text-slate-900">{stats.planned} <span className="text-[10px] text-slate-400 font-medium">Units</span></p>
+                <p className="text-xs  text-slate-400   mb-1">Planned</p>
+                <p className="text-sm  text-slate-900">{stats.planned} <span className="text-xs text-slate-400 font-medium">Units</span></p>
               </div>
               <div>
-                <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Produced</p>
-                <p className="text-sm  text-slate-900">{stats.produced} <span className="text-[10px] text-slate-400 font-medium">Units</span></p>
+                <p className="text-xs  text-slate-400   mb-1">Produced</p>
+                <p className="text-sm  text-slate-900">{stats.produced} <span className="text-xs text-slate-400 font-medium">Units</span></p>
               </div>
               <div>
-                <p className="text-[10px]  text-slate-400  tracking-widest mb-1 text-emerald-500">Accepted</p>
-                <p className="text-sm  text-emerald-600">{stats.accepted} <span className="text-[10px] text-emerald-400 font-medium">Units</span></p>
+                <p className="text-xs  text-slate-400   mb-1 text-emerald-500">Accepted</p>
+                <p className="text-sm  text-emerald-600">{stats.accepted} <span className="text-xs text-emerald-400 font-medium">Units</span></p>
               </div>
               <div>
-                <p className="text-[10px]  text-slate-400  tracking-widest mb-1 text-indigo-500">Transferred</p>
-                <p className="text-sm  text-indigo-600">{stats.transferred} <span className="text-[10px] text-indigo-400 font-medium">Units</span></p>
+                <p className="text-xs  text-slate-400   mb-1 text-indigo-500">Transferred</p>
+                <p className="text-sm  text-indigo-600">{stats.transferred} <span className="text-xs text-indigo-400 font-medium">Units</span></p>
               </div>
               <div>
-                <p className="text-[10px]  text-slate-400  tracking-widest mb-1 text-amber-500">BALANCE WIP</p>
-                <p className="text-sm  text-amber-600">{stats.balanceWip} <span className="text-[10px] text-amber-400 font-medium">Units</span></p>
+                <p className="text-xs  text-slate-400   mb-1 text-amber-500">BALANCE WIP</p>
+                <p className="text-sm  text-amber-600">{stats.balanceWip} <span className="text-xs text-amber-400 font-medium">Units</span></p>
               </div>
               <div>
-                <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Current Op</p>
+                <p className="text-xs  text-slate-400   mb-1">Current Op</p>
                 <div className="flex items-center gap-1.5 text-blue-600">
                   <div className="w-1.5 h-1.5 bg-blue-500 rounded " />
-                  <p className="text-[11px]    truncate max-w-[100px]">{operation.operation_name}</p>
+                  <p className="text-xs    truncate max-w-[100px]">{operation.operation_name}</p>
                 </div>
               </div>
             </div>
@@ -380,29 +380,29 @@ const ProductionEntryPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-pink-50 text-pink-500 rounded flex items-center justify-center border border-pink-100">
-              <TrendingUp size={24} />
+              <TrendingUp size={15} />
             </div>
             <div>
-              <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Efficiency</p>
-              <h3 className="text-xl  text-slate-900">{stats.efficiency}% <span className="text-[10px] text-slate-400  ml-1 ">0 / 0 MIN</span></h3>
+              <p className="text-xs  text-slate-400   mb-1">Efficiency</p>
+              <h3 className="text-xl  text-slate-900">{stats.efficiency}% <span className="text-xs text-slate-400  ml-1 ">0 / 0 MIN</span></h3>
             </div>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded flex items-center justify-center border border-amber-100">
-              <ShieldCheck size={24} />
+              <ShieldCheck size={15} />
             </div>
             <div>
-              <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Quality Yield</p>
-              <h3 className="text-xl  text-slate-900">{stats.qualityYield}% <span className="text-[10px] text-slate-400  ml-1 ">ACCEPTANCE RATE</span></h3>
+              <p className="text-xs  text-slate-400   mb-1">Quality Yield</p>
+              <h3 className="text-xl  text-slate-900">{stats.qualityYield}% <span className="text-xs text-slate-400  ml-1 ">ACCEPTANCE RATE</span></h3>
             </div>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded flex items-center justify-center border border-blue-100">
-              <Zap size={24} />
+              <Zap size={15} />
             </div>
             <div>
-              <p className="text-[10px]  text-slate-400  tracking-widest mb-1">Productivity</p>
-              <h3 className="text-xl  text-slate-900">{stats.productivity} <span className="text-[10px] text-slate-400  ml-1 ">UNITS PER HOUR</span></h3>
+              <p className="text-xs  text-slate-400   mb-1">Productivity</p>
+              <h3 className="text-xl  text-slate-900">{stats.productivity} <span className="text-xs text-slate-400  ml-1 ">UNITS PER HOUR</span></h3>
             </div>
           </div>
         </div>
@@ -420,7 +420,7 @@ const ProductionEntryPage = () => {
             <form onSubmit={handleAddTimeLog} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-x-6 gap-y-4 items-end">
                 <div className="md:col-span-3">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Day & Date <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Day & Date <span className="text-red-500">*</span></label>
                   <div className="flex gap-1.5">
                     <input 
                       type="number" 
@@ -432,7 +432,7 @@ const ProductionEntryPage = () => {
                       <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                       <input 
                         type="date" 
-                        className="w-full h-11 pl-8 pr-2 bg-white border border-slate-200 rounded text-[11px]  text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                        className="w-full h-11 pl-8 pr-2 bg-white border border-slate-200 rounded text-xs  text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                         value={timeLogForm.date}
                         onChange={(e) => setTimeLogForm({...timeLogForm, date: e.target.value})}
                       />
@@ -441,7 +441,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-3">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Operator <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Operator <span className="text-red-500">*</span></label>
                   <select 
                     className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm  text-slate-700 appearance-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
                     value={timeLogForm.operatorId}
@@ -456,7 +456,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-3">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Workstation <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Workstation <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <select 
                       className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm  text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
@@ -475,7 +475,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest text-center">Shift <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block  text-center">Shift <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-1.5 h-11">
                     <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <select 
@@ -500,7 +500,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-1">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest text-center">Qty <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block  text-center">Qty <span className="text-red-500">*</span></label>
                   <div className="flex focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 rounded transition-all overflow-hidden border border-slate-200 h-11">
                     <input 
                       type="number" 
@@ -515,7 +515,7 @@ const ProductionEntryPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-4 items-end pt-4 border-t border-slate-100">
                 <div className="md:col-span-5">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Production Period <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Production Period <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-3">
                     <div className="flex bg-white border border-slate-200 rounded overflow-hidden flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <input 
@@ -525,7 +525,7 @@ const ProductionEntryPage = () => {
                         onChange={(e) => setTimeLogForm({...timeLogForm, startTime: e.target.value})}
                       />
                       <select 
-                        className="px-2 py-2.5 text-[10px]  border-l border-slate-100 outline-none bg-slate-50 text-slate-500 appearance-none pr-6"
+                        className="px-2 py-2.5 text-xs  border-l border-slate-100 outline-none bg-slate-50 text-slate-500 appearance-none pr-6"
                         value={timeLogForm.startPeriod}
                         onChange={(e) => setTimeLogForm({...timeLogForm, startPeriod: e.target.value})}
                       >
@@ -545,7 +545,7 @@ const ProductionEntryPage = () => {
                         onChange={(e) => setTimeLogForm({...timeLogForm, endTime: e.target.value})}
                       />
                       <select 
-                        className="px-2 py-2.5 text-[10px]  border-l border-slate-100 outline-none bg-slate-50 text-slate-500 appearance-none pr-6"
+                        className="px-2 py-2.5 text-xs  border-l border-slate-100 outline-none bg-slate-50 text-slate-500 appearance-none pr-6"
                         value={timeLogForm.endPeriod}
                         onChange={(e) => setTimeLogForm({...timeLogForm, endPeriod: e.target.value})}
                       >
@@ -560,7 +560,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-3">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Total Mins <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Total Mins <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded text-sm  text-red-500 focus:outline-none"
@@ -573,7 +573,7 @@ const ProductionEntryPage = () => {
                   <button 
                     type="submit"
                     disabled={submitting}
-                    className="w-full h-11 bg-indigo-600 text-white rounded text-sm   tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all  shadow-indigo-200 disabled:opacity-50 active:scale-[0.98]"
+                    className="w-full h-11 bg-indigo-600 text-white rounded text-sm    flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all  shadow-indigo-200 disabled:opacity-50 active:scale-[0.98]"
                   >
                     <FileText size={18} />
                     Record Time
@@ -602,7 +602,7 @@ const ProductionEntryPage = () => {
             <form onSubmit={handleAddQualityEntry} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-4 items-end">
                 <div className="md:col-span-1">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest text-center">Day <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block  text-center">Day <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className="w-full h-11 px-2 bg-white border border-slate-200 rounded text-sm  text-center text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
@@ -611,19 +611,19 @@ const ProductionEntryPage = () => {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Date <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Date <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                     <input 
                       type="date" 
-                      className="w-full h-11 pl-8 pr-2 bg-white border border-slate-200 rounded text-[11px]  text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                      className="w-full h-11 pl-8 pr-2 bg-white border border-slate-200 rounded text-xs  text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                       value={qualityForm.date}
                       onChange={(e) => setQualityForm({...qualityForm, date: e.target.value})}
                     />
                   </div>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest text-center">Shift <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block  text-center">Shift <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-1.5 h-11">
                     <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <select 
@@ -647,7 +647,7 @@ const ProductionEntryPage = () => {
                   </div>
                 </div>
                 <div className="md:col-span-1">
-                  <label className="text-[10px]  text-slate-500  mb-2 block text-center tracking-widest">Produce <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block text-center ">Produce <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className="w-full h-11 px-2 bg-blue-50/50 border border-blue-100 rounded text-sm  text-blue-600 text-center focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
@@ -656,7 +656,7 @@ const ProductionEntryPage = () => {
                   />
                 </div>
                 <div className="md:col-span-1">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest text-center">Reason</label>
+                  <label className="text-xs  text-slate-500  mb-2 block  text-center">Reason</label>
                   <div className="relative">
                     <select 
                       className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-xs  text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
@@ -672,7 +672,7 @@ const ProductionEntryPage = () => {
                   </div>
                 </div>
                 <div className="md:col-span-1">
-                  <label className="text-[10px]  text-slate-500  mb-2 block text-center tracking-widest text-emerald-600">Accepted <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block text-center  text-emerald-600">Accepted <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className="w-full h-11 px-2 bg-emerald-50 border border-emerald-100 rounded text-sm  text-emerald-600 text-center focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
@@ -681,7 +681,7 @@ const ProductionEntryPage = () => {
                   />
                 </div>
                 <div className="md:col-span-1">
-                  <label className="text-[10px]  text-slate-500  mb-2 block text-center tracking-widest text-red-500">Rejected <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block text-center  text-red-500">Rejected <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className="w-full h-11 px-2 bg-red-50 border border-red-100 rounded text-sm  text-red-600 text-center focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
@@ -690,7 +690,7 @@ const ProductionEntryPage = () => {
                   />
                 </div>
                 <div className="md:col-span-1">
-                  <label className="text-[10px]  text-slate-500  mb-2 block text-center tracking-widest text-amber-500">Scrap <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block text-center  text-amber-500">Scrap <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className="w-full h-11 px-2 bg-amber-50 border border-amber-100 rounded text-sm  text-amber-600 text-center focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all"
@@ -702,7 +702,7 @@ const ProductionEntryPage = () => {
                   <button 
                     type="submit"
                     disabled={submitting}
-                    className="w-full h-11 bg-emerald-600 text-white rounded flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all  shadow-emerald-200 disabled:opacity-50 active:scale-[0.95] text-xs   tracking-widest"
+                    className="w-full h-11 bg-emerald-600 text-white rounded flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all  shadow-emerald-200 disabled:opacity-50 active:scale-[0.95] text-xs   "
                   >
                     <Save size={18} />
                     Save Entry
@@ -714,8 +714,8 @@ const ProductionEntryPage = () => {
               <div className="p-1.5 bg-white rounded text-amber-500 h-fit shadow-sm">
                 <Info size={16} />
               </div>
-              <p className="text-[11px] font-medium text-amber-700 leading-normal">
-                <span className="  tracking-widest mr-1">Quality Gate Active</span>
+              <p className="text-xs font-medium text-amber-700 leading-normal">
+                <span className="   mr-1">Quality Gate Active</span>
                 Only <span className="">Approved</span> quality inspection records contribute to the <span className="">Accepted Quantity</span> of this job card. Pending records will block the progression to subsequent operations.
               </p>
             </div>
@@ -740,7 +740,7 @@ const ProductionEntryPage = () => {
             <form className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-4 items-end">
                 <div className="md:col-span-3">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Day & Date <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Day & Date <span className="text-red-500">*</span></label>
                   <div className="flex gap-1.5">
                     <input 
                       type="number" 
@@ -752,7 +752,7 @@ const ProductionEntryPage = () => {
                       <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                       <input 
                         type="date" 
-                        className="w-full h-11 pl-8 pr-2 py-2.5 bg-white border border-slate-200 rounded text-[11px]  text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                        className="w-full h-11 pl-8 pr-2 py-2.5 bg-white border border-slate-200 rounded text-xs  text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
                         value={downtimeForm.date}
                         onChange={(e) => setDowntimeForm({...downtimeForm, date: e.target.value})}
                       />
@@ -761,7 +761,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-1">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest text-center">Shift <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block  text-center">Shift <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-1.5 h-11">
                     <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <select 
@@ -786,7 +786,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Downtime Type <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Downtime Type <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <select 
                       className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-xs  text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
@@ -803,7 +803,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Start Time <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">Start Time <span className="text-red-500">*</span></label>
                   <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-11 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                     <input 
                       type="text" 
@@ -812,7 +812,7 @@ const ProductionEntryPage = () => {
                       onChange={(e) => setDowntimeForm({...downtimeForm, startTime: e.target.value})}
                     />
                     <select 
-                      className="px-2 text-[10px]  bg-slate-50 border-l border-slate-100 outline-none appearance-none"
+                      className="px-2 text-xs  bg-slate-50 border-l border-slate-100 outline-none appearance-none"
                       value={downtimeForm.startPeriod}
                       onChange={(e) => setDowntimeForm({...downtimeForm, startPeriod: e.target.value})}
                     >
@@ -823,7 +823,7 @@ const ProductionEntryPage = () => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">End Time <span className="text-red-500">*</span></label>
+                  <label className="text-xs  text-slate-500  mb-2 block ">End Time <span className="text-red-500">*</span></label>
                   <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-11 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                     <input 
                       type="text" 
@@ -832,7 +832,7 @@ const ProductionEntryPage = () => {
                       onChange={(e) => setDowntimeForm({...downtimeForm, endTime: e.target.value})}
                     />
                     <select 
-                      className="px-2 text-[10px]  bg-slate-50 border-l border-slate-100 outline-none appearance-none"
+                      className="px-2 text-xs  bg-slate-50 border-l border-slate-100 outline-none appearance-none"
                       value={downtimeForm.endPeriod}
                       onChange={(e) => setDowntimeForm({...downtimeForm, endPeriod: e.target.value})}
                     >
@@ -845,7 +845,7 @@ const ProductionEntryPage = () => {
                 <div className="md:col-span-2">
                   <button 
                     type="button"
-                    className="w-full h-11 bg-orange-500 text-white rounded flex items-center justify-center gap-2 hover:bg-orange-600 transition-all  shadow-orange-200 active:scale-[0.95] text-xs   tracking-widest"
+                    className="w-full h-11 bg-orange-500 text-white rounded flex items-center justify-center gap-2 hover:bg-orange-600 transition-all  shadow-orange-200 active:scale-[0.95] text-xs   "
                   >
                     <FileText size={18} />
                     Record Downtime
@@ -866,14 +866,14 @@ const ProductionEntryPage = () => {
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
             <div className="flex items-center gap-4">
               <h2 className="text-sm  text-slate-900  ">Next Stage Configuration</h2>
-              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px]  rounded   tracking-widest">Active</span>
+              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs  rounded   ">Active</span>
             </div>
             <div className="flex items-center gap-6">
                <div className="flex items-center gap-2 text-emerald-600">
                   <ShieldCheck size={18} />
-                  <span className="text-[11px]   tracking-widest">Ready for Dispatch</span>
+                  <span className="text-xs   ">Ready for Dispatch</span>
                </div>
-               <div className="text-[11px]  text-slate-500  tracking-widest">
+               <div className="text-xs  text-slate-500  ">
                   <ArrowRightLeft size={14} className="inline mr-1 text-slate-400" />
                   Transferred so far: <span className="text-slate-900 ">0.00</span>
                </div>
@@ -881,11 +881,11 @@ const ProductionEntryPage = () => {
           </div>
           
           <div className="p-6">
-            <p className="text-[10px]  text-slate-400  tracking-widest mb-8">Specify destination and operational parameters for the next manufacturing phase</p>
+            <p className="text-xs  text-slate-400   mb-8">Specify destination and operational parameters for the next manufacturing phase</p>
             
             <div className="grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-6 items-end">
               <div className="md:col-span-3">
-                <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Next Operation <span className="text-red-500">*</span></label>
+                <label className="text-xs  text-slate-500  mb-2 block ">Next Operation <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <select 
                     className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm  text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
@@ -903,7 +903,7 @@ const ProductionEntryPage = () => {
               </div>
 
               <div className="md:col-span-3">
-                <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Assign Operator</label>
+                <label className="text-xs  text-slate-500  mb-2 block ">Assign Operator</label>
                 <div className="relative">
                   <select 
                     className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm  text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
@@ -920,7 +920,7 @@ const ProductionEntryPage = () => {
               </div>
 
               <div className="md:col-span-3">
-                <label className="text-[10px]  text-slate-500  mb-2 block tracking-widest">Target Warehouse <span className="text-red-500">*</span></label>
+                <label className="text-xs  text-slate-500  mb-2 block ">Target Warehouse <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <select 
                     className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm  text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
@@ -937,7 +937,7 @@ const ProductionEntryPage = () => {
               </div>
 
               <div className="md:col-span-3">
-                <label className="text-[10px]  text-slate-500  mb-3 block text-center tracking-widest">Execution Mode:</label>
+                <label className="text-xs  text-slate-500  mb-3 block text-center ">Execution Mode:</label>
                 <div className="flex justify-center gap-6 pb-2.5">
                   <label className="flex items-center gap-2.5 cursor-pointer group">
                     <div className={`w-3 h-3 rounded  border-2 flex items-center justify-center transition-all ${nextStageForm.executionMode === 'in-house' ? 'border-indigo-500 bg-indigo-500  shadow-indigo-100' : 'border-slate-300 group-hover:border-slate-400'}`}>
@@ -951,7 +951,7 @@ const ProductionEntryPage = () => {
                       checked={nextStageForm.executionMode === 'in-house'}
                       onChange={() => setNextStageForm({...nextStageForm, executionMode: 'in-house'})}
                     />
-                    <span className={`text-[11px]   tracking-widest transition-colors ${nextStageForm.executionMode === 'in-house' ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-700'}`}>In-house</span>
+                    <span className={`text-xs    transition-colors ${nextStageForm.executionMode === 'in-house' ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-700'}`}>In-house</span>
                   </label>
                   <label className="flex items-center gap-2.5 cursor-pointer group">
                     <div className={`w-3 h-3 rounded  border-2 flex items-center justify-center transition-all ${nextStageForm.executionMode === 'outsource' ? 'border-indigo-500 bg-indigo-500  shadow-indigo-100' : 'border-slate-300 group-hover:border-slate-400'}`}>
@@ -965,7 +965,7 @@ const ProductionEntryPage = () => {
                       checked={nextStageForm.executionMode === 'outsource'}
                       onChange={() => setNextStageForm({...nextStageForm, executionMode: 'outsource'})}
                     />
-                    <span className={`text-[11px]   tracking-widest transition-colors ${nextStageForm.executionMode === 'outsource' ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-700'}`}>Outsource</span>
+                    <span className={`text-xs    transition-colors ${nextStageForm.executionMode === 'outsource' ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-700'}`}>Outsource</span>
                   </label>
                 </div>
               </div>
@@ -982,10 +982,10 @@ const ProductionEntryPage = () => {
               </div>
               <div>
                 <h2 className="text-sm  text-slate-800  ">Daily Production Report</h2>
-                <p className="text-[10px]  text-slate-400  tracking-widest mt-0.5">Consolidated daily and shift-wise production metrics</p>
+                <p className="text-xs  text-slate-400   mt-0.5">Consolidated daily and shift-wise production metrics</p>
               </div>
             </div>
-            <button className="flex items-center gap-2 p-2 bg-indigo-50 text-indigo-600 rounded text-[11px]   tracking-widest hover:bg-indigo-100 transition-all">
+            <button className="flex items-center gap-2 p-2 bg-indigo-50 text-indigo-600 rounded text-xs    hover:bg-indigo-100 transition-all">
               <DownloadCloud size={16} />
               Download CSV
             </button>

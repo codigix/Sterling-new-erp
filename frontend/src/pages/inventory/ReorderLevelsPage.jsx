@@ -162,7 +162,7 @@ const ReorderLevelsPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-md  text-slate-900 dark:text-white text-xs flex items-center  gap-2">
-            <AlertTriangle size={24} />
+            <AlertTriangle size={15} />
             Reorder Levels Management
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">

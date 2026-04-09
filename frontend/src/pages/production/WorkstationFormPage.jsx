@@ -158,19 +158,19 @@ const WorkstationFormPage = () => {
             
             {/* Identity & Localization */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-4">
+              <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-blue-50 rounded flex items-center justify-center text-blue-600 border border-blue-100/50">
                   <Info size={20} />
                 </div>
                 <div>
                   <h3 className="text-sm  text-slate-900">Identity & Localization</h3>
-                  <p className="text-[10px] text-slate-500   tracking-widest mt-0.5">Basic Information</p>
+                  <p className="text-xs text-slate-500    mt-0.5">Basic Information</p>
                 </div>
               </div>
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-500  tracking-wider">Workstation ID</label>
+                    <label className="text-xs  text-slate-500  tracking-wider">Workstation ID</label>
                     <input 
                       type="text"
                       name="workstation_id"
@@ -182,7 +182,7 @@ const WorkstationFormPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-500  tracking-wider">Display Name</label>
+                    <label className="text-xs  text-slate-500  tracking-wider">Display Name</label>
                     <input 
                       type="text"
                       name="display_name"
@@ -194,7 +194,7 @@ const WorkstationFormPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-500  tracking-wider">Building / Area</label>
+                    <label className="text-xs  text-slate-500  tracking-wider">Building / Area</label>
                     <div className="relative">
                       <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input 
@@ -208,7 +208,7 @@ const WorkstationFormPage = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-500  tracking-wider">Responsible Dept</label>
+                    <label className="text-xs  text-slate-500  tracking-wider">Responsible Dept</label>
                     <select 
                       name="responsible_dept"
                       value={formData.responsible_dept}
@@ -227,19 +227,19 @@ const WorkstationFormPage = () => {
 
             {/* Technical Specifications */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-4">
+              <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-purple-50 rounded flex items-center justify-center text-purple-600 border border-purple-100/50">
                   <Cpu size={20} />
                 </div>
                 <div>
                   <h3 className="text-sm  text-slate-900">Technical Specifications</h3>
-                  <p className="text-[10px] text-slate-500   tracking-widest mt-0.5">Asset Capabilities</p>
+                  <p className="text-xs text-slate-500    mt-0.5">Asset Capabilities</p>
                 </div>
               </div>
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-500  tracking-wider">Equipment Class</label>
+                    <label className="text-xs  text-slate-500  tracking-wider">Equipment Class</label>
                     <select 
                       name="equipment_class"
                       value={formData.equipment_class}
@@ -255,7 +255,7 @@ const WorkstationFormPage = () => {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-500  tracking-wider">Equipment Code</label>
+                    <label className="text-xs  text-slate-500  tracking-wider">Equipment Code</label>
                     <input 
                       type="text"
                       name="equipment_code"
@@ -266,7 +266,7 @@ const WorkstationFormPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-500  tracking-wider">Units / Hour</label>
+                    <label className="text-xs  text-slate-500  tracking-wider">Units / Hour</label>
                     <input 
                       type="number"
                       name="units_per_hour"
@@ -276,7 +276,7 @@ const WorkstationFormPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-500  tracking-wider">Target Utilization %</label>
+                    <label className="text-xs  text-slate-500  tracking-wider">Target Utilization %</label>
                     <input 
                       type="number"
                       name="target_utilization"
@@ -287,7 +287,7 @@ const WorkstationFormPage = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px]  text-slate-500  tracking-wider">Technical Description</label>
+                  <label className="text-xs  text-slate-500  tracking-wider">Technical Description</label>
                   <textarea 
                     name="technical_description"
                     value={formData.technical_description}
@@ -318,25 +318,25 @@ const WorkstationFormPage = () => {
                 </div>
                 <div>
                   <p className="text-sm  text-slate-900">Active Node</p>
-                  <p className="text-[10px] text-slate-500 font-medium">Determines if work orders can be scheduled to this asset.</p>
+                  <p className="text-xs text-slate-500 font-medium">Determines if work orders can be scheduled to this asset.</p>
                 </div>
               </div>
             </div>
 
             {/* Maintenance */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-4">
+              <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-blue-50 rounded flex items-center justify-center text-blue-600 border border-blue-100/50">
                   <Settings size={20} />
                 </div>
                 <div>
                   <h3 className="text-sm  text-slate-900">Maintenance</h3>
-                  <p className="text-[10px] text-slate-500   tracking-widest mt-0.5">Service Schedule</p>
+                  <p className="text-xs text-slate-500    mt-0.5">Service Schedule</p>
                 </div>
               </div>
               <div className="p-8 space-y-2">
                 <div className="space-y-2">
-                  <label className="text-[11px]  text-slate-500  tracking-wider">Schedule Frequency</label>
+                  <label className="text-xs  text-slate-500  tracking-wider">Schedule Frequency</label>
                   <select 
                     name="maintenance_schedule"
                     value={formData.maintenance_schedule}
@@ -351,7 +351,7 @@ const WorkstationFormPage = () => {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px]  text-slate-500  tracking-wider">Last Maintenance Date</label>
+                  <label className="text-xs  text-slate-500  tracking-wider">Last Maintenance Date</label>
                   <div className="relative">
                     <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 

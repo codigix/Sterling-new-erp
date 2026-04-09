@@ -217,7 +217,7 @@ const SearchableSelect = ({
                   <div className="flex flex-col">
                     <span>{option.label}</span>
                     {option.subLabel && (
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400  ">
+                      <span className="text-xs text-slate-500 dark:text-slate-400  ">
                         {option.subLabel}
                       </span>
                     )}
@@ -256,7 +256,7 @@ const SearchableSelect = ({
         document.body
       )}
       
-      {error && <p className="mt-1 text-[10px] text-red-500 font-medium">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-500 font-medium">{error}</p>}
     </div>
   );
 };

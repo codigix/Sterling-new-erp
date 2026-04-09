@@ -37,7 +37,7 @@ import SearchableSelect from "../../components/ui/SearchableSelect";
 
 // Reuse Accordion component for the Modal structure
 const AccordionSection = memo(({ title, section, children, itemCount = 0, expandedSections, toggleSection }) => (
-  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded overflow-hidden transition-all duration-200 mb-2 shadow-sm">
+  <div className="">
     <div className={`p-2 flex items-center justify-between cursor-pointer select-none transition-colors ${expandedSections[section] ? "bg-slate-50/80 dark:bg-slate-800/50" : "hover:bg-slate-50/50 dark:hover:bg-slate-800/30"}`}
       onClick={() => toggleSection(section)}
     >
@@ -48,18 +48,18 @@ const AccordionSection = memo(({ title, section, children, itemCount = 0, expand
             className={`transition-transform duration-300 ${expandedSections[section] ? "" : "-rotate-90"}`}
           />
         </div>
-        <h3 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tight">
+        <h3 className="text-sm  text-slate-900 dark:text-white  ">
           {title}
         </h3>
         {itemCount > 0 && (
-          <span className="text-[9px] bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded font-bold">
+          <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded ">
             {itemCount} Assignments
           </span>
         )}
       </div>
     </div>
     {expandedSections[section] && (
-      <div className="p-4 border-t border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
+      <div className=" border-t border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
         {children}
       </div>
     )}
@@ -91,23 +91,65 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
   const [dailyPlan, setDailyPlan] = useState([]);
   const [editingAssignmentId, setEditingAssignmentId] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    operator: "",
+    operation: "",
+    startTime: "",
+    endTime: "",
+    remarks: "",
+    breakTime: "60"
+  });
+
+  const calculateHours = useCallback((startStr, endStr, breakMins) => {
+    if (!startStr || !endStr) return 0;
+    try {
+      const start = new Date(`2000-01-01T${startStr}`);
+      let end = new Date(`2000-01-01T${endStr}`);
+      
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+      
+      // Handle cross-midnight
+      if (end <= start) {
+        end = new Date(`2000-01-02T${endStr}`);
+      }
+      
+      const diffHrs = (end - start) / (1000 * 60 * 60);
+      const bHrs = (parseInt(breakMins) || 0) / 60;
+      return Math.max(0, diffHrs - bHrs);
+    } catch (e) {
+      return 0;
+    }
+  }, []);
 
   // Sync initial data when in edit/view mode
   useEffect(() => {
     if ((mode === "edit" || mode === "view") && initialData?.plan?.plan_date) {
       const pDate = initialData.plan.plan_date.split('T')[0];
       setLocalPlanDate(pDate);
-      const assignments = initialData.assignments.map(a => ({
-        ...a,
-        id: a.id,
-        projectName: a.project_name,
-        projectRef: a.root_card_id,
-        operation_name: a.operation_name,
-        operator_name: a.operator_name,
-        start_time: a.start_time?.substring(0, 5),
-        end_time: a.end_time?.substring(0, 5),
-        total_hours: parseFloat(a.total_hours)
-      }));
+      const assignments = initialData.assignments.map(a => {
+        const startTime = a.start_time?.substring(0, 5);
+        const endTime = a.end_time?.substring(0, 5);
+        const breakTime = a.break_time || 0;
+        
+        // Use backend value if provided and > 0, otherwise calculate
+        const totalHours = parseFloat(a.total_hours) > 0 
+          ? parseFloat(a.total_hours) 
+          : calculateHours(startTime, endTime, breakTime);
+
+        return {
+          ...a,
+          id: a.id,
+          projectName: a.project_name,
+          projectRef: a.root_card_id,
+          operation_name: a.operation_name,
+          operator_name: a.operator_name,
+          start_time: startTime,
+          end_time: endTime,
+          break_time: breakTime,
+          total_hours: totalHours
+        };
+      });
       setDailyPlan(assignments);
 
       // Auto-select first project from assignments if available
@@ -126,7 +168,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     }
     setEditingAssignmentId(null);
     setSelectedReleaseEntry(null);
-  }, [mode, initialData, isOpen, projects, planDate]);
+  }, [mode, initialData, isOpen, projects, planDate, calculateHours]);
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -167,17 +209,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   };
 
   const currentLoad = useMemo(() => {
-    if (!newAssignment.startTime || !newAssignment.endTime) return 0;
-    
-    const start = new Date(`2000-01-01T${newAssignment.startTime}`);
-    const end = new Date(`2000-01-01T${newAssignment.endTime}`);
-    
-    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return 0;
-    
-    let diffHrs = (end - start) / (1000 * 60 * 60);
-    let breakHrs = parseInt(newAssignment.breakTime || 0) / 60;
-    return Math.max(0, diffHrs - breakHrs);
-  }, [newAssignment.startTime, newAssignment.endTime, newAssignment.breakTime]);
+    return calculateHours(newAssignment.startTime, newAssignment.endTime, newAssignment.breakTime);
+  }, [newAssignment.startTime, newAssignment.endTime, newAssignment.breakTime, calculateHours]);
 
   const handleAddAssignment = () => {
     if (!selectedProject || !newAssignment.operation || !newAssignment.operator) {
@@ -185,21 +218,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       return;
     }
 
-    const start = new Date(`2000-01-01T${newAssignment.startTime}`);
-    const end = new Date(`2000-01-01T${newAssignment.endTime}`);
-
-    // Allow empty to indicate "not set" or "open ended"
-    if (newAssignment.endTime && end <= start) {
-      toast.error("End time must be after start time");
-      return;
-    }
-
-    let totalHours = 0;
-    if (newAssignment.endTime && end > start) {
-      let diffHrs = (end - start) / (1000 * 60 * 60);
-      let breakHrs = parseInt(newAssignment.breakTime || 0) / 60;
-      totalHours = Math.max(0, diffHrs - breakHrs);
-    }
+    const totalHours = calculateHours(newAssignment.startTime, newAssignment.endTime, newAssignment.breakTime);
 
     const operator = operators.find(o => o.value === newAssignment.operator);
     const operation = operations.find(o => o.value === newAssignment.operation || o.name === newAssignment.operation);
@@ -233,44 +252,45 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     });
   };
 
-  const updateAssignment = (id, field, value) => {
+  const editAssignment = (assignment) => {
+    setEditingAssignmentId(assignment.id);
+    setEditForm({
+      operator: assignment.operator_name,
+      operation: assignment.operation_name,
+      startTime: assignment.start_time,
+      endTime: assignment.end_time,
+      remarks: assignment.remarks || "",
+      breakTime: assignment.break_time || "60"
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateAssignment = () => {
     setDailyPlan(prev => prev.map(a => {
-      if (a.id === id) {
-        let updated = { ...a, [field]: value };
+      if (a.id === editingAssignmentId) {
+        const totalHours = calculateHours(editForm.startTime, editForm.endTime, editForm.breakTime);
 
-        // Handle related fields
-        if (field === 'operator_name') {
-          const op = operators.find(o => o.value === value);
-          updated.operator_id = op ? op.id : null;
-        } else if (field === 'operation_name') {
-          const op = operations.find(o => o.value === value || o.name === value);
-          updated.operation_id = op ? op.id : null;
-        }
+        const operator = operators.find(o => o.value === editForm.operator || o.label === editForm.operator);
+        const operation = operations.find(o => o.value === editForm.operation || o.name === editForm.operation);
 
-        // Calculate total hours if time fields change
-        const startTimeStr = field === 'start_time' ? value : updated.start_time;
-        const endTimeStr = field === 'end_time' ? value : updated.end_time;
-        const breakTime = field === 'break_time' ? parseInt(value || 0) : updated.break_time;
-
-        const start = new Date(`2000-01-01T${startTimeStr}`);
-        const end = new Date(`2000-01-01T${endTimeStr}`);
-
-        if (endTimeStr !== "00:00" && end > start) {
-          let diffHrs = (end - start) / (1000 * 60 * 60);
-          let breakHrs = (breakTime || 0) / 60;
-          updated.total_hours = Math.max(0, diffHrs - breakHrs);
-        } else {
-          updated.total_hours = 0;
-        }
-
-        return updated;
+        return {
+          ...a,
+          operator_id: operator?.id,
+          operator_name: editForm.operator,
+          operation_id: operation?.id,
+          operation_name: editForm.operation,
+          start_time: editForm.startTime,
+          end_time: editForm.endTime,
+          break_time: parseInt(editForm.breakTime || 0),
+          total_hours: totalHours,
+          remarks: editForm.remarks
+        };
       }
       return a;
     }));
-  };
-
-  const editAssignment = (assignment) => {
-    setEditingAssignmentId(assignment.id);
+    setIsEditModalOpen(false);
+    setEditingAssignmentId(null);
+    toast.success("Assignment updated");
   };
 
   const removeAssignment = (id) => {
@@ -289,30 +309,31 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
-      <div className="bg-slate-50 dark:bg-slate-950 w-full max-w-7xl rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[98vh]">
-        {/* Modal Header - BOM Style */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
+    <>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
+        <div className="bg-slate-50 dark:bg-slate-950 w-full max-w-5xl rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[98vh]">
+          {/* Modal Header - BOM Style */}
+        <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-indigo-600 text-white rounded shadow-lg shadow-indigo-600/20">
-              <Calendar size={20} />
+              <Calendar size={15} />
             </div>
             <div>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">
+              <h2 className="text-lg  text-slate-900 dark:text-white  ">
                 {mode === "view" ? "View Production Plan" : mode === "edit" ? "Edit Production Plan" : "Daily Production Planning"}
               </h2>
               {mode === "view" ? (
-                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                <p className="text-xs  text-slate-500   mt-0.5">
                   Read-only plan view for {new Date(localPlanDate).toLocaleDateString()}
                 </p>
               ) : (
                 <div className="flex items-center gap-2 mt-0.5">
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                  <p className="text-xs  text-slate-500  ">
                     Planning Workspace for
                   </p>
                   <input
                     type="date"
-                    className="text-[10px] font-black text-indigo-600 bg-transparent border-b border-indigo-200 focus:border-indigo-500 outline-none uppercase"
+                    className="text-xs  text-indigo-600 bg-transparent border-b border-indigo-200 focus:border-indigo-500 outline-none "
                     value={localPlanDate}
                     onChange={(e) => setLocalPlanDate(e.target.value)}
                   />
@@ -322,13 +343,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           </div>
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
-              <X size={20} className="text-slate-500" />
+              <X size={15} className="text-slate-500" />
             </button>
           </div>
         </div>
 
         {/* Modal Content */}
-        <div className="p-4 overflow-y-auto flex-1">
+        <div className=" overflow-y-auto flex-1 p-2">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Left Main Area */}
             <div className="lg:col-span-9 space-y-4">
@@ -341,7 +362,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               >
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                   <div className="md:col-span-4 space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Project</label>
+                    <label className="text-xs  text-slate-400  ">Select Project</label>
                     <SearchableSelect
                       options={projects}
                       value={selectedProject?.value}
@@ -352,35 +373,35 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                         setEntryOptions([]);
                         if (proj) fetchReleasedMaterials(proj.name);
                       }}
-                      placeholder="SEARCH PROJECTS..."
+                      placeholder="Search Project..."
                       disabled={mode === "view"}
                     />
                   </div>
                   <div className="md:col-span-4 space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inventory Release (ST#)</label>
+                    <label className="text-xs  text-slate-400  ">Inventory Release (ST#)</label>
                     <SearchableSelect
                       options={entryOptions}
                       value={selectedReleaseEntry}
                       onChange={(val) => {
                         setSelectedReleaseEntry(val);
                       }}
-                      placeholder={selectedProject ? (fetchingMaterials ? "FETCHING..." : "SELECT MATERIAL PIECE...") : "..."}
+                      placeholder={selectedProject ? (fetchingMaterials ? "FETCHING..." : "Select Material Piece...") : "..."}
                       disabled={!selectedProject || mode === "view"}
                     />
                   </div>
                   {selectedProject && (
                     <div className="md:col-span-4 flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded border border-indigo-100 dark:border-indigo-900/30">
                       <div className="flex-1">
-                        <p className="text-[8px] font-bold text-indigo-600 uppercase tracking-widest mb-1">Project Reference</p>
-                        <p className="text-[10px] font-black text-indigo-900 dark:text-indigo-300 truncate tracking-tighter">REF: {selectedProject.ref}</p>
+                        <p className="text-xs  text-indigo-600   mb-1">Project Reference</p>
+                        <p className="text-xs  text-indigo-900 dark:text-indigo-300 truncate ">REF: {selectedProject.ref}</p>
                       </div>
                       <div className="border-l border-indigo-100 dark:border-indigo-900/30 pl-3 flex items-center">
                         <button
                           onClick={() => setShowReleasedMaterials(true)}
-                          className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded border border-indigo-200 dark:border-indigo-800 shadow-sm hover:bg-indigo-50 transition-colors group relative"
+                          className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded border border-indigo-200 dark:border-indigo-800  hover:bg-indigo-50 transition-colors group relative"
                           title="View Released History"
                         >
-                          <Eye size={16} />
+                          <Eye size={15} />
                         </button>
                       </div>
                     </div>
@@ -398,51 +419,51 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                 >
                   <div className="space-y-6">
                     {mode !== "view" && (
-                      <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded border border-slate-100 dark:border-slate-800 space-y-4">
+                      <div className="bg-slate-50 dark:bg-slate-800/50  rounded border border-slate-100 dark:border-slate-800 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                           <div className="md:col-span-3 space-y-1.5">
-                            <label className="text-[9px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Operator</label>
+                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operator</label>
                             <SearchableSelect
                               options={operators}
                               value={newAssignment.operator}
                               onChange={(val) => setNewAssignment({ ...newAssignment, operator: val })}
-                              placeholder="SELECT OPERATOR..."
-                              className="text-xs font-bold text-slate-900"
+                              placeholder="Select Operator..."
+                              className="text-xs  text-slate-900"
                               allowCustom={true}
                             />
                           </div>
                           <div className="md:col-span-3 space-y-1.5">
-                            <label className="text-[9px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Operation</label>
+                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operation</label>
                             <SearchableSelect
                               options={operations}
                               value={newAssignment.operation}
                               onChange={(val) => setNewAssignment({ ...newAssignment, operation: val })}
-                              placeholder="SEARCH OPERATION..."
-                              className="text-xs font-bold text-slate-900"
+                              placeholder="Search Operation..."
+                              className="text-xs  text-slate-900"
                               allowCustom={true}
                             />
                           </div>
                           <div className="md:col-span-2 space-y-1.5">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Start Time</label>
+                            <label className="text-xs  text-slate-400  ">Start Time</label>
                             <input
                               type="time"
-                              className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-bold outline-none"
+                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
                               value={newAssignment.startTime}
                               onChange={(e) => setNewAssignment({ ...newAssignment, startTime: e.target.value })}
                             />
                           </div>
                           <div className="md:col-span-2 space-y-1.5">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">End Time</label>
+                            <label className="text-xs  text-slate-400  ">End Time</label>
                             <input
                               type="time"
-                              className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-bold outline-none"
+                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
                               value={newAssignment.endTime}
                               onChange={(e) => setNewAssignment({ ...newAssignment, endTime: e.target.value })}
                             />
                           </div>
                           <div className="md:col-span-2 space-y-1.5">
-                            <label className="text-[9px] font-black text-indigo-500 uppercase tracking-widest text-center block">Load</label>
-                            <div className="w-full px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded text-sm font-black text-indigo-600 flex items-center justify-center">
+                            <label className="text-xs  text-indigo-500   text-center block">Working Hrs.</label>
+                            <div className="w-full p-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded text-xs  text-indigo-600 flex items-center justify-center">
                               {currentLoad.toFixed(1)}h
                             </div>
                           </div>
@@ -450,7 +471,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pt-2 border-t border-slate-100 dark:border-slate-700/50">
                           <div className="md:col-span-10 space-y-1.5">
-                            <label className="text-[9px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Remarks / Special Instructions</label>
+                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Remarks / Special Instructions</label>
                             <input
                               type="text"
                               placeholder="Add instructions or remarks..."
@@ -462,7 +483,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                           <div className="md:col-span-2">
                             <button
                               onClick={handleAddAssignment}
-                              className="w-full h-[38px] bg-indigo-600 hover:bg-indigo-700 text-white rounded font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2"
+                              className="w-full h-[38px] bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   shadow-lg transition-all flex items-center justify-center gap-2"
                             >
                               <Plus size={14} />
                               Add
@@ -474,116 +495,49 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
                     {/* Assignments List in this section */}
                     {dailyPlan.length > 0 && (
-                      <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                      <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden ">
                         <table className="w-full text-left border-collapse">
                           <thead>
                             <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
-                              <th className="px-4 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Project / Ref</th>
-                              <th className="px-4 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation</th>
-                              <th className="px-4 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Operator</th>
-                              <th className="px-4 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Load</th>
-                              {mode !== "view" && <th className="px-4 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>}
+                              <th className="px-4 py-2.5 text-xs  text-slate-400  ">Project / Ref</th>
+                              <th className="px-4 py-2.5 text-xs  text-slate-400  ">Operation</th>
+                              <th className="px-4 py-2.5 text-xs  text-slate-400  ">Operator</th>
+                              <th className="px-4 py-2.5 text-xs  text-slate-400   text-center">Load</th>
+                              {mode !== "view" && <th className="px-4 py-2.5 text-xs  text-slate-400   text-right">Action</th>}
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {dailyPlan.map((entry) => {
-                              const isEditing = editingAssignmentId === entry.id;
-                              return (
-                                <tr key={entry.id} className="hover:bg-indigo-50/10 transition-all">
-                                  <td className="px-4 py-3">
-                                    <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">{entry.projectName}</p>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase">{entry.projectRef}</span>
+                            {dailyPlan.map((entry) => (
+                              <tr key={entry.id} className="hover:bg-indigo-50/10 transition-all">
+                                <td className="px-4 py-3">
+                                  <p className="text-xs  text-slate-900 dark:text-white  ">{entry.projectName}</p>
+                                  <span className="text-xs  text-slate-400 ">{entry.projectRef}</span>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className="text-xs  text-indigo-600 dark:text-indigo-400   bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded">{entry.operation_name}</span>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className="text-xs  text-slate-700 dark:text-slate-300  ">{entry.operator_name}</span>
+                                  <p className="text-xs text-slate-400">{entry.start_time} - {entry.end_time}</p>
+                                  {entry.remarks && <p className="text-xs text-indigo-500   mt-0.5">{entry.remarks}</p>}
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className="text-xs  text-slate-900 dark:text-white">{entry.total_hours.toFixed(1)}h</span>
+                                </td>
+                                {mode !== "view" && (
+                                  <td className="px-4 py-3 text-right">
+                                    <div className="flex items-center justify-end gap-1">
+                                      <button onClick={() => editAssignment(entry)} className="p-1.5 text-slate-300 hover:text-amber-600 transition-colors">
+                                        <Edit2 size={14} />
+                                      </button>
+                                      <button onClick={() => removeAssignment(entry.id)} className="p-1.5 text-slate-300 hover:text-red-600 transition-colors">
+                                        <Trash2 size={14} />
+                                      </button>
+                                    </div>
                                   </td>
-                                  <td className="px-4 py-3">
-                                    {isEditing ? (
-                                      <SearchableSelect
-                                        name={`op-name-${entry.id}`}
-                                        id={`op-name-${entry.id}`}
-                                        options={operations}
-                                        value={entry.operation_name}
-                                        onChange={(val) => updateAssignment(entry.id, "operation_name", val)}
-                                        placeholder="OPERATION..."
-                                        className="text-[10px] font-bold"
-                                        allowCustom={true}
-                                      />
-                                    ) : (
-                                      <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded">{entry.operation_name}</span>
-                                    )}
-                                  </td>
-                                  <td className="px-4 py-3">
-                                    {isEditing ? (
-                                      <div className="space-y-1">
-                                        <SearchableSelect
-                                          name={`worker-name-${entry.id}`}
-                                          id={`worker-name-${entry.id}`}
-                                          options={operators}
-                                          value={entry.operator_name}
-                                          onChange={(val) => updateAssignment(entry.id, "operator_name", val)}
-                                          placeholder="OPERATOR..."
-                                          className="text-[10px] font-bold"
-                                          allowCustom={true}
-                                        />
-                                        <div className="flex gap-1">
-                                          <input
-                                            type="time"
-                                            className="px-1 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-[9px] font-bold outline-none w-full"
-                                            value={entry.start_time}
-                                            onChange={(e) => updateAssignment(entry.id, "start_time", e.target.value)}
-                                          />
-                                          <input
-                                            type="time"
-                                            className="px-1 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-[9px] font-bold outline-none w-full"
-                                            value={entry.end_time}
-                                            onChange={(e) => updateAssignment(entry.id, "end_time", e.target.value)}
-                                          />
-                                        </div>
-                                        <input
-                                          type="text"
-                                          placeholder="Remark..."
-                                          className="px-1 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-[9px] font-medium outline-none w-full"
-                                          value={entry.remarks || ""}
-                                          onChange={(e) => updateAssignment(entry.id, "remarks", e.target.value)}
-                                        />
-                                      </div>
-                                    ) : (
-                                      <>
-                                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">{entry.operator_name}</span>
-                                        <p className="text-[8px] text-slate-400">{entry.start_time} - {entry.end_time}</p>
-                                        {entry.remarks && <p className="text-[8px] text-indigo-500 font-bold uppercase mt-0.5">{entry.remarks}</p>}
-                                      </>
-                                    )}
-                                  </td>
-                                  <td className="px-4 py-3 text-center">
-                                    <span className="text-[10px] font-black text-slate-900 dark:text-white">{entry.total_hours.toFixed(1)}h</span>
-                                  </td>
-                                  {mode !== "view" && (
-                                    <td className="px-4 py-3 text-right">
-                                      <div className="flex items-center justify-end gap-1">
-                                        {isEditing ? (
-                                          <>
-                                            <button onClick={() => setEditingAssignmentId(null)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors" title="Save">
-                                              <Check size={14} />
-                                            </button>
-                                            <button onClick={() => setEditingAssignmentId(null)} className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors" title="Cancel">
-                                              <X size={14} />
-                                            </button>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <button onClick={() => editAssignment(entry)} className="p-1.5 text-slate-300 hover:text-amber-600 transition-colors">
-                                              <Edit2 size={14} />
-                                            </button>
-                                            <button onClick={() => removeAssignment(entry.id)} className="p-1.5 text-slate-300 hover:text-red-600 transition-colors">
-                                              <Trash2 size={14} />
-                                            </button>
-                                          </>
-                                        )}
-                                      </div>
-                                    </td>
-                                  )}
-                                </tr>
-                              );
-                            })}
+                                )}
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -595,48 +549,48 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-full mb-4">
                     <Target size={32} className="text-slate-300" />
                   </div>
-                  <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">Project Selection Required</h4>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Please select a root card above to begin operator allocation</p>
+                  <h4 className="text-xs  text-slate-900 dark:text-white   mb-1">Project Selection Required</h4>
+                  <p className="text-xs  text-slate-400  ">Please select a root card above to begin operator allocation</p>
                 </div>
               ) : null}
             </div>
 
             {/* Right Sidebar Info */}
             <div className="lg:col-span-3 space-y-4">
-              <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 p-2 ">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-indigo-600 text-white rounded flex items-center justify-center">
-                    <Activity size={20} />
+                  <div className="w-6 h-6 bg-indigo-600 text-white rounded flex items-center justify-center">
+                    <Activity size={15} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">Plan Summary</h4>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Live Aggregates</p>
+                    <h4 className="text-xs  text-slate-900 dark:text-white  ">Plan Summary</h4>
+                    <p className="text-xs  text-slate-400  ">Live Aggregates</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-800">
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Man-Hours</p>
-                    <h4 className="text-3xl font-black text-slate-900 dark:text-white">{dailyPlan.reduce((acc, curr) => acc + (parseFloat(curr.total_hours) || 0), 0).toFixed(1)}<span className="text-sm ml-1 text-slate-400 uppercase tracking-widest">Hrs</span></h4>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-800">
+                    <p className="text-xs  text-slate-400   mb-1">Total Man-Hours</p>
+                    <h4 className="text-xl  text-slate-900 dark:text-white">{dailyPlan.reduce((acc, curr) => acc + (parseFloat(curr.total_hours) || 0), 0).toFixed(1)}<span className="text-sm ml-1 text-slate-400  ">Hrs</span></h4>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded">
-                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Operators</p>
-                      <h5 className="text-lg font-black text-slate-900 dark:text-white">{new Set(dailyPlan.map(p => p.operator_id)).size}</h5>
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    <div className="p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded">
+                      <p className="text-xs  text-slate-400   mb-1">Operators</p>
+                      <h5 className="text-lg  text-slate-900 dark:text-white">{new Set(dailyPlan.map(p => p.operator_id)).size}</h5>
                     </div>
-                    <div className="p-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded">
-                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Projects</p>
-                      <h5 className="text-lg font-black text-slate-900 dark:text-white">{new Set(dailyPlan.map(p => p.root_card_id)).size}</h5>
+                    <div className="p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded">
+                      <p className="text-xs  text-slate-400   mb-1">Projects</p>
+                      <h5 className="text-lg  text-slate-900 dark:text-white">{new Set(dailyPlan.map(p => p.root_card_id)).size}</h5>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
-                  <h5 className="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-widest mb-3 flex items-center gap-2">
+                <div className=" p-2 border-t border-slate-100 dark:border-slate-800">
+                  <h5 className="text-sm  text-slate-900 dark:text-white   mb-3 flex items-center gap-2">
                     <AlertCircle size={12} className="text-amber-500" /> Validation Rules
                   </h5>
-                  <ul className="space-y-2 text-[9px] font-bold text-slate-500 uppercase tracking-tighter leading-relaxed">
+                  <ul className="space-y-2 text-xs  text-slate-500   leading-relaxed">
                     <li>• Check for Overlapping Shifts</li>
                     <li>• Verify Operator Availability</li>
                     <li>• Sequence Order Validation</li>
@@ -645,16 +599,16 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               </div>
 
               {mode !== "view" && (
-                <div className="p-4 bg-indigo-600 rounded shadow-xl shadow-indigo-600/20 text-white">
+                <div className="p-2 bg-indigo-600 rounded shadow-xl shadow-indigo-600/20 text-white">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap size={14} className="fill-current" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Fast Action</span>
+                    <span className="text-sm ">Fast Action</span>
                   </div>
-                  <h5 className="text-xs font-black uppercase tracking-tighter leading-tight mb-3">Commit plan to floor execution immediately?</h5>
+                  <h5 className="text-xs    leading-tight mb-3">Commit plan to floor execution immediately?</h5>
                   <button
                     onClick={handleFinalize}
                     disabled={loading}
-                    className="w-full py-2 bg-white text-indigo-600 rounded text-[9px] font-black uppercase tracking-[0.15em] hover:bg-slate-50 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full p-2 bg-white text-indigo-600 rounded text-xs hover:bg-slate-50 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {loading && <Loader2 size={12} className="animate-spin" />}
                     Quick Finalize
@@ -666,17 +620,17 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
-          <button onClick={onClose} className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+        <div className="p-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
+          <button onClick={onClose} className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded text-xs    hover:bg-slate-200 transition-all">
             {mode === "view" ? "Close Viewer" : "Cancel Workspace"}
           </button>
           {mode !== "view" && (
             <button
               onClick={handleFinalize}
               disabled={loading}
-              className="px-10 py-2.5 bg-indigo-600 text-white rounded text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-2 disabled:opacity-50"
+              className="px-10 py-2.5 bg-indigo-600 text-white rounded text-xs    hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-2 disabled:opacity-50"
             >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+              {loading ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
               {mode === "edit" ? "Update Today's Plan" : "Finalize Today's Plan"}
             </button>
           )}
@@ -686,16 +640,16 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
         {showReleasedMaterials && (
           <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[85vh]">
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-900/10">
+              <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-900/10">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-indigo-600 text-white rounded">
                     <Package size={18} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">
+                    <h3 className="text-sm  text-slate-900 dark:text-white  ">
                       Released Materials: {selectedProject?.name}
                     </h3>
-                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Inventory Release History for this Project</p>
+                    <p className="text-xs  text-slate-500   mt-0.5">Inventory Release History for this Project</p>
                   </div>
                 </div>
                 <button
@@ -712,25 +666,25 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                     <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
                       <Package size={32} />
                     </div>
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No materials released for this project yet</p>
+                    <p className="text-sm  text-slate-400  ">No materials released for this project yet</p>
                   </div>
                 ) : (
                   <div className="space-y-6">
                     {releasedMaterials.map((entry) => (
-                      <div key={entry.entry_no} className="border border-slate-200 dark:border-slate-800 rounded overflow-hidden shadow-sm">
+                      <div key={entry.entry_no} className="border border-slate-200 dark:border-slate-800 rounded overflow-hidden ">
                         <div className="bg-slate-50 dark:bg-slate-800/50 px-4 py-2 flex justify-between items-center border-b border-slate-200 dark:border-slate-800">
                           <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">{entry.entry_no}</span>
+                            <span className="text-xs  text-indigo-600  ">{entry.entry_no}</span>
                             <div className="flex items-center gap-1.5 text-slate-400">
                               <Calendar size={12} />
-                              <span className="text-[10px] font-bold uppercase">{new Date(entry.entry_date).toLocaleDateString()}</span>
+                              <span className="text-xs  ">{new Date(entry.entry_date).toLocaleDateString()}</span>
                             </div>
                           </div>
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{entry.remarks || 'NO REMARKS'}</span>
+                          <span className="text-xs  text-slate-400  ">{entry.remarks || 'NO REMARKS'}</span>
                         </div>
                         <table className="w-full text-left">
                           <thead>
-                            <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">
+                            <tr className="text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
                               <th className="px-4 py-2">Item Details</th>
                               <th className="px-4 py-2 text-center">Qty</th>
                               <th className="px-4 py-2 text-center">UOM</th>
@@ -739,21 +693,21 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {entry.items?.map((item, idx) => (
-                              <tr key={idx} className="text-[11px] hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                              <tr key={idx} className="text-xs hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td className="px-4 py-2.5">
                                   <div className="flex items-center gap-3">
                                     <div className="w-7 h-7 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded flex items-center justify-center">
                                       <Package size={14} />
                                     </div>
                                     <div>
-                                      <p className="font-black text-slate-900 dark:text-white uppercase tracking-tighter">{item.item_name}</p>
-                                      <p className="text-[9px] font-bold text-slate-400 uppercase">{item.item_code}</p>
+                                      <p className=" text-slate-900 dark:text-white  ">{item.item_name}</p>
+                                      <p className="text-xs  text-slate-400 ">{item.item_code}</p>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="px-4 py-2.5 text-center font-black text-emerald-600">{item.quantity}</td>
-                                <td className="px-4 py-2.5 text-center font-bold text-slate-500 uppercase">{item.uom}</td>
-                                <td className="px-4 py-2.5 text-right font-bold text-indigo-500">{item.serials?.length || 0} PCS</td>
+                                <td className="px-4 py-2.5 text-center  text-emerald-600">{item.quantity}</td>
+                                <td className="px-4 py-2.5 text-center  text-slate-500 ">{item.uom}</td>
+                                <td className="px-4 py-2.5 text-right  text-indigo-500">{item.serials?.length || 0} PCS</td>
                               </tr>
                             ))}
                           </tbody>
@@ -764,10 +718,10 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                 )}
               </div>
 
-              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end">
+              <div className="p-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end">
                 <button
                   onClick={() => setShowReleasedMaterials(false)}
-                  className="px-6 py-2 bg-slate-900 text-white rounded text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
+                  className="px-6 py-2 bg-slate-900 text-white rounded text-xs    hover:bg-slate-800 transition-all"
                 >
                   Close History
                 </button>
@@ -776,8 +730,98 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           </div>
         )}
       </div>
+      {/* Assignment Edit Popup Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-amber-500 text-white rounded">
+                  <Edit2 size={16} />
+                </div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Edit Assignment</h3>
+              </div>
+              <button onClick={() => { setIsEditModalOpen(false); setEditingAssignmentId(null); }} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
+                <X size={18} className="text-slate-500" />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operator</label>
+                <SearchableSelect
+                  options={operators}
+                  value={editForm.operator}
+                  onChange={(val) => setEditForm({ ...editForm, operator: val })}
+                  placeholder="Select Operator..."
+                  allowCustom={true}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operation</label>
+                <SearchableSelect
+                  options={operations}
+                  value={editForm.operation}
+                  onChange={(val) => setEditForm({ ...editForm, operation: val })}
+                  placeholder="Select Operation..."
+                  allowCustom={true}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Start Time</label>
+                  <input
+                    type="time"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                    value={editForm.startTime}
+                    onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">End Time</label>
+                  <input
+                    type="time"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                    value={editForm.endTime}
+                    onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Remarks</label>
+                <input
+                  type="text"
+                  placeholder="Instructions or remarks..."
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                  value={editForm.remarks}
+                  onChange={(e) => setEditForm({ ...editForm, remarks: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
+              <button 
+                onClick={() => { setIsEditModalOpen(false); setEditingAssignmentId(null); }}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleUpdateAssignment}
+                className="px-6 py-2 bg-indigo-600 text-white rounded text-xs font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2"
+              >
+                <Check size={14} /> Update Assignment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  </>
+);
 };
 
 const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
@@ -854,23 +898,23 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
   }, [group, rawDetails, parts]);
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
+    <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* 1. Raw Material Details */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-indigo-600 text-white rounded-lg shadow-lg shadow-indigo-600/20">
-              <Settings2 size={16} />
+              <Settings2 size={15} />
             </div>
-            <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Raw Material Context</h4>
+            <h4 className="text-xs  text-slate-900 dark:text-white  ">Raw Material Context</h4>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-100 dark:border-slate-700  space-y-3">
             <div>
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Item Group</label>
+              <label className="text-xs  text-slate-400   block mb-1">Item Group</label>
               <select
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-[10px] font-bold outline-none"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs  outline-none"
                 value={group}
                 onChange={(e) => setGroup(e.target.value)}
               >
@@ -885,32 +929,32 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
               {(group.includes("PLATE") || group.includes("BLOCK")) && (
                 <>
                   <div>
-                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Length (mm)</label>
-                    <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded px-3 py-2 text-[10px] font-bold" value={rawDetails.length} onChange={(e) => setRawDetails({ ...rawDetails, length: e.target.value })} />
+                    <label className="text-xs  text-slate-400  block mb-1">Length (mm)</label>
+                    <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded p-2 text-xs " value={rawDetails.length} onChange={(e) => setRawDetails({ ...rawDetails, length: e.target.value })} />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Width (mm)</label>
-                    <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded px-3 py-2 text-[10px] font-bold" value={rawDetails.width} onChange={(e) => setRawDetails({ ...rawDetails, width: e.target.value })} />
+                    <label className="text-xs  text-slate-400  block mb-1">Width (mm)</label>
+                    <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded p-2 text-xs " value={rawDetails.width} onChange={(e) => setRawDetails({ ...rawDetails, width: e.target.value })} />
                   </div>
                 </>
               )}
               {group.includes("ROUND") && (
                 <div>
-                  <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Diameter (Ø)</label>
-                  <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded px-3 py-2 text-[10px] font-bold" value={rawDetails.diameter} onChange={(e) => setRawDetails({ ...rawDetails, diameter: e.target.value })} />
+                  <label className="text-xs  text-slate-400  block mb-1">Diameter (Ø)</label>
+                  <input type="number" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 rounded p-2 text-xs " value={rawDetails.diameter} onChange={(e) => setRawDetails({ ...rawDetails, diameter: e.target.value })} />
                 </div>
               )}
               <div className="col-span-2">
-                <label className="text-[9px] font-black text-indigo-600 uppercase block mb-1">Processed Quantity (Nos)</label>
+                <label className="text-xs  text-indigo-600  block mb-1">Processed Quantity (Nos)</label>
                 <input
                   type="number"
-                  className="w-full bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded px-3 py-2 text-xs font-black text-indigo-700"
+                  className="w-full bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded p-2 text-xs  text-indigo-700"
                   value={rawDetails.processed_qty}
                   onChange={(e) => setRawDetails({ ...rawDetails, processed_qty: e.target.value })}
                   min="1"
                   max={serials.length}
                 />
-                <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase italic">Max Available: {serials.length} Pieces</p>
+                <p className="text-xs  text-slate-400 mt-1  italic">Max Available: {serials.length} Pieces</p>
               </div>
             </div>
           </div>
@@ -921,9 +965,9 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-emerald-600 text-white rounded-lg">
-                <Target size={16} />
+                <Target size={15} />
               </div>
-              <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Cutting Plan</h4>
+              <h4 className="text-xs  text-slate-900 dark:text-white  ">Cutting Plan</h4>
             </div>
             <button
               onClick={() => setParts([...parts, { code: "P" + (parts.length + 1), l: 100, w: 100, qty: 1, id: Date.now() }])}
@@ -933,38 +977,38 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
             </button>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700  overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
                 <tr>
-                  <th className="p-2 text-[8px] font-black text-slate-400 uppercase">Part</th>
-                  <th className="p-2 text-[8px] font-black text-slate-400 uppercase">L (mm)</th>
-                  {group.includes("PLATE") && <th className="p-2 text-[8px] font-black text-slate-400 uppercase">W (mm)</th>}
-                  <th className="p-2 text-[8px] font-black text-slate-400 uppercase">Qty</th>
+                  <th className="p-2 text-xs  text-slate-400 ">Part</th>
+                  <th className="p-2 text-xs  text-slate-400 ">L (mm)</th>
+                  {group.includes("PLATE") && <th className="p-2 text-xs  text-slate-400 ">W (mm)</th>}
+                  <th className="p-2 text-xs  text-slate-400 ">Qty</th>
                   <th className="p-2"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                 {parts.map((p, idx) => (
                   <tr key={p.id}>
-                    <td className="p-2"><input className="w-10 bg-transparent text-[10px] font-bold outline-none uppercase" value={p.code} onChange={(e) => {
+                    <td className="p-2"><input className="w-10 bg-transparent text-xs  outline-none " value={p.code} onChange={(e) => {
                       const newParts = [...parts];
                       newParts[idx].code = e.target.value;
                       setParts(newParts);
                     }} /></td>
-                    <td className="p-2"><input type="number" className="w-12 bg-transparent text-[10px] font-black outline-none" value={p.l} onChange={(e) => {
+                    <td className="p-2"><input type="number" className="w-12 bg-transparent text-xs  outline-none" value={p.l} onChange={(e) => {
                       const newParts = [...parts];
                       newParts[idx].l = e.target.value;
                       setParts(newParts);
                     }} /></td>
                     {group.includes("PLATE") && (
-                      <td className="p-2"><input type="number" className="w-12 bg-transparent text-[10px] font-black outline-none" value={p.w} onChange={(e) => {
+                      <td className="p-2"><input type="number" className="w-12 bg-transparent text-xs  outline-none" value={p.w} onChange={(e) => {
                         const newParts = [...parts];
                         newParts[idx].w = e.target.value;
                         setParts(newParts);
                       }} /></td>
                     )}
-                    <td className="p-2"><input type="number" className="w-10 bg-transparent text-[10px] font-black outline-none text-emerald-600" value={p.qty} onChange={(e) => {
+                    <td className="p-2"><input type="number" className="w-10 bg-transparent text-xs  outline-none text-emerald-600" value={p.qty} onChange={(e) => {
                       const newParts = [...parts];
                       newParts[idx].qty = e.target.value;
                       setParts(newParts);
@@ -985,45 +1029,45 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-amber-500 text-white rounded-lg">
-              <Activity size={16} />
+              <Activity size={15} />
             </div>
-            <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Execution Summary</h4>
+            <h4 className="text-xs  text-slate-900 dark:text-white  ">Execution Summary</h4>
           </div>
 
-          <div className="bg-indigo-600 text-white p-5 rounded-xl shadow-xl shadow-indigo-600/20 space-y-4 relative overflow-hidden group">
+          <div className="bg-indigo-600 text-white p-5 rounded shadow-xl shadow-indigo-600/20 space-y-4 relative overflow-hidden group">
             <Zap className="absolute -right-4 -top-4 text-white/10 w-24 h-24 group-hover:scale-110 transition-transform duration-500" />
 
             <div className="grid grid-cols-2 gap-4 relative z-10">
               <div className="space-y-1">
-                <p className="text-[8px] font-bold text-indigo-200 uppercase tracking-widest">Yield / Piece</p>
-                <p className="text-xl font-black tracking-tighter">{results.partsPerRaw} <span className="text-[10px]">PCS</span></p>
+                <p className="text-xs  text-indigo-200  ">Yield / Piece</p>
+                <p className="text-xl  ">{results.partsPerRaw} <span className="text-xs">PCS</span></p>
               </div>
               <div className="space-y-1">
-                <p className="text-[8px] font-bold text-indigo-200 uppercase tracking-widest">Total Produced</p>
-                <p className="text-xl font-black tracking-tighter text-emerald-300">{results.totalParts} <span className="text-[10px]">PCS</span></p>
+                <p className="text-xs  text-indigo-200  ">Total Produced</p>
+                <p className="text-xl   text-emerald-300">{results.totalParts} <span className="text-xs">PCS</span></p>
               </div>
               <div className="space-y-1 col-span-2 border-t border-white/10 pt-4">
                 <div className="flex justify-between items-center mb-1">
-                  <p className="text-[8px] font-bold text-indigo-200 uppercase tracking-widest">Total Scrap Loss</p>
-                  <p className="text-[9px] font-black bg-white/20 px-2 py-0.5 rounded">{results.scrapPercent}%</p>
+                  <p className="text-xs  text-indigo-200  ">Total Scrap Loss</p>
+                  <p className="text-xs  bg-white/20 px-2 py-0.5 rounded">{results.scrapPercent}%</p>
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
                   <div className="bg-amber-400 h-full rounded-full transition-all duration-500" style={{ width: `${results.scrapPercent}%` }}></div>
                 </div>
-                <p className="text-[10px] font-black text-white/80 mt-1 uppercase italic tracking-tighter">{results.totalScrap} Wastage</p>
+                <p className="text-xs  text-white/80 mt-1  italic ">{results.totalScrap} Wastage</p>
               </div>
             </div>
 
             <div className="pt-2 flex gap-2 relative z-10">
               <button
                 onClick={() => onSave({ ...results, group, rawDetails, parts })}
-                className="flex-1 bg-white text-indigo-600 py-2 rounded text-[10px] font-black uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg"
+                className="flex-1 bg-white text-indigo-600 py-2 rounded text-xs    hover:bg-indigo-50 transition-colors shadow-lg"
               >
                 Accept & Apply
               </button>
               <button
                 onClick={onCancel}
-                className="px-4 py-2 bg-indigo-500 text-white rounded text-[10px] font-black uppercase tracking-widest hover:bg-indigo-400 transition-colors"
+                className="px-4 py-2 bg-indigo-500 text-white rounded text-xs    hover:bg-indigo-400 transition-colors"
               >
                 Reset
               </button>
@@ -1693,395 +1737,296 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
 
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-xl shadow-2xl flex flex-col max-h-[98vh] overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded shadow-2xl flex flex-col max-h-[98vh] overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
+        <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-indigo-600 text-white rounded-lg">
-              <Scissors size={20} />
+              <Scissors size={15} />
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Material Cutting Report (MCR)</h3>
-                <span className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-900/50 flex items-center gap-1.5">
+                <h3 className="text-lg  text-slate-900 dark:text-white  ">Material Cutting Report (MCR)</h3>
+                <span className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded text-xs    border border-indigo-100 dark:border-indigo-900/50 flex items-center gap-1.5">
                   <Calendar size={10} />
                   {new Date(plan.plan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
               </div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{plan.project_names}</p>
+              <p className="text-xs  text-slate-500   mt-0.5">{plan.project_names}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={20} className="text-slate-400" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={15} className="text-slate-400" /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 bg-slate-50/50">
           <div className="space-y-4">
 
             {/* 1. CONFIGURATION FORM (BOM Style) */}
-            <div className="bg-white dark:bg-slate-900 p-5 rounded border border-slate-200 shadow-sm">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded border border-slate-200  overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                
+                {/* Left Side: All Form Inputs (Inputs Column) */}
+                <div className="md:col-span-8 space-y-6">
+                  
+                  {/* Row 1: Item Identification */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-6 space-y-1.5">
+                      <label className="text-xs  text-slate-400 font-medium  tracking-wider block">Item Name / Code *</label>
+                      <SearchableSelect
+                        options={uniqueItemOptions}
+                        value={selectedItemCode}
+                        onChange={(val) => {
+                          setSelectedItemCode(val);
+                          setSelectedItem(null);
+                        }}
+                        placeholder="SEARCH MATERIALS..."
+                      />
+                    </div>
 
-                {/* Row 1: Item & Group & ST Code */}
-                <div className="md:col-span-4 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block whitespace-nowrap">Item Name / Code *</label>
-                  <SearchableSelect
-                    options={uniqueItemOptions}
-                    value={selectedItemCode}
-                    onChange={(val) => {
-                      setSelectedItemCode(val);
-                      setSelectedItem(null);
-                    }}
-                    placeholder="SEARCH MATERIALS..."
-                  />
-                </div>
+                    <div className="md:col-span-3 space-y-1.5">
+                      <label className="text-xs  text-slate-400 font-medium  tracking-wider block">Item Group</label>
+                      <input
+                        type="text"
+                        readOnly
+                        className="w-full h-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs  text-slate-500"
+                        value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group : ""}
+                        placeholder="GROUP..."
+                      />
+                    </div>
 
-                <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block whitespace-nowrap">Item Group</label>
-                  <input
-                    type="text"
-                    readOnly
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-xs font-bold text-slate-500"
-                    value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group : ""}
-                    placeholder="GROUP..."
-                  />
-                </div>
+                    <div className="md:col-span-3 space-y-1.5">
+                      <label className="text-xs  text-slate-400 font-medium  tracking-wider block">Material Grade</label>
+                      <input
+                        type="text"
+                        readOnly
+                        className="w-full h-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs  text-slate-500"
+                        value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.material_grade : ""}
+                        placeholder="GRADE..."
+                      />
+                    </div>
+                  </div>
 
-                <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block whitespace-nowrap">Material Grade</label>
-                  <input
-                    type="text"
-                    readOnly
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-xs font-bold text-slate-500"
-                    value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.material_grade : ""}
-                    placeholder="GRADE..."
-                  />
-                </div>
+                  {/* Row 2: Stock Tracking Code Selection */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-8 space-y-1.5">
+                      <label className="text-xs  text-slate-400 font-medium  tracking-wider block">Select ST Code *</label>
+                      <SearchableSelect
+                        options={stOptions}
+                        value={selectedItem?.value}
+                        onChange={(val) => {
+                          const sel = stOptions.find(o => o.value === val);
+                          setSelectedItem(sel);
+                          if (sel && sel.dims) {
+                            const group = selectedItemGroup;
+                            let initialW = "";
+                            if (group.includes("PIPE") || group.includes("TUBE")) initialW = Number(sel.dims.od) || "";
+                            else if (group.includes("ROUND") || group.includes("BAR")) initialW = Number(sel.dims.d) || "";
+                            else if (!(group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK"))) initialW = Number(sel.dims.w) || "";
 
-                <div className="md:col-span-4 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block whitespace-nowrap">Select ST Code *</label>
-                  <SearchableSelect
-                    options={stOptions}
-                    value={selectedItem?.value}
-                    onChange={(val) => {
-                      const sel = stOptions.find(o => o.value === val);
-                      setSelectedItem(sel);
-                      if (sel && sel.dims) {
-                        const group = selectedItemGroup;
-                        let initialW = "";
-                        if (group.includes("PIPE") || group.includes("TUBE")) initialW = Number(sel.dims.od) || "";
-                        else if (group.includes("ROUND") || group.includes("BAR")) initialW = Number(sel.dims.d) || "";
-                        else if (!(group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK"))) initialW = Number(sel.dims.w) || "";
+                            setCuttingForm(prev => ({
+                              ...prev,
+                              raw_l: "", 
+                              raw_w: initialW,
+                              raw_thk: Number(sel.dims.t) || "", 
+                              return_l: "", 
+                              return_w: "",
+                              return_t: ""
+                            }));
+                          }
+                        }}
+                        placeholder="SELECT ST#"
+                        disabled={!selectedItemCode}
+                      />
+                    </div>
 
-                        setCuttingForm(prev => ({
-                          ...prev,
-                          raw_l: "", // Reset so operator can enter Piece Length
-                          raw_w: initialW,
-                          raw_thk: Number(sel.dims.t) || "", // Keep thickness same
-                          return_l: "", 
-                          return_w: "",
-                          return_t: ""
-                        }));
-                      }
-                    }}
-                    placeholder="SELECT ST#"
-                    disabled={!selectedItemCode}
-                  />
-                  {selectedItem && selectedItem.dims && remainingInfo && (
-                    <div className="mt-2 space-y-2">
-                      <div className="flex gap-1.5">
-                        <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-800 p-1.5 rounded border border-slate-100 dark:border-slate-700">
-                          <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Current</span>
-                          <span className="text-[10px] font-black text-indigo-600 truncate">{remainingInfo.initialSTWeight.toFixed(3)} KG</span>
-                        </div>
-                        <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-800 p-1.5 rounded border border-slate-100 dark:border-slate-700">
-                          <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Used</span>
-                          <span className="text-[10px] font-black text-rose-600 truncate">{remainingInfo.currentWeight.toFixed(3)} KG</span>
-                        </div>
-                        <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-800 p-1.5 rounded border border-slate-100 dark:border-slate-700">
-                          <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Rem.</span>
-                          <span className="text-[10px] font-black text-emerald-600 truncate">{remainingInfo.weight.toFixed(3)} KG</span>
+                    <div className="md:col-span-4 space-y-1.5">
+                      <label className="text-xs  text-indigo-600 font-semibold  tracking-wider block flex items-center gap-1">
+                        Produced Qty *
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="PCS"
+                        min="1"
+                        className={`w-full h-9 bg-indigo-50/50 border rounded px-3 py-1.5 text-xs font-semibold text-indigo-700 focus:border-indigo-500 outline-none ${remainingInfo && parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces ? 'border-red-500' : 'border-indigo-100'}`}
+                        value={cuttingForm.produced_qty}
+                        onChange={(e) => setCuttingForm({ ...cuttingForm, produced_qty: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Row 3: Dimensions & Actions */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pt-5 border-t border-slate-100">
+                    
+                    {/* Dimension Group */}
+                    <div className="md:col-span-6 grid grid-cols-3 gap-3">
+                      {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET") || !selectedItemGroup) && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">Piece L</label>
+                            <input type="number" placeholder="L" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">Piece W</label>
+                            <input type="number" placeholder="W" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">Piece T</label>
+                            <input type="number" placeholder="T" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {(selectedItemGroup.includes("ROUND") || (selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PLATE"))) && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">Dia</label>
+                            <input type="number" placeholder="DIA" className="w-full h-9 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={selectedItem?.dims?.d || ""} readOnly />
+                          </div>
+                          <div className="col-span-2 space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">Cut Length</label>
+                            <input type="number" placeholder="L" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">OD</label>
+                            <input type="number" placeholder="OD" className="w-full h-9 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={selectedItem?.dims?.od || ""} readOnly />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">Thk</label>
+                            <input type="number" placeholder="T" className="w-full h-9 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={selectedItem?.dims?.t || ""} readOnly />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">Cut Len</label>
+                            <input type="number" placeholder="L" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {selectedItemGroup.includes("BLOCK") && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">L</label>
+                            <input type="number" placeholder="L" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">W</label>
+                            <input type="number" placeholder="W" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium  block">H</label>
+                            <input type="number" placeholder="H" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="md:col-span-6 flex items-center justify-around bg-slate-50 dark:bg-slate-800/50 h-9 rounded-lg border border-slate-100 dark:border-slate-800 px-4">
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-slate-400 font-medium ">Inventory</label>
+                        <input type="checkbox" className="w-4 h-4 text-emerald-600 rounded border-slate-300 cursor-pointer" checked={cuttingForm.return_to_stock} onChange={(e) => setCuttingForm(prev => ({ ...prev, return_to_stock: e.target.checked, return_l: "", return_w: "", return_t: "" }))} />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-slate-400 font-medium ">Consumed?</label>
+                        <input type="checkbox" className="w-4 h-4 text-indigo-600 rounded border-slate-300 cursor-pointer" checked={cuttingForm.is_finished} onChange={(e) => setCuttingForm({ ...cuttingForm, is_finished: e.target.checked })} />
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-12">
+                      <button onClick={handleAddToTable} className="w-full h-9 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-semibold shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2">
+                        <Plus size={14} /> Add to Report
+                      </button>
+                    </div>
+
+                    {/* Return Dimensions Nested Row (Only if Inventory Checked) */}
+                    {cuttingForm.return_to_stock && (
+                      <div className="md:col-span-12 mt-4 p-3 bg-emerald-50/50 rounded border border-emerald-100 flex items-center gap-6">
+                        <span className="text-xs text-emerald-600 font-semibold  tracking-wider">Stock Return Dimensions:</span>
+                        <div className="flex-1 grid grid-cols-3 gap-4">
+                          <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                          <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">W</label><input type="number" placeholder="W" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
+                          <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">T</label><input type="number" placeholder="T" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_t} onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })} /></div>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center px-1">
-                        <span className="text-[8px] font-black text-slate-500 uppercase flex items-center gap-1">
-                          <div className="w-1 h-1 rounded-full bg-indigo-500"></div>
-                          ORIGINAL WEIGHT: {remainingInfo.absoluteOriginalWeight.toFixed(3)} KG
-                        </span>
-                        <span className="text-[8px] font-black text-rose-500 uppercase flex items-center gap-1">
-                          <div className="w-1 h-1 rounded-full bg-rose-500"></div>
-                          SCRAP WEIGHT: {remainingInfo.scrapWeight.toFixed(3)} KG
-                        </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Side: Weight Summary & Status (Visual Info Column) */}
+                <div className="md:col-span-4 bg-slate-50 dark:bg-slate-800/30 p-2 rounded border border-slate-100 dark:border-slate-800 flex flex-col justify-center min-h-[220px]">
+                  {selectedItem && selectedItem.dims && remainingInfo ? (
+                    <div className="space-y-5">
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="text-xs text-slate-500  flex items-center gap-2">
+                          <div className="w-1 h-3 bg-indigo-500 rounded"></div>
+                          Weight Analysis (KG)
+                        </h5>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200/60  relative overflow-hidden group transition-all hover:shadow-md">
+                          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity"><Package size={15} className="text-indigo-600" /></div>
+                          <span className="text-xs text-slate-400   block mb-1">Current Stock</span>
+                          <span className="text-md text-indigo-600  leading-none">{remainingInfo.initialSTWeight.toFixed(3)} KG</span>
+                        </div>
+                        
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200/60  relative overflow-hidden group transition-all hover:shadow-md">
+                          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity"><Scissors size={15} className="text-rose-600" /></div>
+                          <span className="text-xs text-slate-400   block mb-1">Used in Job</span>
+                          <span className="text-md text-rose-600  leading-none">{remainingInfo.currentWeight.toFixed(3)} KG</span>
+                        </div>
+                        
+                        <div className="bg-emerald-50 col-span-2 dark:bg-emerald-900/20 p-2 rounded border border-emerald-100 dark:border-emerald-900/50 relative overflow-hidden group transition-all hover:shadow-md">
+                          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity"><Activity size={15} className="text-emerald-600" /></div>
+                          <span className="text-xs text-emerald-600/70   block mb-1">Available Remainder</span>
+                          <span className="text-md text-emerald-600  leading-none">{remainingInfo.weight.toFixed(3)} KG</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-slate-200/60 space-y-2">
+                        <div className="flex justify-between items-center bg-slate-100/50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/30">
+                          <span className="text-xs text-slate-500    flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
+                            Total Absolute Weight
+                          </span>
+                          <span className="text-xs text-slate-7md">{remainingInfo.absoluteOriginalWeight.toFixed(3)} KG</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-rose-50/50 dark:bg-rose-900/10 p-2 rounded-lg border border-rose-100/50 dark:border-rose-900/20">
+                          <span className="text-xs text-rose-500    flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-rose-400"></div>
+                            Calculated Scrap Loss
+                          </span>
+                          <span className="text-xs text-rose-6md">{remainingInfo.scrapWeight.toFixed(3)} KG</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center space-y-4 opacity-40 py-10">
+                      <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                        <Clipboard size={32} className="text-slate-400" />
+                      </div>
+                      <div className="max-w-[180px]">
+                        <p className="text-xs text-slate-500   tracking-wider">Weight Analysis Ready</p>
+                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">Select an item and ST code to calculate job weights</p>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Row 2: Dynamic Cutting Dimensions based on Item Group */}
-
-                {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET") || !selectedItemGroup) && (
-                  <>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Piece L (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="L"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={cuttingForm.raw_l}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Piece W (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="W"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={cuttingForm.raw_w}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Piece T (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="T"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={cuttingForm.raw_thk}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })}
-                      />
-                    </div>
-                  </>
-                )}
-
-                {(selectedItemGroup.includes("ROUND") || (selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PLATE"))) && (
-                  <>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Diameter (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="DIA"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={selectedItem?.dims?.d || ""}
-                        readOnly
-                      />
-                    </div>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Cut Length (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="L"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={cuttingForm.raw_l}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })}
-                      />
-                    </div>
-                  </>
-                )}
-
-                {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && (
-                  <>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> OD (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="OD"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={selectedItem?.dims?.od || ""}
-                        readOnly
-                      />
-                    </div>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Thk (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="T"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={selectedItem?.dims?.t || ""}
-                        readOnly
-                      />
-                    </div>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Cut Length (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="L"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={cuttingForm.raw_l}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })}
-                      />
-                    </div>
-                  </>
-                )}
-
-                {selectedItemGroup.includes("BLOCK") && (
-                  <>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Block L (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="L"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={cuttingForm.raw_l}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })}
-                      />
-                    </div>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Width (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="W"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={cuttingForm.raw_w}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })}
-                      />
-                    </div>
-                    <div className="md:col-span-1.5 space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                        <Settings2 size={12} /> Height (mm)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="H"
-                        className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs font-black focus:border-indigo-500 outline-none"
-                        value={cuttingForm.raw_thk}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })}
-                      />
-                    </div>
-                  </>
-                )}
-
-                <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest block flex items-center gap-1">
-                    Produced Qty *
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      placeholder="PCS"
-                      min="1"
-                      className={`w-full bg-indigo-50/50 border rounded px-3 py-1.5 text-xs font-black text-indigo-700 focus:border-indigo-500 outline-none pr-10 ${remainingInfo && parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces ? 'border-red-500' : 'border-indigo-100'}`}
-                      value={cuttingForm.produced_qty}
-                      onChange={(e) => setCuttingForm({ ...cuttingForm, produced_qty: e.target.value })}
-                    />
-                    {/* Max pieces logic hidden for weight-based focus */}
-                  </div>
-                </div>
-
-                {/* Axis selection hidden for weight-based focus */}
-
-                <div className="md:col-span-1 space-y-1.5 text-center">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
-                    Inventory
-                  </label>
-                  <div className="flex items-center justify-center h-[30px]">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
-                      checked={cuttingForm.return_to_stock}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setCuttingForm(prev => ({ 
-                          ...prev, 
-                          return_to_stock: checked,
-                          return_l: "",
-                          return_w: "",
-                          return_t: ""
-                        }));
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {cuttingForm.return_to_stock ? (
-                  <div className="md:col-span-4 grid grid-cols-3 gap-2 bg-emerald-50/50 p-1.5 rounded border border-emerald-100">
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter block">Ret. L</label>
-                      <input
-                        type="number"
-                        placeholder="L"
-                        className="w-full bg-white border border-emerald-200 rounded px-2 py-1 text-[10px] font-black text-emerald-700 outline-none focus:border-emerald-500"
-                        value={cuttingForm.return_l}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter block">Ret. W</label>
-                      <input
-                        type="number"
-                        placeholder="W"
-                        className="w-full bg-white border border-emerald-200 rounded px-2 py-1 text-[10px] font-black text-emerald-700 outline-none focus:border-emerald-500"
-                        value={cuttingForm.return_w}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter block">Ret. T</label>
-                      <input
-                        type="number"
-                        placeholder="T"
-                        className="w-full bg-white border border-emerald-200 rounded px-2 py-1 text-[10px] font-black text-emerald-700 outline-none focus:border-emerald-500"
-                        value={cuttingForm.return_t}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="md:col-span-1 space-y-1.5 text-center">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
-                      Consumed?
-                    </label>
-                    <div className="flex items-center justify-center h-[30px]">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                        checked={cuttingForm.is_finished}
-                        onChange={(e) => setCuttingForm({ ...cuttingForm, is_finished: e.target.checked })}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className={`md:col-span-2 ${!cuttingForm.return_to_stock ? 'md:col-offset-2' : ''}`}>
-                  <button
-                    onClick={handleAddToTable}
-                    className="w-full h-[38px] mt-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Plus size={14} /> Add to Report
-                  </button>
-                </div>
               </div>
             </div>
 
             {/* 2. SUMMARY TABLE (The List) */}
-            <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 shadow-sm overflow-hidden min-h-[200px]">
+            <div className="bg-white dark:bg-slate-900 rounded border border-slate-200  overflow-hidden min-h-[200px]">
               <div className="px-6 py-3 bg-slate-900 text-white flex justify-between items-center">
-                <h4 className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><Clipboard size={14} /> Reported Items Summary</h4>
-                <span className="text-[10px] font-black bg-white/20 px-3 py-1 rounded-full">{reportEntries.length} Items Configured</span>
+                <h4 className="text-xs    flex items-center gap-2"><Clipboard size={14} /> Reported Items Summary</h4>
+                <span className="text-xs  bg-white/20 px-3 py-1 rounded-full">{reportEntries.length} Items Configured</span>
               </div>
               <table className="w-full text-left">
-                <thead className="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b">
+                <thead className="bg-slate-50 text-xs  text-slate-400   border-b">
                   <tr>
                     <th className="px-6 py-3">#</th>
                     <th className="px-6 py-3">Item Details</th>
@@ -2094,47 +2039,47 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
                     <th className="px-6 py-3"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50 font-bold">
+                <tbody className="divide-y divide-slate-50 ">
                   {reportEntries.length === 0 ? (
-                    <tr><td colSpan="8" className="px-6 py-12 text-center text-slate-400 text-[10px] uppercase italic">No items added to report yet. Use the form above.</td></tr>
+                    <tr><td colSpan="8" className="px-6 py-12 text-center text-slate-400 text-xs  italic">No items added to report yet. Use the form above.</td></tr>
                   ) : (
                     reportEntries.map((entry, idx) => (
                       <tr key={entry.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-6 py-4 text-[10px] text-slate-400">{idx + 1}</td>
-                        <td className="px-6 py-4">
-                          <p className="text-[10px] font-black text-slate-900 uppercase">{entry.item_name}</p>
-                          <p className="text-[8px] text-slate-400">{entry.item_code}</p>
+                        <td className="p-2 text-xs text-slate-400">{idx + 1}</td>
+                        <td className="p-2">
+                          <p className="text-xs  text-slate-900 ">{entry.item_name}</p>
+                          <p className="text-xs text-slate-400">{entry.item_code}</p>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded text-[10px] font-black">
+                        <td className="p-2">
+                          <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded text-xs ">
                             {entry.full_data?.selectedSerial}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">{entry.item_group}</span>
+                        <td className="p-2 text-center">
+                          <span className="text-xs  text-slate-500  ">{entry.item_group}</span>
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">{entry.material_grade}</span>
+                        <td className="p-2 text-center">
+                          <span className="text-xs  text-slate-500  ">{entry.material_grade}</span>
                         </td>
-                        <td className="px-6 py-4 text-center text-slate-700 text-[10px] font-black">
+                        <td className="p-2 text-center text-slate-700 text-xs ">
                           {entry.dims}
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="p-2 text-center">
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                            <span className="text-xs  text-slate-400  ">
                               Unit: {(parseFloat(entry.weight || 0) / (parseInt(entry.full_data?.produced_qty || 1))).toFixed(3)} KG
                             </span>
-                            <span className="text-[10px] font-black text-indigo-600">
+                            <span className="text-xs  text-indigo-600">
                               Total: {parseFloat(entry.weight || 0).toFixed(3)} KG
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-[10px] font-black">
+                        <td className="p-2 text-center">
+                          <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-xs ">
                             {entry.full_data?.produced_qty} NOS
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="p-2 text-right">
                           <button
                             onClick={() => setReportEntries(reportEntries.filter(e => e.id !== entry.id))}
                             className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-all"
@@ -2153,12 +2098,12 @@ const MCRReportModal = ({ isOpen, onClose, plan }) => {
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
-          <button onClick={onClose} className="px-6 py-2 border border-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-50">Cancel</button>
+        <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
+          <button onClick={onClose} className="p-2 border border-slate-200 text-slate-600 rounded text-xs    hover:bg-slate-50">Cancel</button>
           <button
             onClick={handleFinalizeMCR}
             disabled={loading || reportEntries.length === 0}
-            className="px-8 py-2 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50"
+            className="p-2 bg-indigo-600 text-white rounded text-xs shadow-indigo-600/20 hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50"
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             Finalize Full MCR Report
@@ -2212,7 +2157,7 @@ const DailyProductionPlanningPage = () => {
       if (opsRes.data.success) {
         const formattedOps = opsRes.data.operations.map(op => ({
           value: op.name,
-          label: op.name.toUpperCase(),
+          label: op.name,
           id: op.id
         }));
         setOperations(formattedOps);
@@ -2331,16 +2276,16 @@ const DailyProductionPlanningPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 ">
       {/* Page Header */}
       <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-sm text-indigo-600">
-            <Clipboard size={24} />
+          <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded  text-indigo-600">
+            <Clipboard size={15} />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Production Management</h1>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Daily Workshop Floor Planning & Execution</p>
+            <h1 className="text-2xl  text-slate-900 dark:text-white  ">Production Management</h1>
+            <p className="text-xs  text-slate-500   mt-1">Daily Workshop Floor Planning & Execution</p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -2350,7 +2295,7 @@ const DailyProductionPlanningPage = () => {
               setSelectedPlanData(null);
               setIsModalOpen(true);
             }}
-            className="px-8 py-3 bg-indigo-600 text-white rounded text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
+            className="p-2 bg-indigo-600 text-white rounded text-xs    shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
           >
             <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
             Create Daily Plan
@@ -2362,17 +2307,17 @@ const DailyProductionPlanningPage = () => {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="animate-spin text-indigo-600 mb-4" size={32} />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading production data...</p>
+            <p className="text-xs  text-slate-400  ">Loading production data...</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col lg:flex-row items-center gap-4">
+          <div className="">
+            <div className=" border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col lg:flex-row items-center gap-4">
               <div className="relative w-full lg:w-1/3">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                 <input
                   type="text"
-                  placeholder="QUICK SEARCH..."
-                  className="w-full pl-11 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-black focus:ring-1 focus:ring-indigo-500 outline-none uppercase tracking-widest"
+                  placeholder="Quick Search..."
+                  className="w-full pl-11 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-1 focus:ring-indigo-500 outline-none  "
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -2384,7 +2329,7 @@ const DailyProductionPlanningPage = () => {
                     options={projects}
                     value={projectFilter}
                     onChange={setProjectFilter}
-                    placeholder="FILTER BY PROJECT / ROOT CARD..."
+                    placeholder="Filter by Project..."
                     className="w-full"
                   />
                 </div>
@@ -2394,7 +2339,7 @@ const DailyProductionPlanningPage = () => {
                     className="p-2 text-slate-400 hover:text-red-500 transition-colors"
                     title="Clear Project Filter"
                   >
-                    <X size={16} />
+                    <X size={15} />
                   </button>
                 )}
               </div>
@@ -2404,7 +2349,7 @@ const DailyProductionPlanningPage = () => {
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                   <input
                     type="date"
-                    className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-black focus:ring-1 focus:ring-indigo-500 outline-none uppercase tracking-widest"
+                    className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-1 focus:ring-indigo-500 outline-none  "
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
                   />
@@ -2415,56 +2360,56 @@ const DailyProductionPlanningPage = () => {
                     className="p-2 text-slate-400 hover:text-red-500 transition-colors"
                     title="Clear Date Filter"
                   >
-                    <X size={16} />
+                    <X size={15} />
                   </button>
                 )}
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto bg-white mt-4">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/30 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Project Name</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Plan Date</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Operators</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                    <th className="p-2 text-xs  text-slate-400  ">Project Name</th>
+                    <th className="p-2 text-xs  text-slate-400  ">Plan Date</th>
+                    <th className="p-2 text-xs  text-slate-400   text-center">Operators</th>
+                    <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {filteredPlans.length === 0 ? (
                     <tr>
-                      <td colSpan="4" className="px-6 py-12 text-center text-slate-500 text-[10px] font-black uppercase tracking-widest">No production plans found</td>
+                      <td colSpan="4" className="px-6 py-12 text-center text-slate-500 text-xs   ">No production plans found</td>
                     </tr>
                   ) : (
                     filteredPlans.map((plan) => (
                       <tr key={plan.id} className="hover:bg-indigo-50/10 dark:hover:bg-indigo-900/10 transition-all">
-                        <td className="px-6 py-5">
+                        <td className="p-2">
                           <div className="flex items-center gap-3">
                             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
-                              <Target size={16} />
+                              <Target size={15} />
                             </div>
-                            <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight truncate max-w-[300px]" title={plan.project_names}>
+                            <span className="text-sm  text-slate-900 dark:text-white   truncate max-w-[300px]" title={plan.project_names}>
                               {plan.project_names || "General Plan"}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="p-2">
                           <div className="flex items-center gap-3">
                             <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded">
-                              <Calendar size={16} />
+                              <Calendar size={15} />
                             </div>
-                            <span className="text-xs font-black text-slate-900 dark:text-white uppercase">
+                            <span className="text-xs  text-slate-900 dark:text-white ">
                               {new Date(plan.plan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-5 text-center">
-                          <span className="text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
+                        <td className="p-2 text-center">
+                          <span className="text-xs  text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                             {plan.operators_count}
                           </span>
                         </td>
-                        <td className="px-6 py-5 text-right">
+                        <td className="p-2 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handleOpenPlan(plan.id, "view")}

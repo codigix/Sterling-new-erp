@@ -225,7 +225,7 @@ const EmployeeDashboardHome = () => {
                     <p className="font-medium text-sm text-slate-900 dark:text-white">{task.title}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 ">{task.status.replace('_', ' ')}</p>
                   </div>
-                  <span className={`text-[10px]   rounded  whitespace-nowrap ml-2 ${
+                  <span className={`text-xs   rounded  whitespace-nowrap ml-2 ${
                     task.priority === 'critical' || task.priority === 'high'
                       ? 'bg-red-100 text-red-800' 
                       : task.priority === 'medium'

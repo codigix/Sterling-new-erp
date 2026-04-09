@@ -300,7 +300,7 @@ const ProductionManagerDashboard = () => {
                     </p>
                   </div>
                   <span
-                    className={` text-[10px]  rounded   ${
+                    className={` text-xs  rounded   ${
                       task.status === "pending"
                         ? "bg-amber-100 text-amber-700"
                         : "bg-blue-100 text-blue-700"
@@ -310,7 +310,7 @@ const ProductionManagerDashboard = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between mt-4">
-                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                   </span>
                   <Link
@@ -350,7 +350,7 @@ const ProductionManagerDashboard = () => {
         
         {loadingPlans ? (
           <div className="flex justify-center py-6">
-            <Loader2 className="animate-spin text-blue-600" size={24} />
+            <Loader2 className="animate-spin text-blue-600" size={15} />
           </div>
         ) : plans.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -364,12 +364,12 @@ const ProductionManagerDashboard = () => {
                     <p className=" text-slate-900 dark:text-white truncate">
                       {plan.plan_name}
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1  font-semibold">
+                    <p className="text-xs text-slate-500 mt-1  font-semibold">
                       {plan.product_name || "Multiple Products"}
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-0.5 text-[10px] rounded    ${
+                    className={`px-2 py-0.5 text-xs rounded    ${
                       plan.status === "in_progress"
                         ? "bg-blue-100 text-blue-700"
                         : plan.status === "delayed"
@@ -382,7 +382,7 @@ const ProductionManagerDashboard = () => {
                 </div>
                 
                 <div className="mt-4 space-y-2">
-                  <div className="flex justify-between text-[10px]  text-slate-500">
+                  <div className="flex justify-between text-xs  text-slate-500">
                     <span>PROGRESS</span>
                     <span>{plan.progress_percentage || 0}%</span>
                   </div>
@@ -395,11 +395,11 @@ const ProductionManagerDashboard = () => {
                 </div>
                 
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
                     <Clock size={12} />
                     <span>Ends {plan.end_date ? new Date(plan.end_date).toLocaleDateString() : 'TBD'}</span>
                   </div>
-                  <Link to={`/production-manager/planning/plans`} className="text-[10px]  text-blue-600">
+                  <Link to={`/production-manager/planning/plans`} className="text-xs  text-blue-600">
                     DETAILS
                   </Link>
                 </div>
@@ -536,7 +536,7 @@ const ProductionManagerDashboard = () => {
             className="p-4 bg-blue-50 dark:bg-blue-900 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
           >
             <Clock
-              size={24}
+              size={15}
               className="text-blue-600 dark:text-blue-300 mb-2"
             />
             <p className="font-medium text-blue-900 dark:text-blue-100">
@@ -548,7 +548,7 @@ const ProductionManagerDashboard = () => {
             className="p-4 bg-green-50 dark:bg-green-900 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
           >
             <Factory
-              size={24}
+              size={15}
               className="text-green-600 dark:text-green-300 mb-2"
             />
             <p className="font-medium text-green-900 dark:text-green-100">
@@ -560,7 +560,7 @@ const ProductionManagerDashboard = () => {
             className="p-4 bg-purple-50 dark:bg-purple-900 rounded hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
           >
             <Users
-              size={24}
+              size={15}
               className="text-purple-600 dark:text-purple-300 mb-2"
             />
             <p className="font-medium text-purple-900 dark:text-purple-100">
@@ -572,7 +572,7 @@ const ProductionManagerDashboard = () => {
             className="p-4 bg-orange-50 dark:bg-orange-900 rounded hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors"
           >
             <CheckCircle
-              size={24}
+              size={15}
               className="text-orange-600 dark:text-orange-300 mb-2"
             />
             <p className="font-medium text-orange-900 dark:text-orange-100">
@@ -584,7 +584,7 @@ const ProductionManagerDashboard = () => {
             className="p-4 bg-indigo-50 dark:bg-indigo-900 rounded hover:bg-indigo-100 dark:hover:bg-indigo-800 transition-colors"
           >
             <FileText
-              size={24}
+              size={15}
               className="text-indigo-600 dark:text-indigo-300 mb-2"
             />
             <p className="font-medium text-indigo-900 dark:text-indigo-100">
@@ -596,7 +596,7 @@ const ProductionManagerDashboard = () => {
             className="p-4 bg-cyan-50 dark:bg-cyan-900 rounded hover:bg-cyan-100 dark:hover:bg-cyan-800 transition-colors"
           >
             <ShoppingCart
-              size={24}
+              size={15}
               className="text-cyan-600 dark:text-cyan-300 mb-2"
             />
             <p className="font-medium text-cyan-900 dark:text-cyan-100">

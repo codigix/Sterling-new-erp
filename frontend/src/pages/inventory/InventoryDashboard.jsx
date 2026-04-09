@@ -303,7 +303,7 @@ const DashboardContent = React.memo(({
                         </p>
                       </div>
                       <span
-                        className={` text-[10px]  rounded   ${
+                        className={` text-xs  rounded   ${
                           task.status === "pending"
                             ? "bg-amber-100 text-amber-700"
                             : "bg-blue-100 text-blue-700"
@@ -313,7 +313,7 @@ const DashboardContent = React.memo(({
                       </span>
                     </div>
                     <div className="flex items-center justify-between mt-4">
-                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                         PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                       </span>
                       <Link
@@ -338,7 +338,7 @@ const DashboardContent = React.memo(({
 
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-6">
             <div className="flex items-center text-xs gap-3 mb-4">
-              <AlertTriangle size={24} className="text-red-600 dark:text-red-400" />
+              <AlertTriangle size={15} className="text-red-600 dark:text-red-400" />
               <h2 className="text-xl  text-red-900 dark:text-red-100">
                 Critical Stock Alerts
               </h2>

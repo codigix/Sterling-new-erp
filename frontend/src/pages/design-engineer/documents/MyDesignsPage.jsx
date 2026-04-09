@@ -743,7 +743,7 @@ const MyDesignsPage = () => {
             <div className="p-6">
               <div className="flex items-center text-xs justify-center w-12 h-12 rounded bg-red-100 dark:bg-red-900/30 mb-4">
                 <AlertCircle
-                  size={24}
+                  size={15}
                   className="text-red-600 dark:text-red-400"
                 />
               </div>

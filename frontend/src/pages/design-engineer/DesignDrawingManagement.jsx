@@ -437,19 +437,19 @@ const DesignDrawingManagement = () => {
                           </div>
                           <div>
                             <div className=" text-xs text-slate-900 dark:text-white">{doc.name}</div>
-                            <div className="text-[11px] text-slate-500 truncate max-w-xs">{doc.description}</div>
+                            <div className="text-xs text-slate-500 truncate max-w-xs">{doc.description}</div>
                           </div>
                         </div>
                       </td>
                       <td className="p-2">
-                        <div className="text-[11px]  text-blue-600 dark:text-blue-400 truncate max-w-[150px]" title={doc.project_name}>{doc.project_name || 'N/A'}</div>
-                        <div className="text-[9px] text-slate-500">{doc.po_number || doc.root_card_id}</div>
+                        <div className="text-xs  text-blue-600 dark:text-blue-400 truncate max-w-[150px]" title={doc.project_name}>{doc.project_name || 'N/A'}</div>
+                        <div className="text-xs text-slate-500">{doc.po_number || doc.root_card_id}</div>
                       </td>
                       <td className="p-2">
                         <span className="text-xs  text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-md">{doc.type}</span>
                       </td>
                       <td className="p-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px]    ${getStatusColor(doc.status)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs    ${getStatusColor(doc.status)}`}>
                           {doc.status}
                         </span>
                       </td>
@@ -511,7 +511,7 @@ const DesignDrawingManagement = () => {
                                     <div className="flex items-start  gap-2">
                                       <div className="flex flex-col items-center ">
                                         <span className="text-sm  text-blue-600">v{rev.version}</span>
-                                        <span className="text-[9px] text-slate-400   er">{new Date(rev.created_at).toLocaleDateString()}</span>
+                                        <span className="text-xs text-slate-400   er">{new Date(rev.created_at).toLocaleDateString()}</span>
                                       </div>
                                       <div className="h-12 w-px bg-slate-200 dark:bg-slate-700"></div>
                                       <div>
@@ -521,7 +521,7 @@ const DesignDrawingManagement = () => {
                                             {rev.description || "No description"}
                                           </span>
                                         </div>
-                                        <div className="flex items-center gap-4 text-[11px] text-slate-400 ">
+                                        <div className="flex items-center gap-4 text-xs text-slate-400 ">
                                           <span className="flex items-center gap-1"><FileText size={12} /> {rev.file_path.split('/').pop()}</span>
                                           {rev.reviewer_name && <span className="flex items-center gap-1 text-slate-500">Reviewer: <b className="text-slate-700 dark:text-slate-300">{rev.reviewer_name}</b></span>}
                                         </div>
@@ -538,21 +538,21 @@ const DesignDrawingManagement = () => {
                                           }`}>
                                             <MessageSquare size={10} className="mt-0.5 shrink-0" /> 
                                             <div>
-                                              <span className="  text-[9px] block mb-0.5">Feedback</span>
+                                              <span className="  text-xs block mb-0.5">Feedback</span>
                                               {rev.reviewer_comment}
                                             </div>
                                           </div>
                                         )}
                                       <button 
                                         onClick={() => window.open(getServerUrl(rev.file_path), '_blank')}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px]  rounded transition-colors border border-slate-200 dark:border-slate-600"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs  rounded transition-colors border border-slate-200 dark:border-slate-600"
                                       >
                                         <Eye size={14} /> View
                                       </button>
                                       
                                       <button 
                                         onClick={() => handleDownload(rev)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px]  rounded transition-colors border border-slate-200 dark:border-slate-600"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs  rounded transition-colors border border-slate-200 dark:border-slate-600"
                                       >
                                         <Download size={14} /> Download
                                       </button>
@@ -562,7 +562,7 @@ const DesignDrawingManagement = () => {
                                           {rev.status === 'Draft' && (
                                             <button 
                                               onClick={() => submitDraft(rev.id)}
-                                              className="flex items-center gap-1.5 p-2 bg-blue-600 hovexsbg-blue-700 text-white text-[11px]  rounded transition-colors "
+                                              className="flex items-center gap-1.5 p-2 bg-blue-600 hovexsbg-blue-700 text-white text-xs  rounded transition-colors "
                                             >
                                               <Upload size={14} /> Submit
                                             </button>
@@ -576,7 +576,7 @@ const DesignDrawingManagement = () => {
                                                 setIsRevision(true);
                                                 setShowUploadModal(true);
                                               }}
-                                              className="flex items-center gap-1.5 p-2 bg-orange-600 hoxsr:bg-orange-700 text-white text-[11px]  rounded transition-colors "
+                                              className="flex items-center gap-1.5 p-2 bg-orange-600 hoxsr:bg-orange-700 text-white text-xs  rounded transition-colors "
                                             >
                                               <RefreshCw size={14} /> Create Revision
                                             </button>
@@ -586,7 +586,7 @@ const DesignDrawingManagement = () => {
                                             <>
                                               <button 
                                                 onClick={() => handleApprove(rev)}
-                                                className="flex items-center gap-1.5 p-2 bg-green-600 hovxs:bg-green-700 text-white text-[11px]  rounded transition-colors "
+                                                className="flex items-center gap-1.5 p-2 bg-green-600 hovxs:bg-green-700 text-white text-xs  rounded transition-colors "
                                               >
                                                 <CheckCircle2 size={14} /> Approve
                                               </button>
@@ -627,7 +627,7 @@ const DesignDrawingManagement = () => {
               <h3 className="text-lg text-slate-900 dark:text-white">
                 {isRevision ? `Create Revision for ${formData.name} (v${selectedDoc.version + 1})` : "Upload New Drawing"}
               </h3>
-              <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={24} /></button>
+              <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={15} /></button>
             </div>
             <form onSubmit={handleUpload} className="p-2 space-y-4">
               {!isRevision && (
@@ -709,7 +709,7 @@ const DesignDrawingManagement = () => {
           <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg  text-slate-900 dark:text-white">Revision History: {selectedDoc?.name}</h3>
-              <button onClick={() => setShowHistoryModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={24} /></button>
+              <button onClick={() => setShowHistoryModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={15} /></button>
             </div>
             <div className="p-6 max-h-[60vh] overflow-y-auto space-y-4">
               {historyLoading ? (
@@ -718,7 +718,7 @@ const DesignDrawingManagement = () => {
                 <div key={item.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-200 dark:border-slate-700 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className=" text-blue-600 dark:text-blue-400">Version v{item.version}</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px]    ${getStatusColor(item.status)}`}>
+                    <span className={`px-2 py-0.5 rounded text-xs    ${getStatusColor(item.status)}`}>
                       {item.status}
                     </span>
                   </div>
@@ -758,7 +758,7 @@ const DesignDrawingManagement = () => {
               <h3 className="text-lg  text-slate-900 dark:text-white">
                 {selectedDoc?.status === 'Rejected' ? "Reviewer Feedback" : "Review Drawing"}
               </h3>
-              <button onClick={() => setShowReviewModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={24} /></button>
+              <button onClick={() => setShowReviewModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={15} /></button>
             </div>
             <div className="p-6 space-y-4">
               {selectedDoc?.status === 'Rejected' ? (

@@ -494,7 +494,7 @@ const ProjectDetailsPage = () => {
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center">
-                    <FileText className="text-white" size={24} />
+                    <FileText className="text-white" size={15} />
                   </div>
                   <div>
                     <h1 className="text-3xl  text-slate-900 dark:text-white text-xs">
@@ -733,7 +733,7 @@ const ProjectDetailsPage = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-[10px]  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-xs  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     Customer / Client
                   </p>
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -743,7 +743,7 @@ const ProjectDetailsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px]  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-xs  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     PO Number
                   </p>
                   <code className="text-xs font-mono bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
@@ -751,7 +751,7 @@ const ProjectDetailsPage = () => {
                   </code>
                 </div>
                 <div>
-                  <p className="text-[10px]  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-xs  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     Order Date
                   </p>
                   <p className="text-sm text-slate-700 dark:text-slate-300">
@@ -763,7 +763,7 @@ const ProjectDetailsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px]  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-xs  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     Due Date
                   </p>
                   <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">

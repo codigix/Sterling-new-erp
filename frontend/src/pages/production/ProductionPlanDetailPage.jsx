@@ -193,7 +193,7 @@ const ProductionPlanDetailPage = () => {
             </button>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px]   tracking-wider rounded">
+                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs   tracking-wider rounded">
                   Plan Details
                 </span>
                 <span className="text-slate-300 dark:text-slate-700">•</span>
@@ -276,7 +276,7 @@ const ProductionPlanDetailPage = () => {
                   </div>
                   <h3 className=" text-slate-900 dark:text-white">Strategic Parameters</h3>
                 </div>
-                <span className={`px-3 py-1 rounded  text-[10px]  tracking-wider  ${getStatusColor(plan.status)}`}>
+                <span className={`px-3 py-1 rounded  text-xs  tracking-wider  ${getStatusColor(plan.status)}`}>
                   {getStatusLabel(plan.status)}
                 </span>
               </div>
@@ -285,7 +285,7 @@ const ProductionPlanDetailPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <div>
-                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Production Plan Name</p>
+                      <p className="text-xs    text-slate-400 mb-2">Production Plan Name</p>
                       {isEditing ? (
                         <input
                           type="text"
@@ -299,7 +299,7 @@ const ProductionPlanDetailPage = () => {
                     </div>
 
                     <div>
-                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Target Quantity</p>
+                      <p className="text-xs    text-slate-400 mb-2">Target Quantity</p>
                       {isEditing ? (
                         <div className="flex items-center">
                           <input
@@ -308,20 +308,20 @@ const ProductionPlanDetailPage = () => {
                             onChange={(e) => setFormData({ ...formData, targetQuantity: e.target.value })}
                             className="w-full p-2 border border-slate-200 dark:border-slate-600 rounded-l-lg bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm"
                           />
-                          <span className="p-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r-lg text-[10px]  text-slate-500 ">
+                          <span className="p-2 bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 rounded-r-lg text-xs  text-slate-500 ">
                             {plan.uom || 'Units'}
                           </span>
                         </div>
                       ) : (
                         <div className="flex items-end gap-2">
                           <p className="text-lg  text-slate-900 dark:text-white">{plan.target_quantity || plan.quantity || 1}</p>
-                          <span className="text-[10px]  text-slate-400 mb-1  tracking-widest">{plan.uom || 'Units'}</span>
+                          <span className="text-xs  text-slate-400 mb-1  ">{plan.uom || 'Units'}</span>
                         </div>
                       )}
                     </div>
 
                     <div>
-                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Supervisor</p>
+                      <p className="text-xs    text-slate-400 mb-2">Supervisor</p>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded  bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
                           <User size={20} />
@@ -333,7 +333,7 @@ const ProductionPlanDetailPage = () => {
 
                   <div className="space-y-2">
                     <div>
-                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Lifecycle Status</p>
+                      <p className="text-xs    text-slate-400 mb-2">Lifecycle Status</p>
                       {isEditing ? (
                         <select
                           value={formData.status || ''}
@@ -356,7 +356,7 @@ const ProductionPlanDetailPage = () => {
                     </div>
 
                     <div>
-                      <p className="text-[10px]   tracking-widest text-slate-400 mb-2">Created On</p>
+                      <p className="text-xs    text-slate-400 mb-2">Created On</p>
                       <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 ">
                         <Calendar size={18} className="text-slate-400" />
                         {plan.created_at ? new Date(plan.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
@@ -366,10 +366,10 @@ const ProductionPlanDetailPage = () => {
                 </div>
 
                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-700/50">
-                  <p className="text-[10px]   tracking-widest text-slate-400 mb-3">Timeline Matrix</p>
+                  <p className="text-xs    text-slate-400 mb-3">Timeline Matrix</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px]  text-slate-500 mb-1 ">Start Date</p>
+                      <p className="text-xs  text-slate-500 mb-1 ">Start Date</p>
                       {isEditing ? (
                         <input
                           type="date"
@@ -384,7 +384,7 @@ const ProductionPlanDetailPage = () => {
                       )}
                     </div>
                     <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px]  text-slate-500 mb-1 ">Target End</p>
+                      <p className="text-xs  text-slate-500 mb-1 ">Target End</p>
                       {isEditing ? (
                         <input
                           type="date"
@@ -399,7 +399,7 @@ const ProductionPlanDetailPage = () => {
                       )}
                     </div>
                     <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded border border-purple-100 dark:border-purple-900/30">
-                      <p className="text-[10px]  text-purple-600 dark:text-purple-400 mb-1 ">Estimated Completion</p>
+                      <p className="text-xs  text-purple-600 dark:text-purple-400 mb-1 ">Estimated Completion</p>
                       {isEditing ? (
                         <input
                           type="date"
@@ -417,7 +417,7 @@ const ProductionPlanDetailPage = () => {
                 </div>
 
                 <div className="mt-8">
-                  <p className="text-[10px]   tracking-widest text-slate-400 mb-3">Production Notes</p>
+                  <p className="text-xs    text-slate-400 mb-3">Production Notes</p>
                   {isEditing ? (
                     <textarea
                       value={formData.notes || ''}
@@ -446,7 +446,7 @@ const ProductionPlanDetailPage = () => {
                 </div>
                 <div className="flex gap-4">
                   <div className="text-right">
-                    <p className="text-[10px]   text-slate-400 tracking-wider">Progress</p>
+                    <p className="text-xs   text-slate-400 tracking-wider">Progress</p>
                     <p className="text-sm  text-slate-900 dark:text-white">
                       {plan.completed_stages || 0} / {plan.total_stages || 0}
                     </p>
@@ -456,7 +456,7 @@ const ProductionPlanDetailPage = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
                   <thead>
-                    <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
+                    <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
                       <th className="p-2">Phase Name</th>
                       <th className="p-2">Type</th>
                       <th className="p-2 text-center">Status</th>
@@ -468,10 +468,10 @@ const ProductionPlanDetailPage = () => {
                       <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="p-2">
                           <div className=" text-slate-900 dark:text-white">{stage.stage_name}</div>
-                          <div className="text-[11px] text-slate-500 mt-0.5 font-medium">{stage.notes || 'Standard processing'}</div>
+                          <div className="text-xs text-slate-500 mt-0.5 font-medium">{stage.notes || 'Standard processing'}</div>
                         </td>
                         <td className="p-2">
-                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px]  rounded ">
+                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs  rounded ">
                             {stage.stage_type || 'In-House'}
                           </span>
                         </td>
@@ -481,7 +481,7 @@ const ProductionPlanDetailPage = () => {
                           </div>
                         </td>
                         <td className="p-2">
-                          <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                          <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
                             {stage.planned_start ? new Date(stage.planned_start).toLocaleDateString() : 'N/A'} - {stage.planned_end ? new Date(stage.planned_end).toLocaleDateString() : 'N/A'}
                           </div>
                         </td>
@@ -506,32 +506,32 @@ const ProductionPlanDetailPage = () => {
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                 <Box size={80} />
               </div>
-              <p className="text-[10px]   tracking-[0.2em] text-slate-400 mb-4">Production Target</p>
+              <p className="text-xs   tracking-[0.2em] text-slate-400 mb-4">Production Target</p>
               <div className="relative z-10">
                 <h4 className="text-lg  mb-1 group-hover:text-blue-400 transition-colors">{plan.product_name || 'Generic Item'}</h4>
                 <p className="text-xs text-slate-400 font-mono mb-6">{plan.item_code || 'ITM-XXXX'}</p>
                 
                 <div className="flex items-end gap-2">
                   <span className="text-4xl  text-white">{plan.target_quantity || plan.quantity || 1}</span>
-                  <span className="text-xs  text-slate-400 mb-1  tracking-widest">{plan.uom || 'Units'}</span>
+                  <span className="text-xs  text-slate-400 mb-1  ">{plan.uom || 'Units'}</span>
                 </div>
               </div>
             </div>
 
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <p className="text-[10px]   tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+              <p className="text-xs    text-slate-400 mb-4 flex items-center gap-2">
                 <FileText size={12} className="text-blue-500" />
                 Linked Resources
               </p>
               <div className="space-y-4">
                 <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 group cursor-pointer hover:border-blue-500/30 transition-all">
-                  <p className="text-[10px]  text-slate-500  mb-1">Customer / Project</p>
+                  <p className="text-xs  text-slate-500  mb-1">Customer / Project</p>
                   <p className="text-sm  text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors">
                     {plan.customer_name || 'Direct Order'}
                   </p>
                 </div>
                 <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 group cursor-pointer hover:border-purple-500/30 transition-all">
-                  <p className="text-[10px]  text-slate-500  mb-1">Sales Order Ref</p>
+                  <p className="text-xs  text-slate-500  mb-1">Sales Order Ref</p>
                   <p className="text-sm  text-slate-900 dark:text-white group-hover:text-purple-500 transition-colors">
                     {plan.sales_order_id ? `SO-${plan.sales_order_id}` : 'Internal Plan'}
                   </p>
@@ -541,7 +541,7 @@ const ProductionPlanDetailPage = () => {
 
             {/* Health Indicators */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-              <p className="text-[10px]   tracking-widest text-slate-400 mb-4">Plan Intelligence</p>
+              <p className="text-xs    text-slate-400 mb-4">Plan Intelligence</p>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Timeline Health</span>
@@ -553,11 +553,11 @@ const ProductionPlanDetailPage = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Resource Load</span>
-                  <span className="text-[10px]  text-amber-500 ">Optimal</span>
+                  <span className="text-xs  text-amber-500 ">Optimal</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 font-medium">Risk Factor</span>
-                  <span className="text-[10px]  text-green-500 ">Minimal</span>
+                  <span className="text-xs  text-green-500 ">Minimal</span>
                 </div>
               </div>
             </div>
@@ -573,18 +573,18 @@ const ProductionPlanDetailPage = () => {
                   <Activity size={20} className="text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-[10px]   tracking-widest text-slate-500">Current Phase</p>
+                  <p className="text-xs    text-slate-500">Current Phase</p>
                   <p className="text-sm  text-white ">{plan.status === 'completed' ? 'Finalized' : 'Production Active'}</p>
                 </div>
               </div>
 
               <div className="hidden md:flex items-center gap-8 border-l border-slate-700/50 pl-8">
                 <div>
-                  <p className="text-[10px]   tracking-widest text-slate-500">Stages Complete</p>
+                  <p className="text-xs    text-slate-500">Stages Complete</p>
                   <p className="text-sm  text-white">{Math.round(((plan.completed_stages || 0) / (plan.total_stages || 1)) * 100)}%</p>
                 </div>
                 <div>
-                  <p className="text-[10px]   tracking-widest text-slate-500">Efficiency</p>
+                  <p className="text-xs    text-slate-500">Efficiency</p>
                   <p className="text-sm  text-green-400">94.2%</p>
                 </div>
               </div>
@@ -592,7 +592,7 @@ const ProductionPlanDetailPage = () => {
 
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded  bg-blue-500 animate-pulse" />
-              <span className="text-[10px]  text-slate-400  tracking-widest">Active Monitoring</span>
+              <span className="text-xs  text-slate-400  ">Active Monitoring</span>
             </div>
           </div>
         </div>

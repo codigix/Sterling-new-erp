@@ -18,14 +18,14 @@ const GRNEmailModal = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
           <h2 className="text-xl  text-slate-900 dark:text-white text-xs flex items-center gap-3">
-            <AlertTriangle className="text-orange-500" size={24} />
+            <AlertTriangle className="text-orange-500" size={15} />
             Email Preview - GRN Discrepancy Report
           </h2>
           <button
             onClick={() => setEmailModal({ show: false, type: "", data: null })}
             className="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors"
           >
-            <X size={24} />
+            <X size={15} />
           </button>
         </div>
 

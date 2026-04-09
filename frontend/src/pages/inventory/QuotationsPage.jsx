@@ -1255,7 +1255,7 @@ const QuotationsPage = ({ defaultTab }) => {
                 onClick={() => setShowEmailModal(false)}
                 className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
               >
-                <X size={24} className="text-slate-500 dark:text-slate-400" />
+                <X size={15} className="text-slate-500 dark:text-slate-400" />
               </button>
             </div>
 
@@ -1352,7 +1352,7 @@ const QuotationsPage = ({ defaultTab }) => {
                 onClick={handleCloseCommunications}
                 className="text-slate-400 hover:text-slate-500 transition-colors"
               >
-                <X size={24} />
+                <X size={15} />
               </button>
             </div>
 
@@ -1455,7 +1455,7 @@ const QuotationsPage = ({ defaultTab }) => {
                 onClick={() => setShowUploadModal(false)}
                 className="text-slate-400 hover:text-slate-500 transition-colors"
               >
-                <X size={24} />
+                <X size={15} />
               </button>
             </div>
 

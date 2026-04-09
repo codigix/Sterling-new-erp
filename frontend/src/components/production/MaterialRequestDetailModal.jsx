@@ -95,8 +95,8 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-start justify-center z-50 overflow-y-auto p-4 py-8">
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-4xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20 my-auto shadow-2xl">
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-600/5 to-transparent flex-shrink-0">
+      <div className="bg-white dark:bg-slate-900 rounded w-full max-w-4xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20 my-auto shadow-2xl">
+        <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-600/5 to-transparent flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
               <ClipboardList size={16} />
@@ -164,7 +164,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                     <Package size={15} />
                     Requested Materials
                   </h4>
-                  <span className="text-xs  p-2 bg-slate-100 dark:bg-slate-800 rounded text-slate-500  tracking-tighter">
+                  <span className="text-xs  p-2 bg-slate-100 dark:bg-slate-800 rounded text-slate-500  ">
                     Total {request.items?.length || 0} Items
                   </span>
                 </div>
@@ -188,22 +188,22 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                                 {item.item_name}
                               </span>
                               {item.item_group?.toLowerCase().includes("plate") && (item.length || item.width || item.thickness) && (
-                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                   Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.thickness || 0)} mm
                                 </span>
                               )}
                               {item.item_group?.toLowerCase().includes("round bar") && (item.diameter || item.length) && (
-                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                   Dim: Dia:{Number(item.diameter || 0)}, L:{Number(item.length || 0)} mm
                                 </span>
                               )}
                               {item.item_group?.toLowerCase().includes("pipe") && (item.outer_diameter || item.thickness || item.length) && (
-                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                   Dim: OD:{Number(item.outer_diameter || 0)}, Thk:{Number(item.thickness || 0)}, L:{Number(item.length || 0)} mm
                                 </span>
                               )}
                               {item.item_group?.toLowerCase().includes("block") && (item.length || item.width || item.height) && (
-                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                   Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.height || 0)} mm
                                 </span>
                               )}
@@ -218,7 +218,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                                 {Number(parseFloat(item.total_weight || 0).toFixed(3))} Kg
                               </span>
                               {parseFloat(item.unit_weight) > 0 && (
-                                <span className="text-[10px] text-slate-400">
+                                <span className="text-xs text-slate-400">
                                   Unit: {Number(parseFloat(item.unit_weight || 0).toFixed(3))}
                                 </span>
                               )}
@@ -306,7 +306,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
             {!loading && isProcurement && request?.status === 'approved' && !readOnly && (
               <button 
                 onClick={handlePOProcessing}
-                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-xl shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
+                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded  text-xs transition-all shadow-xl shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
               >
                 <ArrowRight size={18} />
                 PO Processing
@@ -317,7 +317,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 <button 
                   onClick={() => handleUpdateStatus('cancelled')}
                   disabled={submitting}
-                  className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 rounded-xl font-bold text-sm hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 rounded  text-sm hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm flex items-center justify-center gap-2"
                 >
                   <XCircle size={18} />
                   Cancel Request
@@ -325,7 +325,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 <button 
                   onClick={() => handleUpdateStatus('approved')}
                   disabled={submitting}
-                  className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-xl shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
+                  className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded  text-sm transition-all shadow-xl shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
                 >
                   <CheckCircle size={18} />
                   Approve Request

@@ -233,7 +233,7 @@ const BOMDetailsPage = () => {
     { key: "hourlyRate", label: "Rate", render: (val, row) => (
       <div className="flex flex-col text-right">
         <span className="text-xs">₹{parseFloat(row.type === 'outsource' ? row.vendorRatePerUnit : val).toLocaleString()}</span>
-        <span className="text-[9px] text-slate-400">{row.type === 'outsource' ? '/ Unit' : '/ Hr'}</span>
+        <span className="text-xs text-slate-400">{row.type === 'outsource' ? '/ Unit' : '/ Hr'}</span>
       </div>
     )},
     { key: "cost", label: "Total Cost", render: (val) => (

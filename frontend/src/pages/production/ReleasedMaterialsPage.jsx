@@ -169,7 +169,7 @@ const ReleasedMaterialsPage = () => {
       {/* Detail Modal */}
       {showDetailModal && selectedEntry && (
         <div className="fixed inset-0 z-[150] flex  items-center justify-center p-2 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-[700px] rounded overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-[800px] rounded overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-blue-50/30">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded bg-blue-100 flex items-center justify-center text-blue-600">
@@ -248,7 +248,7 @@ const ReleasedMaterialsPage = () => {
                                 </div>
                               </td>
                               <td className="p-2">
-                                <span className="text-[10px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                                <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
                                   {formatDimensions(item)}
                                 </span>
                               </td>
@@ -301,10 +301,10 @@ const ReleasedMaterialsPage = () => {
                                               <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
                                               <td className="p-2 text-xs  text-slate-700  ">{itemCodePerPiece}</td>
                                               <td className="p-2 text-xs  text-indigo-600  ">{stCode}</td>
-                                              <td className="p-2 text-[9px] text-slate-500 italic">
+                                              <td className="p-2 text-xs text-slate-500 italic">
                                                 {formatDimensions(stObj)}
                                               </td>
-                                              <td className="p-2 text-[9px] text-slate-500">
+                                              <td className="p-2 text-xs text-slate-500">
                                                 {Number(pieceWeight).toFixed(3)} Kg
                                               </td>
                                               <td className="p-2 text-right">

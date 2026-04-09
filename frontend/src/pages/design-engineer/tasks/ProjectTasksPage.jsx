@@ -336,7 +336,7 @@ const ProjectTasksPage = () => {
                 onClick={() => setShowCreateModal(false)}
                 className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
               >
-                <X size={24} />
+                <X size={15} />
               </button>
             </div>
 

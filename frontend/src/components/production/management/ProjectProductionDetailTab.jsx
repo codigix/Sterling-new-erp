@@ -46,10 +46,10 @@ const ProjectProductionDetailTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tighter">Project Production Detail View</h2>
-          <p className="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Real-time Project Execution & Status Tracking</p>
+          <h2 className="text-lg  text-slate-900 dark:text-white  ">Project Production Detail View</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-xs    mt-0.5">Real-time Project Execution & Status Tracking</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
@@ -57,7 +57,7 @@ const ProjectProductionDetailTab = () => {
             <input 
               type="text" 
               placeholder="Search by project name or reference..." 
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm  outline-none focus:ring-2 focus:ring-blue-500 "
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -70,7 +70,7 @@ const ProjectProductionDetailTab = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {projectTracking.map((project) => (
-          <div key={project.id} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+          <div key={project.id} className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
             <div className="p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/50">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -78,33 +78,33 @@ const ProjectProductionDetailTab = () => {
                     <Briefcase size={18} />
                   </div>
                   <div>
-                    <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter line-clamp-1">{project.name}</h3>
-                    <p className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">{project.ref}</p>
+                    <h3 className="text-xs  text-slate-900 dark:text-white   line-clamp-1">{project.name}</h3>
+                    <p className="text-xs text-slate-400   ">{project.ref}</p>
                   </div>
                 </div>
-                <span className="text-[10px] font-black px-3 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-full uppercase tracking-widest border border-indigo-200 dark:border-indigo-800">
+                <span className="text-xs  px-3 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-full   border border-indigo-200 dark:border-indigo-800">
                   {project.status}
                 </span>
               </div>
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Qty</span>
-                  <span className="text-lg font-black text-slate-900 dark:text-white">{project.qty}</span>
+                  <span className="text-xs  text-slate-400   mb-1">Target Qty</span>
+                  <span className="text-lg  text-slate-900 dark:text-white">{project.qty}</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Produced</span>
-                  <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">{project.completed}</span>
+                  <span className="text-xs  text-slate-400   mb-1">Produced</span>
+                  <span className="text-lg  text-emerald-600 dark:text-emerald-400">{project.completed}</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Operations</span>
-                  <span className="text-lg font-black text-slate-900 dark:text-white">{project.completedOps}/{project.totalOps}</span>
+                  <span className="text-xs  text-slate-400   mb-1">Operations</span>
+                  <span className="text-lg  text-slate-900 dark:text-white">{project.completedOps}/{project.totalOps}</span>
                 </div>
               </div>
             </div>
             
             <div className="p-5">
-              <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+              <div className="flex items-center justify-between text-xs    mb-2">
                 <span className="text-slate-400 flex items-center gap-2">
                   <Activity size={12} className="text-blue-500" /> Current: {project.activeOp}
                 </span>
@@ -118,10 +118,10 @@ const ProjectProductionDetailTab = () => {
               </div>
               
               <div className="grid grid-cols-2 gap-3">
-                <button className="flex items-center justify-center gap-2 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">
+                <button className="flex items-center justify-center gap-2 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-xs    hover:bg-slate-800 transition-all">
                   <History size={14} /> Full History
                 </button>
-                <button className="flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
+                <button className="flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-lg text-xs    hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
                   View Timeline <Zap size={14} />
                 </button>
               </div>
@@ -129,12 +129,12 @@ const ProjectProductionDetailTab = () => {
           </div>
         ))}
 
-        <div className="bg-slate-50 dark:bg-slate-900/30 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 flex flex-col items-center justify-center text-center group">
+        <div className="bg-slate-50 dark:bg-slate-900/30 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded p-8 flex flex-col items-center justify-center text-center group">
           <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-300 group-hover:text-blue-500 transition-all shadow-sm group-hover:shadow-md mb-4 rotate-12 group-hover:rotate-0">
             <PackageCheck size={32} />
           </div>
-          <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Select project for full drill-down</h4>
-          <p className="text-[10px] text-slate-500 max-w-[200px] mt-2 font-bold uppercase tracking-tight">Access detailed operator logs, QC results, and timeline analytics</p>
+          <h4 className="text-xs  text-slate-400  ">Select project for full drill-down</h4>
+          <p className="text-xs text-slate-500 max-w-[200px] mt-2   tracking-tight">Access detailed operator logs, QC results, and timeline analytics</p>
         </div>
       </div>
     </div>

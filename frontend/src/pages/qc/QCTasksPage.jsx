@@ -273,7 +273,7 @@ const QCTasksPage = () => {
                             return (
                               <React.Fragment key={mIdx}>
                                 <tr 
-                                  className={`text-[11px]  text-slate-700 dark:text-slate-300 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 cursor-pointer transition-colors ${isMatExpanded ? 'bg-emerald-50/20' : ''}`}
+                                  className={`text-xs  text-slate-700 dark:text-slate-300 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 cursor-pointer transition-colors ${isMatExpanded ? 'bg-emerald-50/20' : ''}`}
                                   onClick={() => toggleMaterial(report.id, mIdx)}
                                 >
                                   <td className="p-2">
@@ -353,10 +353,10 @@ const QCTasksPage = () => {
                                             
                                             <div className="space-y-1">
                                               <p className="text-[8px]  text-slate-400  ">ST Number (Serial)</p>
-                                              <p className="text-[11px]  text-slate-700 dark:text-slate-200   font-mono truncate" title={st.st_code}>
+                                              <p className="text-xs  text-slate-700 dark:text-slate-200   font-mono truncate" title={st.st_code}>
                                                 {st.st_code}
                                               </p>
-                                              <div className="text-[10px] text-slate-500 font-mono mt-1">
+                                              <div className="text-xs text-slate-500 font-mono mt-1">
                                                 {renderDimensions(st)}
                                               </div>
                                             </div>

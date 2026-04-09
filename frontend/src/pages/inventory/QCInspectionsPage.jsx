@@ -685,7 +685,7 @@ const QCInspectionsPage = () => {
             <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
-                  <FileText size={24} />
+                  <FileText size={15} />
                 </div>
                 <div>
                   <h2 className="text-xl  text-slate-900 dark:text-white  ">
@@ -706,7 +706,7 @@ const QCInspectionsPage = () => {
                 onClick={() => setShowReportModal(false)} 
                 className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
               >
-                <X size={24} className="text-slate-400" />
+                <X size={15} className="text-slate-400" />
               </button>
             </div>
 
@@ -758,7 +758,7 @@ const QCInspectionsPage = () => {
                               className={`hover:bg-slate-50/30 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/10' : ''}`}
                               onClick={() => setExpandedReportItems(prev => ({ ...prev, [idx]: !prev[idx] }))}
                             >
-                              <td className="px-6 py-5">
+                              <td className="p-2">
                                 <div className="flex items-center gap-3">
                                   <div className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600'}`}>
                                     <Package size={16} />
@@ -773,7 +773,7 @@ const QCInspectionsPage = () => {
                                 </div>
                               </td>
                               <td className="p-2">
-                                <div className="text-[10px] text-slate-500 font-mono">
+                                <div className="text-xs text-slate-500 font-mono">
                                   {renderDimensions({
                                     length: item.length,
                                     width: item.width,
@@ -793,19 +793,19 @@ const QCInspectionsPage = () => {
                                 <div className="flex flex-col items-center gap-1">
                                   <div className="flex gap-2">
                                     {acceptedCount > 0 && (
-                                      <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded text-[9px]   border border-green-100">
+                                      <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs   border border-green-100">
                                         {acceptedCount} Passed
                                       </span>
                                     )}
                                     {rejectedCount > 0 && (
-                                      <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-[9px]   border border-red-100">
+                                      <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs   border border-red-100">
                                         {rejectedCount} Failed
                                       </span>
                                     )}
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-6 py-5">
+                              <td className="p-2">
                                 <div className="flex flex-col items-end gap-2">
                                   {item.common_document_path && (
                                     <button 
@@ -813,7 +813,7 @@ const QCInspectionsPage = () => {
                                         e.stopPropagation();
                                         window.open(getServerUrl(item.common_document_path), '_blank');
                                       }}
-                                      className="flex items-center gap-2 text-[9px]  text-green-600  hover:text-green-700 transition-colors"
+                                      className="flex items-center gap-2 text-xs  text-green-600  hover:text-green-700 transition-colors"
                                     >
                                       <CheckCircle size={12} /> Accepted <Eye size={12} />
                                     </button>
@@ -824,7 +824,7 @@ const QCInspectionsPage = () => {
                                         e.stopPropagation();
                                         window.open(getServerUrl(item.rejected_document_path), '_blank');
                                       }}
-                                      className="flex items-center gap-2 text-[9px]  text-red-600  hover:text-red-700 transition-colors"
+                                      className="flex items-center gap-2 text-xs  text-red-600  hover:text-red-700 transition-colors"
                                     >
                                       <AlertTriangle size={12} /> Rejected <Eye size={12} />
                                     </button>
@@ -853,7 +853,7 @@ const QCInspectionsPage = () => {
                                         <p className="text-xs  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
                                           {s.serial_number}
                                         </p>
-                                        <div className="text-[10px] text-slate-500 font-mono">
+                                        <div className="text-xs text-slate-500 font-mono">
                                           {s.dimensions && (
                                             <>
                                               {s.dimensions.length ? `L:${Number(s.dimensions.length)} ` : ''}
@@ -894,11 +894,11 @@ const QCInspectionsPage = () => {
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-[9px]  text-slate-400  mb-1">Inspection Type</p>
+                      <p className="text-xs  text-slate-400  mb-1">Inspection Type</p>
                       <p className="text-xs  text-slate-700 dark:text-slate-200 ">{reportData.inspectionType}</p>
                     </div>
                     <div>
-                      <p className="text-[9px]  text-slate-400  mb-1">Received Date</p>
+                      <p className="text-xs  text-slate-400  mb-1">Received Date</p>
                       <p className="text-xs  text-slate-700 dark:text-slate-200 ">{reportData.receivedDate}</p>
                     </div>
                   </div>

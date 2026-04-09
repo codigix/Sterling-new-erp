@@ -521,7 +521,7 @@ const MaterialRequestPage = () => {
                         {request.production_plan_name || request.customer || "Direct Request"}
                       </span>
                       {request.production_plan_id && (
-                        <span className="text-[10px] text-blue-500   er">
+                        <span className="text-xs text-blue-500   er">
                           Prod Plan #{request.production_plan_id}
                         </span>
                       )}

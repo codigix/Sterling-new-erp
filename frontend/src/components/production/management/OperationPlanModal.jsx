@@ -48,10 +48,10 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
         {/* Header */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+            <h2 className="text-xl  text-slate-900 dark:text-white  tracking-tight">
               Manage Operations Plan
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 uppercase font-bold tracking-widest">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1   ">
               {project?.name} • {project?.rootCardRef}
             </p>
           </div>
@@ -64,10 +64,10 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
         <div className="p-6 overflow-y-auto flex-1">
           <div className="space-y-4">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Manufacturing Sequence</h3>
+              <h3 className="text-xs  text-slate-500  ">Manufacturing Sequence</h3>
               <button 
                 onClick={addOperation}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors uppercase"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-xs  hover:bg-blue-100 transition-colors "
               >
                 <Plus size={14} /> Add Operation
               </button>
@@ -75,12 +75,12 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
 
             <div className="space-y-2">
               {operations.map((op, index) => (
-                <div key={op.id} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 group hover:border-blue-300 dark:hover:border-blue-800 transition-all">
+                <div key={op.id} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-200 dark:border-slate-700 group hover:border-blue-300 dark:hover:border-blue-800 transition-all">
                   <div className="flex items-center gap-3">
                     <div className="cursor-move text-slate-300 group-hover:text-slate-500 transition-colors">
                       <GripVertical size={20} />
                     </div>
-                    <div className="w-8 h-8 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-blue-600 text-sm shadow-sm">
+                    <div className="w-8 h-8 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center  text-blue-600 text-sm shadow-sm">
                       {op.sequence}
                     </div>
                   </div>
@@ -94,7 +94,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
                           newOps[index].name = e.target.value;
                           setOperations(newOps);
                         }}
-                        className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none uppercase"
+                        className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none "
                       >
                         {operationOptions.map(option => (
                           <option key={option} value={option}>{option}</option>
@@ -115,7 +115,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
                           }}
                           className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                         />
-                        <label htmlFor={`qc-${op.id}`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tighter flex items-center gap-1 cursor-pointer">
+                        <label htmlFor={`qc-${op.id}`} className="text-xs  text-slate-600 dark:text-slate-400   flex items-center gap-1 cursor-pointer">
                           <ShieldCheck size={14} className="text-emerald-500" />
                           QC Required
                         </label>
@@ -150,13 +150,13 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
             {operations.length === 0 && (
               <div className="text-center py-12 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
                 <Settings2 className="mx-auto text-slate-300 mb-4" size={48} />
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white">No Operations Defined</h4>
+                <h4 className="text-lg  text-slate-900 dark:text-white">No Operations Defined</h4>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">
                   Add the first manufacturing stage to begin planning this project.
                 </p>
                 <button 
                   onClick={addOperation}
-                  className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+                  className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
                 >
                   <Plus size={18} /> Add First Operation
                 </button>
@@ -169,12 +169,12 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
         <div className="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex justify-end gap-3">
           <button 
             onClick={onClose}
-            className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors uppercase tracking-widest"
+            className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded text-sm  hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors  "
           >
             Cancel
           </button>
           <button 
-            className="px-8 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2 uppercase tracking-widest"
+            className="px-8 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2  "
           >
             <Save size={18} /> Save Sequence
           </button>

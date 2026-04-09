@@ -298,7 +298,7 @@ const DashboardContent = React.memo(({
                         </p>
                       </div>
                       <span
-                        className={` text-[10px]  rounded   ${
+                        className={` text-xs  rounded   ${
                           task.status === "pending"
                             ? "bg-amber-100 text-amber-700"
                             : "bg-blue-100 text-blue-700"
@@ -308,7 +308,7 @@ const DashboardContent = React.memo(({
                       </span>
                     </div>
                     <div className="flex items-center justify-between mt-4">
-                      <span className="text-[10px]  text-slate-500 dark:text-slate-400">
+                      <span className="text-xs  text-slate-500 dark:text-slate-400">
                         PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                       </span>
                       <Link

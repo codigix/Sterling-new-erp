@@ -177,7 +177,7 @@ const MaterialInspectionPage = () => {
         // Re-calculate item-level completion status logic (similar to backend logic used in materials fetch)
         const allProcessed = updatedSerials.length > 0 && updatedSerials.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
         // Simple logic for UI: if all serials processed, mark as QC Completed
-        const newStatus = allProcessed ? 'QC Completed' : 'QC PENDING';
+        const newStatus = allProcessed ? 'QC Completed' : 'QC Pending';
         
         return { ...item, serials: updatedSerials, status: newStatus };
       }
@@ -304,7 +304,7 @@ const MaterialInspectionPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
-            <ClipboardCheck className="text-blue-600" size={24} />
+            <ClipboardCheck className="text-blue-600" size={15} />
             Material Inspection
           </h1>
           <p className="text-slate-500 text-xs dark:text-slate-400 mt-1">
@@ -333,7 +333,7 @@ const MaterialInspectionPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               placeholder="Enter GRN number (e.g. GRN-2024-001)"
               value={grnNumber}
               onChange={handleGrnFilterChange}
@@ -383,15 +383,15 @@ const MaterialInspectionPage = () => {
                   <table className="w-full text-left">
                     <thead className="bg-slate-50/30 text-xs  text-slate-400   border-b border-slate-100">
                       <tr>
-                        <th className="p-2">ITEM NAME / GROUP</th>
-                        <th className="p-2">REFERENCE</th>
-                        <th className="p-2">DIMENSIONS</th>
-                        <th className="p-2 text-center">ORDERED</th>
-                        <th className="p-2 text-center">INVOICE</th>
-                        <th className="p-2 text-center">RECEIVED QTY</th>
-                        <th className="p-2 text-center">SHORTAGE</th>
-                        <th className="p-2 text-center">OVERAGE</th>
-                        <th className="p-2 text-right">STATUS</th>
+                        <th className="p-2">Item Name / Group</th>
+                        <th className="p-2"> Referance</th>
+                        <th className="p-2">Dimensions</th>
+                        <th className="p-2 text-center">Ordered</th>
+                        <th className="p-2 text-center">Invoice</th>
+                        <th className="p-2 text-center">Received Quantity</th>
+                        <th className="p-2 text-center">Shortage</th>
+                        <th className="p-2 text-center">Overage</th>
+                        <th className="p-2 text-right">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -427,7 +427,7 @@ const MaterialInspectionPage = () => {
                                 </div>
                               </td>
                               <td className="p-2">
-                                <div className="text-[10px] text-slate-500 font-mono">
+                                <div className="text-xs text-slate-500 font-mono">
                                   {renderDimensions({
                                     length: item.length,
                                     width: item.width,
@@ -454,7 +454,7 @@ const MaterialInspectionPage = () => {
                                       ? 'bg-green-50 text-green-600 border-green-100' 
                                       : 'bg-purple-50 text-purple-600 border-purple-100'
                                   }`}>
-                                    {item.status || 'QC PENDING'}
+                                    {item.status || 'QC Pending'}
                                   </span>
                                   {isExpanded ? <ChevronUp size={16} className="text-blue-600" /> : <ChevronDown size={16} className="text-slate-400" />}
                                 </div>
@@ -463,7 +463,7 @@ const MaterialInspectionPage = () => {
                             
                             {isExpanded && (
                               <tr className="bg-slate-50/50">
-                                <td colSpan="8" className="p-2">
+                                <td colSpan="9" className="p-2">
                                   <div className="bg-white dark:bg-slate-900 border border-slate-200 rounded  overflow-hidden animate-in slide-in-from-top-2 duration-200">
                                     <div className="p-2 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
                                       <h5 className="text-xs  text-slate-500   flex items-center gap-2">
@@ -514,7 +514,7 @@ const MaterialInspectionPage = () => {
                                                   <td className="p-2 text-xs text-slate-500">
                                                     {item.material_name}
                                                   </td>
-                                                  <td className="p-2 text-[10px] text-slate-400 font-mono">
+                                                  <td className="p-2 text-xs text-slate-400 font-mono">
                                                     {renderDimensions(s.dimensions)}
                                                   </td>
                                                   <td className="p-2 text-xs  text-blue-600">
@@ -780,7 +780,7 @@ const MaterialInspectionPage = () => {
       {rejectionModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center text-red-600">
                   <AlertTriangle size={20} />

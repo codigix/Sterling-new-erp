@@ -83,7 +83,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
                     <td className="p-2">
                       <div>
                         <div className=" text-slate-900">{doc.name}</div>
-                        <div className="text-[11px] text-slate-500 truncate max-w-xs">{doc.description}</div>
+                        <div className="text-xs text-slate-500 truncate max-w-xs">{doc.description}</div>
                       </div>
                     </td>
                     <td className="p-2">
@@ -93,7 +93,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
                       <span className="text-xs  text-blue-600">v{doc.version}</span>
                     </td>
                     <td className="p-2 text-center">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded  text-[10px]   tracking-wider bg-green-100 text-green-700">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded  text-xs   tracking-wider bg-green-100 text-green-700">
                         <CheckCircle2 size={10} /> {doc.status}
                       </span>
                     </td>

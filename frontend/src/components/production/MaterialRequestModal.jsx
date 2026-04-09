@@ -136,7 +136,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
               <h2 className="text-lg  text-slate-900 dark:text-white">Material Request</h2>
               <div className="flex items-center gap-2">
                 <Activity size={12} className="text-green-500" />
-                <span className="text-[10px]   text-slate-500 tracking-wider">Resource Acquisition Phase</span>
+                <span className="text-xs   text-slate-500 tracking-wider">Resource Acquisition Phase</span>
               </div>
             </div>
           </div>
@@ -150,17 +150,17 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
           {/* Metadata Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700/50">
-              <span className="text-[10px]   text-slate-400">Request Identifier</span>
+              <span className="text-xs   text-slate-400">Request Identifier</span>
               <p className="text-sm  text-slate-900 dark:text-white mt-1 ">
                 {planId ? `PP-MR-${planId}` : 'PENDING SAVE'}
               </p>
             </div>
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700/50">
-              <span className="text-[10px]   text-slate-400">Originating Dept</span>
+              <span className="text-xs   text-slate-400">Originating Dept</span>
               <p className="text-sm  text-slate-900 dark:text-white mt-1 ">Production</p>
             </div>
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700/50">
-              <span className="text-[10px]   text-slate-400">SLA Target Date</span>
+              <span className="text-xs   text-slate-400">SLA Target Date</span>
               <p className="text-sm  text-slate-900 dark:text-white mt-1">{data.estimatedCompletionDate || 'Not set'}</p>
             </div>
           </div>
@@ -175,7 +175,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
             <div className="border border-slate-100 dark:border-slate-800 rounded overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-800 text-[10px]   text-slate-500 tracking-wider">
+                  <tr className="bg-slate-50 dark:bg-slate-800 text-xs   text-slate-500 tracking-wider">
                     <th className="px-6 py-3 text-left">Component Intelligence</th>
                     <th className="px-6 py-3 text-center">Required</th>
                     <th className="px-6 py-3 text-center">Unit</th>
@@ -200,7 +200,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
                         <span className=" text-slate-900 dark:text-white">{m.requiredQty}</span>
                       </td>
                       <td className="p-2 text-center">
-                        <span className="text-[10px] text-slate-400  ">{m.uom || 'KG'}</span>
+                        <span className="text-xs text-slate-400  ">{m.uom || 'KG'}</span>
                       </td>
                     </tr>
                   ))}

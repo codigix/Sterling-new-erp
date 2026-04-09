@@ -19,7 +19,7 @@ const SectionHeader = ({ title, subtitle, section, isExpanded, onToggle, icon: I
       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-2xl transform transition-all group-hover:scale-110 ${colorClass || 'bg-indigo-600 shadow-indigo-500/30'}`}>
         <div className="flex flex-col items-center">
           <span className="text-[22px]  leading-none mb-1 drop- er">{number}</span>
-          {Icon && <Icon size={24} className="drop-" />}
+          {Icon && <Icon size={15} className="drop-" />}
         </div>
       </div>
       <div className="flex items-center gap-5">
@@ -41,7 +41,7 @@ const SectionHeader = ({ title, subtitle, section, isExpanded, onToggle, icon: I
       </div>
     </div>
     <div className={`p-2.5 rounded   transition-all ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'}`}>
-      {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+      {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
     </div>
   </div>
 );
@@ -276,7 +276,7 @@ const ProductionPlanFormPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
+                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
                   <th className="p-2">No.</th>
                   <th className="p-2">Item Code</th>
                   <th className="p-2">Bom No.</th>
@@ -305,7 +305,7 @@ const ProductionPlanFormPage = () => {
                               <div className=" text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors ">
                                 {fg.itemCode}
                               </div>
-                              <div className="text-[10px] text-slate-500  font-medium">
+                              <div className="text-xs text-slate-500  font-medium">
                                 {fg.productName}
                               </div>
                             </div>
@@ -327,7 +327,7 @@ const ProductionPlanFormPage = () => {
                             {fg.plannedQty}
                           </span>
                         </td>
-                        <td className="p-2 text-center text-[10px]  text-slate-400 ">
+                        <td className="p-2 text-center text-xs  text-slate-400 ">
                           {fg.uom || 'Nos'}
                         </td>
                         <td className="p-2">
@@ -351,9 +351,9 @@ const ProductionPlanFormPage = () => {
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded">
                                   <Layers size={14} className="text-blue-500" />
                                 </div>
-                                <h5 className="text-[11px]  text-slate-900 dark:text-slate-100  tracking-widest">Raw Materials from BOM</h5>
+                                <h5 className="text-xs  text-slate-900 dark:text-slate-100  ">Raw Materials from BOM</h5>
                               </div>
-                              <table className="w-full text-[11px]">
+                              <table className="w-full text-xs">
                                 <thead>
                                   <tr className="text-slate-400  tracking-wider ">
                                     <th className="px-3 py-2 text-left w-12">No.</th>
@@ -372,7 +372,7 @@ const ProductionPlanFormPage = () => {
                                           {rm.specification || rm.itemName || 'Unnamed Material'}
                                         </div>
                                         {(rm.itemName && rm.itemName !== rm.specification) && (
-                                          <div className="text-[11px] text-slate-500 dark:text-slate-400  mt-0.5">{rm.itemName}</div>
+                                          <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5">{rm.itemName}</div>
                                         )}
                                       </td>
                                       <td className="px-3 py-3 text-center">
@@ -386,7 +386,7 @@ const ProductionPlanFormPage = () => {
                                         </span>
                                       </td>
                                       <td className="px-3 py-3 text-left pl-6">
-                                        <span className="text-[10px]  text-slate-400  tracking-widest">
+                                        <span className="text-xs  text-slate-400  ">
                                           {rm.uom || 'KG'}
                                         </span>
                                       </td>
@@ -491,12 +491,12 @@ const ProductionPlanFormPage = () => {
               <>
                 <div className="p-2 bg-orange-50/50 dark:bg-orange-900/10 flex items-center gap-3 border-b border-orange-100 dark:border-orange-900/20">
                   <div className="w-2 h-2 rounded  bg-orange-500 shadow-sm shadow-orange-500/50" />
-                  <h4 className="text-[11px]  text-orange-700 dark:text-orange-400  tracking-widest">Core Materials</h4>
+                  <h4 className="text-xs  text-orange-700 dark:text-orange-400  ">Core Materials</h4>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
                     <thead>
-                      <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
+                      <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
                         <th className="p-2">Item</th>
                         <th className="p-2 text-center">Required Qty</th>
                         <th className="p-2">Warehouse</th>
@@ -510,13 +510,13 @@ const ProductionPlanFormPage = () => {
                           <td className="p-2">
                             <div className=" text-black dark:text-white  text-[13px] ">{m.specification || m.itemName || 'Unnamed Material'}</div>
                             {(m.itemName && m.itemName !== m.specification) && (
-                              <div className="text-[11px] text-slate-500 dark:text-slate-400  mt-0.5 italic">{m.itemName}</div>
+                              <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5 italic">{m.itemName}</div>
                             )}
                           </td>
                           <td className="p-2 text-center">
                             <div className="flex flex-col items-center">
                               <span className="text-sm  text-orange-600 dark:text-orange-400">{m.requiredQty}</span>
-                              <span className="text-[10px] text-slate-400  ">{m.uom || 'KG'}</span>
+                              <span className="text-xs text-slate-400  ">{m.uom || 'KG'}</span>
                             </div>
                           </td>
                           <td className="p-2">
@@ -526,7 +526,7 @@ const ProductionPlanFormPage = () => {
                             </div>
                           </td>
                           <td className="p-2">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 rounded text-[10px]  text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 w-fit">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 rounded text-xs  text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 w-fit">
                               <Layers size={10} className="text-orange-500" />
                               {m.bomRef || 'N/A'}
                             </div>
@@ -545,12 +545,12 @@ const ProductionPlanFormPage = () => {
             {/* Exploded Components Section */}
             <div className="p-2 bg-red-50/50 dark:bg-red-900/10 flex items-center gap-3 border-y border-red-100 dark:border-red-900/20">
               <div className="w-2 h-2 rounded  bg-red-500 shadow-sm shadow-red-500/50" />
-              <h4 className="text-[11px]  text-red-700 dark:text-red-400  tracking-widest">Exploded Components</h4>
+              <h4 className="text-xs  text-red-700 dark:text-red-400  ">Exploded Components</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
+                  <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
                     <th className="p-2">Component Specification</th>
                     <th className="p-2 text-center">Required Qty</th>
                     <th className="p-2">Source Assembly</th>
@@ -565,7 +565,7 @@ const ProductionPlanFormPage = () => {
                           {m.specification || m.itemName || 'Unnamed Component'}
                         </div>
                         {(m.itemName && m.itemName !== m.specification) && (
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400  mt-0.5 italic">{m.itemName}</div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5 italic">{m.itemName}</div>
                         )}
                       </td>
                       <td className="p-2 text-center">
@@ -573,17 +573,17 @@ const ProductionPlanFormPage = () => {
                           <span className="text-sm  text-red-600 dark:text-red-400">
                             {m.requiredQty}
                           </span>
-                          <span className="text-[10px] text-slate-400  ">{m.uom || 'KG'}</span>
+                          <span className="text-xs text-slate-400  ">{m.uom || 'KG'}</span>
                         </div>
                       </td>
                       <td className="p-2">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px]  text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 w-fit">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 w-fit">
                           <Activity size={10} className="text-red-500" />
                           {m.sourceAssemblyCode || 'ROOT'}
                         </div>
                       </td>
                       <td className="p-2">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-[10px]  text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-800 w-fit">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-xs  text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-800 w-fit">
                           <FileText size={10} className="text-blue-500" />
                           {m.bomRef || 'N/A'}
                         </div>
@@ -594,7 +594,7 @@ const ProductionPlanFormPage = () => {
                     <tr>
                       <td colSpan="4" className="px-6 py-12 text-center text-slate-400 italic text-sm">
                         <div className="flex flex-col items-center gap-2 opacity-60">
-                          <Activity size={24} />
+                          <Activity size={15} />
                           <span>No exploded components available.</span>
                         </div>
                       </td>
@@ -628,7 +628,7 @@ const ProductionPlanFormPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-[10px] tracking-wider ">
+                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
                   <th className="p-2">No.</th>
                   <th className="p-2">Sub Assembly Item Code</th>
                   <th className="p-2">Target Warehouse</th>
@@ -657,7 +657,7 @@ const ProductionPlanFormPage = () => {
                               <div className=" text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors ">
                                 {sa.itemCode}
                               </div>
-                              <div className="text-[10px] text-slate-500  font-medium">
+                              <div className="text-xs text-slate-500  font-medium">
                                 {sa.itemName || 'Sub Assembly'}
                               </div>
                             </div>
@@ -683,7 +683,7 @@ const ProductionPlanFormPage = () => {
                             <span className="text-md  text-slate-900 dark:text-white">
                               {sa.requiredQty}
                             </span>
-                            <span className="text-[10px] text-slate-400  ">
+                            <span className="text-xs text-slate-400  ">
                               {sa.uom}
                             </span>
                           </div>
@@ -695,7 +695,7 @@ const ProductionPlanFormPage = () => {
                           </div>
                         </td>
                         <td className="p-2 text-center">
-                          <span className=" bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-[10px]   tracking-wider border border-red-100 dark:border-red-800">
+                          <span className=" bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-xs   tracking-wider border border-red-100 dark:border-red-800">
                             {sa.manufacturingType || 'In House'}
                           </span>
                         </td>
@@ -708,9 +708,9 @@ const ProductionPlanFormPage = () => {
                                 <div className="p-1.5 bg-red-50 dark:bg-red-900/20 rounded">
                                   <Layers size={14} className="text-red-500" />
                                 </div>
-                                <h5 className="text-[11px]  text-slate-900 dark:text-slate-100  tracking-widest">Raw Materials from BOM</h5>
+                                <h5 className="text-xs  text-slate-900 dark:text-slate-100  ">Raw Materials from BOM</h5>
                               </div>
-                              <table className="w-full text-[11px]">
+                              <table className="w-full text-xs">
                                 <thead>
                                   <tr className="text-slate-400  tracking-wider ">
                                     <th className="px-3 py-2 text-left w-12">No.</th>
@@ -729,7 +729,7 @@ const ProductionPlanFormPage = () => {
                                           {rm.specification || rm.itemName || 'Unnamed Material'}
                                         </div>
                                         {(rm.itemName && rm.itemName !== rm.specification) && (
-                                          <div className="text-[11px] text-slate-500 dark:text-slate-400  mt-0.5">{rm.itemName}</div>
+                                          <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5">{rm.itemName}</div>
                                         )}
                                       </td>
                                       <td className="px-3 py-3 text-center">
@@ -743,7 +743,7 @@ const ProductionPlanFormPage = () => {
                                         </span>
                                       </td>
                                       <td className="px-3 py-3 text-left pl-6">
-                                        <span className="text-[10px]  text-slate-400  tracking-widest">
+                                        <span className="text-xs  text-slate-400  ">
                                           {rm.uom || 'KG'}
                                         </span>
                                       </td>
@@ -958,13 +958,13 @@ const ProductionPlanFormPage = () => {
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="flex-1 min-w-[240px]">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className={`w-6 h-6 rounded  flex items-center justify-center text-[10px]  ${
+                          <span className={`w-6 h-6 rounded  flex items-center justify-center text-xs  ${
                             isAuto ? 'bg-blue-500 text-white' : 'bg-slate-900 dark:bg-slate-700 text-white'
                           }`}>
                             {index + 1}
                           </span>
                           <h5 className=" text-slate-900 dark:text-white">{stage.stageName}</h5>
-                          <span className={`px-2 py-0.5 rounded text-[10px]   tracking-wider ${
+                          <span className={`px-2 py-0.5 rounded text-xs   tracking-wider ${
                             stage.stageType === 'in_house' 
                               ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' 
                               : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
@@ -972,14 +972,14 @@ const ProductionPlanFormPage = () => {
                             {stage.stageType === 'in_house' ? 'In House' : 'Outsource'}
                           </span>
                           {isAuto && (
-                            <span className="flex items-center gap-1 text-[10px]  text-blue-500  tracking-wider">
+                            <span className="flex items-center gap-1 text-xs  text-blue-500  tracking-wider">
                               <Zap size={10} fill="currentColor" />
                               Auto
                             </span>
                           )}
                         </div>
                         
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-[11px]">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
                           <div className="space-y-1">
                             <span className="text-slate-400  ">Resources</span>
                             <p className="font-medium text-slate-700 dark:text-slate-300">
@@ -1982,15 +1982,15 @@ const ProductionPlanFormPage = () => {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px]   tracking-wider rounded border border-blue-100 dark:border-blue-800">
+                  <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs   tracking-wider rounded border border-blue-100 dark:border-blue-800">
                     PP
                   </span>
                   <span className="text-slate-300 dark:text-slate-700">/</span>
-                  <span className="text-[10px]  text-slate-500 dark:text-slate-400  tracking-widest">
+                  <span className="text-xs  text-slate-500 dark:text-slate-400  ">
                     {id ? (isViewMode ? 'View Production Plan' : 'Edit Production Plan') : 'New Production Plan'}
                   </span>
                 </div>
-                <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px]   tracking-wider rounded border border-slate-200 dark:border-slate-700">
+                <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs   tracking-wider rounded border border-slate-200 dark:border-slate-700">
                   {formData.procurementStatus?.toLowerCase() || 'draft'}
                 </span>
               </div>
@@ -2065,7 +2065,7 @@ const ProductionPlanFormPage = () => {
                   const el = document.getElementById(`section-${tab.id}`);
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className="flex items-center gap-2 p-2 text-[10px]  transition-all border-b-2 border-transparent hover:text-purple-600 text-slate-500  tracking-widest"
+                className="flex items-center gap-2 p-2 text-xs  transition-all border-b-2 border-transparent hover:text-purple-600 text-slate-500  "
               >
                 <span className="opacity-40">{tab.num}</span>
                 <tab.icon size={14} />
@@ -2073,7 +2073,7 @@ const ProductionPlanFormPage = () => {
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-[10px]  rounded-md hover:bg-indigo-700 transition-all  tracking-wider shadow-sm">
+          <button className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-xs  rounded-md hover:bg-indigo-700 transition-all  tracking-wider shadow-sm">
             <Activity size={14} />
             Production Progress
             <ChevronDown size={14} />
@@ -2102,9 +2102,9 @@ const ProductionPlanFormPage = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
             <div className="flex items-center gap-8 w-full md:w-auto">
               <div className="flex flex-col">
-                <span className="text-[10px]   text-slate-400 tracking-wider">Plan Status</span>
+                <span className="text-xs   text-slate-400 tracking-wider">Plan Status</span>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-[10px]  rounded border border-slate-200 dark:border-slate-700">
+                  <span className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs  rounded border border-slate-200 dark:border-slate-700">
                     {formData.procurementStatus || 'Draft'}
                   </span>
                   <span className="text-slate-400 text-xs font-medium">{formData.procurementStatus || 'Draft'}</span>
@@ -2112,7 +2112,7 @@ const ProductionPlanFormPage = () => {
               </div>
               <div className="h-10 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
               <div className="flex flex-col">
-                <span className="text-[10px]   text-slate-400 tracking-wider">Materials</span>
+                <span className="text-xs   text-slate-400 tracking-wider">Materials</span>
                 <span className="text-sm  text-slate-900 dark:text-white mt-0.5">
                   {materials?.length || 0} Items Calculated
                 </span>

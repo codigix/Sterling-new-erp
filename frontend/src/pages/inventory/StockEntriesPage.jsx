@@ -277,7 +277,7 @@ const StockEntriesPage = () => {
                                            <td className="p-2  text-slate-700 dark:text-slate-300  ">
                                              {item.item_name}
                                            </td>
-                                           <td className="p-2 text-slate-500 dark:text-slate-400 text-[10px]">
+                                           <td className="p-2 text-slate-500 dark:text-slate-400 text-xs">
                                              {renderDimensions(item)}
                                            </td>
                                            <td className="p-2 text-center">
@@ -289,7 +289,7 @@ const StockEntriesPage = () => {
                                            <td className="p-2 text-center">
                                              <div className="flex flex-col items-center">
                                                 <span className=" text-slate-900 dark:text-white">{Number(item.total_weight || 0).toFixed(3)} Kg</span>
-                                                <span className="text-[10px] text-slate-400">Unit: {Number(item.unit_weight || 0).toFixed(3)}</span>
+                                                <span className="text-xs text-slate-400">Unit: {Number(item.unit_weight || 0).toFixed(3)}</span>
                                              </div>
                                            </td>
                                            <td className="p-2 text-right">
@@ -336,7 +336,7 @@ const StockEntriesPage = () => {
                                                          <tr key={sIdx} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                                                            <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
                                                            <td className="p-2 text-xs  text-slate-700 dark:text-slate-300  ">{itemCodePerPiece}</td>
-                                                           <td className="p-2 text-[10px] text-slate-500  ">
+                                                           <td className="p-2 text-xs text-slate-500  ">
                                                              {renderDimensions(stObj, item)}
                                                            </td>
                                                            <td className="p-2 text-xs text-slate-500 dark:text-slate-400">

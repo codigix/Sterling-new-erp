@@ -379,7 +379,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     
     if (parts.length === 0) return null;
     return (
-      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
         Dim: {parts.join(" \u00d7 ")} mm
       </div>
     );
@@ -393,7 +393,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
         {/* Header */}
         <div className={`p-2 flex items-center justify-between border-b transition-colors duration-300 sticky top-0 z-10 ${viewMode ? 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900' : 'border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/10'}`}>
           <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2  ">
-            {viewMode ? <Eye className="text-blue-600" size={15} /> : (editData ? <Edit className="text-emerald-600" size={24} /> : <Plus className="text-blue-600" size={24} />)}
+            {viewMode ? <Eye className="text-blue-600" size={15} /> : (editData ? <Edit className="text-emerald-600" size={15} /> : <Plus className="text-blue-600" size={15} />)}
             <span className={!viewMode && editData ? "text-emerald-700 dark:text-emerald-400" : ""}>
               {viewMode ? `View Purchase Order: ${formData.po_number}` : (editData ? `Edit Purchase Order: ${formData.po_number}` : "Create New Purchase Order")}
             </span>

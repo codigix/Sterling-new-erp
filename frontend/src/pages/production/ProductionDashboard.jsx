@@ -206,7 +206,7 @@ const ProductionDashboard = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between mt-4">
-                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                   </span>
                   <Link
@@ -260,12 +260,12 @@ const ProductionDashboard = () => {
                     <p className=" text-slate-900 dark:text-white truncate">
                       {plan.plan_name}
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1  font-semibold">
+                    <p className="text-xs text-slate-500 mt-1  font-semibold">
                       {plan.product_name || "Multiple Products"}
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-0.5 text-[10px] rounded    ${
+                    className={`px-2 py-0.5 text-xs rounded    ${
                       plan.status === "in_progress"
                         ? "bg-blue-100 text-blue-700"
                         : plan.status === "delayed"
@@ -278,7 +278,7 @@ const ProductionDashboard = () => {
                 </div>
                 
                 <div className="mt-4 space-y-2">
-                  <div className="flex justify-between text-[10px]  text-slate-500">
+                  <div className="flex justify-between text-xs  text-slate-500">
                     <span>PROGRESS</span>
                     <span>{plan.progress_percentage || 0}%</span>
                   </div>
@@ -291,13 +291,13 @@ const ProductionDashboard = () => {
                 </div>
                 
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
                     <Clock size={12} />
                     <span>Ends {plan.end_date ? new Date(plan.end_date).toLocaleDateString() : 'TBD'}</span>
                   </div>
                   <Link
                     to={`/department/production/plans/${plan.id}`}
-                    className="text-[10px]  text-blue-600 hover:text-blue-700"
+                    className="text-xs  text-blue-600 hover:text-blue-700"
                   >
                     DETAILS
                   </Link>

@@ -236,7 +236,7 @@ const ProductionProjectCard = ({
             })
           ) : (
             <div className="text-center py-6">
-              <Zap size={24} className="mx-auto text-slate-300 mb-2" />
+              <Zap size={15} className="mx-auto text-slate-300 mb-2" />
               <p className="text-sm text-slate-500">No workflow tasks generated yet.</p>
             </div>
           )}

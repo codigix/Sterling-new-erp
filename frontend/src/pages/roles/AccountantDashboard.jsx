@@ -102,7 +102,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             to="/accountant/payable/vendor-invoices"
             className="p-4 bg-blue-50 dark:bg-slate-700 rounded hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors"
           >
-            <Coins size={24} className="text-blue-600 mb-2" />
+            <Coins size={15} className="text-blue-600 mb-2" />
             <p className="font-medium text-slate-900 dark:text-white text-xs">
               Vendor Invoices
             </p>
@@ -111,7 +111,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             to="/accountant/receivable/customer-invoices"
             className="p-4 bg-green-50 dark:bg-slate-700 rounded hover:bg-green-100 dark:hover:bg-slate-600 transition-colors"
           >
-            <Coins size={24} className="text-green-600 mb-2" />
+            <Coins size={15} className="text-green-600 mb-2" />
             <p className="font-medium text-slate-900 dark:text-white text-xs">
               Customer Invoices
             </p>
@@ -120,7 +120,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             to="/accountant/reports/income-statement"
             className="p-4 bg-purple-50 dark:bg-slate-700 rounded hover:bg-purple-100 dark:hover:bg-slate-600 transition-colors"
           >
-            <FileText size={24} className="text-purple-600 mb-2" />
+            <FileText size={15} className="text-purple-600 mb-2" />
             <p className="font-medium text-slate-900 dark:text-white text-xs">
               Income Statement
             </p>
@@ -129,7 +129,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             to="/accountant/budget/management"
             className="p-4 bg-orange-50 dark:bg-slate-700 rounded hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
           >
-            <PieChart size={24} className="text-orange-600 mb-2" />
+            <PieChart size={15} className="text-orange-600 mb-2" />
             <p className="font-medium text-slate-900 dark:text-white text-xs">
               Budget
             </p>

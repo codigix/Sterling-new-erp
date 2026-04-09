@@ -69,16 +69,16 @@ const DailyProductionUpdatesPage = () => {
       <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-sm text-blue-600">
-            <History size={24} />
+            <History size={15} />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Production Updates</h1>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Real-time floor execution tracking</p>
+            <h1 className="text-2xl  text-slate-900 dark:text-white  ">Production Updates</h1>
+            <p className="text-xs  text-slate-500   mt-1">Real-time floor execution tracking</p>
           </div>
         </div>
         <button 
           onClick={fetchUpdates}
-          className="px-6 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2"
+          className="px-6 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs    hover:bg-slate-50 transition-all flex items-center gap-2"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Activity size={14} />}
           Refresh Live Data
@@ -93,7 +93,7 @@ const DailyProductionUpdatesPage = () => {
             <input 
               type="text" 
               placeholder="SEARCH BY PROJECT, ROOT CARD, OPERATOR..." 
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded text-[10px] font-black uppercase tracking-widest outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs    outline-none focus:ring-1 focus:ring-blue-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -102,7 +102,7 @@ const DailyProductionUpdatesPage = () => {
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
             <input 
               type="date" 
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded text-[10px] font-black uppercase tracking-widest outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs    outline-none focus:ring-1 focus:ring-blue-500"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
             />
@@ -123,70 +123,70 @@ const DailyProductionUpdatesPage = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                  <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Project / Root Card</th>
-                  <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Work Date</th>
-                  <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation</th>
-                  <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Operator</th>
-                  <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Output</th>
-                  <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                  <th className="p-2 text-xs  text-slate-400  ">Project / Root Card</th>
+                  <th className="p-2 text-xs  text-slate-400  ">Work Date</th>
+                  <th className="p-2 text-xs  text-slate-400  ">Operation</th>
+                  <th className="p-2 text-xs  text-slate-400  ">Operator</th>
+                  <th className="p-2 text-xs  text-slate-400   text-center">Output</th>
+                  <th className="p-2 text-xs  text-slate-400   text-center">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {loading ? (
                   <tr>
                     <td colSpan="6" className="px-6 py-12 text-center">
-                      <Loader2 size={24} className="animate-spin text-blue-600 mx-auto mb-2" />
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fetching floor updates...</p>
+                      <Loader2 size={15} className="animate-spin text-blue-600 mx-auto mb-2" />
+                      <p className="text-xs  text-slate-400  ">Fetching floor updates...</p>
                     </td>
                   </tr>
                 ) : filteredUpdates.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">No production updates found</td>
+                    <td colSpan="6" className="px-6 py-12 text-center text-xs  text-slate-400  ">No production updates found</td>
                   </tr>
                 ) : (
                   filteredUpdates.map((update) => (
                     <tr key={update.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
                             <Target size={14} />
                           </div>
                           <div>
-                            <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter truncate max-w-[200px]">{update.project_name || "N/A"}</p>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase">{update.root_card_id}</span>
+                            <p className="text-xs  text-slate-900 dark:text-white   truncate max-w-[200px]">{update.project_name || "N/A"}</p>
+                            <span className="text-[8px]  text-slate-400 ">{update.root_card_id}</span>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="flex items-center gap-2">
                           <Calendar size={12} className="text-slate-400" />
-                          <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase">
+                          <span className="text-xs  text-slate-700 dark:text-slate-300 ">
                             {new Date(update.work_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 rounded border border-blue-100 dark:border-blue-900/30">
+                      <td className="p-2">
+                        <span className="text-xs  text-blue-600 dark:text-blue-400   bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 rounded border border-blue-100 dark:border-blue-900/30">
                           {update.operation_name}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-[10px] font-black text-slate-500 uppercase">
+                          <div className="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-xs  text-slate-500 ">
                             {update.operator_name?.charAt(0)}
                           </div>
-                          <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase truncate max-w-[120px]">{update.operator_name}</span>
+                          <span className="text-xs  text-slate-700 dark:text-slate-300  truncate max-w-[120px]">{update.operator_name}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="p-2 text-center">
                         <div className="inline-flex flex-col items-center">
-                          <span className="text-[11px] font-black text-slate-900 dark:text-white tracking-tighter">{update.qty_completed} <span className="text-[8px] text-slate-400">PCS</span></span>
-                          <span className="text-[8px] font-bold text-slate-400 uppercase">{update.actual_hours} HRS</span>
+                          <span className="text-xs  text-slate-900 dark:text-white ">{update.qty_completed} <span className="text-[8px] text-slate-400">PCS</span></span>
+                          <span className="text-[8px]  text-slate-400 ">{update.actual_hours} HRS</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="p-2">
                         <div className="flex justify-center">
-                          <span className={`px-2.5 py-1 rounded border text-[9px] font-black uppercase tracking-widest ${getStatusColor(update.status)}`}>
+                          <span className={`px-2.5 py-1 rounded border text-xs    ${getStatusColor(update.status)}`}>
                             {update.status}
                           </span>
                         </div>

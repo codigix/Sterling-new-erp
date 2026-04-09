@@ -83,7 +83,7 @@ const DashboardContent = ({ stats, handleExport }) => (
           to="/worker/daily-tasks"
           className="p-4 bg-blue-50 dark:bg-slate-700 rounded hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors"
         >
-          <Clock size={24} className="text-blue-600 mb-2" />
+          <Clock size={15} className="text-blue-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
             Daily Tasks
           </p>
@@ -92,7 +92,7 @@ const DashboardContent = ({ stats, handleExport }) => (
           to="/worker/weekly-tasks"
           className="p-4 bg-purple-50 dark:bg-slate-700 rounded hover:bg-purple-100 dark:hover:bg-slate-600 transition-colors"
         >
-          <Calendar size={24} className="text-purple-600 mb-2" />
+          <Calendar size={15} className="text-purple-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
             Weekly Tasks
           </p>
@@ -101,7 +101,7 @@ const DashboardContent = ({ stats, handleExport }) => (
           to="/worker/monthly-tasks"
           className="p-4 bg-orange-50 dark:bg-slate-700 rounded hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
         >
-          <Calendar size={24} className="text-orange-600 mb-2" />
+          <Calendar size={15} className="text-orange-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
             Monthly Tasks
           </p>
@@ -110,7 +110,7 @@ const DashboardContent = ({ stats, handleExport }) => (
           to="/worker/request-to-manager"
           className="p-4 bg-green-50 dark:bg-slate-700 rounded hover:bg-green-100 dark:hover:bg-slate-600 transition-colors"
         >
-          <MessageSquare size={24} className="text-green-600 mb-2" />
+          <MessageSquare size={15} className="text-green-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
             Request Manager
           </p>
@@ -119,7 +119,7 @@ const DashboardContent = ({ stats, handleExport }) => (
           to="/worker/notifications"
           className="p-4 bg-red-50 dark:bg-slate-700 rounded hover:bg-red-100 dark:hover:bg-slate-600 transition-colors"
         >
-          <AlertCircle size={24} className="text-red-600 mb-2" />
+          <AlertCircle size={15} className="text-red-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
             Notifications
           </p>
@@ -128,7 +128,7 @@ const DashboardContent = ({ stats, handleExport }) => (
           to="/worker/request-history"
           className="p-4 bg-indigo-50 dark:bg-slate-700 rounded hover:bg-indigo-100 dark:hover:bg-slate-600 transition-colors"
         >
-          <CheckSquare size={24} className="text-indigo-600 mb-2" />
+          <CheckSquare size={15} className="text-indigo-600 mb-2" />
           <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
             Request History
           </p>

@@ -530,10 +530,10 @@ const InventoryTasksPage = () => {
                     {mr.purpose || "Material Request"}
                   </p>
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400   bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400   bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
                       {mr.department}
                     </span>
-                    <span className="text-[10px]  text-slate-400">
+                    <span className="text-xs  text-slate-400">
                       {new Date(mr.created_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -556,14 +556,14 @@ const InventoryTasksPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                      <FileText size={24} className="text-blue-600" />
+                      <FileText size={15} className="text-blue-600" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <h2 className="text-xl  text-slate-900 dark:text-white">
                           {selectedMR.mr_number}
                         </h2>
-                        <span className={`px-2 py-0.5 text-[10px]  rounded  ${
+                        <span className={`px-2 py-0.5 text-xs  rounded  ${
                           selectedMR.priority === 'critical' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                         }`}>
                           {selectedMR.priority}
@@ -589,7 +589,7 @@ const InventoryTasksPage = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px]   text-slate-500 dark:text-slate-400">
+                    <p className="text-xs   text-slate-500 dark:text-slate-400">
                       Request Date
                     </p>
                     <p className="text-sm  text-slate-900 dark:text-white mt-1">
@@ -597,7 +597,7 @@ const InventoryTasksPage = () => {
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px]   text-slate-500 dark:text-slate-400">
+                    <p className="text-xs   text-slate-500 dark:text-slate-400">
                       Workflow Steps
                     </p>
                     <p className="text-sm  text-slate-900 dark:text-white mt-1">
@@ -605,7 +605,7 @@ const InventoryTasksPage = () => {
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px]   text-slate-500 dark:text-slate-400">
+                    <p className="text-xs   text-slate-500 dark:text-slate-400">
                       Completion
                     </p>
                     <p className="text-sm  text-slate-900 dark:text-white mt-1">
@@ -613,7 +613,7 @@ const InventoryTasksPage = () => {
                     </p>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px]   text-slate-500 dark:text-slate-400">
+                    <p className="text-xs   text-slate-500 dark:text-slate-400">
                       Workflow Status
                     </p>
                     <p
@@ -645,7 +645,7 @@ const InventoryTasksPage = () => {
                         <button
                           onClick={handleInitializeWorkflow}
                           disabled={isInitiatingWorkflow}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px]   bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 transition-all disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs   bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 transition-all disabled:opacity-50"
                           title="Initialize or missing workflow tasks"
                         >
                           <RefreshCw size={12} className={isInitiatingWorkflow ? "animate-spin" : ""} />
@@ -655,7 +655,7 @@ const InventoryTasksPage = () => {
                           <button
                             onClick={handleBulkDelete}
                             disabled={isDeleting}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px]   bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs   bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all disabled:opacity-50"
                           >
                             <Trash2 size={12} />
                             Delete ({selectedTasks.size})
@@ -677,7 +677,7 @@ const InventoryTasksPage = () => {
                             <div className="flex items-center justify-between px-1">
                               <div className="flex items-center gap-2">
                                 <div className={`w-1.5 h-1.5 rounded  ${getPhaseColor(phase.id).replace('bg-', 'bg-').split(' ')[0]}`} />
-                                <h5 className={` text-[10px]  tracking-wider ${getPhaseTextColor(phase.id)}`}>
+                                <h5 className={` text-xs  tracking-wider ${getPhaseTextColor(phase.id)}`}>
                                   {phase.name}
                                 </h5>
                               </div>
@@ -718,10 +718,10 @@ const InventoryTasksPage = () => {
                                               {task.title || task.step_name}
                                             </h6>
                                             <div className="flex items-center gap-3 mt-1.5">
-                                              <span className={`px-2 py-0.5 rounded text-[10px]   ${getStatusColor(task.backend_status || task.status)}`}>
+                                              <span className={`px-2 py-0.5 rounded text-xs   ${getStatusColor(task.backend_status || task.status)}`}>
                                                 {task.backend_status || task.status}
                                               </span>
-                                              <span className={`px-2 py-0.5 rounded text-[10px]   ${getPriorityBadge(task.priority)}`}>
+                                              <span className={`px-2 py-0.5 rounded text-xs   ${getPriorityBadge(task.priority)}`}>
                                                 {task.priority}
                                               </span>
                                             </div>

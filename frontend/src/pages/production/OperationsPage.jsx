@@ -34,12 +34,12 @@ const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
       <div className="bg-white dark:bg-slate-950 w-full max-w-md rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col animate-in zoom-in duration-200">
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-600 text-white rounded">
               <Plus size={18} />
             </div>
-            <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Create New Operation</h2>
+            <h2 className="text-sm  text-slate-900 dark:text-white  ">Create New Operation</h2>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
             <X size={18} />
@@ -49,11 +49,11 @@ const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
         <form onSubmit={handleSubmit}>
           <div className="p-6 space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Name</label>
+              <label className="text-xs  text-slate-400  ">Operation Name</label>
               <input
                 type="text"
                 required
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold focus:ring-1 focus:ring-indigo-500 outline-none"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs  focus:ring-1 focus:ring-indigo-500 outline-none"
                 placeholder="E.G. Cutting, Welding..."
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -61,12 +61,12 @@ const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Type</label>
+              <label className="text-xs  text-slate-400  ">Type</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, type: "In-house" })}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded text-xs    border transition-all ${
                     formData.type === "In-house"
                       ? "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 text-indigo-600"
                       : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500"
@@ -77,7 +77,7 @@ const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, type: "Outsource" })}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded text-xs    border transition-all ${
                     formData.type === "Outsource"
                       ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-600"
                       : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500"
@@ -89,9 +89,9 @@ const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Description (Optional)</label>
+              <label className="text-xs  text-slate-400  ">Description (Optional)</label>
               <textarea
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold h-24 outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs  h-24 outline-none focus:ring-1 focus:ring-indigo-500"
                 placeholder="ADDITIONAL DETAILS..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -99,19 +99,19 @@ const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
             </div>
           </div>
 
-          <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="p-2 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 bg-slate-50/50 dark:bg-slate-900/50">
             <button
               type="button"
               disabled={loading}
               onClick={onClose}
-              className="px-6 py-2 text-[10px] font-black uppercase text-slate-500 hover:bg-slate-100 rounded transition-all disabled:opacity-50"
+              className="px-6 py-2 text-xs   text-slate-500 hover:bg-slate-100 rounded transition-all disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase rounded shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-2 bg-indigo-600 text-white text-xs   rounded shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               Save Operation
@@ -191,16 +191,16 @@ const OperationsPage = () => {
       <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-sm text-indigo-600">
-            <Settings2 size={24} />
+            <Settings2 size={15} />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Manufacturing Operations</h1>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Global Operation Dictionary for Planning</p>
+            <h1 className="text-2xl  text-slate-900 dark:text-white  ">Manufacturing Operations</h1>
+            <p className="text-xs  text-slate-500   mt-1">Global Operation Dictionary for Planning</p>
           </div>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-8 py-3 bg-indigo-600 text-white rounded text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
+          className="px-8 py-3 bg-indigo-600 text-white rounded text-xs    shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
         >
           <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
           Create New Operation
@@ -216,13 +216,13 @@ const OperationsPage = () => {
               <input
                 type="text"
                 placeholder="SEARCH OPERATIONS..."
-                className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-black focus:ring-1 focus:ring-indigo-500 outline-none uppercase tracking-widest"
+                className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-1 focus:ring-indigo-500 outline-none  "
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex gap-2">
-              <button className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2 hover:bg-slate-50 transition-all">
+              <button className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs    text-slate-500 flex items-center gap-2 hover:bg-slate-50 transition-all">
                 <Filter size={14} /> Filter
               </button>
             </div>
@@ -232,33 +232,33 @@ const OperationsPage = () => {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <Loader2 className="animate-spin text-indigo-600 mb-4" size={32} />
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading operations...</p>
+                <p className="text-xs  text-slate-400  ">Loading operations...</p>
               </div>
             ) : filteredOps.length > 0 ? (
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/30 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Name</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Type</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Description</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                    <th className="p-2 text-xs  text-slate-400  ">Operation Name</th>
+                    <th className="p-2 text-xs  text-slate-400  ">Type</th>
+                    <th className="p-2 text-xs  text-slate-400  ">Description</th>
+                    <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {filteredOps.map((op) => (
                     <tr key={op.id} className="hover:bg-indigo-50/10 dark:hover:bg-indigo-900/10 transition-all">
-                      <td className="px-6 py-5">
+                      <td className="p-2">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
                             <Wrench size={16} />
                           </div>
-                          <span className="text-xs font-black text-slate-900 dark:text-white tracking-tight">
+                          <span className="text-xs  text-slate-900 dark:text-white tracking-tight">
                             {op.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-5">
-                        <span className={`px-2.5 py-1 text-[9px] font-black rounded uppercase tracking-widest border flex items-center gap-1.5 w-fit ${
+                      <td className="p-2">
+                        <span className={`px-2.5 py-1 text-xs  rounded   border flex items-center gap-1.5 w-fit ${
                           op.type === "In-house"
                             ? "bg-blue-100 text-blue-700 border-blue-200"
                             : "bg-amber-100 text-amber-700 border-amber-200"
@@ -267,10 +267,10 @@ const OperationsPage = () => {
                           {op.type}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-tight">
+                      <td className="p-2 text-xs  text-slate-500  tracking-tight">
                         {op.description || "NO DESCRIPTION"}
                       </td>
-                      <td className="px-6 py-5 text-right">
+                      <td className="p-2 text-right">
                         <div className="flex justify-end gap-2">
                           <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
                             <Edit2 size={16} />
@@ -293,10 +293,10 @@ const OperationsPage = () => {
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                 <Settings2 size={48} className="mb-4 opacity-10" />
-                <p className="text-[10px] font-black uppercase tracking-widest">No Operations Found</p>
+                <p className="text-xs   ">No Operations Found</p>
                 <button 
                   onClick={() => setIsModalOpen(true)}
-                  className="mt-4 text-[9px] font-black text-indigo-600 uppercase hover:underline"
+                  className="mt-4 text-xs  text-indigo-600  hover:underline"
                 >
                   Click here to create your first operation
                 </button>

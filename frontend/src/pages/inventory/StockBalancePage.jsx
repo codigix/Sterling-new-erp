@@ -274,7 +274,7 @@ const StockBalancePage = () => {
               <p className="text-xs  text-slate-900 dark:text-white   line-clamp-2 leading-tight">
                 {item.name}
               </p>
-              <div className="text-[10px] text-blue-600 font-mono">
+              <div className="text-xs text-blue-600 font-mono">
                 {renderDimensions(item)}
               </div>
             </div>
@@ -297,7 +297,7 @@ const StockBalancePage = () => {
                            <span className="text-xs  text-slate-900 dark:text-white">
                               {Number(item.total_weight || 0).toFixed(3)} Kg
                            </span>
-                           <span className="text-[10px] text-slate-400">
+                           <span className="text-xs text-slate-400">
                               Unit: {Number(item.unit_weight || 0).toFixed(3)}
                            </span>
                         </div>
@@ -363,7 +363,7 @@ const StockBalancePage = () => {
                                            {item.name}
                                          </td>
                                          <td className="p-2">
-                                           <div className="text-[10px] text-blue-600 font-mono">
+                                           <div className="text-xs text-blue-600 font-mono">
                                              {renderDimensions(st, item)}
                                            </div>
                                          </td>

@@ -178,7 +178,7 @@ const CheckProjectMaterialRequirementsModal = ({
             disabled={isCreating}
             className="text-slate-400 hover:text-slate-500 transition-colors disabled:opacity-50"
           >
-            <X size={24} />
+            <X size={15} />
           </button>
         </div>
 

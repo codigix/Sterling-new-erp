@@ -439,7 +439,7 @@ const TechnicalFilesPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
-                  <p className="text-sm text-slate-900 dark:text-white">{selectedFile.type || selectedFile.name.split('.').pop().to()}</p>
+                  <p className="text-sm text-slate-900 dark:text-white">{selectedFile.type || selectedFile.name.split('.').pop().toUpperCase()}</p>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Category</label>

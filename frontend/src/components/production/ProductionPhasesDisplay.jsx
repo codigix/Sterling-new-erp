@@ -85,7 +85,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader className="animate-spin text-blue-500" size={24} />
+        <Loader className="animate-spin text-blue-500" size={15} />
         <span className="ml-3 text-slate-500 dark:text-slate-400">Loading phases...</span>
       </div>
     );

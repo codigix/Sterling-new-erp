@@ -92,13 +92,13 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
       {/* Stats Summary */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-slate-50 border border-slate-100 rounded p-4">
-          <div className="text-[11px]  text-slate-400  tracking-wider mb-1">Dispatched</div>
+          <div className="text-xs  text-slate-400  tracking-wider mb-1">Dispatched</div>
           <div className="text-xl  text-slate-700">
             {parseFloat(operation?.dispatched_qty || 0).toFixed(6)} <span className="text-sm font-medium text-slate-400">units</span>
           </div>
         </div>
         <div className="bg-indigo-50/50 border border-indigo-100 rounded p-4">
-          <div className="text-[11px]  text-indigo-400  tracking-wider mb-1 text-right">Pending Receipt</div>
+          <div className="text-xs  text-indigo-400  tracking-wider mb-1 text-right">Pending Receipt</div>
           <div className="text-xl  text-indigo-600 text-right">
             {parseFloat(operation?.dispatched_qty || 0).toFixed(0)} <span className="text-sm font-medium text-indigo-400">units</span>
           </div>

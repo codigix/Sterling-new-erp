@@ -96,10 +96,10 @@ const DailyProductionUpdateTab = () => {
   return (
     <div className="space-y-6">
       {/* Date and Form Header */}
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 p-6 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="flex flex-col md:flex-row gap-6 items-end justify-between">
           <div className="w-full md:w-auto space-y-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Work Date (Previous Day)</label>
+            <label className="text-xs  text-slate-500  tracking-wider">Select Work Date (Previous Day)</label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input 
@@ -114,12 +114,12 @@ const DailyProductionUpdateTab = () => {
           <div className="flex gap-3 w-full md:w-auto">
             <button 
               onClick={() => setIsUpdateModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors shadow-lg w-full md:w-auto uppercase tracking-widest"
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors shadow-lg w-full md:w-auto  "
             >
               <History size={18} />
               New Work Entry
             </button>
-            <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 w-full md:w-auto uppercase tracking-widest">
+            <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 w-full md:w-auto  ">
               <Plus size={18} />
               Import Planned Assignments
             </button>
@@ -128,9 +128,9 @@ const DailyProductionUpdateTab = () => {
       </div>
 
       {/* Production Update Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h3 className="text-lg  text-slate-900 dark:text-white flex items-center gap-2">
             <PackageCheck size={20} className="text-green-600" />
             Actual Production Updates for {new Date(selectedDate).toLocaleDateString()}
           </h3>
@@ -153,61 +153,61 @@ const DailyProductionUpdateTab = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700">
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Operator</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Project / Operation</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Actual Time</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Output</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider">Operator</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider">Project / Operation</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider">Actual Time</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider text-center">Output</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider text-center">Status</th>
+                <th className="p-2 text-xs  text-slate-500  tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {productionUpdates.map((update) => (
                 <tr key={update.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-all group">
-                  <td className="px-6 py-4">
+                  <td className="p-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center font-bold text-xs">
+                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center  text-xs">
                         {update.employeeName.split(' ').map(n => n[0]).join('')}
                       </div>
-                      <span className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-tight">{update.employeeName}</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white  tracking-tight">{update.employeeName}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="p-2">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium text-slate-900 dark:text-white line-clamp-1">{update.projectName}</span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">{update.operationName}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400  tracking-wider">{update.operationName}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="p-2">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
                         <Clock size={12} className="text-blue-500" />
                         {update.actualStartTime} - {update.actualEndTime}
                       </div>
-                      <span className="text-[10px] font-bold text-slate-400 ml-5 uppercase">Total: {update.actualHours.toFixed(2)}h</span>
+                      <span className="text-xs  text-slate-400 ml-5 ">Total: {update.actualHours.toFixed(2)}h</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="p-2">
                     <div className="flex flex-col items-center gap-1">
                       <div className="flex gap-2">
                         <div className="flex flex-col items-center px-2 py-0.5 bg-green-50 dark:bg-green-900/20 rounded border border-green-100 dark:border-green-800">
-                          <span className="text-[8px] font-bold text-green-600 uppercase">Comp</span>
-                          <span className="text-xs font-bold text-green-700 dark:text-green-400">{update.qtyCompleted}</span>
+                          <span className="text-[8px]  text-green-600 ">Comp</span>
+                          <span className="text-xs  text-green-700 dark:text-green-400">{update.qtyCompleted}</span>
                         </div>
                         <div className="flex flex-col items-center px-2 py-0.5 bg-slate-50 dark:bg-slate-700 rounded border border-slate-100 dark:border-slate-600">
-                          <span className="text-[8px] font-bold text-slate-500 uppercase">Pend</span>
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{update.pendingQty}</span>
+                          <span className="text-[8px]  text-slate-500 ">Pend</span>
+                          <span className="text-xs  text-slate-700 dark:text-slate-300">{update.pendingQty}</span>
                         </div>
                       </div>
                       {(update.reworkQty > 0 || update.scrapQty > 0) && (
                         <div className="flex gap-2">
                           {update.reworkQty > 0 && (
-                            <span className="text-[9px] text-amber-600 font-bold flex items-center gap-0.5">
+                            <span className="text-xs text-amber-600  flex items-center gap-0.5">
                               <AlertTriangle size={10} /> {update.reworkQty} REWORK
                             </span>
                           )}
                           {update.scrapQty > 0 && (
-                            <span className="text-[9px] text-red-600 font-bold flex items-center gap-0.5">
+                            <span className="text-xs text-red-600  flex items-center gap-0.5">
                               <AlertTriangle size={10} /> {update.scrapQty} SCRAP
                             </span>
                           )}
@@ -215,15 +215,15 @@ const DailyProductionUpdateTab = () => {
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${getStatusBadge(update.status)}`}>
+                  <td className="p-2 text-center">
+                    <span className={`px-2 py-0.5 text-xs  rounded  tracking-wider ${getStatusBadge(update.status)}`}>
                       {update.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="p-2 text-right">
                     <div className="flex items-center justify-end gap-2">
                       {update.canSendToQC && (
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-[10px] font-bold hover:bg-blue-200 transition-colors uppercase">
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-xs  hover:bg-blue-200 transition-colors ">
                           <Send size={12} /> Send to QC
                         </button>
                       )}

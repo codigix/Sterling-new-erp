@@ -141,7 +141,7 @@ const AdminLayout = () => {
                   <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-xs text-slate-500 dark:text-slate-300 font-semibold capitalize">
                     {user?.role || "Admin"}
                   </span>
                 </div>
@@ -154,7 +154,7 @@ const AdminLayout = () => {
                     <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-[10px] font-medium text-indigo-100  tracking-wider">
+                    <p className="text-xs font-medium text-indigo-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>

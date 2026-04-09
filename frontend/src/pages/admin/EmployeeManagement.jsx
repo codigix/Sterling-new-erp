@@ -164,18 +164,18 @@ const EmployeeManagement = () => {
           html: `
             <div class="text-left bg-slate-50 p-4 rounded-lg border border-slate-200 mt-4 space-y-3">
               <div class="mb-3">
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Employee Name</p>
+                <p class="text-xs text-slate-500   tracking-wider">Employee Name</p>
                 <p class="text-sm font-semibold text-slate-800">${formData.firstName} ${formData.lastName}</p>
               </div>
               <div class="mb-3">
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Login ID</p>
+                <p class="text-xs text-slate-500   tracking-wider">Login ID</p>
                 <p class="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block">${autoLoginId}</p>
               </div>
               <div class="mb-3">
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Password</p>
+                <p class="text-xs text-slate-500   tracking-wider">Password</p>
                 <p class="text-sm font-mono text-amber-600 bg-amber-50 px-2 py-1 rounded inline-block">${finalPassword}</p>
               </div>
-              <div class="mt-4 p-2 bg-amber-100/50 border border-amber-200 rounded text-[11px] text-amber-700">
+              <div class="mt-4 p-2 bg-amber-100/50 border border-amber-200 rounded text-xs text-amber-700">
                 ⚠️ Please share these credentials with the employee. They must change their password upon first login.
               </div>
             </div>
@@ -462,10 +462,10 @@ const EmployeeManagement = () => {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/10 backdrop-blur-[0.5px] flex items-center justify-center p-4 z-50 transition-all duration-300">
-          <div className="rounded-xl shadow-2xl w-full max-w-lg max-h-[95vh] overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 animate-in fade-in scale-95 duration-300">
+          <div className="rounded shadow-2xl w-full max-w-lg max-h-[95vh] overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 animate-in fade-in scale-95 duration-300">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-slate-700 dark:text-white text-left">
+                <h3 className="text-lg  text-slate-700 dark:text-white text-left">
                   {editingEmployee ? "Edit Employee" : "Create New Employee"}
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 text-left mt-0.5">
@@ -490,7 +490,7 @@ const EmployeeManagement = () => {
               <div className="p-6 space-y-5 overflow-auto max-h-[calc(90vh-140px)] bg-white dark:bg-slate-900">
                 {/* Personal Information */}
                 <div>
-                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-3 ml-0.5">
+                  <h4 className="text-xs   tracking-wider text-blue-600 dark:text-blue-400 mb-3 ml-0.5">
                     Personal Information
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -545,7 +545,7 @@ const EmployeeManagement = () => {
 
                 {/* Account Access */}
                 <div className="pt-2">
-                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-3 ml-0.5">
+                  <h4 className="text-xs   tracking-wider text-purple-600 dark:text-purple-400 mb-3 ml-0.5">
                     Account Access
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -595,18 +595,18 @@ const EmployeeManagement = () => {
                 </div>
 
                 {/* Fixed Information */}
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-600">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-dashed border-slate-300 dark:border-slate-600">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
                         <Shield className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-slate-700 dark:text-white">Employee Role</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Default permissions applied</p>
+                        <p className="text-xs  text-slate-700 dark:text-white">Employee Role</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Default permissions applied</p>
                       </div>
                     </div>
-                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold rounded-full uppercase">Active</span>
+                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs  rounded-full ">Active</span>
                   </div>
                 </div>
               </div>
@@ -624,7 +624,7 @@ const EmployeeManagement = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-lg shadow-green-600/20 flex items-center gap-2 transition-all active:scale-95"
+                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white text-xs  rounded-lg shadow-lg shadow-green-600/20 flex items-center gap-2 transition-all active:scale-95"
                 >
                   {loading ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />

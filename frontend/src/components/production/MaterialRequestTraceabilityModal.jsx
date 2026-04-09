@@ -65,7 +65,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
               <h2 className="text-lg  text-slate-900 dark:text-white">Request Traceability History</h2>
               <div className="flex items-center gap-2">
                 <Info size={12} className="text-purple-500" />
-                <span className="text-[10px]   text-slate-500 tracking-wider">
+                <span className="text-xs   text-slate-500 tracking-wider">
                   Linked Material Requests for Plan: {planName || `PP-${planId}`}
                 </span>
               </div>
@@ -117,7 +117,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
                       <Clock size={16} className="text-amber-500" />
                       <h3 className="text-xs  text-slate-800 dark:text-slate-200  tracking-wider">Active Requests</h3>
                     </div>
-                    <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px]  rounded ">
+                    <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xs  rounded ">
                       {activeRequests.length}
                     </span>
                   </div>
@@ -138,7 +138,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
                       <CheckCircle size={16} className="text-green-500" />
                       <h3 className="text-xs  text-slate-900 dark:text-slate-200  tracking-wider">Completed Archive</h3>
                     </div>
-                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px]  rounded ">
+                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs  rounded ">
                       {completedRequests.length}
                     </span>
                   </div>
@@ -173,27 +173,27 @@ const RequestCard = ({ request, getStatusColor }) => {
     <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded overflow-hidden">
       <div className="p-4 border-b border-slate-200/50 dark:border-slate-700/30 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded  bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-[10px]  text-slate-400">
+          <div className="w-8 h-8 rounded  bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-xs  text-slate-400">
             {request.id}
           </div>
           <div>
             <p className="text-xs  text-slate-900 dark:text-white  ">
               {request.mr_number}
             </p>
-            <p className="text-[10px] text-slate-500 font-medium">
+            <p className="text-xs text-slate-500 font-medium">
               Requested: {request.created_at ? new Date(request.created_at).toLocaleDateString() : 'N/A'}
             </p>
           </div>
         </div>
-        <span className={`px-2 py-0.5 rounded border text-[9px]   tracking-wider ${getStatusColor(request.status)}`}>
+        <span className={`px-2 py-0.5 rounded border text-xs   tracking-wider ${getStatusColor(request.status)}`}>
           {request.status}
         </span>
       </div>
       
       <div className="p-4 bg-white/50 dark:bg-slate-800/20">
         <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-[10px]  text-slate-400  tracking-widest">Item Details</span>
-          <span className="text-[10px]  text-slate-400  tracking-widest">Requested Qty</span>
+          <span className="text-xs  text-slate-400  ">Item Details</span>
+          <span className="text-xs  text-slate-400  ">Requested Qty</span>
         </div>
         
         <div className="space-y-3">
@@ -203,7 +203,7 @@ const RequestCard = ({ request, getStatusColor }) => {
                 <p className="text-[13px]  text-slate-900 dark:text-white flex items-center flex-wrap">
                   {item.material_name || item.materialName || item.itemName || item.specification || 'Item Details Not Set'}
                   {(item.material_code || item.materialCode || item.item_code || item.itemCode) && (
-                    <span className="ml-2 text-slate-500 font-medium text-[11px]">
+                    <span className="ml-2 text-slate-500 font-medium text-xs">
                       ({item.material_code || item.materialCode || item.item_code || item.itemCode})
                     </span>
                   )}
