@@ -86,7 +86,7 @@ const StockEntriesPage = () => {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-3"
+          className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   transition-all  shadow-indigo-500/20 flex items-center gap-3"
         >
           <Plus size={18} />
           Create Entry

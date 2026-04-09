@@ -622,7 +622,7 @@ const DesignDrawingManagement = () => {
       {/* Upload Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-md max-h-[70vh] overflow-scroll rounded shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md max-h-[70vh] overflow-scroll rounded  border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg text-slate-900 dark:text-white">
                 {isRevision ? `Create Revision for ${formData.name} (v${selectedDoc.version + 1})` : "Upload New Drawing"}
@@ -706,7 +706,7 @@ const DesignDrawingManagement = () => {
       {/* History Modal */}
       {showHistoryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl  border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg  text-slate-900 dark:text-white">Revision History: {selectedDoc?.name}</h3>
               <button onClick={() => setShowHistoryModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={15} /></button>
@@ -753,7 +753,7 @@ const DesignDrawingManagement = () => {
       {/* Review / Feedback Modal */}
       {showReviewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl  border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg  text-slate-900 dark:text-white">
                 {selectedDoc?.status === 'Rejected' ? "Reviewer Feedback" : "Review Drawing"}

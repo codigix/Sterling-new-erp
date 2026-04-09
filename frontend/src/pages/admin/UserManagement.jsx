@@ -412,7 +412,7 @@ const UserManagement = () => {
             onClick={closeModal}
           ></div>
           <div className="fixed inset-0 z-50 flex items-center text-xs justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 rounded shadow-xl max-w-md w-full">
+            <div className="bg-white dark:bg-slate-800 rounded  max-w-md w-full">
               <div className="flex items-center text-xs justify-between p-4 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="text-md font-semibold  dark:">
                   {editingUser ? 'Edit User' : 'Create New User'}

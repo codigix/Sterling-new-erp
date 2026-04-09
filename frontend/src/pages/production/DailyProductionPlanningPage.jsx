@@ -84,7 +84,9 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     operation: "",
     operator: "",
     startTime: "09:00",
+    startPeriod: "AM",
     endTime: "",
+    endPeriod: "PM",
     breakTime: "60",
     remarks: ""
   });
@@ -96,22 +98,40 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     operator: "",
     operation: "",
     startTime: "",
+    startPeriod: "AM",
     endTime: "",
+    endPeriod: "PM",
     remarks: "",
     breakTime: "60"
   });
 
-  const calculateHours = useCallback((startStr, endStr, breakMins) => {
+  const to24h = (timeStr, period) => {
+    if (!timeStr) return "";
+    try {
+      let [hours, minutes] = timeStr.split(':');
+      hours = parseInt(hours);
+      if (period === "PM" && hours < 12) hours += 12;
+      if (period === "AM" && hours === 12) hours = 0;
+      return `${hours.toString().padStart(2, '0')}:${minutes}`;
+    } catch (e) {
+      return timeStr;
+    }
+  };
+
+  const calculateHours = useCallback((startStr, startPeriod, endStr, endPeriod, breakMins) => {
     if (!startStr || !endStr) return 0;
     try {
-      const start = new Date(`2000-01-01T${startStr}`);
-      let end = new Date(`2000-01-01T${endStr}`);
+      const s24 = to24h(startStr, startPeriod);
+      const e24 = to24h(endStr, endPeriod);
+      
+      const start = new Date(`2000-01-01T${s24}`);
+      let end = new Date(`2000-01-01T${e24}`);
       
       if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
       
       // Handle cross-midnight
       if (end <= start) {
-        end = new Date(`2000-01-02T${endStr}`);
+        end = new Date(`2000-01-02T${e24}`);
       }
       
       const diffHrs = (end - start) / (1000 * 60 * 60);
@@ -122,20 +142,43 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     }
   }, []);
 
+  const from24h = (timeStr) => {
+    if (!timeStr) return { time: "", period: "AM" };
+    try {
+      let [hours, minutes] = timeStr.split(':');
+      hours = parseInt(hours);
+      const period = hours >= 12 ? "PM" : "AM";
+      let h12 = hours % 12;
+      if (h12 === 0) h12 = 12;
+      return {
+        time: `${h12.toString().padStart(2, '0')}:${minutes}`,
+        period
+      };
+    } catch (e) {
+      return { time: timeStr, period: "AM" };
+    }
+  };
+
+  const format12h = (timeStr) => {
+    if (!timeStr) return "";
+    const { time, period } = from24h(timeStr);
+    return `${time} ${period}`;
+  };
+
   // Sync initial data when in edit/view mode
   useEffect(() => {
     if ((mode === "edit" || mode === "view") && initialData?.plan?.plan_date) {
       const pDate = initialData.plan.plan_date.split('T')[0];
       setLocalPlanDate(pDate);
       const assignments = initialData.assignments.map(a => {
-        const startTime = a.start_time?.substring(0, 5);
-        const endTime = a.end_time?.substring(0, 5);
+        const startTime24 = a.start_time?.substring(0, 5);
+        const endTime24 = a.end_time?.substring(0, 5);
         const breakTime = a.break_time || 0;
         
         // Use backend value if provided and > 0, otherwise calculate
         const totalHours = parseFloat(a.total_hours) > 0 
           ? parseFloat(a.total_hours) 
-          : calculateHours(startTime, endTime, breakTime);
+          : calculateHours(startTime24, "AM", endTime24, "AM", breakTime); 
 
         return {
           ...a,
@@ -144,8 +187,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           projectRef: a.root_card_id,
           operation_name: a.operation_name,
           operator_name: a.operator_name,
-          start_time: startTime,
-          end_time: endTime,
+          start_time: startTime24,
+          end_time: endTime24,
           break_time: breakTime,
           total_hours: totalHours
         };
@@ -209,8 +252,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   };
 
   const currentLoad = useMemo(() => {
-    return calculateHours(newAssignment.startTime, newAssignment.endTime, newAssignment.breakTime);
-  }, [newAssignment.startTime, newAssignment.endTime, newAssignment.breakTime, calculateHours]);
+    return calculateHours(newAssignment.startTime, newAssignment.startPeriod, newAssignment.endTime, newAssignment.endPeriod, newAssignment.breakTime);
+  }, [newAssignment.startTime, newAssignment.startPeriod, newAssignment.endTime, newAssignment.endPeriod, newAssignment.breakTime, calculateHours]);
 
   const handleAddAssignment = () => {
     if (!selectedProject || !newAssignment.operation || !newAssignment.operator) {
@@ -218,7 +261,9 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       return;
     }
 
-    const totalHours = calculateHours(newAssignment.startTime, newAssignment.endTime, newAssignment.breakTime);
+    const totalHours = calculateHours(newAssignment.startTime, newAssignment.startPeriod, newAssignment.endTime, newAssignment.endPeriod, newAssignment.breakTime);
+    const s24 = to24h(newAssignment.startTime, newAssignment.startPeriod);
+    const e24 = to24h(newAssignment.endTime, newAssignment.endPeriod);
 
     const operator = operators.find(o => o.value === newAssignment.operator);
     const operation = operations.find(o => o.value === newAssignment.operation || o.name === newAssignment.operation);
@@ -232,8 +277,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       operation_name: newAssignment.operation,
       operator_id: operator?.id,
       operator_name: operator?.label,
-      start_time: newAssignment.startTime,
-      end_time: newAssignment.endTime,
+      start_time: s24,
+      end_time: e24,
       break_time: parseInt(newAssignment.breakTime || 0),
       total_hours: totalHours,
       remarks: newAssignment.remarks
@@ -246,7 +291,9 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       operation: "",
       operator: "",
       startTime: "09:00",
+      startPeriod: "AM",
       endTime: "",
+      endPeriod: "PM",
       breakTime: "60",
       remarks: ""
     });
@@ -254,11 +301,16 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
   const editAssignment = (assignment) => {
     setEditingAssignmentId(assignment.id);
+    const startObj = from24h(assignment.start_time);
+    const endObj = from24h(assignment.end_time);
+
     setEditForm({
       operator: assignment.operator_name,
       operation: assignment.operation_name,
-      startTime: assignment.start_time,
-      endTime: assignment.end_time,
+      startTime: startObj.time,
+      startPeriod: startObj.period,
+      endTime: endObj.time,
+      endPeriod: endObj.period,
       remarks: assignment.remarks || "",
       breakTime: assignment.break_time || "60"
     });
@@ -268,7 +320,9 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   const handleUpdateAssignment = () => {
     setDailyPlan(prev => prev.map(a => {
       if (a.id === editingAssignmentId) {
-        const totalHours = calculateHours(editForm.startTime, editForm.endTime, editForm.breakTime);
+        const totalHours = calculateHours(editForm.startTime, editForm.startPeriod, editForm.endTime, editForm.endPeriod, editForm.breakTime);
+        const s24 = to24h(editForm.startTime, editForm.startPeriod);
+        const e24 = to24h(editForm.endTime, editForm.endPeriod);
 
         const operator = operators.find(o => o.value === editForm.operator || o.label === editForm.operator);
         const operation = operations.find(o => o.value === editForm.operation || o.name === editForm.operation);
@@ -279,8 +333,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           operator_name: editForm.operator,
           operation_id: operation?.id,
           operation_name: editForm.operation,
-          start_time: editForm.startTime,
-          end_time: editForm.endTime,
+          start_time: s24,
+          end_time: e24,
           break_time: parseInt(editForm.breakTime || 0),
           total_hours: totalHours,
           remarks: editForm.remarks
@@ -420,7 +474,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                   <div className="space-y-6">
                     {mode !== "view" && (
                       <div className="bg-slate-50 dark:bg-slate-800/50  rounded border border-slate-100 dark:border-slate-800 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div className="grid grid-cols-1 items-end md:grid-cols-12 gap-4">
                           <div className="md:col-span-3 space-y-1.5">
                             <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operator</label>
                             <SearchableSelect
@@ -443,23 +497,43 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                               allowCustom={true}
                             />
                           </div>
-                          <div className="md:col-span-2 space-y-1.5">
+                          <div className="md:col-span-3 space-y-1.5">
                             <label className="text-xs  text-slate-400  ">Start Time</label>
-                            <input
-                              type="time"
-                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
-                              value={newAssignment.startTime}
-                              onChange={(e) => setNewAssignment({ ...newAssignment, startTime: e.target.value })}
-                            />
+                            <div className="flex gap-1">
+                              <input
+                                type="time"
+                                className="flex-1 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
+                                value={newAssignment.startTime}
+                                onChange={(e) => setNewAssignment({ ...newAssignment, startTime: e.target.value })}
+                              />
+                              <select
+                                className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                value={newAssignment.startPeriod}
+                                onChange={(e) => setNewAssignment({ ...newAssignment, startPeriod: e.target.value })}
+                              >
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                              </select>
+                            </div>
                           </div>
-                          <div className="md:col-span-2 space-y-1.5">
+                          <div className="md:col-span-3 space-y-1.5">
                             <label className="text-xs  text-slate-400  ">End Time</label>
-                            <input
-                              type="time"
-                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
-                              value={newAssignment.endTime}
-                              onChange={(e) => setNewAssignment({ ...newAssignment, endTime: e.target.value })}
-                            />
+                            <div className="flex gap-1">
+                              <input
+                                type="time"
+                                className="flex-1 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
+                                value={newAssignment.endTime}
+                                onChange={(e) => setNewAssignment({ ...newAssignment, endTime: e.target.value })}
+                              />
+                              <select
+                                className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                value={newAssignment.endPeriod}
+                                onChange={(e) => setNewAssignment({ ...newAssignment, endPeriod: e.target.value })}
+                              >
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                              </select>
+                            </div>
                           </div>
                           <div className="md:col-span-2 space-y-1.5">
                             <label className="text-xs  text-indigo-500   text-center block">Working Hrs.</label>
@@ -467,10 +541,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                               {currentLoad.toFixed(1)}h
                             </div>
                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pt-2 border-t border-slate-100 dark:border-slate-700/50">
-                          <div className="md:col-span-10 space-y-1.5">
+                          <div className="md:col-span-8 space-y-1.5">
                             <label className="text-xs  text-slate-900 dark:text-slate-200  ">Remarks / Special Instructions</label>
                             <input
                               type="text"
@@ -489,6 +560,10 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                               Add
                             </button>
                           </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                          
                         </div>
                       </div>
                     )}
@@ -518,7 +593,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                                 </td>
                                 <td className="px-4 py-3">
                                   <span className="text-xs  text-slate-700 dark:text-slate-300  ">{entry.operator_name}</span>
-                                  <p className="text-xs text-slate-400">{entry.start_time} - {entry.end_time}</p>
+                                  <p className="text-xs text-slate-400">{format12h(entry.start_time)} - {format12h(entry.end_time)}</p>
                                   {entry.remarks && <p className="text-xs text-indigo-500   mt-0.5">{entry.remarks}</p>}
                                 </td>
                                 <td className="px-4 py-3 text-center">
@@ -599,7 +674,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               </div>
 
               {mode !== "view" && (
-                <div className="p-2 bg-indigo-600 rounded shadow-xl shadow-indigo-600/20 text-white">
+                <div className="p-2 bg-indigo-600 rounded  shadow-indigo-600/20 text-white">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap size={14} className="fill-current" />
                     <span className="text-sm ">Fast Action</span>
@@ -628,7 +703,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             <button
               onClick={handleFinalize}
               disabled={loading}
-              className="px-10 py-2.5 bg-indigo-600 text-white rounded text-xs    hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-2 disabled:opacity-50"
+              className="px-10 py-2.5 bg-indigo-600 text-white rounded text-xs    hover:bg-indigo-700 transition-all  shadow-indigo-600/30 flex items-center gap-2 disabled:opacity-50"
             >
               {loading ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
               {mode === "edit" ? "Update Today's Plan" : "Finalize Today's Plan"}
@@ -772,21 +847,41 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Start Time</label>
-                  <input
-                    type="time"
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                    value={editForm.startTime}
-                    onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
-                  />
+                  <div className="flex gap-1">
+                    <input
+                      type="time"
+                      className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                      value={editForm.startTime}
+                      onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                    />
+                    <select
+                      className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                      value={editForm.startPeriod}
+                      onChange={(e) => setEditForm({ ...editForm, startPeriod: e.target.value })}
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">End Time</label>
-                  <input
-                    type="time"
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                    value={editForm.endTime}
-                    onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
-                  />
+                  <div className="flex gap-1">
+                    <input
+                      type="time"
+                      className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                      value={editForm.endTime}
+                      onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                    />
+                    <select
+                      className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                      value={editForm.endPeriod}
+                      onChange={(e) => setEditForm({ ...editForm, endPeriod: e.target.value })}
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -1034,7 +1129,7 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
             <h4 className="text-xs  text-slate-900 dark:text-white  ">Execution Summary</h4>
           </div>
 
-          <div className="bg-indigo-600 text-white p-5 rounded shadow-xl shadow-indigo-600/20 space-y-4 relative overflow-hidden group">
+          <div className="bg-indigo-600 text-white p-5 rounded  shadow-indigo-600/20 space-y-4 relative overflow-hidden group">
             <Zap className="absolute -right-4 -top-4 text-white/10 w-24 h-24 group-hover:scale-110 transition-transform duration-500" />
 
             <div className="grid grid-cols-2 gap-4 relative z-10">
@@ -2295,7 +2390,7 @@ const DailyProductionPlanningPage = () => {
               setSelectedPlanData(null);
               setIsModalOpen(true);
             }}
-            className="p-2 bg-indigo-600 text-white rounded text-xs    shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
+            className="p-2 bg-indigo-600 text-white rounded text-xs     shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
           >
             <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
             Create Daily Plan

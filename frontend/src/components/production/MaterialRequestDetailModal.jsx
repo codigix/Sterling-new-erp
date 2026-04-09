@@ -306,7 +306,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
             {!loading && isProcurement && request?.status === 'approved' && !readOnly && (
               <button 
                 onClick={handlePOProcessing}
-                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded  text-xs transition-all shadow-xl shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
+                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded  text-xs transition-all  shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
               >
                 <ArrowRight size={18} />
                 PO Processing
@@ -325,7 +325,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 <button 
                   onClick={() => handleUpdateStatus('approved')}
                   disabled={submitting}
-                  className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded  text-sm transition-all shadow-xl shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
+                  className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded  text-sm transition-all  shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
                 >
                   <CheckCircle size={18} />
                   Approve Request

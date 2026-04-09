@@ -200,7 +200,7 @@ const OperationsPage = () => {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-8 py-3 bg-indigo-600 text-white rounded text-xs    shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
+          className="px-8 py-3 bg-indigo-600 text-white rounded text-xs     shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
         >
           <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
           Create New Operation

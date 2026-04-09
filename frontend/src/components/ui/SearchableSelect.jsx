@@ -201,7 +201,7 @@ const SearchableSelect = ({
         <div 
           ref={dropdownRef}
           style={dropdownStyle}
-          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-xl max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
+          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded  max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
         >
           <div className="overflow-y-auto flex-1 py-1 modal-body-scroll">
             {filteredOptions.length > 0 ? (

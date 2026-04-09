@@ -142,7 +142,7 @@ const StockBalancePage = () => {
           <button onClick={fetchMaterials} className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:text-cyan-600 transition-all hover:">
             <RefreshCw size={15} />
           </button>
-          <button className="flex items-center gap-2 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded  text-xs   hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
+          <button className="flex items-center gap-2 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded  text-xs   hover:bg-slate-800 transition-all  shadow-slate-900/10">
             <Download size={16} /> Export Data
           </button>
         </div>

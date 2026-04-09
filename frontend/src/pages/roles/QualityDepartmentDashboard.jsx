@@ -125,7 +125,7 @@ const DashboardHome = () => {
           <Link
             key={stat.title}
             to={stat.path}
-            className="group bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700  hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            className="group bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700  hover: hover:-translate-y-1 transition-all duration-300"
           >
             <div className="flex items-start justify-between">
               <div className={`p-2 rounded ${stat.bg} ${stat.color} transition-colors`}>

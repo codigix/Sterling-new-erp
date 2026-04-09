@@ -14,7 +14,7 @@ const Card = ({
     xs: 'shadow-xs',
     sm: '',
     md: ' ',
-    lg: 'shadow-lg hover:shadow-xl',
+    lg: 'shadow-lg hover:',
   };
 
   const paddings = {

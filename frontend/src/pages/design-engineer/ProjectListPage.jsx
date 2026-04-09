@@ -349,7 +349,7 @@ const ProjectListPage = () => {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full">
+          <div className="bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 max-w-sm w-full">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-lg  text-slate-900 dark:text-white text-xs">
                 Delete Project

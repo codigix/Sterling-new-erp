@@ -478,7 +478,7 @@ const ProcurementTasksPage = () => {
                   q.id?.toString().toLowerCase().includes(searchTerm.toLowerCase())
                 )
                 .map((quote) => (
-                  <div key={quote.id} className="group relative  border border-slate-200 dark:border-slate-700 p-5  hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div key={quote.id} className="group relative  border border-slate-200 dark:border-slate-700 p-5  hover: hover:-translate-y-1 transition-all duration-300">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400">

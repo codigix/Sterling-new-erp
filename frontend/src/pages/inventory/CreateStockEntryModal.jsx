@@ -463,7 +463,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
             <button 
               onClick={() => handleSubmit(false)}
               disabled={loading}
-              className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs transition-all shadow-xl shadow-indigo-500/25 active:scale-95 flex items-center justify-center gap-2"
+              className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs transition-all  shadow-indigo-500/25 active:scale-95 flex items-center justify-center gap-2"
             >
               {loading ? "PROCESSING..." : "Commit Entry"}
             </button>

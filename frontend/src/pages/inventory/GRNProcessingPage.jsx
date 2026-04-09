@@ -556,7 +556,7 @@ const GRNProcessingPage = () => {
               <button 
                 onClick={handleSubmitGRN}
                 disabled={loading}
-                className="px-10 py-4 bg-emerald-500 text-white rounded  text-xs  tracking-[0.2em] hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-10 py-4 bg-emerald-500 text-white rounded  text-xs  tracking-[0.2em] hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all  shadow-emerald-500/20 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? <RefreshCw className="animate-spin" size={15} /> : <CheckCircle size={15} />}
                 {loading ? "Submitting..." : "Submit Goods Receipt"}

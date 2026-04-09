@@ -162,7 +162,7 @@ const ProductionPlanDetailPage = () => {
   if (!plan) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-6">
-        <div className="text-center max-w-md bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700">
+        <div className="text-center max-w-md bg-white dark:bg-slate-800 p-8 rounded-2xl  border border-slate-200 dark:border-slate-700">
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded  flex items-center justify-center mx-auto mb-4">
             <AlertCircle size={32} />
           </div>
@@ -502,7 +502,7 @@ const ProductionPlanDetailPage = () => {
 
           {/* Sidebar Cards */}
           <div className="space-y-2">
-            <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl shadow-slate-900/20 relative overflow-hidden group">
+            <div className="bg-slate-900 rounded-2xl p-6 text-white  shadow-slate-900/20 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                 <Box size={80} />
               </div>

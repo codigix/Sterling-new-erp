@@ -793,7 +793,7 @@ const InventoryTasksPage = () => {
       {/* Create Custom Task Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded  w-full max-w-md overflow-hidden">
             <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
               <h3 className=" text-slate-900 dark:text-white">Create Custom Task</h3>
               <button
