@@ -1,23 +1,127 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Plus, Trash2, CheckCircle, Calendar, DollarSign, User, Package, FileText, Save, Edit, RefreshCw, Eye } from "lucide-react";
+import { X, Plus, Trash2, CheckCircle, Calendar, DollarSign, User, Package, FileText, Save, Edit, RefreshCw, Eye, FileUp, Loader2 } from "lucide-react";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
+import SearchableSelect from "../../components/ui/SearchableSelect";
+
+const UOMOptions = ["Nos", "Kg", "pcs", "m", "l", "set", "Box", "Packet"];
+const ItemGroupOptions = ["Plates", "round bar", "paint", "Pipe", "Block", "Bought Out"];
+const MaterialTypeOptions = [
+  { label: "Mild Steel / Carbon Steel", value: "7.85" },
+  { label: "Stainless Steel (304/316)", value: "8.00" },
+  { label: "Aluminum", value: "2.70" },
+  { label: "Copper", value: "8.96" },
+  { label: "Chemical", value: "1.10" }
+];
 
 const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, editData, preFilledFromQuotation, initialViewMode = false, isInventoryView = false }) => {
   const navigate = useNavigate();
   const { completeCurrentTask, isFromDepartmentTasks } = useRootCardInventoryTask();
   const [vendors, setVendors] = useState([]);
   const [quotations, setQuotations] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState(initialViewMode);
+  const [showManualForm, setShowManualForm] = useState(false);
   
+  const [newManualItem, setNewManualItem] = useState({
+    material_name: "",
+    item_group: "",
+    material_grade: "",
+    part_detail: "",
+    make: "",
+    quantity: 1,
+    uom: "Nos",
+    rate: 0,
+    total_weight: 0,
+    amount: 0,
+    length: "",
+    width: "",
+    thickness: "",
+    diameter: "",
+    outer_diameter: "",
+    height: "",
+    material_type: "",
+    density: 0,
+    unit_weight: 0,
+    remark: "",
+    calculatedWeight: 0
+  });
+
+  const calculateItemWeight = useCallback((item) => {
+    const group = item.item_group?.toLowerCase() || "";
+    const density = parseFloat(item.density) || 0;
+    let unitWeight = 0;
+
+    if (density <= 0) return 0;
+
+    const L = parseFloat(item.length) || 0;
+    const W = parseFloat(item.width) || 0;
+    const T = parseFloat(item.thickness) || 0;
+    const D = parseFloat(item.diameter) || 0;
+    const OD = parseFloat(item.outer_diameter) || 0;
+    const H = parseFloat(item.height) || 0;
+
+    if (group.includes("plate") || group.includes("block")) {
+      const thick = group.includes("plate") ? T : H;
+      unitWeight = (L * W * thick * density) / 1000000;
+    } 
+    else if (group.includes("round bar")) {
+      const radius = D / 2;
+      unitWeight = (Math.PI * Math.pow(radius, 2) * L * density) / 1000000;
+    } 
+    else if (group.includes("pipe")) {
+      const outerRadius = OD / 2;
+      const innerRadius = outerRadius - T;
+      if (innerRadius >= 0) {
+        unitWeight = (Math.PI * (Math.pow(outerRadius, 2) - Math.pow(innerRadius, 2)) * L * density) / 1000000;
+      }
+    }
+
+    return unitWeight;
+  }, []);
+
+  useEffect(() => {
+    const unitWeight = calculateItemWeight(newManualItem);
+    const totalWeight = unitWeight * (parseFloat(newManualItem.quantity) || 0);
+    
+    if (unitWeight !== newManualItem.calculatedWeight) {
+      setNewManualItem(prev => ({ 
+        ...prev, 
+        calculatedWeight: unitWeight,
+        unit_weight: unitWeight,
+        total_weight: totalWeight,
+        // If UOM is Kg, automatically update quantity to match total weight if it's currently 1 or 0
+        quantity: prev.uom === "Kg" && (prev.quantity === 1 || prev.quantity === 0) ? totalWeight.toFixed(3) : prev.quantity
+      }));
+    }
+  }, [
+    newManualItem.length, 
+    newManualItem.width, 
+    newManualItem.thickness, 
+    newManualItem.height, 
+    newManualItem.diameter, 
+    newManualItem.outer_diameter, 
+    newManualItem.density, 
+    newManualItem.item_group,
+    newManualItem.quantity,
+    newManualItem.uom,
+    calculateItemWeight
+  ]);
+
+  const itemGroupSelectOptions = useMemo(() => ItemGroupOptions.map((group) => ({
+    label: group,
+    value: group,
+  })), []);
+
   const [formData, setFormData] = useState({
     po_number: `PO-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`,
     quotation_id: "",
     vendor_id: "",
+    project_id: "",
     order_date: new Date().toISOString().split('T')[0],
     expected_delivery_date: "",
     delivery_location: "",
@@ -37,6 +141,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       setViewMode(initialViewMode);
       fetchVendors();
       fetchQuotations();
+      fetchProjects();
       
       // Reset form data for new entry or load data for edit
       if (!editData) {
@@ -56,6 +161,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               po_number: `PO-${new Date().getFullYear()}-${nextNum}`,
               quotation_id: "",
               vendor_id: "",
+              project_id: "",
               items: [],
               subtotal: 0,
               tax_amount: 0,
@@ -82,6 +188,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               po_number: fullPO.po_number,
               quotation_id: fullPO.quotation_id || "",
               vendor_id: fullPO.vendor_id,
+              project_id: fullPO.project_id || fullPO.root_card_project_id || "",
               order_date: fullPO.order_date ? fullPO.order_date.split('T')[0] : new Date().toISOString().split('T')[0],
               expected_delivery_date: fullPO.expected_delivery_date ? fullPO.expected_delivery_date.split('T')[0] : "",
               delivery_location: fullPO.delivery_location || "",
@@ -102,6 +209,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               po_number: editData.po_number,
               quotation_id: editData.quotation_id || "",
               vendor_id: editData.vendor_id,
+              project_id: editData.project_id || editData.root_card_project_id || "",
               order_date: editData.order_date ? editData.order_date.split('T')[0] : new Date().toISOString().split('T')[0],
               expected_delivery_date: editData.expected_delivery_date ? editData.expected_delivery_date.split('T')[0] : "",
               delivery_location: editData.delivery_location || "",
@@ -142,6 +250,15 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     }
   };
 
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get("/root-cards");
+      setProjects(response.data.rootCards || response.data.projects || response.data || []);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
   const handleQuotationSelect = async (quotationId, passedQuote = null) => {
     if (!quotationId && !passedQuote) {
       setFormData(prev => ({
@@ -165,29 +282,34 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       }
       
       if (fullQuote) {
-        const initialItems = (fullQuote.items || []).map(item => ({
-          material_name: item.vendor_item_name || item.item_name || item.description,
-          item_group: item.item_group || "",
-          part_detail: item.part_detail || "",
-          material_grade: item.material_grade || "",
-          remark: item.remark || "",
-          make: item.make || "",
-          quantity: item.quantity,
-          uom: item.unit || item.uom || "Nos",
-          rate_per_kg: item.rate_per_kg || 0,
-          total_weight: item.total_weight || 0,
-          rate: item.rate || item.unit_price || 0,
-          amount: item.amount || (item.total_weight * (item.rate_per_kg || 0)) || (item.quantity * (item.rate || item.unit_price || 0)),
-          length: item.length || null,
-          width: item.width || null,
-          thickness: item.thickness || null,
-          diameter: item.diameter || null,
-          outer_diameter: item.outer_diameter || null,
-          height: item.height || null,
-          unit_weight: item.unit_weight || 0,
-          material_type: item.material_type || null,
-          density: item.density || 0
-        }));
+        const initialItems = (fullQuote.items || []).map(item => {
+          const rate = item.rate_per_kg > 0 ? item.rate_per_kg : (item.rate || item.unit_price || 0);
+          const total_weight = item.total_weight || 0;
+          const quantity = item.quantity || 0;
+          
+          return {
+            material_name: item.vendor_item_name || item.item_name || item.description,
+            item_group: item.item_group || "",
+            part_detail: item.part_detail || "",
+            material_grade: item.material_grade || "",
+            remark: item.remark || "",
+            make: item.make || "",
+            quantity: quantity,
+            uom: item.unit || item.uom || "Nos",
+            total_weight: total_weight,
+            rate: rate,
+            amount: item.amount || (total_weight > 0 ? (total_weight * rate) : (quantity * rate)),
+            length: item.length || null,
+            width: item.width || null,
+            thickness: item.thickness || null,
+            diameter: item.diameter || null,
+            outer_diameter: item.outer_diameter || null,
+            height: item.height || null,
+            unit_weight: item.unit_weight || 0,
+            material_type: item.material_type || null,
+            density: item.density || 0
+          };
+        });
 
         calculateTotals(initialItems, formData.tax_template);
         
@@ -195,6 +317,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           ...prev,
           quotation_id: fullQuote.id,
           vendor_id: fullQuote.vendor_id,
+          project_id: fullQuote.project_id || fullQuote.root_card_id || fullQuote.root_card_project_id || prev.project_id || "",
           notes: prev.notes || `Created from Quotation: ${fullQuote.quotation_number || fullQuote.id}`
         }));
       }
@@ -245,6 +368,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
         setFormData(prev => ({
           ...prev,
           quotation_id: "", // No quotation for shortage yet
+          project_id: fullShortage.project_id || fullShortage.root_card_id || prev.project_id || "",
           notes: prev.notes || `Created from Shortage Request: ${fullShortage.request_number}`
         }));
       }
@@ -255,10 +379,65 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
   };
 
   const handleAddItem = () => {
-    setFormData(prev => ({
-      ...prev,
-      items: [...prev.items, { material_name: "", quantity: 1, unit: "Nos", rate: 0, amount: 0 }]
-    }));
+    if (!newManualItem.material_name) {
+      toastUtils.warning("Please enter item name");
+      return;
+    }
+
+    const newItem = {
+      ...newManualItem,
+      id: Date.now(),
+      // Ensure numeric values
+      quantity: parseFloat(newManualItem.quantity) || 0,
+      rate: parseFloat(newManualItem.rate) || 0,
+      total_weight: parseFloat(newManualItem.total_weight) || 0,
+      unit_weight: parseFloat(newManualItem.unit_weight) || 0,
+      length: parseFloat(newManualItem.length) || null,
+      width: parseFloat(newManualItem.width) || null,
+      thickness: parseFloat(newManualItem.thickness) || null,
+      diameter: parseFloat(newManualItem.diameter) || null,
+      outer_diameter: parseFloat(newManualItem.outer_diameter) || null,
+      height: parseFloat(newManualItem.height) || null,
+      density: parseFloat(newManualItem.density) || 0,
+    };
+
+    // Calculate initial amount based on weight if available
+    if (newItem.total_weight > 0) {
+      newItem.amount = newItem.rate * newItem.total_weight;
+    } else {
+      newItem.amount = newItem.quantity * newItem.rate;
+    }
+
+    const updatedItems = [...formData.items, newItem];
+    calculateTotals(updatedItems);
+    
+    // Hide the form after adding an item
+    setShowManualForm(false);
+    
+    // Reset the manual entry form
+    setNewManualItem({
+      material_name: "",
+      item_group: "",
+      material_grade: "",
+      part_detail: "",
+      make: "",
+      quantity: 1,
+      uom: "Nos",
+      rate: 0,
+      total_weight: 0,
+      amount: 0,
+      length: "",
+      width: "",
+      thickness: "",
+      diameter: "",
+      outer_diameter: "",
+      height: "",
+      material_type: "",
+      density: 0,
+      unit_weight: 0,
+      remark: "",
+      calculatedWeight: 0
+    });
   };
 
   const handleRemoveItem = (index) => {
@@ -271,11 +450,15 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     const newItems = [...formData.items];
     newItems[index][field] = value;
     
-    if (field === 'quantity' || field === 'rate' || field === 'rate_per_kg' || field === 'total_weight') {
-      if (newItems[index].rate_per_kg && newItems[index].total_weight) {
-        newItems[index].amount = (newItems[index].rate_per_kg || 0) * (newItems[index].total_weight || 0);
+    if (field === 'quantity' || field === 'rate' || field === 'total_weight') {
+      const quantity = parseFloat(newItems[index].quantity) || 0;
+      const rate = parseFloat(newItems[index].rate) || 0;
+      const total_weight = parseFloat(newItems[index].total_weight) || 0;
+
+      if (total_weight > 0) {
+        newItems[index].amount = rate * total_weight;
       } else {
-        newItems[index].amount = (newItems[index].quantity || 0) * (newItems[index].rate || 0);
+        newItems[index].amount = quantity * rate;
       }
     }
     
@@ -424,15 +607,29 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs  text-slate-500   ">Quotation Reference *</label>
+                  <label className="block text-xs  text-slate-500   ">Project</label>
+                  <select 
+                    className={`w-full p-2 text-xs ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded   focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    value={formData.project_id}
+                    onChange={(e) => setFormData({...formData, project_id: e.target.value})}
+                    disabled={viewMode}
+                  >
+                    <option value="">Select Project...</option>
+                    {projects.map(p => (
+                      <option key={p.id} value={p.id}>{p.project_name || p.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs  text-slate-500   ">Quotation Reference</label>
                   <select 
                     className={`w-full p-2 text-xs ${viewMode || !!editData ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded   focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.quotation_id}
                     onChange={(e) => handleQuotationSelect(e.target.value)}
                     disabled={viewMode || !!editData}
-                    required
                   >
-                    <option value="">Select Approved Quotation...</option>
+                    <option value="">No Quotation (Manual PO)</option>
                     {quotations.map(q => (
                       <option key={q.id} value={q.id}>{q.quotation_number}</option>
                     ))}
@@ -516,6 +713,210 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               </div>
             </div>
 
+            {/* Manual Form Toggle Button */}
+            {!viewMode && !showManualForm && (
+              <div className="flex justify-start my-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowManualForm(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-all shadow-sm"
+                >
+                  <Plus size={16} />
+                  Add Items Manually
+                </button>
+              </div>
+            )}
+
+            {/* Quick Add Form (BOM Style) */}
+            {!viewMode && showManualForm && (
+              <div className="p-3 bg-emerald-50/30 dark:bg-emerald-900/10 rounded border border-emerald-100/50 dark:border-emerald-900/20 my-4 relative">
+                <button 
+                  type="button"
+                  onClick={() => setShowManualForm(false)}
+                  className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                >
+                  <X size={16} />
+                </button>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 text-sm font-medium">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+                      <Plus size={12} />
+                    </div>
+                    Add Raw Material Manually
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                  <div className="md:col-span-3">
+                    <label className="block text-[10px] text-slate-500 mb-1 ml-1">Item Name *</label>
+                    <input
+                      type="text"
+                      value={newManualItem.material_name}
+                      onChange={(e) => setNewManualItem(prev => ({ ...prev, material_name: e.target.value }))}
+                      placeholder="Enter item name"
+                      className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-3">
+                    <SearchableSelect
+                      label="Item Group"
+                      options={itemGroupSelectOptions}
+                      value={newManualItem.item_group}
+                      onChange={(val) => setNewManualItem(prev => ({ 
+                        ...prev, 
+                        item_group: val,
+                        uom: val?.toLowerCase() === "bought out" ? "Packet" : prev.uom
+                      }))}
+                      placeholder="Select group"
+                      allowCustom={true}
+                    />
+                  </div>
+                  {newManualItem.item_group?.toLowerCase() !== "bought out" && (
+                    <>
+                      <div className="md:col-span-3">
+                        <SearchableSelect
+                          label="Material (Density)"
+                          options={MaterialTypeOptions}
+                          value={newManualItem.density}
+                          onChange={(val) => {
+                            const selected = MaterialTypeOptions.find(opt => opt.value === val);
+                            setNewManualItem(prev => ({ 
+                              ...prev, 
+                              density: val,
+                              material_type: selected ? selected.label : ""
+                            }));
+                          }}
+                          placeholder="Select material"
+                        />
+                      </div>
+                      <div className="md:col-span-3">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Grade</label>
+                        <input
+                          type="text"
+                          value={newManualItem.material_grade}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, material_grade: e.target.value }))}
+                          placeholder="Grade"
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Dimension Logic (Plates) */}
+                  {newManualItem.item_group?.toLowerCase().includes("plate") && (
+                    <>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">W (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.width}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, width: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">T (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Round Bar */}
+                  {newManualItem.item_group?.toLowerCase().includes("round bar") && (
+                    <>
+                      <div className="md:col-span-3">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Dia (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.diameter}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, diameter: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-3">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Length (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="md:col-span-2">
+                    <label className="block text-[10px] text-slate-500 mb-1 ml-1">Qty *</label>
+                    <input
+                      type="number"
+                      value={newManualItem.quantity}
+                      onChange={(e) => setNewManualItem(prev => ({ ...prev, quantity: e.target.value }))}
+                      className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <SearchableSelect
+                      label="UOM"
+                      options={UOMOptions.map(u => ({ label: u, value: u }))}
+                      value={newManualItem.uom}
+                      onChange={(val) => setNewManualItem(prev => ({ ...prev, uom: val }))}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-[10px] text-slate-500 mb-1 ml-1">Rate (₹)</label>
+                    <input
+                      type="number"
+                      value={newManualItem.rate}
+                      onChange={(e) => setNewManualItem(prev => ({ ...prev, rate: e.target.value }))}
+                      className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none border-blue-200 dark:border-blue-900/30"
+                      placeholder="Rate"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-[10px] text-slate-500 mb-1 ml-1">Make</label>
+                    <input
+                      type="text"
+                      value={newManualItem.make}
+                      onChange={(e) => setNewManualItem(prev => ({ ...prev, make: e.target.value }))}
+                      placeholder="Make"
+                      className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <button
+                      type="button"
+                      onClick={handleAddItem}
+                      className="w-full py-2 bg-emerald-600 text-white rounded text-xs font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1 shadow-md shadow-emerald-500/20"
+                    >
+                      <Plus size={14} /> Add Item
+                    </button>
+                  </div>
+                </div>
+
+                {newManualItem.calculatedWeight > 0 && (
+                  <div className="mt-3 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                    Calculated Unit Weight: {newManualItem.calculatedWeight.toFixed(3)} Kg | 
+                    Total Weight: {(newManualItem.calculatedWeight * newManualItem.quantity).toFixed(3)} Kg
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Items Table */}
             <div className="space-y-2">
               <div className="flex items-center  justify-between my-3 border-b border-slate-100 dark:border-slate-800">
@@ -528,10 +929,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <table className="w-full text-sm min-w-[800px]">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/50 text-xs   text-slate-500 ">
-                      <th className="p-2 text-left">Item Name / Group</th>
-                      <th className="p-2 text-center w-24">Qty</th>
+                      <th className="p-2 text-left">Item Details</th>
+                      <th className="p-2 text-left">Technical Specs</th>
+                      <th className="p-2 text-center w-20">Qty</th>
                       <th className="p-2 text-center w-20">UOM</th>
-                      <th className="p-2 text-center w-32">Rate/Kg</th>
+                      <th className="p-2 text-center w-32">Rate/Price</th>
                       <th className="p-2 text-center w-32">Weight (Kg)</th>
                       <th className="p-2 text-right w-40">Total</th>
                       {!viewMode && <th className="p-2 text-center "></th>}
@@ -540,91 +942,78 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                     {formData.items.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="p-2 text-center text-slate-400 italic">
-                          Select a quotation to populate items
+                        <td colSpan="8" className="p-4 text-center text-slate-400 italic">
+                          No items added. Use the form above to add raw materials.
                         </td>
                       </tr>
                     ) : (
                       formData.items.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
                           <td className="p-2">
-                            {viewMode ? (
-                              <>
-                                <p className="text-xs  text-slate-900 dark:text-white">
-                                  {item.material_name}
-                                </p>
-                                <p className="text-xs text-slate-500  ">
-                                  {item.item_group || "N/A"}
-                                </p>
-                                {renderDimensionsText(item)}
-                              </>
-                            ) : (
-                              <div className="flex flex-col gap-1">
+                            <div className="flex flex-col">
+                              {viewMode ? (
+                                <span className="text-xs font-medium text-slate-900 dark:text-white">{item.material_name}</span>
+                              ) : (
                                 <input 
                                   type="text"
-                                  className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Item name..."
+                                  className="w-full bg-transparent border-none p-0 text-xs text-slate-900 dark:text-white focus:ring-0"
                                   value={item.material_name}
                                   onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
                                 />
-                                {renderDimensionsText(item)}
-                              </div>
-                            )}
+                              )}
+                              <span className="text-[10px] text-slate-500">{item.item_group || "No Group"}</span>
+                            </div>
                           </td>
-                          <td className="p-2 text-center">
-                            <input 
-                              type="number"
-                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-center text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
-                              value={item.quantity}
-                              onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)}
-                              disabled={viewMode}
-                            />
-                          </td>
-                          <td className="p-2 text-center">
-                            {viewMode ? (
-                              <span className="text-sm  text-slate-500 dark:text-slate-400">{item.uom || item.unit || "Nos"}</span>
-                            ) : (
-                              <input 
-                                type="text"
-                                className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-center text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"
-                                value={item.uom || item.unit || "Nos"}
-                                onChange={(e) => handleItemChange(idx, 'uom', e.target.value)}
-                              />
-                            )}
-                          </td>
-                          <td className="p-2 text-center">
-                            <div className="relative">
-                              <input 
-                                type="number"
-                                className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-center text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
-                                value={item.rate_per_kg}
-                                onChange={(e) => handleItemChange(idx, 'rate_per_kg', parseFloat(e.target.value) || 0)}
-                                disabled={viewMode}
-                                placeholder="0.00"
-                              />
+                          <td className="p-2">
+                            <div className="flex flex-col">
+                              {renderDimensionsText(item)}
+                              <span className="text-[10px] text-slate-400 italic">
+                                {item.material_grade} {item.make ? `| Make: ${item.make}` : ""}
+                              </span>
                             </div>
                           </td>
                           <td className="p-2 text-center">
-                            <input 
-                              type="number"
-                              className={`w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-2 text-center text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 transition-all ${viewMode ? 'opacity-80' : ''}`}
-                              value={item.total_weight}
-                              onChange={(e) => handleItemChange(idx, 'total_weight', parseFloat(e.target.value) || 0)}
-                              disabled={viewMode}
-                              placeholder="0.00"
-                            />
+                            {viewMode ? (
+                              <span className="text-xs">{item.quantity}</span>
+                            ) : (
+                              <input 
+                                type="number"
+                                className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
+                                value={item.quantity}
+                                onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)}
+                              />
+                            )}
                           </td>
-                          <td className="p-2 text-right">
-                            <span className=" text-slate-900 dark:text-white text-sm">₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          <td className="p-2 text-center text-xs text-slate-500">
+                            {item.uom || item.unit || "Nos"}
+                          </td>
+                          <td className="p-2 text-center">
+                            {viewMode ? (
+                              <span className="text-xs">₹{item.rate}/{item.total_weight > 0 ? 'kg' : 'unit'}</span>
+                            ) : (
+                              <input 
+                                type="number"
+                                className="w-20 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
+                                placeholder="Rate"
+                                value={item.rate || ""}
+                                onChange={(e) => handleItemChange(idx, 'rate', parseFloat(e.target.value) || 0)}
+                              />
+                            )}
+                          </td>
+                          <td className="p-2 text-center text-xs text-slate-500">
+                            {item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)} Kg` : "-"}
+                          </td>
+                          <td className="p-2 text-right font-medium text-xs">
+                            ₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                           </td>
                           {!viewMode && (
                             <td className="p-2 text-center">
                               <button 
                                 type="button"
                                 onClick={() => handleRemoveItem(idx)}
-                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
+                                className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
                               >
-                                <Trash2 size={15} />
+                                <Trash2 size={14} />
                               </button>
                             </td>
                           )}
@@ -634,18 +1023,6 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   </tbody>
                 </table>
               </div>
-              {!viewMode && (
-                <div className="flex justify-start">
-                  <button 
-                    type="button"
-                    onClick={handleAddItem}
-                    className="flex items-center gap-2 p-2 text-xs  text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded border border-dashed border-blue-200 transition-all"
-                  >
-                    <Plus size={14} />
-                    Add Manual Item
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Bottom Grid */}

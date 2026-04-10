@@ -16,7 +16,7 @@ const getPurchaseOrders = async (req, res) => {
             LEFT JOIN vendors v ON po.vendor_id = v.id
             LEFT JOIN quotations q ON po.quotation_id = q.id
             LEFT JOIN material_requests mr ON q.material_request_id = mr.id
-            LEFT JOIN root_cards rc ON rc.id = COALESCE(q.root_card_id, mr.root_card_id)
+            LEFT JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
             WHERE 1=1
         `;
         const params = [];
@@ -59,7 +59,7 @@ const getPurchaseOrderById = async (req, res) => {
             LEFT JOIN vendors v ON po.vendor_id = v.id
             LEFT JOIN quotations q ON po.quotation_id = q.id
             LEFT JOIN material_requests mr ON q.material_request_id = mr.id
-            LEFT JOIN root_cards rc ON rc.id = COALESCE(q.root_card_id, mr.root_card_id)
+            LEFT JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
             WHERE ${condition}
         `, [id]);
 
@@ -83,7 +83,7 @@ const getPurchaseOrderById = async (req, res) => {
 
 const createPurchaseOrder = async (req, res) => {
     const { 
-        po_number, quotation_id, vendor_id, order_date, expected_delivery_date, 
+        po_number, quotation_id, project_id, vendor_id, order_date, expected_delivery_date, 
         delivery_location, location_link, currency, tax_template, tax_amount, subtotal, 
         total_amount, notes, terms, items 
     } = req.body;
@@ -121,10 +121,10 @@ const createPurchaseOrder = async (req, res) => {
 
         const [result] = await connection.query(
             `INSERT INTO purchase_orders 
-            (po_number, quotation_id, vendor_id, order_date, expected_delivery_date, delivery_location, location_link, currency, tax_template, tax_amount, subtotal, total_amount, notes, terms, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (po_number, quotation_id, project_id, vendor_id, order_date, expected_delivery_date, delivery_location, location_link, currency, tax_template, tax_amount, subtotal, total_amount, notes, terms, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                finalPoNumber, quotation_id || null, vendor_id, order_date, 
+                finalPoNumber, quotation_id || null, project_id || null, vendor_id, order_date, 
                 expected_delivery_date || null, delivery_location || '', 
                 location_link || '',
                 currency || 'INR', tax_template || 'No Tax Template', 
@@ -202,7 +202,7 @@ const createPurchaseOrder = async (req, res) => {
 const updatePurchaseOrder = async (req, res) => {
     const { id } = req.params;
     const { 
-        quotation_id, vendor_id, order_date, expected_delivery_date, 
+        quotation_id, project_id, vendor_id, order_date, expected_delivery_date, 
         delivery_location, location_link, currency, tax_template, tax_amount, 
         subtotal, total_amount, notes, terms, items 
     } = req.body;
@@ -214,12 +214,12 @@ const updatePurchaseOrder = async (req, res) => {
 
         await connection.query(
             `UPDATE purchase_orders 
-            SET quotation_id = ?, vendor_id = ?, order_date = ?, expected_delivery_date = ?, 
+            SET quotation_id = ?, project_id = ?, vendor_id = ?, order_date = ?, expected_delivery_date = ?, 
             delivery_location = ?, location_link = ?, currency = ?, tax_template = ?, tax_amount = ?, 
             subtotal = ?, total_amount = ?, notes = ?, terms = ?
             WHERE id = ?`,
             [
-                quotation_id || null, vendor_id, order_date, expected_delivery_date || null, 
+                quotation_id || null, project_id || null, vendor_id, order_date, expected_delivery_date || null, 
                 delivery_location || '', location_link || '', currency || 'INR', tax_template || 'No Tax Template', 
                 tax_amount || 0, subtotal || 0, total_amount || 0, notes || '', terms || '', id
             ]

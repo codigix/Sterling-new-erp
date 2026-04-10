@@ -32,8 +32,8 @@ const initialBOMState = {
   materials: [],
 };
 
-const UOMOptions = ["Nos", "Kg", "pcs", "m", "l", "set", "Box"];
-const ItemGroupOptions = ["Plates", "round bar", "paint", "Pipe", "Block"];
+const UOMOptions = ["Nos", "Kg", "pcs", "m", "l", "set", "Box", "Packet"];
+const ItemGroupOptions = ["Plates", "round bar", "paint", "Pipe", "Block", "Bought Out"];
 const MaterialTypeOptions = [
   { label: "Mild Steel / Carbon Steel", value: "7.85" },
   { label: "Stainless Steel (304/316)", value: "8.00" },
@@ -781,37 +781,45 @@ const CreateBOMPage = () => {
                         label="Item Group"
                         options={itemGroupSelectOptions}
                         value={newMaterial.itemGroup}
-                        onChange={(val) => setNewMaterial(prev => ({ ...prev, itemGroup: val }))}
+                        onChange={(val) => setNewMaterial(prev => ({ 
+                          ...prev, 
+                          itemGroup: val,
+                          uom: val?.toLowerCase() === "bought out" ? "Packet" : prev.uom
+                        }))}
                         placeholder="Select group"
                         allowCustom={true}
                       />
                     </div>
-                    <div className="md:col-span-3">
-                      <SearchableSelect
-                        label="Material Type (Density)"
-                        options={MaterialTypeOptions}
-                        value={newMaterial.density}
-                        onChange={(val) => {
-                          const selected = MaterialTypeOptions.find(opt => opt.value === val);
-                          setNewMaterial(prev => ({ 
-                            ...prev, 
-                            density: val,
-                            materialType: selected ? selected.label : ""
-                          }));
-                        }}
-                        placeholder="Select material"
-                      />
-                    </div>
-                    <div className="md:col-span-3">
-                      <label className="block text-xs  text-slate-900 dark:text-slate-100   mb-1.5 ml-1">Material Grade</label>
-                      <input
-                        type="text"
-                        value={newMaterial.materialGrade}
-                        onChange={(e) => setNewMaterial(prev => ({ ...prev, materialGrade: e.target.value }))}
-                        placeholder="Grade"
-                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
-                      />
-                    </div>
+                    {newMaterial.itemGroup?.toLowerCase() !== "bought out" && (
+                      <>
+                        <div className="md:col-span-3">
+                          <SearchableSelect
+                            label="Material Type (Density)"
+                            options={MaterialTypeOptions}
+                            value={newMaterial.density}
+                            onChange={(val) => {
+                              const selected = MaterialTypeOptions.find(opt => opt.value === val);
+                              setNewMaterial(prev => ({ 
+                                ...prev, 
+                                density: val,
+                                materialType: selected ? selected.label : ""
+                              }));
+                            }}
+                            placeholder="Select material"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs  text-slate-900 dark:text-slate-100   mb-1.5 ml-1">Material Grade</label>
+                          <input
+                            type="text"
+                            value={newMaterial.materialGrade}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, materialGrade: e.target.value }))}
+                            placeholder="Grade"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
                     {newMaterial.itemGroup?.toLowerCase().includes("plate") && (
                       <>
                         <div className="md:col-span-3">

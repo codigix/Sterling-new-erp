@@ -591,7 +591,7 @@ exports.saveMCR = async (req, res) => {
             (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
             operator_name, operator_id, actual_start, actual_end, break_time, actual_hours, 
             qty_completed, status, remarks) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURTIME(), CURTIME(), 0, 0, ?, "Completed", ?)`,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, SUBTIME(CURTIME(), "00:15:00"), CURTIME(), 0, 0.25, ?, "Completed", ?)`,
             [
               formattedDate, plan_id, a.id, a.root_card_id, a.operation_id, a.operation_name,
               a.operator_name, a.operator_id,
@@ -662,12 +662,18 @@ exports.getLaborEmployeesSummary = async (req, res) => {
       SELECT 
         u.id, 
         u.full_name as name,
-        (SELECT COUNT(DISTINCT root_card_id) FROM daily_production_updates WHERE operator_id = u.id) as total_projects,
-        (SELECT IFNULL(SUM(actual_hours), 0) FROM daily_production_updates WHERE operator_id = u.id) as total_hours,
-        'Active' as status
+        (SELECT COUNT(DISTINCT root_card_id) FROM daily_operator_assignments WHERE operator_id = u.id) as total_projects,
+        (SELECT ROUND(IFNULL(SUM(total_hours), 0), 2) FROM daily_operator_assignments WHERE operator_id = u.id) as total_hours,
+        CASE 
+          WHEN u.role = 'admin' THEN 'Admin'
+          ELSE 'Active'
+        END as status
       FROM users u
-      WHERE u.department = 'Production' OR u.role = 'worker'
+      WHERE 
+        LOWER(u.role) IN ('employee', 'worker')
+        OR u.id IN (SELECT DISTINCT operator_id FROM daily_operator_assignments WHERE total_hours > 0)
       GROUP BY u.id
+      ORDER BY total_hours DESC, name ASC
     `;
     const [rows] = await db.query(query);
     res.json({ success: true, employees: rows });
@@ -682,18 +688,19 @@ exports.getEmployeeLaborLogs = async (req, res) => {
   try {
     const query = `
       SELECT 
-        u.id,
-        u.work_date,
-        u.root_card_id,
+        a.id,
+        p.plan_date as work_date,
+        a.root_card_id,
         rc.project_name,
-        u.operation_name,
-        u.actual_start as start_time,
-        u.actual_end as end_time,
-        u.actual_hours
-      FROM daily_production_updates u
-      LEFT JOIN root_cards rc ON u.root_card_id = rc.id
-      WHERE u.operator_id = ?
-      ORDER BY u.work_date DESC, u.actual_start DESC
+        a.operation_name,
+        a.start_time,
+        a.end_time,
+        a.total_hours as actual_hours
+      FROM daily_operator_assignments a
+      JOIN daily_production_plans p ON a.plan_id = p.id
+      LEFT JOIN root_cards rc ON a.root_card_id = rc.id
+      WHERE a.operator_id = ?
+      ORDER BY p.plan_date DESC, a.start_time DESC
     `;
     const [rows] = await db.query(query, [id]);
     res.json({ success: true, logs: rows });

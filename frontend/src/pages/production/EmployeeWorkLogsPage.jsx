@@ -30,18 +30,19 @@ const EmployeeWorkLogsPage = () => {
   const fetchEmployeesSummary = useCallback(async () => {
     try {
       setLoading(true);
-      // This endpoint will return a list of employees with their total projects and total hours
       const response = await axios.get("/production/labor/employees-summary");
       if (response.data.success) {
-        setEmployees(response.data.employees);
+        // Ensure total_hours and total_projects are numbers to avoid string concatenation
+        const processedEmployees = response.data.employees.map(emp => ({
+          ...emp,
+          total_hours: parseFloat(emp.total_hours) || 0,
+          total_projects: parseInt(emp.total_projects) || 0
+        }));
+        setEmployees(processedEmployees);
       }
     } catch (error) {
       console.error("Error fetching employee summary:", error);
-      // Fallback dummy data for initial testing if API isn't ready
-      setEmployees([
-        { id: 1, name: "John Doe", total_projects: 3, total_hours: 124, status: "Active" },
-        { id: 2, name: "Jane Smith", total_projects: 2, total_hours: 89, status: "Inactive" },
-      ]);
+      setEmployees([]);
     } finally {
       setLoading(false);
     }
@@ -58,11 +59,7 @@ const EmployeeWorkLogsPage = () => {
       }
     } catch (error) {
       console.error("Error fetching employee details:", error);
-      // Fallback dummy data
-      setWorkLogs([
-        { id: 101, work_date: "2026-04-08", project_name: "Solar Tank Assembly", root_card_id: "RC-2026-001", operation_name: "Welding", start_time: "08:00 AM", end_time: "04:00 PM", actual_hours: 8 },
-        { id: 102, work_date: "2026-04-07", project_name: "Industrial Filter", root_card_id: "RC-2026-005", operation_name: "Cutting", start_time: "09:00 AM", end_time: "03:00 PM", actual_hours: 6 },
-      ]);
+      setWorkLogs([]);
     } finally {
       setLoadingDetails(false);
     }
@@ -103,7 +100,7 @@ const EmployeeWorkLogsPage = () => {
           <div>
             <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Total Man-Hours</p>
             <p className="text-xl font-bold text-slate-900 dark:text-white">
-              {employees.reduce((acc, curr) => acc + (curr.total_hours || 0), 0)}
+              {employees.reduce((acc, curr) => acc + (curr.total_hours || 0), 0).toFixed(2)}
             </p>
           </div>
         </div>
