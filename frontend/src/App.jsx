@@ -83,6 +83,7 @@ import ReleasedMaterialsPage from "./pages/production/ReleasedMaterialsPage";
 import ProductionDepartmentTasksPage from "./pages/production/ProductionDepartmentTasksPage";
 import ProductionWorkflowTasksPage from "./pages/production/ProductionWorkflowTasksPage";
 import DailyProductionUpdatesPage from "./pages/production/DailyProductionUpdatesPage";
+import EmployeeWorkLogsPage from "./pages/production/EmployeeWorkLogsPage";
 
 // Employee Portal
 import EmployeePortalPage from "./pages/employee/EmployeePortalPage";
@@ -189,6 +190,7 @@ function App() {
 
                 <Route path="production/plans" element={<DailyProductionPlanningPage />} />
                 <Route path="production/updates" element={<DailyProductionUpdatesPage />} />
+                <Route path="production/employee-work-logs" element={<EmployeeWorkLogsPage />} />
                 <Route path="production/operations" element={<OperationsPage />} />
                 <Route path="production/workstations" element={<WorkstationsPage />} />
                 <Route path="production/workstations/new" element={<WorkstationFormPage />} />

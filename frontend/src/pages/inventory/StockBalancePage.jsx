@@ -58,6 +58,7 @@ const StockBalancePage = () => {
           type: item.material_type || item.category || "RAW_MATERIAL",
           project_name: item.project_name,
           vendor_name: item.vendor_name,
+          item_group: (item.item_group || item.category || "").toUpperCase(),
           unit_weight: item.unit_weight || 0,
           total_weight: item.total_weight || 0,
           length_mm: item.length_mm || item.length,
@@ -238,20 +239,29 @@ const StockBalancePage = () => {
               {filteredData.map((item) => {
     const isExpanded = expandedItem === item.id;
     const renderDimensions = (it, fallback = null) => {
-      const dims = [];
+      const group = (it.item_group || it.category || fallback?.item_group || fallback?.category || "").toUpperCase();
       const l = Number(it.length_mm || it.length || (fallback?.length_mm || fallback?.length || 0));
       const w = Number(it.width_mm || it.width || (fallback?.width_mm || fallback?.width || 0));
       const t = Number(it.thickness_mm || it.thickness || (fallback?.thickness_mm || fallback?.thickness || 0));
       const d = Number(it.diameter_mm || it.diameter || (fallback?.diameter_mm || fallback?.diameter || 0));
       const od = Number(it.outer_diameter_mm || it.outer_diameter || it.outerDiameter || (fallback?.outer_diameter_mm || fallback?.outer_diameter || fallback?.outerDiameter || 0));
-      const h = Number(it.height_mm || it.height || (fallback?.height_mm || fallback?.height || 0));
-
-      if (l) dims.push(`L:${l}`);
-      if (w) dims.push(`W:${w}`);
-      if (t) dims.push(`T:${t}`);
-      if (d) dims.push(`D:${d}`);
-      if (od) dims.push(`OD:${od}`);
-      if (h) dims.push(`H:${h}`);
+      
+      const dims = [];
+      if (group.includes("PIPE") || group.includes("TUBE")) {
+        // Pipes often store OD in width if it's a return
+        const displayOD = od || w;
+        if (displayOD) dims.push(`OD:${displayOD}`);
+        if (t) dims.push(`T:${t}`);
+        if (l) dims.push(`L:${l}`);
+      } else if (group.includes("ROUND") || group.includes("BAR")) {
+        const displayD = d || w;
+        if (displayD) dims.push(`Dia:${displayD}`);
+        if (l) dims.push(`L:${l}`);
+      } else {
+        if (l) dims.push(`L:${l}`);
+        if (w) dims.push(`W:${w}`);
+        if (t) dims.push(`T:${t}`);
+      }
       return dims.length > 0 ? dims.join(" ") : "-";
     };
 

@@ -327,7 +327,6 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     subject: "",
     message: "",
   });
-  const [showCreateOptions, setShowCreateOptions] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedPOForUpload, setSelectedPOForUpload] = useState(null);
   const [uploadingFiles, setUploadingFiles] = useState(false);
@@ -831,52 +830,15 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             <RefreshCw size={15} />
           </button>
           {!isInventoryView && (
-            <div className="relative">
-              <button
-                onClick={() => setShowCreateOptions(!showCreateOptions)}
-                className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
-              >
-                <Plus size={16} /> Create Order
-              </button>
-
-              {showCreateOptions && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded shadow-2xl border border-slate-100 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="p-2 border-b border-slate-50 dark:border-slate-800 mb-1">
-                    <p className="text-xs  text-slate-400  ">
-                      Select PO Type
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setEditPO(null);
-                      setShowCreateModal(true);
-                      setShowCreateOptions(false);
-                    }}
-                    className="w-full text-left p-2 text-xs  text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center gap-3   transition-colors"
-                  >
-                    <div className="p-1.5 bg-blue-50 dark:bg-blue-900/50 text-blue-600 rounded-md">
-                      <FileText size={14} />
-                    </div>
-                    From Quotation
-                  </button>
-                  <button
-                    onClick={() => {
-                      toastUtils.info("Redirecting to Material Requests page...");
-                      setTimeout(() => {
-                        navigate("/inventory/material-requests");
-                      }, 1500);
-                      setShowCreateOptions(false);
-                    }}
-                    className="w-full text-left p-2 text-xs  text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center gap-3   transition-colors"
-                  >
-                    <div className="p-1.5 bg-purple-50 dark:bg-purple-900/50 text-purple-600 rounded-md">
-                      <Package size={14} />
-                    </div>
-                    From Material Request
-                  </button>
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => {
+                setEditPO(null);
+                setShowCreateModal(true);
+              }}
+              className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
+            >
+              <Plus size={16} /> Create Order
+            </button>
           )}
         </div>
       </div>

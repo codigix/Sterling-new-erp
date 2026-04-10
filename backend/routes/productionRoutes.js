@@ -28,4 +28,8 @@ router.get('/mcr/materials', productionController.getReleasedMaterialsForMCR);
 router.get('/mcr/:plan_id', productionController.getMCRDetails);
 router.post('/mcr/save', productionController.saveMCR);
 
+// Labor & Work Log Routes
+router.get('/labor/employees-summary', productionController.getLaborEmployeesSummary);
+router.get('/labor/employee/:id/logs', productionController.getEmployeeLaborLogs);
+
 module.exports = router;

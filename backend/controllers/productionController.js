@@ -433,7 +433,8 @@ exports.saveMCR = async (req, res) => {
 
     for (const piece of pieces) {
       // Find calculation details for this piece
-      const calc = calculations?.find(c => c.serial_number === piece.serial_number) ||
+      const calc = calculations?.find(c => c.temp_id === piece.temp_id) ||
+        calculations?.find(c => c.serial_number === piece.serial_number) ||
         calculations?.find(c => c.item_code === piece.item_code);
 
       // ONLY update inventory if it's a NEW cutting entry
@@ -493,6 +494,12 @@ exports.saveMCR = async (req, res) => {
               let newItemName = piece.item_name;
               if (group.includes("PLATE") || group.includes("SHEET")) {
                 newItemName = `${fL}x${fW}x${fT} mm Plate (OFF-CUT)`;
+              } else if (group.includes("ROUND") || group.includes("BAR")) {
+                newItemName = `Dia ${fW} x ${fL} mm Round Bar (OFF-CUT)`;
+              } else if (group.includes("PIPE") || group.includes("TUBE")) {
+                const od = parseFloat(os.outer_diameter) || fW || 0;
+                const thk = parseFloat(os.thickness) || fT || 0;
+                newItemName = `Ø${od} x ${thk} x ${fL} mm Pipe (OFF-CUT)`;
               }
 
               // 5. Insert New Serial into inventory
@@ -645,6 +652,53 @@ exports.getMCRDetails = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching MCR details:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getLaborEmployeesSummary = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        u.id, 
+        u.full_name as name,
+        (SELECT COUNT(DISTINCT root_card_id) FROM daily_production_updates WHERE operator_id = u.id) as total_projects,
+        (SELECT IFNULL(SUM(actual_hours), 0) FROM daily_production_updates WHERE operator_id = u.id) as total_hours,
+        'Active' as status
+      FROM users u
+      WHERE u.department = 'Production' OR u.role = 'worker'
+      GROUP BY u.id
+    `;
+    const [rows] = await db.query(query);
+    res.json({ success: true, employees: rows });
+  } catch (error) {
+    console.error('Error fetching labor summary:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getEmployeeLaborLogs = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const query = `
+      SELECT 
+        u.id,
+        u.work_date,
+        u.root_card_id,
+        rc.project_name,
+        u.operation_name,
+        u.actual_start as start_time,
+        u.actual_end as end_time,
+        u.actual_hours
+      FROM daily_production_updates u
+      LEFT JOIN root_cards rc ON u.root_card_id = rc.id
+      WHERE u.operator_id = ?
+      ORDER BY u.work_date DESC, u.actual_start DESC
+    `;
+    const [rows] = await db.query(query, [id]);
+    res.json({ success: true, logs: rows });
+  } catch (error) {
+    console.error('Error fetching employee labor logs:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
