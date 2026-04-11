@@ -26,6 +26,29 @@ const EmployeeWorkLogsPage = () => {
   const [dateFilter, setDateFilter] = useState("");
   const [projectSearchTerm, setProjectSearchTerm] = useState("");
 
+  const from24h = (timeStr) => {
+    if (!timeStr) return { time: "", period: "AM" };
+    try {
+      let [hours, minutes] = timeStr.split(':');
+      hours = parseInt(hours);
+      const period = hours >= 12 ? "PM" : "AM";
+      let h12 = hours % 12;
+      if (h12 === 0) h12 = 12;
+      return {
+        time: `${h12.toString().padStart(2, '0')}:${minutes}`,
+        period
+      };
+    } catch (e) {
+      return { time: timeStr, period: "AM" };
+    }
+  };
+
+  const format12h = (timeStr) => {
+    if (!timeStr) return "";
+    const { time, period } = from24h(timeStr);
+    return `${time} ${period}`;
+  };
+
   // Fetch summary of all employees
   const fetchEmployeesSummary = useCallback(async () => {
     try {
@@ -310,13 +333,13 @@ const EmployeeWorkLogsPage = () => {
                     <td className="p-4 text-center">
                       <div className="flex items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                         <Clock size={12} className="text-emerald-500" />
-                        {log.start_time}
+                        {format12h(log.start_time)}
                       </div>
                     </td>
                     <td className="p-4 text-center">
                       <div className="flex items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                         <Clock size={12} className="text-rose-500" />
-                        {log.end_time}
+                        {format12h(log.end_time)}
                       </div>
                     </td>
                     <td className="p-4 text-center">

@@ -106,7 +106,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   });
 
   const to24h = (timeStr, period) => {
-    if (!timeStr) return "";
+    if (!timeStr) return null;
     try {
       let [hours, minutes] = timeStr.split(':');
       hours = parseInt(hours);
