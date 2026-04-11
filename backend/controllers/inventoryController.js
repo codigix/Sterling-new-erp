@@ -254,7 +254,7 @@ const getStockBalance = async (req, res) => {
 
         // Fetch serials for each material
         const materialsWithSerials = await Promise.all(rows.map(async (material) => {
-            let serialQuery = 'SELECT serial_number, status, item_code, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density FROM inventory_serials WHERE item_code LIKE ? AND item_name = ? AND status IN ("Available", "Rejected")';
+            let serialQuery = 'SELECT serial_number, status, item_code, item_name, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density FROM inventory_serials WHERE item_code LIKE ? AND item_name = ? AND status IN ("Available", "Rejected")';
             let serialParams = [`${material.item_code}%`, material.itemName];
 
             if (material.project_name) {

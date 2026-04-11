@@ -497,9 +497,7 @@ exports.saveMCR = async (req, res) => {
               } else if (group.includes("ROUND") || group.includes("BAR")) {
                 newItemName = `Dia ${fW} x ${fL} mm Round Bar (OFF-CUT)`;
               } else if (group.includes("PIPE") || group.includes("TUBE")) {
-                const od = parseFloat(os.outer_diameter) || fW || 0;
-                const thk = parseFloat(os.thickness) || fT || 0;
-                newItemName = `Ø${od} x ${thk} x ${fL} mm Pipe (OFF-CUT)`;
+                newItemName = `Ø${fW} x ${fT} x ${fL} mm Pipe (OFF-CUT)`;
               }
 
               // 5. Insert New Serial into inventory

@@ -239,7 +239,22 @@ const StockBalancePage = () => {
               {filteredData.map((item) => {
     const isExpanded = expandedItem === item.id;
     const renderDimensions = (it, fallback = null) => {
-      const group = (it.item_group || it.category || fallback?.item_group || fallback?.category || "").toUpperCase();
+      const name = (it.name || it.item_name || fallback?.name || fallback?.itemName || "").toUpperCase();
+      let group = (it.item_group || it.category || fallback?.item_group || fallback?.category || "").toUpperCase();
+      
+      // Heuristic - prioritize name if group is generic or missing specific keywords
+      const needsInference = !group || 
+                            group === "UNCATEGORIZED" || 
+                            group === "RAW_MATERIAL" || 
+                            group === "OTHER" ||
+                            (!group.includes("PIPE") && !group.includes("ROUND") && !group.includes("PLATE") && !group.includes("SHEET") && !group.includes("BLOCK") && !group.includes("BAR"));
+
+      if (needsInference) {
+        if (name.includes("PIPE") || name.includes("TUBE")) group = "PIPE";
+        else if (name.includes("ROUND") || name.includes("BAR")) group = "ROUND";
+        else if (name.includes("PLATE") || name.includes("SHEET") || name.includes("BLOCK")) group = "PLATE";
+      }
+
       const l = Number(it.length_mm || it.length || (fallback?.length_mm || fallback?.length || 0));
       const w = Number(it.width_mm || it.width || (fallback?.width_mm || fallback?.width || 0));
       const t = Number(it.thickness_mm || it.thickness || (fallback?.thickness_mm || fallback?.thickness || 0));

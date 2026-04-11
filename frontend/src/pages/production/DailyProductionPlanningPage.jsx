@@ -1396,7 +1396,13 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             item: item,
             entry_no: entry.entry_no,
             remaining: 1,
-            item_group: item.item_group || "PLATE / SHEET",
+            item_group: (() => {
+               if (item.item_group) return item.item_group;
+               const name = (item.item_name || item.material_name || "").toUpperCase();
+               if (name.includes("PIPE") || name.includes("TUBE")) return "PIPE";
+               if (name.includes("ROUND") || name.includes("BAR")) return "ROUND";
+               return "PLATE / SHEET";
+            })(),
             dims: {
               l: Number(serial.length) || Number(item.length) || 0,
               w: Number(serial.width) || Number(item.width) || 0,
@@ -1614,11 +1620,8 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
         entry_no: selectedItem.entry_no,
         return_dims: cuttingForm.return_to_stock ? {
           l: parseFloat(cuttingForm.return_l || 0),
-          w: (selectedItemGroup.includes("ROUND") || selectedItemGroup.includes("BAR")) ? (parseFloat(selectedItem?.dims?.d) || 0) : 
-             ((selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) ? (parseFloat(selectedItem?.dims?.od) || 0) : 
-             parseFloat(cuttingForm.return_w || 0)),
-          t: (selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) ? (parseFloat(selectedItem?.dims?.t) || 0) : 
-             parseFloat(cuttingForm.return_t || 0)
+          w: parseFloat(cuttingForm.return_w || 0),
+          t: parseFloat(cuttingForm.return_t || 0)
         } : null
       }
     };
@@ -1660,7 +1663,10 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       cutting_axis: "L",
       design: "Rectangular",
       diameter: "",
-      return_to_stock: false
+      return_to_stock: false,
+      return_l: "",
+      return_w: "",
+      return_t: ""
     });
     toast.success(`ST Code ${selectedItem.value} added to report`);
   };
@@ -2035,7 +2041,24 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     <div className="md:col-span-6 flex items-center justify-around bg-slate-50 dark:bg-slate-800/50 h-9 rounded-lg border border-slate-100 dark:border-slate-800 px-4">
                       <div className="flex items-center gap-2">
                         <label className="text-xs text-slate-400 font-medium ">Inventory</label>
-                        <input type="checkbox" className="w-4 h-4 text-emerald-600 rounded border-slate-300 cursor-pointer" checked={cuttingForm.return_to_stock} onChange={(e) => setCuttingForm(prev => ({ ...prev, return_to_stock: e.target.checked, return_l: "", return_w: "", return_t: "" }))} />
+                        <input type="checkbox" className="w-4 h-4 text-emerald-600 rounded border-slate-300 cursor-pointer" checked={cuttingForm.return_to_stock} onChange={(e) => {
+                          const checked = e.target.checked;
+                          let rL = "", rW = "", rT = "";
+                          if (checked && remainingInfo) {
+                            rL = remainingInfo.l;
+                            const group = selectedItemGroup;
+                            if (group.includes("PIPE") || group.includes("TUBE")) {
+                              rW = selectedItem?.dims?.od || "";
+                              rT = selectedItem?.dims?.t || "";
+                            } else if (group.includes("ROUND") || group.includes("BAR")) {
+                              rW = selectedItem?.dims?.d || "";
+                            } else {
+                              rW = remainingInfo.w;
+                              rT = remainingInfo.t;
+                            }
+                          }
+                          setCuttingForm(prev => ({ ...prev, return_to_stock: checked, return_l: rL, return_w: rW, return_t: rT }));
+                        }} />
                       </div>
                       <div className="flex items-center gap-2">
                         <label className="text-xs text-slate-400 font-medium ">Consumed?</label>
@@ -2064,15 +2087,15 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
 
                           {(selectedItemGroup.includes("ROUND") || (selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PLATE"))) && (
                             <>
-                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Dia</label><input type="number" placeholder="DIA" className="w-full h-8 bg-emerald-50 border border-emerald-200 rounded px-2 py-1 text-xs" value={selectedItem?.dims?.d || ""} readOnly /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Dia</label><input type="number" placeholder="DIA" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
                               <div className="col-span-2 flex items-center gap-2"><label className="text-xs text-emerald-600">Cut Len</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
                             </>
                           )}
 
                           {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && (
                             <>
-                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">OD</label><input type="number" placeholder="OD" className="w-full h-8 bg-emerald-50 border border-emerald-200 rounded px-2 py-1 text-xs" value={selectedItem?.dims?.od || ""} readOnly /></div>
-                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Thk</label><input type="number" placeholder="T" className="w-full h-8 bg-emerald-50 border border-emerald-200 rounded px-2 py-1 text-xs" value={selectedItem?.dims?.t || ""} readOnly /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">OD</label><input type="number" placeholder="OD" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Thk</label><input type="number" placeholder="T" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_t} onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })} /></div>
                               <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Cut Len</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
                             </>
                           )}
