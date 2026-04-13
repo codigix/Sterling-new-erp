@@ -82,6 +82,7 @@ exports.getDailyPlans = async (req, res) => {
         (SELECT COUNT(DISTINCT root_card_id) FROM daily_operator_assignments WHERE plan_id = p.id) as projects_count,
         (SELECT COUNT(DISTINCT operator_id) FROM daily_operator_assignments WHERE plan_id = p.id) as operators_count,
         (SELECT IFNULL(SUM(total_hours), 0) FROM daily_operator_assignments WHERE plan_id = p.id) as total_workload,
+        (SELECT IFNULL(SUM(scrap_weight), 0) FROM material_cutting_report_items WHERE mcr_id = m.id) as total_scrap_weight,
         m.id as mcr_id
       FROM daily_production_plans p
       LEFT JOIN material_cutting_reports m ON p.id = m.plan_id
@@ -240,6 +241,55 @@ exports.getProductionUpdates = async (req, res) => {
       LEFT JOIN root_cards r ON u.root_card_id = r.id
       ORDER BY u.work_date DESC, u.created_at DESC
     `);
+
+    if (rows.length === 0) {
+      return res.json({ success: true, updates: [] });
+    }
+
+    const rootCardIds = [...new Set(rows.map(row => row.root_card_id?.toLowerCase()).filter(id => id))];
+    console.log('ProductionUpdates - RootCardIds (Normalized):', rootCardIds);
+    
+    if (rootCardIds.length > 0) {
+      // Fetch all operations ever assigned or updated for these root cards
+      const [allOps] = await db.query(`
+        SELECT DISTINCT operation_name, LOWER(root_card_id) as root_card_id
+        FROM (
+          SELECT operation_name, root_card_id FROM daily_operator_assignments
+          UNION
+          SELECT operation_name, root_card_id FROM daily_production_updates
+        ) combined
+        WHERE LOWER(root_card_id) IN (?)
+      `, [rootCardIds]);
+      console.log('ProductionUpdates - Total Unique Operations Discovered:', allOps.length);
+
+      const [allUpdates] = await db.query(`
+        SELECT LOWER(root_card_id) as root_card_id, operation_name, status
+        FROM daily_production_updates
+        WHERE LOWER(root_card_id) IN (?)
+        ORDER BY id ASC
+      `, [rootCardIds]);
+
+      const projectProgress = {};
+      rootCardIds.forEach(id => {
+        const ops = allOps.filter(op => op.root_card_id === id);
+        projectProgress[id] = ops.map(op => {
+          const updates = allUpdates.filter(u => u.root_card_id === id && u.operation_name === op.operation_name);
+          const latestUpdate = updates[updates.length - 1];
+          return {
+            name: op.operation_name,
+            status: latestUpdate ? latestUpdate.status : 'Planned'
+          };
+        });
+      });
+
+      const updatesWithProgress = rows.map(row => ({
+        ...row,
+        project_operations: projectProgress[row.root_card_id?.toLowerCase()] || []
+      }));
+
+      return res.json({ success: true, updates: updatesWithProgress });
+    }
+
     res.json({ success: true, updates: rows });
   } catch (error) {
     console.error('Error fetching production updates:', error);
@@ -268,21 +318,6 @@ exports.createProductionUpdate = async (req, res) => {
     res.json({ success: true, id: result.insertId, message: 'Production update recorded' });
   } catch (error) {
     console.error('Error creating production update:', error);
-    res.status(500).json({ success: false, message: 'Server Error' });
-  }
-};
-
-exports.getProductionUpdates = async (req, res) => {
-  try {
-    const [rows] = await db.query(`
-      SELECT u.*, r.project_name
-      FROM daily_production_updates u
-      LEFT JOIN root_cards r ON u.root_card_id = r.id
-      ORDER BY u.work_date DESC, u.created_at DESC
-    `);
-    res.json({ success: true, updates: rows });
-  } catch (error) {
-    console.error('Error fetching production updates:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };

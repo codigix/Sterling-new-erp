@@ -1317,8 +1317,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
     const options = [];
     
     // selectedItemCode is now our composite key: "item_name_item_code"
-    const [selName] = selectedItemCode.split('_');
-
+    
     materials.forEach((entry) => {
       // Find item that matches BOTH name and code (to distinguish GEN-SIZE items)
       const item = entry.items.find(i => `${i.item_name || i.material_name}_${i.item_code}` === selectedItemCode);
@@ -1722,9 +1721,6 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
         const rawL = entry.full_data.selectedItem?.dims?.l || 0;
         const rawW = entry.full_data.selectedItem?.dims?.w || 0;
         const rawT = entry.full_data.selectedItem?.dims?.t || 0;
-        const rawD = entry.full_data.selectedItem?.dims?.d || 0;
-        const rawOD = entry.full_data.selectedItem?.dims?.od || 0;
-        const density = entry.full_data.selectedItem?.density || 7.85;
         const group = (entry.item_group || "").toUpperCase();
         const isLinear = group.includes("ROUND") || group.includes("BAR") || group.includes("PIPE") || group.includes("TUBE");
         const isCircular = entry.full_data.design === "Circular" && !isLinear;
@@ -1865,6 +1861,12 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                   <Calendar size={10} />
                   {new Date(plan.plan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
+                {reportEntries.length > 0 && (
+                  <span className="bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded text-xs    border border-rose-100 dark:border-rose-900/50 flex items-center gap-1.5">
+                    <Activity size={10} />
+                    Scrap: {reportEntries.reduce((acc, curr) => acc + (parseFloat(curr.scrap_weight) || 0), 0).toFixed(2)} KG
+                  </span>
+                )}
               </div>
               <p className="text-xs  text-slate-500   mt-0.5">{plan.project_names}</p>
             </div>
@@ -2186,12 +2188,13 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     <th className="px-6 py-3 text-center">Cutting Dims (mm)</th>
                     <th className="px-6 py-3 text-center">Weight (KG)</th>
                     <th className="px-6 py-3 text-center">Produced Qty</th>
+                    <th className="px-6 py-3 text-center">Scrap (KG)</th>
                     <th className="px-6 py-3"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 ">
                   {reportEntries.length === 0 ? (
-                    <tr><td colSpan="8" className="px-6 py-12 text-center text-slate-400 text-xs  italic">No items added to report yet. Use the form above.</td></tr>
+                    <tr><td colSpan="9" className="px-6 py-12 text-center text-slate-400 text-xs  italic">No items added to report yet. Use the form above.</td></tr>
                   ) : (
                     reportEntries.map((entry, idx) => (
                       <tr key={entry.id} className="hover:bg-slate-50/50 transition-colors">
@@ -2229,6 +2232,16 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                             {entry.full_data?.produced_qty} NOS
                           </span>
                         </td>
+                        <td className="p-2 text-center">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-xs font-medium text-red-600">
+                              {parseFloat(entry.scrap_weight || 0).toFixed(3)} KG
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              ({parseFloat(entry.scrap_percent || 0).toFixed(1)}%)
+                            </span>
+                          </div>
+                        </td>
                         <td className="p-2 text-right">
                           <button
                             onClick={() => setReportEntries(reportEntries.filter(e => e.id !== entry.id))}
@@ -2241,6 +2254,21 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     ))
                   )}
                 </tbody>
+                {reportEntries.length > 0 && (
+                  <tfoot className="bg-slate-50 border-t-2 border-slate-100 dark:bg-slate-800/50 dark:border-slate-800">
+                    <tr>
+                      <td colSpan="8" className="px-6 py-4 text-right">
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-4">
+                          Total Report Scrap:
+                        </span>
+                        <span className="text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 px-4 py-2 rounded-lg border border-rose-100 dark:border-rose-900/30">
+                          {reportEntries.reduce((acc, curr) => acc + (parseFloat(curr.scrap_weight) || 0), 0).toFixed(3)} KG
+                        </span>
+                      </td>
+                      <td colSpan="2"></td>
+                    </tr>
+                  </tfoot>
+                )}
               </table>
             </div>
 
@@ -2523,13 +2551,14 @@ const DailyProductionPlanningPage = () => {
                     <th className="p-2 text-xs  text-slate-400  ">Project Name</th>
                     <th className="p-2 text-xs  text-slate-400  ">Plan Date</th>
                     <th className="p-2 text-xs  text-slate-400   text-center">Operators</th>
+                    <th className="p-2 text-xs  text-slate-400   text-center">MCR Scrap</th>
                     <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {filteredPlans.length === 0 ? (
                     <tr>
-                      <td colSpan="4" className="px-6 py-12 text-center text-slate-500 text-xs   ">No production plans found</td>
+                      <td colSpan="5" className="px-6 py-12 text-center text-slate-500 text-xs   ">No production plans found</td>
                     </tr>
                   ) : (
                     filteredPlans.map((plan) => (
@@ -2558,6 +2587,15 @@ const DailyProductionPlanningPage = () => {
                           <span className="text-xs  text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                             {plan.operators_count}
                           </span>
+                        </td>
+                        <td className="p-2 text-center">
+                          {plan.mcr_id ? (
+                            <span className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 px-2 py-1 rounded">
+                              {parseFloat(plan.total_scrap_weight || 0).toFixed(2)} KG
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-300 dark:text-slate-700">-</span>
+                          )}
                         </td>
                         <td className="p-2 text-right">
                           <div className="flex items-center justify-end gap-2">
