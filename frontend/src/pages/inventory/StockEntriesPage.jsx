@@ -88,7 +88,7 @@ const StockEntriesPage = () => {
           onClick={() => setIsModalOpen(true)}
           className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   transition-all  shadow-indigo-500/20 flex items-center gap-3"
         >
-          <Plus size={18} />
+          <Plus size={15} />
           Create Entry
         </button>
       </div>
@@ -142,9 +142,9 @@ const StockEntriesPage = () => {
 
         {/* Entries Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse bg-white">
             <thead>
-              <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
+              <tr className=" border-b border-slate-100 dark:border-slate-700">
                 <th className="p-2 text-xs  text-slate-400   w-12 text-center"></th>
                 <th className="p-2 text-xs  text-slate-400  ">Entry Details</th>
                 <th className="p-2 text-xs  text-slate-400  ">Project / Context</th>
@@ -166,7 +166,7 @@ const StockEntriesPage = () => {
                           onClick={() => { setExpandedEntry(isExpanded ? null : entry.id); setExpandedItem(null); }}
                           className={`p-1 rounded transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
                         >
-                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                         </button>
                       </td>
                       <td className="p-2">
@@ -211,7 +211,7 @@ const StockEntriesPage = () => {
                       </td>
                       <td className="p-2 text-right">
                         <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
-                          <MoreVertical size={18} />
+                          <MoreVertical size={15} />
                         </button>
                       </td>
                     </tr>
@@ -313,9 +313,9 @@ const StockEntriesPage = () => {
                                          </tr>
                                          {isItemExpanded && item.serials && item.serials.length > 0 && (
                                            <tr className="bg-slate-50/50 dark:bg-slate-900/20">
-                                             <td colSpan="5" className="p-2">
+                                             <td colSpan="7" className="p-2">
                                                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded  overflow-hidden">
-                                                 <table className="w-full text-left border-collapse">
+                                                 <table className="w-full text-left border-collapse bg-white">
                                                    <thead>
                                                      <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
                                                        <th className="p-2 text-xs  text-slate-400   w-12 text-center">#</th>

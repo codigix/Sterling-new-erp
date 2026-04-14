@@ -65,13 +65,11 @@ const DailyProductionUpdatesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
       {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="max-w-7xl mx-auto mb-2 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-sm text-blue-600">
-            <History size={15} />
-          </div>
+         
           <div>
             <h1 className="text-2xl  text-slate-900 dark:text-white  ">Production Updates</h1>
             <p className="text-xs  text-slate-500   mt-1">Real-time floor execution tracking</p>
@@ -79,7 +77,7 @@ const DailyProductionUpdatesPage = () => {
         </div>
         <button 
           onClick={fetchUpdates}
-          className="px-6 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs    hover:bg-slate-50 transition-all flex items-center gap-2"
+          className=" bg-white dark:bg-slate-900 rounded text-xs    hover:bg-slate-50 transition-all flex items-center gap-2"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Activity size={14} />}
           Refresh Live Data
@@ -88,18 +86,18 @@ const DailyProductionUpdatesPage = () => {
 
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Filters */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-4 items-center">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <div className="relative flex-1 w-full border border-slate-200 rounded">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
             <input 
               type="text" 
-              placeholder="SEARCH BY PROJECT, ROOT CARD, OPERATOR..." 
+              placeholder="Search project, root card, operator......" 
               className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs    outline-none focus:ring-1 focus:ring-blue-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="relative w-full md:w-48">
+          <div className="relative w-full md:w-48 border border-slate-200 rounded">
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
             <input 
               type="date" 
@@ -113,15 +111,15 @@ const DailyProductionUpdatesPage = () => {
               onClick={() => {setSearchTerm(""); setDateFilter("");}}
               className="p-2 text-slate-400 hover:text-rose-500 transition-colors"
             >
-              <X size={18} />
+              <X size={15} />
             </button>
           )}
         </div>
 
         {/* Updates Table */}
-        <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800  overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse bg-white">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                   <th className="p-2 text-xs  text-slate-400  ">Project / Root Card</th>

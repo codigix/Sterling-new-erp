@@ -327,7 +327,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                   (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Root Card ${selectedRootCard.id}`)
                 ) : "Select a root card"}
               </span>
-              <ChevronDown size={18} />
+              <ChevronDown size={15} />
             </button>
 
             {showRootCardDropdown && (
@@ -393,7 +393,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
         <div className="p-6">
           <div className="mb-6 relative">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-3 text-slate-400"
             />
             <input
@@ -480,7 +480,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           className="p-1 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-blue-600 dark:text-blue-400 transition-colors"
                           title="Download"
                         >
-                          <Download size={18} />
+                          <Download size={15} />
                         </button>
                         {item.status !== "Approved" && item.status !== "Final" && (
                           <button
@@ -496,7 +496,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                           className="p-1 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-red-600 dark:text-red-400 transition-colors"
                           title="Delete"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={15} />
                         </button>
                       </td>
                     </tr>

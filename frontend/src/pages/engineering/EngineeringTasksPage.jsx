@@ -146,13 +146,13 @@ const EngineeringTasksPage = () => {
     switch (status) {
       case 'draft':
       case 'pending_approval':
-        return <Clock size={16} />;
+        return <Clock size={15} />;
       case 'approved':
-        return <CheckCircle size={16} />;
+        return <CheckCircle size={15} />;
       case 'rejected':
-        return <AlertCircle size={16} />;
+        return <AlertCircle size={15} />;
       default:
-        return <Clock size={16} />;
+        return <Clock size={15} />;
     }
   };
 
@@ -225,7 +225,7 @@ const EngineeringTasksPage = () => {
               onClick={() => setShowUploadForm(true)}
               className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
             >
-              <Upload size={18} />
+              <Upload size={15} />
               Upload Document
             </button>
           )}
@@ -330,10 +330,10 @@ const EngineeringTasksPage = () => {
                       <td className="p-1">
                         <div className="flex gap-2">
                           <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
-                            <Download size={16} />
+                            <Download size={15} />
                           </button>
                           <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
-                            <Eye size={16} />
+                            <Eye size={15} />
                           </button>
                         </div>
                       </td>
@@ -352,7 +352,7 @@ const EngineeringTasksPage = () => {
             onClick={handleCreateBOMRedirect}
             className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
-            <Plus size={18} />
+            <Plus size={15} />
             Create Comprehensive BOM
           </button>
 
@@ -392,10 +392,10 @@ const EngineeringTasksPage = () => {
                             to={`/department/production/bom/view?bomId=${bom.id}`}
                             className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors"
                           >
-                            <Eye size={16} />
+                            <Eye size={15} />
                           </Link>
                           <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
-                            <Download size={16} />
+                            <Download size={15} />
                           </button>
                         </div>
                       </td>

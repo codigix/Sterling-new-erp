@@ -70,15 +70,15 @@ const RejectedReviewsPage = () => {
 
             <div className="flex gap-3">
               <button className="flex-1 p-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
-                <MessageSquare size={18} />
+                <MessageSquare size={15} />
                 View Feedback
               </button>
               <button className="flex-1 p-2 bg-orange-50 dark:bg-orange-900 text-orange-600 dark:text-orange-400 rounded hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors flex items-center text-xs justify-center gap-2">
-                <Edit size={18} />
+                <Edit size={15} />
                 Create Revision
               </button>
               <button className="p-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
-                <Download size={18} />
+                <Download size={15} />
               </button>
             </div>
           </div>

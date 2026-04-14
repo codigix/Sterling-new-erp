@@ -477,7 +477,7 @@ const GRNProcessingPage = () => {
           </div>
 
           <div className="p-0">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse bg-white">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                   <th className="px-8 py-4 text-xs  text-slate-400  ">Item Name / Group</th>
@@ -571,7 +571,7 @@ const GRNProcessingPage = () => {
   const StatCard = ({ stat }) => {
     const Icon = stat.icon;
     return (
-      <div className={`relative overflow-hidden rounded border p-3.5 transition-all duration-300 hover: ${stat.bgColor} ${stat.borderColor}`}>
+      <div className={`relative overflow-hidden rounded border p-2 transition-all duration-300 hover: ${stat.bgColor} ${stat.borderColor}`}>
         <div className="flex justify-between items-start mb-3">
           <div className={`p-1.5 rounded bg-white dark:bg-slate-800  ${stat.iconColor}`}>
             <Icon size={15} />
@@ -946,7 +946,7 @@ const GRNProcessingPage = () => {
                               <tr className="bg-slate-50/50">
                                 <td colSpan="4" className="p-2">
                                   <div className="bg-white border border-slate-100 rounded  overflow-hidden">
-                                    <table className="w-full text-left border-collapse">
+                                    <table className="w-full text-left border-collapse bg-white">
                                       <thead>
                                         <tr className="bg-slate-50 border-b border-slate-100">
                                           <th className="p-2 text-xs  text-slate-400   w-12 text-center">#</th>

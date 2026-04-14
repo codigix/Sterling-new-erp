@@ -500,7 +500,7 @@ const QCInspectionsPage = () => {
         </div>
         <div className="flex gap-3 flex-wrap">
           {/* <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
-            <Plus size={18} />
+            <Plus size={15} />
             New Inspection
           </button> */}
           <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors ">
@@ -647,7 +647,7 @@ const QCInspectionsPage = () => {
                       {inspection.finalReportId ? (
                         <button
                           onClick={() => navigate("/department/quality/reports")}
-                          className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-xs    transition-all shadow-sm flex items-center gap-2 mx-auto"
+                          className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-xs    transition-all  flex items-center gap-2 mx-auto"
                         >
                           <Eye size={14} />
                           View Report
@@ -655,7 +655,7 @@ const QCInspectionsPage = () => {
                       ) : inspection.qcStatus === 'completed' ? (
                         <button
                           onClick={() => handleShowReport(inspection)}
-                          className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs    transition-all shadow-sm shadow-emerald-200 flex items-center gap-2 mx-auto"
+                          className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs    transition-all  shadow-emerald-200 flex items-center gap-2 mx-auto"
                         >
                           <FileText size={14} />
                           QC Report
@@ -663,7 +663,7 @@ const QCInspectionsPage = () => {
                       ) : (
                         <button
                           onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${inspection.rootCardId}`)}
-                          className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs    transition-all shadow-sm shadow-blue-200"
+                          className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs    transition-all  shadow-blue-200"
                         >
                           Do Inspection
                         </button>
@@ -731,7 +731,7 @@ const QCInspectionsPage = () => {
                   </div>
                 </div>
 
-                <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm">
+                <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-2xl ">
                   <table className="w-full text-left">
                     <thead>
                       <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
@@ -761,7 +761,7 @@ const QCInspectionsPage = () => {
                               <td className="p-2">
                                 <div className="flex items-center gap-3">
                                   <div className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600'}`}>
-                                    <Package size={16} />
+                                    <Package size={15} />
                                   </div>
                                   <div>
                                     <p className="text-xs  text-slate-900 dark:text-white   flex items-center gap-2">
@@ -922,7 +922,7 @@ const QCInspectionsPage = () => {
             <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end gap-4">
               <button 
                 onClick={() => setShowReportModal(false)}
-                className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 rounded text-xs    hover:bg-slate-50 transition-all shadow-sm"
+                className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 rounded text-xs    hover:bg-slate-50 transition-all "
               >
                 Close Report
               </button>
@@ -982,10 +982,10 @@ const QCInspectionsPage = () => {
 
               <div>
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                  <CheckCircle size={18} className="text-blue-600" />
+                  <CheckCircle size={15} className="text-blue-600" />
                   Items Inspection
                 </h3>
-                <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded shadow-sm">
+                <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded ">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
@@ -1032,7 +1032,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center  transition-all shadow-sm"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center  transition-all "
                                 value={item.invoice_quantity}
                                 onChange={(e) =>
                                   handleQuantityChange(
@@ -1048,7 +1048,7 @@ const QCInspectionsPage = () => {
                             <div className="flex justify-center">
                               <input
                                 type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center  transition-all shadow-sm"
+                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center  transition-all "
                                 value={
                                   item.total_received_val !== undefined
                                     ? item.total_received_val
@@ -1098,7 +1098,7 @@ const QCInspectionsPage = () => {
                   </label>
                   <div className="relative">
                     <select
-                      className="w-full pl-4 pr-10 py-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none shadow-sm "
+                      className="w-full pl-4 pr-10 py-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none  "
                       value={inspectionForm.status}
                       onChange={(e) =>
                         setInspectionForm({
@@ -1134,7 +1134,7 @@ const QCInspectionsPage = () => {
                     General Remarks
                   </label>
                   <textarea
-                    className="w-full p-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+                    className="w-full p-2.5 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all "
                     rows="2"
                     placeholder="Enter any overall comments or observations..."
                     value={inspectionForm.remarks}
@@ -1158,9 +1158,9 @@ const QCInspectionsPage = () => {
               </button>
               <button
                 onClick={handleSubmitInspection}
-                className="flex items-center gap-2 px-6 py-2 text-xs  text-white bg-blue-600 hover:bg-blue-700 rounded shadow-sm hover:shadow transition-all"
+                className="flex items-center gap-2 px-6 py-2 text-xs  text-white bg-blue-600 hover:bg-blue-700 rounded  hover:shadow transition-all"
               >
-                <Save size={18} />
+                <Save size={15} />
                 Save Inspection
               </button>
             </div>

@@ -22,14 +22,14 @@ const ProductionPlanningTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 ">
         <div>
           <h2 className="text-lg  text-slate-900 dark:text-white">Released Production Projects</h2>
           <p className="text-slate-500 dark:text-slate-400 text-xs">Projects ready for operation planning and sequencing</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
             <input 
               type="text" 
               placeholder="Search projects..." 
@@ -46,7 +46,7 @@ const ProductionPlanningTab = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {releasedProjects.map((project) => (
-          <div key={project.id} className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+          <div key={project.id} className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden hover:shadow-md transition-shadow">
             <div className="p-5">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">

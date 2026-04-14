@@ -240,7 +240,7 @@ const DashboardHome = () => {
         <div className=" items-center justify-between ">
           <div className="mb-5">
             <h3 className=" text-slate-900 dark:text-white flex items-center gap-2">
-              <BarChart3 size={18} className="text-indigo-500" />
+              <BarChart3 size={15} className="text-indigo-500" />
               Inspection Performance
             </h3>
             <p className="text-xs text-slate-500 mt-1">Weekly volume of inspections completed.</p>

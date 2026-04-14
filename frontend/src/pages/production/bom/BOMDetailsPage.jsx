@@ -281,7 +281,7 @@ const BOMDetailsPage = () => {
           </button>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-xl  text-slate-900">{bom.productName}</h2>
+              <h2 className="text-xl  text-slate-900">{bom.productName} <span className="text-slate-500 font-normal">({bom.productCode})</span></h2>
               <Badge 
                 variant={bom.status === 'active' ? 'success' : bom.status === 'approved' ? 'primary' : 'warning'}
                 className="capitalize px-3 py-1 text-xs"
@@ -465,7 +465,7 @@ const BOMDetailsPage = () => {
           <div className="grid grid-cols-2 gap-8 mb-8">
             <div>
               <h4 className="text-xs   text-slate-500 mb-2">Product Information</h4>
-              <p className="text-lg ">{bom.productName}</p>
+              <p className="text-lg ">{bom.productName} ({bom.productCode})</p>
               <p className="text-sm">Group: {bom.itemGroup}</p>
               <p className="text-sm">Quantity: {bom.quantity} {bom.uom}</p>
             </div>

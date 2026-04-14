@@ -303,7 +303,7 @@ const MaterialRequestPage = () => {
           onClick={() => setShowNewForm(!showNewForm)}
           className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
         >
-          <Plus size={18} />
+          <Plus size={15} />
           New Request
         </button>
       </div>
@@ -560,14 +560,14 @@ const MaterialRequestPage = () => {
                       className="text-blue-600 hover:text-blue-800 transition-colors"
                       title="Add vendor quote"
                     >
-                      <Plus size={16} />
+                      <Plus size={15} />
                     </button>
                     <button
                       onClick={() => handleDeleteRequest(request.id)}
                       className="text-red-600 hover:text-red-800 transition-colors"
                       title="Delete"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={15} />
                     </button>
                   </td>
                 </tr>

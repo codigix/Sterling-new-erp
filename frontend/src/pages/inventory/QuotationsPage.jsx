@@ -942,7 +942,7 @@ const QuotationsPage = ({ defaultTab }) => {
           </select>
 
           <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={18} />
+            <Filter size={15} />
             Advanced Filter
           </button>
         </div>
@@ -1092,7 +1092,7 @@ const QuotationsPage = ({ defaultTab }) => {
                             className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
                             title="Send to Vendor"
                           >
-                            <Mail size={16} />
+                            <Mail size={15} />
                           </button>
                         )}
                         {activeTab === "outbound" && quote.status === "sent" && (
@@ -1105,7 +1105,7 @@ const QuotationsPage = ({ defaultTab }) => {
                             }`}
                             title="View Communications"
                           >
-                            <MessageSquare size={16} />
+                            <MessageSquare size={15} />
                             {quote.unread_communication_count > 0 && (
                               <>
                                 <span className="absolute -top-1 -right-1 flex h-4 w-4 animate-ping rounded bg-red-400 opacity-75"></span>
@@ -1122,7 +1122,7 @@ const QuotationsPage = ({ defaultTab }) => {
                             className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
                             title="Quick Approve"
                           >
-                            <CheckCircle size={16} />
+                            <CheckCircle size={15} />
                           </button>
                         )}
                         {activeTab === "inbound" && (
@@ -1134,14 +1134,14 @@ const QuotationsPage = ({ defaultTab }) => {
                                   className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
                                   title="Create Purchase Order"
                                 >
-                                  <Plus size={16} />
+                                  <Plus size={15} />
                                 </button>
                                 <button
                                   onClick={() => handleViewReceivedQuotation(quote.id)}
                                   className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400 rounded transition-colors"
                                   title="View Received Quotation PDF"
                                 >
-                                  <FileText size={16} />
+                                  <FileText size={15} />
                                 </button>
                               </>
                             )}
@@ -1153,14 +1153,14 @@ const QuotationsPage = ({ defaultTab }) => {
                           className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
                           title="View"
                         >
-                          <Eye size={16} />
+                          <Eye size={15} />
                         </button>
                         <button
                           onClick={() => handleDeleteQuotation(quote.id)}
                           className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
                           title="Delete"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -1320,12 +1320,12 @@ const QuotationsPage = ({ defaultTab }) => {
                 >
                   {sendingEmail ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" />
+                      <Loader2 size={15} className="animate-spin" />
                       Sending...
                     </>
                   ) : (
                     <>
-                      <Mail size={16} />
+                      <Mail size={15} />
                       Send Email
                     </>
                   )}
@@ -1523,12 +1523,12 @@ const QuotationsPage = ({ defaultTab }) => {
                 >
                   {uploading ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" />
+                      <Loader2 size={15} className="animate-spin" />
                       Uploading...
                     </>
                   ) : (
                     <>
-                      <CheckCircle size={16} />
+                      <CheckCircle size={15} />
                       Approve & Upload
                     </>
                   )}

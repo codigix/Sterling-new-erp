@@ -59,7 +59,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
   return (
     <div className="col-span-12 mt-2 mb-4 animate-in slide-in-from-top-2 duration-200">
-      <div className="bg-blue-50/50 border-2 border-blue-200 rounded overflow-hidden shadow-sm">
+      <div className="bg-blue-50/50 border-2 border-blue-200 rounded overflow-hidden ">
         <div className="bg-blue-600 p-2 flex items-center justify-between">
           <div className="flex items-center gap-2 text-white">
             <div className="p-1 bg-white/20 rounded-md">
@@ -72,7 +72,7 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
             onClick={onCancel}
             className="text-white/70 hover:text-white transition-colors"
           >
-            <X size={18} />
+            <X size={15} />
           </button>
         </div>
 

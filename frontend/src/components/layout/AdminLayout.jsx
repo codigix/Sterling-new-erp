@@ -132,7 +132,7 @@ const AdminLayout = () => {
                 className="flex items-center text-xs space-x-3 p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-9 h-9 bg-indigo-600 rounded flex items-center text-xs justify-center shadow-sm">
+                <div className="w-9 h-9 bg-indigo-600 rounded flex items-center text-xs justify-center ">
                   <span className="text-white  text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
@@ -162,14 +162,14 @@ const AdminLayout = () => {
                     to="/profile"
                     className="flex items-center text-xs p-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <User size={16} className="mr-2" />
+                    <User size={15} className="mr-2" />
                     Profile
                   </Link>
                   <Link
                     to="/settings"
                     className="flex items-center text-xs p-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <Settings size={16} className="mr-2" />
+                    <Settings size={15} className="mr-2" />
                     Settings
                   </Link>
                   <div className="border-t border-slate-200 dark:border-slate-700 my-1"></div>
@@ -177,7 +177,7 @@ const AdminLayout = () => {
                     onClick={handleLogout}
                     className="flex items-center text-xs w-full p-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <LogOut size={16} className="mr-2" />
+                    <LogOut size={15} className="mr-2" />
                     Logout
                   </button>
                 </div>
@@ -234,7 +234,7 @@ const AdminLayout = () => {
                             }`}
                           >
                             <IconComponent
-                              size={18}
+                              size={15}
                               className="flex-shrink-0"
                             />
                             {!sidebarCollapsed && (
@@ -243,7 +243,7 @@ const AdminLayout = () => {
                                   {item.title}
                                 </span>
                                 <ChevronDown
-                                  size={16}
+                                  size={15}
                                   className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
                                 />
                               </>
@@ -264,7 +264,7 @@ const AdminLayout = () => {
                                       }`}
                                     >
                                       <SubIconComponent
-                                        size={16}
+                                        size={15}
                                         className="flex-shrink-0"
                                       />
                                       <span className="ml-3">
@@ -286,7 +286,7 @@ const AdminLayout = () => {
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                           }`}
                         >
-                          <IconComponent size={18} className="flex-shrink-0" />
+                          <IconComponent size={15} className="flex-shrink-0" />
                           {!sidebarCollapsed && (
                             <>
                               <span className="ml-3">{item.title}</span>
@@ -313,7 +313,7 @@ const AdminLayout = () => {
                     to="/dashboard"
                     className="flex items-center text-xs px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
-                    <Home size={18} className="flex-shrink-0" />
+                    <Home size={15} className="flex-shrink-0" />
                     {!sidebarCollapsed && (
                       <span className="ml-3">Back to App</span>
                     )}

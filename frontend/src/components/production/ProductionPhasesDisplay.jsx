@@ -110,7 +110,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               onClick={() => setIsAdding(true)}
               className="inline-flex items-center gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
-              <Plus size={18} />
+              <Plus size={15} />
               Add Phase
             </button>
           )}
@@ -153,7 +153,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                       className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
                       title="Delete phase"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={15} />
                     </button>
                   )}
                 </div>

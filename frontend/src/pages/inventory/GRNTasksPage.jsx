@@ -310,7 +310,7 @@ const GRNTasksPage = () => {
                     onClick={() => setShowCreateModal(true)}
                     className="flex items-center gap-2"
                   >
-                    <Plus size={16} />
+                    <Plus size={15} />
                     New Task
                   </Button>
                 </div>
@@ -531,12 +531,12 @@ const GRNTasksPage = () => {
                 >
                   {isCreating ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" />
+                      <Loader2 size={15} className="animate-spin" />
                       Creating...
                     </>
                   ) : (
                     <>
-                      <Plus size={16} />
+                      <Plus size={15} />
                       Create Task
                     </>
                   )}

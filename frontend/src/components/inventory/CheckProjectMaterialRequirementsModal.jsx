@@ -387,12 +387,12 @@ const CheckProjectMaterialRequirementsModal = ({
           >
             {isCreating ? (
               <>
-                <Loader2 size={18} className="animate-spin" />
+                <Loader2 size={15} className="animate-spin" />
                 Creating RFQ...
               </>
             ) : (
               <>
-                <CheckCircle size={18} />
+                <CheckCircle size={15} />
                 Create RFQ Quotation ({selectedMaterials.size})
               </>
             )}

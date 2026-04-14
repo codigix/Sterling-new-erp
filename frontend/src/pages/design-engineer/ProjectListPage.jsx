@@ -141,12 +141,12 @@ const ProjectListPage = () => {
           </div>
 
           {/* Filters */}
-          <div className="bg-white dark:bg-slate-800 rounded shadow-sm p-4 space-y-4">
+          <div className="bg-white dark:bg-slate-800 rounded  p-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
                 <Search
                   className="absolute left-3 top-3 text-slate-400"
-                  size={18}
+                  size={15}
                 />
                 <input
                   type="text"

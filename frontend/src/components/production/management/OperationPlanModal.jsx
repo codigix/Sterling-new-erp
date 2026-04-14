@@ -80,7 +80,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
                     <div className="cursor-move text-slate-300 group-hover:text-slate-500 transition-colors">
                       <GripVertical size={20} />
                     </div>
-                    <div className="w-8 h-8 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center  text-blue-600 text-sm shadow-sm">
+                    <div className="w-8 h-8 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center  text-blue-600 text-sm ">
                       {op.sequence}
                     </div>
                   </div>
@@ -141,7 +141,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
                     onClick={() => removeOperation(op.id)}
                     className="p-2 text-slate-400 hover:text-red-600 transition-colors"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={15} />
                   </button>
                 </div>
               ))}
@@ -158,7 +158,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
                   onClick={addOperation}
                   className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
                 >
-                  <Plus size={18} /> Add First Operation
+                  <Plus size={15} /> Add First Operation
                 </button>
               </div>
             )}
@@ -176,7 +176,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
           <button 
             className="px-8 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2  "
           >
-            <Save size={18} /> Save Sequence
+            <Save size={15} /> Save Sequence
           </button>
         </div>
       </div>

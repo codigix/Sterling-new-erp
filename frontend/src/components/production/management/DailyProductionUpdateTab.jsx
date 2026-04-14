@@ -96,12 +96,12 @@ const DailyProductionUpdateTab = () => {
   return (
     <div className="space-y-6">
       {/* Date and Form Header */}
-      <div className="bg-white dark:bg-slate-800 p-6 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 p-6 rounded border border-slate-200 dark:border-slate-700 ">
         <div className="flex flex-col md:flex-row gap-6 items-end justify-between">
           <div className="w-full md:w-auto space-y-2">
             <label className="text-xs  text-slate-500  tracking-wider">Select Work Date (Previous Day)</label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
               <input 
                 type="date" 
                 className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-48 text-slate-900 dark:text-white"
@@ -116,11 +116,11 @@ const DailyProductionUpdateTab = () => {
               onClick={() => setIsUpdateModalOpen(true)}
               className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors shadow-lg w-full md:w-auto  "
             >
-              <History size={18} />
+              <History size={15} />
               New Work Entry
             </button>
             <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 w-full md:w-auto  ">
-              <Plus size={18} />
+              <Plus size={15} />
               Import Planned Assignments
             </button>
           </div>
@@ -128,7 +128,7 @@ const DailyProductionUpdateTab = () => {
       </div>
 
       {/* Production Update Table */}
-      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden">
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col md:flex-row gap-4 items-center justify-between">
           <h3 className="text-lg  text-slate-900 dark:text-white flex items-center gap-2">
             <PackageCheck size={20} className="text-green-600" />
@@ -136,7 +136,7 @@ const DailyProductionUpdateTab = () => {
           </h3>
           <div className="flex items-center gap-2 w-full md:w-auto">
             <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
               <input 
                 type="text" 
                 placeholder="Search by project or operator..." 
@@ -144,13 +144,13 @@ const DailyProductionUpdateTab = () => {
               />
             </div>
             <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-              <Filter size={16} className="text-slate-500" />
+              <Filter size={15} className="text-slate-500" />
             </button>
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse bg-white">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700">
                 <th className="p-2 text-xs  text-slate-500  tracking-wider">Operator</th>
@@ -228,7 +228,7 @@ const DailyProductionUpdateTab = () => {
                         </button>
                       )}
                       <button className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        <Edit2 size={16} />
+                        <Edit2 size={15} />
                       </button>
                     </div>
                   </td>

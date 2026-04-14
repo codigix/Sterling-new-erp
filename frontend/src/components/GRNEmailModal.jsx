@@ -258,7 +258,7 @@ const GRNEmailModal = ({
             onClick={handleSendEmailAndAdd}
             className="flex items-center gap-2 px-6 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded transition-colors shadow-lg hover:"
           >
-            <Truck size={18} />
+            <Truck size={15} />
             Send Email & Add to Inventory
           </button>
         </div>

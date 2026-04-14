@@ -149,7 +149,7 @@ const SearchableSelect = ({
         className={`
           relative w-full border rounded bg-white dark:bg-slate-700 
           transition-all duration-200 flex items-center
-          ${isOpen ? 'ring-2 ring-blue-500 border-blue-500 shadow-sm' : 'border-slate-200 dark:border-slate-600'}
+          ${isOpen ? 'ring-2 ring-blue-500 border-blue-500 ' : 'border-slate-200 dark:border-slate-600'}
           ${error ? 'border-red-500 ring-red-500' : ''}
           ${disabled ? 'opacity-60 cursor-not-allowed bg-slate-50' : 'cursor-default'}
         `}
@@ -192,7 +192,7 @@ const SearchableSelect = ({
             }}
             className="p-1 text-slate-400 hover:text-slate-500 dark:hover:text-slate-200 transition-colors"
           >
-            <ChevronDown size={16} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={15} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
       </div>

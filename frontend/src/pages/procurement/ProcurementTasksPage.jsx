@@ -229,14 +229,14 @@ const ProcurementTasksPage = () => {
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50"
                     }`}
                 >
-                  <tab.icon size={16} />
+                  <tab.icon size={15} />
                   {tab.label}
                 </button>
               ))}
             </div>
 
             <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={15} />
               <input
                 type="text"
                 placeholder="Search requests..."
@@ -259,7 +259,7 @@ const ProcurementTasksPage = () => {
           {/* Shortage Requests Table */}
           {activeTab === "shortage-requests" && (
             <div className="overflow-x-auto animate-in fade-in duration-500">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse bg-white">
                 <thead>
                   <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs   ">
                     <th className="p-2">Request Details</th>
@@ -318,13 +318,13 @@ const ProcurementTasksPage = () => {
                                 onClick={() => handleViewShortageDetail(req)}
                                 className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 transition-all "
                               >
-                                <Eye size={16} />
+                                <Eye size={15} />
                               </button>
                               <button
                                 onClick={() => handleCreatePOFromShortage(req)}
                                 className="p-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-md shadow-emerald-500/20"
                               >
-                                <Plus size={16} />
+                                <Plus size={15} />
                               </button>
                             </div>
                           </td>
@@ -350,7 +350,7 @@ const ProcurementTasksPage = () => {
           {/* Purchase Requests Table */}
           {activeTab === "pr" && (
             <div className="overflow-x-auto animate-in fade-in duration-500">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse bg-white">
                 <thead>
                   <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs   ">
                     <th className="p-2">PR Number</th>
@@ -392,10 +392,10 @@ const ProcurementTasksPage = () => {
                         <td className="p-2 text-right">
                           <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-all ">
-                              <Eye size={16} />
+                              <Eye size={15} />
                             </button>
                             <button className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition-all">
-                              <Edit2 size={16} />
+                              <Edit2 size={15} />
                             </button>
                           </div>
                         </td>
@@ -409,7 +409,7 @@ const ProcurementTasksPage = () => {
           {/* Purchase Orders Table */}
           {activeTab === "po" && (
             <div className="overflow-x-auto animate-in fade-in duration-500">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse bg-white">
                 <thead>
                   <tr className="bg-slate-50/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs   ">
                     <th className="p-2">Order ID</th>
@@ -455,10 +455,10 @@ const ProcurementTasksPage = () => {
                         <td className="p-2 text-right">
                           <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-all ">
-                              <Eye size={16} />
+                              <Eye size={15} />
                             </button>
                             <button className="p-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-emerald-600 transition-all">
-                              <Download size={16} />
+                              <Download size={15} />
                             </button>
                           </div>
                         </td>
@@ -580,7 +580,7 @@ const ProcurementTasksPage = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs  text-slate-400   flex items-center gap-2">
-                  <Package size={16} />
+                  <Package size={15} />
                   Requested Materials
                 </h4>
                 <span className="text-xs  px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-500  ">
@@ -640,9 +640,9 @@ const ProcurementTasksPage = () => {
               }}
               className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm  transition-all shadow-lg shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2"
             >
-              <ShoppingCart size={18} />
+              <ShoppingCart size={15} />
               Convert to Purchase Order
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </button>
             </div>
           </div>

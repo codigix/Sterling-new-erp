@@ -205,7 +205,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
         </div>
 
         {/* Step Tracker Cards */}
-        <div className="bg-gradient-to-b from-slate-50 to-white rounded  border border-slate-200 shadow-sm">
+        <div className="bg-gradient-to-b from-slate-50 to-white rounded  border border-slate-200 ">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-3">
             {WORKFLOW_STEPS.map((step) => {
               const stepStatus = getStepStatus(step.number);

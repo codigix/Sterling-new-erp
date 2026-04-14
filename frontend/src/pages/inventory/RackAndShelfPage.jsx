@@ -187,11 +187,11 @@ const RackAndShelfPage = () => {
         </div>
         <div className="flex gap-3 flex-wrap">
           <button className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium">
-            <Plus size={18} />
+            <Plus size={15} />
             Add Location
           </button>
           <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Download size={18} />
+            <Download size={15} />
             Export Map
           </button>
         </div>
@@ -202,7 +202,7 @@ const RackAndShelfPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
             />
             <input
@@ -227,7 +227,7 @@ const RackAndShelfPage = () => {
           </select>
 
           <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={18} />
+            <Filter size={15} />
             More Filters
           </button>
         </div>
@@ -266,7 +266,7 @@ const RackAndShelfPage = () => {
                     {rack.item}
                   </p>
                 </div>
-                <Layers size={16} className="text-blue-500" />
+                <Layers size={15} className="text-blue-500" />
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>

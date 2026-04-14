@@ -144,7 +144,7 @@ const StockBalancePage = () => {
             <RefreshCw size={15} />
           </button>
           <button className="flex items-center gap-2 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded  text-xs   hover:bg-slate-800 transition-all  shadow-slate-900/10">
-            <Download size={16} /> Export Data
+            <Download size={15} /> Export Data
           </button>
         </div>
       </div>
@@ -209,7 +209,7 @@ const StockBalancePage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto my-5">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse bg-white">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
                 <th className="p-2 text-xs  text-slate-400   text-center"></th>
@@ -291,7 +291,7 @@ const StockBalancePage = () => {
               }}
               className={`p-1 rounded transition-all ${isExpanded ? 'bg-cyan-100 text-cyan-600' : 'bg-slate-100 text-slate-400'}`}
             >
-              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
             </button>
           </td>
           <td className="p-2">

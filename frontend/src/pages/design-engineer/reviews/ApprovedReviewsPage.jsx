@@ -97,7 +97,7 @@ const ApprovedReviewsPage = () => {
           reviews.map((review) => (
             <div
               key={review.id}
-              className="bg-white dark:bg-slate-800 rounded border border-green-200 dark:border-green-800 p-6 shadow-sm"
+              className="bg-white dark:bg-slate-800 rounded border border-green-200 dark:border-green-800 p-6 "
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -129,7 +129,7 @@ const ApprovedReviewsPage = () => {
               </div>
 
               <div className="bg-green-50 dark:bg-green-900/20 rounded p-3 mb-4 flex items-center text-xs gap-2">
-                <Award size={18} className="text-green-600 dark:text-green-400" />
+                <Award size={15} className="text-green-600 dark:text-green-400" />
                 <span className="text-sm text-green-800 dark:text-green-200">
                   Officially approved and ready for production
                 </span>
@@ -137,11 +137,11 @@ const ApprovedReviewsPage = () => {
 
               <div className="flex gap-3">
                 <button className="flex-1 p-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
-                  <Award size={18} />
+                  <Award size={15} />
                   View Approval
                 </button>
                 <button className="flex-1 p-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors flex items-center text-xs justify-center gap-2">
-                  <Download size={18} />
+                  <Download size={15} />
                   Download
                 </button>
               </div>

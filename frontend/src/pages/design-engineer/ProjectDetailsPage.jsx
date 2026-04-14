@@ -509,12 +509,12 @@ const ProjectDetailsPage = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white dark:bg-slate-800 rounded shadow-sm p-4 space-y-4">
+            <div className="bg-white dark:bg-slate-800 rounded  p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="relative">
                   <Search
                     className="absolute left-3 top-3 text-slate-400"
-                    size={18}
+                    size={15}
                   />
                   <input
                     type="text"
@@ -666,7 +666,7 @@ const ProjectDetailsPage = () => {
                                 className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-500 dark:text-slate-400 transition"
                                 title="View Details"
                               >
-                                <Eye size={16} />
+                                <Eye size={15} />
                               </button>
                             </div>
                           </td>
@@ -701,7 +701,7 @@ const ProjectDetailsPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="w-full mx-auto p-4">
         {/* Header */}
-        <div className="sticky top-0 z-40 bg-white dark:bg-slate-800 shadow-sm rounded border-b border-slate-200 dark:border-slate-700">
+        <div className="sticky top-0 z-40 bg-white dark:bg-slate-800  rounded border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center  justify-between p-3">
             <div className="flex items-center gap-3">
               <div className="w-fit  h-fit p-2 bg-blue-600 rounded flex items-center justify-center">
@@ -726,7 +726,7 @@ const ProjectDetailsPage = () => {
           <Card className="bg-slate-50 dark:bg-slate-900/50 border-blue-200 dark:border-blue-900">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
-                <FileText size={18} className="text-blue-600" />
+                <FileText size={15} className="text-blue-600" />
                 <CardTitle className="text-md">Root Card Reference</CardTitle>
               </div>
             </CardHeader>
@@ -1193,7 +1193,7 @@ const ProjectDetailsPage = () => {
                               <td className="px-4 py-3 text-sm text-slate-900 dark:text-white">
                                 <div className="flex items-center gap-2">
                                   <File
-                                    size={16}
+                                    size={15}
                                     className="text-blue-600 dark:text-blue-400 flex-shrink-0"
                                   />
                                   <span className="truncate">{fileName}</span>
@@ -1212,7 +1212,7 @@ const ProjectDetailsPage = () => {
                                       : "text-slate-400 cursor-not-allowed opacity-50"
                                   }`}
                                 >
-                                  <X size={16} />
+                                  <X size={15} />
                                 </button>
                               </td>
                             </tr>

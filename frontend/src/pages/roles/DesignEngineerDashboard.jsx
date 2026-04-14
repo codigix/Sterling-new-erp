@@ -226,11 +226,11 @@ const DesignEngineerDashboard = () => {
   }
 
   return (
-    <div className="space-y-2 pb-6">
-      <div className="bg-blue-600 dark:bg-blue-700 rounded p-3 text-white shadow-lg">
+    <div className="space-y-2 p-6">
+      <div className="">
         <div className="max-w-2xl">
           <h1 className="text-xl  mb-1">Design Engineering Hub</h1>
-          <p className="text-blue-100 text-xs">
+          <p className=" text-slate-500 text-xs">
             Real-time project and task monitoring
           </p>
         </div>
@@ -242,7 +242,7 @@ const DesignEngineerDashboard = () => {
           return (
             <div
               key={stat.title}
-              className={`group relative overflow-hidden rounded border ${stat.borderColor} bg-white dark:bg-slate-800 shadow-sm  transition-all duration-300`}
+              className={`group relative overflow-hidden rounded border ${stat.borderColor} bg-white dark:bg-slate-800   transition-all duration-300`}
             >
               <div className="relative p-3">
                 <div className="flex items-center text-xs justify-between mb-3">
@@ -288,7 +288,7 @@ const DesignEngineerDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  p-6">
           <div className="mb-6">
             <h3 className="text-md  text-slate-900 dark:text-white  flex items-center gap-2 mb-2">
               <Target size={15} className="text-blue-600 dark:text-blue-400" />
@@ -309,7 +309,7 @@ const DesignEngineerDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  p-6">
           <div className="mb-6">
             <h3 className="text-md  text-slate-900 dark:text-white  flex items-center gap-2 mb-1">
               <Award size={15} className="text-amber-600 dark:text-amber-400" />
@@ -346,8 +346,8 @@ const DesignEngineerDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-2">
-          <div className="flex items-center justify-between mb-5">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  p-2">
+          <div className="flex items-center justify-between pb-2">
             <h3 className="text-xl  text-slate-900 dark:text-white">
               Assigned Root Cards
             </h3>
@@ -413,17 +413,17 @@ const DesignEngineerDashboard = () => {
 
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  p-2">
           <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
             Quick Actions
           </h3>
           <div className="space-y-2.5">
             <Link
               to="/design-engineer/documents/designs"
-              className="flex items-center gap-3 p-3.5 rounded border-2 border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all group"
+              className="flex items-center gap-3 p-2 rounded border-2 border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all group"
             >
-              <Wrench size={18} className="text-blue-600 dark:text-blue-400" />
+              <Wrench size={15} className="text-blue-600 dark:text-blue-400" />
               <div>
                 <p className="text-sm  text-slate-900 dark:text-white">
                   My Designs
@@ -435,10 +435,10 @@ const DesignEngineerDashboard = () => {
             </Link>
             <Link
               to="/department/production/bom/create"
-              className="flex items-center gap-3 p-3.5 rounded border-2 border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 hover:border-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all group"
+              className="flex items-center gap-3 p-2 rounded border-2 border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 hover:border-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all group"
             >
               <BarChart3
-                size={18}
+                size={15}
                 className="text-green-600 dark:text-green-400"
               />
               <div>
@@ -452,10 +452,10 @@ const DesignEngineerDashboard = () => {
             </Link>
             <Link
               to="/design-engineer/department-tasks"
-              className="flex items-center gap-3 p-3.5 rounded border-2 border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-900/20 hover:border-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all group"
+              className="flex items-center gap-3 p-2 rounded border-2 border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-900/20 hover:border-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all group"
             >
               <CheckCircle
-                size={18}
+                size={15}
                 className="text-indigo-600 dark:text-indigo-400"
               />
               <div>
@@ -470,7 +470,7 @@ const DesignEngineerDashboard = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  p-2">
           <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
             Recent Tasks
           </h3>

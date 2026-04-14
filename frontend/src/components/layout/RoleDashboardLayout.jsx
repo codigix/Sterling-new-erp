@@ -89,7 +89,7 @@ const RoleDashboardLayout = ({
                 className="flex items-center text-xs space-x-3 p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center shadow-sm">
+                <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center ">
                   <span className="text-white  text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
@@ -120,7 +120,7 @@ const RoleDashboardLayout = ({
                     onClick={handleLogout}
                     className="flex items-center text-xs w-full p-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <LogOut size={16} className="mr-2" />
+                    <LogOut size={15} className="mr-2" />
                     Logout
                   </button>
                 </div>
@@ -177,7 +177,7 @@ const RoleDashboardLayout = ({
                             }`}
                           >
                             <IconComponent
-                              size={18}
+                              size={15}
                               className="flex-shrink-0"
                             />
                             {!sidebarCollapsed && (
@@ -186,7 +186,7 @@ const RoleDashboardLayout = ({
                                   {item.title}
                                 </span>
                                 <ChevronDown
-                                  size={16}
+                                  size={15}
                                   className={`transition-transform ${
                                     isExpanded ? "rotate-180" : ""
                                   }`}
@@ -209,7 +209,7 @@ const RoleDashboardLayout = ({
                                       }`}
                                     >
                                       <SubIconComponent
-                                        size={16}
+                                        size={15}
                                         className="flex-shrink-0"
                                       />
                                       <span className="ml-3">
@@ -231,7 +231,7 @@ const RoleDashboardLayout = ({
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                           }`}
                         >
-                          <IconComponent size={18} className="flex-shrink-0" />
+                          <IconComponent size={15} className="flex-shrink-0" />
                           {!sidebarCollapsed && (
                             <span className="ml-3">{item.title}</span>
                           )}

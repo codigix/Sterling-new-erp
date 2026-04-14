@@ -415,14 +415,14 @@ const MaterialRequestDetailModal = ({
         {/* Content */}
         <div className="p-6 overflow-y-auto flex-1 bg-slate-50/30 dark:bg-slate-900/50">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  flex flex-col items-center justify-center text-center">
               <Activity size={20} className="text-orange-500 mb-2" />
               <span className="text-xs   text-slate-400 mb-1">
                 Status
               </span>
               {getStatusBadge(request.status)}
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  flex flex-col items-center justify-center text-center">
               <RefreshCw size={20} className="text-blue-500 mb-2" />
               <span className="text-xs   text-slate-400 mb-1">
                 Purpose
@@ -431,7 +431,7 @@ const MaterialRequestDetailModal = ({
                 {request.purpose || "Material Issue"}
               </p>
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  flex flex-col items-center justify-center text-center">
               <Warehouse size={20} className="text-purple-500 mb-2" />
               <span className="text-xs   text-slate-400 mb-1">
                 Department
@@ -440,7 +440,7 @@ const MaterialRequestDetailModal = ({
                 {request.department || "Production"}
               </p>
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  flex flex-col items-center justify-center text-center">
               <User size={20} className="text-green-500 mb-2" />
               <span className="text-xs   text-slate-400 mb-1">
                 Requested By
@@ -449,7 +449,7 @@ const MaterialRequestDetailModal = ({
                 {request.requested_by_name || "System"}
               </p>
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
+            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  flex flex-col items-center justify-center text-center">
               <PlusCircle size={20} className="text-indigo-500 mb-2" />
               <span className="text-xs   text-slate-400 mb-1">
                 Linked PO
@@ -467,7 +467,7 @@ const MaterialRequestDetailModal = ({
             <div className="lg:col-span-2 space-y-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <List size={18} className="text-slate-400" />
+                  <List size={15} className="text-slate-400" />
                   <h3 className="text-sm  text-slate-700 dark:text-slate-300  tracking-wider">
                     Line Items
                   </h3>
@@ -484,7 +484,7 @@ const MaterialRequestDetailModal = ({
                   Refresh Stock
                 </button>
               </div>
-              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden ">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/50 text-xs   text-slate-500 tracking-wider">
@@ -585,10 +585,10 @@ const MaterialRequestDetailModal = ({
 
             {/* Sidebar info */}
             <div className="space-y-2">
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700  space-y-2">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <Warehouse size={18} className="text-slate-400" />
+                    <Warehouse size={15} className="text-slate-400" />
                     <h3 className="text-sm  text-slate-700 dark:text-slate-300  tracking-wider">
                       Fulfillment Source
                     </h3>
@@ -619,7 +619,7 @@ const MaterialRequestDetailModal = ({
 
                 <div className="pt-6 border-t border-slate-100 dark:border-slate-700">
                   <div className="flex items-center gap-2 mb-4">
-                    <FileText size={18} className="text-slate-400" />
+                    <FileText size={15} className="text-slate-400" />
                     <h3 className="text-sm  text-slate-700 dark:text-slate-300  tracking-wider">
                       Request Summary
                     </h3>
@@ -628,7 +628,7 @@ const MaterialRequestDetailModal = ({
                     <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded space-y-3">
                       <div className="flex gap-3">
                         <AlertCircle
-                          size={16}
+                          size={15}
                           className="text-amber-600 mt-0.5"
                         />
                         <p className="text-xs  text-amber-800 dark:text-amber-400 leading-tight">
@@ -645,7 +645,7 @@ const MaterialRequestDetailModal = ({
                     <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded space-y-3">
                       <div className="flex gap-3">
                         <CheckCircle
-                          size={16}
+                          size={15}
                           className="text-emerald-600 mt-0.5"
                         />
                         <p className="text-xs  text-emerald-800 dark:text-emerald-400 leading-tight">
@@ -688,7 +688,7 @@ const MaterialRequestDetailModal = ({
                     
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
-                        <FileText size={16} className="text-emerald-600" />
+                        <FileText size={15} className="text-emerald-600" />
                         <span className="text-xs  text-slate-900 dark:text-white">
                           {request.quotation.quotation_number}
                         </span>
@@ -709,7 +709,7 @@ const MaterialRequestDetailModal = ({
                               Swal.fire("Error", "Failed to view quotation PDF", "error");
                             }
                           }}
-                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs  hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all shadow-sm flex items-center justify-center gap-2"
+                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs  hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all  flex items-center justify-center gap-2"
                         >
                           <Download size={12} />
                           VIEW VENDOR QUOTATION
@@ -729,7 +729,7 @@ const MaterialRequestDetailModal = ({
             onClick={handleDelete}
             className="flex items-center gap-2 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-xs  transition-all"
           >
-            <Trash2 size={16} /> Remove Request
+            <Trash2 size={15} /> Remove Request
           </button>
           <div className="flex gap-3">
             <button
@@ -744,7 +744,7 @@ const MaterialRequestDetailModal = ({
                 disabled={approving}
                 className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700  rounded transition-all text-xs  flex items-center gap-2"
               >
-                {approving ? "Approving..." : "Approve Request"} <CheckCircle size={16} />
+                {approving ? "Approving..." : "Approve Request"} <CheckCircle size={15} />
               </button>
             )}
             {request.status !== "received" &&
@@ -758,7 +758,7 @@ const MaterialRequestDetailModal = ({
                     className={`px-6 py-2 ${!allInStock || request.status !== "approved" ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"}  rounded transition-all text-xs  flex items-center gap-2 disabled:opacity-50`}
                   >
                     {releasing ? "Releasing..." : "Release Material"}{" "}
-                    <ShieldCheck size={16} />
+                    <ShieldCheck size={15} />
                   </button>
                   <button
                     onClick={
@@ -776,7 +776,7 @@ const MaterialRequestDetailModal = ({
                         : allInStock
                           ? "In Stock"
                           : "Create Purchase Order"}{" "}
-                    <PlusCircle size={16} />
+                    <PlusCircle size={15} />
                   </button>
                 </>
               )}
@@ -979,7 +979,7 @@ const MaterialRequestsPage = () => {
     };
 
     return (
-      <div className="py-10 px-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 my-4 mx-8 animate-in slide-in-from-top-4 duration-500 shadow-sm relative">
+      <div className="py-10 px-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 my-4 mx-8 animate-in slide-in-from-top-4 duration-500  relative">
         {localLoading && (
           <div className="absolute inset-0 bg-white/50 dark:bg-slate-800/50 z-20 flex items-center justify-center rounded-2xl">
             <RefreshCw className="animate-spin text-blue-600" size={15} />
@@ -1443,14 +1443,14 @@ const MaterialRequestsPage = () => {
             onClick={fetchMaterialRequests}
             className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50 transition-colors"
           >
-            <RefreshCw size={18} />
+            <RefreshCw size={15} />
             Refresh
           </button>
           <button
             onClick={() => setShowNewRequestModal(true)}
             className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
           >
-            <Plus size={18} />
+            <Plus size={15} />
             New Request
           </button>
         </div>
@@ -1547,7 +1547,7 @@ const MaterialRequestsPage = () => {
             <div className="relative flex-1">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                size={18}
+                size={15}
               />
               <input
                 type="text"
@@ -1574,15 +1574,15 @@ const MaterialRequestsPage = () => {
                 </select>
                 <Filter
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                  size={16}
+                  size={15}
                 />
               </div>
               <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
-                <LayoutGrid size={18} />
+                <LayoutGrid size={15} />
                 Columns
               </button>
               <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
-                <Download size={18} />
+                <Download size={15} />
                 Export
               </button>
             </div>
@@ -1626,7 +1626,7 @@ const MaterialRequestsPage = () => {
                             onClick={() => toggleRow(req.id)}
                             className={`p-1 rounded transition-all ${expandedRows.has(req.id) ? "bg-blue-100 text-blue-600 rotate-180" : "text-slate-400 hover:bg-slate-100"}`}
                           >
-                            <ChevronDown size={18} />
+                            <ChevronDown size={15} />
                           </button>
                         </td>
                         <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
@@ -1654,14 +1654,14 @@ const MaterialRequestsPage = () => {
                               className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
                               title="View Details"
                             >
-                              <Eye size={18} />
+                              <Eye size={15} />
                             </button>
                             <button
                               onClick={() => handleDelete(req.id)}
                               className="p-2 text-slate-400 hover:text-red-600 transition-colors"
                               title="Delete Request"
                             >
-                              <Trash2 size={18} />
+                              <Trash2 size={15} />
                             </button>
                           </div>
                         </td>
@@ -1830,7 +1830,7 @@ const MaterialRequestsPage = () => {
                               <div
                                 className={`p-1.5 rounded ${newRequest.purpose === purpose.id ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700"}`}
                               >
-                                <purpose.icon size={16} />
+                                <purpose.icon size={15} />
                               </div>
                               <span className="text-sm font-medium">
                                 {purpose.id}
@@ -1967,7 +1967,7 @@ const MaterialRequestsPage = () => {
                                     onClick={() => handleRemoveItem(item.id)}
                                     className="p-1 text-slate-400 hover:text-red-500"
                                   >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={15} />
                                   </button>
                                 </td>
                               </tr>
@@ -2025,7 +2025,7 @@ const MaterialRequestsPage = () => {
                     type="submit"
                     className="px-6 py-2 bg-blue-600 text-white  rounded hover:bg-blue-700 flex items-center gap-2"
                   >
-                    <CheckCircle size={18} /> Create Request
+                    <CheckCircle size={15} /> Create Request
                   </button>
                 </div>
               </div>

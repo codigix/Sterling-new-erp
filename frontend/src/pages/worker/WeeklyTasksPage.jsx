@@ -316,14 +316,14 @@ const WeeklyTasksPage = () => {
                       onClick={() => handleProgressUpdate(task.id)}
                       className="flex items-center text-xs gap-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
                     >
-                      <Save size={16} />
+                      <Save size={15} />
                       Save
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
                       className="flex items-center text-xs gap-1 px-3 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded transition-colors"
                     >
-                      <X size={16} />
+                      <X size={15} />
                       Cancel
                     </button>
                   </div>
@@ -347,14 +347,14 @@ const WeeklyTasksPage = () => {
                       }}
                       className="flex items-center text-xs gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
                     >
-                      <Edit2 size={16} />
+                      <Edit2 size={15} />
                       Update Progress
                     </button>
                     <button
                       onClick={() => handleNotificationClick(task)}
                       className="flex items-center text-xs gap-1 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors"
                     >
-                      <MessageSquare size={16} />
+                      <MessageSquare size={15} />
                       Notify
                     </button>
                   </>

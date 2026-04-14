@@ -99,7 +99,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-600/5 to-transparent flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-              <ClipboardList size={16} />
+              <ClipboardList size={15} />
             </div>
             <div>
               <h3 className="text-md text-slate-900 dark:text-white">
@@ -308,7 +308,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 onClick={handlePOProcessing}
                 className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded  text-xs transition-all  shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
               >
-                <ArrowRight size={18} />
+                <ArrowRight size={15} />
                 PO Processing
               </button>
             )}
@@ -317,9 +317,9 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 <button 
                   onClick={() => handleUpdateStatus('cancelled')}
                   disabled={submitting}
-                  className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 rounded  text-sm hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 rounded  text-sm hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all  flex items-center justify-center gap-2"
                 >
-                  <XCircle size={18} />
+                  <XCircle size={15} />
                   Cancel Request
                 </button>
                 <button 
@@ -327,7 +327,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                   disabled={submitting}
                   className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded  text-sm transition-all  shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
                 >
-                  <CheckCircle size={18} />
+                  <CheckCircle size={15} />
                   Approve Request
                 </button>
               </>

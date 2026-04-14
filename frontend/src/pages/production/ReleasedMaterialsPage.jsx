@@ -120,11 +120,11 @@ const ReleasedMaterialsPage = () => {
       label: "ACTIONS",
       render: (_, row) => (
         <button 
-          className="p-1.5 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
+          className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
           title="View Released Items"
           onClick={() => handleViewDetails(row)}
         >
-          <Eye size={18} />
+          <Eye size={15} />
         </button>
       )
     }
@@ -150,14 +150,14 @@ const ReleasedMaterialsPage = () => {
               placeholder="Search by Entry No, Project or Remarks..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              leftIcon={<Search size={18} />}
+              leftIcon={<Search size={15} />}
               className="mb-0"
             />
           </div>
         </div>
       </div>
 
-      <div className="border-none shadow-sm overflow-hidden">
+      <div className="border-none  overflow-hidden">
         <DataTable
           columns={columns}
           data={filteredMovements}
@@ -215,7 +215,7 @@ const ReleasedMaterialsPage = () => {
                   <Badge variant="info">{selectedEntry.items?.length || 0} Items Released</Badge>
                 </div>
 
-                <div className="border border-slate-100 rounded overflow-hidden shadow-sm">
+                <div className="border border-slate-100 rounded overflow-hidden ">
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 text-xs  text-slate-400   border-b border-slate-100">
                       <tr>
@@ -239,7 +239,7 @@ const ReleasedMaterialsPage = () => {
                               <td className="p-2">
                                 <div className="flex items-center gap-3">
                                   <div className={`w-8 h-8 rounded flex items-center justify-center ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`}>
-                                    <Package size={16} />
+                                    <Package size={15} />
                                   </div>
                                   <div>
                                     <p className=" text-slate-900 text-xs  ">{item.item_name}</p>
@@ -279,8 +279,8 @@ const ReleasedMaterialsPage = () => {
                             {isExpanded && item.serials && item.serials.length > 0 && (
                               <tr className="bg-slate-50/50">
                                 <td colSpan="4" className="px-12 py-4">
-                                  <div className="bg-white border border-slate-100 rounded shadow-sm overflow-hidden">
-                                    <table className="w-full text-left border-collapse">
+                                  <div className="bg-white border border-slate-100 rounded  overflow-hidden">
+                                    <table className="w-full text-left border-collapse bg-white">
                                       <thead>
                                         <tr className="bg-slate-50 border-b border-slate-100">
                                           <th className="p-2 text-[8px]  text-slate-400   w-12 text-center">#</th>

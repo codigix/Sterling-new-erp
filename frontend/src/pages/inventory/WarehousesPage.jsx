@@ -158,13 +158,13 @@ const WarehousesPage = () => {
             onClick={fetchWarehouses}
             className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50 transition-colors"
           >
-            <RefreshCw size={18} />
+            <RefreshCw size={15} />
           </button>
           <button 
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 p-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors shadow-sm font-medium"
+            className="flex items-center gap-2 p-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors  font-medium"
           >
-            <Plus size={18} />
+            <Plus size={15} />
             Create Warehouse
           </button>
         </div>
@@ -173,7 +173,7 @@ const WarehousesPage = () => {
       {/* Filters and Search */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-4 mb-6 flex flex-col md:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
             type="text"
             placeholder="Search by name, code, or location..."
@@ -193,7 +193,7 @@ const WarehousesPage = () => {
                 <option key={loc} value={loc}>{loc}</option>
               ))}
             </select>
-            <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+            <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={15} />
           </div>
           <div className="flex border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800">
             <button 
@@ -210,7 +210,7 @@ const WarehousesPage = () => {
             </button>
           </div>
           <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
-            <LayoutGrid size={18} />
+            <LayoutGrid size={15} />
             Columns
           </button>
         </div>
@@ -248,13 +248,13 @@ const WarehousesPage = () => {
                           onClick={() => handleOpenModal(wh)}
                           className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
                         >
-                          <Edit2 size={16} />
+                          <Edit2 size={15} />
                         </button>
                         <button 
                           onClick={() => handleDelete(wh.id)}
                           className="p-2 text-slate-400 hover:text-red-600 transition-colors"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -400,7 +400,7 @@ const WarehousesPage = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors font-medium shadow-sm"
+                  className="px-6 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors font-medium "
                 >
                   {editingId ? "Update Warehouse" : "Create Warehouse"}
                 </button>

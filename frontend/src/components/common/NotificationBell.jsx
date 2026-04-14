@@ -23,34 +23,34 @@ const NotificationBell = () => {
       case 'success':
         return {
           bg: 'bg-emerald-50/50 dark:bg-emerald-900/10',
-          icon: <CheckCircle2 size={16} className="text-emerald-500" />,
+          icon: <CheckCircle2 size={15} className="text-emerald-500" />,
           border: 'border-emerald-100'
         };
       case 'critical':
       case 'error':
         return {
           bg: 'bg-red-50/50 dark:bg-red-900/10',
-          icon: <AlertTriangle size={16} className="text-red-500" />,
+          icon: <AlertTriangle size={15} className="text-red-500" />,
           border: 'border-red-100'
         };
       case 'warning':
       case 'on_hold':
         return {
           bg: 'bg-amber-50/50 dark:bg-amber-900/10',
-          icon: <AlertTriangle size={16} className="text-amber-500" />,
+          icon: <AlertTriangle size={15} className="text-amber-500" />,
           border: 'border-amber-100'
         };
       case 'task_assigned':
       case 'info':
         return {
           bg: 'bg-blue-50/50 dark:bg-blue-900/10',
-          icon: <Info size={16} className="text-blue-500" />,
+          icon: <Info size={15} className="text-blue-500" />,
           border: 'border-blue-100'
         };
       default:
         return {
           bg: 'bg-slate-50/50 dark:bg-slate-800/50',
-          icon: <Bell size={16} className="text-slate-500" />,
+          icon: <Bell size={15} className="text-slate-500" />,
           border: 'border-slate-100'
         };
     }

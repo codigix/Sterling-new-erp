@@ -22,7 +22,7 @@ const Button = ({
     warning: 'bg-amber-600 hover:bg-amber-700 text-white focus:ring-amber-500 ',
     light: 'bg-slate-50 hover:bg-slate-100 border border-slate-200 focus:ring-primary-500',
     ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 focus:ring-slate-500',
-    destructive: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm'
+    destructive: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 '
   };
 
   const sizes = {

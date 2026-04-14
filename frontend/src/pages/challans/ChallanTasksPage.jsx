@@ -177,14 +177,14 @@ const ChallanTasksPage = () => {
         </div>
         <div className="flex gap-2">
           <button className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
-            <Filter size={18} />
+            <Filter size={15} />
             Filter
           </button>
           <button
             onClick={() => setShowNewChallan(!showNewChallan)}
             className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
-            <Plus size={18} />
+            <Plus size={15} />
             New Challan
           </button>
         </div>
@@ -314,13 +314,13 @@ const ChallanTasksPage = () => {
                   <td className="p-1">
                     <div className="flex gap-2">
                       <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
-                        <Eye size={16} />
+                        <Eye size={15} />
                       </button>
                       <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
-                        <Edit2 size={16} />
+                        <Edit2 size={15} />
                       </button>
                       <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
-                        <Download size={16} />
+                        <Download size={15} />
                       </button>
                     </div>
                   </td>

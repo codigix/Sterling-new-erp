@@ -136,7 +136,7 @@ const PendingReviewsPage = () => {
 
               <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded p-3 mb-4 flex items-center text-xs gap-2">
                 <Clock
-                  size={18}
+                  size={15}
                   className="text-yellow-600 dark:text-yellow-400"
                 />
                 <span className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -146,7 +146,7 @@ const PendingReviewsPage = () => {
 
               <div className="flex gap-3">
                 <button className="flex-1 p-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2">
-                  <MessageSquare size={18} />
+                  <MessageSquare size={15} />
                   View Comments
                 </button>
                 <button 
@@ -155,9 +155,9 @@ const PendingReviewsPage = () => {
                   className="flex-1 p-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center text-xs justify-center gap-2 disabled:opacity-50"
                 >
                   {actionLoading === review.id ? (
-                    <Loader2 size={18} className="animate-spin" />
+                    <Loader2 size={15} className="animate-spin" />
                   ) : (
-                    <CheckCircle size={18} />
+                    <CheckCircle size={15} />
                   )}
                   Approve Design
                 </button>

@@ -780,11 +780,11 @@ const CreateProjectPage = () => {
                     {uploadedFiles.references.map((file, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-3 rounded hover:shadow-sm transition"
+                        className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-3 rounded hover: transition"
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <File
-                            size={16}
+                            size={15}
                             className="text-blue-600 dark:text-blue-400 flex-shrink-0"
                           />
                           <span className="text-xs text-slate-900 dark:text-white truncate">
@@ -795,7 +795,7 @@ const CreateProjectPage = () => {
                           onClick={() => removeFile(idx)}
                           className="flex-shrink-0 ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-400 cursor-pointer"
                         >
-                          <X size={16} />
+                          <X size={15} />
                         </button>
                       </div>
                     ))}

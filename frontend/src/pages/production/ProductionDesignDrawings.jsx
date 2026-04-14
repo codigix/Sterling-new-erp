@@ -103,14 +103,14 @@ const ProductionDesignDrawings = () => {
         <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded border border-slate-200 dark:border-slate-700">
           <button
             onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-white dark:bg-slate-700 shadow-sm text-green-600" : "text-slate-500 hover:text-slate-700"}`}
+            className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-white dark:bg-slate-700  text-green-600" : "text-slate-500 hover:text-slate-700"}`}
             title="Grid View"
           >
             <LayoutGrid size={15} />
           </button>
           <button
             onClick={() => setViewMode("list")}
-            className={`p-2 rounded-md transition-all ${viewMode === "list" ? "bg-white dark:bg-slate-700 shadow-sm text-green-600" : "text-slate-500 hover:text-slate-700"}`}
+            className={`p-2 rounded-md transition-all ${viewMode === "list" ? "bg-white dark:bg-slate-700  text-green-600" : "text-slate-500 hover:text-slate-700"}`}
             title="List View"
           >
             <List size={15} />
@@ -208,9 +208,9 @@ const ProductionDesignDrawings = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse bg-white">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                   <th className="p-2  text-xs  text-slate-500  ">Drawing Name</th>
@@ -259,7 +259,7 @@ const ProductionDesignDrawings = () => {
                           className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
                           title="Download"
                         >
-                          <Download size={18} />
+                          <Download size={15} />
                         </button>
                       </div>
                     </td>

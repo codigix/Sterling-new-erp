@@ -197,7 +197,7 @@ const RootCardDetailPage = () => {
 
       {error && (
         <div className="rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300 flex items-start gap-3">
-          <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+          <AlertCircle size={15} className="flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-medium">{error}</p>
           </div>
@@ -209,7 +209,7 @@ const RootCardDetailPage = () => {
           onClick={() => setIsEditing(!isEditing)}
           className="flex items-center gap-2 p-2 rounded text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
         >
-          <Edit size={18} />
+          <Edit size={15} />
           {isEditing ? 'Cancel' : 'Edit'}
         </button>
         {card.status === 'planning' && (
@@ -217,7 +217,7 @@ const RootCardDetailPage = () => {
             onClick={handleStartProduction}
             className="flex items-center gap-2 p-2 rounded text-xs bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
           >
-            <Play size={18} />
+            <Play size={15} />
             Start Production
           </button>
         )}
@@ -225,7 +225,7 @@ const RootCardDetailPage = () => {
           onClick={handleDelete}
           className="flex items-center gap-2 p-2 rounded text-xs bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
         >
-          <Trash2 size={18} />
+          <Trash2 size={15} />
           Delete
         </button>
       </div>
@@ -398,7 +398,7 @@ const RootCardDetailPage = () => {
                   onClick={() => setIsAddingStage(true)}
                   className="flex items-center gap-2 p-2 rounded text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors text-sm"
                 >
-                  <Plus size={16} />
+                  <Plus size={15} />
                   Add Phase
                 </button>
               )}
@@ -534,7 +534,7 @@ const RootCardDetailPage = () => {
                       onClick={() => handleDeleteStage(stage.id)}
                       className="ml-4 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex-shrink-0"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 ))}
@@ -549,28 +549,28 @@ const RootCardDetailPage = () => {
             <div className="space-y-4">
               <div>
                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
-                  <User size={16} />
+                  <User size={15} />
                   Supervisor
                 </div>
                 <p className="font-medium text-slate-900 dark:text-white">{card.assigned_supervisor_name || '-'}</p>
               </div>
               <div>
                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
-                  <Package size={16} />
+                  <Package size={15} />
                   Customer
                 </div>
                 <p className="font-medium text-slate-900 dark:text-white">{card.customer_name || '-'}</p>
               </div>
               <div>
                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
-                  <Tag size={16} />
+                  <Tag size={15} />
                   Project
                 </div>
                 <p className="font-medium text-slate-900 dark:text-white">{card.project_name || '-'}</p>
               </div>
               <div>
                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
-                  <Calendar size={16} />
+                  <Calendar size={15} />
                   Created
                 </div>
                 <p className="text-sm text-slate-500 dark:text-slate-400">

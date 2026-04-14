@@ -290,7 +290,7 @@ const PurchaseReceiptPage = () => {
     return (
       <div className={`relative overflow-hidden rounded border p-5 transition-all duration-300 ${isActive ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:'} ${stat.bgColor} ${stat.borderColor}`}>
         <div className="flex justify-between items-start mb-4">
-          <div className={`p-2 rounded bg-white dark:bg-slate-800 shadow-sm ${stat.iconColor}`}>
+          <div className={`p-2 rounded bg-white dark:bg-slate-800  ${stat.iconColor}`}>
             <Icon size={20} />
           </div>
           {isActive && (
@@ -339,7 +339,7 @@ const PurchaseReceiptPage = () => {
         </div>
 
         <div className="flex items-center gap-3 w-full lg:w-auto">
-          <div className="flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 rounded shadow-sm">
+          <div className="flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 rounded ">
             <button 
               onClick={() => setViewMode("kanban")}
               className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs  transition-all ${viewMode === "kanban" ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-700"}`}
@@ -358,14 +358,14 @@ const PurchaseReceiptPage = () => {
             onClick={fetchGRNs}
             className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:text-blue-600 transition-all hover:"
           >
-            <RefreshCw size={18} />
+            <RefreshCw size={15} />
           </button>
           
           <button
             onClick={handleNewGRNClick}
             className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-lg shadow-blue-200 dark:shadow-none transition-all hover:-translate-y-0.5  text-xs  tracking-wider"
           >
-            <Plus size={18} />
+            <Plus size={15} />
             CREATE GRN
           </button>
         </div>
@@ -383,7 +383,7 @@ const PurchaseReceiptPage = () => {
       </div>
 
       {/* Tabs and Content Section */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden ">
         {/* Tabs */}
         <div className="px-6 pt-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between flex-wrap gap-4">
           <div className="flex gap-1">
@@ -391,13 +391,13 @@ const PurchaseReceiptPage = () => {
               onClick={() => setActiveTab("grn_request")}
               className={`p-2.5 rounded-t-xl text-xs   tracking-wider transition-all border-b-2 flex items-center gap-2 ${activeTab === "grn_request" ? "border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/20" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
-              <FileText size={16} /> GRN Request
+              <FileText size={15} /> GRN Request
             </button>
             <button 
               onClick={() => setActiveTab("available_stocks")}
               className={`p-2.5 rounded-t-xl text-xs   tracking-wider transition-all border-b-2 flex items-center gap-2 ${activeTab === "available_stocks" ? "border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/20" : "border-transparent text-slate-500 hover:text-slate-700"}`}
             >
-              <Package size={16} /> Available Stocks
+              <Package size={15} /> Available Stocks
             </button>
           </div>
         </div>
@@ -406,7 +406,7 @@ const PurchaseReceiptPage = () => {
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1 relative group">
               <Search
-                size={18}
+                size={15}
                 className="absolute left-3 top-3 text-slate-400 group-focus-within:text-blue-500 transition-colors"
               />
               <input
@@ -436,14 +436,14 @@ const PurchaseReceiptPage = () => {
               )}
               
               <button className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400 hover:bg-slate-200 transition-colors">
-                <Filter size={18} />
+                <Filter size={15} />
               </button>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             {activeTab === "grn_request" ? (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse bg-white">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900/50">
                     <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
@@ -534,7 +534,7 @@ const PurchaseReceiptPage = () => {
                 </tbody>
               </table>
             ) : (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse bg-white">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900/50">
                     <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
@@ -671,7 +671,7 @@ const PurchaseReceiptPage = () => {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-slate-900 dark:text-white">
-                  <Package size={18} className="text-blue-600" />
+                  <Package size={15} className="text-blue-600" />
                   <h3 className="text-sm   tracking-wider">Received Items</h3>
                 </div>
                 <div className="border border-slate-100 dark:border-slate-800 rounded overflow-hidden">
@@ -730,7 +730,7 @@ const PurchaseReceiptPage = () => {
                 onClick={() => handlePrintGRN(selectedGRN)}
                 className="flex items-center gap-1.5 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded  text-xs  tracking-wider  transition-all active:scale-95"
               >
-                <Printer size={16} /> Print GRN
+                <Printer size={15} /> Print GRN
               </button>
               <button 
                 onClick={() => setShowViewModal(false)}

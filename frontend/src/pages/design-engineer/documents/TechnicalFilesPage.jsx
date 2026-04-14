@@ -192,7 +192,7 @@ const TechnicalFilesPage = () => {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-3 text-slate-400"
             />
             <input
@@ -273,7 +273,7 @@ const TechnicalFilesPage = () => {
                   </td>
                   <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                     <div className="flex items-center gap-2">
-                      <Calendar size={16} />
+                      <Calendar size={15} />
                       {new Date(file.createdAt || file.date).toLocaleDateString()}
                     </div>
                   </td>
@@ -283,21 +283,21 @@ const TechnicalFilesPage = () => {
                       className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-blue-600 dark:text-blue-400 transition-colors"
                       title="View"
                     >
-                      <Eye size={18} />
+                      <Eye size={15} />
                     </button>
                     <button
                       onClick={() => handleDownloadFile(file)}
                       className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-green-600 dark:text-green-400 transition-colors"
                       title="Download"
                     >
-                      <Download size={18} />
+                      <Download size={15} />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(file)}
                       className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded text-red-600 dark:text-red-400 transition-colors"
                       title="Delete"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={15} />
                     </button>
                   </td>
                 </tr>
@@ -388,7 +388,7 @@ const TechnicalFilesPage = () => {
                       onClick={() => setUploadedFile(null)}
                       className="text-red-600 hover:text-red-700"
                     >
-                      <X size={16} />
+                      <X size={15} />
                     </button>
                   </div>
                 )}
@@ -412,7 +412,7 @@ const TechnicalFilesPage = () => {
                 disabled={creating}
                 className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {creating && <Loader2 size={16} className="animate-spin" />}
+                {creating && <Loader2 size={15} className="animate-spin" />}
                 Upload File
               </button>
             </div>
@@ -509,7 +509,7 @@ const TechnicalFilesPage = () => {
                 disabled={deleteLoading}
                 className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {deleteLoading && <Loader2 size={16} className="animate-spin" />}
+                {deleteLoading && <Loader2 size={15} className="animate-spin" />}
                 Delete
               </button>
             </div>

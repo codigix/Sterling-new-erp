@@ -10,7 +10,7 @@ const Table = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-white rounded shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded  border border-slate-200 overflow-hidden">
         <div className="p-8 text-center">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-slate-200 rounded w-3/4 mx-auto"></div>
@@ -24,7 +24,7 @@ const Table = ({
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded  border border-slate-200 overflow-hidden">
         <div className="p-8 text-center text-slate-500">
           {emptyMessage}
         </div>
@@ -33,7 +33,7 @@ const Table = ({
   }
 
   return (
-    <div className={`bg-white rounded shadow-sm border border-slate-200 overflow-hidden ${className}`} {...props}>
+    <div className={`bg-white rounded  border border-slate-200 overflow-hidden ${className}`} {...props}>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">

@@ -83,9 +83,9 @@ const LoginPage = () => {
         <img src="/logo.png" alt="Sterling Logo" className="h-10 w-auto mx-auto mb-1" />
       </div>
 
-      <div className="w-full max-w-md bg-white rounded shadow-sm border border-slate-200 p-5">
+      <div className="w-full max-w-md bg-white rounded  border border-slate-200 p-5">
         <div className="flex bg-slate-100 p-1 rounded-md mb-4">
-          <button className="flex-1 py-1.5 text-xs font-medium rounded bg-white text-blue-600 shadow-sm">
+          <button className="flex-1 py-1.5 text-xs font-medium rounded bg-white text-blue-600 ">
             Sign In
           </button>
           <Link to="/register" className="flex-1 py-1.5 text-xs font-medium rounded text-slate-500 hover:text-slate-700 text-center">
@@ -175,7 +175,7 @@ const LoginPage = () => {
                 key={item.label}
                 type="button"
                 onClick={() => setFormData({ username: item.email, password: item.password })}
-                className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-md hover:border-blue-400 hover:shadow-sm transition-all text-center group"
+                className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-md hover:border-blue-400 hover: transition-all text-center group"
               >
                 <span className="text-xs font-medium text-slate-700 group-hover:text-blue-600">
                   {item.label}

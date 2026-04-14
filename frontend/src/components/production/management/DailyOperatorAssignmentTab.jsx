@@ -25,7 +25,7 @@ const DailyOperatorAssignmentTab = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 ">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-blue-600 text-white rounded shadow-lg shadow-blue-600/20">
             <CalendarClock size={15} />
@@ -37,7 +37,7 @@ const DailyOperatorAssignmentTab = () => {
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={15} />
             <input 
               type="date" 
               className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm  outline-none focus:ring-2 focus:ring-blue-500 "
@@ -49,12 +49,12 @@ const DailyOperatorAssignmentTab = () => {
             onClick={() => setIsModalOpen(true)}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs  transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
           >
-            <Plus size={16} /> New Assignment
+            <Plus size={15} /> New Assignment
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
           <h3 className="text-xs  text-slate-500 dark:text-slate-400  ">Active Assignments for {selectedDate}</h3>
           <div className="flex gap-4 items-center">
@@ -68,7 +68,7 @@ const DailyOperatorAssignmentTab = () => {
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse bg-white">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-700">
                 <th className="p-2 text-xs  text-slate-400  ">Project & Operation</th>
@@ -104,7 +104,7 @@ const DailyOperatorAssignmentTab = () => {
                   </td>
                   <td className="p-2 text-right">
                     <button className="p-2 text-slate-300 hover:text-red-500 transition-colors">
-                      <X size={16} />
+                      <X size={15} />
                     </button>
                   </td>
                 </tr>

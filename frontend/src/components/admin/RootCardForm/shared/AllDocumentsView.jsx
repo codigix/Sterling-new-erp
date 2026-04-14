@@ -107,7 +107,7 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
                       className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                       title="View File"
                     >
-                      <ExternalLink size={16} />
+                      <ExternalLink size={15} />
                     </a>
                   )}
                   {/* We don't provide delete here to maintain step-specific control, 

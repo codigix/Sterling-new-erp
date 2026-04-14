@@ -244,9 +244,9 @@ const DashboardContent = React.memo(({
                         }`}
                       >
                         {stat.positive ? (
-                          <TrendingUp size={16} />
+                          <TrendingUp size={15} />
                         ) : (
-                          <TrendingDown size={16} />
+                          <TrendingDown size={15} />
                         )}
                         {stat.change}
                       </p>

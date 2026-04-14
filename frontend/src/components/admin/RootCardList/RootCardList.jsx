@@ -334,7 +334,7 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
         {isAdmin && (
           <Button
             onClick={onCreateNew}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all h-10 px-4"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white  transition-all h-10 px-4"
           >
             <Plus className="w-4 h-4" />
             <span className="font-semibold">New Root Card</span>

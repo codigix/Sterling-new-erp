@@ -136,7 +136,7 @@ const ProductionDashboard = () => {
                   {stat.value}
                 </p>
                 <p
-                  className={`text-sm mt-2 ${
+                  className={`text-xs mt-2 ${
                     stat.positive ? "text-green-600" : "text-red-600"
                   }`}
                 >
@@ -253,7 +253,7 @@ const ProductionDashboard = () => {
             {plans.filter(p => p.status !== 'completed').slice(0, 3).map((plan, idx) => (
               <div
                 key={plan.id}
-                className="border-l-4 border-blue-500 bg-slate-50 dark:bg-slate-900/50 p-2 rounded hover: transition-all"
+                className="border-l-2 border-blue-500 bg-slate-50 dark:bg-slate-900/50 p-2 rounded hover: transition-all"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1 min-w-0">
@@ -265,7 +265,7 @@ const ProductionDashboard = () => {
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-0.5 text-xs rounded    ${
+                    className={`p-1 text-xs rounded    ${
                       plan.status === "in_progress"
                         ? "bg-blue-100 text-blue-700"
                         : plan.status === "delayed"
@@ -277,12 +277,12 @@ const ProductionDashboard = () => {
                   </span>
                 </div>
                 
-                <div className="mt-4 space-y-2">
+                <div className=" space-y-2">
                   <div className="flex justify-between text-xs  text-slate-500">
-                    <span>PROGRESS</span>
+                    <span>Progress</span>
                     <span>{plan.progress_percentage || 0}%</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1.5 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1 overflow-hidden">
                     <div
                       className={`h-full rounded  ${plan.status === 'delayed' ? 'bg-red-500' : 'bg-blue-600'}`}
                       style={{ width: `${plan.progress_percentage || 0}%` }}
@@ -290,7 +290,7 @@ const ProductionDashboard = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between my-2">
                   <div className="flex items-center gap-1.5 text-xs text-slate-500">
                     <Clock size={12} />
                     <span>Ends {plan.end_date ? new Date(plan.end_date).toLocaleDateString() : 'TBD'}</span>
@@ -299,7 +299,7 @@ const ProductionDashboard = () => {
                     to={`/department/production/plans/${plan.id}`}
                     className="text-xs  text-blue-600 hover:text-blue-700"
                   >
-                    DETAILS
+                    Details
                   </Link>
                 </div>
               </div>

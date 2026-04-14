@@ -147,7 +147,7 @@ const QCTasksPage = () => {
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
             type="text"
             placeholder="Search reports..."
@@ -232,7 +232,7 @@ const QCTasksPage = () => {
                       className="p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-emerald-600 rounded transition-all"
                       title="Download PDF"
                     >
-                      <Download size={18} />
+                      <Download size={15} />
                     </button>
                     <button 
                       onClick={(e) => {
@@ -242,7 +242,7 @@ const QCTasksPage = () => {
                       className="p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-red-600 rounded transition-all"
                       title="Delete Report"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={15} />
                     </button>
                     {expandedReport === report.id ? <ChevronUp size={20} className="text-emerald-600" /> : <ChevronDown size={20} className="text-slate-400" />}
                   </div>

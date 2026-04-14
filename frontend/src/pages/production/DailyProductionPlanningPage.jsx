@@ -571,7 +571,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                     {/* Assignments List in this section */}
                     {dailyPlan.length > 0 && (
                       <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden ">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left border-collapse bg-white">
                           <thead>
                             <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
                               <th className="px-4 py-2.5 text-xs  text-slate-400  ">Project / Ref</th>
@@ -718,7 +718,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-900/10">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-indigo-600 text-white rounded">
-                    <Package size={18} />
+                    <Package size={15} />
                   </div>
                   <div>
                     <h3 className="text-sm  text-slate-900 dark:text-white  ">
@@ -731,7 +731,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                   onClick={() => setShowReleasedMaterials(false)}
                   className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"
                 >
-                  <X size={18} className="text-slate-500" />
+                  <X size={15} className="text-slate-500" />
                 </button>
               </div>
 
@@ -812,12 +812,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-amber-500 text-white rounded">
-                  <Edit2 size={16} />
+                  <Edit2 size={15} />
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Edit Assignment</h3>
               </div>
               <button onClick={() => { setIsEditModalOpen(false); setEditingAssignmentId(null); }} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
-                <X size={18} className="text-slate-500" />
+                <X size={15} className="text-slate-500" />
               </button>
             </div>
             
@@ -1073,7 +1073,7 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700  overflow-hidden">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse bg-white">
               <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
                 <tr>
                   <th className="p-2 text-xs  text-slate-400 ">Part</th>
@@ -2458,9 +2458,7 @@ const DailyProductionPlanningPage = () => {
       {/* Page Header */}
       <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded  text-indigo-600">
-            <Clipboard size={15} />
-          </div>
+          
           <div>
             <h1 className="text-2xl  text-slate-900 dark:text-white  ">Production Management</h1>
             <p className="text-xs  text-slate-500   mt-1">Daily Workshop Floor Planning & Execution</p>
@@ -2475,7 +2473,7 @@ const DailyProductionPlanningPage = () => {
             }}
             className="p-2 bg-indigo-600 text-white rounded text-xs     shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
           >
-            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+            <Plus size={15} className="group-hover:rotate-90 transition-transform duration-300" />
             Create Daily Plan
           </button>
         </div>
@@ -2545,7 +2543,7 @@ const DailyProductionPlanningPage = () => {
             </div>
 
             <div className="overflow-x-auto bg-white mt-4">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse bg-white">
                 <thead>
                   <tr className="bg-slate-50/30 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
                     <th className="p-2 text-xs  text-slate-400  ">Project Name</th>
@@ -2604,14 +2602,14 @@ const DailyProductionPlanningPage = () => {
                               className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                               title="View Plan Details"
                             >
-                              <Eye size={18} />
+                              <Eye size={15} />
                             </button>
                             <button
                               onClick={() => handleOpenPlan(plan.id, "edit")}
                               className="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                               title="Edit Plan"
                             >
-                              <Pencil size={18} />
+                              <Pencil size={15} />
                             </button>
                             {plan.operation_names?.toLowerCase().includes("cutting") && (
                               plan.mcr_id ? (
@@ -2623,7 +2621,7 @@ const DailyProductionPlanningPage = () => {
                                   className="p-2 text-emerald-500 hover:text-emerald-700 transition-colors"
                                   title="Edit Saved MCR"
                                 >
-                                  <FileText size={18} />
+                                  <FileText size={15} />
                                 </button>
                               ) : (
                                 <button
@@ -2634,7 +2632,7 @@ const DailyProductionPlanningPage = () => {
                                   className="p-2 text-indigo-400 hover:text-indigo-600 transition-colors"
                                   title="Generate MCR"
                                 >
-                                  <Scissors size={18} />
+                                  <Scissors size={15} />
                                 </button>
                               )
                             )}
@@ -2643,7 +2641,7 @@ const DailyProductionPlanningPage = () => {
                               className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                               title="Delete Plan"
                             >
-                              <Trash2 size={18} />
+                              <Trash2 size={15} />
                             </button>
                           </div>
                         </td>

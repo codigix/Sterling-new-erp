@@ -140,7 +140,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
               onClick={() => handleViewDetails(boms[0].id)}
               className="flex items-center gap-2"
             >
-              <Eye size={18} />
+              <Eye size={15} />
               View BOM Details
             </Button>
           </div>
@@ -165,7 +165,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
             <div className="p-6 space-y-8">
               <section>
                 <h3 className=" text-slate-900 flex items-center gap-2 text-sm  tracking-wide mb-4">
-                  <PackageCheck size={18} className="text-purple-600" />
+                  <PackageCheck size={15} className="text-purple-600" />
                   Materials Breakdown
                 </h3>
                 <DataTable
@@ -177,7 +177,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
 
               <section>
                 <h3 className=" text-slate-900 flex items-center gap-2 text-sm  tracking-wide mb-4">
-                  <FileText size={18} className="text-blue-600" />
+                  <FileText size={15} className="text-blue-600" />
                   Operations & Manufacturing
                 </h3>
                 <DataTable

@@ -89,13 +89,13 @@ export default function Step6_QualityCheck({ readOnly = false }) {
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
             type="text"
             placeholder="Search reports..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs  text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs  text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all "
           />
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
           filteredReports.map((report) => (
             <div 
               key={report.id}
-              className={`bg-white dark:bg-slate-800 rounded-2xl border transition-all overflow-hidden shadow-sm ${
+              className={`bg-white dark:bg-slate-800 rounded-2xl border transition-all overflow-hidden  ${
                 expandedReport === report.id ? 'border-emerald-500 ring-4 ring-emerald-500/5' : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300'
               }`}
             >
@@ -162,7 +162,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
                       title="Download PDF"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Download size={18} />
+                      <Download size={15} />
                     </button>
                     {expandedReport === report.id ? <ChevronUp size={20} className="text-emerald-600" /> : <ChevronDown size={20} className="text-slate-400" />}
                   </div>
@@ -176,7 +176,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
                       <Package size={14} /> Material Inspection Details
                     </h5>
                     
-                    <div className="overflow-hidden border border-slate-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 shadow-sm">
+                    <div className="overflow-hidden border border-slate-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 ">
                       <table className="w-full text-left">
                         <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-xs  text-slate-400  ">
                           <tr>
@@ -240,7 +240,7 @@ export default function Step6_QualityCheck({ readOnly = false }) {
                                         {m.st_numbers.map((st, stIdx) => (
                                           <div 
                                             key={stIdx}
-                                            className={`p-3 rounded border bg-white dark:bg-slate-900 shadow-sm transition-all hover: flex flex-col gap-2 ${
+                                            className={`p-3 rounded border bg-white dark:bg-slate-900  transition-all hover: flex flex-col gap-2 ${
                                               st.status === 'ACCEPTED' 
                                                 ? 'border-green-100 dark:border-green-900/30' 
                                                 : 'border-red-100 dark:border-red-900/30'

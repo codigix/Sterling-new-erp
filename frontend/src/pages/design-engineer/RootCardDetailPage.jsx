@@ -177,7 +177,7 @@ const RootCardDetailPage = () => {
                       className="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-slate-100 transition"
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <FileText size={18} className="text-blue-600 flex-shrink-0" />
+                        <FileText size={15} className="text-blue-600 flex-shrink-0" />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-slate-900 truncate">{design.name || design.title}</p>
                           <p className="text-xs text-slate-500">
@@ -190,7 +190,7 @@ const RootCardDetailPage = () => {
                         className="ml-2 p-2 hover:bg-blue-100 rounded transition"
                         title="Download"
                       >
-                        <Download size={16} className="text-blue-600" />
+                        <Download size={15} className="text-blue-600" />
                       </button>
                     </div>
                   ))}
@@ -217,7 +217,7 @@ const RootCardDetailPage = () => {
                       className="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-slate-100 transition"
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <FileText size={18} className="text-green-600 flex-shrink-0" />
+                        <FileText size={15} className="text-green-600 flex-shrink-0" />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-slate-900 truncate">{doc.name || doc.title}</p>
                           <p className="text-xs text-slate-500">
@@ -230,7 +230,7 @@ const RootCardDetailPage = () => {
                         className="ml-2 p-2 hover:bg-green-100 rounded transition"
                         title="Download"
                       >
-                        <Download size={16} className="text-green-600" />
+                        <Download size={15} className="text-green-600" />
                       </button>
                     </div>
                   ))}

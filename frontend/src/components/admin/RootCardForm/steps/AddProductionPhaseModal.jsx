@@ -61,7 +61,7 @@ const AddProductionPhaseModal = ({ isOpen, onClose, onSuccess }) => {
               Description (Optional)
             </label>
             <textarea
-              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-slate-100"
+              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-slate-100"
               placeholder="Enter description"
               rows={3}
               value={description}

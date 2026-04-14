@@ -194,7 +194,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
 
           {/* Overlap Warning (UI Placeholder) */}
           <div className="mt-6 flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-100 dark:border-amber-800/50 text-amber-700 dark:text-amber-400">
-            <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+            <AlertCircle size={15} className="mt-0.5 flex-shrink-0" />
             <p className="text-xs font-medium">
               System will automatically check for overlapping assignments for the selected operator on {new Date(date).toLocaleDateString()} before saving.
             </p>
@@ -212,7 +212,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
           <button 
             className="px-8 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2  "
           >
-            <Save size={18} /> Confirm Assignment
+            <Save size={15} /> Confirm Assignment
           </button>
         </div>
       </div>

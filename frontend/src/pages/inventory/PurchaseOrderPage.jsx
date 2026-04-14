@@ -837,7 +837,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
               }}
               className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
             >
-              <Plus size={16} /> Create Order
+              <Plus size={15} /> Create Order
             </button>
           )}
         </div>
@@ -942,7 +942,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex-1 relative group">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
-            <Search size={18} />
+            <Search size={15} />
           </div>
           <input
             type="text"
@@ -1029,7 +1029,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       {/* Purchase Orders Table */}
       <div className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800  overflow-hidden mb-8">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full text-left border-collapse bg-white text-xs">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                 <th className="p-2 text-xs  text-slate-400  ">
@@ -1375,9 +1375,9 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   className="flex-1 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2"
                 >
                   {sendingEmail ? (
-                    <RefreshCw size={16} className="animate-spin" />
+                    <RefreshCw size={15} className="animate-spin" />
                   ) : (
-                    <Send size={16} />
+                    <Send size={15} />
                   )}
                   {sendingEmail ? "Sending..." : "Send PO"}
                 </button>
@@ -1408,7 +1408,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   title="Refresh"
                 >
                   <RefreshCw
-                    size={18}
+                    size={15}
                     className={fetchingCommunications ? "animate-spin" : ""}
                   />
                 </button>

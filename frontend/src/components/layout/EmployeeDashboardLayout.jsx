@@ -106,7 +106,7 @@ const EmployeeDashboardLayout = () => {
                 className="flex items-center text-xs space-x-3 p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center shadow-sm">
+                <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center ">
                   <span className="text-white  text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
@@ -137,7 +137,7 @@ const EmployeeDashboardLayout = () => {
                     onClick={() => setShowUserMenu(false)}
                     className="flex items-center space-x-2 p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
                   >
-                    <User size={16} />
+                    <User size={15} />
                     <span>Profile</span>
                   </Link>
                   <Link
@@ -145,7 +145,7 @@ const EmployeeDashboardLayout = () => {
                     onClick={() => setShowUserMenu(false)}
                     className="flex items-center space-x-2 p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
                   >
-                    <Settings size={16} />
+                    <Settings size={15} />
                     <span>Settings</span>
                   </Link>
                   <div className="border-t border-slate-200 dark:border-slate-700 my-1"></div>
@@ -153,7 +153,7 @@ const EmployeeDashboardLayout = () => {
                     onClick={handleLogout}
                     className="flex items-center space-x-2 w-full p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm"
                   >
-                    <LogOut size={16} />
+                    <LogOut size={15} />
                     <span>Logout</span>
                   </button>
                 </div>
@@ -182,7 +182,7 @@ const EmployeeDashboardLayout = () => {
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded transition-all duration-200 ${
                     active
-                      ? "bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-2 border-primary-200 dark:border-primary-900/50 shadow-sm"
+                      ? "bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-2 border-primary-200 dark:border-primary-900/50 "
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/30 border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-600"
                   }`}
                 >

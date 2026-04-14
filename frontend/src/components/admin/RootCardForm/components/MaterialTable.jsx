@@ -142,7 +142,7 @@ export default function MaterialTable({
                       className="w-8 h-8 rounded  bg-indigo-600 hover:bg-indigo-700 text-white flex items-center text-xs justify-center transition-colors"
                       title="View Details"
                     >
-                      <FileText size={16} />
+                      <FileText size={15} />
                     </button>
                     <button
                       type="button"
@@ -150,7 +150,7 @@ export default function MaterialTable({
                       className="w-8 h-8 rounded  bg-blue-600 hover:bg-blue-700 text-white flex items-center text-xs justify-center transition-colors"
                       title="Edit"
                     >
-                      <Edit2 size={16} />
+                      <Edit2 size={15} />
                     </button>
                     <button
                       type="button"
@@ -158,7 +158,7 @@ export default function MaterialTable({
                       className="w-8 h-8 rounded  bg-red-600 hover:bg-red-700 text-white flex items-center text-xs justify-center transition-colors"
                       title="Delete"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </td>

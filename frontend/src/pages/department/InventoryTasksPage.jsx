@@ -488,7 +488,7 @@ const InventoryTasksPage = () => {
         <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[calc(100vh-200px)]">
           <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
             <h2 className=" text-slate-900 dark:text-white flex items-center gap-2 text-sm  tracking-wider">
-              <Package size={18} className="text-blue-600" />
+              <Package size={15} className="text-blue-600" />
               Material Requests
             </h2>
             <button
@@ -508,7 +508,7 @@ const InventoryTasksPage = () => {
                   onClick={() => setSelectedMR(mr)}
                   className={`p-3 rounded border cursor-pointer transition-all ${
                     selectedMR?.id === mr.id
-                      ? "bg-blue-50 dark:bg-blue-900/30 border-blue-500 shadow-sm"
+                      ? "bg-blue-50 dark:bg-blue-900/30 border-blue-500 "
                       : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-300"
                   }`}
                 >
@@ -551,7 +551,7 @@ const InventoryTasksPage = () => {
         {/* Main Content - Tasks */}
         <div className="lg:col-span-3">
           {selectedMR ? (
-            <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden ">
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                   <div className="flex items-center gap-4">
@@ -581,7 +581,7 @@ const InventoryTasksPage = () => {
                       onClick={() => setShowCreateModal(true)}
                       className="flex items-center gap-2  text-xs "
                     >
-                      <Plus size={16} />
+                      <Plus size={15} />
                       Add Task
                     </Button>
                   </div>
@@ -638,7 +638,7 @@ const InventoryTasksPage = () => {
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <h4 className=" text-slate-900 dark:text-white flex items-center gap-2">
-                        <Zap size={18} className="text-amber-500" />
+                        <Zap size={15} className="text-amber-500" />
                         Execution Workflow
                       </h4>
                       <div className="flex gap-2">
@@ -698,7 +698,7 @@ const InventoryTasksPage = () => {
                                     className={`group rounded p-4 transition-all border ${
                                       selectedTasks.has(task.id)
                                         ? "bg-blue-50/50 dark:bg-blue-900/20 border-blue-300"
-                                        : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 hover:shadow-sm"
+                                        : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 hover:"
                                     }`}
                                   >
                                     <div className="flex items-start gap-4">
@@ -755,7 +755,7 @@ const InventoryTasksPage = () => {
 
                 {tasks.length === 0 && (
                   <div className="text-center py-16 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700">
-                    <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded  flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded  flex items-center justify-center mx-auto mb-4 ">
                       <Zap size={32} className="text-slate-300" />
                     </div>
                     <h3 className="text-lg  text-slate-900 dark:text-white">Initialize Workflow</h3>
@@ -884,7 +884,7 @@ const InventoryTasksPage = () => {
                 >
                   {isCreating ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" />
+                      <Loader2 size={15} className="animate-spin" />
                       Creating...
                     </>
                   ) : (

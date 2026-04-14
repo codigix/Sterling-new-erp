@@ -255,7 +255,7 @@ const SpecificationsPage = () => {
 
       <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
         <div className="relative">
-          <Search size={18} className="absolute left-3 top-3 text-slate-400" />
+          <Search size={15} className="absolute left-3 top-3 text-slate-400" />
           <input
             type="text"
             placeholder="Search specifications..."
@@ -314,7 +314,7 @@ const SpecificationsPage = () => {
                   onClick={() => handleViewSpecification(spec)}
                   className="flex-1 px-3 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded text-sm hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2"
                 >
-                  <FileText size={16} />
+                  <FileText size={15} />
                   View
                 </button>
                 <button
@@ -322,21 +322,21 @@ const SpecificationsPage = () => {
                   className="px-3 py-2 bg-amber-50 dark:bg-amber-900 text-amber-600 dark:text-amber-400 rounded text-sm hover:bg-amber-100 dark:hover:bg-amber-800 transition-colors flex items-center justify-center"
                   title="Edit"
                 >
-                  <Edit size={16} />
+                  <Edit size={15} />
                 </button>
                 <button
                   onClick={() => handleDownloadSpecification(spec)}
                   className="px-3 py-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded text-sm hover:bg-green-100 dark:hover:bg-green-800 transition-colors flex items-center justify-center"
                   title="Download"
                 >
-                  <Download size={16} />
+                  <Download size={15} />
                 </button>
                 <button
                   onClick={() => handleDeleteClick(spec)}
                   className="px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-red-600 dark:text-red-400 transition-colors flex items-center justify-center"
                   title="Delete"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={15} />
                 </button>
               </div>
             </div>
@@ -421,7 +421,7 @@ const SpecificationsPage = () => {
                       onClick={removeUploadedFile}
                       className="text-red-600 hover:text-red-700"
                     >
-                      <X size={16} />
+                      <X size={15} />
                     </button>
                   </div>
                 )}
@@ -450,7 +450,7 @@ const SpecificationsPage = () => {
                 disabled={creating}
                 className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {creating && <Loader2 size={16} className="animate-spin" />}
+                {creating && <Loader2 size={15} className="animate-spin" />}
                 {isEditing ? "Update Specification" : "Create Specification"}
               </button>
             </div>
@@ -557,7 +557,7 @@ const SpecificationsPage = () => {
                 disabled={deleteLoading}
                 className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {deleteLoading && <Loader2 size={16} className="animate-spin" />}
+                {deleteLoading && <Loader2 size={15} className="animate-spin" />}
                 Delete
               </button>
             </div>

@@ -96,18 +96,18 @@ const WorkstationsPage = () => {
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-500'}`}
             >
-              <Grid size={18} />
+              <Grid size={15} />
             </button>
             <button 
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-500'}`}
             >
-              <ListIcon size={18} />
+              <ListIcon size={15} />
             </button>
           </div>
           <button 
             onClick={() => navigate('new')}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded  hover:bg-blue-700 transition-all shadow-sm shadow-blue-200"
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded  hover:bg-blue-700 transition-all  shadow-blue-200"
           >
             <Plus size={20} />
             New Workstation
@@ -118,7 +118,7 @@ const WorkstationsPage = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {statsCards.map((stat, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-4 shadow-sm">
+          <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-4 ">
             <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded flex items-center justify-center`}>
               <stat.icon size={15} />
             </div>
@@ -131,7 +131,7 @@ const WorkstationsPage = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-8 shadow-sm">
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-8 ">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
           <input 
@@ -164,13 +164,13 @@ const WorkstationsPage = () => {
                         onClick={() => navigate(`edit/${ws.id}`)}
                         className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all"
                       >
-                        <Edit2 size={16} />
+                        <Edit2 size={15} />
                       </button>
                       <button 
                         onClick={() => handleDelete(ws.id)}
                         className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   </div>
@@ -220,7 +220,7 @@ const WorkstationsPage = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden ">
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
@@ -262,13 +262,13 @@ const WorkstationsPage = () => {
                           onClick={() => navigate(`edit/${ws.id}`)}
                           className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors"
                         >
-                          <Edit2 size={16} />
+                          <Edit2 size={15} />
                         </button>
                         <button 
                           onClick={() => handleDelete(ws.id)}
                           className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -285,7 +285,7 @@ const WorkstationsPage = () => {
           <p className="text-slate-500 mb-6 font-medium">Start by registering your first manufacturing asset</p>
           <button 
             onClick={() => navigate('new')}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded  hover:bg-blue-700 transition-all shadow-sm shadow-blue-200"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded  hover:bg-blue-700 transition-all  shadow-blue-200"
           >
             <Plus size={20} />
             Register Asset

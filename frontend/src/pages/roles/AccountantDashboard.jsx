@@ -40,7 +40,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
           onClick={handleExport}
           className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
         >
-          <TrendingUp size={18} />
+          <TrendingUp size={15} />
           Export Report
         </button>
         <select

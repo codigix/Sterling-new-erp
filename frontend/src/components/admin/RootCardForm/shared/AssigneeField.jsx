@@ -34,7 +34,7 @@ const AssigneeField = ({ stepType, formData, updateField, employees = [], readOn
   return (
     <div className={`p-4 rounded border ${deptConfig.color} mb-4`}>
       <div className="flex items-center gap-2 mb-3">
-        <Users size={18} className="text-slate-700" />
+        <Users size={15} className="text-slate-700" />
         <h4 className="text-sm font-semibold text-slate-900">
           Assign to {deptConfig.manager}
         </h4>

@@ -155,15 +155,15 @@ const RequestHistoryPage = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "pending":
-        return <Clock size={16} className="text-yellow-600" />;
+        return <Clock size={15} className="text-yellow-600" />;
       case "approved":
-        return <CheckCircle size={16} className="text-green-600" />;
+        return <CheckCircle size={15} className="text-green-600" />;
       case "rejected":
-        return <AlertCircle size={16} className="text-red-600" />;
+        return <AlertCircle size={15} className="text-red-600" />;
       case "responded":
-        return <MessageCircle size={16} className="text-blue-600" />;
+        return <MessageCircle size={15} className="text-blue-600" />;
       default:
-        return <MessageCircle size={16} />;
+        return <MessageCircle size={15} />;
     }
   };
 
@@ -358,7 +358,7 @@ const RequestHistoryPage = () => {
                   {request.status === "pending" && !request.response && (
                     <div className="flex items-center text-xs gap-2 p-3 bg-yellow-50 dark:bg-yellow-900 rounded">
                       <Clock
-                        size={16}
+                        size={15}
                         className="text-yellow-600 dark:text-yellow-400"
                       />
                       <span className="text-sm text-yellow-700 dark:text-yellow-300">

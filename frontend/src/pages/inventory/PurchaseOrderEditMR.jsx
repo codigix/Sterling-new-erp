@@ -184,7 +184,7 @@ const PurchaseOrderEditMR = () => {
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors mb-4"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={15} />
             <span className="text-xs   ">Back</span>
           </button>
           <h1 className="text-lg  text-slate-900 dark:text-white ">
@@ -209,7 +209,7 @@ const PurchaseOrderEditMR = () => {
                   : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                 }`}
               >
-                <Icon size={18} />
+                <Icon size={15} />
                 <span className="text-xs   tracking-wider">{section.label}</span>
                 {activeSection === section.id && <div className="ml-auto w-1 h-1 rounded  bg-blue-600"></div>}
               </button>
@@ -256,14 +256,14 @@ const PurchaseOrderEditMR = () => {
                 onClick={() => navigate(-1)}
                 className="px-6 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 rounded  text-xs   hover:bg-slate-50 transition-all flex items-center gap-2"
               >
-                <X size={16} /> Discard
+                <X size={15} /> Discard
               </button>
               <button 
                 onClick={handleSubmit}
                 disabled={submitting}
                 className="px-6 py-2.5 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
               >
-                {submitting ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />}
+                {submitting ? <RefreshCw className="animate-spin" size={15} /> : <Save size={15} />}
                 {submitting ? "Updating..." : "Update Order"}
               </button>
             </div>
@@ -271,11 +271,11 @@ const PurchaseOrderEditMR = () => {
 
           <form className="space-y-8" onSubmit={handleSubmit}>
             {/* FOUNDATION Section */}
-            <section id="foundation" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+            <section id="foundation" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400">
-                    <Settings size={18} />
+                    <Settings size={15} />
                   </div>
                   <div>
                     <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Foundation <span className="text-slate-400 ml-2 font-medium">SETTINGS</span></h3>
@@ -289,7 +289,7 @@ const PurchaseOrderEditMR = () => {
                     Order Date <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <input 
                       type="date"
                       value={formData.order_date}
@@ -304,7 +304,7 @@ const PurchaseOrderEditMR = () => {
                     Expected Delivery Date
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <input 
                       type="date"
                       value={formData.expected_delivery_date}
@@ -317,11 +317,11 @@ const PurchaseOrderEditMR = () => {
             </section>
 
             {/* VENDOR Section */}
-            <section id="vendor" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+            <section id="vendor" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded">
-                    <User size={18} />
+                    <User size={15} />
                   </div>
                   <div>
                     <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Vendor <span className="text-slate-400 ml-2 font-medium">PARTNER</span></h3>
@@ -348,11 +348,11 @@ const PurchaseOrderEditMR = () => {
             </section>
 
             {/* ORDER ITEMS Section */}
-            <section id="items" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+            <section id="items" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded">
-                    <Package size={18} />
+                    <Package size={15} />
                   </div>
                   <div>
                     <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Order <span className="text-slate-400 ml-2 font-medium">ITEMS</span></h3>
@@ -438,7 +438,7 @@ const PurchaseOrderEditMR = () => {
                             onClick={() => handleRemoveItem(idx)}
                             className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={15} />
                           </button>
                         </td>
                       </tr>
@@ -449,11 +449,11 @@ const PurchaseOrderEditMR = () => {
             </section>
 
             {/* LOGISTICS Section */}
-            <section id="logistics" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+            <section id="logistics" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-orange-50/30 dark:bg-orange-800/10">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded">
-                    <Truck size={18} />
+                    <Truck size={15} />
                   </div>
                   <div>
                     <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Shipping <span className="text-slate-400 ml-2 font-medium">LOGISTICS</span></h3>
@@ -465,7 +465,7 @@ const PurchaseOrderEditMR = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
-                      <MapPin size={16} className="text-orange-500" />
+                      <MapPin size={15} className="text-orange-500" />
                       <h4 className="text-xs  text-slate-400  ">Shipping Address</h4>
                     </div>
                     <div>
@@ -482,7 +482,7 @@ const PurchaseOrderEditMR = () => {
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
-                      <Briefcase size={16} className="text-orange-500" />
+                      <Briefcase size={15} className="text-orange-500" />
                       <h4 className="text-xs  text-slate-400  ">Trade Controls</h4>
                     </div>
                     <div className="grid grid-cols-1 gap-4">
@@ -515,11 +515,11 @@ const PurchaseOrderEditMR = () => {
             </section>
 
             {/* FINANCE & TERMS Section */}
-            <section id="finance" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+            <section id="finance" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-red-50/30 dark:bg-red-800/10">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 rounded">
-                    <CreditCard size={18} />
+                    <CreditCard size={15} />
                   </div>
                   <div>
                     <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Revenue <span className="text-slate-400 ml-2 font-medium">FINANCE</span></h3>
@@ -533,7 +533,7 @@ const PurchaseOrderEditMR = () => {
                     {/* Payment Strategy */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
-                        <Shield size={16} className="text-red-500" />
+                        <Shield size={15} className="text-red-500" />
                         <h4 className="text-xs  text-slate-400  ">Payment Strategy</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -562,7 +562,7 @@ const PurchaseOrderEditMR = () => {
                     {/* Financial Modifiers */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 pb-2 border-b border-slate-50 dark:border-slate-800">
-                        <Briefcase size={16} className="text-red-500" />
+                        <Briefcase size={15} className="text-red-500" />
                         <h4 className="text-xs  text-slate-400  ">Financial Modifiers</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -600,7 +600,7 @@ const PurchaseOrderEditMR = () => {
                   <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-full">
                     <div className="p-2 border-b border-white/5 flex items-center justify-between">
                       <h4 className="text-xs  text-white/50  tracking-[0.2em]">Purchase Valuation</h4>
-                      <Calculator size={16} className="text-white/20" />
+                      <Calculator size={15} className="text-white/20" />
                     </div>
                     <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-4">
@@ -634,7 +634,7 @@ const PurchaseOrderEditMR = () => {
                         </div>
                         <div className="p-3 bg-white/5 rounded flex items-center gap-3">
                           <div className="p-2 bg-white/10 rounded text-emerald-400">
-                            <CreditCard size={18} />
+                            <CreditCard size={15} />
                           </div>
                           <div>
                             <p className="text-xs  text-white  tracking-wider">Payment Channel</p>

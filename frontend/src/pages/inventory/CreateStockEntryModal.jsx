@@ -190,7 +190,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                 <div className="space-y-2">
                   <label className="text-xs  text-slate-400   ml-1">Reference GRN (Optional)</label>
                   <div className="relative">
-                    <ClipboardList className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <ClipboardList className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <select 
                       name="grn_id"
                       value={formData.grn_id}
@@ -208,7 +208,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                 <div className="space-y-2">
                   <label className="text-xs  text-slate-400   ml-1">Entry Date</label>
                   <div className="relative">
-                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <input 
                       type="date"
                       name="entry_date"
@@ -224,7 +224,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                 <div className="space-y-2">
                   <label className="text-xs  text-slate-400   ml-1">Project Allocation</label>
                   <div className="relative">
-                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <input 
                       type="text"
                       name="project_name"
@@ -239,7 +239,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                 <div className="space-y-2">
                   <label className="text-xs  text-slate-400   ml-1">Supplier / Vendor</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <input 
                       type="text"
                       name="vendor_name"

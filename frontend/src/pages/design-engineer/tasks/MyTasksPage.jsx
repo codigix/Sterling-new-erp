@@ -292,12 +292,12 @@ const MyTasksPage = () => {
 
               <div className="flex items-center text-xs gap-4 text-sm text-slate-500 dark:text-slate-400">
                 <div className="flex items-center text-xs gap-1">
-                  <Calendar size={16} />
+                  <Calendar size={15} />
                   Updated: {task.dueDate}
                 </div>
                 {task.status === "Completed" && (
                   <div className="flex items-center text-xs gap-1 text-green-600 dark:text-green-400">
-                    <CheckCircle2 size={16} />
+                    <CheckCircle2 size={15} />
                     Completed
                   </div>
                 )}

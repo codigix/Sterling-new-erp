@@ -92,11 +92,11 @@ const BudgetManagementPage = () => {
         </div>
         <div className="flex gap-3 flex-wrap">
           <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Plus size={18} />
+            <Plus size={15} />
             New Budget
           </button>
           <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
-            <Download size={18} />
+            <Download size={15} />
             Export
           </button>
         </div>

@@ -102,12 +102,12 @@ const ProductionProjectCard = ({
 
   const getStatusIcon = (status) => {
     const icons = {
-      completed: <CheckCircle size={16} className="text-green-600" />,
-      in_progress: <Clock size={16} className="text-blue-600" />,
-      pending: <Clock size={16} className="text-yellow-600" />,
-      on_hold: <AlertCircle size={16} className="text-red-600" />,
+      completed: <CheckCircle size={15} className="text-green-600" />,
+      in_progress: <Clock size={15} className="text-blue-600" />,
+      pending: <Clock size={15} className="text-yellow-600" />,
+      on_hold: <AlertCircle size={15} className="text-red-600" />,
     };
-    return icons[status] || <Clock size={16} />;
+    return icons[status] || <Clock size={15} />;
   };
 
   const getStatusColor = (status) => {
@@ -145,7 +145,7 @@ const ProductionProjectCard = ({
   const progress = calculateProgress();
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden ">
       <div className="flex justify-between bg-gradient-to-r from-purple-50 dark:from-purple-900/20 to-slate-50 dark:to-slate-800 border-b border-slate-200 dark:border-slate-700 p-4">
         <div className="flex-1">
           <div className="flex items-start justify-between">

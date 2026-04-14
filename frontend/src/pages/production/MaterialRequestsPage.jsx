@@ -208,7 +208,7 @@ const MaterialRequestsPage = ({ embed = false }) => {
             title="View Details"
             onClick={() => handleViewDetails(row.id)}
           >
-            <Eye size={16} />
+            <Eye size={15} />
           </button>
           {isProcurement && row.status === "approved" && (
             <button
@@ -289,7 +289,7 @@ const MaterialRequestsPage = ({ embed = false }) => {
         </Button>
       </div>
 
-      <div className="border-none shadow-sm overflow-hidden">
+      <div className="border-none  overflow-hidden">
         <DataTable
           columns={columns}
           data={filteredRequests}

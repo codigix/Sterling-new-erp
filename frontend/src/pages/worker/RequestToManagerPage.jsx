@@ -170,7 +170,7 @@ const RequestToManagerPage = () => {
           onClick={() => setShowForm(!showForm)}
           className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
         >
-          <Plus size={18} />
+          <Plus size={15} />
           New Request
         </button>
       </div>
@@ -276,7 +276,7 @@ const RequestToManagerPage = () => {
                 type="submit"
                 className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
               >
-                <Send size={16} />
+                <Send size={15} />
                 Send Request
               </button>
             </div>

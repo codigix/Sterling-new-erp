@@ -151,7 +151,7 @@ const TrackInventoryPage = () => {
           </p>
         </div>
         <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-          <Download size={18} />
+          <Download size={15} />
           Export Report
         </button>
       </div>
@@ -161,7 +161,7 @@ const TrackInventoryPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
             />
             <input
@@ -186,7 +186,7 @@ const TrackInventoryPage = () => {
           </select>
 
           <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={18} />
+            <Filter size={15} />
             More Filters
           </button>
         </div>
@@ -211,7 +211,7 @@ const TrackInventoryPage = () => {
                 </p>
               </div>
               <button className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors">
-                <Eye size={18} className="text-blue-600 dark:text-blue-400" />
+                <Eye size={15} className="text-blue-600 dark:text-blue-400" />
               </button>
             </div>
 
@@ -246,7 +246,7 @@ const TrackInventoryPage = () => {
             <div className="space-y-2 text-sm">
               <div className="flex items-center text-xs justify-between">
                 <span className="text-slate-500 dark:text-slate-400 flex items-center text-xs gap-2">
-                  <MapPin size={16} />
+                  <MapPin size={15} />
                   Location
                 </span>
                 <span className="font-medium text-slate-900 dark:text-white text-xs">
@@ -255,7 +255,7 @@ const TrackInventoryPage = () => {
               </div>
               <div className="flex items-center text-xs justify-between">
                 <span className="text-slate-500 dark:text-slate-400 flex items-center text-xs gap-2">
-                  <Calendar size={16} />
+                  <Calendar size={15} />
                   Last Updated
                 </span>
                 <span className="font-medium text-slate-900 dark:text-white text-xs">
@@ -265,7 +265,7 @@ const TrackInventoryPage = () => {
             </div>
 
             <button className="w-full mt-4 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors flex items-center text-xs justify-center gap-2">
-              <Edit size={16} />
+              <Edit size={15} />
               Adjust Stock
             </button>
           </div>

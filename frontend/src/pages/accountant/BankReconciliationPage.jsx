@@ -105,7 +105,7 @@ const BankReconciliationPage = () => {
           </p>
         </div>
         <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-          <Download size={18} />
+          <Download size={15} />
           Export
         </button>
       </div>

@@ -14,7 +14,7 @@ export default function Step5_Inventory({ readOnly = false }) {
         subtitle="Track material availability and warehouse status"
         icon={Package}
       >
-        <div className="p-8 bg-white border border-slate-200 rounded shadow-sm">
+        <div className="p-8 bg-white border border-slate-200 rounded ">
           <h3 className="text-xl  text-slate-900 mb-4">Inventory Tracking</h3>
           <p className="text-slate-500">Inventory tracking and management for this project.</p>
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">

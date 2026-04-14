@@ -149,7 +149,7 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
 
         <div className="pt-2 flex flex-col gap-3">
           {task.status === 'pending' ? (
-            <div className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded  border border-amber-100 dark:border-amber-900/30 shadow-sm ">
+            <div className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded  border border-amber-100 dark:border-amber-900/30  ">
               <Clock className="w-3 h-3 animate-pulse" />
               Waiting for Production to Start Task
             </div>

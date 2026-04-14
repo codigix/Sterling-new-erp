@@ -446,12 +446,12 @@ const ProjectTasksPage = () => {
                 >
                   {isCreating ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" />
+                      <Loader2 size={15} className="animate-spin" />
                       Creating...
                     </>
                   ) : (
                     <>
-                      <Plus size={16} />
+                      <Plus size={15} />
                       Create Task
                     </>
                   )}

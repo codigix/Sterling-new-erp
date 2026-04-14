@@ -341,7 +341,7 @@ const RoleManagement = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded p-4 border border-blue-100 dark:border-blue-800 shadow-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded p-4 border border-blue-100 dark:border-blue-800 ">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
@@ -357,7 +357,7 @@ const RoleManagement = () => {
           </div>
         </div>
 
-        <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded p-4 border border-green-100 dark:border-green-800 shadow-sm">
+        <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded p-4 border border-green-100 dark:border-green-800 ">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
@@ -373,7 +373,7 @@ const RoleManagement = () => {
           </div>
         </div>
 
-        <div className="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 rounded p-4 border border-cyan-100 dark:border-cyan-800 shadow-sm">
+        <div className="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 rounded p-4 border border-cyan-100 dark:border-cyan-800 ">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
@@ -389,7 +389,7 @@ const RoleManagement = () => {
           </div>
         </div>
 
-        <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded p-4 border border-amber-100 dark:border-amber-800 shadow-sm">
+        <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded p-4 border border-amber-100 dark:border-amber-800 ">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">

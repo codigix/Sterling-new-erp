@@ -242,14 +242,14 @@ const ProductionWorkflowTasksPage = () => {
             className="border-purple-600 text-purple-600 hover:bg-purple-50"
             disabled={isGenerating || !selectedProject}
           >
-            <Zap size={18} className="mr-2" />
+            <Zap size={15} className="mr-2" />
             {isGenerating ? "Generating..." : "Generate Workflow Tasks"}
           </Button>
           <Button 
             onClick={() => setShowCreateModal(true)}
             className="bg-purple-600 hover:bg-purple-700 text-white"
           >
-            <Plus size={18} className="mr-2" />
+            <Plus size={15} className="mr-2" />
             New Custom Task
           </Button>
         </div>

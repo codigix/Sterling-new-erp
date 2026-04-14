@@ -114,7 +114,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
                     <div className="flex items-center gap-2">
-                      <Clock size={16} className="text-amber-500" />
+                      <Clock size={15} className="text-amber-500" />
                       <h3 className="text-xs  text-slate-800 dark:text-slate-200  tracking-wider">Active Requests</h3>
                     </div>
                     <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xs  rounded ">
@@ -135,7 +135,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
                     <div className="flex items-center gap-2">
-                      <CheckCircle size={16} className="text-green-500" />
+                      <CheckCircle size={15} className="text-green-500" />
                       <h3 className="text-xs  text-slate-900 dark:text-slate-200  tracking-wider">Completed Archive</h3>
                     </div>
                     <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs  rounded ">

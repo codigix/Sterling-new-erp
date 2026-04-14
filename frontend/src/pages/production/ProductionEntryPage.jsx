@@ -284,7 +284,7 @@ const ProductionEntryPage = () => {
         <span className="text-xs  text-slate-500">Page 1 of 0 <span className="text-xs opacity-60">(0 total)</span></span>
         <div className="flex items-center gap-1">
           <button className="p-1.5 rounded border border-slate-200 text-slate-400 hover:bg-slate-50 transition-all disabled:opacity-50" disabled>
-            <ChevronLeft size={16} />
+            <ChevronLeft size={15} />
           </button>
           <button className="px-3 py-1.5 rounded border border-slate-200 text-xs  text-slate-700 hover:bg-slate-50 transition-all">
             Next
@@ -322,7 +322,7 @@ const ProductionEntryPage = () => {
               onClick={() => navigate(-1)}
               className="flex items-center gap-2 px-3 py-1.5 text-slate-500 hover:bg-slate-100 rounded text-xs  transition-all"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={15} />
               Back
             </button>
           </div>
@@ -331,7 +331,7 @@ const ProductionEntryPage = () => {
 
       <div className="max-w-[1600px] mx-auto px-6 py-6 space-y-2">
         {/* Main Stats Header */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-slate-200  p-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-center gap-4 flex-1">
               <div className="w-12 h-12 bg-slate-50 rounded flex items-center justify-center text-slate-400 border border-slate-100">
@@ -378,7 +378,7 @@ const ProductionEntryPage = () => {
 
         {/* Performance Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5">
+          <div className="bg-white rounded-2xl border border-slate-200  p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-pink-50 text-pink-500 rounded flex items-center justify-center border border-pink-100">
               <TrendingUp size={15} />
             </div>
@@ -387,7 +387,7 @@ const ProductionEntryPage = () => {
               <h3 className="text-xl  text-slate-900">{stats.efficiency}% <span className="text-xs text-slate-400  ml-1 ">0 / 0 MIN</span></h3>
             </div>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5">
+          <div className="bg-white rounded-2xl border border-slate-200  p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded flex items-center justify-center border border-amber-100">
               <ShieldCheck size={15} />
             </div>
@@ -396,7 +396,7 @@ const ProductionEntryPage = () => {
               <h3 className="text-xl  text-slate-900">{stats.qualityYield}% <span className="text-xs text-slate-400  ml-1 ">ACCEPTANCE RATE</span></h3>
             </div>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5">
+          <div className="bg-white rounded-2xl border border-slate-200  p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded flex items-center justify-center border border-blue-100">
               <Zap size={15} />
             </div>
@@ -408,10 +408,10 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Add Time Log */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
             <div className="p-1.5 bg-blue-100 text-blue-600 rounded">
-              <Plus size={18} />
+              <Plus size={15} />
             </div>
             <h2 className="text-sm  text-slate-900  ">Add Time Log</h2>
           </div>
@@ -494,7 +494,7 @@ const ProductionEntryPage = () => {
                       title="Next Shift"
                       className="h-full w-10 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
                     >
-                      <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
+                      <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -533,10 +533,10 @@ const ProductionEntryPage = () => {
                         <option value="PM">PM</option>
                       </select>
                       <div className="px-3 border-l border-slate-100 flex items-center text-slate-400 bg-slate-50/30">
-                        <Clock size={16} />
+                        <Clock size={15} />
                       </div>
                     </div>
-                    <ArrowRightLeft size={16} className="text-slate-300" />
+                    <ArrowRightLeft size={15} className="text-slate-300" />
                     <div className="flex bg-white border border-slate-200 rounded overflow-hidden flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                       <input 
                         type="text" 
@@ -553,7 +553,7 @@ const ProductionEntryPage = () => {
                         <option value="PM">PM</option>
                       </select>
                       <div className="px-3 border-l border-slate-100 flex items-center text-slate-400 bg-slate-50/30">
-                        <Clock size={16} />
+                        <Clock size={15} />
                       </div>
                     </div>
                   </div>
@@ -575,7 +575,7 @@ const ProductionEntryPage = () => {
                     disabled={submitting}
                     className="w-full h-11 bg-indigo-600 text-white rounded text-sm    flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all  shadow-indigo-200 disabled:opacity-50 active:scale-[0.98]"
                   >
-                    <FileText size={18} />
+                    <FileText size={15} />
                     Record Time
                   </button>
                 </div>
@@ -590,10 +590,10 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Quality & Rejection Entry */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
             <div className="p-1.5 bg-blue-100 text-blue-600 rounded">
-              <ShieldCheck size={18} />
+              <ShieldCheck size={15} />
             </div>
             <h2 className="text-sm  text-slate-900  ">Quality & Rejection Entry</h2>
           </div>
@@ -642,7 +642,7 @@ const ProductionEntryPage = () => {
                       title="Next Shift"
                       className="h-full w-10 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
                     >
-                      <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
+                      <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -704,15 +704,15 @@ const ProductionEntryPage = () => {
                     disabled={submitting}
                     className="w-full h-11 bg-emerald-600 text-white rounded flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all  shadow-emerald-200 disabled:opacity-50 active:scale-[0.95] text-xs   "
                   >
-                    <Save size={18} />
+                    <Save size={15} />
                     Save Entry
                   </button>
                 </div>
               </div>
             </form>
             <div className="mt-6 bg-amber-50/50 border border-amber-100 rounded p-3 flex gap-3">
-              <div className="p-1.5 bg-white rounded text-amber-500 h-fit shadow-sm">
-                <Info size={16} />
+              <div className="p-1.5 bg-white rounded text-amber-500 h-fit ">
+                <Info size={15} />
               </div>
               <p className="text-xs font-medium text-amber-700 leading-normal">
                 <span className="   mr-1">Quality Gate Active</span>
@@ -728,10 +728,10 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Operational Downtime */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
             <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded">
-              <AlertCircle size={18} />
+              <AlertCircle size={15} />
             </div>
             <h2 className="text-sm  text-slate-900  ">Operational Downtime</h2>
           </div>
@@ -780,7 +780,7 @@ const ProductionEntryPage = () => {
                       title="Next Shift"
                       className="h-full w-8 flex items-center justify-center bg-indigo-50 text-indigo-600 border border-indigo-100 rounded hover:bg-indigo-600 hover:text-white transition-all active:scale-95 group"
                     >
-                      <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                      <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -847,7 +847,7 @@ const ProductionEntryPage = () => {
                     type="button"
                     className="w-full h-11 bg-orange-500 text-white rounded flex items-center justify-center gap-2 hover:bg-orange-600 transition-all  shadow-orange-200 active:scale-[0.95] text-xs   "
                   >
-                    <FileText size={18} />
+                    <FileText size={15} />
                     Record Downtime
                   </button>
                 </div>
@@ -862,7 +862,7 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Next Stage Configuration */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden mb-8">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
             <div className="flex items-center gap-4">
               <h2 className="text-sm  text-slate-900  ">Next Stage Configuration</h2>
@@ -870,7 +870,7 @@ const ProductionEntryPage = () => {
             </div>
             <div className="flex items-center gap-6">
                <div className="flex items-center gap-2 text-emerald-600">
-                  <ShieldCheck size={18} />
+                  <ShieldCheck size={15} />
                   <span className="text-xs   ">Ready for Dispatch</span>
                </div>
                <div className="text-xs  text-slate-500  ">
@@ -974,11 +974,11 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Daily Production Report */}
-        <div className="bg-[#FBFCFE] rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-[#FBFCFE] rounded-2xl border border-slate-200  overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-1.5 bg-blue-50 text-blue-600 rounded">
-                <FileText size={18} />
+                <FileText size={15} />
               </div>
               <div>
                 <h2 className="text-sm  text-slate-800  ">Daily Production Report</h2>
@@ -986,7 +986,7 @@ const ProductionEntryPage = () => {
               </div>
             </div>
             <button className="flex items-center gap-2 p-2 bg-indigo-50 text-indigo-600 rounded text-xs    hover:bg-indigo-100 transition-all">
-              <DownloadCloud size={16} />
+              <DownloadCloud size={15} />
               Download CSV
             </button>
           </div>

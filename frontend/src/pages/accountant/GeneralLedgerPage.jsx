@@ -96,7 +96,7 @@ const GeneralLedgerPage = () => {
         </div>
         <div className="flex gap-3 flex-wrap">
           <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Download size={18} />
+            <Download size={15} />
             Export
           </button>
           <select
@@ -150,7 +150,7 @@ const GeneralLedgerPage = () => {
           </label>
           <div className="relative">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-3 text-slate-400"
             />
             <input

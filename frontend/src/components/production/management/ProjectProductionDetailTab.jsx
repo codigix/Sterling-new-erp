@@ -46,14 +46,14 @@ const ProjectProductionDetailTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 ">
         <div>
           <h2 className="text-lg  text-slate-900 dark:text-white  ">Project Production Detail View</h2>
           <p className="text-slate-500 dark:text-slate-400 text-xs    mt-0.5">Real-time Project Execution & Status Tracking</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
             <input 
               type="text" 
               placeholder="Search by project name or reference..." 
@@ -70,12 +70,12 @@ const ProjectProductionDetailTab = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {projectTracking.map((project) => (
-          <div key={project.id} className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+          <div key={project.id} className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden hover:shadow-md transition-shadow group">
             <div className="p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/50">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-600 text-white rounded-lg shadow-lg shadow-blue-600/20">
-                    <Briefcase size={18} />
+                    <Briefcase size={15} />
                   </div>
                   <div>
                     <h3 className="text-xs  text-slate-900 dark:text-white   line-clamp-1">{project.name}</h3>
@@ -130,7 +130,7 @@ const ProjectProductionDetailTab = () => {
         ))}
 
         <div className="bg-slate-50 dark:bg-slate-900/30 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded p-8 flex flex-col items-center justify-center text-center group">
-          <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-300 group-hover:text-blue-500 transition-all shadow-sm group-hover:shadow-md mb-4 rotate-12 group-hover:rotate-0">
+          <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-300 group-hover:text-blue-500 transition-all  group-hover:shadow-md mb-4 rotate-12 group-hover:rotate-0">
             <PackageCheck size={32} />
           </div>
           <h4 className="text-xs  text-slate-400  ">Select project for full drill-down</h4>

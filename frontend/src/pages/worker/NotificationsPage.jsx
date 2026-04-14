@@ -300,7 +300,7 @@ const NotificationsPage = () => {
                         onClick={() => handleDelete(notif.id)}
                         className="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   </div>

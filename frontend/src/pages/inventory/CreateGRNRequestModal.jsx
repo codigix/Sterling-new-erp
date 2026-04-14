@@ -218,7 +218,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-blue-600">
                   <div className="w-8 h-8 rounded bg-blue-100 flex items-center justify-center">
-                    <Package size={18} />
+                    <Package size={15} />
                   </div>
                   <span className="text-xs   tracking-wider">Receipt Context</span>
                 </div>
@@ -264,11 +264,11 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                 <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
                   <div className="flex items-center gap-2 text-indigo-600">
                     <div className="w-8 h-8 rounded bg-indigo-100 flex items-center justify-center">
-                      <LayoutGrid size={18} />
+                      <LayoutGrid size={15} />
                     </div>
                     <span className="text-xs   tracking-wider">Project Context</span>
                   </div>
-                  <div className="bg-white dark:bg-slate-900 p-4 rounded border border-slate-100 dark:border-slate-800 shadow-sm">
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded border border-slate-100 dark:border-slate-800 ">
                       <p className="text-xs  text-slate-400   mb-1">Project Name</p>
                       <h4 className="text-xs  text-slate-900 dark:text-white   leading-relaxed break-words">
                         {formData.root_card_project_name}
@@ -280,11 +280,11 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
               <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
                 <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                   <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                    <User size={18} />
+                    <User size={15} />
                   </div>
                   <span className="text-xs   tracking-wider">Supplier Info</span>
                 </div>
-                <div className="border-slate-100 dark:border-slate-700 shadow-sm">
+                <div className="border-slate-100 dark:border-slate-700 ">
                     <p className="text-xs  text-slate-400   mb-1">Selected Supplier</p>
                     <h4 className="text-xs  text-slate-900 dark:text-white">{formData.vendor_name}</h4>
                     <p className="text-xs text-slate-500 mt-1  tracking-wider">ID: {formData.vendor_id ? `SUP-${formData.vendor_id}` : 'N/A'}</p>
@@ -294,7 +294,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
               <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-4">
                    <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                    <Truck size={18} />
+                    <Truck size={15} />
                   </div>
                   <span className="text-xs   tracking-wider">Transporter Notes</span>
                 </div>
@@ -324,12 +324,12 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                   onClick={handleAddLineItem}
                   className="flex items-center gap-1.5 p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded text-xs   tracking-wider hover:bg-blue-100 transition-all active:scale-95 border border-blue-100 dark:border-blue-800"
                 >
-                  <Plus size={16} /> Add Line Item
+                  <Plus size={15} /> Add Line Item
                 </button>
               </div>
 
-              <div className="flex-1 overflow-auto border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm">
-                <table className="w-full text-left border-collapse min-w-[900px]">
+              <div className="flex-1 overflow-auto border border-slate-100 dark:border-slate-800 rounded-2xl ">
+                <table className="w-full text-left border-collapse bg-white min-w-[900px]">
                   <thead className="sticky top-0 z-20 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-md">
                     <tr>
                       <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">Item Details</th>
@@ -405,7 +405,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                             onClick={() => handleRemoveItem(idx)}
                             className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={15} />
                           </button>
                         </td>
                       </tr>
@@ -452,7 +452,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                 disabled={loading || formData.items.length === 0}
                 className="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded  text-xs  tracking-wider shadow-lg shadow-blue-200 dark:shadow-none transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
-                {loading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded  animate-spin" /> : <Plus size={18} />}
+                {loading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded  animate-spin" /> : <Plus size={15} />}
                 Create GRN Request
               </button>
             </div>

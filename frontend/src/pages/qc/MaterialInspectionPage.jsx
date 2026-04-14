@@ -330,7 +330,7 @@ const MaterialInspectionPage = () => {
             Filter by GRN Number
           </label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
             <input
               type="text"
               className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
@@ -367,7 +367,7 @@ const MaterialInspectionPage = () => {
               <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 overflow-hidden">
                 <div className="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 flex items-center justify-between">
                   <h3 className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2">
-                    <Package size={16} className="text-blue-600" />
+                    <Package size={15} className="text-blue-600" />
                     {selectedRootCard 
                       ? `Pending Materials for ${selectedRootCard.projectName}` 
                       : grnNumber 
@@ -456,7 +456,7 @@ const MaterialInspectionPage = () => {
                                   }`}>
                                     {item.status || 'QC Pending'}
                                   </span>
-                                  {isExpanded ? <ChevronUp size={16} className="text-blue-600" /> : <ChevronDown size={16} className="text-slate-400" />}
+                                  {isExpanded ? <ChevronUp size={15} className="text-blue-600" /> : <ChevronDown size={15} className="text-slate-400" />}
                                 </div>
                               </td>
                             </tr>

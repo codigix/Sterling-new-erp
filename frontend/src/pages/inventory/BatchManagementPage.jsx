@@ -144,11 +144,11 @@ const BatchManagementPage = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "active":
-        return <Check size={16} />;
+        return <Check size={15} />;
       case "expiring":
-        return <Clock size={16} />;
+        return <Clock size={15} />;
       case "expired":
-        return <AlertTriangle size={16} />;
+        return <AlertTriangle size={15} />;
       default:
         return null;
     }
@@ -176,11 +176,11 @@ const BatchManagementPage = () => {
         </div>
         <div className="flex gap-3 flex-wrap">
           <button className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium">
-            <Plus size={18} />
+            <Plus size={15} />
             New Batch
           </button>
           <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Download size={18} />
+            <Download size={15} />
             Export
           </button>
         </div>
@@ -191,7 +191,7 @@ const BatchManagementPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
             />
             <input
@@ -215,7 +215,7 @@ const BatchManagementPage = () => {
           </select>
 
           <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={18} />
+            <Filter size={15} />
             Advanced Filter
           </button>
         </div>
@@ -313,10 +313,10 @@ const BatchManagementPage = () => {
                     <td className="p-1 text-center">
                       <div className="flex justify-center gap-2">
                         <button className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors">
-                          <Eye size={16} />
+                          <Eye size={15} />
                         </button>
                         <button className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors">
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>

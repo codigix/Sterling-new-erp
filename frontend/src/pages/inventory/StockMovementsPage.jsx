@@ -202,7 +202,7 @@ const StockMovementsPage = () => {
       {/* Ledger Table */}
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-800  overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse bg-white">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
                 <th className="p-2 text-xs mb-2  text-slate-400   w-12 text-center"></th>
@@ -245,7 +245,7 @@ const StockMovementsPage = () => {
                           onClick={() => setExpandedMovement(isExpanded ? null : m.id)}
                           className={`p-1 rounded transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
                         >
-                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                         </button>
                       </td>
                       <td className="p-2">

@@ -37,12 +37,12 @@ const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-600 text-white rounded">
-              <Plus size={18} />
+              <Plus size={15} />
             </div>
             <h2 className="text-sm  text-slate-900 dark:text-white  ">Create New Operation</h2>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
-            <X size={18} />
+            <X size={15} />
           </button>
         </div>
 
@@ -186,13 +186,11 @@ const OperationsPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
       {/* Page Header */}
       <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-sm text-indigo-600">
-            <Settings2 size={15} />
-          </div>
+         
           <div>
             <h1 className="text-2xl  text-slate-900 dark:text-white  ">Manufacturing Operations</h1>
             <p className="text-xs  text-slate-500   mt-1">Global Operation Dictionary for Planning</p>
@@ -200,19 +198,19 @@ const OperationsPage = () => {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-8 py-3 bg-indigo-600 text-white rounded text-xs     shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
+          className="p-2 bg-indigo-600 text-white rounded text-xs     shadow-indigo-600/30 hover:bg-indigo-700 transition-all flex items-center gap-3 group"
         >
-          <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+          <Plus size={15} className="group-hover:rotate-90 transition-transform duration-300" />
           Create New Operation
         </button>
       </div>
 
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Table/List Area */}
-        <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800  overflow-hidden">
           <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="relative flex-1 w-full max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
               <input
                 type="text"
                 placeholder="SEARCH OPERATIONS..."
@@ -235,7 +233,7 @@ const OperationsPage = () => {
                 <p className="text-xs  text-slate-400  ">Loading operations...</p>
               </div>
             ) : filteredOps.length > 0 ? (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse bg-white">
                 <thead>
                   <tr className="bg-slate-50/30 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
                     <th className="p-2 text-xs  text-slate-400  ">Operation Name</th>
@@ -250,7 +248,7 @@ const OperationsPage = () => {
                       <td className="p-2">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
-                            <Wrench size={16} />
+                            <Wrench size={15} />
                           </div>
                           <span className="text-xs  text-slate-900 dark:text-white tracking-tight">
                             {op.name}
@@ -273,16 +271,16 @@ const OperationsPage = () => {
                       <td className="p-2 text-right">
                         <div className="flex justify-end gap-2">
                           <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
-                            <Edit2 size={16} />
+                            <Edit2 size={15} />
                           </button>
                           <button 
                             onClick={() => handleDeleteOperation(op.id)}
                             className="p-2 text-slate-400 hover:text-red-600 transition-colors"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={15} />
                           </button>
                           <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
-                            <ChevronRight size={16} />
+                            <ChevronRight size={15} />
                           </button>
                         </div>
                       </td>

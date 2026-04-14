@@ -433,7 +433,7 @@ const DesignDrawingManagement = () => {
                       <td className="p-2">
                         <div className="flex items-center gap-3">
                           <div className={`transition-transform duration-200 ${expandedDocs.has(doc.parent_id || doc.id) ? 'rotate-180' : ''}`}>
-                            <ChevronDown size={18} className="text-slate-400 group-hover:text-blue-500" />
+                            <ChevronDown size={15} className="text-slate-400 group-hover:text-blue-500" />
                           </div>
                           <div>
                             <div className=" text-xs text-slate-900 dark:text-white">{doc.name}</div>
@@ -469,7 +469,7 @@ const DesignDrawingManagement = () => {
                               className="bg-white dark:bg-slate-800 text-orange-500 hover:text-orange-600 border border-slate-200 dark:border-slate-700 p-2 rounded transition-colors "
                               title="Upload Revision"
                             >
-                              <RefreshCw size={16} />
+                              <RefreshCw size={15} />
                             </button>
                           )}
                           <button 
@@ -477,7 +477,7 @@ const DesignDrawingManagement = () => {
                             className="p-2 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 "
                             title="Delete whole drawing (all versions)"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={15} />
                           </button>
                         </div>
                       </td>
@@ -600,7 +600,7 @@ const DesignDrawingManagement = () => {
                                         className="p-1.5 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 "
                                         title="Delete this version only"
                                       >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={15} />
                                       </button>
                                     </div>
                                   </div>
@@ -725,7 +725,7 @@ const DesignDrawingManagement = () => {
                   <div className="text-sm text-slate-500 dark:text-slate-400 italic">"{item.description}"</div>
                   {item.reviewer_comment && (
                     <div className="flex gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
-                      <MessageSquare size={16} />
+                      <MessageSquare size={15} />
                       <span>{item.reviewer_comment}</span>
                     </div>
                   )}
@@ -765,7 +765,7 @@ const DesignDrawingManagement = () => {
                 <div className="space-y-4">
                   <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded">
                     <div className="flex items-center gap-2 text-red-800 dark:text-red-400  mb-2">
-                      <AlertCircle size={18} />
+                      <AlertCircle size={15} />
                       <span>Status: Rejected (v{selectedDoc.version})</span>
                     </div>
                     <div className="text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/50 p-3 rounded border border-red-100 dark:border-red-900/20">
@@ -803,14 +803,14 @@ const DesignDrawingManagement = () => {
                         onClick={() => setReviewData({ ...reviewData, status: "Approved" })}
                         className={`flex-1 py-2 rounded border-2 transition-all flex items-center justify-center gap-2 ${reviewData.status === 'Approved' ? 'border-green-500 bg-green-50 text-green-700 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700'}`}
                       >
-                        <CheckCircle2 size={18} /> Approve
+                        <CheckCircle2 size={15} /> Approve
                       </button>
                       <button
                         type="button"
                         onClick={() => setReviewData({ ...reviewData, status: "Rejected" })}
                         className={`flex-1 py-2 rounded border-2 transition-all flex items-center justify-center gap-2 ${reviewData.status === 'Rejected' ? 'border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-700'}`}
                       >
-                        <XCircle size={18} /> Reject
+                        <XCircle size={15} /> Reject
                       </button>
                     </div>
                   </div>

@@ -85,7 +85,7 @@ const SerialTagTrackingPage = () => {
           onClick={fetchSerials}
           className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 transition-all  text-sm"
         >
-          <Clock size={18} /> Refresh
+          <Clock size={15} /> Refresh
         </button>
       </div>
 
@@ -94,7 +94,7 @@ const SerialTagTrackingPage = () => {
         {stats.map((stat, idx) => {
           const Icon = stat.icon;
           return (
-            <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 ">
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-xs  text-slate-400  ">{stat.title}</p>
@@ -110,9 +110,9 @@ const SerialTagTrackingPage = () => {
       </div>
 
       {/* Filter Section */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-4">
+      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-800  flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
             type="text"
             placeholder="Search by ST Number, Item Name or PO..."
@@ -132,12 +132,12 @@ const SerialTagTrackingPage = () => {
           <option value="consumed">Consumed</option>
         </select>
         <button className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded  text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
-          <Download size={18} /> Export List
+          <Download size={15} /> Export List
         </button>
       </div>
 
       {/* Main Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800  overflow-hidden">
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center">
             <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
@@ -162,7 +162,7 @@ const SerialTagTrackingPage = () => {
                 {filteredData.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
                     <td className="p-2">
-                      <span className=" bg-blue-600 text-white rounded text-xs    shadow-sm">
+                      <span className=" bg-blue-600 text-white rounded text-xs    ">
                         {item.serial_number}
                       </span>
                     </td>
@@ -205,7 +205,7 @@ const SerialTagTrackingPage = () => {
                     </td>
                     <td className="p-2 text-right">
                       <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-blue-600">
-                        <FileText size={18} />
+                        <FileText size={15} />
                       </button>
                     </td>
                   </tr>

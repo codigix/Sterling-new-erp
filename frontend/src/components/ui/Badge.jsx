@@ -7,7 +7,7 @@ const Badge = ({
   className = '',
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center  font-medium';
+  const baseClasses = 'inline-flex items-center';
 
   const variants = {
     default: 'bg-slate-100 text-slate-700',
@@ -21,10 +21,10 @@ const Badge = ({
   };
 
   const sizes = {
-    xs: 'px-2 py-0.5 text-sm rounded',
-    sm: 'px-2 py-0.5 text-sm rounded ',
-    default: 'p-2 text-sm rounded',
-    lg: 'px-3 py-1 text-sm rounded '
+    xs: 'p-1 text-xs rounded',
+    sm: 'p-1 text-xs rounded ',
+    default: 'p-2 text-xs rounded',
+    lg: 'p-1 text-xs rounded '
   };
 
   const variantClasses = !className ? variants[variant] : '';

@@ -1264,14 +1264,14 @@ const CreateBOMPage = () => {
                                       className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors"
                                       title="Save"
                                     >
-                                      <Check size={16} />
+                                      <Check size={15} />
                                     </button>
                                     <button
                                       onClick={() => setEditingMaterialId(null)}
                                       className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
                                       title="Cancel"
                                     >
-                                      <X size={16} />
+                                      <X size={15} />
                                     </button>
                                   </>
                                 ) : (
@@ -1281,14 +1281,14 @@ const CreateBOMPage = () => {
                                       className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                                       title="Edit Row"
                                     >
-                                      <Edit2 size={16} />
+                                      <Edit2 size={15} />
                                     </button>
                                     <button
                                       onClick={() => removeTableRow("materials", row.id)}
                                       className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
                                       title="Delete Row"
                                     >
-                                      <Trash2 size={16} />
+                                      <Trash2 size={15} />
                                     </button>
                                   </>
                                 )}
@@ -1345,7 +1345,7 @@ const CreateBOMPage = () => {
                 disabled={saving}
                 className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded  shadow-lg shadow-blue-600/20 transition-all active:scale-95 flex items-center gap-2"
               >
-                <Copy size={18} />
+                <Copy size={15} />
                 Save as New Revision
               </button>
             )}

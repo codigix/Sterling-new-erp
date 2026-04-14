@@ -258,7 +258,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
           <button 
             className="px-8 py-2.5 bg-green-600 text-white rounded text-sm  hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20 flex items-center gap-2  "
           >
-            <Save size={18} /> Save Update
+            <Save size={15} /> Save Update
           </button>
         </div>
       </div>

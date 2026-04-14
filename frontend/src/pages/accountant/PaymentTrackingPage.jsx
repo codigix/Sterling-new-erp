@@ -131,7 +131,7 @@ const PaymentTrackingPage = () => {
           </p>
         </div>
         <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
-          <Download size={18} />
+          <Download size={15} />
           Export Report
         </button>
       </div>
@@ -156,7 +156,7 @@ const PaymentTrackingPage = () => {
         <div className="lg:col-span-3">
           <div className="relative mb-6">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-3 text-slate-400"
             />
             <input

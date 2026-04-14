@@ -284,7 +284,7 @@ const RootCardBuilderPage = () => {
 
         <div className="px-6 pb-6 flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search by title, code, or customer..."
@@ -294,7 +294,7 @@ const RootCardBuilderPage = () => {
             />
           </div>
           <div className="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700">
-            <Filter size={16} className="text-slate-500 dark:text-slate-400" />
+            <Filter size={15} className="text-slate-500 dark:text-slate-400" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}

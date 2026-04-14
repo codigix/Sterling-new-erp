@@ -170,13 +170,13 @@ const ProjectCard = ({
 
   const getStatusIcon = (status) => {
     const icons = {
-      draft: <AlertCircle size={16} className="text-gray-600" />,
-      completed: <CheckCircle size={16} className="text-green-600" />,
-      in_progress: <Clock size={16} className="text-blue-600" />,
-      pending: <Clock size={16} className="text-yellow-600" />,
-      on_hold: <AlertCircle size={16} className="text-red-600" />,
+      draft: <AlertCircle size={15} className="text-gray-600" />,
+      completed: <CheckCircle size={15} className="text-green-600" />,
+      in_progress: <Clock size={15} className="text-blue-600" />,
+      pending: <Clock size={15} className="text-yellow-600" />,
+      on_hold: <AlertCircle size={15} className="text-red-600" />,
     };
-    return icons[status] || <Clock size={16} />;
+    return icons[status] || <Clock size={15} />;
   };
 
   const getStatusColor = (status) => {
@@ -323,7 +323,7 @@ const ProjectCard = ({
               project.planned_start ||
               project.start_date) && (
               <div className="flex items-center text-xs gap-2 text-slate-500 dark:text-slate-400">
-                <Calendar size={16} />
+                <Calendar size={15} />
                 <span>
                   Start:{" "}
                   <span className="font-medium text-slate-900 dark:text-white text-xs">
@@ -338,7 +338,7 @@ const ProjectCard = ({
             )}
             {(project.due_date || project.planned_end || project.end_date) && (
               <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                <Calendar size={16} />
+                <Calendar size={15} />
                 <span>
                   End:{" "}
                   <span className="font-medium text-slate-900 dark:text-white text-xs">
@@ -396,17 +396,17 @@ const ProjectCard = ({
           >
             {isCreatingWorkflow ? (
               <>
-                <Clock size={18} className="animate-spin" />
+                <Clock size={15} className="animate-spin" />
                 Creating Tasks...
               </>
             ) : tasks.length > 0 ? (
               <>
-                <CheckCircle size={18} />
+                <CheckCircle size={15} />
                 Task Initiated ({tasks.length})
               </>
             ) : (
               <>
-                <Zap size={18} />
+                <Zap size={15} />
                 Start Designing
               </>
             )}
@@ -506,7 +506,7 @@ const ProjectCard = ({
                         className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
                         title="Mark as Complete"
                       >
-                        <CheckCircle size={18} />
+                        <CheckCircle size={15} />
                       </button>
                     )}
                   </div>

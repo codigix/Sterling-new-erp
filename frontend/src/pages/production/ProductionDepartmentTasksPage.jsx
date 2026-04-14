@@ -112,7 +112,7 @@ const ProductionDepartmentTasksPage = () => {
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
           <input
             type="text"
             placeholder="Search by title, job card or work order..."
@@ -122,7 +122,7 @@ const ProductionDepartmentTasksPage = () => {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter size={18} className="text-slate-400" />
+          <Filter size={15} className="text-slate-400" />
           <select
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700"
             value={statusFilter}
@@ -197,7 +197,7 @@ const ProductionDepartmentTasksPage = () => {
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors flex items-center gap-1 text-xs "
                             title="Go to Production Entry"
                           >
-                            <ArrowRight size={18} />
+                            <ArrowRight size={15} />
                             ENTRY
                           </button>
                         )}
@@ -207,7 +207,7 @@ const ProductionDepartmentTasksPage = () => {
                             className="p-2 text-green-600 hover:bg-green-50 rounded transition-colors"
                             title="Mark as Completed"
                           >
-                            <CheckCircle size={18} />
+                            <CheckCircle size={15} />
                           </button>
                         )}
                         {task.status === 'pending' && (
@@ -216,7 +216,7 @@ const ProductionDepartmentTasksPage = () => {
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                             title="Start Task"
                           >
-                            <Clock size={18} />
+                            <Clock size={15} />
                           </button>
                         )}
                       </div>

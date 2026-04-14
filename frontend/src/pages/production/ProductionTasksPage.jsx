@@ -152,7 +152,7 @@ const ProductionTasksPage = () => {
         </div>
         <div className="flex gap-2">
           <button className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
-            <Filter size={18} />
+            <Filter size={15} />
             Filter
           </button>
           <button
@@ -165,7 +165,7 @@ const ProductionTasksPage = () => {
             }}
             className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
-            <Plus size={18} />
+            <Plus size={15} />
             New {activeTab === "rootcards" ? "Root Card" : "Plan"}
           </button>
         </div>
@@ -320,11 +320,11 @@ const ProductionTasksPage = () => {
 
                 <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
                   <button className="flex-1 flex items-center text-xs justify-center gap-2 px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-medium">
-                    <Settings size={16} />
+                    <Settings size={15} />
                     Manage
                   </button>
                   <button className="flex-1 flex items-center text-xs justify-center gap-2 px-3 py-2 rounded bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium">
-                    <Eye size={16} />
+                    <Eye size={15} />
                     View
                   </button>
                 </div>
@@ -429,10 +429,10 @@ const ProductionTasksPage = () => {
                     <td className="p-1">
                       <div className="flex gap-2">
                         <button className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-                          <ArrowRight size={16} />
+                          <ArrowRight size={15} />
                         </button>
                         <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover: transition-colors">
-                          <Eye size={16} />
+                          <Eye size={15} />
                         </button>
                       </div>
                     </td>

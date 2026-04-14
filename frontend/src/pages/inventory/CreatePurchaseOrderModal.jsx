@@ -719,9 +719,9 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <button 
                   type="button"
                   onClick={() => setShowManualForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-all shadow-sm"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-all "
                 >
-                  <Plus size={16} />
+                  <Plus size={15} />
                   Add Items Manually
                 </button>
               </div>
@@ -735,7 +735,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   onClick={() => setShowManualForm(false)}
                   className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                 >
-                  <X size={16} />
+                  <X size={15} />
                 </button>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 text-sm font-medium">
@@ -925,7 +925,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <h3 className="text-sm  text-slate-700 dark:text-slate-300  ">Purchase Order Items</h3>
                 </div>
               </div>
-              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-x-auto shadow-sm">
+              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-x-auto ">
                 <table className="w-full text-sm min-w-[800px]">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/50 text-xs   text-slate-500 ">
@@ -1109,7 +1109,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   onClick={() => setViewMode(false)}
                   className="px-8 py-2.5 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
                 >
-                  <Edit size={16} />
+                  <Edit size={15} />
                   Edit PO
                 </button>
               )
@@ -1119,7 +1119,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 disabled={submitting}
                 className={`px-8 py-2.5 ${editData ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/25' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/25'} text-white rounded  text-xs   shadow-lg transition-all flex items-center gap-2`}
               >
-                {submitting ? <RefreshCw size={16} className="animate-spin" /> : (editData ? <Save size={16} /> : <CheckCircle size={16} />)}
+                {submitting ? <RefreshCw size={15} className="animate-spin" /> : (editData ? <Save size={15} /> : <CheckCircle size={15} />)}
                 {submitting ? "Saving..." : (editData ? "Update PO" : "Create Purchase Order")}
               </button>
             )}

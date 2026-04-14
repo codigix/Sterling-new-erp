@@ -1069,7 +1069,7 @@ const CreateQuotationModal = ({
                           Reference RFQ
                         </label>
                         <p className="text-xs  text-slate-900 dark:text-white flex items-center gap-2">
-                          <FileText size={16} className="text-purple-500" />
+                          <FileText size={15} className="text-purple-500" />
                           {formData.rfq_number || "Referenced RFQ"}
                         </p>
                       </div>
@@ -1155,7 +1155,7 @@ const CreateQuotationModal = ({
                 {/* {formData.root_card_id && !preFilledMaterials && (
                   <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-100 dark:border-blue-800">
                     <span className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
-                      <Check size={16} />
+                      <Check size={15} />
                       Materials loaded from root card analysis
                     </span>
                     <button

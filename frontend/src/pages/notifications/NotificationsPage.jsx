@@ -196,7 +196,7 @@ const NotificationsPage = () => {
                 : "bg-white text-slate-500 border border-slate-200 hover:border-blue-400 hover:text-blue-600"
             }`}
           >
-            {showUnreadOnly ? <Eye size={18} /> : <EyeOff size={18} />}
+            {showUnreadOnly ? <Eye size={15} /> : <EyeOff size={15} />}
             {showUnreadOnly ? "Showing Unread" : "Show Unread Only"}
           </button>
 
@@ -205,7 +205,7 @@ const NotificationsPage = () => {
               onClick={markAllAsRead}
               className="flex items-center gap-2 px-5 py-2.5 rounded bg-emerald-600 text-white  text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 dark:shadow-none"
             >
-              <CheckCheck size={18} />
+              <CheckCheck size={15} />
               Mark All Read
             </button>
           )}
@@ -251,7 +251,7 @@ const NotificationsPage = () => {
                       className={`group relative bg-white dark:bg-slate-900 rounded-2xl border transition-all cursor-pointer overflow-hidden ${
                         !notif.is_read
                           ? "border-blue-100 dark:border-blue-900/30 "
-                          : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
+                          : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 "
                       }`}
                     >
                       {!notif.is_read && (
@@ -311,7 +311,7 @@ const NotificationsPage = () => {
                               className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all opacity-0 group-hover:opacity-100"
                               title="Delete notification"
                             >
-                              <Trash2 size={18} />
+                              <Trash2 size={15} />
                             </button>
                           </div>
                         </div>

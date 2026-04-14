@@ -624,7 +624,7 @@ const QualityInspectionDetail = () => {
           {inspectionType === 'Outsource' && (
             <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-2  space-y-4">
               <h3 className="text-xs  text-slate-900 dark:text-white   flex items-center gap-2">
-                <Truck size={16} className="text-blue-600" /> Outsource Actions
+                <Truck size={15} className="text-blue-600" /> Outsource Actions
               </h3>
               
               <div className="space-y-4 pt-2">

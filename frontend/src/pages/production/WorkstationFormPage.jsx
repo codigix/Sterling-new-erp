@@ -142,9 +142,9 @@ const WorkstationFormPage = () => {
             <button 
               onClick={handleSubmit}
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded  hover:bg-blue-700 transition-all shadow-sm shadow-blue-200 text-sm disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded  hover:bg-blue-700 transition-all  shadow-blue-200 text-sm disabled:opacity-50"
             >
-              <ShieldCheck size={18} />
+              <ShieldCheck size={15} />
               {loading ? (isEdit ? 'Updating...' : 'Registering...') : (isEdit ? 'Update Asset' : 'Register Asset')}
             </button>
           </div>
@@ -157,7 +157,7 @@ const WorkstationFormPage = () => {
           <div className="lg:col-span-8 space-y-8">
             
             {/* Identity & Localization */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden">
               <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-blue-50 rounded flex items-center justify-center text-blue-600 border border-blue-100/50">
                   <Info size={20} />
@@ -196,7 +196,7 @@ const WorkstationFormPage = () => {
                   <div className="space-y-2">
                     <label className="text-xs  text-slate-500  tracking-wider">Building / Area</label>
                     <div className="relative">
-                      <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input 
                         type="text"
                         name="building_area"
@@ -226,7 +226,7 @@ const WorkstationFormPage = () => {
             </div>
 
             {/* Technical Specifications */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden">
               <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-purple-50 rounded flex items-center justify-center text-purple-600 border border-purple-100/50">
                   <Cpu size={20} />
@@ -303,7 +303,7 @@ const WorkstationFormPage = () => {
 
           <div className="lg:col-span-4 space-y-8">
             {/* Operational Status */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div className="bg-white rounded-2xl border border-slate-200  p-6">
               <h3 className="text-sm  text-slate-900 mb-6  tracking-wider">Operational Status</h3>
               <div className="flex items-center gap-4 p-4 bg-slate-50 rounded border border-slate-100">
                 <div className="relative inline-flex items-center cursor-pointer">
@@ -324,7 +324,7 @@ const WorkstationFormPage = () => {
             </div>
 
             {/* Maintenance */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden">
               <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-blue-50 rounded flex items-center justify-center text-blue-600 border border-blue-100/50">
                   <Settings size={20} />
@@ -353,7 +353,7 @@ const WorkstationFormPage = () => {
                 <div className="space-y-2">
                   <label className="text-xs  text-slate-500  tracking-wider">Last Maintenance Date</label>
                   <div className="relative">
-                    <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Calendar size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input 
                       type="date"
                       name="last_maintenance_date"

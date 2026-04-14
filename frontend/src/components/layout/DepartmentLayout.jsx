@@ -183,7 +183,7 @@ const DepartmentLayout = () => {
                 className="flex items-center text-xs space-x-3 p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center shadow-sm">
+                <div className="w-9 h-9 bg-blue-600 rounded flex items-center text-xs justify-center ">
                   <span className="text-white  text-base">
                     {user?.fullName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase()}
                   </span>
@@ -214,7 +214,7 @@ const DepartmentLayout = () => {
                     onClick={handleLogout}
                     className="flex items-center text-xs w-full p-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
-                    <LogOut size={16} className="mr-2" />
+                    <LogOut size={15} className="mr-2" />
                     Logout
                   </button>
                 </div>
@@ -264,7 +264,7 @@ const DepartmentLayout = () => {
                               }}
                               className="w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                             >
-                              <IconComponent size={18} className="flex-shrink-0" />
+                              <IconComponent size={15} className="flex-shrink-0" />
                               {!sidebarCollapsed && (
                                 <>
                                   <span className="ml-3 flex-1 text-left">{item.title}</span>
@@ -294,7 +294,7 @@ const DepartmentLayout = () => {
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                             }`}
                           >
-                            <IconComponent size={18} className="flex-shrink-0" />
+                            <IconComponent size={15} className="flex-shrink-0" />
                             {!sidebarCollapsed && <span className="ml-3">{item.title}</span>}
                           </Link>
                         )}
@@ -329,7 +329,7 @@ const DepartmentLayout = () => {
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                           }`}
                         >
-                          <IconComponent size={18} className="flex-shrink-0" />
+                          <IconComponent size={15} className="flex-shrink-0" />
                           {!sidebarCollapsed && (
                             <span className="ml-3">
                               {dept.title === "Inventory" ? "Dashboard" : `${dept.title} Tasks`}
@@ -349,7 +349,7 @@ const DepartmentLayout = () => {
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                         }`}
                       >
-                        <Layers size={18} className="flex-shrink-0" />
+                        <Layers size={15} className="flex-shrink-0" />
                         {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
                       </Link>
                     </li>
@@ -378,7 +378,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <FileText size={18} className="flex-shrink-0" />
+                      <FileText size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Design Drawings</span>}
                     </Link>
                   </li>
@@ -406,7 +406,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Home size={18} className="flex-shrink-0" />
+                      <Home size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
                     </Link>
                   </li>
@@ -419,7 +419,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Zap size={18} className="flex-shrink-0" />
+                      <Zap size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
                     </Link>
                   </li>
@@ -432,7 +432,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <FileCheck size={18} className="flex-shrink-0" />
+                      <FileCheck size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Design Drawings</span>}
                     </Link>
                   </li>
@@ -445,7 +445,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Layers size={18} className="flex-shrink-0" />
+                      <Layers size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">BOM</span>}
                     </Link>
                   </li>
@@ -459,7 +459,7 @@ const DepartmentLayout = () => {
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                         }`}
                       >
-                        <PackageCheck size={18} className="flex-shrink-0" />
+                        <PackageCheck size={15} className="flex-shrink-0" />
                         {!sidebarCollapsed && <span className="ml-3">Released Materials</span>}
                       </Link>
                       {/* {!sidebarCollapsed && (
@@ -482,7 +482,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <ClipboardList size={18} className="flex-shrink-0" />
+                      <ClipboardList size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Production Plans</span>}
                     </Link>
                   </li>
@@ -495,7 +495,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <HistoryIcon size={18} className="flex-shrink-0" />
+                      <HistoryIcon size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Production Updates</span>}
                     </Link>
                   </li>
@@ -508,7 +508,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Users size={18} className="flex-shrink-0" />
+                      <Users size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Employee Work Logs</span>}
                     </Link>
                   </li>
@@ -521,7 +521,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Settings2 size={18} className="flex-shrink-0" />
+                      <Settings2 size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Operations</span>}
                     </Link>
                   </li>
@@ -534,7 +534,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Monitor size={18} className="flex-shrink-0" />
+                      <Monitor size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Workstations</span>}
                     </Link>
                   </li>
@@ -547,7 +547,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Zap size={18} className="flex-shrink-0" />
+                      <Zap size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Workflow Tasks</span>}
                     </Link>
                   </li>
@@ -560,7 +560,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <ClipboardList size={18} className="flex-shrink-0" />
+                      <ClipboardList size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Department Tasks</span>}
                     </Link>
                   </li>
@@ -596,7 +596,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Home size={18} className="flex-shrink-0" />
+                      <Home size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
                     </Link>
                   </li>
@@ -609,7 +609,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Layers size={18} className="flex-shrink-0" />
+                      <Layers size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
                     </Link>
                   </li>
@@ -622,7 +622,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <ClipboardList size={18} className="flex-shrink-0" />
+                      <ClipboardList size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Material Requests</span>}
                     </Link>
                   </li>
@@ -635,7 +635,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <FileText size={18} className="flex-shrink-0" />
+                      <FileText size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Quotations</span>}
                     </Link>
                   </li>
@@ -648,7 +648,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <ShoppingCart size={18} className="flex-shrink-0" />
+                      <ShoppingCart size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Purchase Orders</span>}
                     </Link>
                   </li>
@@ -661,7 +661,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Truck size={18} className="flex-shrink-0" />
+                      <Truck size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Vendors</span>}
                     </Link>
                   </li>
@@ -689,7 +689,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <ShoppingCart size={18} className="flex-shrink-0" />
+                      <ShoppingCart size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Purchase Orders</span>}
                     </Link>
                   </li>
@@ -702,7 +702,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <FileText size={18} className="flex-shrink-0" />
+                      <FileText size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">GRN</span>}
                     </Link>
                   </li>
@@ -730,7 +730,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <ClipboardList size={18} className="flex-shrink-0" />
+                      <ClipboardList size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Stock Entries</span>}
                     </Link>
                   </li>
@@ -743,7 +743,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <Package size={18} className="flex-shrink-0" />
+                      <Package size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Stock Balance</span>}
                     </Link>
                   </li>
@@ -756,7 +756,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <RefreshCw size={18} className="flex-shrink-0" />
+                      <RefreshCw size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Stock Movements</span>}
                     </Link>
                   </li>
@@ -786,7 +786,7 @@ const DepartmentLayout = () => {
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <ClipboardList size={18} className="flex-shrink-0" />
+                      <ClipboardList size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Department Tasks</span>}
                     </Link>
                   </li>
@@ -809,7 +809,7 @@ const DepartmentLayout = () => {
                     to="/notifications"
                     className="flex items-center text-xs px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
-                    <AlertCircle size={18} className="flex-shrink-0" />
+                    <AlertCircle size={15} className="flex-shrink-0" />
                     {!sidebarCollapsed && (
                       <span className="ml-3">Notifications</span>
                     )}
@@ -827,7 +827,7 @@ const DepartmentLayout = () => {
                       to="/admin/dashboard"
                       className="flex items-center text-xs px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                     >
-                      <Home size={18} className="flex-shrink-0" />
+                      <Home size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && (
                         <span className="ml-3">Admin Panel</span>
                       )}

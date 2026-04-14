@@ -11,6 +11,9 @@ const mapBomRowToModel = (row) => ({
   projectId: row.project_id,
   totalCost: row.total_cost,
   projectName: row.project_name,
+  productName: row.project_name,
+  productCode: row.project_code,
+  projectCode: row.project_code,
   poNumber: row.po_number,
   quantity: row.quantity, // quantity from RC
   createdAt: row.created_at,
@@ -249,7 +252,7 @@ const updateBOM = async (req, res) => {
 const getBOMs = async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT b.*, rc.project_name, rc.po_number, rc.quantity
+      SELECT b.*, rc.project_name, rc.project_code, rc.po_number, rc.quantity
       FROM boms b
       JOIN root_cards rc ON b.root_card_id = rc.id
       ORDER BY b.created_at DESC
@@ -265,7 +268,7 @@ const getBOMById = async (req, res) => {
   const { bomId } = req.params;
   try {
     const [bomRows] = await db.query(`
-      SELECT b.*, rc.project_name, rc.po_number, rc.quantity
+      SELECT b.*, rc.project_name, rc.project_code, rc.po_number, rc.quantity
       FROM boms b
       JOIN root_cards rc ON b.root_card_id = rc.id
       WHERE b.id = ?

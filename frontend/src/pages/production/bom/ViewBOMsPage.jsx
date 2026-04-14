@@ -317,31 +317,31 @@ const ViewBOMsPage = () => {
         <div className="flex items-center gap-2">
           <button 
             onClick={() => navigate(`/department/production/bom/view/${row.id}`)}
-            className="p-1.5 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
+            className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
             title="View Details"
           >
-            <Eye size={16} />
+            <Eye size={15} />
           </button>
           <button 
             onClick={() => handleMaterialRequest(row.id)}
-            className="p-1.5 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
+            className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
             title="Send Material Request"
           >
-            <Send size={16} />
+            <Send size={15} />
           </button>
           <button 
             onClick={() => navigate(`/department/production/bom/create?bomId=${row.id}`)}
             className="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 transition-colors"
             title="Edit BOM"
           >
-            <Edit2 size={16} />
+            <Edit2 size={15} />
           </button>
           <button 
             onClick={() => handleDelete(row.id)}
             className="p-1.5 hover:bg-red-50 rounded-md text-red-600 transition-colors"
             title="Delete BOM"
           >
-            <Trash2 size={16} />
+            <Trash2 size={15} />
           </button>
         </div>
       )
@@ -385,7 +385,7 @@ const ViewBOMsPage = () => {
       {!isSendToAdminTask && (
         <div className="grid grid-cols-1 md:grid-cols-4 my-5 gap-4">
           {stats.map((stat, idx) => (
-            <Card key={idx} className="border-none shadow-sm overflow-hidden relative">
+            <Card key={idx} className="border-none  overflow-hidden relative">
               <CardContent className="p-2 flex items-center gap-4">
                 <div className={`p-2 rounded bg-${stat.color}-50 text-${stat.color}-600`}>
                   <stat.icon size={15} />
@@ -413,7 +413,7 @@ const ViewBOMsPage = () => {
                 onChange={(val) => setRootCardFilter(val)}
                 placeholder="Select Root Card..."
                 containerClassName="mt-0"
-                icon={<ClipboardList size={16} />}
+                icon={<ClipboardList size={15} />}
               />
             </div>
             
@@ -433,7 +433,7 @@ const ViewBOMsPage = () => {
       )}
 
       {/* Data Table */}
-      <div className={`border-none shadow-sm overflow-hidden ${!rootCardFilter && isSendToAdminTask ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+      <div className={`border-none  overflow-hidden ${!rootCardFilter && isSendToAdminTask ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
         <div className="p-0">
           <DataTable 
             columns={columns}

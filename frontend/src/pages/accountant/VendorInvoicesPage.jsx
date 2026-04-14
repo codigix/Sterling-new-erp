@@ -137,11 +137,11 @@ const VendorInvoicesPage = () => {
         </div>
         <div className="flex gap-3 flex-wrap">
           <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Plus size={18} />
+            <Plus size={15} />
             New Invoice
           </button>
           <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
-            <Download size={18} />
+            <Download size={15} />
             Export
           </button>
         </div>
@@ -167,7 +167,7 @@ const VendorInvoicesPage = () => {
         <div className="lg:col-span-2">
           <div className="relative mb-6">
             <Search
-              size={18}
+              size={15}
               className="absolute left-3 top-3 text-slate-400"
             />
             <input
@@ -234,19 +234,19 @@ const VendorInvoicesPage = () => {
                     <td className="p-1 flex justify-center gap-2">
                       <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
                         <Eye
-                          size={16}
+                          size={15}
                           className="text-slate-500 dark:text-slate-400"
                         />
                       </button>
                       <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
                         <Edit
-                          size={16}
+                          size={15}
                           className="text-blue-600 dark:text-blue-400"
                         />
                       </button>
                       <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
                         <Trash2
-                          size={16}
+                          size={15}
                           className="text-red-600 dark:text-red-400"
                         />
                       </button>

@@ -161,7 +161,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
               onClick={handleSubmit}
               className="flex-1 flex items-center text-xs justify-center gap-2"
             >
-              <Save size={16} />
+              <Save size={15} />
               Submit Details
             </Button>
             <Button

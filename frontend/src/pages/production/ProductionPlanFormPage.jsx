@@ -34,7 +34,7 @@ const SectionHeader = ({ title, subtitle, section, isExpanded, onToggle, icon: I
           )}
         </div>
         {badge && (
-          <span className="px-4 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[12px]   rounded border-2 border-blue-200 dark:border-blue-700 shadow-sm">
+          <span className="px-4 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[12px]   rounded border-2 border-blue-200 dark:border-blue-700 ">
             {badge}
           </span>
         )}
@@ -346,7 +346,7 @@ const ProductionPlanFormPage = () => {
                       {isRowExpanded && fg.rawMaterials?.length > 0 && (
                         <tr className="bg-slate-50/30 dark:bg-slate-900/10">
                           <td colSpan="7" className="p-2">
-                            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm animate-in zoom-in-95 duration-200">
+                            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  animate-in zoom-in-95 duration-200">
                               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-50 dark:border-slate-700">
                                 <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded">
                                   <Layers size={14} className="text-blue-500" />
@@ -471,7 +471,7 @@ const ProductionPlanFormPage = () => {
     const explodedComponents = consolidateMaterials(materials.filter(m => !(m.isCore || m.is_core || m.isCore == 1 || m.is_core == 1)));
 
     return (
-      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6 transition-all duration-300">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden mb-6 transition-all duration-300">
         <SectionHeader 
           title="MATERIALS" 
           subtitle="Consolidated material explosion across all levels"
@@ -490,7 +490,7 @@ const ProductionPlanFormPage = () => {
             {coreMaterials.length > 0 && (
               <>
                 <div className="p-2 bg-orange-50/50 dark:bg-orange-900/10 flex items-center gap-3 border-b border-orange-100 dark:border-orange-900/20">
-                  <div className="w-2 h-2 rounded  bg-orange-500 shadow-sm shadow-orange-500/50" />
+                  <div className="w-2 h-2 rounded  bg-orange-500  shadow-orange-500/50" />
                   <h4 className="text-xs  text-orange-700 dark:text-orange-400  ">Core Materials</h4>
                 </div>
                 <div className="overflow-x-auto">
@@ -544,7 +544,7 @@ const ProductionPlanFormPage = () => {
 
             {/* Exploded Components Section */}
             <div className="p-2 bg-red-50/50 dark:bg-red-900/10 flex items-center gap-3 border-y border-red-100 dark:border-red-900/20">
-              <div className="w-2 h-2 rounded  bg-red-500 shadow-sm shadow-red-500/50" />
+              <div className="w-2 h-2 rounded  bg-red-500  shadow-red-500/50" />
               <h4 className="text-xs  text-red-700 dark:text-red-400  ">Exploded Components</h4>
             </div>
             <div className="overflow-x-auto">
@@ -703,7 +703,7 @@ const ProductionPlanFormPage = () => {
                       {isRowExpanded && sa.rawMaterials?.length > 0 && (
                         <tr className="bg-slate-50/30 dark:bg-slate-900/10">
                           <td colSpan="7" className="p-2">
-                            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 shadow-sm animate-in zoom-in-95 duration-200">
+                            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  animate-in zoom-in-95 duration-200">
                               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-50 dark:border-slate-700">
                                 <div className="p-1.5 bg-red-50 dark:bg-red-900/20 rounded">
                                   <Layers size={14} className="text-red-500" />
@@ -777,7 +777,7 @@ const ProductionPlanFormPage = () => {
   );
 
   const renderManufacturingFlowSection = () => (
-    <div className="bg-white dark:bg-slate-800 rounded shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 transition-all duration-300">
       <SectionHeader 
         title="MANUFACTURING FLOW" 
         section="phases" 
@@ -798,9 +798,9 @@ const ProductionPlanFormPage = () => {
               <button
                 type="button"
                 onClick={() => setShowStageForm(true)}
-                className="inline-flex items-center gap-2 p-2 bg-purple-600 hover:bg-purple-700 text-white rounded  transition-all text-xs shadow-sm hover:shadow-purple-500/20"
+                className="inline-flex items-center gap-2 p-2 bg-purple-600 hover:bg-purple-700 text-white rounded  transition-all text-xs  hover:shadow-purple-500/20"
               >
-                <Plus size={16} />
+                <Plus size={15} />
                 Add Phase
               </button>
             )}
@@ -1013,14 +1013,14 @@ const ProductionPlanFormPage = () => {
                           onClick={() => startEditStage(stage)}
                           className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-500 transition-colors"
                         >
-                          <Edit2 size={16} />
+                          <Edit2 size={15} />
                         </button>
                         <button
                           type="button"
                           onClick={() => removeStage(stage.id)}
                           className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-slate-400 hover:text-red-500 transition-colors"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </div>
@@ -2007,7 +2007,7 @@ const ProductionPlanFormPage = () => {
                 onClick={() => setIsViewMode(false)}
                 className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded bg-purple-600 text-white  hover:bg-purple-700 shadow-lg shadow-purple-600/20 transition-all text-sm"
               >
-                <Edit2 size={18} />
+                <Edit2 size={15} />
                 Edit Plan
               </button>
             ) : (
@@ -2022,7 +2022,7 @@ const ProductionPlanFormPage = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs bg-slate-900 dark:bg-slate-700 text-white  hover:bg-black dark:hover:bg-slate-800 disabled:bg-slate-400 transition-all text-xs border border-slate-800 dark:border-slate-600 shadow-sm"
+                  className="inline-flex items-center justify-center gap-2 p-2 rounded text-xs bg-slate-900 dark:bg-slate-700 text-white  hover:bg-black dark:hover:bg-slate-800 disabled:bg-slate-400 transition-all text-xs border border-slate-800 dark:border-slate-600 "
                 >
                   {loading ? (
                     <Loader2 size={14} className="animate-spin" />
@@ -2038,14 +2038,14 @@ const ProductionPlanFormPage = () => {
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-red-700 dark:text-red-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-            <AlertCircle size={18} />
+            <AlertCircle size={15} />
             <p className="text-sm font-medium">{error}</p>
           </div>
         )}
         
         {success && (
           <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-green-700 dark:text-green-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-            <CheckCircle size={18} />
+            <CheckCircle size={15} />
             <p className="text-sm font-medium">{success}</p>
           </div>
         )}
@@ -2073,7 +2073,7 @@ const ProductionPlanFormPage = () => {
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-xs  rounded-md hover:bg-indigo-700 transition-all  tracking-wider shadow-sm">
+          <button className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-xs  rounded-md hover:bg-indigo-700 transition-all  tracking-wider ">
             <Activity size={14} />
             Production Progress
             <ChevronDown size={14} />
@@ -2098,7 +2098,7 @@ const ProductionPlanFormPage = () => {
         />
 
         {/* Footer Bar */}
-        <div className="mt-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
+        <div className="mt-12 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4 ">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
             <div className="flex items-center gap-8 w-full md:w-auto">
               <div className="flex flex-col">
@@ -2140,7 +2140,7 @@ const ProductionPlanFormPage = () => {
                   console.log('planId:', id || planId);
                   setShowMaterialRequestModal(true);
                 }}
-                className="inline-flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-300 text-xs   transition-all shadow-sm"
+                className="inline-flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-300 text-xs   transition-all "
               >
                 <Package size={14} className="text-blue-500" />
                 Material Request

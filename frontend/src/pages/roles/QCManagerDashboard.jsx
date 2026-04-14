@@ -188,7 +188,7 @@ const QCManagerDashboard = () => {
         </div>
 
         {/* Assigned Root Cards (Quality Check) */}
-        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded p-6 border border-slate-200 dark:border-slate-700 ">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg  text-slate-900 dark:text-white text-xs flex items-center gap-2">
               <Clock size={20} className="text-blue-600" />

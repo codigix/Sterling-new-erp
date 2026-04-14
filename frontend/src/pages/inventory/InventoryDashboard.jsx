@@ -212,7 +212,7 @@ const DashboardContent = React.memo(({
                 onClick={handleExport}
                 className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
               >
-                <Download size={18} />
+                <Download size={15} />
                 Export
               </button>
               <select
@@ -249,9 +249,9 @@ const DashboardContent = React.memo(({
                         }`}
                       >
                         {stat.positive ? (
-                          <TrendingUp size={16} />
+                          <TrendingUp size={15} />
                         ) : (
-                          <TrendingDown size={16} />
+                          <TrendingDown size={15} />
                         )}
                         {stat.change}
                       </p>

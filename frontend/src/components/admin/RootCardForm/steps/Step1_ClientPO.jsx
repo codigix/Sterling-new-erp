@@ -53,7 +53,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
           {/* Project & PO Information */}
           <div>
             <h5 className="text-sm  text-slate-900 mb-3 flex items-center gap-2 text-left">
-              <ClipboardList size={16} className="text-blue-600" />
+              <ClipboardList size={15} className="text-blue-600" />
               Project & PO Information
             </h5>
             <FormRow cols={3}>
@@ -115,7 +115,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
           {/* Inspection & Additional Details */}
           <div className="border-t border-slate-100 pt-6">
             <h5 className="text-sm  text-slate-900 mb-3 flex items-center gap-2 text-left">
-              <ShieldCheck size={16} className="text-green-600" />
+              <ShieldCheck size={15} className="text-green-600" />
               Inspection & Additional Details
             </h5>
             <FormRow cols={3}>

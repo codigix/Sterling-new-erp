@@ -29,7 +29,7 @@ const ProductionReportsTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 ">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-blue-600 text-white rounded shadow-lg shadow-blue-600/20">
             <BarChart3 size={15} />
@@ -41,7 +41,7 @@ const ProductionReportsTab = () => {
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <button className="px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-xs  transition-all flex items-center gap-2 shadow-lg shadow-slate-900/20">
-            <Zap size={16} /> Export Detailed Analytics
+            <Zap size={15} /> Export Detailed Analytics
           </button>
         </div>
       </div>
@@ -61,7 +61,7 @@ const ProductionReportsTab = () => {
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon size={18} />
+                  <Icon size={15} />
                   <span className="text-xs   ">{report.label}</span>
                 </div>
                 {activeReport === report.id && <ArrowRight size={14} />}
@@ -70,7 +70,7 @@ const ProductionReportsTab = () => {
           })}
         </div>
 
-        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 shadow-sm p-12 flex flex-col items-center justify-center text-center">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  p-12 flex flex-col items-center justify-center text-center">
           <div className="w-24 h-24 bg-slate-50 dark:bg-slate-900/50 rounded-full flex items-center justify-center text-slate-300 dark:text-slate-700 mb-6 border border-slate-100 dark:border-slate-700">
             <TrendingUp size={48} />
           </div>
@@ -88,17 +88,17 @@ const ProductionReportsTab = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 p-5 rounded-2xl shadow-sm">
+        <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 p-5 rounded-2xl ">
           <p className="text-xs  text-emerald-600 dark:text-emerald-400   mb-1">Efficiency Index</p>
           <h4 className="text-2xl  text-emerald-900 dark:text-emerald-300 leading-none">94.2%</h4>
           <p className="text-xs  text-emerald-700/70 dark:text-emerald-500/70   mt-2">+2.4% from last period</p>
         </div>
-        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 p-5 rounded-2xl shadow-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 p-5 rounded-2xl ">
           <p className="text-xs  text-blue-600 dark:text-blue-400   mb-1">Total Output (Monthly)</p>
           <h4 className="text-2xl  text-blue-900 dark:text-blue-300 leading-none">1,284</h4>
           <p className="text-xs  text-blue-700/70 dark:text-blue-500/70   mt-2">Verified Units Produced</p>
         </div>
-        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-5 rounded-2xl shadow-sm">
+        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-5 rounded-2xl ">
           <p className="text-xs  text-amber-600 dark:text-amber-400   mb-1">Active Projects</p>
           <h4 className="text-2xl  text-amber-900 dark:text-amber-300 leading-none">18</h4>
           <p className="text-xs  text-amber-700/70 dark:text-amber-500/70   mt-2">In shop floor pipeline</p>

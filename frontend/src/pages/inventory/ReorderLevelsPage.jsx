@@ -174,11 +174,11 @@ const ReorderLevelsPage = () => {
             onClick={handleExport}
             className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
           >
-            <Download size={18} />
+            <Download size={15} />
             Export
           </button>
           <button className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium">
-            <Plus size={18} />
+            <Plus size={15} />
             Add Item
           </button>
         </div>
@@ -214,7 +214,7 @@ const ReorderLevelsPage = () => {
                   onClick={() => handleCreateOrder(item)}
                   className="flex items-center text-xs gap-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium"
                 >
-                  <ShoppingCart size={16} />
+                  <ShoppingCart size={15} />
                   Order Now
                 </button>
               </div>
@@ -226,7 +226,7 @@ const ReorderLevelsPage = () => {
       {/* Search Filter */}
       <div className="relative">
         <Search
-          size={18}
+          size={15}
           className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
         />
         <input
@@ -343,13 +343,13 @@ const ReorderLevelsPage = () => {
                             onClick={handleSave}
                             className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
                           >
-                            <Save size={16} />
+                            <Save size={15} />
                           </button>
                           <button
                             onClick={handleCancel}
                             className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
                           >
-                            <X size={16} />
+                            <X size={15} />
                           </button>
                         </div>
                       </td>
@@ -390,14 +390,14 @@ const ReorderLevelsPage = () => {
                             onClick={() => handleEdit(item)}
                             className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
                           >
-                            <Edit size={16} />
+                            <Edit size={15} />
                           </button>
                           <button
                             onClick={() => handleCreateOrder(item)}
                             className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
                             disabled={item.status === "optimal"}
                           >
-                            <ShoppingCart size={16} />
+                            <ShoppingCart size={15} />
                           </button>
                         </div>
                       </td>

@@ -434,7 +434,7 @@ const ProjectDetailViewPage = () => {
                         <div className="flex items-center gap-3 flex-1">
                           <div className="w-8 h-8 rounded  flex items-center justify-center bg-blue-100 dark:bg-blue-900">
                             <Clock
-                              size={16}
+                              size={15}
                               className="text-blue-600 dark:text-blue-400"
                             />
                           </div>
@@ -859,11 +859,11 @@ const ProjectDetailViewPage = () => {
                         {uploadedFiles.references.map((file, idx) => (
                           <div
                             key={idx}
-                            className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-3 rounded hover:shadow-sm transition"
+                            className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-3 rounded hover: transition"
                           >
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               <File
-                                size={16}
+                                size={15}
                                 className="text-blue-600 dark:text-blue-400 flex-shrink-0"
                               />
                               <span className="text-xs text-slate-900 dark:text-white truncate">
@@ -879,7 +879,7 @@ const ProjectDetailViewPage = () => {
                                   : "text-slate-400 cursor-not-allowed opacity-50"
                               }`}
                             >
-                              <X size={16} />
+                              <X size={15} />
                             </button>
                           </div>
                         ))}

@@ -386,7 +386,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                     {Object.entries(formData.productionPlan.selectedPhases).map(([phase, selected]) =>
                       selected ? (
                         <div key={phase} className="flex items-center gap-2 text-slate-700 text-sm">
-                          <CheckCircle2 size={16} className="text-green-500" />
+                          <CheckCircle2 size={15} className="text-green-500" />
                           {phase}
                         </div>
                       ) : null
