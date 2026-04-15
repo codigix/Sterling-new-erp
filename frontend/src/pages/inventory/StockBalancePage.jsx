@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../utils/api";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import {
   Package,
   Search,
@@ -46,6 +47,14 @@ const StockBalancePage = () => {
           return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("en-GB");
         };
 
+        // If main item is missing dimensions but has serials, try to pick from first serial
+        const firstSerial = item.serials && item.serials.length > 0 ? item.serials[0] : {};
+        
+        const getDim = (field, altField) => {
+          const val = item[field] || item[altField] || firstSerial[field] || firstSerial[altField] || 0;
+          return Number(val);
+        };
+
         return {
           id: item.id,
           name: String(item.itemName || item.item_name || item.description || item.name || "N/A").trim() || "N/A",
@@ -58,21 +67,20 @@ const StockBalancePage = () => {
           type: item.material_type || item.category || "RAW_MATERIAL",
           project_name: item.project_name,
           vendor_name: item.vendor_name,
-          item_group: (item.item_group || item.category || "").toUpperCase(),
+          item_group: (item.item_group || item.itemGroup || item.category || "").toUpperCase(),
           unit_weight: item.unit_weight || 0,
           total_weight: item.total_weight || 0,
-          length_mm: item.length_mm || item.length,
-          width_mm: item.width_mm || item.width,
-          thickness_mm: item.thickness_mm || item.thickness,
-          diameter_mm: item.diameter_mm || item.diameter,
-          outer_diameter_mm: item.outer_diameter_mm || item.outer_diameter || item.outerDiameter,
-          height_mm: item.height_mm || item.height,
-          length: Number(item.length || item.length_mm || 0),
-          width: Number(item.width || item.width_mm || 0),
-          thickness: Number(item.thickness || item.thickness_mm || 0),
-          diameter: Number(item.diameter || item.diameter_mm || 0),
-          outer_diameter: Number(item.outer_diameter || item.outer_diameter_mm || item.outerDiameter || 0),
-          height: Number(item.height || item.height_mm || 0),
+          length: getDim('length', 'length_mm'),
+          width: getDim('width', 'width_mm'),
+          thickness: getDim('thickness', 'thickness_mm'),
+          diameter: getDim('diameter', 'diameter_mm'),
+          outer_diameter: getDim('outer_diameter', 'outer_diameter_mm'),
+          height: getDim('height', 'height_mm'),
+          side_s: getDim('side_s', 'sideS'),
+          side1: getDim('side1', 'sideS1'),
+          side2: getDim('side2', 'sideS2'),
+          web_thickness: getDim('web_thickness', 'tw'),
+          flange_thickness: getDim('flange_thickness', 'tf'),
           serials: item.serials || []
         };
       });
@@ -238,47 +246,6 @@ const StockBalancePage = () => {
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {filteredData.map((item) => {
     const isExpanded = expandedItem === item.id;
-    const renderDimensions = (it, fallback = null) => {
-      const name = (it.name || it.item_name || fallback?.name || fallback?.itemName || "").toUpperCase();
-      let group = (it.item_group || it.category || fallback?.item_group || fallback?.category || "").toUpperCase();
-      
-      // Heuristic - prioritize name if group is generic or missing specific keywords
-      const needsInference = !group || 
-                            group === "UNCATEGORIZED" || 
-                            group === "RAW_MATERIAL" || 
-                            group === "OTHER" ||
-                            (!group.includes("PIPE") && !group.includes("ROUND") && !group.includes("PLATE") && !group.includes("SHEET") && !group.includes("BLOCK") && !group.includes("BAR"));
-
-      if (needsInference) {
-        if (name.includes("PIPE") || name.includes("TUBE")) group = "PIPE";
-        else if (name.includes("ROUND") || name.includes("BAR")) group = "ROUND";
-        else if (name.includes("PLATE") || name.includes("SHEET") || name.includes("BLOCK")) group = "PLATE";
-      }
-
-      const l = Number(it.length_mm || it.length || (fallback?.length_mm || fallback?.length || 0));
-      const w = Number(it.width_mm || it.width || (fallback?.width_mm || fallback?.width || 0));
-      const t = Number(it.thickness_mm || it.thickness || (fallback?.thickness_mm || fallback?.thickness || 0));
-      const d = Number(it.diameter_mm || it.diameter || (fallback?.diameter_mm || fallback?.diameter || 0));
-      const od = Number(it.outer_diameter_mm || it.outer_diameter || it.outerDiameter || (fallback?.outer_diameter_mm || fallback?.outer_diameter || fallback?.outerDiameter || 0));
-      
-      const dims = [];
-      if (group.includes("PIPE") || group.includes("TUBE")) {
-        // Pipes often store OD in width if it's a return
-        const displayOD = od || w;
-        if (displayOD) dims.push(`OD:${displayOD}`);
-        if (t) dims.push(`T:${t}`);
-        if (l) dims.push(`L:${l}`);
-      } else if (group.includes("ROUND") || group.includes("BAR")) {
-        const displayD = d || w;
-        if (displayD) dims.push(`Dia:${displayD}`);
-        if (l) dims.push(`L:${l}`);
-      } else {
-        if (l) dims.push(`L:${l}`);
-        if (w) dims.push(`W:${w}`);
-        if (t) dims.push(`T:${t}`);
-      }
-      return dims.length > 0 ? dims.join(" ") : "-";
-    };
 
     return (
       <React.Fragment key={item.id}>
@@ -389,7 +356,7 @@ const StockBalancePage = () => {
                                          </td>
                                          <td className="p-2">
                                            <div className="text-xs text-blue-600 font-mono">
-                                             {renderDimensions(st, item)}
+                                             {renderDimensions({ ...item, ...st })}
                                            </div>
                                          </td>
                                          <td className="p-2 text-center text-slate-500 dark:text-slate-400">

@@ -3,6 +3,7 @@ import { X, Send, AlertCircle, ShoppingCart, Box, FileText } from "lucide-react"
 import axios from "../../../utils/api";
 import { toast } from "react-toastify";
 import Button from "../../../components/ui/Button";
+import { renderDimensions } from "../../../utils/dimensionUtils";
 
 const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
   const [remarks, setRemarks] = useState("");
@@ -87,26 +88,9 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                             <span className=" text-slate-700 dark:text-slate-200 text-xs group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {item.itemName}
                             </span>
-                            {item.itemGroup?.toLowerCase().includes("plate") && (item.length || item.width || item.thickness) && (
-                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.thickness || 0)} mm
-                              </span>
-                            )}
-                            {item.itemGroup?.toLowerCase().includes("round bar") && (item.diameter || item.length) && (
-                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                Dim: Dia:{Number(item.diameter || 0)}, L:{Number(item.length || 0)} mm
-                              </span>
-                            )}
-                            {item.itemGroup?.toLowerCase().includes("pipe") && (item.outerDiameter || item.thickness || item.length) && (
-                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                Dim: OD:{Number(item.outerDiameter || 0)}, Thk:{Number(item.thickness || 0)}, L:{Number(item.length || 0)} mm
-                              </span>
-                            )}
-                            {item.itemGroup?.toLowerCase().includes("block") && (item.length || item.width || item.height) && (
-                              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.height || 0)} mm
-                              </span>
-                            )}
+                            <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                              Dim: {renderDimensions(item)} mm
+                            </span>
                             <span className="text-xs font-medium text-slate-400 dark:text-slate-500  ">
                               {item.itemGroup || "NO-GROUP"}
                             </span>

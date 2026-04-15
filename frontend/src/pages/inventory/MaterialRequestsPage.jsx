@@ -30,6 +30,7 @@ import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import { showSuccess, showError } from "../../utils/toastUtils";
 import CreatePurchaseOrderModal from "./CreatePurchaseOrderModal";
+import { renderDimensions } from "../../utils/dimensionUtils";
 
 const MaterialRequestDetailModal = ({
   isOpen,
@@ -153,6 +154,21 @@ const MaterialRequestDetailModal = ({
         unit: item.unit,
         rate: 0,
         amount: 0,
+        item_group: item.item_group || "",
+        material_grade: item.material_grade || "",
+        material_type: item.material_type || "",
+        length: item.length || 0,
+        width: item.width || 0,
+        thickness: item.thickness || 0,
+        diameter: item.diameter || 0,
+        outer_diameter: item.outer_diameter || item.outer_diameter || 0,
+        height: item.height || 0,
+        side1: item.side1 || 0,
+        side2: item.side2 || 0,
+        web_thickness: item.web_thickness || item.webThickness || 0,
+        flange_thickness: item.flange_thickness || item.flangeThickness || 0,
+        unit_weight: item.unit_weight || item.unitWeight || 0,
+        total_weight: item.total_weight || item.totalWeight || 0,
       }));
 
       let vendorId = null;
@@ -248,6 +264,21 @@ const MaterialRequestDetailModal = ({
             quantity: item.quantity || 0,
             unit: item.unit || "",
             unit_price: 0,
+            item_group: item.item_group || "",
+            material_grade: item.material_grade || "",
+            material_type: item.material_type || "",
+            length: item.length || 0,
+            width: item.width || 0,
+            thickness: item.thickness || 0,
+            diameter: item.diameter || 0,
+            outer_diameter: item.outer_diameter || item.outerDiameter || 0,
+            height: item.height || 0,
+            side1: item.side1 || 0,
+            side2: item.side2 || 0,
+            web_thickness: item.web_thickness || item.webThickness || 0,
+            flange_thickness: item.flange_thickness || item.flangeThickness || 0,
+            total_weight: item.total_weight ? Number(parseFloat(item.total_weight).toFixed(3)) : (item.totalWeight ? Number(parseFloat(item.totalWeight).toFixed(3)) : 0),
+            unit_weight: item.unit_weight ? Number(parseFloat(item.unit_weight).toFixed(3)) : (item.unitWeight ? Number(parseFloat(item.unitWeight).toFixed(3)) : 0),
           })),
           reference_id: null,
           material_request_id: request.id,
@@ -516,6 +547,10 @@ const MaterialRequestDetailModal = ({
                                 <p className="text-xs text-slate-400 font-medium mt-0.5">
                                   {item.material_code || "No Code"}
                                 </p>
+                                {/* Dimensions Display */}
+                                <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-1">
+                                  Dim: {renderDimensions(item)} mm
+                                </div>
                               </div>
                             </td>
                             <td className="p-2 text-center">

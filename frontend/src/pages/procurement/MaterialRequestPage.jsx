@@ -12,6 +12,7 @@ import {
 import axios from "../../utils/api";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import "../../styles/TaskPage.css";
 
 const formatCurrency = (value) => {
@@ -513,7 +514,10 @@ const MaterialRequestPage = () => {
                   className="hover:bg-slate-50 dark:hover: transition-colors"
                 >
                   <td className="p-1 text-sm text-slate-700 dark:text-slate-300">
-                    {request.material_name}
+                    <div className="flex flex-col">
+                      <span>{request.material_name}</span>
+                      <span className="text-[10px] text-blue-600 font-medium">{renderDimensions(request)}</span>
+                    </div>
                   </td>
                   <td className="p-1 text-sm">
                     <div className="flex flex-col">

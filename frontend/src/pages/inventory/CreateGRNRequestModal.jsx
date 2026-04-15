@@ -167,11 +167,30 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     try {
       // Map frontend keys to backend expected keys
       const mappedItems = formData.items.map(item => ({
-        po_item_id: item.id || item.po_item_id, // Get the original line item ID
+        po_item_id: item.id || item.po_item_id,
         material_name: item.material_name || item.itemName || item.item_name || item.name || item.description,
         received_qty: item.received_quantity,
         unit: item.unit,
-        generate_st: true // Trigger backend to auto-generate ST numbers for each unit received
+        generate_st: true,
+        // Include technical specs/dimensions
+        length: item.length,
+        width: item.width,
+        thickness: item.thickness,
+        diameter: item.diameter,
+        outer_diameter: item.outer_diameter,
+        height: item.height,
+        side1: item.side1,
+        side2: item.side2,
+        side_s: item.side_s,
+        side_s1: item.side_s1,
+        side_s2: item.side_s2,
+        web_thickness: item.web_thickness || item.tw,
+        flange_thickness: item.flange_thickness || item.tf,
+        density: item.density,
+        unit_weight: item.unit_weight,
+        total_weight: item.total_weight,
+        material_type: item.material_type,
+        item_group: item.item_group
       }));
 
       await axios.post("/department/inventory/purchase-orders/receipts", {
@@ -191,6 +210,89 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderDimensionsText = (item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const parts = [];
+    
+    const val = (v) => {
+      const n = parseFloat(v);
+      return (n && !isNaN(n) && n !== 0) ? n : null;
+    };
+
+    if (group === "plate" || group === "plates") {
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+      if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+    } else if (group === "round bar") {
+      if (val(item.diameter)) parts.push(`Dia: ${val(item.diameter)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group === "pipe") {
+      if (val(item.outer_diameter)) parts.push(`OD: ${val(item.outer_diameter)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group === "block") {
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+      if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+      if (val(item.height)) parts.push(`H: ${val(item.height)}`);
+    } else if (group.includes("square bar") || group === "sq bar") {
+      if (val(item.side1 || item.width || item.side_s || item.s))
+        parts.push(`S: ${val(item.side1 || item.width || item.side_s || item.s)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("rectangular bar") || group === "rec bar") {
+      if (val(item.side1 || item.width))
+        parts.push(`W: ${val(item.side1 || item.width)}`);
+      if (val(item.side2 || item.height || item.side_s1))
+        parts.push(`H: ${val(item.side2 || item.height || item.side_s1)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("square tube") || group === "sq tube") {
+      if (val(item.side1 || item.width || item.side_s || item.s))
+        parts.push(`S: ${val(item.side1 || item.width || item.side_s || item.s)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("rectangular tube") || group === "rec tube") {
+      if (val(item.side1 || item.width))
+        parts.push(`W: ${val(item.side1 || item.width)}`);
+      if (val(item.side2 || item.height || item.side_s1))
+        parts.push(`H: ${val(item.side2 || item.height || item.side_s1)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("c channel") || group.includes("channel")) {
+      if (val(item.side1 || item.width))
+        parts.push(`W: ${val(item.side1 || item.width)}`);
+      if (val(item.side2 || item.height || item.side_s1))
+        parts.push(`H: ${val(item.side2 || item.height || item.side_s1)}`);
+      if (val(item.web_thickness || item.thickness || item.tw || item.side_s2))
+        parts.push(`Tw: ${val(item.web_thickness || item.thickness || item.tw || item.side_s2)}`);
+      if (val(item.flange_thickness || item.tf))
+        parts.push(`Tf: ${val(item.flange_thickness || item.tf)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("angle")) {
+      if (val(item.side1 || item.width || item.side_s))
+        parts.push(`S1: ${val(item.side1 || item.width || item.side_s)}`);
+      if (val(item.side2 || item.height || item.side_s1))
+        parts.push(`S2: ${val(item.side2 || item.height || item.side_s1)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("beam")) {
+      if (val(item.side1 || item.width))
+        parts.push(`W: ${val(item.side1 || item.width)}`);
+      if (val(item.side2 || item.height || item.side_s1))
+        parts.push(`H: ${val(item.side2 || item.height || item.side_s1)}`);
+      if (val(item.web_thickness || item.thickness || item.tw || item.side_s2))
+        parts.push(`Tw: ${val(item.web_thickness || item.thickness || item.tw || item.side_s2)}`);
+      if (val(item.flange_thickness || item.tf))
+        parts.push(`Tf: ${val(item.flange_thickness || item.tf)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    }
+    
+    if (parts.length === 0) return null;
+    return (
+      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+        Dim: {parts.join(" \u00d7 ")} mm
+      </div>
+    );
   };
 
   if (!isOpen) return null;
@@ -354,8 +456,9 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                               <h4 className="text-xs  text-slate-900 dark:text-white   leading-tight">
                                 {itemName}
                               </h4>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-xs  text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-800  tracking-wider">
+                              {renderDimensionsText(item)}
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <span className="text-[10px]  text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-800  tracking-wider">
                                   {itemCode}
                                 </span>
                               </div>
@@ -374,14 +477,14 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                           )}
                         </td>
                         <td className="px-4 py-4 text-center">
-                          <span className="text-xs  text-slate-500">{item.quantity}</span>
+                          <span className="text-xs  text-slate-500">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</span>
                         </td>
                         <td className="px-4 py-4 text-center">
                           <input 
                             type="number"
                             step="any"
                             className="w-20 .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-blue-600 text-center outline-none focus:ring-2 focus:ring-blue-500"
-                            value={item.received_quantity}
+                            value={item.received_quantity !== undefined && item.received_quantity !== null ? parseFloat(item.received_quantity) : ""}
                             onChange={(e) => handleItemChange(idx, "received_quantity", e.target.value)}
                           />
                         </td>

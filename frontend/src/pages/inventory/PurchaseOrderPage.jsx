@@ -6,6 +6,7 @@ import toastUtils from "../../utils/toastUtils";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import CreatePurchaseOrderModal from "./CreatePurchaseOrderModal";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import {
   ShoppingCart,
   Search,
@@ -329,8 +330,9 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedPOForUpload, setSelectedPOForUpload] = useState(null);
-  const [uploadingFiles, setUploadingFiles] = useState(false);
   const [filesToUpload, setFilesToUpload] = useState([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+  const [isFullReceipt, setIsFullReceipt] = useState(false);
 
   useEffect(() => {
     fetchPurchaseOrders();
@@ -456,42 +458,20 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     ];
 
     const tableRows = (po.items || []).map((item, index) => {
-      // Helper for dimension text
-      const getDimText = (item) => {
-        const group = (item.item_group || "").toLowerCase();
-        const parts = [];
-        if (group === "plate" || group === "plates") {
-          if (item.length) parts.push(`L: ${Number(item.length)}`);
-          if (item.width) parts.push(`W: ${Number(item.width)}`);
-          if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-        } else if (group === "round bar") {
-          if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
-          if (item.length) parts.push(`L: ${Number(item.length)}`);
-        } else if (group === "pipe") {
-          if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
-          if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-          if (item.length) parts.push(`L: ${Number(item.length)}`);
-        } else if (group === "block") {
-          if (item.length) parts.push(`L: ${Number(item.length)}`);
-          if (item.width) parts.push(`W: ${Number(item.width)}`);
-          if (item.height) parts.push(`H: ${Number(item.height)}`);
-        }
-        return parts.length > 0 ? `\nDim: ${parts.join(" \u00d7 ")} mm` : "";
-      };
-
-      const dimText = getDimText(item);
+      const dimText = renderDimensions(item);
+      const dimDisplay = dimText ? `\nDim: ${dimText} mm` : "";
 
       return [
         index + 1,
         {
-          content: `${item.material_name || "N/A"}\n${item.item_group || "-"}${dimText}`,
+          content: `${item.material_name || "N/A"}\n${item.item_group || "-"}${dimDisplay}`,
           styles: { fontStyle: "bold" },
         },
         item.quantity ? parseFloat(item.quantity).toString() : "0",
         item.unit || item.uom || "Nos",
-        `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-        item.total_weight ? parseFloat(item.total_weight).toString() : "0",
-        `INR ${Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
+        item.total_weight ? parseFloat(item.total_weight).toFixed(3) : "0.000",
+        `INR ${Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
       ];
     });
 
@@ -516,9 +496,9 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     const finalY = doc.lastAutoTable.finalY + 10;
 
     doc.setFontSize(11);
-    doc.text(`Subtotal: INR ${Number(po.subtotal || 0).toFixed(2)}`, 140, finalY);
+    doc.text(`Subtotal: INR ${Number(po.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`, 140, finalY);
     doc.text(
-      `Tax Amount: INR ${Number(po.tax_amount || 0).toFixed(2)}`,
+      `Tax Amount: INR ${Number(po.tax_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
       140,
       finalY + 7,
     );
@@ -526,7 +506,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text(
-      `Total Amount: INR ${Number(po.total_amount || 0).toFixed(2)}`,
+      `Total Amount: INR ${Number(po.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
       140,
       finalY + 15,
     );
@@ -617,6 +597,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       setSelectedPOForUpload(response.data);
       setShowUploadModal(true);
       setFilesToUpload([]);
+      setIsFullReceipt(false); // Reset to partial by default
     } catch (error) {
       console.error("Error fetching PO for upload:", error);
       toastUtils.error("Failed to load PO details");
@@ -636,6 +617,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         formData.append("files", file);
       });
       formData.append("poId", selectedPOForUpload.id);
+      formData.append("isFullReceipt", isFullReceipt);
 
       await axios.post(
         `/department/procurement/purchase-orders/${selectedPOForUpload.id}/invoices`,
@@ -655,6 +637,24 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       toastUtils.error("Failed to upload files");
     } finally {
       setUploadingFiles(false);
+    }
+  };
+
+  const viewAttachment = async (attachmentId, fileName) => {
+    try {
+      const response = await axios.get(
+        `/department/procurement/purchase-orders/attachments/${attachmentId}/download`,
+        {
+          responseType: "blob",
+        },
+      );
+      const mimeType = response.headers['content-type'] || 'application/pdf';
+      const file = new Blob([response.data], { type: mimeType });
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL, '_blank');
+    } catch (error) {
+      console.error("Error viewing attachment:", error);
+      toastUtils.error("Failed to view attachment");
     }
   };
 
@@ -731,8 +731,8 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       }
 
       setShowEmailModal(false);
-      toastUtils.success("Purchase Order sent successfully");
-      fetchPurchaseOrders();
+      // Automatically send to inventory after successful email submission
+      await handleSendToInventory(emailData.po);
     } catch (error) {
       console.error("Error sending email:", error);
       toastUtils.error("Failed to send Purchase Order");
@@ -742,7 +742,10 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-IN").format(amount || 0);
+    return new Intl.NumberFormat("en-IN", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 3,
+    }).format(amount || 0);
   };
 
   const projects = Array.from(new Set(purchaseOrders.map(po => po.root_card_project_name).filter(Boolean))).sort();
@@ -1226,15 +1229,15 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                               </button>
                             </>
                           )}
-                          {po.status !== "draft" && !isInventoryView && (
+                          {isInventoryView && ["sent to inventory", "approved"].includes(po.status) ? (
                             <button
                               onClick={() => handleUploadInvoice(po)}
-                              className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded transition-all"
-                              title="Upload Invoice/Files"
+                              className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-emerald-900/30 rounded transition-all"
+                              title="Upload DC & Status Update"
                             >
                               <Paperclip size={14} />
                             </button>
-                          )}
+                          ) : null}
                           {!isInventoryView && (
                             <button
                               onClick={() => handleDownloadPO(po)}
@@ -1265,7 +1268,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                               )}
                             </button>
                           )}
-                          {po.status === "approved" && !isInventoryView && (
+                          {["submitted", "approved"].includes(po.status) && !isInventoryView && (
                             <button
                               onClick={() => handleSendToInventory(po)}
                               className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
@@ -1274,7 +1277,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                               <Send size={14} />
                             </button>
                           )}
-                          {isInventoryView && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received") && (
+                          {isInventoryView && po.status === "approved" && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received") && (
                             <button
                               onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)}
                               className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
@@ -1580,7 +1583,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
               <h3 className="text-md  text-slate-900 dark:text-white flex items-center gap-3">
                 <Paperclip className="text-blue-600" size={15} />
-                Upload Invoice / Files
+                {selectedPOForUpload?.status === 'approved' ? 'View Delivery Challans' : 'Upload Delivery Challan'}
               </h3>
               <button
                 onClick={() => setShowUploadModal(false)}
@@ -1615,7 +1618,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
               {selectedPOForUpload?.attachments && selectedPOForUpload.attachments.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs  text-slate-400  ">
-                    Existing Invoices / Attachments
+                    Existing Delivery Challans / Attachments
                   </p>
                   <div className="max-h-25 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
                     {selectedPOForUpload.attachments.map((file, idx) => (
@@ -1629,43 +1632,48 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                             {file.file_name}
                           </span>
                         </div>
-                        <button
-                          onClick={() => downloadAttachment(file.id, file.file_name)}
-                          className="p-1 text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-800 rounded transition-colors"
-                          title="Download"
-                        >
-                          <Download size={12} />
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => viewAttachment(file.id, file.file_name)}
+                            className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-blue-600 hover:bg-blue-50 transition-all"
+                            title="View/Download"
+                          >
+                            <Eye size={10} />
+                            View/Download
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div>
-                <label className="block text-xs  text-slate-400   mb-2">
-                  Select Files
-                </label>
-                <div className="relative group">
-                  <input
-                    type="file"
-                    multiple
-                    onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 group-hover:border-blue-500 dark:group-hover:border-blue-500 rounded p-2 flex flex-col items-center justify-center gap-2 transition-all bg-slate-50/30 dark:bg-slate-950/30">
-                    <div className="p-3 bg-white dark:bg-slate-800 rounded-fuext-slate-400 group-hover:text-blue-500 transition-all">
-                      <Upload size={15} />
+              {selectedPOForUpload?.status !== 'approved' && (
+                <div>
+                  <label className="block text-xs  text-slate-400   mb-2">
+                    Select Files
+                  </label>
+                  <div className="relative group">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 group-hover:border-blue-500 dark:group-hover:border-blue-500 rounded p-2 flex flex-col items-center justify-center gap-2 transition-all bg-slate-50/30 dark:bg-slate-950/30">
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded-fuext-slate-400 group-hover:text-blue-500 transition-all">
+                        <Upload size={15} />
+                      </div>
+                      <p className="text-xs  text-slate-500  ">
+                        Click or drag files to upload
+                      </p>
+                      <p className="text-xs font-medium text-slate-400  ">
+                        PDF, Images, or Documents
+                      </p>
                     </div>
-                    <p className="text-xs  text-slate-500  ">
-                      Click or drag files to upload
-                    </p>
-                    <p className="text-xs font-medium text-slate-400  ">
-                      PDF, Images, or Documents
-                    </p>
                   </div>
                 </div>
-              </div>
+              )}
 
               {filesToUpload.length > 0 && (
                 <div className="space-y-2">
@@ -1692,32 +1700,68 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   </div>
                 </div>
               )}
-            </div>
 
-            <div className="p-6 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-50 dark:border-slate-800 flex items-center justify-end gap-3">
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="p-2 text-xs  text-slate-500 hover:text-slate-700   transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleFileUpload}
-                disabled={uploadingFiles || filesToUpload.length === 0}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded text-xs    shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
-              >
-                {uploadingFiles ? (
-                  <>
-                    <RefreshCw size={14} className="animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload size={14} />
-                    Upload Files
-                  </>
+              {selectedPOForUpload?.status !== 'approved' && (
+                <div>
+                  <label className="block text-xs  text-slate-400   mb-2">
+                    Receiving Status
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsFullReceipt(false)}
+                      className={`flex items-center justify-center gap-2 p-2 rounded border text-xs transition-all ${
+                        !isFullReceipt
+                          ? "bg-amber-50 border-amber-500 text-amber-700 dark:bg-amber-900/30 dark:border-amber-400 dark:text-amber-200"
+                          : "bg-white border-slate-200 text-slate-500 dark:bg-slate-800 dark:border-slate-700"
+                      }`}
+                    >
+                      <Clock size={14} />
+                      Partial Receipt
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsFullReceipt(true)}
+                      className={`flex items-center justify-center gap-2 p-2 rounded border text-xs transition-all ${
+                        isFullReceipt
+                          ? "bg-emerald-50 border-emerald-500 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-400 dark:text-emerald-200"
+                          : "bg-white border-slate-200 text-slate-500 dark:bg-slate-800 dark:border-slate-700"
+                      }`}
+                    >
+                      <CheckCircle size={14} />
+                      Full Receipt
+                    </button>
+                  </div>
+                  {isFullReceipt && (
+                    <p className="text-[10px] text-emerald-600 mt-1 italic">
+                      * This will approve the PO and enable GRN creation.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4 border-t border-slate-50 dark:border-slate-800">
+                <button
+                  onClick={() => setShowUploadModal(false)}
+                  className="flex-1 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded  text-xs   hover:bg-slate-200 transition-all"
+                >
+                  {selectedPOForUpload?.status === 'approved' ? 'Close' : 'Cancel'}
+                </button>
+                {selectedPOForUpload?.status !== 'approved' && (
+                  <button
+                    onClick={handleFileUpload}
+                    disabled={uploadingFiles || filesToUpload.length === 0}
+                    className="flex-1 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {uploadingFiles ? (
+                      <RefreshCw size={15} className="animate-spin" />
+                    ) : (
+                      <Upload size={15} />
+                    )}
+                    {uploadingFiles ? "Uploading..." : isFullReceipt ? "Approve & Upload" : "Upload DC"}
+                  </button>
                 )}
-              </button>
+              </div>
             </div>
           </div>
         </div>

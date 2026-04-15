@@ -125,6 +125,59 @@ const PurchaseReceiptPage = () => {
     }
   }, []);
 
+  const renderDimensionsText = (item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const parts = [];
+    
+    const val = (v) => {
+      const n = parseFloat(v);
+      return (n && !isNaN(n) && n !== 0) ? n : null;
+    };
+
+    if (group === "plate" || group === "plates") {
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+      if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+    } else if (group === "round bar") {
+      if (val(item.diameter)) parts.push(`Dia: ${val(item.diameter)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group === "pipe") {
+      if (val(item.outer_diameter)) parts.push(`OD: ${val(item.outer_diameter)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group === "block") {
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+      if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+      if (val(item.height)) parts.push(`H: ${val(item.height)}`);
+    } else if (group.includes("square bar") || group.includes("sq bar") || group.includes("square tube") || group.includes("sq tube")) {
+      if (val(item.side1 || item.width || item.side_s || item.s)) parts.push(`S: ${val(item.side1 || item.width || item.side_s || item.s)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("rectangular bar") || group.includes("rec bar") || group.includes("rectangular tube") || group.includes("rec tube")) {
+      if (val(item.side1 || item.width)) parts.push(`W: ${val(item.side1 || item.width)}`);
+      if (val(item.side2 || item.thickness || item.height || item.side_s1)) parts.push(`T: ${val(item.side2 || item.thickness || item.height || item.side_s1)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("angle")) {
+      if (val(item.side1 || item.side_s)) parts.push(`S1: ${val(item.side1 || item.side_s)}`);
+      if (val(item.side2 || item.side_s1 || item.height)) parts.push(`S2: ${val(item.side2 || item.side_s1 || item.height)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("channel") || group.includes("beam")) {
+      if (val(item.side1 || item.height)) parts.push(`H: ${val(item.side1 || item.height)}`);
+      if (val(item.side2 || item.width)) parts.push(`W: ${val(item.side2 || item.width)}`);
+      if (val(item.web_thickness || item.thickness || item.tw)) parts.push(`Tw: ${val(item.web_thickness || item.thickness || item.tw)}`);
+      if (val(item.flange_thickness || item.tf)) parts.push(`Tf: ${val(item.flange_thickness || item.tf)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    }
+    
+    if (parts.length === 0) return null;
+    return (
+      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+        Dim: {parts.join(" \u00d7 ")} mm
+      </div>
+    );
+  };
+
   const handleNewGRNClickFromState = async (poNumber) => {
     try {
       const response = await axios.get(
@@ -691,17 +744,7 @@ const PurchaseReceiptPage = () => {
                               <h4 className="text-xs  text-slate-900 dark:text-white  ">
                                 {item.material_name || item.description || "N/A"}
                               </h4>
-                              {(item.length || item.width || item.thickness || item.diameter || item.outer_diameter || item.height) && (
-                                <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                  Dim: {item.length && `L:${Number(item.length)} `}
-                                  {item.width && `W:${Number(item.width)} `}
-                                  {item.thickness && `T:${Number(item.thickness)} `}
-                                  {item.diameter && `Dia:${Number(item.diameter)} `}
-                                  {item.outer_diameter && `OD:${Number(item.outer_diameter)} `}
-                                  {item.height && `H:${Number(item.height)} `}
-                                  mm
-                                </div>
-                              )}
+                              {renderDimensionsText(item)}
                               <p className="text-xs font-medium text-slate-500  tracking-wider">
                                 {item.material_code || item.item_code || "N/A"}
                               </p>

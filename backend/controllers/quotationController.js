@@ -108,27 +108,25 @@ const createQuotation = async (req, res) => {
             }
         }
 
-        // Generate Quotation Number
+        // Generate Unique Quotation Number with random suffix
         const year = new Date().getFullYear();
         const prefix = type === 'outbound' ? 'RFQ' : 'QTN';
-        const pattern = `${prefix}-${year}-%`;
-        const [lastQuotation] = await connection.query(
-            'SELECT quotation_number FROM quotations WHERE quotation_number LIKE ? ORDER BY quotation_number DESC LIMIT 1',
-            [pattern]
-        );
+        let quotationNumber = '';
+        let isUnique = false;
 
-        let nextNum = 1;
-        if (lastQuotation.length > 0) {
-            const lastQuotationNumber = lastQuotation[0].quotation_number;
-            const parts = lastQuotationNumber.split('-');
-            if (parts.length >= 3) {
-                const lastNum = parseInt(parts[2]);
-                if (!isNaN(lastNum)) {
-                    nextNum = lastNum + 1;
-                }
+        while (!isUnique) {
+            const randomSuffix = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit random number
+            quotationNumber = `${prefix}-${year}-${randomSuffix}`;
+            
+            const [existing] = await connection.query(
+                'SELECT id FROM quotations WHERE quotation_number = ?',
+                [quotationNumber]
+            );
+            
+            if (existing.length === 0) {
+                isUnique = true;
             }
         }
-        const quotationNumber = `${prefix}-${year}-${nextNum.toString().padStart(4, '0')}`;
 
         const [result] = await connection.query(
             `INSERT INTO quotations 
@@ -166,17 +164,28 @@ const createQuotation = async (req, res) => {
                 item.material_type || null,
                 item.density || 0,
                 item.unit_weight || 0,
+                item.side1 || 0,
+                item.side2 || 0,
+                item.web_thickness || 0,
+                item.flange_thickness || 0,
                 item.vendor_length || null,
                 item.vendor_width || null,
                 item.vendor_thickness || null,
                 item.vendor_diameter || null,
                 item.vendor_outer_diameter || null,
-                item.vendor_height || null
+                item.vendor_height || null,
+                item.vendor_side1 || 0,
+                item.vendor_side2 || 0,
+                item.vendor_web_thickness || 0,
+                item.vendor_flange_thickness || 0,
+                item.side_s || item.s || null,
+                item.side_s1 || item.s1 || null,
+                item.side_s2 || item.s2 || null
             ]);
 
             await connection.query(
                 `INSERT INTO quotation_items 
-                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height) 
+                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, side1, side2, web_thickness, flange_thickness, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height, vendor_side1, vendor_side2, vendor_web_thickness, vendor_flange_thickness, side_s, side_s1, side_s2) 
                 VALUES ?`,
                 [itemValues]
             );
@@ -859,7 +868,10 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
                 (item.vendor_thickness !== null && item.vendor_thickness !== undefined && parseFloat(item.vendor_thickness) !== parseFloat(item.thickness)) ||
                 (item.vendor_diameter !== null && item.vendor_diameter !== undefined && parseFloat(item.vendor_diameter) !== parseFloat(item.diameter)) ||
                 (item.vendor_outer_diameter !== null && item.vendor_outer_diameter !== undefined && parseFloat(item.vendor_outer_diameter) !== parseFloat(item.outer_diameter)) ||
-                (item.vendor_height !== null && item.vendor_height !== undefined && parseFloat(item.vendor_height) !== parseFloat(item.height));
+                (item.vendor_height !== null && item.vendor_height !== undefined && parseFloat(item.vendor_height) !== parseFloat(item.height)) ||
+                (item.vendor_side_s !== null && item.vendor_side_s !== undefined && parseFloat(item.vendor_side_s) !== parseFloat(item.side_s)) ||
+                (item.vendor_side_s1 !== null && item.vendor_side_s1 !== undefined && parseFloat(item.vendor_side_s1) !== parseFloat(item.side_s1)) ||
+                (item.vendor_side_s2 !== null && item.vendor_side_s2 !== undefined && parseFloat(item.vendor_side_s2) !== parseFloat(item.side_s2));
 
             return hasDifferentName || hasDifferentDimensions;
         });
@@ -985,14 +997,17 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
                 (alternative && alternative.vendor_thickness !== null && alternative.vendor_thickness !== undefined) ? alternative.vendor_thickness : (alternative ? alternative.thickness : m.thickness),
                 (alternative && alternative.vendor_diameter !== null && alternative.vendor_diameter !== undefined) ? alternative.vendor_diameter : (alternative ? alternative.diameter : m.diameter),
                 (alternative && alternative.vendor_outer_diameter !== null && alternative.vendor_outer_diameter !== undefined) ? alternative.vendor_outer_diameter : (alternative ? alternative.outer_diameter : m.outer_diameter),
-                (alternative && alternative.vendor_height !== null && alternative.vendor_height !== undefined) ? alternative.vendor_height : (alternative ? alternative.height : m.height)
+                (alternative && alternative.vendor_height !== null && alternative.vendor_height !== undefined) ? alternative.vendor_height : (alternative ? alternative.height : m.height),
+                (alternative && alternative.vendor_side_s !== null && alternative.vendor_side_s !== undefined) ? alternative.vendor_side_s : (alternative ? alternative.side_s : m.side_s),
+                (alternative && alternative.vendor_side_s1 !== null && alternative.vendor_side_s1 !== undefined) ? alternative.vendor_side_s1 : (alternative ? alternative.side_s1 : m.side_s1),
+                (alternative && alternative.vendor_side_s2 !== null && alternative.vendor_side_s2 !== undefined) ? alternative.vendor_side_s2 : (alternative ? alternative.side_s2 : m.side_s2)
             ];
         });
 
         if (newMaterialValues.length > 0) {
             await connection.query(
                 `INSERT INTO bom_materials 
-                (bom_id, item_name, vendor_item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, rate_per_kg, total_weight, length, width, thickness, diameter, outer_diameter, height) 
+                (bom_id, item_name, vendor_item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, rate_per_kg, total_weight, length, width, thickness, diameter, outer_diameter, height, side_s, side_s1, side_s2) 
                 VALUES ?`,
                 [newMaterialValues]
             );

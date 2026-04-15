@@ -6,9 +6,24 @@ import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
 import SearchableSelect from "../../components/ui/SearchableSelect";
+import { renderDimensions } from "../../utils/dimensionUtils";
 
 const UOMOptions = ["Nos", "Kg", "pcs", "m", "l", "set", "Box", "Packet"];
-const ItemGroupOptions = ["Plates", "round bar", "paint", "Pipe", "Block", "Bought Out"];
+const ItemGroupOptions = [
+  "Plates",
+  "Round Bar",
+  "Pipe",
+  "Square Bar",
+  "Rectangular Bar",
+  "Square Tube",
+  "Rectangular Tube",
+  "C Channel",
+  "Angle",
+  "I Beam",
+  "H Beam",
+  "Bought Out",
+  "Paint",
+];
 const MaterialTypeOptions = [
   { label: "Mild Steel / Carbon Steel", value: "7.85" },
   { label: "Stainless Steel (304/316)", value: "8.00" },
@@ -16,6 +31,11 @@ const MaterialTypeOptions = [
   { label: "Copper", value: "8.96" },
   { label: "Chemical", value: "1.10" }
 ];
+const MaterialGradeOptions = [
+  "IS:2062-250", "IS:2062-350", "IS:2062-450", "SA-516 Gr.70", "S690QL",
+  "EN-8", "EN-19", "EN-24", "17-4 PH", "15-5 PH", "S.S-304", "S.S-316",
+  "HE.30", "AL.6061", "AL.2014 T6"
+].map(grade => ({ label: grade, value: grade }));
 
 const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, editData, preFilledFromQuotation, initialViewMode = false, isInventoryView = false }) => {
   const navigate = useNavigate();
@@ -44,6 +64,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     diameter: "",
     outer_diameter: "",
     height: "",
+    side1: "",
+    side2: "",
+    side_s: "",
+    side_s1: "",
+    side_s2: "",
+    web_thickness: "",
+    flange_thickness: "",
     material_type: "",
     density: 0,
     unit_weight: 0,
@@ -52,10 +79,8 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
   });
 
   const calculateItemWeight = useCallback((item) => {
-    const group = item.item_group?.toLowerCase() || "";
+    const group = (item.item_group || "").toLowerCase();
     const density = parseFloat(item.density) || 0;
-    let unitWeight = 0;
-
     if (density <= 0) return 0;
 
     const L = parseFloat(item.length) || 0;
@@ -64,21 +89,44 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     const D = parseFloat(item.diameter) || 0;
     const OD = parseFloat(item.outer_diameter) || 0;
     const H = parseFloat(item.height) || 0;
+    const S1 = parseFloat(item.side1) || 0;
+    const S2 = parseFloat(item.side2) || 0;
+    const Tw = parseFloat(item.web_thickness) || 0;
+    const Tf = parseFloat(item.flange_thickness) || 0;
 
-    if (group.includes("plate") || group.includes("block")) {
-      const thick = group.includes("plate") ? T : H;
-      unitWeight = (L * W * thick * density) / 1000000;
-    } 
-    else if (group.includes("round bar")) {
-      const radius = D / 2;
-      unitWeight = (Math.PI * Math.pow(radius, 2) * L * density) / 1000000;
-    } 
-    else if (group.includes("pipe")) {
+    let unitWeight = 0;
+
+    if (group === "plates" || group === "plate") {
+      unitWeight = (L * W * T * density) / 1000000;
+    } else if (group === "round bar") {
+      unitWeight = (Math.PI * Math.pow(D / 2, 2) * L * density) / 1000000;
+    } else if (group === "pipe") {
       const outerRadius = OD / 2;
       const innerRadius = outerRadius - T;
       if (innerRadius >= 0) {
         unitWeight = (Math.PI * (Math.pow(outerRadius, 2) - Math.pow(innerRadius, 2)) * L * density) / 1000000;
       }
+    } else if (group === "square bar" || group === "sq bar") {
+      unitWeight = (S1 * S1 * L * density) / 1000000;
+    } else if (group === "rectangular bar" || group === "rec bar") {
+      unitWeight = (W * T * L * density) / 1000000;
+    } else if (group === "square tube" || group === "sq tube") {
+      const outerArea = S1 * S1;
+      const innerSide = S1 - (2 * T);
+      const innerArea = innerSide > 0 ? innerSide * innerSide : 0;
+      unitWeight = (outerArea - innerArea) * L * density / 1000000;
+    } else if (group === "rectangular tube" || group === "rec tube") {
+      const outerArea = W * H;
+      const innerW = W - (2 * T);
+      const innerH = H - (2 * T);
+      const innerArea = (innerW > 0 && innerH > 0) ? innerW * innerH : 0;
+      unitWeight = (outerArea - innerArea) * L * density / 1000000;
+    } else if (group === "angle") {
+      unitWeight = ((S1 + S2 - T) * T * L * density) / 1000000;
+    } else if (group === "c channel") {
+      unitWeight = ((H * Tw) + (2 * W * Tf)) * L * density / 1000000;
+    } else if (group.includes("beam")) {
+      unitWeight = ((2 * W * Tf) + (H - (2 * Tf)) * Tw) * L * density / 1000000;
     }
 
     return unitWeight;
@@ -105,6 +153,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     newManualItem.height, 
     newManualItem.diameter, 
     newManualItem.outer_diameter, 
+    newManualItem.side1,
+    newManualItem.side2,
+    newManualItem.web_thickness,
+    newManualItem.flange_thickness,
     newManualItem.density, 
     newManualItem.item_group,
     newManualItem.quantity,
@@ -300,14 +352,21 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
             rate: rate,
             amount: item.amount || (total_weight > 0 ? (total_weight * rate) : (quantity * rate)),
             length: item.length || null,
-            width: item.width || null,
+            width: item.width || item.side1 || null,
             thickness: item.thickness || null,
             diameter: item.diameter || null,
             outer_diameter: item.outer_diameter || null,
-            height: item.height || null,
+            height: item.height || item.side2 || null,
+            side1: item.side1 || item.width || null,
+            side2: item.side2 || item.height || null,
+            web_thickness: item.web_thickness || null,
+            flange_thickness: item.flange_thickness || null,
             unit_weight: item.unit_weight || 0,
             material_type: item.material_type || null,
-            density: item.density || 0
+            density: item.density || 0,
+            side_s: item.side_s || item.s || null,
+            side_s1: item.side_s1 || item.s1 || null,
+            side_s2: item.side_s2 || item.s2 || null
           };
         });
 
@@ -352,15 +411,22 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           rate: 0,
           amount: 0,
           length: item.length || null,
-          width: item.width || null,
+          width: item.width || item.side1 || null,
           thickness: item.thickness || null,
           diameter: item.diameter || null,
           outer_diameter: item.outer_diameter || null,
-          height: item.height || null,
+          height: item.height || item.side2 || null,
+          side1: item.side1 || item.width || null,
+          side2: item.side2 || item.height || null,
+          web_thickness: item.web_thickness || null,
+          flange_thickness: item.flange_thickness || null,
           total_weight: item.total_weight || 0,
           unit_weight: item.unit_weight || 0,
           material_type: item.material_type || null,
-          density: item.density || 0
+          density: item.density || 0,
+          side_s: item.side_s || item.s || null,
+          side_s1: item.side_s1 || item.s1 || null,
+          side_s2: item.side_s2 || item.side_s2 || null
         }));
 
         calculateTotals(initialItems, formData.tax_template);
@@ -398,6 +464,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       diameter: parseFloat(newManualItem.diameter) || null,
       outer_diameter: parseFloat(newManualItem.outer_diameter) || null,
       height: parseFloat(newManualItem.height) || null,
+      side1: parseFloat(newManualItem.side1) || null,
+      side2: parseFloat(newManualItem.side2) || null,
+      web_thickness: parseFloat(newManualItem.web_thickness) || null,
+      flange_thickness: parseFloat(newManualItem.flange_thickness) || null,
       density: parseFloat(newManualItem.density) || 0,
     };
 
@@ -432,12 +502,26 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       diameter: "",
       outer_diameter: "",
       height: "",
+      side1: "",
+      side2: "",
+      side_s: "",
+      side_s1: "",
+      side_s2: "",
+      web_thickness: "",
+      flange_thickness: "",
       material_type: "",
       density: 0,
       unit_weight: 0,
       remark: "",
       calculatedWeight: 0
     });
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 3,
+    }).format(amount || 0);
   };
 
   const handleRemoveItem = (index) => {
@@ -482,9 +566,9 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     setFormData(prev => ({
       ...prev,
       items,
-      subtotal,
-      tax_amount,
-      total_amount,
+      subtotal: Number(subtotal.toFixed(3)),
+      tax_amount: Number(tax_amount.toFixed(3)),
+      total_amount: Number(total_amount.toFixed(3)),
       tax_template: template
     }));
   };
@@ -541,29 +625,15 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
   };
 
   const renderDimensionsText = (item) => {
-    const group = (item.item_group || "").toLowerCase();
-    const parts = [];
-    if (group === "plate" || group === "plates") {
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-      if (item.width) parts.push(`W: ${Number(item.width)}`);
-      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-    } else if (group === "round bar") {
-      if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-    } else if (group === "pipe") {
-      if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
-      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-    } else if (group === "block") {
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-      if (item.width) parts.push(`W: ${Number(item.width)}`);
-      if (item.height) parts.push(`H: ${Number(item.height)}`);
-    }
-    
-    if (parts.length === 0) return null;
+    const dimText = renderDimensions(item);
+    if (!dimText || dimText === "-") return null;
+
+    // Replace the default utility separator with '*' to match user preference in screenshots
+    const formattedText = dimText.replace(/ \u00d7 /g, " * ");
+
     return (
       <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
-        Dim: {parts.join(" \u00d7 ")} mm
+        Dim: {formattedText} mm
       </div>
     );
   };
@@ -572,7 +642,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-7xl rounded overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className={`p-2 flex items-center justify-between border-b transition-colors duration-300 sticky top-0 z-10 ${viewMode ? 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900' : 'border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/10'}`}>
           <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2  ">
@@ -595,7 +665,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <h3 className="text-sm  text-slate-700 dark:text-slate-300  ">PO Header</h3>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                   <label className="block text-xs  text-slate-500   ">PO Number</label>
                   <input 
@@ -790,20 +860,20 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                         />
                       </div>
                       <div className="md:col-span-3">
-                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Grade</label>
-                        <input
-                          type="text"
+                        <SearchableSelect
+                          label="Grade"
+                          options={MaterialGradeOptions}
                           value={newManualItem.material_grade}
-                          onChange={(e) => setNewManualItem(prev => ({ ...prev, material_grade: e.target.value }))}
-                          placeholder="Grade"
-                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          onChange={(val) => setNewManualItem(prev => ({ ...prev, material_grade: val }))}
+                          placeholder="Select/Type grade"
+                          allowCustom={true}
                         />
                       </div>
                     </>
                   )}
 
                   {/* Dimension Logic (Plates) */}
-                  {newManualItem.item_group?.toLowerCase().includes("plate") && (
+                  {(newManualItem.item_group?.toLowerCase() === "plates" || newManualItem.item_group?.toLowerCase() === "plate") && (
                     <>
                       <div className="md:col-span-2">
                         <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
@@ -836,7 +906,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   )}
 
                   {/* Round Bar */}
-                  {newManualItem.item_group?.toLowerCase().includes("round bar") && (
+                  {(newManualItem.item_group?.toLowerCase() === "round bar" || newManualItem.item_group?.toLowerCase() === "round bars") && (
                     <>
                       <div className="md:col-span-3">
                         <label className="block text-[10px] text-slate-500 mb-1 ml-1">Dia (mm)</label>
@@ -859,11 +929,319 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                     </>
                   )}
 
+                  {/* Pipe */}
+                  {(newManualItem.item_group?.toLowerCase() === "pipe" || newManualItem.item_group?.toLowerCase() === "pipes") && (
+                    <>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">OD (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.outer_diameter}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, outer_diameter: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">T (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Square Bar */}
+                  {(newManualItem.item_group?.toLowerCase() === "square bar" || newManualItem.item_group?.toLowerCase() === "sq bar") && (
+                    <>
+                      <div className="md:col-span-3">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Side (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.side1}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, side1: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-3">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Length (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Rectangular Bar */}
+                  {(newManualItem.item_group?.toLowerCase() === "rectangular bar" || newManualItem.item_group?.toLowerCase() === "rec bar") && (
+                    <>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">W (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.width}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, width: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">T (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Square Tube */}
+                  {(newManualItem.item_group?.toLowerCase() === "square tube" || newManualItem.item_group?.toLowerCase() === "sq tube") && (
+                    <>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Side (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.side1}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, side1: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">T (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Rectangular Tube */}
+                  {(newManualItem.item_group?.toLowerCase() === "rectangular tube" || newManualItem.item_group?.toLowerCase() === "rec tube") && (
+                    <>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">W (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.width}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, width: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">H (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.height}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, height: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">T (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* C Channel */}
+                  {(newManualItem.item_group?.toLowerCase() === "c channel" || newManualItem.item_group?.toLowerCase() === "c-channel") && (
+                    <>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">W (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.width}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, width: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">H (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.height}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, height: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Tw (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.web_thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, web_thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Tf (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.flange_thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, flange_thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Angle */}
+                  {newManualItem.item_group?.toLowerCase() === "angle" && (
+                    <>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">S1 (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.side1}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, side1: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">S2 (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.side2}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, side2: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">T (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* I / H Beam */}
+                  {(newManualItem.item_group?.toLowerCase().includes("beam")) && (
+                    <>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">W (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.width}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, width: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">H (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.height}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, height: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Tw (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.web_thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, web_thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">Tf (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.flange_thickness}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, flange_thickness: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] text-slate-500 mb-1 ml-1">L (mm)</label>
+                        <input
+                          type="number"
+                          value={newManualItem.length}
+                          onChange={(e) => setNewManualItem(prev => ({ ...prev, length: e.target.value }))}
+                          className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div className="md:col-span-2">
                     <label className="block text-[10px] text-slate-500 mb-1 ml-1">Qty *</label>
                     <input
                       type="number"
-                      value={newManualItem.quantity}
+                      value={newManualItem.quantity !== undefined && newManualItem.quantity !== null ? parseFloat(newManualItem.quantity) : ""}
                       onChange={(e) => setNewManualItem(prev => ({ ...prev, quantity: e.target.value }))}
                       className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
                     />
@@ -974,12 +1352,12 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                           </td>
                           <td className="p-2 text-center">
                             {viewMode ? (
-                              <span className="text-xs">{item.quantity}</span>
+                              <span className="text-xs">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</span>
                             ) : (
                               <input 
                                 type="number"
                                 className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
-                                value={item.quantity}
+                                value={item.quantity !== undefined && item.quantity !== null ? parseFloat(item.quantity).toString() : ""}
                                 onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)}
                               />
                             )}
@@ -989,7 +1367,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                           </td>
                           <td className="p-2 text-center">
                             {viewMode ? (
-                              <span className="text-xs">₹{item.rate}/{item.total_weight > 0 ? 'kg' : 'unit'}</span>
+                               <span className="text-xs">₹{Number(item.rate || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}/{item.total_weight > 0 ? 'kg' : 'unit'}</span>
                             ) : (
                               <input 
                                 type="number"
@@ -1004,7 +1382,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                             {item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)} Kg` : "-"}
                           </td>
                           <td className="p-2 text-right font-medium text-xs">
-                            ₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            ₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}
                           </td>
                           {!viewMode && (
                             <td className="p-2 text-center">
@@ -1066,7 +1444,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <div className="p-2 bg-blue-600 rounded  shadow-blue-500/20 space-y-2">
                   <div className="flex justify-between items-center text-blue-100">
                     <span className="text-xs   ">Subtotal</span>
-                    <span className=" text-xs">₹{formData.subtotal.toLocaleString()}</span>
+                    <span className=" text-xs">{formatCurrency(formData.subtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center text-blue-100">
                     <div className="flex flex-col">
@@ -1083,11 +1461,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                         <option value="GST 5%">GST 5%</option>
                       </select>
                     </div>
-                    <span className=" text-xs">₹{formData.tax_amount.toLocaleString()}</span>
+                    <span className=" text-xs">{formatCurrency(formData.tax_amount)}</span>
                   </div>
                   <div className="pt-4 border-t border-blue-500 flex justify-between items-center text-white">
                     <span className="text-sm">Grand Total</span>
-                    <span className="text-sm  ">₹{formData.total_amount.toLocaleString()}</span>
+                    <span className="text-sm  ">{formatCurrency(formData.total_amount)}</span>
                   </div>
                 </div>
               </div>

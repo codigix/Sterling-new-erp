@@ -412,7 +412,7 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
         // Fetch serials that are NOT fully used.
         // Match by item_name as primary unique identifier because codes can be generic (GEN-SIZE)
         const [serialRows] = await db.query(
-          "SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density FROM inventory_serials WHERE issued_in_entry_id = ? AND item_name = ? AND (status IS NULL OR status != 'Consumed') AND (total_weight > 0.001 OR total_weight IS NULL)",
+          "SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2 FROM inventory_serials WHERE issued_in_entry_id = ? AND item_name = ? AND (status IS NULL OR status != 'Consumed') AND (total_weight > 0.001 OR total_weight IS NULL)",
           [entry.id, item.item_name]
         );
 
@@ -479,8 +479,19 @@ exports.saveMCR = async (req, res) => {
 
         // Update Original Serial (Reduce dimensions to remnant or mark consumed)
         await connection.query(
-          'UPDATE inventory_serials SET status = ?, inspection_status = "C", length = ?, width = ?, thickness = ?, unit_weight = ?, total_weight = ? WHERE serial_number = ?',
-          [newStatus, piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, piece.new_weight, piece.new_weight, piece.serial_number]
+          `UPDATE inventory_serials SET status = ?, inspection_status = "C", 
+           length = ?, width = ?, thickness = ?, diameter = ?, outer_diameter = ?, height = ?,
+           web_thickness = ?, flange_thickness = ?, side1 = ?, side2 = ?, side_s = ?, side_s1 = ?, side_s2 = ?,
+           unit_weight = ?, total_weight = ? WHERE serial_number = ?`,
+          [
+            newStatus, 
+            piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, 
+            piece.new_dims.diameter || null, piece.new_dims.outer_diameter || null, piece.new_dims.height || null,
+            piece.new_dims.web_thickness || null, piece.new_dims.flange_thickness || null, 
+            piece.new_dims.side1 || null, piece.new_dims.side2 || null, piece.new_dims.side_s || null, 
+            piece.new_dims.side_s1 || null, piece.new_dims.side_s2 || null,
+            piece.new_weight, piece.new_weight, piece.serial_number
+          ]
         );
 
         // Handle "Add to Inventory" (Return to Stock)
@@ -539,12 +550,24 @@ exports.saveMCR = async (req, res) => {
               await connection.query(
                 `INSERT INTO inventory_serials 
                 (serial_number, purchase_order_id, item_id, item_name, item_code, grn_id, status, location, 
-                 length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, 
+                 length, width, thickness, diameter, outer_diameter, height,
+                 web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2,
+                 unit_weight, total_weight, density, 
                  issued_in_entry_id, material_grade, inspection_status) 
-                VALUES (?, ?, ?, ?, ?, ?, 'Available', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'C')`,
+                VALUES (?, ?, ?, ?, ?, ?, 'Available', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'C')`,
                 [
                   newSerial, os.purchase_order_id, os.item_id, newItemName, os.item_code, os.grn_id,
-                  os.location || 'Workshop', fL, fW, fT, os.diameter, os.outer_diameter, os.height,
+                  os.location || 'Workshop', fL, fW, fT, 
+                  piece.return_dims.diameter || os.diameter, 
+                  piece.return_dims.outer_diameter || os.outer_diameter, 
+                  piece.return_dims.height || os.height,
+                  piece.return_dims.web_thickness || os.web_thickness,
+                  piece.return_dims.flange_thickness || os.flange_thickness,
+                  piece.return_dims.side1 || os.side1,
+                  piece.return_dims.side2 || os.side2,
+                  piece.return_dims.side_s || os.side_s,
+                  piece.return_dims.side_s1 || os.side_s1,
+                  piece.return_dims.side_s2 || os.side_s2,
                   returnWeight, returnWeight, density, os.issued_in_entry_id, os.material_grade
                 ]
               );
@@ -588,14 +611,24 @@ exports.saveMCR = async (req, res) => {
       await connection.query(
         `INSERT INTO material_cutting_report_items 
         (mcr_id, serial_number, item_code, item_name, item_group, material_grade, design, produced_qty, cutting_axis, 
-         raw_l, raw_w, raw_t, new_l, new_w, new_t, weight_consumed, unit_weight_consumed, scrap_weight, is_finished, 
-         return_to_stock, return_l, return_w, return_t, remarks) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         raw_l, raw_w, raw_t, raw_diameter, raw_outer_diameter, raw_height, 
+         raw_web_thickness, raw_flange_thickness, raw_side1, raw_side2, raw_side_s, raw_side_s1, raw_side_s2,
+         new_l, new_w, new_t, new_diameter, new_outer_diameter, new_height,
+         new_web_thickness, new_flange_thickness, new_side1, new_side2, new_side_s, new_side_s1, new_side_s2,
+         weight_consumed, unit_weight_consumed, scrap_weight, is_finished, 
+         return_to_stock, return_l, return_w, return_t, return_diameter, return_outer_diameter, return_height,
+         return_web_thickness, return_flange_thickness, return_side1, return_side2, return_side_s, return_side_s1, return_side_s2,
+         remarks) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           mcrId, piece.serial_number, piece.item_code, piece.item_name, piece.item_group, piece.material_grade, piece.design || 'Rectangular',
           piece.produced_qty, piece.cutting_axis || 'L',
-          piece.raw_dims.l, piece.raw_dims.w, piece.raw_dims.t,
+          piece.raw_dims.l, piece.raw_dims.w, piece.raw_dims.t, 
+          piece.raw_dims.diameter || null, piece.raw_dims.outer_diameter || null, piece.raw_dims.height || null,
+          piece.raw_dims.web_thickness || null, piece.raw_dims.flange_thickness || null, piece.raw_dims.side1 || null, piece.raw_dims.side2 || null, piece.raw_dims.side_s || null, piece.raw_dims.side_s1 || null, piece.raw_dims.side_s2 || null,
           piece.new_dims.l, piece.new_dims.w, piece.new_dims.t,
+          piece.new_dims.diameter || null, piece.new_dims.outer_diameter || null, piece.new_dims.height || null,
+          piece.new_dims.web_thickness || null, piece.new_dims.flange_thickness || null, piece.new_dims.side1 || null, piece.new_dims.side2 || null, piece.new_dims.side_s || null, piece.new_dims.side_s1 || null, piece.new_dims.side_s2 || null,
           calc ? calc.currentWeight : 0,
           piece.unit_weight || 0,
           calc ? calc.scrapWeight : 0,
@@ -604,6 +637,16 @@ exports.saveMCR = async (req, res) => {
           piece.return_dims?.l || 0,
           piece.return_dims?.w || 0,
           piece.return_dims?.t || 0,
+          piece.return_dims?.diameter || 0,
+          piece.return_dims?.outer_diameter || 0,
+          piece.return_dims?.height || 0,
+          piece.return_dims?.web_thickness || 0,
+          piece.return_dims?.flange_thickness || 0,
+          piece.return_dims?.side1 || 0,
+          piece.return_dims?.side2 || 0,
+          piece.return_dims?.side_s || 0,
+          piece.return_dims?.side_s1 || 0,
+          piece.return_dims?.side_s2 || 0,
           piece.remarks || ''
         ]
       );
@@ -676,8 +719,27 @@ exports.getMCRDetails = async (req, res) => {
             raw_l: item.raw_l,
             raw_w: item.raw_w,
             raw_thk: item.raw_t,
-            raw_dims: { l: item.raw_l, w: item.raw_w, t: item.raw_t },
-            new_dims: { l: item.new_l, w: item.new_w, t: item.new_t },
+            raw_dims: { 
+              l: item.raw_l, w: item.raw_w, t: item.raw_t,
+              diameter: item.raw_diameter, outer_diameter: item.raw_outer_diameter, height: item.raw_height,
+              web_thickness: item.raw_web_thickness, flange_thickness: item.raw_flange_thickness,
+              side1: item.raw_side1, side2: item.raw_side2, side_s: item.raw_side_s,
+              side_s1: item.raw_side_s1, side_s2: item.raw_side_s2
+            },
+            new_dims: { 
+              l: item.new_l, w: item.new_w, t: item.new_t,
+              diameter: item.new_diameter, outer_diameter: item.new_outer_diameter, height: item.new_height,
+              web_thickness: item.new_web_thickness, flange_thickness: item.new_flange_thickness,
+              side1: item.new_side1, side2: item.new_side2, side_s: item.new_side_s,
+              side_s1: item.new_side_s1, side_s2: item.new_side_s2
+            },
+            return_dims: {
+              l: item.return_l, w: item.return_w, t: item.return_t,
+              diameter: item.return_diameter, outer_diameter: item.return_outer_diameter, height: item.return_height,
+              web_thickness: item.return_web_thickness, flange_thickness: item.return_flange_thickness,
+              side1: item.return_side1, side2: item.return_side2, side_s: item.return_side_s,
+              side_s1: item.return_side_s1, side_s2: item.return_side_s2
+            },
             is_finished: !!item.is_finished
           }
         };

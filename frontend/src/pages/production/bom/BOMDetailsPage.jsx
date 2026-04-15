@@ -179,10 +179,32 @@ const BOMDetailsPage = () => {
   const materialColumns = [
     { key: "itemName", label: "Item Name", className: "" },
     { key: "itemGroup", label: "Group", render: (val) => <Badge variant="gray">{val || "NO-GROUP"}</Badge> },
-    { key: "partDetail", label: "Part Details / Grade", render: (val, row) => (
+    { key: "partDetail", label: "Dimensions / Grade", render: (val, row) => {
+      const dims = [];
+      if (row.length) dims.push(`L: ${row.length}`);
+      if (row.width) dims.push(`W: ${row.width}`);
+      if (row.thickness) dims.push(`T: ${row.thickness}`);
+      if (row.height) dims.push(`H: ${row.height}`);
+      if (row.diameter) dims.push(`D: ${row.diameter}`);
+      if (row.outerDiameter) dims.push(`OD: ${row.outerDiameter}`);
+      if (row.side1) dims.push(`S1: ${row.side1}`);
+      if (row.side2) dims.push(`S2: ${row.side2}`);
+      if (row.webThickness) dims.push(`WT: ${row.webThickness}`);
+      if (row.flangeThickness) dims.push(`FT: ${row.flangeThickness}`);
+      
+      return (
+        <div className="flex flex-col">
+          <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-1 rounded border border-blue-100 mb-1 w-fit">
+            {dims.length > 0 ? dims.join(" x ") : (val || "-")}
+          </span>
+          <span className="text-xs text-slate-500 ">{row.materialGrade || "-"}</span>
+        </div>
+      );
+    }},
+    { key: "unitWeight", label: "Weight (Kg)", render: (val, row) => (
       <div className="flex flex-col">
-        <span className="text-xs">{val || "-"}</span>
-        <span className="text-xs text-slate-500 ">{row.materialGrade || "-"}</span>
+        <span className="text-xs">Unit: {parseFloat(val || 0).toFixed(3)}</span>
+        <span className="text-xs font-medium text-emerald-600">Total: {parseFloat(row.totalWeight || 0).toFixed(3)}</span>
       </div>
     )},
     { key: "warehouse", label: "WH / Operations", render: (val, row) => (

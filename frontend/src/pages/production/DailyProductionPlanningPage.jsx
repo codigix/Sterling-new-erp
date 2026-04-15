@@ -34,6 +34,7 @@ import {
   PlusCircle
 } from "lucide-react";
 import SearchableSelect from "../../components/ui/SearchableSelect";
+import { renderDimensions } from "../../utils/dimensionUtils";
 
 // Reuse Accordion component for the Modal structure
 const AccordionSection = memo(({ title, section, children, itemCount = 0, expandedSections, toggleSection }) => (
@@ -776,11 +777,14 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                                     </div>
                                     <div>
                                       <p className=" text-slate-900 dark:text-white  ">{item.item_name}</p>
-                                      <p className="text-xs  text-slate-400 ">{item.item_code}</p>
+                                      <div className="flex items-center gap-2">
+                                        <p className="text-xs  text-slate-400 ">{item.item_code}</p>
+                                        <p className="text-[10px] text-indigo-500 font-medium bg-indigo-50 dark:bg-indigo-900/20 px-1 rounded">{renderDimensions(item)}</p>
+                                      </div>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="px-4 py-2.5 text-center  text-emerald-600">{item.quantity}</td>
+                                <td className="px-4 py-2.5 text-center  text-emerald-600">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</td>
                                 <td className="px-4 py-2.5 text-center  text-slate-500 ">{item.uom}</td>
                                 <td className="px-4 py-2.5 text-right  text-indigo-500">{item.serials?.length || 0} PCS</td>
                               </tr>
@@ -1392,11 +1396,11 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
           options.push({
             value: serial.serial_number,
             label: `${serial.serial_number} [${parseFloat(currentWeight.toFixed(3))} Kg]${isCut ? " (ALREADY CUT)" : ""}${isConsumed ? " (FULLY CONSUMED)" : ""}${isInSession ? " (IN TABLE)" : ""}`,
+            subLabel: `Dim: ${renderDimensions(serial)}`,
             item: item,
             entry_no: entry.entry_no,
             remaining: 1,
-            item_group: (() => {
-               if (item.item_group) return item.item_group;
+            item_group: item.item_group || (() => {
                const name = (item.item_name || item.material_name || "").toUpperCase();
                if (name.includes("PIPE") || name.includes("TUBE")) return "PIPE";
                if (name.includes("ROUND") || name.includes("BAR")) return "ROUND";
@@ -1404,11 +1408,13 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             })(),
             dims: {
               l: Number(serial.length) || Number(item.length) || 0,
-              w: Number(serial.width) || Number(item.width) || 0,
-              t: Number(serial.thickness) || Number(serial.height) || Number(item.thickness) || Number(item.height) || 0,
+              w: Number(serial.width) || Number(item.width) || Number(serial.side1) || Number(item.side1) || 0,
+              h: Number(serial.height) || Number(item.height) || Number(serial.side2) || Number(item.side2) || 0,
+              t: Number(serial.thickness) || Number(item.thickness) || 0,
               d: Number(serial.diameter) || Number(item.diameter) || 0,
               od: Number(serial.outer_diameter) || Number(item.outer_diameter) || 0,
-              h: Number(serial.height) || Number(serial.thickness) || Number(item.height) || Number(item.thickness) || 0
+              tw: Number(serial.web_thickness) || Number(item.web_thickness) || 0,
+              tf: Number(serial.flange_thickness) || Number(item.flange_thickness) || 0
             },
             density: serial.density || item.density || 0,
             unit_weight: currentWeight || serial.unit_weight || item.unit_weight || 0,
@@ -1437,10 +1443,10 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
 
     const rawL = parseFloat(selectedItem.dims.l) || 0;
     const rawW = parseFloat(selectedItem.dims.w) || 0;
-    const rawT = parseFloat(selectedItem.dims.t) || 0;
+    const rawT = parseFloat(selectedItem.dims.t || selectedItem.dims.h) || 0; // Fallback h to t for linear weight math
     const rawD = parseFloat(selectedItem.dims.d) || 0;
     const rawOD = parseFloat(selectedItem.dims.od) || 0;
-    const density = parseFloat(selectedItem.item?.density) || 7.85;
+    const density = parseFloat(selectedItem.density) || 7.85;
 
     // Default: remain the same
     let resL = rawL;
@@ -1790,16 +1796,48 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
           cutting_axis: entry.full_data.cutting_axis,
           is_finished: entry.full_data.is_finished,
           return_to_stock: entry.full_data.return_to_stock,
-          return_dims: entry.full_data.return_dims,
+          return_dims: entry.full_data.return_dims ? {
+            ...entry.full_data.return_dims,
+            diameter: entry.full_data.return_dims.diameter || entry.full_data.selectedItem?.dims?.diameter || null,
+            outer_diameter: entry.full_data.return_dims.outer_diameter || entry.full_data.selectedItem?.dims?.outer_diameter || null,
+            height: entry.full_data.return_dims.height || entry.full_data.selectedItem?.dims?.height || null,
+            web_thickness: entry.full_data.return_dims.web_thickness || entry.full_data.selectedItem?.dims?.web_thickness || null,
+            flange_thickness: entry.full_data.return_dims.flange_thickness || entry.full_data.selectedItem?.dims?.flange_thickness || null,
+            side1: entry.full_data.return_dims.side1 || entry.full_data.selectedItem?.dims?.side1 || null,
+            side2: entry.full_data.return_dims.side2 || entry.full_data.selectedItem?.dims?.side2 || null,
+            side_s: entry.full_data.return_dims.side_s || entry.full_data.selectedItem?.dims?.side_s || null,
+            side_s1: entry.full_data.return_dims.side_s1 || entry.full_data.selectedItem?.dims?.side_s1 || null,
+            side_s2: entry.full_data.return_dims.side_s2 || entry.full_data.selectedItem?.dims?.side_s2 || null
+          } : null,
           raw_dims: {
             l: pL,
             w: pW,
-            t: pT
+            t: pT,
+            diameter: entry.full_data.diameter || null,
+            outer_diameter: entry.full_data.selectedItem?.dims?.od || null,
+            height: entry.full_data.selectedItem?.dims?.h || null,
+            web_thickness: entry.full_data.selectedItem?.dims?.web_thickness || entry.full_data.tw || null,
+            flange_thickness: entry.full_data.selectedItem?.dims?.flange_thickness || entry.full_data.tf || null,
+            side1: entry.full_data.side1 || entry.full_data.s1 || null,
+            side2: entry.full_data.side2 || entry.full_data.s2 || null,
+            side_s: entry.full_data.side_s || entry.full_data.s || null,
+            side_s1: entry.full_data.side_s1 || entry.full_data.s1 || null,
+            side_s2: entry.full_data.side_s2 || entry.full_data.s2 || null
           },
           new_dims: {
             l: newL,
             w: newW,
-            t: newT
+            t: newT,
+            diameter: entry.full_data.diameter || null,
+            outer_diameter: entry.full_data.selectedItem?.dims?.od || null,
+            height: entry.full_data.selectedItem?.dims?.h || null,
+            web_thickness: entry.full_data.selectedItem?.dims?.web_thickness || entry.full_data.tw || null,
+            flange_thickness: entry.full_data.selectedItem?.dims?.flange_thickness || entry.full_data.tf || null,
+            side1: entry.full_data.side1 || entry.full_data.s1 || null,
+            side2: entry.full_data.side2 || entry.full_data.s2 || null,
+            side_s: entry.full_data.side_s || entry.full_data.s || null,
+            side_s1: entry.full_data.side_s1 || entry.full_data.s1 || null,
+            side_s2: entry.full_data.side_s2 || entry.full_data.s2 || null
           },
           new_weight: newWeight,
           scrap_weight: entry.scrap_weight || 0,
@@ -2038,6 +2076,31 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                           </div>
                         </>
                       )}
+
+                      {/* Generic Fallback for other groups (Beams, Channels, Angles, etc.) */}
+                      {selectedItem && 
+                       !selectedItemGroup.includes("PLATE") && 
+                       !selectedItemGroup.includes("SHEET") && 
+                       !selectedItemGroup.includes("ROUND") && 
+                       !selectedItemGroup.includes("BAR") && 
+                       !selectedItemGroup.includes("PIPE") && 
+                       !selectedItemGroup.includes("TUBE") && 
+                       !selectedItemGroup.includes("BLOCK") && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Dim 1 (L)</label>
+                            <input type="number" placeholder="Dim 1" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Dim 2 (W)</label>
+                            <input type="number" placeholder="Dim 2" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Dim 3 (T/H)</label>
+                            <input type="number" placeholder="Dim 3" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     <div className="md:col-span-6 flex items-center justify-around bg-slate-50 dark:bg-slate-800/50 h-9 rounded-lg border border-slate-100 dark:border-slate-800 px-4">
@@ -2099,6 +2162,21 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                               <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">OD</label><input type="number" placeholder="OD" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
                               <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Thk</label><input type="number" placeholder="T" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_t} onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })} /></div>
                               <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Cut Len</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                            </>
+                          )}
+
+                          {selectedItem && 
+                           !selectedItemGroup.includes("PLATE") && 
+                           !selectedItemGroup.includes("SHEET") && 
+                           !selectedItemGroup.includes("ROUND") && 
+                           !selectedItemGroup.includes("BAR") && 
+                           !selectedItemGroup.includes("PIPE") && 
+                           !selectedItemGroup.includes("TUBE") && 
+                           !selectedItemGroup.includes("BLOCK") && (
+                            <>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Dim 1</label><input type="number" placeholder="Dim 1" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Dim 2</label><input type="number" placeholder="Dim 2" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Dim 3</label><input type="number" placeholder="Dim 3" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_t} onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })} /></div>
                             </>
                           )}
                         </div>

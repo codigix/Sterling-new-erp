@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "../../utils/api";
 import { getServerUrl } from "../../utils/fileUtils";
 import { toast } from "react-toastify";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import {
   ArrowLeft,
   Save,
@@ -289,28 +290,6 @@ const QualityInspectionDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const renderDimensions = (dimensions) => {
-    if (!dimensions) return "-";
-    const parts = [];
-    const fields = [
-      { key: 'length', label: 'L' },
-      { key: 'width', label: 'W' },
-      { key: 'thickness', label: 'T' },
-      { key: 'diameter', label: 'Dia' },
-      { key: 'outer_diameter', label: 'OD' },
-      { key: 'height', label: 'H' }
-    ];
-
-    fields.forEach(field => {
-      const value = parseFloat(dimensions[field.key]);
-      if (value > 0) {
-        parts.push(`${field.label}: ${parseFloat(value.toFixed(4))}`);
-      }
-    });
-
-    return parts.length > 0 ? parts.join(" \u00D7 ") : "-";
   };
 
   if (loading) return <div className="p-8 text-center">Loading...</div>;

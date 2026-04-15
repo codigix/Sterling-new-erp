@@ -30,7 +30,9 @@ import {
 } from "lucide-react";
 import axios from "../../utils/api";
 import useRootCardInventoryTask from "../../hooks/useRootCardInventoryTask";
+import CreatePurchaseOrderModal from "./CreatePurchaseOrderModal";
 import CreateQuotationModal from "../../components/inventory/CreateQuotationModal";
+import { renderDimensions } from "../../utils/dimensionUtils";
 
 const QuotationsPage = ({ defaultTab }) => {
   const navigate = useNavigate();
@@ -106,8 +108,8 @@ const QuotationsPage = ({ defaultTab }) => {
           quantity: item.quantity || item.required_quantity || 0,
           unit: item.unit || item.uom || "",
           unit_price: 0,
-          total_weight: item.total_weight || item.totalWeight || 0,
-          unit_weight: item.unit_weight || item.unitWeight || 0,
+          total_weight: item.total_weight ? Number(parseFloat(item.total_weight).toFixed(3)) : (item.totalWeight ? Number(parseFloat(item.totalWeight).toFixed(3)) : 0),
+          unit_weight: item.unit_weight ? Number(parseFloat(item.unit_weight).toFixed(3)) : (item.unitWeight ? Number(parseFloat(item.unitWeight).toFixed(3)) : 0),
           item_group: item.item_group || "",
           material_grade: item.material_grade || "",
           part_detail: item.part_detail || "",
@@ -118,7 +120,11 @@ const QuotationsPage = ({ defaultTab }) => {
           thickness: item.thickness || null,
           diameter: item.diameter || null,
           outer_diameter: item.outer_diameter || null,
-          height: item.height || null
+          height: item.height || null,
+          side1: item.side1 || null,
+          side2: item.side2 || null,
+          web_thickness: item.web_thickness || null,
+          flange_thickness: item.flange_thickness || null
         }));
 
         setInitialData({
@@ -400,25 +406,8 @@ const QuotationsPage = ({ defaultTab }) => {
     const tableRows = (quotation.items || []).map((item) => {
       // Helper for dimension text
       const getDimText = (item) => {
-        const group = (item.item_group || "").toLowerCase();
-        const parts = [];
-        if (group === "plate" || group === "plates") {
-          if (item.length) parts.push(`L: ${Number(item.length)}`);
-          if (item.width) parts.push(`W: ${Number(item.width)}`);
-          if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-        } else if (group === "round bar") {
-          if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
-          if (item.length) parts.push(`L: ${Number(item.length)}`);
-        } else if (group === "pipe") {
-          if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
-          if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-          if (item.length) parts.push(`L: ${Number(item.length)}`);
-        } else if (group === "block") {
-          if (item.length) parts.push(`L: ${Number(item.length)}`);
-          if (item.width) parts.push(`W: ${Number(item.width)}`);
-          if (item.height) parts.push(`H: ${Number(item.height)}`);
-        }
-        return parts.length > 0 ? `\nDim: ${parts.join(" \u00d7 ")} mm` : "";
+        const dims = renderDimensions(item);
+        return dims !== "-" ? `\nDim: ${dims} mm` : "";
       };
 
       if (quotation.type === "inbound") {
@@ -427,9 +416,9 @@ const QuotationsPage = ({ defaultTab }) => {
           (item.vendor_item_name || item.item_name || "N/A") + dimText,
           item.quantity ? parseFloat(item.quantity).toString() : "0",
           item.unit || "N/A",
-          `INR ${item.rate_per_kg || 0}`,
-          `${item.total_weight || 0}`,
-          `INR ${(item.total_weight * item.rate_per_kg || 0).toFixed(2)}`
+          `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}`,
+          `${Number(item.total_weight || 0).toFixed(3)}`,
+          `INR ${Number(item.total_weight * item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}`
         ];
       } else {
         const dimText = getDimText(item);
@@ -440,7 +429,7 @@ const QuotationsPage = ({ defaultTab }) => {
           item.part_detail || "N/A",
           item.make || "N/A",
           item.remark || "N/A",
-          item.total_weight ? `${Number(parseFloat(item.total_weight).toFixed(3))}` : "0",
+          item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)}` : "0.000",
           item.quantity ? parseFloat(item.quantity).toString() : "0",
           item.unit || "N/A",
         ];
@@ -486,7 +475,7 @@ const QuotationsPage = ({ defaultTab }) => {
     if (quotation.type === "inbound" && quotation.total_amount) {
       doc.setFontSize(12);
       doc.text(
-        `Total Amount: INR ${quotation.total_amount?.toLocaleString()}`,
+        `Total Amount: INR ${quotation.total_amount?.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}`,
         140,
         finalY
       );
@@ -773,6 +762,12 @@ const QuotationsPage = ({ defaultTab }) => {
         diameter: item.diameter || null,
         outer_diameter: item.outer_diameter || null,
         height: item.height || null,
+        side1: item.side1 || null,
+        side2: item.side2 || null,
+        web_thickness: item.web_thickness || null,
+        flange_thickness: item.flange_thickness || null,
+        total_weight: item.total_weight ? Number(parseFloat(item.total_weight).toFixed(3)) : (item.totalWeight ? Number(parseFloat(item.totalWeight).toFixed(3)) : 0),
+        unit_weight: item.unit_weight ? Number(parseFloat(item.unit_weight).toFixed(3)) : (item.unitWeight ? Number(parseFloat(item.unitWeight).toFixed(3)) : 0),
       })),
       notes: `Response to ${quote.quotation_number}`,
       type: "inbound",
@@ -1037,8 +1032,8 @@ const QuotationsPage = ({ defaultTab }) => {
                         <p className=" text-slate-900 dark:text-white text-xs flex items-center justify-end gap-1">
                           <IndianRupee size={14} />
                           {quote.total_amount
-                            ? quote.total_amount.toLocaleString()
-                            : "0"}
+                            ? quote.total_amount.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+                            : "0.000"}
                         </p>
                       </td>
                     )}

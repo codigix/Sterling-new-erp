@@ -134,7 +134,17 @@ const PurchaseOrderEditMR = () => {
       rate_per_kg: 0,
       total_weight: 0,
       rate: 0,
-      amount: 0
+      amount: 0,
+      length: null,
+      width: null,
+      thickness: null,
+      diameter: null,
+      outer_diameter: null,
+      height: null,
+      side1: null,
+      side2: null,
+      web_thickness: null,
+      flange_thickness: null
     };
     calculateTotals([...formData.items, newItem], formData.tax_rate, formData.advance_paid);
   };
@@ -157,6 +167,66 @@ const PurchaseOrderEditMR = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 3,
+    }).format(amount || 0);
+  };
+
+  const renderDimensionsText = (item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const parts = [];
+    
+    const val = (v) => {
+      const n = parseFloat(v);
+      return (n && !isNaN(n) && n !== 0) ? n : null;
+    };
+
+    if (group === "plate" || group === "plates") {
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+      if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+    } else if (group === "round bar") {
+      if (val(item.diameter)) parts.push(`Dia: ${val(item.diameter)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group === "pipe") {
+      if (val(item.outer_diameter)) parts.push(`OD: ${val(item.outer_diameter)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group === "block") {
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+      if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+      if (val(item.height)) parts.push(`H: ${val(item.height)}`);
+    } else if (group.includes("square bar") || group.includes("sq bar") || group.includes("square tube") || group.includes("sq tube")) {
+      if (val(item.side1 || item.width || item.side_s || item.s)) parts.push(`S: ${val(item.side1 || item.width || item.side_s || item.s)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("rectangular bar") || group.includes("rec bar") || group.includes("rectangular tube") || group.includes("rec tube")) {
+      if (val(item.side1 || item.width)) parts.push(`W: ${val(item.side1 || item.width)}`);
+      if (val(item.side2 || item.thickness || item.height || item.side_s1)) parts.push(`T: ${val(item.side2 || item.thickness || item.height || item.side_s1)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("angle")) {
+      if (val(item.side1 || item.side_s)) parts.push(`S1: ${val(item.side1 || item.side_s)}`);
+      if (val(item.side2 || item.side_s1 || item.height)) parts.push(`S2: ${val(item.side2 || item.side_s1 || item.height)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("channel") || group.includes("beam")) {
+      if (val(item.side1 || item.height)) parts.push(`H: ${val(item.side1 || item.height)}`);
+      if (val(item.side2 || item.width)) parts.push(`W: ${val(item.side2 || item.width)}`);
+      if (val(item.web_thickness || item.thickness || item.tw)) parts.push(`Tw: ${val(item.web_thickness || item.thickness || item.tw)}`);
+      if (val(item.flange_thickness || item.tf)) parts.push(`Tf: ${val(item.flange_thickness || item.tf)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    }
+    
+    if (parts.length === 0) return null;
+    return (
+      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-1">
+        Dim: {parts.join(" \u00d7 ")} mm
+      </div>
+    );
   };
 
   if (loading) {
@@ -397,12 +467,13 @@ const PurchaseOrderEditMR = () => {
                             placeholder="Vendor alternative name..."
                             className="w-full bg-transparent border-none text-xs  text-slate-400 placeholder:text-slate-200 focus:ring-0 outline-none "
                           />
+                          {renderDimensionsText(item)}
                         </td>
                         <td className="p-2">
                           <div className="flex items-center gap-2">
                             <input 
                               type="number"
-                              value={item.quantity}
+                              value={item.quantity !== undefined && item.quantity !== null ? parseFloat(item.quantity) : ""}
                               onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
                               className="w-20 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />

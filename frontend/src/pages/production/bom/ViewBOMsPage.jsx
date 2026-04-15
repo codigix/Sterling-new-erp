@@ -248,9 +248,10 @@ const ViewBOMsPage = () => {
       }
     },
     {
-      key: "bomNumber",
+      key: "revision",
       label: "REVISION",
-      render: (val) => {
+      render: (_, row) => {
+        const val = row.bomNumber;
         const parts = val.split('-V');
         return (
           <Badge variant="secondary" className="font-mono">

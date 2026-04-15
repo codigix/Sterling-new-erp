@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../utils/api";
 import CreateStockEntryModal from "./CreateStockEntryModal";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import {
   Package,
   Search,
@@ -234,6 +235,7 @@ const StockEntriesPage = () => {
                                <table className="w-full text-left text-xs">
                                  <thead>
                                    <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                     <th className="p-2  text-slate-400   w-10 text-center"></th>
                                      <th className="p-2  text-slate-400   w-16">#</th>
                                      <th className="p-2  text-slate-400  ">Item Code</th>
                                      <th className="p-2  text-slate-400  ">Material Name</th>
@@ -246,23 +248,6 @@ const StockEntriesPage = () => {
                                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700 font-medium">
                                    {items.map((item, i) => {
                                      const isItemExpanded = expandedItem === i;
-                                     const renderDimensions = (it, fallback = null) => {
-                                       const dims = [];
-                                       const l = Number(it.length_mm || it.length || (fallback?.length_mm || fallback?.length || 0));
-                                       const w = Number(it.width_mm || it.width || (fallback?.width_mm || fallback?.width || 0));
-                                       const t = Number(it.thickness_mm || it.thickness || (fallback?.thickness_mm || fallback?.thickness || 0));
-                                       const d = Number(it.diameter_mm || it.diameter || (fallback?.diameter_mm || fallback?.diameter || 0));
-                                       const od = Number(it.outer_diameter_mm || it.outer_diameter || (fallback?.outer_diameter_mm || fallback?.outer_diameter || 0));
-                                       const h = Number(it.height_mm || it.height || (fallback?.height_mm || fallback?.height || 0));
-
-                                       if (l) dims.push(`L: ${l}`);
-                                       if (w) dims.push(`W: ${w}`);
-                                       if (t) dims.push(`T: ${t}`);
-                                       if (d) dims.push(`Dia: ${d}`);
-                                       if (od) dims.push(`OD: ${od}`);
-                                       if (h) dims.push(`H: ${h}`);
-                                       return dims.length > 0 ? dims.join(" × ") : "-";
-                                     };
 
                                      return (
                                        <React.Fragment key={i}>
@@ -270,6 +255,11 @@ const StockEntriesPage = () => {
                                            className={`hover:bg-slate-50/30 dark:hover:bg-slate-900/30 cursor-pointer transition-colors ${isItemExpanded ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''}`}
                                            onClick={() => setExpandedItem(isItemExpanded ? null : i)}
                                          >
+                                           <td className="p-2 text-center">
+                                             <div className={`p-1 rounded transition-all ${isItemExpanded ? 'text-indigo-600' : 'text-slate-300'}`}>
+                                               {isItemExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                                             </div>
+                                           </td>
                                            <td className="p-2 text-slate-400 ">{i + 1}</td>
                                            <td className="p-2  text-indigo-600  ">
                                              {item.item_code}
@@ -313,8 +303,14 @@ const StockEntriesPage = () => {
                                          </tr>
                                          {isItemExpanded && item.serials && item.serials.length > 0 && (
                                            <tr className="bg-slate-50/50 dark:bg-slate-900/20">
-                                             <td colSpan="7" className="p-2">
+                                             <td colSpan="8" className="p-2">
                                                <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded  overflow-hidden">
+                                                 {item.instructions && (
+                                                   <div className="p-2 bg-indigo-50/30 border-b border-indigo-50 dark:border-indigo-900/30">
+                                                      <p className="text-[10px] uppercase tracking-wider text-indigo-500 font-bold mb-1">Item Instructions</p>
+                                                      <p className="text-xs text-slate-600 dark:text-slate-400 italic">"{item.instructions}"</p>
+                                                   </div>
+                                                 )}
                                                  <table className="w-full text-left border-collapse bg-white">
                                                    <thead>
                                                      <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
@@ -337,7 +333,7 @@ const StockEntriesPage = () => {
                                                            <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
                                                            <td className="p-2 text-xs  text-slate-700 dark:text-slate-300  ">{itemCodePerPiece}</td>
                                                            <td className="p-2 text-xs text-slate-500  ">
-                                                             {renderDimensions(stObj, item)}
+                                                             {renderDimensions(stObj)}
                                                            </td>
                                                            <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
                                                               {Number(pieceWeight).toFixed(3)} Kg

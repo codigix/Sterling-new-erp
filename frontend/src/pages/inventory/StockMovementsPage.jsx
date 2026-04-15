@@ -23,6 +23,7 @@ import {
 import CreateStockEntryModal from "./CreateStockEntryModal";
 
 import toastUtils from "../../utils/toastUtils";
+import { renderDimensions } from "../../utils/dimensionUtils";
 
 const StockMovementsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -64,12 +65,18 @@ const StockMovementsPage = () => {
             vendor_name: entry.vendor_name,
             remarks: entry.remarks || `${entry.entry_type} for ${item.item_code}`,
             serials: item.serials || [],
-            length: item.length_mm || item.length,
-            width: item.width_mm || item.width,
-            thickness: item.thickness_mm || item.thickness,
-            diameter: item.diameter_mm || item.diameter,
-            outer_diameter: item.outer_diameter_mm || item.outer_diameter,
-            height: item.height_mm || item.height,
+            item_group: item.item_group,
+            length: item.length,
+            width: item.width,
+            thickness: item.thickness,
+            diameter: item.diameter,
+            outer_diameter: item.outer_diameter,
+            height: item.height,
+            web_thickness: item.web_thickness,
+            flange_thickness: item.flange_thickness,
+            side_s: item.side_s,
+            side_s1: item.side_s1,
+            side_s2: item.side_s2,
             density: item.density
           });
         });
@@ -219,23 +226,6 @@ const StockMovementsPage = () => {
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {filteredMovements.map((m) => {
                 const isExpanded = expandedMovement === m.id;
-                const renderDimensions = (it, fallback = null) => {
-                  const dims = [];
-                  const l = Number(it.length || (fallback?.length || 0));
-                  const w = Number(it.width || (fallback?.width || 0));
-                  const t = Number(it.thickness || (fallback?.thickness || 0));
-                  const d = Number(it.diameter || (fallback?.diameter || 0));
-                  const od = Number(it.outer_diameter || (fallback?.outer_diameter || 0));
-                  const h = Number(it.height || (fallback?.height || 0));
-
-                  if (l) dims.push(`L: ${l}`);
-                  if (w) dims.push(`W: ${w}`);
-                  if (t) dims.push(`T: ${t}`);
-                  if (d) dims.push(`Dia: ${d}`);
-                  if (od) dims.push(`OD: ${od}`);
-                  if (h) dims.push(`H: ${h}`);
-                  return dims.length > 0 ? dims.join(" × ") : "-";
-                };
 
                 return (
                   <React.Fragment key={m.id}>
@@ -359,7 +349,7 @@ const StockMovementsPage = () => {
                                            {m.material_name}
                                          </td>
                                          <td className="p-2 text-slate-500 dark:text-slate-400 text-xs">
-                                           {renderDimensions(st, m)}
+                                           {renderDimensions(st)}
                                          </td>
                                          <td className="p-2 text-right">
                                            <span className="p-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-xs mb-2    border border-indigo-100 dark:border-indigo-800">

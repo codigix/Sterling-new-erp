@@ -25,22 +25,147 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
     material_id: "",
     item_code: "",
     item_name: "",
+    item_group: "",
     quantity: 1,
     uom: "Kg",
     batch_no: "",
     valuation_rate: 0,
     unit_weight: 0,
     total_weight: 0,
-    density: 0
+    density: 7850,
+    length: "",
+    width: "",
+    thickness: "",
+    diameter: "",
+    outer_diameter: "",
+    height: "",
+    web_thickness: "",
+    flange_thickness: "",
+    side_s: "",
+    side_s1: "",
+    side_s2: ""
   });
 
-  // Calculate total weight when quantity or unit weight changes
+  const calculateItemWeight = (item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const l = parseFloat(item.length) / 1000 || 0;
+    const w = parseFloat(item.width) / 1000 || 0;
+    const t = parseFloat(item.thickness) / 1000 || 0;
+    const d = parseFloat(item.diameter) / 1000 || 0;
+    const od = parseFloat(item.outer_diameter) / 1000 || 0;
+    const h = parseFloat(item.height) / 1000 || 0;
+    const wt = parseFloat(item.web_thickness) / 1000 || 0;
+    const ft = parseFloat(item.flange_thickness) / 1000 || 0;
+    const s = parseFloat(item.side_s) / 1000 || 0;
+    const s1 = parseFloat(item.side_s1) / 1000 || 0;
+    const s2 = parseFloat(item.side_s2) / 1000 || 0;
+    const density = parseFloat(item.density) || 7850;
+
+    let area = 0;
+
+    if (group.includes("plate")) {
+      area = l * w * t;
+    } else if (group.includes("round bar")) {
+      area = (Math.PI * Math.pow(d / 2, 2)) * l;
+    } else if (group.includes("pipe")) {
+      const id = od - (2 * t);
+      area = (Math.PI * (Math.pow(od / 2, 2) - Math.pow(id / 2, 2))) * l;
+    } else if (group.includes("square bar")) {
+      area = s * s * l;
+    } else if (group.includes("rectangular bar")) {
+      area = w * h * l;
+    } else if (group.includes("square tube")) {
+      const is = s - (2 * t);
+      area = (Math.pow(s, 2) - Math.pow(is, 2)) * l;
+    } else if (group.includes("rectangular tube")) {
+      const iw = w - (2 * t);
+      const ih = h - (2 * t);
+      area = (w * h - iw * ih) * l;
+    } else if (group.includes("angle")) {
+      area = (s1 * t + (s2 - t) * t) * l;
+    } else if (group.includes("channel") || group.includes("beam")) {
+      area = (w * ft * 2 + (h - 2 * ft) * wt) * l;
+    }
+
+    return area * density;
+  };
+
+  const renderDimensionsText = (item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const parts = [];
+    
+    const val = (v) => {
+      const n = parseFloat(v);
+      return (n && !isNaN(n) && n !== 0) ? n : null;
+    };
+
+    if (group === "plate" || group === "plates") {
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+      if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+    } else if (group === "round bar") {
+      if (val(item.diameter)) parts.push(`Dia: ${val(item.diameter)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group === "pipe") {
+      if (val(item.outer_diameter)) parts.push(`OD: ${val(item.outer_diameter)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group === "block") {
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+      if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+      if (val(item.height)) parts.push(`H: ${val(item.height)}`);
+    } else if (group.includes("square bar") || group === "sq bar" || group.includes("square tube") || group === "sq tube") {
+      if (val(item.side1 || item.width || item.side_s || item.s)) parts.push(`S: ${val(item.side1 || item.width || item.side_s || item.s)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("rectangular bar") || group === "rec bar" || group.includes("rectangular tube") || group === "rec tube") {
+      if (val(item.width || item.side1)) parts.push(`W: ${val(item.width || item.side1)}`);
+      if (val(item.thickness || item.side2 || item.height || item.side_s1)) parts.push(`T: ${val(item.thickness || item.side2 || item.height || item.side_s1)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("angle")) {
+      if (val(item.side1 || item.side_s)) parts.push(`S1: ${val(item.side1 || item.side_s)}`);
+      if (val(item.side2 || item.side_s1 || item.height)) parts.push(`S2: ${val(item.side2 || item.side_s1 || item.height)}`);
+      if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    } else if (group.includes("channel") || group.includes("beam")) {
+      if (val(item.side1 || item.height)) parts.push(`H: ${val(item.side1 || item.height)}`);
+      if (val(item.side2 || item.width)) parts.push(`W: ${val(item.side2 || item.width)}`);
+      if (val(item.web_thickness || item.thickness || item.tw)) parts.push(`Tw: ${val(item.web_thickness || item.thickness || item.tw)}`);
+      if (val(item.flange_thickness || item.tf)) parts.push(`Tf: ${val(item.flange_thickness || item.tf)}`);
+      if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+    }
+    
+    if (parts.length === 0) return null;
+    return (
+      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+        Dim: {parts.join(" \u00d7 ")} mm
+      </div>
+    );
+  };
+
+  // Calculate total weight when quantity or dimensions change
   useEffect(() => {
-    setCurrentItem(prev => ({
-      ...prev,
-      total_weight: (prev.quantity || 0) * (prev.unit_weight || 0)
-    }));
-  }, [currentItem.quantity, currentItem.unit_weight]);
+    const weight = calculateItemWeight(currentItem);
+    if (weight > 0) {
+      setCurrentItem(prev => ({
+        ...prev,
+        unit_weight: weight,
+        total_weight: weight * (prev.quantity || 0)
+      }));
+    } else {
+      setCurrentItem(prev => ({
+        ...prev,
+        total_weight: (prev.quantity || 0) * (prev.unit_weight || 0)
+      }));
+    }
+  }, [
+    currentItem.quantity, currentItem.unit_weight, currentItem.item_group,
+    currentItem.length, currentItem.width, currentItem.thickness,
+    currentItem.diameter, currentItem.outer_diameter, currentItem.height,
+    currentItem.web_thickness, currentItem.flange_thickness,
+    currentItem.side_s, currentItem.side_s1, currentItem.side_s2,
+    currentItem.density
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,10 +210,22 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
           material_id: value,
           item_code: selectedMat.itemCode || selectedMat.item_code || "",
           item_name: selectedMat.itemName || selectedMat.item_name || "",
+          item_group: selectedMat.item_group || "",
           uom: selectedMat.unit || "Kg",
           valuation_rate: selectedMat.unit_cost || 0,
           unit_weight: selectedMat.unit_weight || 0,
-          density: selectedMat.density || 0
+          density: selectedMat.density || 7850,
+          length: selectedMat.length || "",
+          width: selectedMat.width || "",
+          thickness: selectedMat.thickness || "",
+          diameter: selectedMat.diameter || "",
+          outer_diameter: selectedMat.outer_diameter || "",
+          height: selectedMat.height || "",
+          web_thickness: selectedMat.web_thickness || selectedMat.tw || "",
+          flange_thickness: selectedMat.flange_thickness || selectedMat.tf || "",
+          side_s: selectedMat.side_s || selectedMat.s || "",
+          side_s1: selectedMat.side_s1 || selectedMat.s1 || "",
+          side_s2: selectedMat.side_s2 || selectedMat.s2 || ""
         }));
       } else {
         setCurrentItem(prev => ({ ...prev, [name]: value }));
@@ -114,13 +251,25 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
       material_id: "",
       item_code: "",
       item_name: "",
+      item_group: "",
       quantity: 1,
       uom: "Kg",
       batch_no: "",
       valuation_rate: 0,
       unit_weight: 0,
       total_weight: 0,
-      density: 0
+      density: 7850,
+      length: "",
+      width: "",
+      thickness: "",
+      diameter: "",
+      outer_diameter: "",
+      height: "",
+      web_thickness: "",
+      flange_thickness: "",
+      side_s: "",
+      side_s1: "",
+      side_s2: ""
     });
   };
 
@@ -310,7 +459,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                   <input 
                     type="number"
                     name="quantity"
-                    value={currentItem.quantity}
+                    value={currentItem.quantity !== undefined && currentItem.quantity !== null ? parseFloat(currentItem.quantity) : ""}
                     onChange={handleCurrentItemChange}
                     className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-xs  "
                   />
@@ -338,6 +487,156 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                   />
                 </div>
               </div>
+
+              {/* Specialized Dimension Fields */}
+              {currentItem.item_group && (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mt-4 p-2 bg-indigo-50/30 dark:bg-indigo-900/10 rounded border border-indigo-100/50 dark:border-indigo-800/30">
+                  <div className="col-span-full">
+                    <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">Technical Specifications ({currentItem.item_group})</p>
+                  </div>
+                  
+                  {/* Plate */}
+                  {(currentItem.item_group.toLowerCase().includes("plate")) && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">L (mm)</label>
+                        <input type="number" name="length" value={currentItem.length} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">W (mm)</label>
+                        <input type="number" name="width" value={currentItem.width} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">T (mm)</label>
+                        <input type="number" name="thickness" value={currentItem.thickness} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Round Bar */}
+                  {(currentItem.item_group.toLowerCase().includes("round bar")) && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">Dia (mm)</label>
+                        <input type="number" name="diameter" value={currentItem.diameter} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">L (mm)</label>
+                        <input type="number" name="length" value={currentItem.length} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Pipe */}
+                  {(currentItem.item_group.toLowerCase().includes("pipe")) && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">OD (mm)</label>
+                        <input type="number" name="outer_diameter" value={currentItem.outer_diameter} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">T (mm)</label>
+                        <input type="number" name="thickness" value={currentItem.thickness} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">L (mm)</label>
+                        <input type="number" name="length" value={currentItem.length} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Square Bar / Tube */}
+                  {(currentItem.item_group.toLowerCase().includes("square")) && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">Side (mm)</label>
+                        <input type="number" name="side_s" value={currentItem.side_s} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      {currentItem.item_group.toLowerCase().includes("tube") && (
+                        <div className="space-y-1">
+                          <label className="text-[10px] text-slate-400 ml-1">T (mm)</label>
+                          <input type="number" name="thickness" value={currentItem.thickness} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                        </div>
+                      )}
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">L (mm)</label>
+                        <input type="number" name="length" value={currentItem.length} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Rectangular Bar / Tube */}
+                  {(currentItem.item_group.toLowerCase().includes("rectangular") || (currentItem.item_group.toLowerCase().includes("rec") && !currentItem.item_group.toLowerCase().includes("tube"))) && !currentItem.item_group.toLowerCase().includes("tube") && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">W (mm)</label>
+                        <input type="number" name="width" value={currentItem.width} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">H (mm)</label>
+                        <input type="number" name="height" value={currentItem.height} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">L (mm)</label>
+                        <input type="number" name="length" value={currentItem.length} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Rectangular Tube */}
+                  {(currentItem.item_group.toLowerCase().includes("rectangular tube") || currentItem.item_group.toLowerCase().includes("rec tube")) && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">W (mm)</label>
+                        <input type="number" name="width" value={currentItem.width} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">H (mm)</label>
+                        <input type="number" name="height" value={currentItem.height} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">T (mm)</label>
+                        <input type="number" name="thickness" value={currentItem.thickness} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">L (mm)</label>
+                        <input type="number" name="length" value={currentItem.length} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Channel & Beam */}
+                  {(currentItem.item_group.toLowerCase().includes("channel") || currentItem.item_group.toLowerCase().includes("beam")) && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">H (mm)</label>
+                        <input type="number" name="height" value={currentItem.height} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">W (mm)</label>
+                        <input type="number" name="width" value={currentItem.width} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">Tw (mm)</label>
+                        <input type="number" name="web_thickness" value={currentItem.web_thickness} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">Tf (mm)</label>
+                        <input type="number" name="flange_thickness" value={currentItem.flange_thickness} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-400 ml-1">L (mm)</label>
+                        <input type="number" name="length" value={currentItem.length} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none" />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-slate-400 ml-1">Density</label>
+                    <input type="number" name="density" value={currentItem.density} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none font-bold text-indigo-600" />
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
                 <div className="space-y-2">
@@ -394,10 +693,11 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
                           <div className="space-y-0.5">
                             <p className="text-xs  text-indigo-600 font-mono  ">{item.item_code}</p>
                             <p className="text-xs  text-slate-500 dark:text-slate-400   line-clamp-1">{item.item_name}</p>
+                            {renderDimensionsText(item)}
                           </div>
                         </td>
                         <td className="p-2 text-center">
-                          <span className="text-xs  text-slate-900 dark:text-white">{item.quantity}</span>
+                          <span className="text-xs  text-slate-900 dark:text-white">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</span>
                           <span className="text-xs  text-slate-400  ml-1.5">{item.uom}</span>
                         </td>
                         <td className="p-2 text-center  text-slate-500 text-xs">₹{parseFloat(item.valuation_rate).toLocaleString()}</td>

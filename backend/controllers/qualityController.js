@@ -193,7 +193,14 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
             thickness: s.thickness,
             diameter: s.diameter,
             outer_diameter: s.outer_diameter,
-            height: s.height
+            height: s.height,
+            web_thickness: s.web_thickness,
+            flange_thickness: s.flange_thickness,
+            side1: s.side1,
+            side2: s.side2,
+            side_s: s.side_s,
+            side_s1: s.side_s1,
+            side_s2: s.side_s2
           }
         }))
       };
@@ -275,8 +282,8 @@ exports.createFinalQCReport = async (req, res) => {
             for (const item of materials) {
                 const [itemResult] = await connection.query(
                     `INSERT INTO quality_final_report_items 
-                     (report_id, material_name, item_code, item_group, material_id, received_qty, unit, accepted_qty, rejected_qty, accepted_report, rejected_report, length, width, thickness, diameter, outer_diameter, height, density) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                     (report_id, material_name, item_code, item_group, material_id, received_qty, unit, accepted_qty, rejected_qty, accepted_report, rejected_report, length, width, thickness, diameter, outer_diameter, height, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         reportId, 
                         item.material_name, 
@@ -295,7 +302,14 @@ exports.createFinalQCReport = async (req, res) => {
                         item.diameter || null,
                         item.outer_diameter || null,
                         item.height || null,
-                        item.density || 0
+                        item.density || 0,
+                        item.web_thickness || item.tw || null,
+                        item.flange_thickness || item.tf || null,
+                        item.side1 || item.s1 || null,
+                        item.side2 || item.s2 || null,
+                        item.side_s || item.s || null,
+                        item.side_s1 || item.s1 || null,
+                        item.side_s2 || item.s2 || null
                     ]
                 );
 
@@ -305,7 +319,7 @@ exports.createFinalQCReport = async (req, res) => {
                 if (item.st_numbers && item.st_numbers.length > 0) {
                     for (const st of item.st_numbers) {
                         await connection.query(
-                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density, item_group, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                             [
                                 reportItemId, 
                                 st.st_code, 
@@ -317,7 +331,15 @@ exports.createFinalQCReport = async (req, res) => {
                                 st.diameter || null,
                                 st.outer_diameter || null,
                                 st.height || null,
-                                st.density || 0
+                                st.density || 0,
+                                st.item_group || null,
+                                st.web_thickness || st.tw || null,
+                                st.flange_thickness || st.tf || null,
+                                st.side1 || st.s1 || null,
+                                st.side2 || st.s2 || null,
+                                st.side_s || st.s || null,
+                                st.side_s1 || st.s1 || null,
+                                st.side_s2 || st.s2 || null
                             ]
                         );
                     }
@@ -360,14 +382,14 @@ exports.getFinalQCReports = async (req, res) => {
         const reports = [];
         for (const report of rows) {
             const [items] = await db.query(
-                'SELECT id, material_name, item_code, item_group, received_qty, unit, accepted_qty, rejected_qty, length, width, thickness, diameter, outer_diameter, height, density FROM quality_final_report_items WHERE report_id = ?',
+                'SELECT id, material_name, item_code, item_group, received_qty, unit, accepted_qty, rejected_qty, length, width, thickness, diameter, outer_diameter, height, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2 FROM quality_final_report_items WHERE report_id = ?',
                 [report.id]
             );
 
             // Fetch ST numbers for each item
             for (const item of items) {
                 const [stNumbers] = await db.query(
-                    'SELECT st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density FROM quality_final_report_st_numbers WHERE report_item_id = ?',
+                    'SELECT st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density, item_group, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2 FROM quality_final_report_st_numbers WHERE report_item_id = ?',
                     [item.id]
                 );
                 item.st_numbers = stNumbers;
@@ -464,9 +486,11 @@ exports.getGRNStNumbers = async (req, res) => {
     const { id } = req.params;
     try {
         const [rows] = await db.query(`
-            SELECT s.*, gi.material_name as itemName, gi.po_item_id,
+            SELECT s.*, gi.material_name as itemName, gi.po_item_id, gi.item_group,
                    gi.length as itemLength, gi.width as itemWidth, gi.thickness as itemThickness,
                    gi.diameter as itemDiameter, gi.outer_diameter as itemOuterDiameter, gi.height as itemHeight,
+                   gi.web_thickness as itemWebThickness, gi.flange_thickness as itemFlangeThickness,
+                   gi.side1 as itemSide1, gi.side2 as itemSide2, gi.side_s as itemSideS,
                    qi.common_document_path as acceptedDoc,
                    qi.rejected_document_path as rejectedDoc
             FROM inventory_serials s
@@ -481,6 +505,7 @@ exports.getGRNStNumbers = async (req, res) => {
                 acc[row.itemName] = {
                     itemName: row.itemName,
                     po_item_id: row.po_item_id,
+                    item_group: row.item_group,
                     acceptedDoc: row.acceptedDoc,
                     rejectedDoc: row.rejectedDoc,
                     itemDimensions: {
@@ -489,7 +514,12 @@ exports.getGRNStNumbers = async (req, res) => {
                         thickness: row.itemThickness,
                         diameter: row.itemDiameter,
                         outer_diameter: row.itemOuterDiameter,
-                        height: row.itemHeight
+                        height: row.itemHeight,
+                        web_thickness: row.itemWebThickness,
+                        flange_thickness: row.itemFlangeThickness,
+                        side1: row.itemSide1,
+                        side2: row.itemSide2,
+                        side_s: row.itemSideS
                     },
                     serials: []
                 };
@@ -497,6 +527,7 @@ exports.getGRNStNumbers = async (req, res) => {
             acc[row.itemName].serials.push({
                 serial_number: row.serial_number,
                 item_code: row.item_code,
+                item_group: row.item_group,
                 status: row.status,
                 inspection_status: row.inspection_status || 'Pending',
                 dimensions: {
@@ -505,7 +536,14 @@ exports.getGRNStNumbers = async (req, res) => {
                     thickness: row.thickness,
                     diameter: row.diameter,
                     outer_diameter: row.outer_diameter,
-                    height: row.height
+                    height: row.height,
+                    web_thickness: row.web_thickness,
+                    flange_thickness: row.flange_thickness,
+                    side1: row.side1,
+                    side2: row.side2,
+                    side_s: row.side_s,
+                    side_s1: row.side_s1,
+                    side_s2: row.side_s2
                 }
             });
             return acc;

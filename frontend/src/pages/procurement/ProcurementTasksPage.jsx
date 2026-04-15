@@ -26,6 +26,7 @@ import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import MaterialRequestsPage from "../production/MaterialRequestsPage";
 import CreatePurchaseOrderModal from "../inventory/CreatePurchaseOrderModal";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import "../../styles/TaskPage.css";
 
 const ProcurementTasksPage = () => {
@@ -606,7 +607,10 @@ const ProcurementTasksPage = () => {
                           <td className="p-2">
                             <div className="flex flex-col">
                               <span className=" text-slate-800 dark:text-slate-200 text-sm">{item.item_name}</span>
-                              <span className="text-xs text-slate-400 font-medium tracking-tight">SKU: {item.sku || "N/A"}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-slate-400 font-medium tracking-tight">SKU: {item.sku || "N/A"}</span>
+                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">{renderDimensions(item)}</span>
+                              </div>
                             </div>
                           </td>
                           <td className="p-2 text-center">

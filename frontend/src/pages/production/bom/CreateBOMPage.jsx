@@ -17,6 +17,7 @@ import axios from "../../../utils/api";
 import Swal from "sweetalert2";
 import SearchableSelect from "../../../components/ui/SearchableSelect";
 import * as XLSX from "xlsx";
+import { renderDimensions } from "../../../utils/dimensionUtils";
 
 const initialBOMState = {
   productInfo: {
@@ -33,14 +34,35 @@ const initialBOMState = {
 };
 
 const UOMOptions = ["Nos", "Kg", "pcs", "m", "l", "set", "Box", "Packet"];
-const ItemGroupOptions = ["Plates", "round bar", "paint", "Pipe", "Block", "Bought Out"];
+const ItemGroupOptions = [
+  "Plates", 
+  "Round Bar", 
+  "Pipe", 
+  "Square Bar", 
+  "Rectangular Bar", 
+  "Square Tube", 
+  "Rectangular Tube", 
+  "C Channel", 
+  "Angle", 
+  "I Beam", 
+  "H Beam",
+  "Paint", 
+  "Block", 
+  "Bought Out"
+];
 const MaterialTypeOptions = [
   { label: "Mild Steel / Carbon Steel", value: "7.85" },
   { label: "Stainless Steel (304/316)", value: "8.00" },
   { label: "Aluminum", value: "2.70" },
   { label: "Copper", value: "8.96" },
-  { label: "Chemical", value: "1.10" }
+  { label: "Chemical", value: "1.10" },
+  { label: "Other", value: "other" }
 ];
+const MaterialGradeOptions = [
+  "IS:2062-250", "IS:2062-350", "IS:2062-450", "SA-516 Gr.70", "S690QL",
+  "EN-8", "EN-19", "EN-24", "17-4 PH", "15-5 PH", "S.S-304", "S.S-316",
+  "HE.30", "AL.6061", "AL.2014 T6"
+].map(grade => ({ label: grade, value: grade }));
 const StatusOptions = [
   { label: "Draft", value: "draft" },
   { label: "Active", value: "active" },
@@ -198,6 +220,7 @@ const CreateBOMPage = () => {
     operation: "",
     materialGrade: "",
     materialType: "",
+    densityType: "",
     density: 0,
     partDetail: "",
     remark: "",
@@ -208,6 +231,10 @@ const CreateBOMPage = () => {
     diameter: "",
     outerDiameter: "",
     height: "",
+    side1: "",
+    side2: "",
+    webThickness: "",
+    flangeThickness: "",
     calculatedWeight: 0
   });
 
@@ -224,24 +251,62 @@ const CreateBOMPage = () => {
     const D = parseFloat(item.diameter) || 0;
     const OD = parseFloat(item.outerDiameter) || 0;
     const H = parseFloat(item.height) || 0;
+    const S1 = parseFloat(item.side1) || 0;
+    const S2 = parseFloat(item.side2) || 0;
+    const WT = parseFloat(item.webThickness) || 0;
+    const FT = parseFloat(item.flangeThickness) || 0;
 
     if (group.includes("plate") || group.includes("block")) {
       const thick = group.includes("plate") ? T : H;
-      // Weight = (L * W * T * density) / 1,000,000
       unitWeight = (L * W * thick * density) / 1000000;
     } 
     else if (group.includes("round bar")) {
-      // Weight = (PI * r^2 * L * density) / 1,000,000
       const radius = D / 2;
       unitWeight = (Math.PI * Math.pow(radius, 2) * L * density) / 1000000;
     } 
     else if (group.includes("pipe")) {
-      // Weight = (PI * (OR^2 - IR^2) * L * density) / 1,000,000
       const outerRadius = OD / 2;
       const innerRadius = outerRadius - T;
       if (innerRadius >= 0) {
         unitWeight = (Math.PI * (Math.pow(outerRadius, 2) - Math.pow(innerRadius, 2)) * L * density) / 1000000;
       }
+    }
+    else if (group.includes("square bar")) {
+      // Weight = (S1 * S1 * L * density) / 1,000,000
+      unitWeight = (S1 * S1 * L * density) / 1000000;
+    }
+    else if (group.includes("rectangular bar")) {
+      // Weight = (W * T * L * density) / 1,000,000
+      unitWeight = (W * T * L * density) / 1000000;
+    }
+    else if (group.includes("square tube")) {
+      // Weight = ((S1 * S1) - (S1 - 2*T)^2) * L * density / 1,000,000
+      const outerArea = S1 * S1;
+      const innerSide = S1 - (2 * T);
+      const innerArea = innerSide > 0 ? innerSide * innerSide : 0;
+      unitWeight = ((outerArea - innerArea) * L * density) / 1000000;
+    }
+    else if (group.includes("rectangular tube")) {
+      // Weight = ((W * H) - (W - 2*T) * (H - 2*T)) * L * density / 1,000,000
+      const outerArea = W * H;
+      const innerW = W - (2 * T);
+      const innerH = H - (2 * T);
+      const innerArea = (innerW > 0 && innerH > 0) ? innerW * innerH : 0;
+      unitWeight = ((outerArea - innerArea) * L * density) / 1000000;
+    }
+    else if (group.includes("angle")) {
+      // Weight = ((S1 + S2 - T) * T * L * density) / 1,000,000
+      unitWeight = ((S1 + S2 - T) * T * L * density) / 1000000;
+    }
+    else if (group.includes("c channel")) {
+      // Weight = ((W * T) + 2 * (H - T) * T) * L * density / 1,000,000
+      // W is web width, H is flange height, T is thickness
+      unitWeight = ((W * T) + 2 * (H - T) * T) * L * density / 1000000;
+    }
+    else if (group.includes("i beam") || group.includes("h beam")) {
+      // Weight = ((2 * W * FT) + (H - 2 * FT) * WT) * L * density / 1,000,000
+      // H is total height, W is flange width, WT is web thickness, FT is flange thickness
+      unitWeight = ((2 * W * FT) + (H - (2 * FT)) * WT) * L * density / 1000000;
     }
 
     return unitWeight;
@@ -267,6 +332,10 @@ const CreateBOMPage = () => {
     newMaterial.height, 
     newMaterial.diameter, 
     newMaterial.outerDiameter, 
+    newMaterial.side1,
+    newMaterial.side2,
+    newMaterial.webThickness,
+    newMaterial.flangeThickness,
     newMaterial.density, 
     newMaterial.itemGroup,
     newMaterial.quantity,
@@ -344,6 +413,7 @@ const CreateBOMPage = () => {
         operation: "",
         materialGrade: "",
         materialType: "",
+        densityType: "",
         density: 0,
         partDetail: "",
         remark: "",
@@ -354,6 +424,10 @@ const CreateBOMPage = () => {
         diameter: "",
         outerDiameter: "",
         height: "",
+        side1: "",
+        side2: "",
+        webThickness: "",
+        flangeThickness: "",
         calculatedWeight: 0
       });
     }
@@ -796,26 +870,49 @@ const CreateBOMPage = () => {
                           <SearchableSelect
                             label="Material Type (Density)"
                             options={MaterialTypeOptions}
-                            value={newMaterial.density}
+                            value={newMaterial.densityType}
                             onChange={(val) => {
-                              const selected = MaterialTypeOptions.find(opt => opt.value === val);
-                              setNewMaterial(prev => ({ 
-                                ...prev, 
-                                density: val,
-                                materialType: selected ? selected.label : ""
-                              }));
+                              if (val === "other") {
+                                setNewMaterial(prev => ({ 
+                                  ...prev, 
+                                  densityType: "other",
+                                  density: prev.densityType === "other" ? prev.density : 0,
+                                  materialType: "Other"
+                                }));
+                              } else {
+                                const selected = MaterialTypeOptions.find(opt => opt.value === val);
+                                setNewMaterial(prev => ({ 
+                                  ...prev, 
+                                  densityType: val,
+                                  density: val,
+                                  materialType: selected ? selected.label : ""
+                                }));
+                              }
                             }}
                             placeholder="Select material"
                           />
                         </div>
+                        {newMaterial.densityType === "other" && (
+                          <div className="md:col-span-3">
+                            <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Custom Density</label>
+                            <input
+                              type="number"
+                              step="0.001"
+                              value={newMaterial.density}
+                              onChange={(e) => setNewMaterial(prev => ({ ...prev, density: e.target.value }))}
+                              placeholder="Enter density"
+                              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                            />
+                          </div>
+                        )}
                         <div className="md:col-span-3">
-                          <label className="block text-xs  text-slate-900 dark:text-slate-100   mb-1.5 ml-1">Material Grade</label>
-                          <input
-                            type="text"
+                          <SearchableSelect
+                            label="Material Grade"
+                            options={MaterialGradeOptions}
                             value={newMaterial.materialGrade}
-                            onChange={(e) => setNewMaterial(prev => ({ ...prev, materialGrade: e.target.value }))}
-                            placeholder="Grade"
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                            onChange={(val) => setNewMaterial(prev => ({ ...prev, materialGrade: val }))}
+                            placeholder="Select/Type grade"
+                            allowCustom={true}
                           />
                         </div>
                       </>
@@ -905,6 +1002,298 @@ const CreateBOMPage = () => {
                           />
                         </div>
                         <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Square Bar: Side1, Length */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("square bar") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Side (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.side1}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, side1: e.target.value }))}
+                            placeholder="Side"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Rectangular Bar: Width, Thickness, Length */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("rectangular bar") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Width (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.width}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, width: e.target.value }))}
+                            placeholder="Width"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Thickness (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.thickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, thickness: e.target.value }))}
+                            placeholder="Thickness"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Square Tube: Side1, Thickness, Length */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("square tube") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Outer Side (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.side1}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, side1: e.target.value }))}
+                            placeholder="Side"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Thickness (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.thickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, thickness: e.target.value }))}
+                            placeholder="Thickness"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Rectangular Tube: Width, Height, Thickness, Length */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("rectangular tube") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Outer Width (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.width}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, width: e.target.value }))}
+                            placeholder="Width"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Outer Height (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.height}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, height: e.target.value }))}
+                            placeholder="Height"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Thickness (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.thickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, thickness: e.target.value }))}
+                            placeholder="Thickness"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Angle: Side1, Side2, Thickness, Length */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("angle") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Side 1 (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.side1}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, side1: e.target.value }))}
+                            placeholder="Side 1"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Side 2 (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.side2}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, side2: e.target.value }))}
+                            placeholder="Side 2"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Thickness (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.thickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, thickness: e.target.value }))}
+                            placeholder="Thickness"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* C Channel: Web Width, Flange Height, Thickness, Length */}
+                    {newMaterial.itemGroup?.toLowerCase().includes("c channel") && (
+                      <>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Web Width (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.width}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, width: e.target.value }))}
+                            placeholder="Width"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Flange Height (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.height}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, height: e.target.value }))}
+                            placeholder="Height"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Thickness (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.thickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, thickness: e.target.value }))}
+                            placeholder="Thickness"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.length}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, length: e.target.value }))}
+                            placeholder="Length"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* I/H Beam: Total Height, Flange Width, Web Thickness, Flange Thickness, Length */}
+                    {(newMaterial.itemGroup?.toLowerCase().includes("i beam") || newMaterial.itemGroup?.toLowerCase().includes("h beam")) && (
+                      <>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Total Height (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.height}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, height: e.target.value }))}
+                            placeholder="Height"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Flange Width (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.width}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, width: e.target.value }))}
+                            placeholder="Width"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Web Thick (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.webThickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, webThickness: e.target.value }))}
+                            placeholder="Web T"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Flange Thick (mm)</label>
+                          <input
+                            type="number"
+                            value={newMaterial.flangeThickness}
+                            onChange={(e) => setNewMaterial(prev => ({ ...prev, flangeThickness: e.target.value }))}
+                            placeholder="Flange T"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
                           <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">Length (mm)</label>
                           <input
                             type="number"
@@ -1099,26 +1488,9 @@ const CreateBOMPage = () => {
                               ) : (
                                 <div className="flex flex-col">
                                   <span className=" text-slate-700 dark:text-slate-200">{row.itemName}</span>
-                                  {row.itemGroup?.toLowerCase().includes("plate") && (row.length || row.width || row.thickness) && (
-                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                      Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.thickness || 0)} mm
-                                    </span>
-                                  )}
-                                  {row.itemGroup?.toLowerCase().includes("round bar") && (row.diameter || row.length) && (
-                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                      Dim: Dia:{Number(row.diameter || 0)}, L:{Number(row.length || 0)} mm
-                                    </span>
-                                  )}
-                                  {row.itemGroup?.toLowerCase().includes("pipe") && (row.outerDiameter || row.thickness || row.length) && (
-                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                      Dim: OD:{Number(row.outerDiameter || 0)}, Thk:{Number(row.thickness || 0)}, L:{Number(row.length || 0)} mm
-                                    </span>
-                                  )}
-                                  {row.itemGroup?.toLowerCase().includes("block") && (row.length || row.width || row.height) && (
-                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                      Dim: {Number(row.length || 0)} x {Number(row.width || 0)} x {Number(row.height || 0)} mm
-                                    </span>
-                                  )}
+                                  <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                    Dim: {renderDimensions(row)} mm
+                                  </span>
                                   <span className="text-xs  text-slate-500 dark:text-slate-400  ">{row.itemGroup || "NO-GROUP"}</span>
                                 </div>
                               )}
@@ -1133,12 +1505,12 @@ const CreateBOMPage = () => {
                                     placeholder="Details"
                                     className="w-full  bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
                                   />
-                                  <input
-                                    type="text"
+                                  <SearchableSelect
+                                    options={MaterialGradeOptions}
                                     value={row.materialGrade}
-                                    onChange={(e) => updateTableRow("materials", row.id, "materialGrade", e.target.value)}
+                                    onChange={(val) => updateTableRow("materials", row.id, "materialGrade", val)}
                                     placeholder="Grade"
-                                    className="w-full  bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                    allowCustom={true}
                                   />
                                   
                                   {/* Editable Dimensions in Table */}
@@ -1167,6 +1539,59 @@ const CreateBOMPage = () => {
                                       <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
                                       <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-xs" />
                                       <input type="number" value={row.height} onChange={(e) => updateTableRow("materials", row.id, "height", e.target.value)} placeholder="H" className="w-full p-1 border rounded text-xs" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("square bar") && (
+                                    <div className="grid grid-cols-2 gap-1">
+                                      <input type="number" value={row.side1} onChange={(e) => updateTableRow("materials", row.id, "side1", e.target.value)} placeholder="Side" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("rectangular bar") && (
+                                    <div className="grid grid-cols-3 gap-1">
+                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("square tube") && (
+                                    <div className="grid grid-cols-3 gap-1">
+                                      <input type="number" value={row.side1} onChange={(e) => updateTableRow("materials", row.id, "side1", e.target.value)} placeholder="S" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("rectangular tube") && (
+                                    <div className="grid grid-cols-4 gap-1">
+                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.height} onChange={(e) => updateTableRow("materials", row.id, "height", e.target.value)} placeholder="H" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("angle") && (
+                                    <div className="grid grid-cols-4 gap-1">
+                                      <input type="number" value={row.side1} onChange={(e) => updateTableRow("materials", row.id, "side1", e.target.value)} placeholder="S1" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.side2} onChange={(e) => updateTableRow("materials", row.id, "side2", e.target.value)} placeholder="S2" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
+                                    </div>
+                                  )}
+                                  {row.itemGroup?.toLowerCase().includes("c channel") && (
+                                    <div className="grid grid-cols-4 gap-1">
+                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.height} onChange={(e) => updateTableRow("materials", row.id, "height", e.target.value)} placeholder="H" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.thickness} onChange={(e) => updateTableRow("materials", row.id, "thickness", e.target.value)} placeholder="T" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
+                                    </div>
+                                  )}
+                                  {(row.itemGroup?.toLowerCase().includes("i beam") || row.itemGroup?.toLowerCase().includes("h beam")) && (
+                                    <div className="grid grid-cols-5 gap-1">
+                                      <input type="number" value={row.height} onChange={(e) => updateTableRow("materials", row.id, "height", e.target.value)} placeholder="H" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.width} onChange={(e) => updateTableRow("materials", row.id, "width", e.target.value)} placeholder="W" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.webThickness} onChange={(e) => updateTableRow("materials", row.id, "webThickness", e.target.value)} placeholder="WT" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.flangeThickness} onChange={(e) => updateTableRow("materials", row.id, "flangeThickness", e.target.value)} placeholder="FT" className="w-full p-1 border rounded text-xs" />
+                                      <input type="number" value={row.length} onChange={(e) => updateTableRow("materials", row.id, "length", e.target.value)} placeholder="L" className="w-full p-1 border rounded text-xs" />
                                     </div>
                                   )}
                                 </div>

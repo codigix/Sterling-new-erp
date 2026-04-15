@@ -82,11 +82,28 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
         items: consolidatedMaterials.map(m => ({
           materialName: m.itemName || m.specification || 'Unknown Material',
           materialCode: m.itemCode || m.materialCode || m.specification || null,
-          materialType: m.materialType || null,
+          materialType: m.materialType || m.material_type || null,
+          itemGroup: m.itemGroup || m.item_group || null,
+          materialGrade: m.materialGrade || m.material_grade || null,
+          partDetail: m.partDetail || m.part_detail || null,
+          make: m.make || null,
           quantity: m.requiredQty || 0,
-          unit: m.uom || 'Nos',
+          uom: m.uom || 'Nos',
+          remark: m.remark || '',
           specification: m.specification || null,
-          density: m.density || 0
+          density: m.density || 0,
+          length: m.length || 0,
+          width: m.width || 0,
+          thickness: m.thickness || 0,
+          diameter: m.diameter || 0,
+          outerDiameter: m.outerDiameter || m.outer_diameter || 0,
+          height: m.height || 0,
+          side1: m.side1 || 0,
+          side2: m.side2 || 0,
+          web_thickness: m.webThickness || m.web_thickness || 0,
+          flange_thickness: m.flangeThickness || m.flange_thickness || 0,
+          unitWeight: m.unitWeight || m.unit_weight || m.calculatedWeight || 0,
+          totalWeight: (m.unitWeight || m.unit_weight || m.calculatedWeight || 0) * (m.requiredQty || 0)
         }))
       };
       console.log('Payload:', JSON.stringify(payload, null, 2));
@@ -194,6 +211,20 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
                               </span>
                             )}
                           </p>
+                          {/* Dimensions Display */}
+                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[10px] text-slate-500 font-medium uppercase tracking-tight">
+                            {m.itemGroup && <span className="text-blue-600 dark:text-blue-400">{m.itemGroup}</span>}
+                            {m.length > 0 && <span>L: {m.length}</span>}
+                            {m.width > 0 && <span>W: {m.width}</span>}
+                            {m.thickness > 0 && <span>T: {m.thickness}</span>}
+                            {m.diameter > 0 && <span>Dia: {m.diameter}</span>}
+                            {m.outer_diameter > 0 || m.outerDiameter > 0 && <span>OD: {m.outer_diameter || m.outerDiameter}</span>}
+                            {m.height > 0 && <span>H: {m.height}</span>}
+                            {m.side1 > 0 && <span>S/W: {m.side1}</span>}
+                            {m.side2 > 0 && <span>H: {m.side2}</span>}
+                            {m.web_thickness > 0 || m.webThickness > 0 && <span>Tw: {m.web_thickness || m.webThickness}</span>}
+                            {m.flange_thickness > 0 || m.flangeThickness > 0 && <span>Tf: {m.flange_thickness || m.flangeThickness}</span>}
+                          </div>
                         </div>
                       </td>
                       <td className="p-2 text-center">

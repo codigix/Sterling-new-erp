@@ -187,26 +187,71 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                               <span className=" text-slate-900 dark:text-slate-200 text-xs group-hover:text-blue-600 transition-colors">
                                 {item.item_name}
                               </span>
-                              {item.item_group?.toLowerCase().includes("plate") && (item.length || item.width || item.thickness) && (
-                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                  Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.thickness || 0)} mm
-                                </span>
-                              )}
-                              {item.item_group?.toLowerCase().includes("round bar") && (item.diameter || item.length) && (
-                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                  Dim: Dia:{Number(item.diameter || 0)}, L:{Number(item.length || 0)} mm
-                                </span>
-                              )}
-                              {item.item_group?.toLowerCase().includes("pipe") && (item.outer_diameter || item.thickness || item.length) && (
-                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                  Dim: OD:{Number(item.outer_diameter || 0)}, Thk:{Number(item.thickness || 0)}, L:{Number(item.length || 0)} mm
-                                </span>
-                              )}
-                              {item.item_group?.toLowerCase().includes("block") && (item.length || item.width || item.height) && (
-                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                  Dim: {Number(item.length || 0)} x {Number(item.width || 0)} x {Number(item.height || 0)} mm
-                                </span>
-                              )}
+                              {(() => {
+                                const group = (item.item_group || "").toLowerCase();
+                                const parts = [];
+                                const val = (v) => {
+                                  const n = parseFloat(v);
+                                  return (n && n !== 0) ? n : null;
+                                };
+
+                                if (group === "plate" || group === "plates") {
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                  if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+                                  if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+                                } else if (group === "round bar") {
+                                  if (val(item.diameter)) parts.push(`Dia: ${val(item.diameter)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                } else if (group === "pipe") {
+                                  if (val(item.outer_diameter)) parts.push(`OD: ${val(item.outer_diameter)}`);
+                                  if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                } else if (group === "block") {
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                  if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+                                  if (val(item.height)) parts.push(`H: ${val(item.height)}`);
+                                } else if (group === "square bar" || group === "sq bar") {
+                                  if (val(item.side1 || item.width)) parts.push(`S: ${val(item.side1 || item.width)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                } else if (group === "rectangular bar" || group === "rec bar") {
+                                  if (val(item.width || item.side1)) parts.push(`W: ${val(item.width || item.side1)}`);
+                                  if (val(item.thickness || item.side2 || item.height)) parts.push(`T: ${val(item.thickness || item.side2 || item.height)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                } else if (group.includes("square tube") || group === "sq tube") {
+                                  if (val(item.side1 || item.width)) parts.push(`S: ${val(item.side1 || item.width)}`);
+                                  if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                } else if (group.includes("rectangular tube") || group === "rec tube") {
+                                  if (val(item.width || item.side1)) parts.push(`W: ${val(item.width || item.side1)}`);
+                                  if (val(item.height || item.side2)) parts.push(`H: ${val(item.height || item.side2)}`);
+                                  if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                } else if (group === "c channel" || group === "c-channel" || group.includes("channel")) {
+                                  if (val(item.width || item.side1)) parts.push(`W: ${val(item.width || item.side1)}`);
+                                  if (val(item.height || item.side2)) parts.push(`H: ${val(item.height || item.side2)}`);
+                                  if (val(item.web_thickness)) parts.push(`Tw: ${val(item.web_thickness)}`);
+                                  if (val(item.flange_thickness)) parts.push(`Tf: ${val(item.flange_thickness)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                } else if (group.includes("angle")) {
+                                  if (val(item.side1 || item.width)) parts.push(`S1: ${val(item.side1 || item.width)}`);
+                                  if (val(item.side2 || item.height)) parts.push(`S2: ${val(item.side2 || item.height)}`);
+                                  if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                } else if (group.includes("beam")) {
+                                  if (val(item.height || item.side2)) parts.push(`H: ${val(item.height || item.side2)}`);
+                                  if (val(item.width || item.side1)) parts.push(`W: ${val(item.width || item.side1)}`);
+                                  if (val(item.web_thickness)) parts.push(`WT: ${val(item.web_thickness)}`);
+                                  if (val(item.flange_thickness)) parts.push(`FT: ${val(item.flange_thickness)}`);
+                                  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+                                }
+
+                                if (parts.length === 0) return null;
+                                return (
+                                  <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                    Dim: {parts.join(" \u00d7 ")} mm
+                                  </span>
+                                );
+                              })()}
                               <span className="text-xs  text-slate-400 ">
                                 {item.item_group || "NO-GROUP"}
                               </span>
@@ -261,7 +306,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                           {request.quotation.quotation_number}
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                          Total Amount: ₹{(request.quotation.total_amount || 0).toLocaleString('en-IN')}
+                          Total Amount: ₹{(request.quotation.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}
                         </p>
                       </div>
                     </div>

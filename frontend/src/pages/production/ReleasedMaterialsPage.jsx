@@ -18,6 +18,7 @@ import Card, { CardContent } from "../../components/ui/Card";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { toast } from "react-toastify";
+import { renderDimensions } from "../../utils/dimensionUtils";
 
 const ReleasedMaterialsPage = () => {
   const [movements, setMovements] = useState([]);
@@ -27,27 +28,7 @@ const ReleasedMaterialsPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
 
-  const formatDimensions = (item) => {
-    const parts = [];
-    const fields = [
-      { key: 'length', label: 'L' },
-      { key: 'width', label: 'W' },
-      { key: 'thickness', label: 'T' },
-      { key: 'diameter', label: 'D' },
-      { key: 'outer_diameter', label: 'OD' },
-      { key: 'height', label: 'H' }
-    ];
 
-    fields.forEach(field => {
-      const value = parseFloat(item[field.key]);
-      if (value > 0) {
-        // parseFloat(toNumber).toString() removes trailing zeros
-        parts.push(`${field.label}:${parseFloat(value.toFixed(4))}`);
-      }
-    });
-
-    return parts.length > 0 ? parts.join(" × ") : "-";
-  };
 
 
   useEffect(() => {
@@ -249,7 +230,7 @@ const ReleasedMaterialsPage = () => {
                               </td>
                               <td className="p-2">
                                 <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
-                                  {formatDimensions(item)}
+                                  {renderDimensions(item)}
                                 </span>
                               </td>
                               <td className="p-2 text-center">
@@ -302,7 +283,7 @@ const ReleasedMaterialsPage = () => {
                                               <td className="p-2 text-xs  text-slate-700  ">{itemCodePerPiece}</td>
                                               <td className="p-2 text-xs  text-indigo-600  ">{stCode}</td>
                                               <td className="p-2 text-xs text-slate-500 italic">
-                                                {formatDimensions(stObj)}
+                                                {renderDimensions(stObj)}
                                               </td>
                                               <td className="p-2 text-xs text-slate-500">
                                                 {Number(pieceWeight).toFixed(3)} Kg

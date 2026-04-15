@@ -25,6 +25,7 @@ import {
   ChevronUp,
   Zap,
 } from "lucide-react";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import taskService from "../../utils/taskService";
 
 const GRNProcessingPage = () => {
@@ -88,34 +89,6 @@ const GRNProcessingPage = () => {
     return `${typeCode}-${shortSize}`;
   };
 
-  const renderDimensionsText = (item) => {
-    const group = (item.item_group || "").toLowerCase();
-    const parts = [];
-    if (group === "plate" || group === "plates") {
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-      if (item.width) parts.push(`W: ${Number(item.width)}`);
-      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-    } else if (group === "round bar") {
-      if (item.diameter) parts.push(`Dia: ${Number(item.diameter)}`);
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-    } else if (group === "pipe") {
-      if (item.outer_diameter) parts.push(`OD: ${Number(item.outer_diameter)}`);
-      if (item.thickness) parts.push(`T: ${Number(item.thickness)}`);
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-    } else if (group === "block") {
-      if (item.length) parts.push(`L: ${Number(item.length)}`);
-      if (item.width) parts.push(`W: ${Number(item.width)}`);
-      if (item.height) parts.push(`H: ${Number(item.height)}`);
-    }
-    
-    if (parts.length === 0) return null;
-    return (
-      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-        Dim: {parts.join(" \u00d7 ")} mm
-      </div>
-    );
-  };
-
   const fetchPODetails = async (id) => {
     setLoadingPO(true);
     try {
@@ -132,11 +105,11 @@ const GRNProcessingPage = () => {
           ordered_qty: parseFloat(item.quantity) || 0,
           received_qty: parseFloat(item.quantity) || 0, // Default to full receipt
           unit: item.unit || item.uom || "Units",
-          rate_per_kg: parseFloat(item.rate_per_kg) || 0,
+          rate_per_kg: parseFloat(item.rate_per_kg || item.rate || item.unit_price) || 0,
           total_weight: parseFloat(item.total_weight) || 0,
           unit_weight: parseFloat(item.unit_weight) || (item.quantity > 0 ? (parseFloat(item.total_weight) || 0) / parseFloat(item.quantity) : 0),
           received_weight: parseFloat(item.total_weight) || 0,
-          rate: parseFloat(item.rate) || 0,
+          rate: parseFloat(item.rate || item.unit_price || item.rate_per_kg) || 0,
           amount: parseFloat(item.amount) || 0,
           length: item.length || null,
           width: item.width || null,
@@ -144,6 +117,16 @@ const GRNProcessingPage = () => {
           diameter: item.diameter || null,
           outer_diameter: item.outer_diameter || null,
           height: item.height || null,
+          side1: item.side1 || null,
+          side2: item.side2 || null,
+          side_s: item.side_s || null,
+          side_s1: item.side_s1 || null,
+          side_s2: item.side_s2 || null,
+          web_thickness: item.web_thickness || item.tw || null,
+          flange_thickness: item.flange_thickness || item.tf || null,
+          material_type: item.material_type || null,
+          density: item.density || null,
+          material_grade: item.material_grade || null,
           generate_st: true
         };
       });
@@ -188,6 +171,7 @@ const GRNProcessingPage = () => {
           ...item,
           received_qty: parseFloat(item.received_qty),
           received_weight: parseFloat(item.received_weight),
+          rate_per_kg: parseFloat(item.rate_per_kg || item.rate || 0),
           generate_st: true
         }))
       };
@@ -246,17 +230,6 @@ const GRNProcessingPage = () => {
     if (extractedTaskId) setTaskId(extractedTaskId);
     fetchGRNs();
   }, [fetchGRNs, location]);
-
-  const handleViewDetails = async (grn) => {
-    try {
-      const response = await axios.get(`/qc/portal/grn-details/${grn.id}`);
-      setSelectedGRN(response.data);
-      setShowViewModal(true);
-    } catch (error) {
-      console.error("Error fetching detailed GRN:", error);
-      toastUtils.error("Failed to load details");
-    }
-  };
 
   const [processingStock, setProcessingStock] = useState(null);
   const [approvingGRN, setApprovingGRN] = useState(null);
@@ -501,7 +474,7 @@ const GRNProcessingPage = () => {
                             <p className="text-sm  text-slate-900 dark:text-white   line-clamp-2">{item.material_name}</p>
                             <div className="flex flex-col gap-0.5">
                               <p className="text-xs  text-slate-400  ">{item.item_group || "N/A"}</p>
-                              {renderDimensionsText(item)}
+                              <p className="text-[10px] text-blue-600 font-medium">{renderDimensions(item)}</p>
                             </div>
                           </div>
                         </div>
@@ -513,7 +486,7 @@ const GRNProcessingPage = () => {
                         <span className="text-sm  text-slate-500  ">{item.unit}</span>
                       </td>
                       <td className="px-4 py-6 text-center">
-                        <span className="text-sm  text-slate-500 dark:text-slate-400">₹{parseFloat(item.rate_per_kg || 0).toFixed(2)}</span>
+                        <span className="text-sm  text-slate-500 dark:text-slate-400">₹{parseFloat(item.rate_per_kg || item.rate || 0).toFixed(2)}</span>
                       </td>
                       <td className="px-4 py-6 text-center">
                         <div className="flex flex-col items-center">
@@ -919,7 +892,7 @@ const GRNProcessingPage = () => {
                                   </div>
                                   <div className="space-y-0.5">
                                     <h4 className="text-xs  text-slate-900 dark:text-white  ">{item.material_name}</h4>
-                                    {renderDimensionsText(item)}
+                                    <p className="text-[10px] text-blue-600 font-medium">{renderDimensions(item)}</p>
                                     <div className="flex flex-col gap-0.5">
                                       <span className="text-xs  text-slate-400  ">
                                         {item.item_code ? `${item.item_code} • ` : ''}
@@ -934,7 +907,9 @@ const GRNProcessingPage = () => {
                                       </div>
                                 </div>
                               </td>
-                              <td className="p-2 text-center text-xs  text-slate-400">{item.quantity}</td>
+                              <td className="px-4 py-4 text-center">
+                                <span className="text-xs  text-slate-500">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</span>
+                              </td>
                               <td className="p-2 text-center">
                                 <span className={` rounded text-xs  ${isQCReportReceived ? 'bg-emerald-50 text-emerald-600' : ''}`}>
                                   {acceptedQtyDisplay}

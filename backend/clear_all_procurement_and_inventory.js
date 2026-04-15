@@ -42,7 +42,8 @@ async function clearAllProcurementAndInventoryData() {
             'quality_final_report_items',
             'quality_final_reports',
             'quality_inspections',
-            'quality_inspection_results'
+            'quality_inspection_results',
+            'quality_inspection_challans'
         ];
 
         for (const table of tablesToClear) {
