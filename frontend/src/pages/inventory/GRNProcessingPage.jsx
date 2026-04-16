@@ -852,28 +852,30 @@ const GRNProcessingPage = () => {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                       {(selectedGRN.items || []).map((item, idx) => {
-                        const isQCReportReceived = selectedGRN.items && selectedGRN.items.some(item => item.inspection_report_received === 1);
-                        const isReleased = ['material_released', 'partially_released'].includes(selectedGRN.grn?.status);
+                        const isQCCompleted = ['qc_completed', 'qc_finalized', 'material_released', 'partially_released'].includes(selectedGRN.grn?.status);
+                        
+                        const acceptedQtyNum = (item.serials || []).filter(st => st.inspection_status === 'Accepted').length;
+                        const rejectedQtyNum = (item.serials || []).filter(st => st.inspection_status === 'Rejected').length;
+                        
+                        // Fallback to full received quantity if no serials are present but QC is final
+                        const finalAccepted = (item.serials && item.serials.length > 0) ? acceptedQtyNum : (isQCCompleted ? Number(item.received_qty || item.received || 0) : 0);
+                        const finalRejected = (item.serials && item.serials.length > 0) ? rejectedQtyNum : 0;
 
-                        const acceptedQtyNum = item.serials && item.serials.length > 0 
-                          ? item.serials.filter(st => (typeof st === 'object' && st.inspection_status === 'Accepted')).length 
-                          : Number(item.received || 0);
-                        
-                        const rejectedQtyNum = item.serials && item.serials.length > 0 
-                          ? item.serials.filter(st => (typeof st === 'object' && st.inspection_status === 'Rejected')).length 
-                          : 0;
-                        
-                        const acceptedQtyDisplay = isQCReportReceived || isReleased ? acceptedQtyNum : (
+                        const acceptedQtyDisplay = isQCCompleted ? (
+                          <span className="font-bold text-emerald-600">{finalAccepted}</span>
+                        ) : (
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-slate-400">0</span>
-                            {selectedGRN.grn?.status === 'pending' && <span className="px-2 py-0.5 rounded text-[7px]   er bg-amber-50 text-amber-600 border border-amber-100">PENDING</span>}
+                            {['pending', 'qc_pending'].includes(selectedGRN.grn?.status) && <span className="px-2 py-0.5 rounded text-[7px] er bg-amber-50 text-amber-600 border border-amber-100">QC PENDING</span>}
                           </div>
                         );
                         
-                        const shortageDisplay = isQCReportReceived || isReleased ? rejectedQtyNum : (
+                        const shortageDisplay = isQCCompleted ? (
+                          <span className="font-bold text-red-600">{finalRejected}</span>
+                        ) : (
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-slate-400">0</span>
-                            {selectedGRN.grn?.status === 'pending' && <span className="px-2 py-0.5 rounded text-[7px]   er bg-amber-50 text-amber-600 border border-amber-100">PENDING</span>}
+                            {['pending', 'qc_pending'].includes(selectedGRN.grn?.status) && <span className="px-2 py-0.5 rounded text-[7px] er bg-amber-50 text-amber-600 border border-amber-100">QC PENDING</span>}
                           </div>
                         );
                         
@@ -911,11 +913,11 @@ const GRNProcessingPage = () => {
                                 <span className="text-xs  text-slate-500">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</span>
                               </td>
                               <td className="p-2 text-center">
-                                <span className={` rounded text-xs  ${isQCReportReceived ? 'bg-emerald-50 text-emerald-600' : ''}`}>
-                                  {acceptedQtyDisplay}
-                                </span>
+                                {acceptedQtyDisplay}
                               </td>
-                              <td className={`p-2 text-center text-xs  ${isQCReportReceived ? 'text-amber-600' : ''}`}>{shortageDisplay}</td>
+                              <td className="p-2 text-center">
+                                {shortageDisplay}
+                              </td>
                             </tr>
                             {isExpanded && item.serials && item.serials.length > 0 && (
                               <tr className="bg-slate-50/50">

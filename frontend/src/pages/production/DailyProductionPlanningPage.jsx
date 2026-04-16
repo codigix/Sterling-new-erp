@@ -1184,21 +1184,83 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
   const [reportEntries, setReportEntries] = useState([]); // The summary table
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedItemCode, setSelectedItemCode] = useState("");
+  const [mcrDate, setMcrDate] = useState("");
+
+  useEffect(() => {
+    if (plan?.plan_date) {
+      setMcrDate(plan.plan_date.split('T')[0]);
+    }
+  }, [plan]);
+
+  const formatDimensionString = (itemGroup, dims) => {
+    const formatDim = (val) => (val !== undefined && val !== null && val !== "" && !isNaN(val)) ? parseFloat(val).toString() : "0";
+    const group = (itemGroup || "").toUpperCase();
+    
+    // Normalize dimension keys (handle both raw_l and l)
+    const d = {
+      l: dims.l || dims.raw_l || 0,
+      w: dims.w || dims.raw_w || 0,
+      t: dims.t || dims.raw_thk || dims.raw_t || dims.thickness || 0,
+      h: dims.h || dims.raw_h || 0,
+      d: dims.d || dims.diameter || dims.raw_diameter || 0,
+      od: dims.od || dims.outer_diameter || dims.raw_outer_diameter || 0,
+      tw: dims.tw || dims.web_thickness || dims.raw_web_thickness || 0,
+      tf: dims.tf || dims.flange_thickness || dims.raw_flange_thickness || 0,
+      side1: dims.side1 || dims.raw_side1 || 0,
+      side2: dims.side2 || dims.raw_side2 || 0,
+    };
+
+    if (group.includes("ROUND") && !group.includes("PIPE") && !group.includes("TUBE")) {
+      return `Ø${formatDim(d.w || d.d)} x ${formatDim(d.l)}`;
+    } else if (group.includes("BAR") && group.includes("SQUARE")) {
+      const s1 = d.w || d.side1;
+      const s2 = d.h || d.side2 || d.t || s1; // Fallback to S1 for Square Bar if S2 is missing
+      return `${formatDim(s1)}x${formatDim(s2)} x ${formatDim(d.l)}`;
+    } else if (group.includes("BAR") && !group.includes("ROUND") && !group.includes("PLATE")) { // Rectangular Bar
+      return `${formatDim(d.w)}x${formatDim(d.h || d.t)} x ${formatDim(d.l)}`;
+    } else if (group.includes("PIPE") || group.includes("TUBE")) {
+      if (group.includes("SQUARE") || group.includes("RECT")) {
+        return `${formatDim(d.w)}x${formatDim(d.h)}x${formatDim(d.t)} x ${formatDim(d.l)}`;
+      } else {
+        return `Ø${formatDim(d.od || d.w || d.d)}x${formatDim(d.t)} x ${formatDim(d.l)}`;
+      }
+    } else if (group.includes("BEAM") || group.includes("CHANNEL")) {
+      return `${formatDim(d.h)}x${formatDim(d.w)}x${formatDim(d.tw || d.t)}x${formatDim(d.tf || d.t)} x ${formatDim(d.l)}`;
+    } else if (group.includes("ANGLE")) {
+      return `${formatDim(d.side1 || d.w)}x${formatDim(d.side2 || d.h)}x${formatDim(d.t)} x ${formatDim(d.l)}`;
+    } else if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+      return `${formatDim(d.l)}x${formatDim(d.w)}x${formatDim(d.t)}`;
+    } else {
+      return `${formatDim(d.l)}x${formatDim(d.w)}x${formatDim(d.t)}`;
+    }
+  };
 
   // Current Form State (Manual Entry)
   const [cuttingForm, setCuttingForm] = useState({
     raw_l: "",
     raw_w: "",
     raw_thk: "",
+    raw_h: "",
+    raw_tw: "",
+    raw_tf: "",
+    raw_s1: "",
+    raw_s2: "",
     produced_qty: 1,
     is_finished: false,
-    cutting_axis: "L", // "L" or "W"
-    design: "Rectangular", // "Rectangular", "Circular", "Other"
+    cutting_axis: "L",
+    design: "Rectangular",
     diameter: "",
     return_to_stock: false,
     return_l: "",
     return_w: "",
-    return_t: ""
+    return_t: "",
+    return_h: "",
+    return_tw: "",
+    return_tf: "",
+    return_s1: "",
+    return_s2: "",
+    return_d: "",
+    return_od: ""
   });
 
   useEffect(() => {
@@ -1223,6 +1285,11 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       raw_l: "",
       raw_w: "",
       raw_thk: "",
+      raw_h: "",
+      raw_tw: "",
+      raw_tf: "",
+      raw_s1: "",
+      raw_s2: "",
       produced_qty: 1,
       is_finished: false,
       cutting_axis: "L",
@@ -1231,7 +1298,14 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       return_to_stock: false,
       return_l: "",
       return_w: "",
-      return_t: ""
+      return_t: "",
+      return_h: "",
+      return_tw: "",
+      return_tf: "",
+      return_s1: "",
+      return_s2: "",
+      return_d: "",
+      return_od: ""
     });
     setSelectedItem(null);
     setSelectedItemCode("");
@@ -1258,19 +1332,37 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
     try {
       const response = await axios.get(`/production/mcr/${plan.id}`);
       if (response.data.success) {
+        if (response.data.mcr?.date) {
+          setMcrDate(response.data.mcr.date.split('T')[0]);
+        }
         const savedItems = response.data.items.map(item => {
-          const raw = item.full_data?.raw_dims || { l: item.raw_l, w: item.raw_w, t: item.raw_t };
-          const dims = item.design === "Circular" 
-            ? `Ø${parseFloat(raw.l).toString()}x${parseFloat(raw.t).toString()}` 
-            : `${parseFloat(raw.l).toString()}x${parseFloat(raw.w).toString()}x${parseFloat(raw.t).toString()}`;
+          const raw = item.full_data?.raw_dims || { 
+            l: item.raw_l, 
+            w: item.raw_w, 
+            t: item.raw_t,
+            h: item.raw_h,
+            tw: item.raw_tw,
+            tf: item.raw_tf,
+            side1: item.side1 || item.raw_side1,
+            side2: item.side2 || item.raw_side2,
+            od: item.raw_od
+          };
+          
+          const dims = formatDimensionString(item.item_group, raw);
 
           return {
             ...item,
             dims,
+            // Weight used in the UI Table "Total" column
+            weight: item.total_weight_consumed || 0, 
+            remnant_weight: item.weight || 0, // Current stock weight
+            new_weight: item.weight || 0, // Used for re-finalizing (remnant)
+            unit_weight_consumed: item.unit_weight_consumed || item.unit_weight || 0,
             full_data: {
               ...item.full_data,
               // Re-map serial object for dropdown selection
-              selectedSerial: item.serial_number
+              selectedSerial: item.serial_number,
+              produced_qty: item.produced_qty || item.full_data?.produced_qty || 1
             }
           };
         });
@@ -1297,7 +1389,20 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             item_code: item.item_code,
             label: `${item.item_name || item.material_name} (${item.item_code})`,
             item_name: item.item_name || item.material_name,
-            item_group: item.item_group || "PLATE / SHEET",
+            item_group: item.item_group || (() => {
+               const name = (item.item_name || item.material_name || "").toUpperCase();
+               if (name.includes("SQUARE TUBE") || name.includes("RECTANGULAR TUBE")) return "SQUARE / RECT TUBE";
+               if (name.includes("PIPE") || name.includes("TUBE")) return "PIPE / TUBE";
+               if (name.includes("SQUARE BAR") || name.includes("SQ BAR")) return "SQUARE BAR";
+               if (name.includes("ROUND BAR")) return "ROUND BAR";
+               if (name.includes("FLAT BAR") || name.includes("RECTANGULAR BAR")) return "RECTANGULAR BAR";
+               if (name.includes("ROUND") || name.includes("BAR")) return "ROUND / BAR";
+               if (name.includes("ANGLE")) return "ANGLE";
+               if (name.includes("CHANNEL")) return "CHANNEL";
+               if (name.includes("BEAM")) return "BEAM";
+               if (name.includes("BLOCK")) return "BLOCK";
+               return "PLATE / SHEET";
+            })(),
             material_grade: item.material_grade || "N/A"
           });
         }
@@ -1343,51 +1448,119 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
 
           // Calculate weight if it's 0 in DB (to prevent missing weight in UI)
           let currentWeight = Number(serial.unit_weight) || 0;
-          if (currentWeight <= 0) {
-            const density = Number(serial.density) || Number(item.density) || 7.85;
-            const { l, w, t, d, od } = {
+          const group = (item.item_group || "").toUpperCase();
+          const density = Number(item.density) || Number(serial.density) || 7.85;
+
+            const { l, w, t, h, d, od, tw, tf } = {
               l: Number(serial.length) || Number(item.length) || 0,
-              w: Number(serial.width) || Number(item.width) || 0,
-              t: Number(serial.thickness) || Number(serial.height) || Number(item.thickness) || Number(item.height) || 0,
+              w: Number(serial.width) || Number(item.width) || Number(serial.side1) || Number(item.side1) || Number(serial.side_s1) || Number(serial.side_s) || 0,
+              t: Number(serial.thickness) || Number(item.thickness) || 0,
+              h: Number(serial.height) || Number(item.height) || Number(serial.side2) || Number(item.side2) || Number(serial.side_s2) || 0,
               d: Number(serial.diameter) || Number(item.diameter) || 0,
-              od: Number(serial.outer_diameter) || Number(item.outer_diameter) || 0
+              od: Number(serial.outer_diameter) || Number(item.outer_diameter) || 0,
+              tw: Number(serial.web_thickness) || Number(item.web_thickness) || 0,
+              tf: Number(serial.flange_thickness) || Number(item.flange_thickness) || 0
             };
-            const group = (item.item_group || "").toUpperCase();
-            if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
-              currentWeight = (l * w * t * density) / 1000000;
-            } else if (group.includes("ROUND") || group.includes("BAR")) {
-              currentWeight = (Math.PI * Math.pow(d / 2, 2) * l * density) / 1000000;
-            } else if (group.includes("PIPE") || group.includes("TUBE")) {
-              const innerRadius = (od / 2) - t;
-              const area = Math.PI * (Math.pow(od / 2, 2) - Math.pow(innerRadius, 2));
-              currentWeight = (area * l * density) / 1000000;
-            } else {
-              currentWeight = (l * w * t * density) / 1000000;
+            
+            let effectiveH = h;
+            let effectiveT = t;
+            const effectiveTW = tw || t; // Fallback to main thickness if specific web/flange missing
+            const effectiveTF = tf || t;
+
+            if (group.includes("SQUARE")) {
+              if (!effectiveH && w) effectiveH = w;
+              if (!effectiveT && w) effectiveT = w;
             }
-          }
+
+            if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+              currentWeight = (l * w * effectiveT * density) / 1000000;
+            } else if (group.includes("ROUND") && !group.includes("PIPE") && !group.includes("TUBE")) {
+              currentWeight = (Math.PI * Math.pow(d || w / 2, 2) * l * density) / 1000000;
+            } else if (group.includes("ANGLE")) {
+              const s1 = w;
+              const s2 = h || w;
+              const area = (s1 + s2 - effectiveT) * effectiveT;
+              currentWeight = (area * l * density) / 1000000;
+            } else if (group.includes("CHANNEL")) {
+              const area = (w * effectiveT) + (2 * (effectiveH - effectiveT) * effectiveT);
+              currentWeight = (area * l * density) / 1000000;
+            } else if (group.includes("BEAM")) {
+              const area = ((effectiveH - 2 * effectiveTF) * effectiveTW) + (2 * w * effectiveTF);
+              currentWeight = (area * l * density) / 1000000;
+            } else if ((group.includes("PIPE") || group.includes("TUBE")) && (group.includes("SQUARE") || group.includes("RECT"))) {
+              const outerArea = w * effectiveH;
+              const innerArea = Math.max(0, (w - 2 * effectiveT) * (effectiveH - 2 * effectiveT));
+              currentWeight = ((outerArea - innerArea) * l * density) / 1000000;
+            } else if (group.includes("PIPE") || group.includes("TUBE") || group.includes("ROUND")) {
+              const effectiveOD = od || d || w;
+              const innerRadius = Math.max(0, (effectiveOD / 2) - effectiveT);
+              const area = Math.PI * (Math.pow(effectiveOD / 2, 2) - Math.pow(innerRadius, 2));
+              currentWeight = (area * l * density) / 1000000;
+            } else if (group.includes("BAR")) {
+              const effectiveD = d || (group.includes("ROUND") ? w : 0);
+              if (effectiveD > 0) {
+                currentWeight = (Math.PI * Math.pow(effectiveD / 2, 2) * l * density) / 1000000;
+              } else {
+                currentWeight = (l * w * (effectiveH || effectiveT || 1) * density) / 1000000;
+              }
+            } else {
+              currentWeight = (l * w * (effectiveH || effectiveT || 1) * density) / 1000000;
+            }
 
           // Calculate Absolute Original Weight (from issued dimensions)
           let absoluteOriginalWeight = Number(item.unit_weight) || 0;
           if (absoluteOriginalWeight <= 0) {
-            const density = Number(item.density) || Number(serial.density) || 7.85;
-            const { l, w, t, d, od } = {
+            const { l, w, t, h, d, od } = {
               l: Number(item.length) || 0,
-              w: Number(item.width) || 0,
-              t: Number(item.thickness) || Number(item.height) || 0,
+              w: Number(item.width) || Number(item.side1) || Number(item.side_s1) || 0,
+              t: Number(item.thickness) || 0,
+              h: Number(item.height) || Number(item.side2) || Number(item.side_s2) || 0,
               d: Number(item.diameter) || 0,
               od: Number(item.outer_diameter) || 0
             };
-            const group = (item.item_group || "").toUpperCase();
+            
+            let effectiveH = h;
+            let effectiveT = t;
+            if (group.includes("SQUARE")) {
+              if (!effectiveH && w) effectiveH = w;
+              if (!effectiveT && w) effectiveT = w;
+            }
+
             if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
-              absoluteOriginalWeight = (l * w * t * density) / 1000000;
-            } else if (group.includes("ROUND") || group.includes("BAR")) {
-              absoluteOriginalWeight = (Math.PI * Math.pow(d / 2, 2) * l * density) / 1000000;
-            } else if (group.includes("PIPE") || group.includes("TUBE")) {
-              const innerRadius = (od / 2) - t;
-              const area = Math.PI * (Math.pow(od / 2, 2) - Math.pow(innerRadius, 2));
+              absoluteOriginalWeight = (l * w * effectiveT * density) / 1000000;
+            } else if (group.includes("ROUND") && !group.includes("PIPE") && !group.includes("TUBE")) {
+              absoluteOriginalWeight = (Math.PI * Math.pow(d || w / 2, 2) * l * density) / 1000000;
+            } else if (group.includes("ANGLE")) {
+              const s1 = w;
+              const s2 = h || w;
+              const area = (s1 + s2 - effectiveT) * effectiveT;
               absoluteOriginalWeight = (area * l * density) / 1000000;
+            } else if (group.includes("CHANNEL")) {
+              const area = (w * effectiveT) + (2 * (effectiveH - effectiveT) * effectiveT);
+              absoluteOriginalWeight = (area * l * density) / 1000000;
+            } else if (group.includes("BEAM")) {
+              const itemTW = Number(item.web_thickness) || effectiveT || 0;
+              const itemTF = Number(item.flange_thickness) || effectiveT || 0;
+              const area = ((effectiveH - 2 * itemTF) * itemTW) + (2 * w * itemTF);
+              absoluteOriginalWeight = (area * l * density) / 1000000;
+            } else if ((group.includes("PIPE") || group.includes("TUBE")) && (group.includes("SQUARE") || group.includes("RECT"))) {
+              const outerArea = w * effectiveH;
+              const innerArea = Math.max(0, (w - 2 * effectiveT) * (effectiveH - 2 * effectiveT));
+              absoluteOriginalWeight = ((outerArea - innerArea) * l * density) / 1000000;
+            } else if (group.includes("PIPE") || group.includes("TUBE") || group.includes("ROUND")) {
+              const effectiveOD = od || d || w;
+              const innerRadius = Math.max(0, (effectiveOD / 2) - effectiveT);
+              const area = Math.PI * (Math.pow(effectiveOD / 2, 2) - Math.pow(innerRadius, 2));
+              absoluteOriginalWeight = (area * l * density) / 1000000;
+            } else if (group.includes("BAR")) {
+              const effectiveD = d || (group.includes("ROUND") ? w : 0);
+              if (effectiveD > 0) {
+                absoluteOriginalWeight = (Math.PI * Math.pow(effectiveD / 2, 2) * l * density) / 1000000;
+              } else {
+                absoluteOriginalWeight = (l * w * (effectiveH || effectiveT || 1) * density) / 1000000;
+              }
             } else {
-              absoluteOriginalWeight = (l * w * t * density) / 1000000;
+              absoluteOriginalWeight = (l * w * (effectiveH || effectiveT || 1) * density) / 1000000;
             }
           }
 
@@ -1396,25 +1569,34 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
           options.push({
             value: serial.serial_number,
             label: `${serial.serial_number} [${parseFloat(currentWeight.toFixed(3))} Kg]${isCut ? " (ALREADY CUT)" : ""}${isConsumed ? " (FULLY CONSUMED)" : ""}${isInSession ? " (IN TABLE)" : ""}`,
-            subLabel: `Dim: ${renderDimensions(serial)}`,
             item: item,
             entry_no: entry.entry_no,
             remaining: 1,
             item_group: item.item_group || (() => {
                const name = (item.item_name || item.material_name || "").toUpperCase();
-               if (name.includes("PIPE") || name.includes("TUBE")) return "PIPE";
-               if (name.includes("ROUND") || name.includes("BAR")) return "ROUND";
+               if (name.includes("SQUARE TUBE") || name.includes("RECTANGULAR TUBE")) return "SQUARE / RECT TUBE";
+               if (name.includes("PIPE") || name.includes("TUBE")) return "PIPE / TUBE";
+               if (name.includes("SQUARE BAR") || name.includes("SQ BAR")) return "SQUARE BAR";
+               if (name.includes("ROUND BAR")) return "ROUND BAR";
+               if (name.includes("FLAT BAR") || name.includes("RECTANGULAR BAR")) return "RECTANGULAR BAR";
+               if (name.includes("ROUND") || name.includes("BAR")) return "ROUND / BAR";
+               if (name.includes("ANGLE")) return "ANGLE";
+               if (name.includes("CHANNEL")) return "CHANNEL";
+               if (name.includes("BEAM")) return "BEAM";
+               if (name.includes("BLOCK")) return "BLOCK";
                return "PLATE / SHEET";
             })(),
             dims: {
               l: Number(serial.length) || Number(item.length) || 0,
-              w: Number(serial.width) || Number(item.width) || Number(serial.side1) || Number(item.side1) || 0,
-              h: Number(serial.height) || Number(item.height) || Number(serial.side2) || Number(item.side2) || 0,
+              w: Number(serial.width) || Number(item.width) || Number(serial.side1) || Number(item.side1) || Number(serial.side_s1) || Number(serial.side_s) || 0,
+              h: Number(serial.height) || Number(item.height) || Number(serial.side2) || Number(item.side2) || Number(serial.side_s2) || 0,
               t: Number(serial.thickness) || Number(item.thickness) || 0,
               d: Number(serial.diameter) || Number(item.diameter) || 0,
               od: Number(serial.outer_diameter) || Number(item.outer_diameter) || 0,
               tw: Number(serial.web_thickness) || Number(item.web_thickness) || 0,
-              tf: Number(serial.flange_thickness) || Number(item.flange_thickness) || 0
+              tf: Number(serial.flange_thickness) || Number(item.flange_thickness) || 0,
+              side1: Number(serial.side1) || Number(item.side1) || Number(serial.width) || Number(item.width) || 0,
+              side2: Number(serial.side2) || Number(item.side2) || Number(serial.height) || Number(item.height) || 0
             },
             density: serial.density || item.density || 0,
             unit_weight: currentWeight || serial.unit_weight || item.unit_weight || 0,
@@ -1429,7 +1611,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
   const remainingInfo = useMemo(() => {
     if (!selectedItem || !selectedItem.dims) return null;
     const group = (selectedItem.item_group || "").toUpperCase();
-    const isLinear = group.includes("ROUND") || group.includes("BAR") || group.includes("PIPE") || group.includes("TUBE");
+    const isLinear = group.includes("ROUND") || group.includes("BAR") || group.includes("PIPE") || group.includes("TUBE") || group.includes("BEAM") || group.includes("CHANNEL") || group.includes("ANGLE") || group.includes("SQUARE") || group.includes("RECT");
 
     // For Circular designs, L and W are the diameter
     const isCircular = cuttingForm.design === "Circular" && !isLinear;
@@ -1443,9 +1625,12 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
 
     const rawL = parseFloat(selectedItem.dims.l) || 0;
     const rawW = parseFloat(selectedItem.dims.w) || 0;
-    const rawT = parseFloat(selectedItem.dims.t || selectedItem.dims.h) || 0; // Fallback h to t for linear weight math
+    const rawT = parseFloat(selectedItem.dims.t) || 0;
+    const rawH = parseFloat(selectedItem.dims.h) || 0;
     const rawD = parseFloat(selectedItem.dims.d) || 0;
     const rawOD = parseFloat(selectedItem.dims.od) || 0;
+    const rawTW = parseFloat(selectedItem.dims.tw) || 0;
+    const rawTF = parseFloat(selectedItem.dims.tf) || 0;
     const density = parseFloat(selectedItem.density) || 7.85;
 
     // Default: remain the same
@@ -1542,16 +1727,48 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       const areaPerPiece = isCircular ? (Math.PI * Math.pow(pieceL / 2, 2)) : (pieceL * pieceW);
       currentWeight = (areaPerPiece * pieceT * density * qty) / 1000000;
     }
-    else if (group.includes("ROUND") || group.includes("BAR")) {
-      currentWeight = (Math.PI * Math.pow(rawD / 2, 2) * pieceL * density * qty) / 1000000;
+    else if (group.includes("ANGLE")) {
+      const s1 = rawW;
+      const s2 = rawH || rawW;
+      const area = (s1 + s2 - rawT) * rawT;
+      currentWeight = (area * pieceL * density * qty) / 1000000;
+    }
+    else if (group.includes("CHANNEL")) {
+      // Area = (WebWidth * Thickness) + 2 * (FlangeHeight - Thickness) * Thickness
+      // Note: rawW is Web Width, rawH is Flange Height, rawT is Thickness
+      const area = (rawW * rawT) + (2 * (rawH - rawT) * rawT);
+      currentWeight = (area * pieceL * density * qty) / 1000000;
+    }
+    else if (group.includes("BEAM")) {
+      // Area = (Web) + (Flanges) = (TotalHeight - 2*FlangeThick) * WebThick + 2 * (FlangeWidth * FlangeThick)
+      // Note: rawH is Total Height, rawW is Flange Width, rawTW is Web Thick, rawTF is Flange Thick
+      const area = ((rawH - 2 * rawTF) * rawTW) + (2 * rawW * rawTF);
+      currentWeight = (area * pieceL * density * qty) / 1000000;
+    }
+    else if ((group.includes("PIPE") || group.includes("TUBE")) && (group.includes("SQUARE") || group.includes("RECT"))) {
+      const outerArea = rawW * rawH;
+      const innerArea = Math.max(0, (rawW - 2*rawT) * (rawH - 2*rawT));
+      currentWeight = ((outerArea - innerArea) * pieceL * density * qty) / 1000000;
     }
     else if (group.includes("PIPE") || group.includes("TUBE")) {
-      const innerRadius = (rawOD / 2) - rawT;
+      const innerRadius = Math.max(0, (rawOD / 2) - rawT);
       const area = Math.PI * (Math.pow(rawOD / 2, 2) - Math.pow(innerRadius, 2));
       currentWeight = (area * pieceL * density * qty) / 1000000;
     }
+    else if (group.includes("ROUND") || group.includes("BAR")) {
+      const effectiveD = rawD || rawW;
+      const isSquare = group.includes("SQUARE");
+      if (isSquare) {
+        currentWeight = (effectiveD * (rawH || effectiveD) * pieceL * density * qty) / 1000000;
+      } else {
+        currentWeight = (Math.PI * Math.pow(effectiveD/ 2, 2) * pieceL * density * qty) / 1000000;
+      }
+    }
+    else if (isLinear && rawL > 0) {
+      currentWeight = ((pieceL * qty) / rawL) * initialSTWeight;
+    }
     else {
-      currentWeight = (pieceL * pieceW * pieceT * density * qty) / 1000000;
+      currentWeight = (pieceL * pieceW * (rawH || rawT || 1) * density * qty) / 1000000;
     }
 
     // Calculate Scrap (Geometric for circle, or full remnant if finished)
@@ -1601,8 +1818,18 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       return;
     }
 
-    const formatDim = (val) => val ? parseFloat(val).toString() : "0";
-    const dims = isCircular ? `Ø${formatDim(cuttingForm.diameter)}x${formatDim(cuttingForm.raw_thk)}` : `${formatDim(cuttingForm.raw_l)}x${formatDim(cuttingForm.raw_w || 0)}x${formatDim(cuttingForm.raw_thk)}`;
+    const group = (selectedItem.item_group || "").toUpperCase();
+    const dims = formatDimensionString(group, {
+      l: cuttingForm.raw_l,
+      w: cuttingForm.raw_w,
+      t: cuttingForm.raw_thk,
+      h: cuttingForm.raw_h,
+      tw: cuttingForm.raw_tw,
+      tf: cuttingForm.raw_tf,
+      side1: cuttingForm.raw_s1,
+      side2: cuttingForm.raw_s2,
+      diameter: cuttingForm.diameter
+    });
 
     const newEntry = {
       id: Date.now(),
@@ -1626,7 +1853,17 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
         return_dims: cuttingForm.return_to_stock ? {
           l: parseFloat(cuttingForm.return_l || 0),
           w: parseFloat(cuttingForm.return_w || 0),
-          t: parseFloat(cuttingForm.return_t || 0)
+          t: parseFloat(cuttingForm.return_t || 0),
+          height: parseFloat(cuttingForm.return_h || 0),
+          web_thickness: parseFloat(cuttingForm.return_tw || 0),
+          flange_thickness: parseFloat(cuttingForm.return_tf || 0),
+          side1: parseFloat(cuttingForm.return_s1 || 0),
+          side2: parseFloat(cuttingForm.return_s2 || 0),
+          side_s: parseFloat(cuttingForm.return_s1 || 0),
+          side_s1: parseFloat(cuttingForm.return_s1 || 0),
+          side_s2: parseFloat(cuttingForm.return_s2 || 0),
+          diameter: parseFloat(cuttingForm.return_d || 0),
+          outer_diameter: parseFloat(cuttingForm.return_od || 0)
         } : null
       }
     };
@@ -1702,12 +1939,37 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             cutting_axis: entry.cutting_axis,
             is_finished: entry.is_finished,
             return_to_stock: false, // Default for saved
-            raw_dims: { l: entry.raw_l, w: entry.raw_w, t: entry.raw_t },
-            new_dims: { l: entry.new_l, w: entry.new_w, t: entry.new_t },
+            raw_dims: { 
+              l: entry.raw_l, 
+              w: entry.raw_w, 
+              t: entry.raw_t,
+              h: entry.raw_h,
+              tw: entry.raw_tw,
+              tf: entry.raw_tf,
+              side1: entry.side1 || entry.raw_side1,
+              side2: entry.side2 || entry.raw_side2,
+              diameter: entry.diameter,
+              od: entry.raw_od
+            },
+            new_dims: { 
+              l: entry.new_l, 
+              w: entry.new_w, 
+              t: entry.new_t,
+              h: entry.new_h,
+              tw: entry.new_tw,
+              tf: entry.new_tf,
+              side1: entry.new_side1,
+              side2: entry.new_side2,
+              diameter: entry.new_diameter,
+              od: entry.new_od
+            },
             new_weight: entry.new_weight || 0,
             scrap_weight: entry.scrap_weight || 0,
             scrap_percent: entry.scrap_percent || 0,
-            unit_weight: entry.weight / (entry.produced_qty || 1),
+            unit_weight: entry.unit_weight_consumed || (entry.weight / (entry.produced_qty || 1)),
+            weight: entry.weight || 0,
+            weight_consumed: entry.weight || 0,
+            total_weight_consumed: entry.weight || 0,
             is_new: false,
             remarks: entry.remarks || "MCR Entry"
           });
@@ -1718,6 +1980,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             scrap_percent: entry.scrap_percent || 0,
             scrap_weight: entry.scrap_weight || 0,
             is_new: false,
+            currentWeight: entry.weight || 0,
             total_parts_produced: parseInt(entry.produced_qty || 1),
           });
           continue; // Skip the rest of the loop for this entry
@@ -1728,7 +1991,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
         const rawW = entry.full_data.selectedItem?.dims?.w || 0;
         const rawT = entry.full_data.selectedItem?.dims?.t || 0;
         const group = (entry.item_group || "").toUpperCase();
-        const isLinear = group.includes("ROUND") || group.includes("BAR") || group.includes("PIPE") || group.includes("TUBE");
+        const isLinear = group.includes("ROUND") || group.includes("BAR") || group.includes("PIPE") || group.includes("TUBE") || group.includes("BEAM") || group.includes("CHANNEL") || group.includes("ANGLE") || group.includes("SQUARE") || group.includes("RECT");
         const isCircular = entry.full_data.design === "Circular" && !isLinear;
 
         const pL = isCircular ? parseFloat(entry.full_data.diameter) || 0 : parseFloat(entry.full_data.raw_l) || 0;
@@ -1814,35 +2077,41 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             w: pW,
             t: pT,
             diameter: entry.full_data.diameter || null,
-            outer_diameter: entry.full_data.selectedItem?.dims?.od || null,
-            height: entry.full_data.selectedItem?.dims?.h || null,
-            web_thickness: entry.full_data.selectedItem?.dims?.web_thickness || entry.full_data.tw || null,
-            flange_thickness: entry.full_data.selectedItem?.dims?.flange_thickness || entry.full_data.tf || null,
-            side1: entry.full_data.side1 || entry.full_data.s1 || null,
-            side2: entry.full_data.side2 || entry.full_data.s2 || null,
-            side_s: entry.full_data.side_s || entry.full_data.s || null,
-            side_s1: entry.full_data.side_s1 || entry.full_data.s1 || null,
-            side_s2: entry.full_data.side_s2 || entry.full_data.s2 || null
+            od: entry.full_data.selectedItem?.dims?.od || null,
+            h: entry.full_data.selectedItem?.dims?.h || null,
+            tw: entry.full_data.selectedItem?.dims?.web_thickness || entry.full_data.raw_tw || null,
+            tf: entry.full_data.selectedItem?.dims?.flange_thickness || entry.full_data.raw_tf || null,
+            side1: entry.full_data.side1 || entry.full_data.raw_s1 || null,
+            side2: entry.full_data.side2 || entry.full_data.raw_s2 || null,
+            raw_side1: entry.full_data.side1 || entry.full_data.raw_s1 || null,
+            raw_side2: entry.full_data.side2 || entry.full_data.raw_s2 || null,
+            side_s: entry.full_data.side_s || entry.full_data.raw_s || null,
+            side_s1: entry.full_data.side_s1 || entry.full_data.raw_s1 || null,
+            side_s2: entry.full_data.side_s2 || entry.full_data.raw_s2 || null
           },
           new_dims: {
             l: newL,
             w: newW,
             t: newT,
             diameter: entry.full_data.diameter || null,
-            outer_diameter: entry.full_data.selectedItem?.dims?.od || null,
-            height: entry.full_data.selectedItem?.dims?.h || null,
-            web_thickness: entry.full_data.selectedItem?.dims?.web_thickness || entry.full_data.tw || null,
-            flange_thickness: entry.full_data.selectedItem?.dims?.flange_thickness || entry.full_data.tf || null,
-            side1: entry.full_data.side1 || entry.full_data.s1 || null,
-            side2: entry.full_data.side2 || entry.full_data.s2 || null,
-            side_s: entry.full_data.side_s || entry.full_data.s || null,
-            side_s1: entry.full_data.side_s1 || entry.full_data.s1 || null,
-            side_s2: entry.full_data.side_s2 || entry.full_data.s2 || null
+            od: entry.full_data.selectedItem?.dims?.od || null,
+            h: entry.full_data.selectedItem?.dims?.h || null,
+            tw: entry.full_data.selectedItem?.dims?.web_thickness || entry.full_data.raw_tw || null,
+            tf: entry.full_data.selectedItem?.dims?.flange_thickness || entry.full_data.raw_tf || null,
+            side1: entry.full_data.side1 || entry.full_data.raw_s1 || null,
+            side2: entry.full_data.side2 || entry.full_data.raw_s2 || null,
+            raw_side1: entry.full_data.side1 || entry.full_data.raw_s1 || null,
+            raw_side2: entry.full_data.side2 || entry.full_data.raw_s2 || null,
+            side_s: entry.full_data.side_s || entry.full_data.raw_s || null,
+            side_s1: entry.full_data.side_s1 || entry.full_data.raw_s1 || null,
+            side_s2: entry.full_data.side_s2 || entry.full_data.raw_s2 || null
           },
           new_weight: newWeight,
           scrap_weight: entry.scrap_weight || 0,
           scrap_percent: entry.scrap_percent || 0,
           unit_weight: entry.weight / (qty || 1), // Piece weight
+          weight_consumed: entry.weight || 0,
+          total_weight_consumed: entry.weight || 0,
           is_new: entry.is_new, // Crucial for backend update logic
           remarks: `MCR Entry`
         });
@@ -1862,7 +2131,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
 
       const response = await axios.post("/production/mcr/save", {
         plan_id: plan.id,
-        work_date: plan.plan_date,
+        work_date: mcrDate,
         pieces,
         calculations
       });
@@ -1895,10 +2164,12 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             <div>
               <div className="flex items-center gap-3">
                 <h3 className="text-lg  text-slate-900 dark:text-white  ">Material Cutting Report (MCR)</h3>
-                <span className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded text-xs    border border-indigo-100 dark:border-indigo-900/50 flex items-center gap-1.5">
-                  <Calendar size={10} />
-                  {new Date(plan.plan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </span>
+                <input
+                  type="date"
+                  className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded text-xs border border-indigo-100 dark:border-indigo-900/50 outline-none"
+                  value={mcrDate}
+                  onChange={(e) => setMcrDate(e.target.value)}
+                />
                 {reportEntries.length > 0 && (
                   <span className="bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded text-xs    border border-rose-100 dark:border-rose-900/50 flex items-center gap-1.5">
                     <Activity size={10} />
@@ -1972,19 +2243,30 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                           setSelectedItem(sel);
                           if (sel && sel.dims) {
                             const group = selectedItemGroup;
-                            let initialW = "";
-                            if (group.includes("PIPE") || group.includes("TUBE")) initialW = Number(sel.dims.od) || "";
-                            else if (group.includes("ROUND") || group.includes("BAR")) initialW = Number(sel.dims.d) || "";
-                            else if (!(group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK"))) initialW = Number(sel.dims.w) || "";
+                            
+                            // For square items, ensure both dimensions are populated if only one is found
+                            const rawW = Number(sel.dims.w) || (group.includes("SQUARE") ? Number(sel.dims.h) : 0);
+                            const rawH = Number(sel.dims.h) || (group.includes("SQUARE") ? Number(sel.dims.w) : 0);
 
                             setCuttingForm(prev => ({
                               ...prev,
-                              raw_l: "", 
-                              raw_w: initialW,
+                              raw_l: "",   // Always cleared — operator enters the cut length
+                              // For plates: L and W are empty (operator enters piece dims), T is auto-filled
+                              // For linear profiles: all cross-section dims are auto-filled, only L is entered
+                              raw_w:  (group.includes("PLATE") || group.includes("SHEET"))
+                                        ? ""  // Plates: operator enters cut width
+                                        : (rawW || ""),
                               raw_thk: Number(sel.dims.t) || "", 
-                              return_l: "", 
-                              return_w: "",
-                              return_t: ""
+                              raw_h:  rawH || "", 
+                              raw_tw: Number(sel.dims.tw)    || Number(sel.dims.t) || "",
+                              raw_tf: Number(sel.dims.tf)    || Number(sel.dims.t) || "",
+                              raw_s1: Number(sel.dims.side1) || (rawW || ""),
+                              raw_s2: Number(sel.dims.side2) || (rawH || ""),
+                              // Reset return dims
+                              return_l: "", return_w: "", return_t: "",
+                              return_h: "", return_tw: "", return_tf: "",
+                              return_s1: "", return_s2: "",
+                              return_d: "", return_od: ""
                             }));
                           }
                         }}
@@ -2013,94 +2295,216 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     
                     {/* Dimension Group */}
                     <div className="md:col-span-6 grid grid-cols-3 gap-3">
-                      {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET") || !selectedItemGroup) && (
+
+                      {/* ── PLATE / SHEET ── L editable, W editable, T locked */}
+                      {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET")) && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">Piece L</label>
-                            <input type="number" placeholder="L" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">Piece W</label>
-                            <input type="number" placeholder="W" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Width (W)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">Piece T</label>
-                            <input type="number" placeholder="T" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
+                            <label className="text-xs text-slate-400 font-medium block">Thickness (T)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
                           </div>
                         </>
                       )}
 
-                      {(selectedItemGroup.includes("ROUND") || (selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PLATE"))) && (
-                        <>
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">Dia</label>
-                            <input type="number" placeholder="DIA" className="w-full h-9 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={selectedItem?.dims?.d || ""} readOnly />
-                          </div>
-                          <div className="col-span-2 space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">Cut Length</label>
-                            <input type="number" placeholder="L" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
-                          </div>
-                        </>
-                      )}
-
-                      {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && (
-                        <>
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">OD</label>
-                            <input type="number" placeholder="OD" className="w-full h-9 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={selectedItem?.dims?.od || ""} readOnly />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">Thk</label>
-                            <input type="number" placeholder="T" className="w-full h-9 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={selectedItem?.dims?.t || ""} readOnly />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">Cut Len</label>
-                            <input type="number" placeholder="L" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
-                          </div>
-                        </>
-                      )}
-
+                      {/* ── BLOCK / SOLID ── L, W, H all editable */}
                       {selectedItemGroup.includes("BLOCK") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">L</label>
-                            <input type="number" placeholder="L" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                            <label className="text-xs text-blue-600 font-semibold block">Cut L</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">W</label>
-                            <input type="number" placeholder="W" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
+                            <label className="text-xs text-blue-600 font-semibold block">Cut W</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium  block">H</label>
-                            <input type="number" placeholder="H" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
+                            <label className="text-xs text-blue-600 font-semibold block">Cut H</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
                           </div>
                         </>
                       )}
 
-                      {/* Generic Fallback for other groups (Beams, Channels, Angles, etc.) */}
-                      {selectedItem && 
-                       !selectedItemGroup.includes("PLATE") && 
-                       !selectedItemGroup.includes("SHEET") && 
-                       !selectedItemGroup.includes("ROUND") && 
-                       !selectedItemGroup.includes("BAR") && 
-                       !selectedItemGroup.includes("PIPE") && 
-                       !selectedItemGroup.includes("TUBE") && 
-                       !selectedItemGroup.includes("BLOCK") && (
+                      {/* ── ROUND BAR ── Dia locked, Length editable */}
+                      {selectedItemGroup.includes("ROUND") && !selectedItemGroup.includes("PIPE") && !selectedItemGroup.includes("TUBE") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Dim 1 (L)</label>
-                            <input type="number" placeholder="Dim 1" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                            <label className="text-xs text-slate-400 font-medium block">Diameter (Ø)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w || selectedItem?.dims?.d || ""} />
                           </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Dim 2 (W)</label>
-                            <input type="number" placeholder="Dim 2" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Dim 3 (T/H)</label>
-                            <input type="number" placeholder="Dim 3" className="w-full h-9 bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
+                          <div className="col-span-2 space-y-1.5">
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                         </>
                       )}
+
+                      {/* ── SQUARE / FLAT / RECT BAR ── W, H locked, Length editable */}
+                      {(selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("ROUND") && !selectedItemGroup.includes("PLATE")) && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">
+                              {selectedItemGroup.includes("SQUARE") ? "Side (S1)" : "Width (W)"}
+                            </label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">
+                              {selectedItemGroup.includes("SQUARE") ? "Side (S2)" : "Thickness (T)"}
+                            </label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk || cuttingForm.raw_h} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {/* ── SQUARE TUBE / RECTANGULAR TUBE ── W, H, Thk locked, Length editable */}
+                      {(selectedItemGroup.includes("SQUARE") || selectedItemGroup.includes("RECT")) && selectedItemGroup.includes("TUBE") && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Width (W)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Height (H)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_h} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Thk (T)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
+                          </div>
+                          <div className="col-span-3 space-y-1.5 mt-[-10px]">
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {/* ── ROUND PIPE / TUBE ── OD, Thk locked, Length editable */}
+                      {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && !selectedItemGroup.includes("SQUARE") && !selectedItemGroup.includes("RECT") && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Outer Dia (OD)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w || selectedItem?.dims?.od || ""} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Wall Thk (T)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {/* ── CHANNEL ── Web Width (W), Flange Height (H), Thickness (T), Length (L) */}
+                      {selectedItemGroup.includes("CHANNEL") && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Web Width (W)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Flange Height (H)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_h} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Thickness (T)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
+                          </div>
+                          <div className="col-span-3 space-y-1.5 mt-[-10px]">
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {/* ── BEAM ── Total Height (H), Flange Width (W), Web Thick (Tw), Flange Thick (Tf), Length (L) */}
+                      {selectedItemGroup.includes("BEAM") && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Total Height (H)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_h} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Flange Width (W)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Web Thick (Tw)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_tw} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Flange Thick (Tf)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_tf} />
+                          </div>
+                          <div className="col-span-2 space-y-1.5">
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {/* ── ANGLE SECTION ── S1, S2, Thk locked, Length editable */}
+                      {selectedItemGroup.includes("ANGLE") && (
+                        <>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Side 1</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_s1} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Side 2</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_s2} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs text-slate-400 font-medium block">Thickness (T)</label>
+                            <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
+                          </div>
+                          <div className="col-span-3 space-y-1.5 mt-[-10px]">
+                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                          </div>
+                        </>
+                      )}
+
+                      {/* ── GENERIC FALLBACK ── for unknown groups */}
+                      {selectedItem && 
+                        !selectedItemGroup.includes("PLATE") && 
+                        !selectedItemGroup.includes("SHEET") && 
+                        !selectedItemGroup.includes("BLOCK") && 
+                        !selectedItemGroup.includes("ROUND") && 
+                        !selectedItemGroup.includes("BAR") && 
+                        !selectedItemGroup.includes("PIPE") && 
+                        !selectedItemGroup.includes("TUBE") && 
+                        !selectedItemGroup.includes("BEAM") && 
+                        !selectedItemGroup.includes("CHANNEL") && 
+                        !selectedItemGroup.includes("ANGLE") && (
+                         <>
+                           <div className="space-y-1.5">
+                             <label className="text-xs text-blue-600 font-semibold block">Dim 1 (L)</label>
+                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
+                           </div>
+                           <div className="space-y-1.5">
+                             <label className="text-xs text-blue-600 font-semibold block">Dim 2 (W)</label>
+                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
+                           </div>
+                           <div className="space-y-1.5">
+                             <label className="text-xs text-blue-600 font-semibold block">Dim 3 (T)</label>
+                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
+                           </div>
+                         </>
+                       )}
                     </div>
 
                     <div className="md:col-span-6 flex items-center justify-around bg-slate-50 dark:bg-slate-800/50 h-9 rounded-lg border border-slate-100 dark:border-slate-800 px-4">
@@ -2108,21 +2512,70 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                         <label className="text-xs text-slate-400 font-medium ">Inventory</label>
                         <input type="checkbox" className="w-4 h-4 text-emerald-600 rounded border-slate-300 cursor-pointer" checked={cuttingForm.return_to_stock} onChange={(e) => {
                           const checked = e.target.checked;
-                          let rL = "", rW = "", rT = "";
+                          let rL = "", rW = "", rT = "", rH = "", rTw = "", rTf = "", rS1 = "", rS2 = "", rD = "", rOD = "";
                           if (checked && remainingInfo) {
+                            const group = (selectedItemGroup || "").toUpperCase();
+                            const dims = selectedItem.dims || {};
                             rL = remainingInfo.l;
-                            const group = selectedItemGroup;
-                            if (group.includes("PIPE") || group.includes("TUBE")) {
-                              rW = selectedItem?.dims?.od || "";
-                              rT = selectedItem?.dims?.t || "";
-                            } else if (group.includes("ROUND") || group.includes("BAR")) {
-                              rW = selectedItem?.dims?.d || "";
-                            } else {
-                              rW = remainingInfo.w;
-                              rT = remainingInfo.t;
+                            
+                            // Base assignments
+                            rW = dims.w || dims.side1 || dims.side_s1 || dims.side_s || 0;
+                            rH = dims.h || dims.side2 || dims.side_s2 || 0;
+                            rT = dims.t || dims.thickness || 0;
+                            rD = dims.d || dims.diameter || 0;
+                            rOD = dims.od || dims.outer_diameter || 0;
+
+                            if (group.includes("CHANNEL")) {
+                              rW = dims.w || 0; // Web Width
+                              rH = dims.h || 0; // Flange Height
+                              rT = dims.t || 0; // Thickness
+                              rTw = 0;
+                              rTf = 0;
+                            } else if (group.includes("BEAM")) {
+                              rH = dims.h || 0; // Total Height
+                              rW = dims.w || 0; // Flange Width
+                              rTw = dims.tw || dims.web_thickness || rT || 0;
+                              rTf = dims.tf || dims.flange_thickness || rT || 0;
+                            } else if (group.includes("ANGLE")) {
+                              rS1 = dims.side1 || rW || 0;
+                              rS2 = dims.side2 || rH || 0;
+                              rT = dims.t || 0;
+                            } else if (group.includes("PIPE") || group.includes("TUBE")) {
+                              if (group.includes("SQUARE") || group.includes("RECT")) {
+                                rW = dims.w || 0;
+                                rH = dims.h || 0;
+                                rT = dims.t || 0;
+                              } else {
+                                rOD = dims.od || dims.outer_diameter || rD || rW || 0;
+                                rT = dims.t || 0;
+                              }
+                            } else if (group.includes("BAR")) {
+                              rW = dims.w || 0;
+                              rT = dims.t || 0;
+                              rH = dims.h || 0;
+                              if (group.includes("SQUARE") && !rH) rH = rW;
+                              if (!rT && group.includes("RECT")) rT = rH; // Fallback if T is in H
+                            } else if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
+                              rW = dims.w || 0;
+                              rT = dims.t || 0;
                             }
+
+                            if (group.includes("ROUND") && !rD && rW) rD = rW;
                           }
-                          setCuttingForm(prev => ({ ...prev, return_to_stock: checked, return_l: rL, return_w: rW, return_t: rT }));
+                          setCuttingForm(prev => ({ 
+                            ...prev, 
+                            return_to_stock: checked, 
+                            return_l: rL, 
+                            return_w: rW, 
+                            return_t: rT,
+                            return_h: rH,
+                            return_tw: rTw,
+                            return_tf: rTf,
+                            return_s1: rS1,
+                            return_s2: rS2,
+                            return_d: rD,
+                            return_od: rOD
+                          }));
                         }} />
                       </div>
                       <div className="flex items-center gap-2">
@@ -2141,27 +2594,84 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     {cuttingForm.return_to_stock && (
                       <div className="md:col-span-12 mt-4 p-3 bg-emerald-50/50 rounded border border-emerald-100 flex items-center gap-6">
                         <span className="text-xs text-emerald-600 font-semibold  tracking-wider">Stock Return Dimensions:</span>
-                        <div className="flex-1 grid grid-cols-3 gap-4">
-                          {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET") || !selectedItemGroup) && (
+                        <div className="flex-1 grid grid-cols-2 gap-4">
+                          {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET")) && (
                             <>
                               <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
                               <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">W</label><input type="number" placeholder="W" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
-                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">T</label><input type="number" placeholder="T" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_t} onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Thickness (T)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-100 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_t} /></div>
                             </>
                           )}
 
-                          {(selectedItemGroup.includes("ROUND") || (selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("PLATE"))) && (
+                          {selectedItemGroup.includes("CHANNEL") && (
                             <>
-                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Dia</label><input type="number" placeholder="DIA" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
-                              <div className="col-span-2 flex items-center gap-2"><label className="text-xs text-emerald-600">Cut Len</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Web Width (W)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_w} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Flange Height (H)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_h} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Thickness (T)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_t} /></div>
                             </>
                           )}
 
-                          {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && (
+                          {selectedItemGroup.includes("BEAM") && (
                             <>
-                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">OD</label><input type="number" placeholder="OD" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
-                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Thk</label><input type="number" placeholder="T" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_t} onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })} /></div>
-                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Cut Len</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Total Height (H)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_h} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Flange Width (W)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_w} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Web Thick (Tw)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_tw} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Flange Thick (Tf)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_tf} /></div>
+                            </>
+                          )}
+
+                          {selectedItemGroup.includes("ANGLE") && (
+                            <>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Side 1</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_s1} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Side 2</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_s2} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Thickness (T)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-100 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_t} /></div>
+                            </>
+                          )}
+                          
+                          {/* ── ROUND BAR ── */}
+                          {selectedItemGroup.includes("ROUND") && !selectedItemGroup.includes("PIPE") && !selectedItemGroup.includes("TUBE") && (
+                            <>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Diameter (Ø)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_d} /></div>
+                            </>
+                          )}
+
+                          {/* ── SQUARE / FLAT BAR ── */}
+                          {selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("ROUND") && !selectedItemGroup.includes("PLATE") && (
+                            <>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">{selectedItemGroup.includes("SQUARE") ? "Side (S1)" : "Width (W)"}</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_w} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">{selectedItemGroup.includes("SQUARE") ? "Side (S2)" : "Thickness (T)"}</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_t || cuttingForm.return_h} /></div>
+                            </>
+                          )}
+
+                          {/* ── PIPE / TUBE (ROUND) ── */}
+                          {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && !selectedItemGroup.includes("SQUARE") && !selectedItemGroup.includes("RECT") && (
+                            <>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Outer Dia (OD)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_od} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Wall Thk (T)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_t} /></div>
+                            </>
+                          )}
+
+                          {/* ── SQUARE / RECT TUBE ── */}
+                          {(selectedItemGroup.includes("TUBE")) && (selectedItemGroup.includes("SQUARE") || selectedItemGroup.includes("RECT")) && (
+                            <>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Width (W)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_w || cuttingForm.return_s1} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Height (H)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_h || cuttingForm.return_s2} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Thk (T)</label><input type="number" readOnly className="w-full h-8 bg-slate-100 border border-emerald-200 rounded px-2 py-1 text-xs text-slate-500" value={cuttingForm.return_t} /></div>
+                            </>
+                          )}
+
+                          {selectedItemGroup.includes("BLOCK") && (
+                            <>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">L</label><input type="number" placeholder="L" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">W</label><input type="number" placeholder="W" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>
+                              <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">H</label><input type="number" placeholder="H" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_t} onChange={(e) => setCuttingForm({ ...cuttingForm, return_t: e.target.value })} /></div>
                             </>
                           )}
 
@@ -2172,7 +2682,10 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                            !selectedItemGroup.includes("BAR") && 
                            !selectedItemGroup.includes("PIPE") && 
                            !selectedItemGroup.includes("TUBE") && 
-                           !selectedItemGroup.includes("BLOCK") && (
+                           !selectedItemGroup.includes("BLOCK") && 
+                           !selectedItemGroup.includes("BEAM") && 
+                           !selectedItemGroup.includes("CHANNEL") && 
+                           !selectedItemGroup.includes("ANGLE") && (
                             <>
                               <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Dim 1</label><input type="number" placeholder="Dim 1" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_l} onChange={(e) => setCuttingForm({ ...cuttingForm, return_l: e.target.value })} /></div>
                               <div className="flex items-center gap-2"><label className="text-xs text-emerald-600">Dim 2</label><input type="number" placeholder="Dim 2" className="w-full h-8 bg-white border border-emerald-200 rounded px-2 py-1 text-xs" value={cuttingForm.return_w} onChange={(e) => setCuttingForm({ ...cuttingForm, return_w: e.target.value })} /></div>

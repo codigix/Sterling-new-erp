@@ -1153,8 +1153,8 @@ const releaseGRNMaterial = async (req, res) => {
                         stock_entry_id, item_code, item_name, quantity, uom, valuation_rate, 
                         length, width, thickness, diameter, outer_diameter, height, 
                         unit_weight, total_weight, density, item_group, web_thickness, 
-                        flange_thickness, side_s, side_s1, side_s2, side1, side2
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        flange_thickness, side_s, side_s1, side_s2, side1, side2, material_type
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         stockEntryId, item.item_code, item.material_name, item.accepted_qty, 
                         item.unit || 'Nos', item.rate_per_kg || 0, item.length, item.width, 
@@ -1162,7 +1162,7 @@ const releaseGRNMaterial = async (req, res) => {
                         item.unit_weight || 0, released_weight, item.density || 0,
                         item.item_group, item.web_thickness, item.flange_thickness,
                         item.side_s, item.side_s1, item.side_s2,
-                        item.side1, item.side2
+                        item.side1, item.side2, item.material_type
                     ]
                 );
 
@@ -1181,8 +1181,8 @@ const releaseGRNMaterial = async (req, res) => {
                         valuation_rate, remarks, length, width, thickness, diameter, 
                         outer_diameter, height, unit_weight, total_weight, density,
                         item_group, web_thickness, flange_thickness, side_s, side_s1, side_s2,
-                        side1, side2
-                    ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        side1, side2, material_type
+                    ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         item.item_code, item.material_name, new Date().toISOString().split('T')[0], 
                         'Stock Entry', entry_no, -item.accepted_qty, item.unit || 'Nos', 
@@ -1192,7 +1192,7 @@ const releaseGRNMaterial = async (req, res) => {
                         item.outer_diameter, item.height, item.unit_weight || 0, 
                         -released_weight, item.density || 0, item.item_group,
                         item.web_thickness, item.flange_thickness, item.side_s,
-                        item.side_s1, item.side_s2, item.side1, item.side2
+                        item.side_s1, item.side_s2, item.side1, item.side2, item.material_type
                     ]
                 );
 
@@ -1226,7 +1226,8 @@ const releaseGRNMaterial = async (req, res) => {
                     flange_thickness: item.flange_thickness,
                     side_s: item.side_s,
                     side_s1: item.side_s1,
-                    side_s2: item.side_s2
+                    side_s2: item.side_s2,
+                    materialType: item.material_type
                 });
             }
         }
@@ -1279,7 +1280,7 @@ const releaseGRNMaterial = async (req, res) => {
                 si.length, si.width, si.thickness, si.diameter, si.outer_diameter, si.height, 
                 si.unit_weight, si.total_weight, si.density || 0,
                 si.side1, si.side2, si.web_thickness, si.flange_thickness,
-                si.side_s, si.side_s1, si.side_s2
+                si.side_s, si.side_s1, si.side_s2, si.materialType
             ]);
 
             await connection.query(
@@ -1288,7 +1289,7 @@ const releaseGRNMaterial = async (req, res) => {
                     length, width, thickness, diameter, outer_diameter, height, 
                     unit_weight, total_weight, density, 
                     side1, side2, web_thickness, flange_thickness,
-                    side_s, side_s1, side_s2
+                    side_s, side_s1, side_s2, material_type
                 ) 
                  VALUES ?`,
                 [mrItemValues]

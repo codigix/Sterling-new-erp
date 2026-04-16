@@ -22,6 +22,7 @@ import {
   Info
 } from "lucide-react";
 import { showError, showSuccess } from "../../utils/toastUtils";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import Swal from "sweetalert2";
 
 const QCTasksPage = () => {
@@ -101,27 +102,6 @@ const QCTasksPage = () => {
     r.vendor_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderDimensions = (dimensions) => {
-    if (!dimensions) return null;
-    const parts = [];
-    const fields = [
-      { key: 'length', label: 'L' },
-      { key: 'width', label: 'W' },
-      { key: 'thickness', label: 'T' },
-      { key: 'diameter', label: 'D' },
-      { key: 'outer_diameter', label: 'OD' },
-      { key: 'height', label: 'H' }
-    ];
-
-    fields.forEach(field => {
-      const value = parseFloat(dimensions[field.key]);
-      if (value > 0) {
-        parts.push(`${field.label}:${parseFloat(value.toFixed(4))}`);
-      }
-    });
-
-    return parts.length > 0 ? parts.join(" \u00D7 ") : null;
-  };
 
   if (loading) {
     return (
@@ -356,7 +336,7 @@ const QCTasksPage = () => {
                                               <p className="text-xs  text-slate-700 dark:text-slate-200   font-mono truncate" title={st.st_code}>
                                                 {st.st_code}
                                               </p>
-                                              <div className="text-xs text-slate-500 font-mono mt-1">
+                                              <div className="text-xs text-blue-600 font-mono mt-1">
                                                 {renderDimensions(st)}
                                               </div>
                                             </div>

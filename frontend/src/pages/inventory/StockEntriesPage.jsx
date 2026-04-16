@@ -55,7 +55,7 @@ const StockEntriesPage = () => {
   ];
 
   const filteredEntries = entries.filter((entry) => {
-    const matchesSearch = 
+    const matchesSearch =
       (entry.entry_no || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (entry.project_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (entry.vendor_name || "").toLowerCase().includes(searchQuery.toLowerCase());
@@ -85,7 +85,7 @@ const StockEntriesPage = () => {
             </p>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   transition-all  shadow-indigo-500/20 flex items-center gap-3"
         >
@@ -127,7 +127,7 @@ const StockEntriesPage = () => {
           <div className="flex items-center gap-3 w-full md:w-auto">
             <div className="flex items-center gap-2">
               <label className="text-xs  text-slate-400  ">Type:</label>
-              <select 
+              <select
                 className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 "
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
@@ -163,7 +163,7 @@ const StockEntriesPage = () => {
                   <React.Fragment key={entry.id}>
                     <tr className={`hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors ${isExpanded ? 'bg-indigo-50/20 dark:bg-indigo-900/10' : ''}`}>
                       <td className="p-2 text-center">
-                        <button 
+                        <button
                           onClick={() => { setExpandedEntry(isExpanded ? null : entry.id); setExpandedItem(null); }}
                           className={`p-1 rounded transition-all ${isExpanded ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}
                         >
@@ -206,8 +206,8 @@ const StockEntriesPage = () => {
                       </td>
                       <td className="p-2 text-center  text-slate-900 dark:text-white">
                         <div className="flex items-center justify-center gap-2">
-                           <span className="text-xs">{items.length}</span>
-                           <Package size={14} className="text-slate-400" />
+                          <span className="text-xs">{items.length}</span>
+                          <Package size={14} className="text-slate-400" />
                         </div>
                       </td>
                       <td className="p-2 text-right">
@@ -216,152 +216,140 @@ const StockEntriesPage = () => {
                         </button>
                       </td>
                     </tr>
-                    
+
                     {/* Expandable Item Breakdown */}
                     {isExpanded && (
                       <tr>
                         <td colSpan="7" className="p-2 bg-slate-50/50 dark:bg-slate-900/50">
                           <div className="p-2 border-l-4 border-indigo-500 bg-white dark:bg-slate-800 my-4 rounded-r-2xl  animate-in slide-in-from-top-4 duration-300">
-                             <div className="flex items-center justify-between my-2">
-                                <h4 className="text-xs  text-slate-400   flex items-center gap-2">
-                                  <Boxes size={14} /> Itemized Stock Receipt
-                                </h4>
-                                <div className="text-xs  text-slate-500 bg-slate-100 p-1 rounded ">
-                                  {items.length} materials included in this entry
-                                </div>
-                             </div>
-                             
-                             <div className="overflow-hidden rounded border border-slate-100 dark:border-slate-700">
-                               <table className="w-full text-left text-xs">
-                                 <thead>
-                                   <tr className="bg-slate-50 dark:bg-slate-900/50">
-                                     <th className="p-2  text-slate-400   w-10 text-center"></th>
-                                     <th className="p-2  text-slate-400   w-16">#</th>
-                                     <th className="p-2  text-slate-400  ">Item Code</th>
-                                     <th className="p-2  text-slate-400  ">Material Name</th>
-                                     <th className="p-2  text-slate-400  ">Dimensions</th>
-                                     <th className="p-2  text-slate-400   text-center">Qty / UOM</th>
-                                     <th className="p-2  text-slate-400   text-center">Weight (Kg)</th>
-                                     <th className="p-2  text-slate-400   text-right">Serial Tags</th>
-                                   </tr>
-                                 </thead>
-                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-700 font-medium">
-                                   {items.map((item, i) => {
-                                     const isItemExpanded = expandedItem === i;
+                            <div className="flex items-center justify-between my-2">
+                              <h4 className="text-xs  text-slate-400   flex items-center gap-2">
+                                <Boxes size={14} /> Itemized Stock Receipt
+                              </h4>
+                              <div className="text-xs  text-slate-500 bg-slate-100 p-1 rounded ">
+                                {items.length} materials included in this entry
+                              </div>
+                            </div>
 
-                                     return (
-                                       <React.Fragment key={i}>
-                                         <tr 
-                                           className={`hover:bg-slate-50/30 dark:hover:bg-slate-900/30 cursor-pointer transition-colors ${isItemExpanded ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''}`}
-                                           onClick={() => setExpandedItem(isItemExpanded ? null : i)}
-                                         >
-                                           <td className="p-2 text-center">
-                                             <div className={`p-1 rounded transition-all ${isItemExpanded ? 'text-indigo-600' : 'text-slate-300'}`}>
-                                               {isItemExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                                             </div>
-                                           </td>
-                                           <td className="p-2 text-slate-400 ">{i + 1}</td>
-                                           <td className="p-2  text-indigo-600  ">
-                                             {item.item_code}
-                                           </td>
-                                           <td className="p-2  text-slate-700 dark:text-slate-300  ">
-                                             {item.item_name}
-                                           </td>
-                                           <td className="p-2 text-slate-500 dark:text-slate-400 text-xs">
-                                             {renderDimensions(item)}
-                                           </td>
-                                           <td className="p-2 text-center">
-                                             <div className="flex flex-col items-center">
-                                                <span className=" text-slate-900 dark:text-white">{item.quantity}</span>
-                                                <span className="text-xs  text-slate-400 ">{item.uom}</span>
-                                             </div>
-                                           </td>
-                                           <td className="p-2 text-center">
-                                             <div className="flex flex-col items-center">
-                                                <span className=" text-slate-900 dark:text-white">{Number(item.total_weight || 0).toFixed(3)} Kg</span>
-                                                <span className="text-xs text-slate-400">Unit: {Number(item.unit_weight || 0).toFixed(3)}</span>
-                                             </div>
-                                           </td>
-                                           <td className="p-2 text-right">
-                                             <div className="flex flex-wrap justify-end gap-1">
-                                                {item.serials && item.serials.length > 0 ? (
-                                                  item.serials.slice(0, 3).map((s, si) => (
-                                                    <span key={si} className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-xs   er border border-indigo-100 dark:border-indigo-800">
-                                                      {s.serial_number}
-                                                    </span>
-                                                  ))
-                                                ) : (
-                                                  <span className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900/30 text-slate-400 rounded text-xs   er border border-slate-100 dark:border-slate-800">
-                                                    NO SERIALS
+                            <div className="overflow-hidden rounded border border-slate-100 dark:border-slate-700">
+                              <table className="w-full text-left text-xs">
+                                <thead>
+                                  <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                    <th className="p-2  text-slate-400   w-16">#</th>
+                                    <th className="p-2  text-slate-400  ">Item Code</th>
+                                    <th className="p-2  text-slate-400  ">Material Name</th>
+                                    <th className="p-2  text-slate-400  ">Dimensions</th>
+                                    <th className="p-2  text-slate-400   text-center">Qty / UOM</th>
+                                    <th className="p-2  text-slate-400   text-center">Weight (Kg)</th>
+                                    <th className="p-2  text-slate-400   text-right">Serial Tags</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50 dark:divide-slate-700 font-medium">
+                                  {items.map((item, i) => {
+                                    const isItemExpanded = expandedItem === i;
+
+                                    return (
+                                      <React.Fragment key={i}>
+                                        <tr
+                                          className={`hover:bg-slate-50/30 dark:hover:bg-slate-900/30 cursor-pointer transition-colors ${isItemExpanded ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''}`}
+                                          onClick={() => setExpandedItem(isItemExpanded ? null : i)}
+                                        >
+                                          <td className="p-2 text-slate-400 ">{i + 1}</td>
+                                          <td className="p-2  text-indigo-600  ">
+                                            {item.item_code}
+                                          </td>
+                                          <td className="p-2  text-slate-700 dark:text-slate-300  ">
+                                            {item.item_name}
+                                          </td>
+                                          <td className="p-2 text-slate-500 dark:text-slate-400 text-xs">
+                                            {renderDimensions(item)}
+                                          </td>
+                                          <td className="p-2 text-center">
+                                            <div className="flex flex-col items-center">
+                                              <span className=" text-slate-900 dark:text-white">{item.quantity}</span>
+                                              <span className="text-xs  text-slate-400 ">{item.uom}</span>
+                                            </div>
+                                          </td>
+                                          <td className="p-2 text-center">
+                                            <div className="flex flex-col items-center">
+                                              <span className=" text-slate-900 dark:text-white">{Number(item.total_weight || 0).toFixed(3)} Kg</span>
+                                              <span className="text-xs text-slate-400">Unit: {Number(item.unit_weight || 0).toFixed(3)}</span>
+                                            </div>
+                                          </td>
+                                          <td className="p-2 text-right">
+                                            <div className="flex flex-wrap justify-end gap-1">
+                                              {item.serials && item.serials.length > 0 ? (
+                                                item.serials.slice(0, 3).map((s, si) => (
+                                                  <span key={si} className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded text-xs   er border border-indigo-100 dark:border-indigo-800">
+                                                    {s.serial_number}
                                                   </span>
-                                                )}
-                                                {item.serials && item.serials.length > 3 && (
-                                                  <span className="text-xs  text-slate-400 mt-1">+{item.serials.length - 3} more</span>
-                                                )}
-                                             </div>
-                                           </td>
-                                         </tr>
-                                         {isItemExpanded && item.serials && item.serials.length > 0 && (
-                                           <tr className="bg-slate-50/50 dark:bg-slate-900/20">
-                                             <td colSpan="8" className="p-2">
-                                               <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded  overflow-hidden">
-                                                 {item.instructions && (
-                                                   <div className="p-2 bg-indigo-50/30 border-b border-indigo-50 dark:border-indigo-900/30">
-                                                      <p className="text-[10px] uppercase tracking-wider text-indigo-500 font-bold mb-1">Item Instructions</p>
-                                                      <p className="text-xs text-slate-600 dark:text-slate-400 italic">"{item.instructions}"</p>
-                                                   </div>
-                                                 )}
-                                                 <table className="w-full text-left border-collapse bg-white">
-                                                   <thead>
-                                                     <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
-                                                       <th className="p-2 text-xs  text-slate-400   w-12 text-center">#</th>
-                                                       <th className="p-2 text-xs  text-slate-400  ">Item Code</th>
-                                                       <th className="p-2 text-xs  text-slate-400  ">Dimensions</th>
-                                                       <th className="p-2 text-xs  text-slate-400  ">Weight</th>
-                                                       <th className="p-2 text-xs  text-slate-400  ">Name</th>
-                                                       <th className="p-2 text-xs  text-indigo-400   text-right">ST Code</th>
-                                                     </tr>
-                                                   </thead>
-                                                   <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-                                                     {item.serials.map((stObj, sIdx) => {
-                                                       const stCode = typeof stObj === 'string' ? stObj : stObj.serial_number;
-                                                       const itemCodePerPiece = stCode.replace(/^ST-/, "");
-                                                       const pieceWeight = stObj.unit_weight || stObj.total_weight || item.unit_weight || 0;
-                                                       
-                                                       return (
-                                                         <tr key={sIdx} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
-                                                           <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
-                                                           <td className="p-2 text-xs  text-slate-700 dark:text-slate-300  ">{itemCodePerPiece}</td>
-                                                           <td className="p-2 text-xs text-slate-500  ">
-                                                             {renderDimensions(stObj)}
-                                                           </td>
-                                                           <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
-                                                              {Number(pieceWeight).toFixed(3)} Kg
-                                                           </td>
-                                                           <td className="p-2 text-xs  text-slate-500 dark:text-slate-400  ">{item.item_name}</td>
-                                                           <td className="p-2 text-xs  text-indigo-600   text-right">{stCode}</td>
-                                                         </tr>
-                                                       );
-                                                     })}
-                                                   </tbody>
-                                                 </table>
-                                               </div>
-                                             </td>
-                                           </tr>
-                                         )}
-                                       </React.Fragment>
-                                     );
-                                   })}
-                                 </tbody>
-                               </table>
-                             </div>
-                             
-                             {entry.remarks && (
-                               <div className="mt-6 p-2 bg-amber-50/30 border border-amber-100/50 rounded">
-                                  <p className="text-xs  text-amber-600   mb-1">Transaction Remarks</p>
-                                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{entry.remarks}</p>
-                               </div>
-                             )}
+                                                ))
+                                              ) : (
+                                                <span className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900/30 text-slate-400 rounded text-xs   er border border-slate-100 dark:border-slate-800">
+                                                  NO SERIALS
+                                                </span>
+                                              )}
+                                              {item.serials && item.serials.length > 3 && (
+                                                <span className="text-xs  text-slate-400 mt-1">+{item.serials.length - 3} more</span>
+                                              )}
+                                            </div>
+                                          </td>
+                                        </tr>
+                                        {isItemExpanded && item.serials && item.serials.length > 0 && (
+                                          <tr className="bg-slate-50/50 dark:bg-slate-900/20">
+                                            <td colSpan="7" className="p-2">
+                                              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded  overflow-hidden">
+                                                <table className="w-full text-left border-collapse bg-white">
+                                                  <thead>
+                                                    <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
+                                                      <th className="p-2 text-xs  text-slate-400   w-12 text-center">#</th>
+                                                      <th className="p-2 text-xs  text-slate-400  ">Item Code</th>
+                                                      <th className="p-2 text-xs  text-slate-400  ">Dimensions</th>
+                                                      <th className="p-2 text-xs  text-slate-400  ">Weight</th>
+                                                      <th className="p-2 text-xs  text-slate-400  ">Name</th>
+                                                      <th className="p-2 text-xs  text-indigo-400   text-right">ST Code</th>
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
+                                                    {item.serials.map((stObj, sIdx) => {
+                                                      const stCode = typeof stObj === 'string' ? stObj : stObj.serial_number;
+                                                      const itemCodePerPiece = stCode.replace(/^ST-/, "");
+                                                      const pieceWeight = stObj.unit_weight || stObj.total_weight || item.unit_weight || 0;
+
+                                                      return (
+                                                        <tr key={sIdx} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                                          <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
+                                                          <td className="p-2 text-xs  text-slate-700 dark:text-slate-300  ">{itemCodePerPiece}</td>
+                                                          <td className="p-2 text-xs text-slate-500  ">
+                                                            {renderDimensions(stObj)}
+                                                          </td>
+                                                          <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
+                                                            {Number(pieceWeight).toFixed(3)} Kg
+                                                          </td>
+                                                          <td className="p-2 text-xs  text-slate-500 dark:text-slate-400  ">{item.item_name}</td>
+                                                          <td className="p-2 text-xs  text-indigo-600   text-right">{stCode}</td>
+                                                        </tr>
+                                                      );
+                                                    })}
+                                                  </tbody>
+                                                </table>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        )}
+                                      </React.Fragment>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+
+                            {entry.remarks && (
+                              <div className="mt-6 p-2 bg-amber-50/30 border border-amber-100/50 rounded">
+                                <p className="text-xs  text-amber-600   mb-1">Transaction Remarks</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{entry.remarks}</p>
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -389,9 +377,9 @@ const StockEntriesPage = () => {
         </div>
       </div>
 
-      <CreateStockEntryModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <CreateStockEntryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onEntryCreated={fetchStockEntries}
       />
     </div>

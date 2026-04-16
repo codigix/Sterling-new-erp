@@ -24,6 +24,7 @@ import {
   MessageSquare,
   X
 } from "lucide-react";
+import { renderDimensions } from "../../utils/dimensionUtils";
 import { showSuccess, showError } from "../../utils/toastUtils";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -93,17 +94,26 @@ const MaterialInspectionPage = () => {
       // Enhance materials with fallback dimensions for serials
       const enhancedMaterials = response.data.map(item => {
         const itemDimensions = {
-          length: item.length,
-          width: item.width,
-          thickness: item.thickness,
-          diameter: item.diameter,
-          outer_diameter: item.outer_diameter,
-          height: item.height
+          length: item.length || item.length_mm || 0,
+          width: item.width || item.width_mm || 0,
+          thickness: item.thickness || item.thickness_mm || 0,
+          diameter: item.diameter || item.diameter_mm || 0,
+          outer_diameter: item.outer_diameter || item.outerDiameter || 0,
+          height: item.height || item.height_mm || 0,
+          side_s: item.side_s || item.sideS || 0,
+          side1: item.side1 || item.sideS1 || 0,
+          side2: item.side2 || item.sideS2 || 0,
+          web_thickness: item.web_thickness || item.tw || 0,
+          flange_thickness: item.flange_thickness || item.tf || 0,
+          item_group: item.item_group || item.itemGroup || ""
         };
 
         const enhancedSerials = (item.serials || []).map(s => {
-          const serialDimensions = s.dimensions || {};
-          const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '');
+          const serialDimensions = {
+            ...(s.dimensions || {}),
+            item_group: s.item_group || s.itemGroup || itemDimensions.item_group
+          };
+          const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '' && typeof v === 'number');
           
           return {
             ...s,
@@ -111,7 +121,7 @@ const MaterialInspectionPage = () => {
           };
         });
 
-        return { ...item, serials: enhancedSerials };
+        return { ...item, ...itemDimensions, serials: enhancedSerials };
       });
 
       setMaterials(enhancedMaterials);
@@ -123,28 +133,6 @@ const MaterialInspectionPage = () => {
     }
   };
 
-  const renderDimensions = (dimensions) => {
-    if (!dimensions) return "-";
-    const parts = [];
-    const fields = [
-      { key: 'length', label: 'L' },
-      { key: 'width', label: 'W' },
-      { key: 'thickness', label: 'T' },
-      { key: 'diameter', label: 'Dia' },
-      { key: 'outer_diameter', label: 'OD' },
-      { key: 'height', label: 'H' }
-    ];
-
-    fields.forEach(field => {
-      const value = parseFloat(dimensions[field.key]);
-      if (value > 0) {
-        // parseFloat(val.toFixed(4)) removes trailing zeros
-        parts.push(`${field.label}: ${parseFloat(value.toFixed(4))}`);
-      }
-    });
-
-    return parts.length > 0 ? parts.join(" \u00D7 ") : "-";
-  };
 
   const handleRootCardChange = (id) => {
     setSelectedRootCardId(id);
@@ -384,13 +372,9 @@ const MaterialInspectionPage = () => {
                     <thead className="bg-slate-50/30 text-xs  text-slate-400   border-b border-slate-100">
                       <tr>
                         <th className="p-2">Item Name / Group</th>
-                        <th className="p-2"> Referance</th>
+                        <th className="p-2"> Reference</th>
                         <th className="p-2">Dimensions</th>
-                        <th className="p-2 text-center">Ordered</th>
-                        <th className="p-2 text-center">Invoice</th>
                         <th className="p-2 text-center">Received Quantity</th>
-                        <th className="p-2 text-center">Shortage</th>
-                        <th className="p-2 text-center">Overage</th>
                         <th className="p-2 text-right">Status</th>
                       </tr>
                     </thead>
@@ -427,26 +411,13 @@ const MaterialInspectionPage = () => {
                                 </div>
                               </td>
                               <td className="p-2">
-                                <div className="text-xs text-slate-500 font-mono">
-                                  {renderDimensions({
-                                    length: item.length,
-                                    width: item.width,
-                                    thickness: item.thickness,
-                                    diameter: item.diameter,
-                                    outer_diameter: item.outer_diameter,
-                                    height: item.height
-                                  })}
+                                <div className="text-xs text-blue-600 font-mono">
+                                  {renderDimensions(item)}
                                 </div>
                               </td>
-                              <td className="p-2 text-center text-xs  text-slate-500">{item.ordered_qty}</td>
-                              <td className="p-2 text-center text-xs  text-slate-500">{item.invoice_quantity || item.received_qty}</td>
-                              <td className="p-2 text-center">
-                                <span className="p-1 bg-blue-50 text-blue-600 rounded text-xs ">
-                                  {item.received_qty}
-                                </span>
+                              <td className="p-2 text-center text-xs text-blue-600 font-bold bg-blue-50/50">
+                                {item.received_qty}
                               </td>
-                              <td className="p-2 text-center text-xs  text-orange-500">{item.rejected_quantity || 0}</td>
-                              <td className="p-2 text-center text-xs  text-blue-500">{item.overage || 0}</td>
                               <td className="p-2 text-right">
                                 <div className="flex items-center justify-end gap-2">
                                   <span className={` rounded text-xs    border ${
@@ -463,7 +434,7 @@ const MaterialInspectionPage = () => {
                             
                             {isExpanded && (
                               <tr className="bg-slate-50/50">
-                                <td colSpan="9" className="p-2">
+                                <td colSpan="5" className="p-2">
                                   <div className="bg-white dark:bg-slate-900 border border-slate-200 rounded  overflow-hidden animate-in slide-in-from-top-2 duration-200">
                                     <div className="p-2 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
                                       <h5 className="text-xs  text-slate-500   flex items-center gap-2">

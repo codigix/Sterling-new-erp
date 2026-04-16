@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import taskService from "../../utils/taskService";
 import { showSuccess, showError } from "../../utils/toastUtils";
+import { renderDimensions } from "../../utils/dimensionUtils";
 
 const QCInspectionsPage = () => {
   const navigate = useNavigate();
@@ -105,17 +106,26 @@ const QCInspectionsPage = () => {
       // Enhance materials with fallback dimensions for serials
       const enhancedMaterials = grnMaterials.map(item => {
         const itemDimensions = {
-          length: item.length,
-          width: item.width,
-          thickness: item.thickness,
-          diameter: item.diameter,
-          outer_diameter: item.outer_diameter,
-          height: item.height
+          length: item.length || item.length_mm || 0,
+          width: item.width || item.width_mm || 0,
+          thickness: item.thickness || item.thickness_mm || 0,
+          diameter: item.diameter || item.diameter_mm || 0,
+          outer_diameter: item.outer_diameter || item.outerDiameter || 0,
+          height: item.height || item.height_mm || 0,
+          side_s: item.side_s || item.sideS || 0,
+          side1: item.side1 || item.sideS1 || 0,
+          side2: item.side2 || item.sideS2 || 0,
+          web_thickness: item.web_thickness || item.tw || 0,
+          flange_thickness: item.flange_thickness || item.tf || 0,
+          item_group: item.item_group || item.itemGroup || ""
         };
 
         const enhancedSerials = (item.serials || []).map(s => {
-          const serialDimensions = s.dimensions || {};
-          const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '');
+          const serialDimensions = {
+            ...(s.dimensions || {}),
+            item_group: s.item_group || s.itemGroup || itemDimensions.item_group
+          };
+          const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '' && typeof v === 'number');
           
           return {
             ...s,
@@ -123,7 +133,7 @@ const QCInspectionsPage = () => {
           };
         });
 
-        return { ...item, serials: enhancedSerials };
+        return { ...item, ...itemDimensions, serials: enhancedSerials };
       });
 
       setReportData({
@@ -140,28 +150,6 @@ const QCInspectionsPage = () => {
     }
   };
 
-  const renderDimensions = (dimensions) => {
-    if (!dimensions) return "-";
-    const parts = [];
-    const fields = [
-      { key: 'length', label: 'L' },
-      { key: 'width', label: 'W' },
-      { key: 'thickness', label: 'T' },
-      { key: 'diameter', label: 'Dia' },
-      { key: 'outer_diameter', label: 'OD' },
-      { key: 'height', label: 'H' }
-    ];
-
-    fields.forEach(field => {
-      const value = parseFloat(dimensions[field.key]);
-      if (value > 0) {
-        // parseFloat(val.toFixed(4)) removes trailing zeros
-        parts.push(`${field.label}: ${parseFloat(value.toFixed(4))}`);
-      }
-    });
-
-    return parts.length > 0 ? parts.join(" \u00D7 ") : "-";
-  };
 
   const handleCreateReport = async () => {
     try {
@@ -190,6 +178,11 @@ const QCInspectionsPage = () => {
           diameter: m.diameter || null,
           outer_diameter: m.outer_diameter || null,
           height: m.height || null,
+          side1: m.side1 || null,
+          side2: m.side2 || null,
+          side_s: m.side_s || null,
+          web_thickness: m.web_thickness || null,
+          flange_thickness: m.flange_thickness || null,
           st_numbers: m.serials?.map(s => ({
             st_code: s.serial_number,
             item_code: s.item_code,
@@ -199,7 +192,12 @@ const QCInspectionsPage = () => {
             thickness: s.dimensions?.thickness || null,
             diameter: s.dimensions?.diameter || null,
             outer_diameter: s.dimensions?.outer_diameter || null,
-            height: s.dimensions?.height || null
+            height: s.dimensions?.height || null,
+            web_thickness: s.dimensions?.web_thickness || null,
+            flange_thickness: s.dimensions?.flange_thickness || null,
+            side1: s.dimensions?.side1 || null,
+            side2: s.dimensions?.side2 || null,
+            side_s: s.dimensions?.side_s || null
           })) || []
         }))
       };
@@ -774,14 +772,7 @@ const QCInspectionsPage = () => {
                               </td>
                               <td className="p-2">
                                 <div className="text-xs text-slate-500 font-mono">
-                                  {renderDimensions({
-                                    length: item.length,
-                                    width: item.width,
-                                    thickness: item.thickness,
-                                    diameter: item.diameter,
-                                    outer_diameter: item.outer_diameter,
-                                    height: item.height
-                                  })}
+                                  {renderDimensions(item)}
                                 </div>
                               </td>
                               <td className="px-4 py-5 text-center">
@@ -853,17 +844,8 @@ const QCInspectionsPage = () => {
                                         <p className="text-xs  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
                                           {s.serial_number}
                                         </p>
-                                        <div className="text-xs text-slate-500 font-mono">
-                                          {s.dimensions && (
-                                            <>
-                                              {s.dimensions.length ? `L:${Number(s.dimensions.length)} ` : ''}
-                                              {s.dimensions.width ? `W:${Number(s.dimensions.width)} ` : ''}
-                                              {s.dimensions.thickness ? `T:${Number(s.dimensions.thickness)} ` : ''}
-                                              {s.dimensions.diameter ? `D:${Number(s.dimensions.diameter)} ` : ''}
-                                              {s.dimensions.outer_diameter ? `OD:${Number(s.dimensions.outer_diameter)} ` : ''}
-                                              {s.dimensions.height ? `H:${Number(s.dimensions.height)} ` : ''}
-                                            </>
-                                          )}
+                                        <div className="text-xs text-blue-600 font-mono">
+                                          {renderDimensions(s.dimensions)}
                                         </div>
                                         <div className={`mt-1 px-2 py-0.5 rounded text-[8px]   er w-fit ${
                                           s.inspection_status === 'Accepted' 

@@ -520,18 +520,35 @@ exports.saveMCR = async (req, res) => {
               const fL = parseFloat(l) || 0;
               const fW = parseFloat(w) || 0;
               const fT = parseFloat(t) || 0;
+              const fS1 = parseFloat(piece.return_dims?.side1) || parseFloat(piece.return_dims?.side_s1) || 0;
+              const fS2 = parseFloat(piece.return_dims?.side2) || parseFloat(piece.return_dims?.side_s2) || fS1;
 
               if (group.includes("PLATE") || group.includes("SHEET") || group.includes("BLOCK")) {
                 returnWeight = (fL * fW * fT * density) / 1000000;
-              } else if (group.includes("ROUND") || group.includes("BAR")) {
-                const dia = parseFloat(os.diameter) || 0;
+              } else if (group.includes("ROUND") && !group.includes("PIPE") && !group.includes("TUBE")) {
+                const dia = parseFloat(os.diameter) || parseFloat(os.width) || 0;
                 returnWeight = (Math.PI * Math.pow(dia / 2, 2) * fL * density) / 1000000;
-              } else if (group.includes("PIPE") || group.includes("TUBE")) {
-                const od = parseFloat(os.outer_diameter) || 0;
-                const thk = parseFloat(os.thickness) || 0;
-                const innerRadius = (od / 2) - thk;
-                const area = Math.PI * (Math.pow(od / 2, 2) - Math.pow(innerRadius, 2));
-                returnWeight = (area * fL * density) / 1000000;
+              } else if (group.includes("BAR") && group.includes("SQUARE")) {
+                const side1 = fS1 || parseFloat(os.side1) || parseFloat(os.width) || 0;
+                const side2 = fS2 || parseFloat(os.side2) || parseFloat(os.height) || side1;
+                returnWeight = (fL * side1 * side2 * density) / 1000000;
+              } else if (group.includes("BAR") && !group.includes("ROUND")) {
+                // Rectangular Bar
+                const width = fW || parseFloat(os.width) || 0;
+                const thickness = fT || parseFloat(os.thickness) || parseFloat(os.height) || 0;
+                returnWeight = (fL * width * thickness * density) / 1000000;
+              } else if (group.includes("PIPE") || group.includes("TUBE") || group.includes("BEAM") || group.includes("CHANNEL") || group.includes("ANGLE")) {
+                // For all structural/linear items, weight is proportional to length
+                const currentL = parseFloat(os.length) || 0;
+                const currentW = parseFloat(os.unit_weight) || 0;
+                if (currentL > 0) {
+                  returnWeight = (fL / currentL) * currentW;
+                } else {
+                  // Fallback to geometric if length unknown
+                  const side1 = fS1 || parseFloat(os.side1) || parseFloat(os.width) || 0;
+                  const side2 = fS2 || parseFloat(os.side2) || parseFloat(os.height) || side1;
+                  returnWeight = (fL * side1 * side2 * density) / 1000000;
+                }
               } else {
                 returnWeight = (fL * fW * fT * density) / 1000000;
               }
@@ -540,10 +557,29 @@ exports.saveMCR = async (req, res) => {
               let newItemName = piece.item_name;
               if (group.includes("PLATE") || group.includes("SHEET")) {
                 newItemName = `${fL}x${fW}x${fT} mm Plate (OFF-CUT)`;
-              } else if (group.includes("ROUND") || group.includes("BAR")) {
-                newItemName = `Dia ${fW} x ${fL} mm Round Bar (OFF-CUT)`;
+              } else if (group.includes("ROUND") && !group.includes("PIPE") && !group.includes("TUBE")) {
+                const dia = parseFloat(os.diameter) || parseFloat(os.width) || 0;
+                newItemName = `Dia ${dia} x ${fL} mm Round Bar (OFF-CUT)`;
+              } else if (group.includes("BAR") && group.includes("SQUARE")) {
+                const s1 = fS1 || parseFloat(os.side1) || parseFloat(os.width) || 0;
+                const s2 = fS2 || parseFloat(os.side2) || parseFloat(os.height) || s1;
+                newItemName = `${s1}x${s2}x${fL} mm Sq Bar (OFF-CUT)`;
+              } else if (group.includes("BAR") && !group.includes("ROUND")) {
+                const w_val = fW || parseFloat(os.width) || 0;
+                const t_val = fT || parseFloat(os.thickness) || parseFloat(os.height) || 0;
+                newItemName = `${w_val}x${t_val}x${fL} mm Bar (OFF-CUT)`;
               } else if (group.includes("PIPE") || group.includes("TUBE")) {
-                newItemName = `Ø${fW} x ${fT} x ${fL} mm Pipe (OFF-CUT)`;
+                const od_val = parseFloat(piece.return_dims?.outer_diameter) || parseFloat(os.outer_diameter) || 0;
+                const t_val = fT || parseFloat(os.thickness) || 0;
+                newItemName = `Ø${od_val} x ${t_val} x ${fL} mm Pipe (OFF-CUT)`;
+              } else if (group.includes("BEAM") || group.includes("CHANNEL")) {
+                const h_val = parseFloat(piece.return_dims?.height) || parseFloat(os.height) || 0;
+                const w_val = fW || parseFloat(os.width) || 0;
+                newItemName = `${h_val}x${w_val} x ${fL} mm (OFF-CUT)`;
+              } else if (group.includes("ANGLE")) {
+                const s1 = fS1 || parseFloat(os.side1) || 0;
+                const s2 = fS2 || parseFloat(os.side2) || 0;
+                newItemName = `${s1}x${s2}x${fT} mm Angle (OFF-CUT)`;
               }
 
               // 5. Insert New Serial into inventory
@@ -629,9 +665,9 @@ exports.saveMCR = async (req, res) => {
           piece.new_dims.l, piece.new_dims.w, piece.new_dims.t,
           piece.new_dims.diameter || null, piece.new_dims.outer_diameter || null, piece.new_dims.height || null,
           piece.new_dims.web_thickness || null, piece.new_dims.flange_thickness || null, piece.new_dims.side1 || null, piece.new_dims.side2 || null, piece.new_dims.side_s || null, piece.new_dims.side_s1 || null, piece.new_dims.side_s2 || null,
-          calc ? calc.currentWeight : 0,
+          piece.weight_consumed || (calc ? calc.currentWeight : 0),
           piece.unit_weight || 0,
-          calc ? calc.scrapWeight : 0,
+          piece.scrap_weight || (calc ? calc.scrapWeight : 0),
           piece.is_finished ? 1 : 0,
           piece.return_to_stock ? 1 : 0,
           piece.return_dims?.l || 0,

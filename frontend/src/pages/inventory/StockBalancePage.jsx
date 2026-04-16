@@ -356,7 +356,7 @@ const StockBalancePage = () => {
                                          </td>
                                          <td className="p-2">
                                            <div className="text-xs text-blue-600 font-mono">
-                                             {renderDimensions({ ...item, ...st })}
+                                             {renderDimensions(st)}
                                            </div>
                                          </td>
                                          <td className="p-2 text-center text-slate-500 dark:text-slate-400">

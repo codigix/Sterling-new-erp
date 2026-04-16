@@ -48,24 +48,44 @@ const QualityInspectionDetail = () => {
       ]);
       
       setGrn(grnRes.data.grn);
-      setItems(stRes.data.map(item => ({
-        ...item,
-        acceptedDoc: item.acceptedDoc || null,
-        rejectedDoc: item.rejectedDoc || null,
-        serials: item.serials.map(s => {
-          const serialDimensions = s.dimensions || {};
-          const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '');
-          
-          return {
-            ...s,
-            item_code: s.item_code,
-            tempStatus: s.inspection_status === 'Pending' ? '' : s.inspection_status,
-            notes: '',
-            doc: null,
-            dimensions: hasSerialDims ? serialDimensions : item.itemDimensions
-          };
-        })
-      })));
+      setItems(stRes.data.map(item => {
+        const baseDimensions = {
+          length: item.length || item.length_mm || 0,
+          width: item.width || item.width_mm || 0,
+          thickness: item.thickness || item.thickness_mm || 0,
+          diameter: item.diameter || item.diameter_mm || 0,
+          outer_diameter: item.outer_diameter || item.outerDiameter || 0,
+          height: item.height || item.height_mm || 0,
+          side_s: item.side_s || item.sideS || 0,
+          side1: item.side1 || item.sideS1 || 0,
+          side2: item.side2 || item.sideS2 || 0,
+          web_thickness: item.web_thickness || item.tw || 0,
+          flange_thickness: item.flange_thickness || item.tf || 0,
+          item_group: item.itemGroup || item.item_group || ""
+        };
+
+        return {
+          ...item,
+          acceptedDoc: item.acceptedDoc || null,
+          rejectedDoc: item.rejectedDoc || null,
+          serials: item.serials.map(s => {
+            const serialDimensions = {
+              ...(s.dimensions || {}),
+              item_group: s.item_group || s.itemGroup || baseDimensions.item_group
+            };
+            const hasSerialDims = Object.values(serialDimensions).some(v => v !== null && v !== 0 && v !== '' && typeof v === 'number');
+            
+            return {
+              ...s,
+              item_code: s.item_code,
+              tempStatus: s.inspection_status === 'Pending' ? '' : s.inspection_status,
+              notes: '',
+              doc: null,
+              dimensions: hasSerialDims ? serialDimensions : baseDimensions
+            };
+          })
+        };
+      }));
       
       if (grnRes.data.grn.inspection_type) {
         setInspectionType(grnRes.data.grn.inspection_type);

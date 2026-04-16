@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { 
-  Search, 
-  Eye, 
-  Boxes, 
+import {
+  Search,
+  Eye,
+  Boxes,
   Clock,
   CheckCircle2,
   Package,
   Calendar,
   Layers,
-  ArrowLeft
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import axios from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
@@ -94,13 +96,13 @@ const ReleasedMaterialsPage = () => {
     {
       key: "status",
       label: "STATUS",
-      render: () => <Badge variant="success" className="flex items-center gap-1"><CheckCircle2 size={12}/> Released</Badge>
+      render: () => <Badge variant="success" className="flex items-center gap-1"><CheckCircle2 size={12} /> Released</Badge>
     },
     {
       key: "actions",
       label: "ACTIONS",
       render: (_, row) => (
-        <button 
+        <button
           className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
           title="View Released Items"
           onClick={() => handleViewDetails(row)}
@@ -116,7 +118,7 @@ const ReleasedMaterialsPage = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl  text-slate-900 flex items-center gap-2">
-            
+
             Released Materials
           </h2>
           <p className="text-slate-500 text-xs">View materials released from inventory for production use</p>
@@ -163,7 +165,7 @@ const ReleasedMaterialsPage = () => {
                   <p className="text-xs text-slate-500 font-medium">{selectedEntry.project_name || "General Production"}</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setShowDetailModal(false)}
                 className="p-2 hover:bg-slate-100 rounded  transition-colors"
               >
@@ -213,7 +215,7 @@ const ReleasedMaterialsPage = () => {
                         const isExpanded = expandedItem === idx;
                         return (
                           <React.Fragment key={idx}>
-                            <tr 
+                            <tr
                               className={`hover:bg-slate-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/30' : ''}`}
                               onClick={() => setExpandedItem(isExpanded ? null : idx)}
                             >
@@ -226,6 +228,11 @@ const ReleasedMaterialsPage = () => {
                                     <p className=" text-slate-900 text-xs  ">{item.item_name}</p>
                                     <p className="text-xs  text-slate-400  ">{item.item_code}</p>
                                   </div>
+                                  {item.serials && item.serials.length > 0 && (
+                                    <div className="ml-auto pr-2">
+                                      {isExpanded ? <ChevronUp size={16} className="text-blue-600" /> : <ChevronDown size={16} className="text-slate-400" />}
+                                    </div>
+                                  )}
                                 </div>
                               </td>
                               <td className="p-2">
@@ -259,7 +266,7 @@ const ReleasedMaterialsPage = () => {
                             </tr>
                             {isExpanded && item.serials && item.serials.length > 0 && (
                               <tr className="bg-slate-50/50">
-                                <td colSpan="4" className="px-12 py-4">
+                                <td colSpan="6" className="px-2 py-4">
                                   <div className="bg-white border border-slate-100 rounded  overflow-hidden">
                                     <table className="w-full text-left border-collapse bg-white">
                                       <thead>
