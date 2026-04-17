@@ -83,7 +83,30 @@ exports.getDailyPlans = async (req, res) => {
         (SELECT COUNT(DISTINCT operator_id) FROM daily_operator_assignments WHERE plan_id = p.id) as operators_count,
         (SELECT IFNULL(SUM(total_hours), 0) FROM daily_operator_assignments WHERE plan_id = p.id) as total_workload,
         (SELECT IFNULL(SUM(scrap_weight), 0) FROM material_cutting_report_items WHERE mcr_id = m.id) as total_scrap_weight,
-        m.id as mcr_id
+        m.id as mcr_id,
+        (SELECT JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'id', a.id,
+            'plan_id', a.plan_id,
+            'root_card_id', a.root_card_id,
+            'project_name', r.project_name,
+            'projectRef', r.id,
+            'operation_id', a.operation_id,
+            'operation_name', a.operation_name,
+            'assignment_type', a.assignment_type,
+            'operator_id', a.operator_id,
+            'operator_name', a.operator_name,
+            'vendor_id', a.vendor_id,
+            'vendor_name', a.vendor_name,
+            'start_time', a.start_time,
+            'end_time', a.end_time,
+            'break_time', a.break_time,
+            'total_hours', a.total_hours,
+            'remarks', a.remarks
+          )
+        ) FROM daily_operator_assignments a 
+          LEFT JOIN root_cards r ON a.root_card_id = r.id 
+          WHERE a.plan_id = p.id) as assignments
       FROM daily_production_plans p
       LEFT JOIN material_cutting_reports m ON p.id = m.plan_id
       ORDER BY p.plan_date DESC
@@ -114,13 +137,15 @@ exports.createDailyPlan = async (req, res) => {
     // 2. Insert Assignments if provided
     if (assignments && assignments.length > 0) {
       const assignmentValues = assignments.map(a => [
-        planId, a.root_card_id, a.operation_id, a.operation_name, a.operator_name, a.operator_id,
+        planId, a.root_card_id, a.operation_id, a.operation_name, 
+        a.assignment_type || 'inhouse', a.operator_name, a.operator_id,
+        a.vendor_name, a.vendor_id,
         a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
       ]);
 
       await connection.query(
         `INSERT INTO daily_operator_assignments 
-        (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
+        (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
         VALUES ?`,
         [assignmentValues]
       );
@@ -181,13 +206,15 @@ exports.updateDailyPlan = async (req, res) => {
     // 3. Insert New Assignments
     if (assignments && assignments.length > 0) {
       const assignmentValues = assignments.map(a => [
-        id, a.root_card_id, a.operation_id, a.operation_name, a.operator_name, a.operator_id,
+        id, a.root_card_id, a.operation_id, a.operation_name, 
+        a.assignment_type || 'inhouse', a.operator_name, a.operator_id,
+        a.vendor_name, a.vendor_id,
         a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
       ]);
 
       await connection.query(
         `INSERT INTO daily_operator_assignments 
-        (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
+        (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
         VALUES ?`,
         [assignmentValues]
       );
@@ -216,14 +243,14 @@ exports.deleteDailyPlan = async (req, res) => {
 };
 
 exports.addAssignment = async (req, res) => {
-  const { plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks } = req.body;
+  const { plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks } = req.body;
 
   try {
     const [result] = await db.query(
       `INSERT INTO daily_operator_assignments 
-      (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time || 0, total_hours, remarks || '']
+      (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [plan_id, root_card_id, operation_id, operation_name, assignment_type || 'inhouse', operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time || 0, total_hours, remarks || '']
     );
     res.json({ success: true, id: result.insertId, message: 'Assignment added successfully' });
   } catch (error) {

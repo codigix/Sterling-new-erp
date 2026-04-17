@@ -17,7 +17,9 @@ import {
   Upload,
   RefreshCw,
   MessageSquare,
-  Trash2
+  Trash2,
+  FileCode,
+  Box
 } from "lucide-react";
 import axios from "../../utils/api";
 import { getServerUrl, downloadFile } from "../../utils/fileUtils";
@@ -33,7 +35,12 @@ const DesignDrawingManagement = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showTechnicalUploadModal, setShowTechnicalUploadModal] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
+  const [technicalFiles, setTechnicalFiles] = useState({
+    dwg_file: null,
+    step_file: null
+  });
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [isRevision, setIsRevision] = useState(false);
@@ -194,6 +201,42 @@ const DesignDrawingManagement = () => {
       }
     } catch (error) {
       console.error("Upload failed:", error);
+      toast.error(error.response?.data?.message || "Upload failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTechnicalUpload = async (e) => {
+    e.preventDefault();
+    if (!technicalFiles.dwg_file && !technicalFiles.step_file) {
+      toast.error("Please select at least one file to upload");
+      return;
+    }
+
+    const uploadData = new FormData();
+    if (technicalFiles.dwg_file) uploadData.append("dwg_file", technicalFiles.dwg_file);
+    if (technicalFiles.step_file) uploadData.append("step_file", technicalFiles.step_file);
+
+    try {
+      setLoading(true);
+      const response = await axios.put(`/design-drawings/${selectedDoc.id}/technical-files`, uploadData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message || "Technical files uploaded");
+        setShowTechnicalUploadModal(false);
+        setTechnicalFiles({ dwg_file: null, step_file: null });
+        
+        // Refresh expanded history
+        const docKey = selectedDoc.parent_id || selectedDoc.id;
+        if (expandedDocs.has(docKey)) {
+          await fetchDocHistory(selectedDoc);
+        }
+      }
+    } catch (error) {
+      console.error("Technical upload failed:", error);
       toast.error(error.response?.data?.message || "Upload failed");
     } finally {
       setLoading(false);
@@ -557,8 +600,40 @@ const DesignDrawingManagement = () => {
                                         <Download size={14} /> Download
                                       </button>
                                       
+                                      {rev.dwg_path && (
+                                        <button 
+                                          onClick={() => downloadFile(rev.dwg_path, `${rev.name}.dwg`)}
+                                          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs rounded transition-colors border border-blue-200"
+                                          title="Download DWG File"
+                                        >
+                                          <Eye size={14} /> DWG File
+                                        </button>
+                                      )}
+
+                                      {rev.step_path && (
+                                        <button 
+                                          onClick={() => downloadFile(rev.step_path, `${rev.name}.step`)}
+                                          className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs rounded transition-colors border border-orange-200"
+                                          title="Download STEP File"
+                                        >
+                                          <Eye size={14} /> STEP File
+                                        </button>
+                                      )}
+
                                       {index === 0 && rev.type !== 'Final Approved Drawing' && (
                                         <div className="flex items-center gap-2">
+                                          {rev.status === 'Approved' && !rev.dwg_path && !rev.step_path && (
+                                            <button 
+                                              onClick={() => {
+                                                setSelectedDoc(rev);
+                                                setShowTechnicalUploadModal(true);
+                                              }}
+                                              className="flex items-center gap-1.5 p-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded transition-colors"
+                                              title="Upload .dwg / .step files"
+                                            >
+                                              <Upload size={14} /> Upload CAD/STEP
+                                            </button>
+                                          )}
                                           {rev.status === 'Draft' && (
                                             <button 
                                               onClick={() => submitDraft(rev.id)}
@@ -833,6 +908,83 @@ const DesignDrawingManagement = () => {
                 </form>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Technical Files Upload Modal */}
+      {showTechnicalUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Upload Technical Files</h3>
+                <p className="text-xs text-slate-500">Attach CAD files to {selectedDoc?.name} (v{selectedDoc?.version})</p>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowTechnicalUploadModal(false);
+                  setTechnicalFiles({ dwg_file: null, step_file: null });
+                }} 
+                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleTechnicalUpload} className="p-6 space-y-6">
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                    <FileCode size={16} className="text-blue-600" /> .DWG File
+                  </label>
+                  <input
+                    type="file"
+                    accept=".dwg"
+                    onChange={(e) => setTechnicalFiles({ ...technicalFiles, dwg_file: e.target.files[0] })}
+                    className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                  />
+                  {selectedDoc?.dwg_path && (
+                    <p className="mt-2 text-[10px] text-blue-600 italic">Current: {selectedDoc.dwg_path.split('-').slice(2).join('-')}</p>
+                  )}
+                </div>
+
+                <div className="p-4 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                    <Box size={16} className="text-orange-600" /> .STEP / .STP File
+                  </label>
+                  <input
+                    type="file"
+                    accept=".step,.stp"
+                    onChange={(e) => setTechnicalFiles({ ...technicalFiles, step_file: e.target.files[0] })}
+                    className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-700 cursor-pointer"
+                  />
+                  {selectedDoc?.step_path && (
+                    <p className="mt-2 text-[10px] text-orange-600 italic">Current: {selectedDoc.step_path.split('-').slice(2).join('-')}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTechnicalUploadModal(false);
+                    setTechnicalFiles({ dwg_file: null, step_file: null });
+                  }}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || (!technicalFiles.dwg_file && !technicalFiles.step_file)}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2"
+                >
+                  {loading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                  Upload Files
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

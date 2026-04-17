@@ -10,7 +10,8 @@ const {
   getRootCardDrawings,
   getAllDrawings,
   submitForReview,
-  deleteDrawing
+  deleteDrawing,
+  uploadTechnicalFiles
 } = require('../controllers/designDrawingController');
 const auth = require('../middleware/authMiddleware');
 
@@ -30,12 +31,12 @@ const storage = multer.diskStorage({
 const upload = multer({ 
   storage: storage,
   fileFilter: (req, file, cb) => {
-    const allowedExtensions = ['.pdf', '.dwg', '.dxf', '.jpg', '.jpeg', '.png', '.xls', '.xlsx', '.doc', '.docx', '.csv', '.zip', '.rar'];
+    const allowedExtensions = ['.pdf', '.dwg', '.dxf', '.jpg', '.jpeg', '.png', '.xls', '.xlsx', '.doc', '.docx', '.csv', '.zip', '.rar', '.step', '.stp'];
     const ext = path.extname(file.originalname).toLowerCase();
     if (allowedExtensions.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error('File type not allowed. Please upload PDF, CAD, images, or Excel/Word documents.'), false);
+      cb(new Error('File type not allowed. Please upload PDF, CAD (DWG, DXF, STEP), images, or Excel/Word documents.'), false);
     }
   }
 });
@@ -70,6 +71,11 @@ router.put('/:id/review', auth, reviewDrawing);
 router.put('/:id/submit', auth, submitForReview);
 router.get('/:id/history', auth, getDrawingHistory);
 router.get('/root-card/:rootCardId', auth, getRootCardDrawings);
+router.put('/:id/technical-files', auth, upload.fields([
+  { name: 'dwg_file', maxCount: 1 },
+  { name: 'step_file', maxCount: 1 }
+]), uploadTechnicalFiles);
+
 router.delete('/:id', auth, deleteDrawing);
 
 module.exports = router;

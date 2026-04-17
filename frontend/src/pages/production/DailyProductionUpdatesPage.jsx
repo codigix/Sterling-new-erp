@@ -13,8 +13,10 @@ import {
   Activity,
   Filter,
   X,
-  Target
+  Target,
+  Trash2
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 const DailyProductionUpdatesPage = () => {
   const [updates, setUpdates] = useState([]);

@@ -114,7 +114,9 @@ const DataTable = ({
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`text-left p-2  text-xs  text-slate-700 dark:text-slate-300 ${
+                className={`p-2  text-xs  text-slate-700 dark:text-slate-300 ${
+                  column.align === 'right' ? 'text-right' : 'text-left'
+                } ${
                   column.sortable !== false && sortable
                     ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 select-none'
                     : ''
@@ -123,7 +125,7 @@ const DataTable = ({
                   column.sortable !== false && sortable && handleSort(column.key)
                 }
               >
-                <div className="flex items-center text-xs">
+                <div className={`flex items-center text-xs ${column.align === 'right' ? 'justify-end' : 'justify-start'}`}>
                   {column.label}
                   {column.sortable !== false && sortable && getSortIcon(column.key)}
                 </div>
@@ -149,7 +151,7 @@ const DataTable = ({
               {columns.map((column) => (
                 <td
                   key={`${row.id || rowIndex}-${column.key}`}
-                  className="p-2 text-xs font-thin text-left"
+                  className={`p-2 text-xs font-thin ${column.align === 'right' ? 'text-right' : 'text-left'}`}
                 >
                   {column.render ? (
                     column.render(row[column.key], row)

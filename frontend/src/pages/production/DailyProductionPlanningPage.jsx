@@ -31,23 +31,21 @@ import {
   Check,
   FileText,
   Scissors,
-  PlusCircle
+  PlusCircle,
+  ArrowUpRight,
+  ArrowDownLeft
 } from "lucide-react";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import { renderDimensions } from "../../utils/dimensionUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 // Reuse Accordion component for the Modal structure
-const AccordionSection = memo(({ title, section, children, itemCount = 0, expandedSections, toggleSection }) => (
+const AccordionSection = memo(({ title, children, itemCount = 0 }) => (
   <div className="">
-    <div className={`p-2 flex items-center justify-between cursor-pointer select-none transition-colors ${expandedSections[section] ? "bg-slate-50/80 dark:bg-slate-800/50" : "hover:bg-slate-50/50 dark:hover:bg-slate-800/30"}`}
-      onClick={() => toggleSection(section)}
-    >
+    <div className="p-2 flex items-center justify-between select-none bg-slate-50/80 dark:bg-slate-800/50">
       <div className="flex items-center gap-2">
-        <div className={`p-2 rounded transition-colors ${expandedSections[section] ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"}`}>
-          <ChevronDown
-            size={14}
-            className={`transition-transform duration-300 ${expandedSections[section] ? "" : "-rotate-90"}`}
-          />
+        <div className="p-2 rounded bg-blue-600 text-white">
+          <ChevronDown size={14} />
         </div>
         <h3 className="text-sm  text-slate-900 dark:text-white  ">
           {title}
@@ -59,15 +57,49 @@ const AccordionSection = memo(({ title, section, children, itemCount = 0, expand
         )}
       </div>
     </div>
-    {expandedSections[section] && (
-      <div className=" border-t border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
-        {children}
-      </div>
-    )}
+    <div className=" border-t border-slate-100 dark:border-slate-800">
+      {children}
+    </div>
   </div>
 ));
 
-const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operators, operations, loading, mode = "create", initialData }) => {
+const to24h = (timeStr, period) => {
+  if (!timeStr) return null;
+  try {
+    let [hours, minutes] = timeStr.split(':');
+    hours = parseInt(hours);
+    if (period === "PM" && hours < 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+    return `${hours.toString().padStart(2, '0')}:${minutes}`;
+  } catch (e) {
+    return timeStr;
+  }
+};
+
+const from24h = (timeStr) => {
+  if (!timeStr) return { time: "", period: "AM" };
+  try {
+    let [hours, minutes] = timeStr.split(':');
+    hours = parseInt(hours);
+    const period = hours >= 12 ? "PM" : "AM";
+    let h12 = hours % 12;
+    if (h12 === 0) h12 = 12;
+    return {
+      time: `${h12.toString().padStart(2, '0')}:${minutes}`,
+      period
+    };
+  } catch (e) {
+    return { time: timeStr, period: "AM" };
+  }
+};
+
+const format12h = (timeStr) => {
+  if (!timeStr) return "";
+  const { time, period } = from24h(timeStr);
+  return `${time} ${period}`;
+};
+
+const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operators, operations, vendors, loading, mode = "create", initialData }) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [showReleasedMaterials, setShowReleasedMaterials] = useState(false);
   const [releasedMaterials, setReleasedMaterials] = useState([]);
@@ -75,20 +107,17 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   const [entryOptions, setEntryOptions] = useState([]);
   const [selectedReleaseEntry, setSelectedReleaseEntry] = useState(null);
   const [localPlanDate, setLocalPlanDate] = useState(planDate);
-  const [expandedSections, setExpandedSections] = useState({
-    project: true,
-    allocation: true,
-    summary: true,
-  });
-
   const [newAssignment, setNewAssignment] = useState({
     operation: "",
+    type: "inhouse", // inhouse or outsource
     operator: "",
+    vendor: "",
     startTime: "09:00",
     startPeriod: "AM",
     endTime: "",
     endPeriod: "PM",
     breakTime: "60",
+    mcr_scrap: "",
     remarks: ""
   });
 
@@ -97,27 +126,17 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     operator: "",
+    vendor: "",
     operation: "",
+    type: "inhouse",
     startTime: "",
     startPeriod: "AM",
     endTime: "",
     endPeriod: "PM",
     remarks: "",
+    mcr_scrap: "",
     breakTime: "60"
   });
-
-  const to24h = (timeStr, period) => {
-    if (!timeStr) return null;
-    try {
-      let [hours, minutes] = timeStr.split(':');
-      hours = parseInt(hours);
-      if (period === "PM" && hours < 12) hours += 12;
-      if (period === "AM" && hours === 12) hours = 0;
-      return `${hours.toString().padStart(2, '0')}:${minutes}`;
-    } catch (e) {
-      return timeStr;
-    }
-  };
 
   const calculateHours = useCallback((startStr, startPeriod, endStr, endPeriod, breakMins) => {
     if (!startStr || !endStr) return 0;
@@ -142,31 +161,6 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       return 0;
     }
   }, []);
-
-  const from24h = (timeStr) => {
-    if (!timeStr) return { time: "", period: "AM" };
-    try {
-      let [hours, minutes] = timeStr.split(':');
-      hours = parseInt(hours);
-      const period = hours >= 12 ? "PM" : "AM";
-      let h12 = hours % 12;
-      if (h12 === 0) h12 = 12;
-      return {
-        time: `${h12.toString().padStart(2, '0')}:${minutes}`,
-        period
-      };
-    } catch (e) {
-      return { time: timeStr, period: "AM" };
-    }
-  };
-
-  const format12h = (timeStr) => {
-    if (!timeStr) return "";
-    const { time, period } = from24h(timeStr);
-    return `${time} ${period}`;
-  };
-
-  // Sync initial data when in edit/view mode
   useEffect(() => {
     if ((mode === "edit" || mode === "view") && initialData?.plan?.plan_date) {
       const pDate = initialData.plan.plan_date.split('T')[0];
@@ -188,9 +182,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           projectRef: a.root_card_id,
           operation_name: a.operation_name,
           operator_name: a.operator_name,
+          vendor_name: a.vendor_name,
+          assignment_type: a.assignment_type || "inhouse",
           start_time: startTime24,
           end_time: endTime24,
           break_time: breakTime,
+          mcr_scrap: a.mcr_scrap || "",
           total_hours: totalHours
         };
       });
@@ -213,10 +210,6 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     setEditingAssignmentId(null);
     setSelectedReleaseEntry(null);
   }, [mode, initialData, isOpen, projects, planDate, calculateHours]);
-
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
 
   const fetchReleasedMaterials = async (projectName) => {
     if (!projectName) return;
@@ -257,27 +250,43 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   }, [newAssignment.startTime, newAssignment.startPeriod, newAssignment.endTime, newAssignment.endPeriod, newAssignment.breakTime, calculateHours]);
 
   const handleAddAssignment = () => {
-    if (!selectedProject || !newAssignment.operation || !newAssignment.operator) {
-      toast.error("Please select project, operation and operator");
+    if (!selectedProject || !newAssignment.operation) {
+      toast.error("Please select project and operation");
       return;
     }
 
-    const totalHours = calculateHours(newAssignment.startTime, newAssignment.startPeriod, newAssignment.endTime, newAssignment.endPeriod, newAssignment.breakTime);
-    const s24 = to24h(newAssignment.startTime, newAssignment.startPeriod);
-    const e24 = to24h(newAssignment.endTime, newAssignment.endPeriod);
+    if (newAssignment.type === "inhouse" && !newAssignment.operator) {
+      toast.error("Please select an operator");
+      return;
+    }
+
+    if (newAssignment.type === "outsource" && !newAssignment.vendor) {
+      toast.error("Please select a vendor");
+      return;
+    }
+
+    const totalHours = newAssignment.type === "inhouse" 
+      ? calculateHours(newAssignment.startTime, newAssignment.startPeriod, newAssignment.endTime, newAssignment.endPeriod, newAssignment.breakTime)
+      : 0;
+    const s24 = newAssignment.type === "inhouse" ? to24h(newAssignment.startTime, newAssignment.startPeriod) : null;
+    const e24 = newAssignment.type === "inhouse" ? to24h(newAssignment.endTime, newAssignment.endPeriod) : null;
 
     const operator = operators.find(o => o.value === newAssignment.operator);
     const operation = operations.find(o => o.value === newAssignment.operation || o.name === newAssignment.operation);
+    const vendor = vendors.find(v => v.value === newAssignment.vendor);
 
     const entry = {
       id: editingAssignmentId || Date.now(),
       root_card_id: selectedProject.id,
       projectName: selectedProject.name,
       projectRef: selectedProject.ref,
+      assignment_type: newAssignment.type,
       operation_id: operation?.id,
       operation_name: newAssignment.operation,
       operator_id: operator?.id,
-      operator_name: operator?.label,
+      operator_name: operator?.label || newAssignment.operator,
+      vendor_id: vendor?.id,
+      vendor_name: vendor?.label || newAssignment.vendor,
       start_time: s24,
       end_time: e24,
       break_time: parseInt(newAssignment.breakTime || 0),
@@ -290,12 +299,15 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
     setNewAssignment({
       operation: "",
+      type: "inhouse",
       operator: "",
+      vendor: "",
       startTime: "09:00",
       startPeriod: "AM",
       endTime: "",
       endPeriod: "PM",
       breakTime: "60",
+      mcr_scrap: "",
       remarks: ""
     });
   };
@@ -306,13 +318,16 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     const endObj = from24h(assignment.end_time);
 
     setEditForm({
-      operator: assignment.operator_name,
+      operator: assignment.operator_name || "",
+      vendor: assignment.vendor_name || "",
       operation: assignment.operation_name,
+      type: assignment.assignment_type || "inhouse",
       startTime: startObj.time,
       startPeriod: startObj.period,
       endTime: endObj.time,
       endPeriod: endObj.period,
       remarks: assignment.remarks || "",
+      mcr_scrap: assignment.mcr_scrap || "",
       breakTime: assignment.break_time || "60"
     });
     setIsEditModalOpen(true);
@@ -321,22 +336,28 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   const handleUpdateAssignment = () => {
     setDailyPlan(prev => prev.map(a => {
       if (a.id === editingAssignmentId) {
-        const totalHours = calculateHours(editForm.startTime, editForm.startPeriod, editForm.endTime, editForm.endPeriod, editForm.breakTime);
-        const s24 = to24h(editForm.startTime, editForm.startPeriod);
-        const e24 = to24h(editForm.endTime, editForm.endPeriod);
+        const totalHours = editForm.type === "inhouse"
+          ? calculateHours(editForm.startTime, editForm.startPeriod, editForm.endTime, editForm.endPeriod, editForm.breakTime)
+          : 0;
+        const s24 = editForm.type === "inhouse" ? to24h(editForm.startTime, editForm.startPeriod) : null;
+        const e24 = editForm.type === "inhouse" ? to24h(editForm.endTime, editForm.endPeriod) : null;
 
         const operator = operators.find(o => o.value === editForm.operator || o.label === editForm.operator);
         const operation = operations.find(o => o.value === editForm.operation || o.name === editForm.operation);
+        const vendor = vendors.find(v => v.value === editForm.vendor || v.label === editForm.vendor);
 
         return {
           ...a,
+          assignment_type: editForm.type,
           operator_id: operator?.id,
           operator_name: editForm.operator,
+          vendor_id: vendor?.id,
+          vendor_name: editForm.vendor,
           operation_id: operation?.id,
           operation_name: editForm.operation,
           start_time: s24,
           end_time: e24,
-          break_time: parseInt(editForm.breakTime || 0),
+          break_time: editForm.type === "inhouse" ? parseInt(editForm.breakTime || 0) : 0,
           total_hours: totalHours,
           remarks: editForm.remarks
         };
@@ -406,14 +427,11 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
         {/* Modal Content */}
         <div className=" overflow-y-auto flex-1 p-2">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            {/* Left Main Area */}
-            <div className="lg:col-span-9 space-y-4">
+            {/* Main Area */}
+            <div className="lg:col-span-12 space-y-4">
               {/* 1. Project Context */}
               <AccordionSection
                 title="1. Project Context"
-                section="project"
-                expandedSections={expandedSections}
-                toggleSection={toggleSection}
               >
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                   <div className="md:col-span-4 space-y-1.5">
@@ -468,25 +486,11 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               {(selectedProject || mode === "view") ? (
                 <AccordionSection
                   title={mode === "view" ? "Production Assignments" : "2. Daily Assignment Allocation"}
-                  section="allocation"
-                  expandedSections={expandedSections}
-                  toggleSection={toggleSection}
                 >
                   <div className="space-y-6">
                     {mode !== "view" && (
                       <div className="bg-slate-50 dark:bg-slate-800/50  rounded border border-slate-100 dark:border-slate-800 space-y-4">
-                        <div className="grid grid-cols-1 items-end md:grid-cols-12 gap-4">
-                          <div className="md:col-span-3 space-y-1.5">
-                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operator</label>
-                            <SearchableSelect
-                              options={operators}
-                              value={newAssignment.operator}
-                              onChange={(val) => setNewAssignment({ ...newAssignment, operator: val })}
-                              placeholder="Select Operator..."
-                              className="text-xs  text-slate-900"
-                              allowCustom={true}
-                            />
-                          </div>
+                        <div className="grid grid-cols-1 items-end md:grid-cols-12 gap-4 p-4">
                           <div className="md:col-span-3 space-y-1.5">
                             <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operation</label>
                             <SearchableSelect
@@ -498,51 +502,99 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                               allowCustom={true}
                             />
                           </div>
+
                           <div className="md:col-span-3 space-y-1.5">
-                            <label className="text-xs  text-slate-400  ">Start Time</label>
-                            <div className="flex gap-1">
-                              <input
-                                type="time"
-                                className="flex-1 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
-                                value={newAssignment.startTime}
-                                onChange={(e) => setNewAssignment({ ...newAssignment, startTime: e.target.value })}
-                              />
-                              <select
-                                className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
-                                value={newAssignment.startPeriod}
-                                onChange={(e) => setNewAssignment({ ...newAssignment, startPeriod: e.target.value })}
-                              >
-                                <option value="AM">AM</option>
-                                <option value="PM">PM</option>
-                              </select>
-                            </div>
+                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Type</label>
+                            <select
+                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                              value={newAssignment.type}
+                              onChange={(e) => setNewAssignment({ ...newAssignment, type: e.target.value, operator: "", vendor: "" })}
+                            >
+                              <option value="inhouse">In-house</option>
+                              <option value="outsource">Outsource</option>
+                            </select>
                           </div>
+
                           <div className="md:col-span-3 space-y-1.5">
-                            <label className="text-xs  text-slate-400  ">End Time</label>
-                            <div className="flex gap-1">
-                              <input
-                                type="time"
-                                className="flex-1 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
-                                value={newAssignment.endTime}
-                                onChange={(e) => setNewAssignment({ ...newAssignment, endTime: e.target.value })}
-                              />
-                              <select
-                                className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
-                                value={newAssignment.endPeriod}
-                                onChange={(e) => setNewAssignment({ ...newAssignment, endPeriod: e.target.value })}
-                              >
-                                <option value="AM">AM</option>
-                                <option value="PM">PM</option>
-                              </select>
-                            </div>
+                            {newAssignment.type === "inhouse" ? (
+                              <>
+                                <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operator</label>
+                                <SearchableSelect
+                                  options={operators}
+                                  value={newAssignment.operator}
+                                  onChange={(val) => setNewAssignment({ ...newAssignment, operator: val })}
+                                  placeholder="Select Operator..."
+                                  className="text-xs  text-slate-900"
+                                  allowCustom={true}
+                                />
+                              </>
+                            ) : (
+                              <>
+                                <label className="text-xs  text-slate-900 dark:text-slate-200  ">Vendor</label>
+                                <SearchableSelect
+                                  options={vendors}
+                                  value={newAssignment.vendor}
+                                  onChange={(val) => setNewAssignment({ ...newAssignment, vendor: val })}
+                                  placeholder="Select Vendor..."
+                                  className="text-xs  text-slate-900"
+                                  allowCustom={true}
+                                />
+                              </>
+                            )}
                           </div>
-                          <div className="md:col-span-2 space-y-1.5">
-                            <label className="text-xs  text-indigo-500   text-center block">Working Hrs.</label>
-                            <div className="w-full p-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded text-xs  text-indigo-600 flex items-center justify-center">
-                              {currentLoad.toFixed(1)}h
-                            </div>
-                          </div>
-                          <div className="md:col-span-8 space-y-1.5">
+
+                          {newAssignment.type === "inhouse" && (
+                            <>
+                              <div className="md:col-span-3 space-y-1.5">
+                                <label className="text-xs  text-slate-400  ">Start Time</label>
+                                <div className="flex gap-1">
+                                  <input
+                                    type="time"
+                                    className="flex-1 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
+                                    value={newAssignment.startTime}
+                                    onChange={(e) => setNewAssignment({ ...newAssignment, startTime: e.target.value })}
+                                  />
+                                  <select
+                                    className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                    value={newAssignment.startPeriod}
+                                    onChange={(e) => setNewAssignment({ ...newAssignment, startPeriod: e.target.value })}
+                                  >
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div className="md:col-span-3 space-y-1.5">
+                                <label className="text-xs  text-slate-400  ">End Time</label>
+                                <div className="flex gap-1">
+                                  <input
+                                    type="time"
+                                    className="flex-1 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none"
+                                    value={newAssignment.endTime}
+                                    onChange={(e) => setNewAssignment({ ...newAssignment, endTime: e.target.value })}
+                                  />
+                                  <select
+                                    className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                                    value={newAssignment.endPeriod}
+                                    onChange={(e) => setNewAssignment({ ...newAssignment, endPeriod: e.target.value })}
+                                  >
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div className="md:col-span-2 space-y-1.5">
+                                <label className="text-xs  text-indigo-500   text-center block">Working Hrs.</label>
+                                <div className="w-full p-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded text-xs  text-indigo-600 flex items-center justify-center">
+                                  {currentLoad.toFixed(1)}h
+                                </div>
+                              </div>
+                            </>
+                          )}
+
+                          <div className={`${newAssignment.type === "inhouse" ? "md:col-span-5" : "md:col-span-4"} space-y-1.5`}>
                             <label className="text-xs  text-slate-900 dark:text-slate-200  ">Remarks / Special Instructions</label>
                             <input
                               type="text"
@@ -552,6 +604,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                               onChange={(e) => setNewAssignment({ ...newAssignment, remarks: e.target.value })}
                             />
                           </div>
+
                           <div className="md:col-span-2">
                             <button
                               onClick={handleAddAssignment}
@@ -577,7 +630,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                             <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
                               <th className="px-4 py-2.5 text-xs  text-slate-400  ">Project / Ref</th>
                               <th className="px-4 py-2.5 text-xs  text-slate-400  ">Operation</th>
-                              <th className="px-4 py-2.5 text-xs  text-slate-400  ">Operator</th>
+                              <th className="px-4 py-2.5 text-xs  text-slate-400  ">Operator / Vendor</th>
                               <th className="px-4 py-2.5 text-xs  text-slate-400   text-center">Load</th>
                               {mode !== "view" && <th className="px-4 py-2.5 text-xs  text-slate-400   text-right">Action</th>}
                             </tr>
@@ -590,15 +643,28 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                                   <span className="text-xs  text-slate-400 ">{entry.projectRef}</span>
                                 </td>
                                 <td className="px-4 py-3">
-                                  <span className="text-xs  text-indigo-600 dark:text-indigo-400   bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded">{entry.operation_name}</span>
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-xs  text-indigo-600 dark:text-indigo-400   bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded w-fit">{entry.operation_name}</span>
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded w-fit ${entry.assignment_type === "inhouse" ? "bg-blue-50 text-blue-600" : "bg-orange-50 text-orange-600"}`}>
+                                      {entry.assignment_type === "inhouse" ? "In-house" : "Outsource"}
+                                    </span>
+                                  </div>
                                 </td>
                                 <td className="px-4 py-3">
-                                  <span className="text-xs  text-slate-700 dark:text-slate-300  ">{entry.operator_name}</span>
-                                  <p className="text-xs text-slate-400">{format12h(entry.start_time)} - {format12h(entry.end_time)}</p>
-                                  {entry.remarks && <p className="text-xs text-indigo-500   mt-0.5">{entry.remarks}</p>}
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                      {entry.assignment_type === "inhouse" ? entry.operator_name : entry.vendor_name}
+                                    </span>
+                                    {entry.assignment_type === "inhouse" && (
+                                      <p className="text-xs text-slate-400">{format12h(entry.start_time)} - {format12h(entry.end_time)}</p>
+                                    )}
+                                    {entry.remarks && <p className="text-xs text-indigo-500   mt-0.5">{entry.remarks}</p>}
+                                  </div>
                                 </td>
                                 <td className="px-4 py-3 text-center">
-                                  <span className="text-xs  text-slate-900 dark:text-white">{entry.total_hours.toFixed(1)}h</span>
+                                  <span className="text-xs  text-slate-900 dark:text-white">
+                                    {entry.assignment_type === "inhouse" ? `${entry.total_hours.toFixed(1)}h` : "-"}
+                                  </span>
                                 </td>
                                 {mode !== "view" && (
                                   <td className="px-4 py-3 text-right">
@@ -629,68 +695,6 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                   <p className="text-xs  text-slate-400  ">Please select a root card above to begin operator allocation</p>
                 </div>
               ) : null}
-            </div>
-
-            {/* Right Sidebar Info */}
-            <div className="lg:col-span-3 space-y-4">
-              <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 p-2 ">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-6 h-6 bg-indigo-600 text-white rounded flex items-center justify-center">
-                    <Activity size={15} />
-                  </div>
-                  <div>
-                    <h4 className="text-xs  text-slate-900 dark:text-white  ">Plan Summary</h4>
-                    <p className="text-xs  text-slate-400  ">Live Aggregates</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-800">
-                    <p className="text-xs  text-slate-400   mb-1">Total Man-Hours</p>
-                    <h4 className="text-xl  text-slate-900 dark:text-white">{dailyPlan.reduce((acc, curr) => acc + (parseFloat(curr.total_hours) || 0), 0).toFixed(1)}<span className="text-sm ml-1 text-slate-400  ">Hrs</span></h4>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    <div className="p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded">
-                      <p className="text-xs  text-slate-400   mb-1">Operators</p>
-                      <h5 className="text-lg  text-slate-900 dark:text-white">{new Set(dailyPlan.map(p => p.operator_id)).size}</h5>
-                    </div>
-                    <div className="p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded">
-                      <p className="text-xs  text-slate-400   mb-1">Projects</p>
-                      <h5 className="text-lg  text-slate-900 dark:text-white">{new Set(dailyPlan.map(p => p.root_card_id)).size}</h5>
-                    </div>
-                  </div>
-                </div>
-
-                <div className=" p-2 border-t border-slate-100 dark:border-slate-800">
-                  <h5 className="text-sm  text-slate-900 dark:text-white   mb-3 flex items-center gap-2">
-                    <AlertCircle size={12} className="text-amber-500" /> Validation Rules
-                  </h5>
-                  <ul className="space-y-2 text-xs  text-slate-500   leading-relaxed">
-                    <li>• Check for Overlapping Shifts</li>
-                    <li>• Verify Operator Availability</li>
-                    <li>• Sequence Order Validation</li>
-                  </ul>
-                </div>
-              </div>
-
-              {mode !== "view" && (
-                <div className="p-2 bg-indigo-600 rounded  shadow-indigo-600/20 text-white">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Zap size={14} className="fill-current" />
-                    <span className="text-sm ">Fast Action</span>
-                  </div>
-                  <h5 className="text-xs    leading-tight mb-3">Commit plan to floor execution immediately?</h5>
-                  <button
-                    onClick={handleFinalize}
-                    disabled={loading}
-                    className="w-full p-2 bg-white text-indigo-600 rounded text-xs hover:bg-slate-50 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {loading && <Loader2 size={12} className="animate-spin" />}
-                    Quick Finalize
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -827,17 +831,6 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             
             <div className="p-4 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operator</label>
-                <SearchableSelect
-                  options={operators}
-                  value={editForm.operator}
-                  onChange={(val) => setEditForm({ ...editForm, operator: val })}
-                  placeholder="Select Operator..."
-                  allowCustom={true}
-                />
-              </div>
-
-              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operation</label>
                 <SearchableSelect
                   options={operations}
@@ -848,46 +841,86 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Start Time</label>
-                  <div className="flex gap-1">
-                    <input
-                      type="time"
-                      className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                      value={editForm.startTime}
-                      onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
-                    />
-                    <select
-                      className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                      value={editForm.startPeriod}
-                      onChange={(e) => setEditForm({ ...editForm, startPeriod: e.target.value })}
-                    >
-                      <option value="AM">AM</option>
-                      <option value="PM">PM</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">End Time</label>
-                  <div className="flex gap-1">
-                    <input
-                      type="time"
-                      className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                      value={editForm.endTime}
-                      onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
-                    />
-                    <select
-                      className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                      value={editForm.endPeriod}
-                      onChange={(e) => setEditForm({ ...editForm, endPeriod: e.target.value })}
-                    >
-                      <option value="AM">AM</option>
-                      <option value="PM">PM</option>
-                    </select>
-                  </div>
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Type</label>
+                <select
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                  value={editForm.type}
+                  onChange={(e) => setEditForm({ ...editForm, type: e.target.value, operator: "", vendor: "" })}
+                >
+                  <option value="inhouse">In-house</option>
+                  <option value="outsource">Outsource</option>
+                </select>
               </div>
+
+              <div className="space-y-1.5">
+                {editForm.type === "inhouse" ? (
+                  <>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operator</label>
+                    <SearchableSelect
+                      options={operators}
+                      value={editForm.operator}
+                      onChange={(val) => setEditForm({ ...editForm, operator: val })}
+                      placeholder="Select Operator..."
+                      allowCustom={true}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Vendor</label>
+                    <SearchableSelect
+                      options={vendors}
+                      value={editForm.vendor}
+                      onChange={(val) => setEditForm({ ...editForm, vendor: val })}
+                      placeholder="Select Vendor..."
+                      allowCustom={true}
+                    />
+                  </>
+                )}
+              </div>
+
+              {editForm.type === "inhouse" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Start Time</label>
+                    <div className="flex gap-1">
+                      <input
+                        type="time"
+                        className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                        value={editForm.startTime}
+                        onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                      />
+                      <select
+                        className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                        value={editForm.startPeriod}
+                        onChange={(e) => setEditForm({ ...editForm, startPeriod: e.target.value })}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">End Time</label>
+                    <div className="flex gap-1">
+                      <input
+                        type="time"
+                        className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                        value={editForm.endTime}
+                        onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                      />
+                      <select
+                        className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                        value={editForm.endPeriod}
+                        onChange={(e) => setEditForm({ ...editForm, endPeriod: e.target.value })}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Remarks</label>
@@ -2891,6 +2924,7 @@ const DailyProductionPlanningPage = () => {
   const [selectedPlanData, setSelectedPlanData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [projectFilter, setProjectFilter] = useState("");
+  const [operatorFilter, setOperatorFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
@@ -2899,15 +2933,17 @@ const DailyProductionPlanningPage = () => {
   const [projects, setProjects] = useState([]);
   const [operators, setOperators] = useState([]);
   const [operations, setOperations] = useState([]);
+  const [vendors, setVendors] = useState([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [plansRes, projectsRes, opsRes, employeesRes] = await Promise.all([
+      const [plansRes, projectsRes, opsRes, employeesRes, vendorsRes] = await Promise.all([
         axios.get("/production/plans"),
         axios.get("/production/root-cards?assignedOnly=true"),
         axios.get("/production/operations"),
-        axios.get("/employee/list")
+        axios.get("/employee/list"),
+        axios.get("department/procurement/vendors")
       ]);
 
       if (plansRes.data.success) setDailyPlans(plansRes.data.plans);
@@ -2939,6 +2975,14 @@ const DailyProductionPlanningPage = () => {
         id: e.id
       }));
       setOperators(formattedEmployees);
+
+      // Format vendors for SearchableSelect
+      const formattedVendors = (vendorsRes.data || []).map(v => ({
+        value: v.name,
+        label: v.name,
+        id: v.id
+      }));
+      setVendors(formattedVendors);
 
     } catch (error) {
       console.error("Error fetching production data:", error);
@@ -3044,6 +3088,200 @@ const DailyProductionPlanningPage = () => {
     return matchesSearch && matchesProject && matchesDate;
   });
 
+  const flattenedAssignments = useMemo(() => {
+    return filteredPlans.flatMap(plan => {
+      let assignments = plan.assignments || [];
+      // Handle cases where backend returns assignments as a JSON string
+      if (typeof assignments === 'string') {
+        try {
+          assignments = JSON.parse(assignments);
+        } catch (e) {
+          console.error("Error parsing assignments JSON:", e);
+          assignments = [];
+        }
+      }
+      return (assignments || [])
+        .filter(a => {
+          const matchesOperator = operatorFilter === "" || 
+            (a.operator_name && a.operator_name.toLowerCase().includes(String(operatorFilter).toLowerCase())) ||
+            (a.operator_id && String(a.operator_id) === String(operatorFilter));
+          return matchesOperator;
+        })
+        .map(assignment => ({
+          ...assignment,
+          plan_id: plan.id,
+          plan_date: plan.plan_date,
+          // Carry over plan-level data if needed for actions
+          plan_mcr_id: plan.mcr_id,
+          plan_total_scrap_weight: plan.total_scrap_weight,
+          plan_operation_names: plan.operation_names
+        }));
+    });
+  }, [filteredPlans, operatorFilter]);
+
+  const columns = [
+    {
+      key: "projectName",
+      label: "Project Name",
+      sortable: true,
+      render: (value, assignment) => (
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
+            <Target size={15} />
+          </div>
+          <div>
+            <span className="text-sm text-slate-900 dark:text-white font-medium block" title={value}>
+              {value || assignment.project_name || "General Plan"}
+            </span>
+            <span className="text-[10px] text-slate-400">{assignment.projectRef || assignment.root_card_id}</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: "plan_date",
+      label: "Plan Date",
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded">
+            <Calendar size={15} />
+          </div>
+          <span className="text-xs text-slate-900 dark:text-white">
+            {new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </span>
+        </div>
+      )
+    },
+    {
+      key: "operation_name",
+      label: "Operation",
+      sortable: true,
+      render: (value, assignment) => (
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded w-fit">
+            {value}
+          </span>
+          <span className={`text-[9px] font-bold uppercase tracking-tighter ${assignment.assignment_type === "outsource" ? "text-orange-500" : "text-blue-500"}`}>
+            {assignment.assignment_type === "outsource" ? "Outsourced" : "In-house"}
+          </span>
+        </div>
+      )
+    },
+    {
+      key: "operator_name",
+      label: "Operator / Vendor",
+      sortable: true,
+      render: (value, assignment) => (
+        <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+          {assignment.assignment_type === "outsource" ? assignment.vendor_name : (value || assignment.operator_name)}
+        </span>
+      )
+    },
+    {
+      key: "start_time",
+      label: "Start Time",
+      sortable: true,
+      align: "right",
+      render: (value, assignment) => (
+        <span className="text-xs text-slate-600 dark:text-slate-400">
+          {assignment.assignment_type === "inhouse" ? format12h(value) : "-"}
+        </span>
+      )
+    },
+    {
+      key: "end_time",
+      label: "End Time",
+      sortable: true,
+      align: "right",
+      render: (value, assignment) => (
+        <span className="text-xs text-slate-600 dark:text-slate-400">
+          {assignment.assignment_type === "inhouse" ? format12h(value) : "-"}
+        </span>
+      )
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      sortable: false,
+      align: "right",
+      render: (_, assignment) => (
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => handleOpenPlan(assignment.plan_id, "view")}
+            className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            title="View Plan Details"
+          >
+            <Eye size={15} />
+          </button>
+          <button
+            onClick={() => handleOpenPlan(assignment.plan_id, "edit")}
+            className="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+            title="Edit Plan"
+          >
+            <Pencil size={15} />
+          </button>
+          {assignment.operation_name?.toLowerCase().includes("cutting") && (
+            assignment.plan_mcr_id ? (
+              <button
+                onClick={() => {
+                  const plan = filteredPlans.find(p => p.id === assignment.plan_id);
+                  if (plan) {
+                    setSelectedPlanForMCR(plan);
+                    setIsMCRModalOpen(true);
+                  }
+                }}
+                className="p-2 text-emerald-500 hover:text-emerald-700 transition-colors"
+                title="Edit Saved MCR"
+              >
+                <FileText size={15} />
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  const plan = filteredPlans.find(p => p.id === assignment.plan_id);
+                  if (plan) {
+                    setSelectedPlanForMCR(plan);
+                    setIsMCRModalOpen(true);
+                  }
+                }}
+                className="p-2 text-indigo-400 hover:text-indigo-600 transition-colors"
+                title="Generate MCR"
+              >
+                <Scissors size={15} />
+              </button>
+            )
+          )}
+          {assignment.assignment_type === "outsource" && (
+            <>
+              <button
+                onClick={() => toast.info(`Creating Outward Challan for ${assignment.operation_name}...`)}
+                className="p-2 text-orange-400 hover:text-orange-600 transition-colors"
+                title="Create Outward Challan"
+              >
+                <ArrowUpRight size={15} />
+              </button>
+              <button
+                onClick={() => toast.info(`Creating Inward Challan for ${assignment.operation_name}...`)}
+                className="p-2 text-blue-400 hover:text-blue-600 transition-colors"
+                title="Create Inward Challan"
+              >
+                <ArrowDownLeft size={15} />
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => handleDeletePlan(assignment.plan_id)}
+            className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            title="Delete Plan"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 ">
       {/* Page Header */}
@@ -3090,7 +3328,7 @@ const DailyProductionPlanningPage = () => {
                 />
               </div>
 
-              <div className="w-full lg:w-1/3 flex items-center gap-2">
+              <div className="w-full lg:w-1/5 flex items-center gap-2">
                 <div className="flex-1">
                   <SearchableSelect
                     options={projects}
@@ -3111,7 +3349,28 @@ const DailyProductionPlanningPage = () => {
                 )}
               </div>
 
-              <div className="w-full lg:w-1/4 flex items-center gap-2">
+              <div className="w-full lg:w-1/5 flex items-center gap-2">
+                <div className="flex-1">
+                  <SearchableSelect
+                    options={operators}
+                    value={operatorFilter}
+                    onChange={setOperatorFilter}
+                    placeholder="Filter by Operator..."
+                    className="w-full"
+                  />
+                </div>
+                {operatorFilter && (
+                  <button
+                    onClick={() => setOperatorFilter("")}
+                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                    title="Clear Operator Filter"
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+              </div>
+
+              <div className="w-full lg:w-1/5 flex items-center gap-2">
                 <div className="relative flex-1">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                   <input
@@ -3133,114 +3392,12 @@ const DailyProductionPlanningPage = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto bg-white mt-4">
-              <table className="w-full text-left border-collapse bg-white">
-                <thead>
-                  <tr className="bg-slate-50/30 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-                    <th className="p-2 text-xs  text-slate-400  ">Project Name</th>
-                    <th className="p-2 text-xs  text-slate-400  ">Plan Date</th>
-                    <th className="p-2 text-xs  text-slate-400   text-center">Operators</th>
-                    <th className="p-2 text-xs  text-slate-400   text-center">MCR Scrap</th>
-                    <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {filteredPlans.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="px-6 py-12 text-center text-slate-500 text-xs   ">No production plans found</td>
-                    </tr>
-                  ) : (
-                    filteredPlans.map((plan) => (
-                      <tr key={plan.id} className="hover:bg-indigo-50/10 dark:hover:bg-indigo-900/10 transition-all">
-                        <td className="p-2">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
-                              <Target size={15} />
-                            </div>
-                            <span className="text-sm  text-slate-900 dark:text-white   truncate max-w-[300px]" title={plan.project_names}>
-                              {plan.project_names || "General Plan"}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded">
-                              <Calendar size={15} />
-                            </div>
-                            <span className="text-xs  text-slate-900 dark:text-white ">
-                              {new Date(plan.plan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-2 text-center">
-                          <span className="text-xs  text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
-                            {plan.operators_count}
-                          </span>
-                        </td>
-                        <td className="p-2 text-center">
-                          {plan.mcr_id ? (
-                            <span className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 px-2 py-1 rounded">
-                              {parseFloat(plan.total_scrap_weight || 0).toFixed(2)} KG
-                            </span>
-                          ) : (
-                            <span className="text-xs text-slate-300 dark:text-slate-700">-</span>
-                          )}
-                        </td>
-                        <td className="p-2 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handleOpenPlan(plan.id, "view")}
-                              className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                              title="View Plan Details"
-                            >
-                              <Eye size={15} />
-                            </button>
-                            <button
-                              onClick={() => handleOpenPlan(plan.id, "edit")}
-                              className="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-                              title="Edit Plan"
-                            >
-                              <Pencil size={15} />
-                            </button>
-                            {plan.operation_names?.toLowerCase().includes("cutting") && (
-                              plan.mcr_id ? (
-                                <button
-                                  onClick={() => {
-                                    setSelectedPlanForMCR(plan);
-                                    setIsMCRModalOpen(true);
-                                  }}
-                                  className="p-2 text-emerald-500 hover:text-emerald-700 transition-colors"
-                                  title="Edit Saved MCR"
-                                >
-                                  <FileText size={15} />
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => {
-                                    setSelectedPlanForMCR(plan);
-                                    setIsMCRModalOpen(true);
-                                  }}
-                                  className="p-2 text-indigo-400 hover:text-indigo-600 transition-colors"
-                                  title="Generate MCR"
-                                >
-                                  <Scissors size={15} />
-                                </button>
-                              )
-                            )}
-                            <button
-                              onClick={() => handleDeletePlan(plan.id)}
-                              className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                              title="Delete Plan"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 overflow-hidden mt-4">
+              <DataTable
+                columns={columns}
+                data={flattenedAssignments}
+                emptyMessage="No production plans found"
+              />
             </div>
           </div>
         )}
@@ -3257,6 +3414,7 @@ const DailyProductionPlanningPage = () => {
         projects={projects}
         operators={operators}
         operations={operations}
+        vendors={vendors}
         onSave={handleCreatePlan}
         loading={modalLoading}
         mode={modalMode}

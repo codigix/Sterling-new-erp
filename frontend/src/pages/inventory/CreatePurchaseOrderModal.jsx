@@ -1311,9 +1311,16 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                       <th className="p-2 text-left">Technical Specs</th>
                       <th className="p-2 text-center w-20">Qty</th>
                       <th className="p-2 text-center w-20">UOM</th>
-                      <th className="p-2 text-center w-32">Rate/Price</th>
-                      <th className="p-2 text-center w-32">Weight (Kg)</th>
-                      <th className="p-2 text-right w-40">Total</th>
+                      {(!isInventoryView || !viewMode) && (
+                        <>
+                          <th className="p-2 text-center w-32">Rate/Price</th>
+                          <th className="p-2 text-center w-32">Weight (Kg)</th>
+                          <th className="p-2 text-right w-40">Total</th>
+                        </>
+                      )}
+                      {isInventoryView && viewMode && (
+                         <th className="p-2 text-center w-32">Weight (Kg)</th>
+                      )}
                       {!viewMode && <th className="p-2 text-center "></th>}
                     </tr>
                   </thead>
@@ -1365,25 +1372,34 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                           <td className="p-2 text-center text-xs text-slate-500">
                             {item.uom || item.unit || "Nos"}
                           </td>
-                          <td className="p-2 text-center">
-                            {viewMode ? (
-                               <span className="text-xs">₹{Number(item.rate || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}/{item.total_weight > 0 ? 'kg' : 'unit'}</span>
-                            ) : (
-                              <input 
-                                type="number"
-                                className="w-20 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
-                                placeholder="Rate"
-                                value={item.rate || ""}
-                                onChange={(e) => handleItemChange(idx, 'rate', parseFloat(e.target.value) || 0)}
-                              />
-                            )}
-                          </td>
-                          <td className="p-2 text-center text-xs text-slate-500">
-                            {item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)} Kg` : "-"}
-                          </td>
-                          <td className="p-2 text-right font-medium text-xs">
-                            ₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}
-                          </td>
+                          {(!isInventoryView || !viewMode) && (
+                            <>
+                              <td className="p-2 text-center">
+                                {viewMode ? (
+                                  <span className="text-xs">₹{Number(item.rate || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}/{item.total_weight > 0 ? 'kg' : 'unit'}</span>
+                                ) : (
+                                  <input 
+                                    type="number"
+                                    className="w-20 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
+                                    placeholder="Rate"
+                                    value={item.rate || ""}
+                                    onChange={(e) => handleItemChange(idx, 'rate', parseFloat(e.target.value) || 0)}
+                                  />
+                                )}
+                              </td>
+                              <td className="p-2 text-center text-xs text-slate-500">
+                                {item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)} Kg` : "-"}
+                              </td>
+                              <td className="p-2 text-right font-medium text-xs">
+                                ₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}
+                              </td>
+                            </>
+                          )}
+                          {isInventoryView && viewMode && (
+                            <td className="p-2 text-center text-xs text-slate-500">
+                               {item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)} Kg` : "-"}
+                            </td>
+                          )}
                           {!viewMode && (
                             <td className="p-2 text-center">
                               <button 
@@ -1405,7 +1421,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
 
             {/* Bottom Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 my-5">
-              <div className="md:col-span-2 space-y-2">
+              <div className={`${(isInventoryView && viewMode) ? 'md:col-span-3' : 'md:col-span-2'} space-y-2`}>
                 <div>
                   <label className="block text-xs  text-slate-500   ">Notes</label>
                   {viewMode ? (
@@ -1440,35 +1456,37 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="p-2 bg-blue-600 rounded  shadow-blue-500/20 space-y-2">
-                  <div className="flex justify-between items-center text-blue-100">
-                    <span className="text-xs   ">Subtotal</span>
-                    <span className=" text-xs">{formatCurrency(formData.subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-blue-100">
-                    <div className="flex flex-col">
-                      <span className="text-xs   ">Tax</span>
-                      <select 
-                        className="mt-1 bg-blue-500 text-white text-xs  border border-blue-400 rounded px-1 py-0.5 outline-none disabled:opacity-50"
-                        value={formData.tax_template}
-                        onChange={(e) => handleTaxTemplateChange(e.target.value)}
-                        disabled={viewMode}
-                      >
-                        <option value="No Tax Template">No Tax Template</option>
-                        <option value="GST 18%">GST 18%</option>
-                        <option value="GST 12%">GST 12%</option>
-                        <option value="GST 5%">GST 5%</option>
-                      </select>
+              {(!isInventoryView || !viewMode) && (
+                <div className="space-y-2">
+                  <div className="p-2 bg-blue-600 rounded  shadow-blue-500/20 space-y-2">
+                    <div className="flex justify-between items-center text-blue-100">
+                      <span className="text-xs   ">Subtotal</span>
+                      <span className=" text-xs">{formatCurrency(formData.subtotal)}</span>
                     </div>
-                    <span className=" text-xs">{formatCurrency(formData.tax_amount)}</span>
-                  </div>
-                  <div className="pt-4 border-t border-blue-500 flex justify-between items-center text-white">
-                    <span className="text-sm">Grand Total</span>
-                    <span className="text-sm  ">{formatCurrency(formData.total_amount)}</span>
+                    <div className="flex justify-between items-center text-blue-100">
+                      <div className="flex flex-col">
+                        <span className="text-xs   ">Tax</span>
+                        <select 
+                          className="mt-1 bg-blue-500 text-white text-xs  border border-blue-400 rounded px-1 py-0.5 outline-none disabled:opacity-50"
+                          value={formData.tax_template}
+                          onChange={(e) => handleTaxTemplateChange(e.target.value)}
+                          disabled={viewMode}
+                        >
+                          <option value="No Tax Template">No Tax Template</option>
+                          <option value="GST 18%">GST 18%</option>
+                          <option value="GST 12%">GST 12%</option>
+                          <option value="GST 5%">GST 5%</option>
+                        </select>
+                      </div>
+                      <span className=" text-xs">{formatCurrency(formData.tax_amount)}</span>
+                    </div>
+                    <div className="pt-4 border-t border-blue-500 flex justify-between items-center text-white">
+                      <span className="text-sm">Grand Total</span>
+                      <span className="text-sm  ">{formatCurrency(formData.total_amount)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

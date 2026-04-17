@@ -531,9 +531,17 @@ const uploadInvoice = async (req, res) => {
 
         // Only approve PO if it's a full receipt
         if (isFullReceipt === 'true' || isFullReceipt === true) {
+            // Ensure we don't revert status if it's already 'sent to inventory'
+            // And only update inventory_status if it's not already at a later stage
             await connection.query(
-                'UPDATE purchase_orders SET status = ?, inventory_status = ? WHERE id = ?', 
-                ['approved', 'material received', id]
+                `UPDATE purchase_orders 
+                 SET status = CASE WHEN status = 'sent to inventory' THEN 'sent to inventory' ELSE 'approved' END, 
+                     inventory_status = CASE 
+                        WHEN inventory_status IN ('material received', 'partially received', 'fulfilled', 'delivered') THEN inventory_status 
+                        ELSE 'material received' 
+                     END
+                 WHERE id = ?`, 
+                [id]
             );
         }
 

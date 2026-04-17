@@ -10,7 +10,9 @@ import {
   Package,
   LayoutGrid,
   List,
-  Filter
+  Filter,
+  FileCode,
+  Box
 } from "lucide-react";
 import axios from "../../utils/api";
 import { getServerUrl, downloadFile } from "../../utils/fileUtils";
@@ -184,6 +186,29 @@ const ProductionDesignDrawings = () => {
                   {doc.description || "No description provided."}
                 </p>
 
+                {(doc.dwg_path || doc.step_path) && (
+                  <div className="flex gap-2 py-1 border-t border-slate-50 dark:border-slate-700">
+                    {doc.dwg_path && (
+                      <button 
+                        onClick={() => downloadFile(doc.dwg_path, `${doc.name}.dwg`)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-medium rounded border border-blue-200 transition-colors"
+                        title="Download DWG File"
+                      >
+                        <Eye size={12} /> DWG File
+                      </button>
+                    )}
+                    {doc.step_path && (
+                      <button 
+                        onClick={() => downloadFile(doc.step_path, `${doc.name}.step`)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-[10px] font-medium rounded border border-orange-200 transition-colors"
+                        title="Download STEP File"
+                      >
+                        <Eye size={12} /> STEP File
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 <div className=" border-t border-slate-50 dark:border-slate-700 flex items-center justify-between">
                   <div className="text-xs text-slate-500">
                     Approved on: {new Date(doc.updated_at).toLocaleDateString()}
@@ -247,6 +272,24 @@ const ProductionDesignDrawings = () => {
                     </td>
                     <td className="p-2  text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {doc.dwg_path && (
+                          <button 
+                            onClick={() => downloadFile(doc.dwg_path, `${doc.name}.dwg`)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                            title="Download DWG File"
+                          >
+                            <Eye size={15} />
+                          </button>
+                        )}
+                        {doc.step_path && (
+                          <button 
+                            onClick={() => downloadFile(doc.step_path, `${doc.name}.step`)}
+                            className="p-2 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded-lg transition-colors"
+                            title="Download STEP File"
+                          >
+                            <Eye size={15} />
+                          </button>
+                        )}
                         <button 
                           onClick={() => handleView(doc)}
                           className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"

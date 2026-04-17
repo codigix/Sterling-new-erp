@@ -173,7 +173,7 @@ const KanbanView = ({
                           >
                             <Download size={14} />
                           </button>
-                          {po.status === "approved" && !isInventoryView && (
+                          {(po.status === "approved" || po.status === "submitted") && po.status !== "sent to inventory" && !isInventoryView && (
                             <button
                               onClick={() => handleSendToInventory(po)}
                               className="p-1 text-slate-400 hover:text-emerald-600 rounded transition-all"
@@ -236,14 +236,25 @@ const KanbanView = ({
                       </div>
 
                       <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="text-xs  text-slate-900 dark:text-white  ">
-                            ₹{formatCurrency(po.total_amount)}
-                          </p>
-                          <p className="text-[8px]  text-slate-400   mt-0.5">
-                            Total Value
-                          </p>
-                        </div>
+                        {!isInventoryView ? (
+                          <div>
+                            <p className="text-xs  text-slate-900 dark:text-white  ">
+                              ₹{formatCurrency(po.total_amount)}
+                            </p>
+                            <p className="text-[8px]  text-slate-400   mt-0.5">
+                              Total Value
+                            </p>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-xs  text-slate-900 dark:text-white  ">
+                              {po.total_qty || 0} {po.uom || "Units"}
+                            </p>
+                            <p className="text-[8px]  text-slate-400   mt-0.5">
+                              Total Quantity
+                            </p>
+                          </div>
+                        )}
                         <div className="text-right">
                           <p
                             className={`text-xs  ${fulfillmentPercent === 100 ? "text-emerald-500" : "text-blue-600"}`}
@@ -731,8 +742,8 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       }
 
       setShowEmailModal(false);
-      // Automatically send to inventory after successful email submission
-      await handleSendToInventory(emailData.po);
+      toastUtils.success("Purchase Order emailed successfully");
+      fetchPurchaseOrders();
     } catch (error) {
       console.error("Error sending email:", error);
       toastUtils.error("Failed to send Purchase Order");
@@ -1047,9 +1058,11 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                 <th className="p-2 text-xs  text-slate-400  ">
                   Order -- Expected
                 </th>
-                <th className="p-2 text-xs  text-slate-400  ">
-                  Amount
-                </th>
+                {!isInventoryView && (
+                  <th className="p-2 text-xs  text-slate-400  ">
+                    Amount
+                  </th>
+                )}
                 <th className="p-2 text-xs  text-slate-400   text-center">
                   Status
                 </th>
@@ -1148,14 +1161,16 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           </div>
                         </div>
                       </td>
-                      <td className="p-2">
-                        <p className="text-xs  text-slate-900 dark:text-white">
-                          ₹{formatCurrency(po.total_amount)}
-                        </p>
-                        <p className="text-xs  text-emerald-500  ">
-                          Net Value
-                        </p>
-                      </td>
+                      {!isInventoryView && (
+                        <td className="p-2">
+                          <p className="text-xs  text-slate-900 dark:text-white">
+                            ₹{formatCurrency(po.total_amount)}
+                          </p>
+                          <p className="text-xs  text-emerald-500  ">
+                            Net Value
+                          </p>
+                        </td>
+                      )}
                       <td className="p-2 text-center">
                         <span
                           className={`inline-flex items-center gap-1.5 p-1 rounded text-xs    border  ${
@@ -1277,7 +1292,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                               <Send size={14} />
                             </button>
                           )}
-                          {isInventoryView && po.status === "approved" && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received") && (
+                          {isInventoryView && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received") && (
                             <button
                               onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)}
                               className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"

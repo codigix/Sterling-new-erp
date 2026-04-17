@@ -486,7 +486,8 @@ const DepartmentLayout = () => {
                       {!sidebarCollapsed && <span className="ml-3">Production Plans</span>}
                     </Link>
                   </li>
-                  <li>
+                  {/* Hiding Production Updates as requested */}
+                  {/* <li>
                     <Link
                       to="/department/production/updates"
                       className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
@@ -498,7 +499,7 @@ const DepartmentLayout = () => {
                       <HistoryIcon size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Production Updates</span>}
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       to="/department/production/employee-work-logs"

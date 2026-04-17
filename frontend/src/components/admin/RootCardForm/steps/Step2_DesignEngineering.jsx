@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { FileText, Eye, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { FileText, Eye, Loader2, CheckCircle2, AlertCircle, FileCode, Box, Download } from "lucide-react";
 import FormSection from "../shared/FormSection";
 import { useRootCardContext } from "../hooks";
 import axios from "../../../../utils/api";
-import { getServerUrl } from "../../../../utils/fileUtils";
+import { getServerUrl, downloadFile } from "../../../../utils/fileUtils";
 
 export default function Step2_DesignEngineering({ readOnly = false }) {
   const { state, updateField, initialData } = useRootCardContext();
@@ -98,14 +98,34 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
                       </span>
                     </td>
                     <td className="p-2 text-right">
-                      <a
-                        href={getFileUrl(doc.file_path)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs  rounded transition-colors border border-blue-100"
-                      >
-                        <Eye size={14} /> View Drawing
-                      </a>
+                      <div className="flex items-center justify-end gap-2">
+                        {doc.dwg_path && (
+                          <button
+                            onClick={() => downloadFile(doc.dwg_path, `${doc.name}.dwg`)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-blue-700 hover:bg-blue-50 text-xs rounded transition-colors border border-blue-100"
+                            title="Download DWG File"
+                          >
+                            <Eye size={14} /> DWG File
+                          </button>
+                        )}
+                        {doc.step_path && (
+                          <button
+                            onClick={() => downloadFile(doc.step_path, `${doc.name}.step`)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-orange-700 hover:bg-orange-50 text-xs rounded transition-colors border border-orange-100"
+                            title="Download STEP File"
+                          >
+                            <Eye size={14} /> STEP File
+                          </button>
+                        )}
+                        <a
+                          href={getFileUrl(doc.file_path)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs  rounded transition-colors border border-blue-100"
+                        >
+                          <Eye size={14} /> View Drawing
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 ))

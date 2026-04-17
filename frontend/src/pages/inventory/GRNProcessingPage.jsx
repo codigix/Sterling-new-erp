@@ -24,9 +24,24 @@ import {
   ChevronDown,
   ChevronUp,
   Zap,
+  Edit,
 } from "lucide-react";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import taskService from "../../utils/taskService";
+
+const ItemGroupOptions = [
+  "Plates", "Round Bar", "Pipe", "Square Bar", "Rectangular Bar", 
+  "Square Tube", "Rectangular Tube", "C Channel", "Angle", 
+  "I Beam", "H Beam", "Bought Out", "Paint",
+];
+
+const MaterialTypeOptions = [
+  { label: "Mild Steel / Carbon Steel", value: "7.85" },
+  { label: "Stainless Steel (304/316)", value: "8.00" },
+  { label: "Aluminum", value: "2.70" },
+  { label: "Copper", value: "8.96" },
+  { label: "Chemical", value: "1.10" }
+];
 
 const GRNProcessingPage = () => {
   const [searchParams] = useSearchParams();
@@ -51,6 +66,60 @@ const GRNProcessingPage = () => {
     items: [],
   });
   const [expandedItem, setExpandedItem] = useState(null);
+
+  const calculateItemWeight = useCallback((item) => {
+    const group = (item.item_group || "").toLowerCase();
+    const density = parseFloat(item.density) || 0;
+    if (density <= 0) return 0;
+
+    const L = parseFloat(item.length) || 0;
+    const W = parseFloat(item.width) || 0;
+    const T = parseFloat(item.thickness) || 0;
+    const D = parseFloat(item.diameter) || 0;
+    const OD = parseFloat(item.outer_diameter) || 0;
+    const H = parseFloat(item.height) || 0;
+    const S1 = parseFloat(item.side1) || 0;
+    const S2 = parseFloat(item.side2) || 0;
+    const Tw = parseFloat(item.web_thickness) || 0;
+    const Tf = parseFloat(item.flange_thickness) || 0;
+
+    let unitWeight = 0;
+
+    if (group === "plates" || group === "plate") {
+      unitWeight = (L * W * T * density) / 1000000;
+    } else if (group === "round bar") {
+      unitWeight = (Math.PI * Math.pow(D / 2, 2) * L * density) / 1000000;
+    } else if (group === "pipe") {
+      const outerRadius = OD / 2;
+      const innerRadius = outerRadius - T;
+      if (innerRadius >= 0) {
+        unitWeight = (Math.PI * (Math.pow(outerRadius, 2) - Math.pow(innerRadius, 2)) * L * density) / 1000000;
+      }
+    } else if (group === "square bar" || group === "sq bar") {
+      unitWeight = (S1 * S1 * L * density) / 1000000;
+    } else if (group === "rectangular bar" || group === "rec bar") {
+      unitWeight = (W * T * L * density) / 1000000;
+    } else if (group === "square tube" || group === "sq tube") {
+      const outerArea = S1 * S1;
+      const innerSide = S1 - (2 * T);
+      const innerArea = innerSide > 0 ? innerSide * innerSide : 0;
+      unitWeight = (outerArea - innerArea) * L * density / 1000000;
+    } else if (group === "rectangular tube" || group === "rec tube") {
+      const outerArea = W * H;
+      const innerW = W - (2 * T);
+      const innerH = H - (2 * T);
+      const innerArea = (innerW > 0 && innerH > 0) ? innerW * innerH : 0;
+      unitWeight = (outerArea - innerArea) * L * density / 1000000;
+    } else if (group === "angle") {
+      unitWeight = ((S1 + S2 - T) * T * L * density) / 1000000;
+    } else if (group === "c channel") {
+      unitWeight = ((H * Tw) + (2 * W * Tf)) * L * density / 1000000;
+    } else if (group.includes("beam")) {
+      unitWeight = ((2 * W * Tf) + (H - (2 * Tf)) * Tw) * L * density / 1000000;
+    }
+
+    return unitWeight;
+  }, []);
 
   useEffect(() => {
     if (poId) {
@@ -96,10 +165,11 @@ const GRNProcessingPage = () => {
       setPoData(response.data);
       
       const initialItems = (response.data.items || []).map(item => {
-        const matName = item.material_name || item.itemName || item.item_name || item.name || item.description;
+        const matName = item.material_name || item.vendor_material_name || item.itemName || item.item_name || item.name || item.description;
         return {
           po_item_id: item.id,
           material_name: matName,
+          material_name_original: matName,
           item_code: generateItemCode(matName),
           item_group: item.item_group || "",
           ordered_qty: parseFloat(item.quantity) || 0,
@@ -111,19 +181,28 @@ const GRNProcessingPage = () => {
           received_weight: parseFloat(item.total_weight) || 0,
           rate: parseFloat(item.rate || item.unit_price || item.rate_per_kg) || 0,
           amount: parseFloat(item.amount) || 0,
-          length: item.length || null,
-          width: item.width || null,
-          thickness: item.thickness || null,
-          diameter: item.diameter || null,
-          outer_diameter: item.outer_diameter || null,
-          height: item.height || null,
-          side1: item.side1 || null,
-          side2: item.side2 || null,
-          side_s: item.side_s || null,
-          side_s1: item.side_s1 || null,
-          side_s2: item.side_s2 || null,
-          web_thickness: item.web_thickness || item.tw || null,
-          flange_thickness: item.flange_thickness || item.tf || null,
+          // Store original dimensions for display
+          length_original: item.length || null,
+          width_original: item.width || null,
+          thickness_original: item.thickness || null,
+          diameter_original: item.diameter || null,
+          outer_diameter_original: item.outer_diameter || null,
+          height_original: item.height || null,
+          side1_original: item.side1 || null,
+          side2_original: item.side2 || null,
+          web_thickness_original: item.web_thickness || item.tw || null,
+          flange_thickness_original: item.flange_thickness || item.tf || null,
+          // New editable dimensions start empty
+          length: '',
+          width: '',
+          thickness: '',
+          diameter: '',
+          outer_diameter: '',
+          height: '',
+          side1: '',
+          side2: '',
+          web_thickness: '',
+          flange_thickness: '',
           material_type: item.material_type || null,
           density: item.density || null,
           material_grade: item.material_grade || null,
@@ -144,10 +223,16 @@ const GRNProcessingPage = () => {
     const newItems = [...grnForm.items];
     newItems[idx][field] = value;
     
-    // Auto-calculate received weight if rate_per_kg or total_weight is involved
-    if (field === 'received_qty') {
-      const perUnitWeight = parseFloat(newItems[idx].unit_weight) || (newItems[idx].ordered_qty > 0 ? newItems[idx].total_weight / newItems[idx].ordered_qty : 0);
-      newItems[idx].received_weight = parseFloat((value * perUnitWeight).toFixed(4));
+    // Recalculate weight if dimensions or quantity changed
+    if (['received_qty', 'length', 'width', 'thickness', 'diameter', 'outer_diameter', 'height', 'side1', 'side2', 'web_thickness', 'flange_thickness', 'density', 'item_group'].includes(field)) {
+      const unitWeight = calculateItemWeight(newItems[idx]);
+      newItems[idx].unit_weight = unitWeight;
+      newItems[idx].received_weight = parseFloat((parseFloat(newItems[idx].received_qty || 0) * unitWeight).toFixed(4));
+      
+      // Update item code if name changed
+      if (field === 'material_name') {
+        newItems[idx].item_code = generateItemCode(value);
+      }
     }
 
     setGrnForm({ ...grnForm, items: newItems });
@@ -453,60 +538,164 @@ const GRNProcessingPage = () => {
             <table className="w-full text-left border-collapse bg-white">
               <thead>
                 <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                  <th className="px-8 py-4 text-xs  text-slate-400  ">Item Name / Group</th>
-                  <th className="p-2 text-xs  text-slate-400   text-center w-24">Ordered</th>
-                  <th className="p-2 text-xs  text-slate-400   text-center w-20">UOM</th>
-                  <th className="p-2 text-xs  text-slate-400   text-center w-32">Rate/Kg</th>
-                  <th className="p-2 text-xs  text-slate-400   text-center w-32">Weight (Kg)</th>
-                  <th className="p-2 text-xs  text-slate-400   text-center w-32">Received</th>
+                  <th className="px-4 py-4 text-xs text-slate-400 text-center w-12">#</th>
+                  <th className="px-4 py-4 text-xs text-slate-400 text-left w-1/4">Ordered Item / Group</th>
+                  <th className="px-4 py-4 text-xs text-slate-400 text-left w-1/3">Received Material Name / Dimensions</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-24">Ordered</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-20">UOM</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-32">Weight (Kg)</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-32">Received Qty</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                 {grnForm.items.map((item, idx) => (
-                  <React.Fragment key={idx}>
-                    <tr className="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="px-8 py-6">
-                        <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 rounded bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 flex-shrink-0 mt-1">
-                            <Package size={20} />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm  text-slate-900 dark:text-white   line-clamp-2">{item.material_name}</p>
-                            <div className="flex flex-col gap-0.5">
-                              <p className="text-xs  text-slate-400  ">{item.item_group || "N/A"}</p>
-                              <p className="text-[10px] text-blue-600 font-medium">{renderDimensions(item)}</p>
-                            </div>
-                          </div>
+                  <tr key={idx} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-4 py-6 text-center text-xs text-slate-400">{idx + 1}</td>
+                    <td className="px-4 py-6">
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-slate-900 dark:text-white line-clamp-2">{item.material_name_original || item.material_name}</p>
+                        <p className="text-[10px] text-slate-400 uppercase tracking-wider">{item.item_group || "N/A"}</p>
+                        <p className="text-[10px] text-blue-600 font-medium italic">Ordered: {renderDimensions(item)}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-6">
+                      <div className="space-y-3">
+                        <input 
+                          type="text"
+                          value={item.material_name}
+                          onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
+                          className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                          placeholder="Received Material Name (if different)"
+                        />
+                        
+                        {/* Inline Dimension Fields */}
+                        <div className="grid grid-cols-4 gap-2">
+                          {(item.item_group?.toLowerCase()?.includes('plate')) && (
+                            <>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">W</label>
+                                <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="W" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">T</label>
+                                <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="T" />
+                              </div>
+                            </>
+                          )}
+                          {(item.item_group?.toLowerCase()?.includes('round bar')) && (
+                            <>
+                              <div className="space-y-1 col-span-2">
+                                <label className="text-[9px] text-slate-500 ml-1">Dia</label>
+                                <input type="number" value={item.diameter || ''} onChange={(e) => handleItemChange(idx, 'diameter', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="Dia" />
+                              </div>
+                              <div className="space-y-1 col-span-2">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
+                          {(item.item_group?.toLowerCase()?.includes('pipe')) && (
+                            <>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">OD</label>
+                                <input type="number" value={item.outer_diameter || ''} onChange={(e) => handleItemChange(idx, 'outer_diameter', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="OD" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">T</label>
+                                <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="T" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
+                          {(item.item_group?.toLowerCase()?.includes('square bar') || item.item_group?.toLowerCase() === 'sq bar') && (
+                            <>
+                              <div className="space-y-1 col-span-2">
+                                <label className="text-[9px] text-slate-500 ml-1">Side (S)</label>
+                                <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="S" />
+                              </div>
+                              <div className="space-y-1 col-span-2">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
+                          {(item.item_group?.toLowerCase()?.includes('rectangular bar') || item.item_group?.toLowerCase() === 'rec bar') && (
+                            <>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">W</label>
+                                <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="W" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">H</label>
+                                <input type="number" value={item.side2 || ''} onChange={(e) => handleItemChange(idx, 'side2', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="H" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
+                          {(item.item_group?.toLowerCase()?.includes('square tube') || item.item_group?.toLowerCase() === 'sq tube') && (
+                            <>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">S</label>
+                                <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="S" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">T</label>
+                                <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="T" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
+                          {(item.item_group?.toLowerCase()?.includes('rectangular tube') || item.item_group?.toLowerCase() === 'rec tube') && (
+                            <>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">W</label>
+                                <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="W" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">H</label>
+                                <input type="number" value={item.side2 || ''} onChange={(e) => handleItemChange(idx, 'side2', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="H" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">T</label>
+                                <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="T" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
                         </div>
-                      </td>
-                      <td className="px-4 py-6 text-center">
-                        <span className="text-sm  text-slate-500 dark:text-slate-400">{parseFloat(item.ordered_qty).toLocaleString()}</span>
-                      </td>
-                      <td className="px-4 py-6 text-center">
-                        <span className="text-sm  text-slate-500  ">{item.unit}</span>
-                      </td>
-                      <td className="px-4 py-6 text-center">
-                        <span className="text-sm  text-slate-500 dark:text-slate-400">₹{parseFloat(item.rate_per_kg || item.rate || 0).toFixed(2)}</span>
-                      </td>
-                      <td className="px-4 py-6 text-center">
-                        <div className="flex flex-col items-center">
-                          <span className="text-sm  text-slate-900 dark:text-white">{parseFloat(item.received_weight || 0).toFixed(3)} Kg</span>
-                          <span className="text-xs  text-slate-400 ">Unit Weight: {item.unit_weight?.toFixed(3) || "0.000"}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-6">
-                        <div className="relative group min-w-[100px]">
-                          <input 
-                            type="number"
-                            step="any"
-                            value={item.received_qty}
-                            onChange={(e) => handleItemChange(idx, 'received_qty', e.target.value)}
-                            className="w-full p-2 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded text-sm  text-center text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  </React.Fragment>
+                      </div>
+                    </td>
+                    <td className="px-4 py-6 text-center text-sm text-slate-500">{parseFloat(item.ordered_qty).toLocaleString()}</td>
+                    <td className="px-4 py-6 text-center text-sm text-slate-500">{item.unit}</td>
+                    <td className="px-4 py-6 text-center">
+                      <span className="text-sm font-medium text-slate-900 dark:text-white">{parseFloat(item.received_weight || 0).toFixed(3)} Kg</span>
+                    </td>
+                    <td className="px-4 py-6">
+                      <input 
+                        type="number"
+                        step="any"
+                        value={item.received_qty}
+                        onChange={(e) => handleItemChange(idx, 'received_qty', e.target.value)}
+                        className="w-full p-2 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded text-sm text-center text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                      />
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>

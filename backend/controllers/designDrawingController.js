@@ -295,3 +295,50 @@ exports.deleteDrawing = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
+
+// Upload technical files (.dwg and .step) for an approved drawing
+exports.uploadTechnicalFiles = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const files = req.files;
+
+    if (!files || (!files.dwg_file && !files.step_file)) {
+      return res.status(400).json({ success: false, message: 'No technical files uploaded' });
+    }
+
+    // Check if drawing exists and is approved
+    const [docs] = await db.query('SELECT status FROM design_documents WHERE id = ?', [id]);
+    if (docs.length === 0) {
+      return res.status(404).json({ success: false, message: 'Drawing not found' });
+    }
+
+    if (docs[0].status !== 'Approved') {
+      return res.status(400).json({ success: false, message: 'Technical files can only be uploaded for approved drawings' });
+    }
+
+    const updates = [];
+    const values = [];
+
+    if (files.dwg_file) {
+      updates.push('dwg_path = ?');
+      values.push(files.dwg_file[0].filename);
+    }
+
+    if (files.step_file) {
+      updates.push('step_path = ?');
+      values.push(files.step_file[0].filename);
+    }
+
+    values.push(id);
+
+    await db.query(
+      `UPDATE design_documents SET ${updates.join(', ')} WHERE id = ?`,
+      values
+    );
+
+    res.json({ success: true, message: 'Technical files uploaded successfully' });
+  } catch (error) {
+    console.error('Error uploading technical files:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};

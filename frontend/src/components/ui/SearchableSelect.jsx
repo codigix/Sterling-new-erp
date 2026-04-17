@@ -161,6 +161,7 @@ const SearchableSelect = ({
           id={inputId}
           name={name || inputId}
           aria-label={ariaLabel}
+          autoComplete="off"
           value={searchTerm}
           onChange={handleInputChange}
           onClick={(e) => {
