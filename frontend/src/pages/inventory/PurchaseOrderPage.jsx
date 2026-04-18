@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 import CreatePurchaseOrderModal from "./CreatePurchaseOrderModal";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import {
@@ -30,6 +31,7 @@ import {
   Paperclip,
   Upload,
   Layers,
+  FileSpreadsheet,
 } from "lucide-react";
 
 const KanbanView = ({
@@ -40,6 +42,7 @@ const KanbanView = ({
   handleMonitorPO,
   handleSendPO,
   handleDownloadPO,
+  handleExportToExcel,
   handleSendToInventory,
   formatCurrency,
   isInventoryView = false,
@@ -173,6 +176,15 @@ const KanbanView = ({
                           >
                             <Download size={14} />
                           </button>
+                          {!isInventoryView && (
+                            <button
+                              onClick={() => handleExportToExcel(po)}
+                              className="p-1 text-emerald-600 hover:text-emerald-700 rounded transition-all"
+                              title="Export to Excel"
+                            >
+                              <FileSpreadsheet size={14} />
+                            </button>
+                          )}
                           {(po.status === "approved" || po.status === "submitted") && po.status !== "sent to inventory" && !isInventoryView && (
                             <button
                               onClick={() => handleSendToInventory(po)}
@@ -182,7 +194,7 @@ const KanbanView = ({
                               <Send size={14} />
                             </button>
                           )}
-                          {isInventoryView && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received") && (
+                          {isInventoryView && (po.inventory_status === "material received" || po.inventory_status === "partially received") && po.dc_approved === 1 && (
                             <button
                               onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)}
                               className="p-1 text-slate-400 hover:text-blue-600 rounded transition-all"
@@ -809,6 +821,55 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     }
   };
 
+  const handleExportToExcel = async (po) => {
+    try {
+      const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
+      const fullPO = response.data;
+      const items = fullPO.items || [];
+
+      const exportData = items.map((item) => {
+        const rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
+        const totalAmount = parseFloat(item.amount) || (parseFloat(item.total_weight) * (parseFloat(item.rate_per_kg) || 0)) || (parseFloat(item.quantity) * (parseFloat(item.rate) || 0)) || 0;
+        
+        return {
+          "Item Name": item.material_name || "N/A",
+          "Item Group": item.item_group || "N/A",
+          "Dimensions": renderDimensions(item),
+          "Ordered Qty": item.quantity ? parseFloat(item.quantity) : 0,
+          "Unit": item.unit || item.uom || "Nos",
+          "Rate/Kg (INR)": rate,
+          "Weight (Kg)": item.total_weight ? parseFloat(item.total_weight) : 0,
+          "Total Amount (INR)": totalAmount,
+        };
+      });
+
+      const headerData = [
+        { A: "PROJECT", B: fullPO.root_card_project_name || fullPO.project_name || "N/A" },
+        { A: "PO NUMBER", B: fullPO.po_number || "N/A" },
+        { A: "PO DATE", B: fullPO.po_date || fullPO.created_at ? new Date(fullPO.po_date || fullPO.created_at).toLocaleDateString("en-GB") : "N/A" },
+        { A: "VENDOR", B: fullPO.vendor_name || "N/A" },
+        { A: "TOTAL AMOUNT", B: `INR ${Number(fullPO.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}` },
+        {}, // Empty row
+      ];
+
+      const worksheet = XLSX.utils.json_to_sheet(headerData, { skipHeader: true });
+      XLSX.utils.sheet_add_json(worksheet, exportData, { origin: `A${headerData.length + 1}` });
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Purchase Order Details");
+
+      // Set column widths
+      const wscols = Object.keys(exportData[0] || {}).map(() => ({ wch: 25 }));
+      worksheet["!cols"] = wscols;
+
+      XLSX.writeFile(workbook, `PurchaseOrder_${fullPO.po_number}.xlsx`);
+      toastUtils.success("Excel exported successfully");
+    } catch (error) {
+      console.error("Error exporting PO to excel:", error);
+      toastUtils.error("Failed to export Purchase Order to excel");
+    }
+  };
+
 
   return (
     <div className="p-4 bg-slate-50/50 dark:bg-slate-950 min-h-screen">
@@ -1047,27 +1108,27 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
           <table className="w-full text-left border-collapse bg-white text-xs">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="p-2 text-xs  text-slate-400  ">
+                <th className="p-2 text-xs font-bold text-slate-400  ">
                   PO Details
                 </th>
-                <th className="p-2 text-xs  text-slate-400  ">
+                <th className="p-2 text-xs font-bold text-slate-400  ">
                   Supplier
                 </th>
-                <th className="p-2 text-xs  text-slate-400  ">
+                <th className="p-2 text-xs font-bold text-slate-400  ">
                   Project
                 </th>
-                <th className="p-2 text-xs  text-slate-400  ">
+                <th className="p-2 text-xs font-bold text-slate-400  ">
                   Order -- Expected
                 </th>
                 {!isInventoryView && (
-                  <th className="p-2 text-xs  text-slate-400  ">
+                  <th className="p-2 text-xs font-bold text-slate-400  ">
                     Amount
                   </th>
                 )}
-                <th className="p-2 text-xs  text-slate-400   text-center">
+                <th className="p-2 text-xs font-bold text-slate-400   text-center">
                   Status
                 </th>
-                <th className="p-2 text-xs  text-slate-400   text-center">
+                <th className="p-2 text-xs font-bold text-slate-400   text-center">
                   Actions
                 </th>
               </tr>
@@ -1263,6 +1324,15 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                               title="Download PDF"
                             >
                               <Download size={14} />
+                            </button>
+                          )}
+                          {!isInventoryView && (
+                            <button
+                              onClick={() => handleExportToExcel(po)}
+                              className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
+                              title="Export to Excel"
+                            >
+                              <FileSpreadsheet size={14} />
                             </button>
                           )}
                           {!["sent to inventory", "material received", "fulfilled", "delivered"].includes(po.status) && !isInventoryView && (
@@ -1776,7 +1846,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                     ) : (
                       <Upload size={15} />
                     )}
-                    {uploadingFiles ? "Uploading..." : isFullReceipt ? "Approve & Upload" : "Upload DC"}
+                    {uploadingFiles ? "Uploading..." : "Upload & Continue"}
                   </button>
                 )}
               </div>

@@ -11,6 +11,7 @@ const DataTable = ({
   sortable = true,
   striped = true,
   hover = true,
+  rowClassName = null,
 }) => {
   const [sortConfig, setSortConfig] = useState(null);
 
@@ -114,7 +115,7 @@ const DataTable = ({
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`p-2  text-xs  text-slate-700 dark:text-slate-300 ${
+                className={`p-2  text-xs font-bold text-slate-700 dark:text-slate-300 ${
                   column.align === 'right' ? 'text-right' : 'text-left'
                 } ${
                   column.sortable !== false && sortable
@@ -135,19 +136,19 @@ const DataTable = ({
         </thead>
         <tbody>
           {sortedData.map((row, rowIndex) => (
-            <tr
-              key={row.id || rowIndex}
-              className={`border-b border-slate-200 dark:border-slate-700 ${
-                striped && rowIndex % 2 === 1
-                  ? 'bg-slate-50 dark:bg-slate-800/30'
-                  : ''
-              } ${
-                hover
-                  ? 'hover:bg-slate-100 dark:hover:bg-slate-700/50 transition'
-                  : ''
-              } ${onRowClick ? 'cursor-pointer' : ''}`}
-              onClick={() => onRowClick?.(row)}
-            >
+              <tr
+                key={row.id || rowIndex}
+                className={`border-b border-slate-200 dark:border-slate-700 ${
+                  striped && rowIndex % 2 === 1
+                    ? 'bg-slate-50 dark:bg-slate-800/30'
+                    : ''
+                } ${
+                  hover
+                    ? 'hover:bg-slate-100 dark:hover:bg-slate-700/50 transition'
+                    : ''
+                } ${onRowClick ? 'cursor-pointer' : ''} ${rowClassName ? rowClassName(row, rowIndex) : ''}`}
+                onClick={() => onRowClick?.(row)}
+              >
               {columns.map((column) => (
                 <td
                   key={`${row.id || rowIndex}-${column.key}`}

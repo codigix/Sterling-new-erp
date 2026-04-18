@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 import {
   FileText,
   Search,
@@ -27,12 +28,14 @@ import {
   Paperclip,
   PlusCircle,
   ChevronDown,
+  FileSpreadsheet,
 } from "lucide-react";
 import axios from "../../utils/api";
 import useRootCardInventoryTask from "../../hooks/useRootCardInventoryTask";
 import CreatePurchaseOrderModal from "./CreatePurchaseOrderModal";
 import CreateQuotationModal from "../../components/inventory/CreateQuotationModal";
 import { renderDimensions } from "../../utils/dimensionUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const QuotationsPage = ({ defaultTab }) => {
   const navigate = useNavigate();
@@ -293,15 +296,127 @@ const QuotationsPage = ({ defaultTab }) => {
     };
   }, [showCommunicationsModal, selectedQuotationForComms]);
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "rejected":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "sent":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      case "responded":
+        return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+    }
+  };
+
+  const isExpired = (validUntil) => {
+    if (!validUntil) return false;
+    const today = new Date();
+    const expiry = new Date(validUntil);
+    return expiry < today;
+  };
+
+  const getDaysValid = (validUntil) => {
+    if (!validUntil) return "N/A";
+    const today = new Date();
+    const expiry = new Date(validUntil);
+    const days = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+    return days > 0 ? days : 0;
+  };
+
+  const formatCurrency = (value) => {
+    if (!value) return "₹0";
+    return `₹${(value / 100000).toFixed(2)}L`;
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-IN");
+  };
+
   const handleQuotationCreated = () => {
     fetchQuotations();
     fetchStats();
     
-    // Complete task based on active tab
-    if (activeTab === "outbound") {
-      completeCurrentTask("RFQ quotation created");
-    } else if (activeTab === "inbound") {
+    if (activeTab === "inbound") {
       completeCurrentTask("Vendor quotation received and recorded");
+    }
+  };
+
+  const handleExportToExcel = async (quotation) => {
+    try {
+      const response = await axios.get(`${basePath}/quotations/${quotation.id}`);
+      const fullQuotation = response.data;
+      const items = fullQuotation.items || [];
+
+      let exportData = [];
+      if (fullQuotation.type === "inbound") {
+        exportData = items.map((item) => {
+          const ratePerKg = parseFloat(item.rate_per_kg) || 0;
+          const weight = parseFloat(item.total_weight) || 0;
+          const qty = parseFloat(item.quantity) || 0;
+          const rate = parseFloat(item.rate) || 0;
+          const amount = parseFloat(item.amount) || (weight * ratePerKg) || (qty * rate) || 0;
+
+          return {
+            "Material Name": item.vendor_item_name || item.item_name || "N/A",
+            "Dimensions": renderDimensions(item),
+            "Quantity": qty,
+            "Unit": item.unit || "N/A",
+            "Rate/Kg (INR)": ratePerKg || rate,
+            "Weight (Kg)": weight,
+            "Total Amount (INR)": amount,
+          };
+        });
+      } else {
+        exportData = items.map((item) => ({
+          "Item Name": item.item_name || "N/A",
+          "Dimensions": renderDimensions(item),
+          "Group": item.item_group || "N/A",
+          "Grade": item.material_grade || "N/A",
+          "Part Detail": item.part_detail || "N/A",
+          "Make": item.make || "N/A",
+          "Remark": item.remark || "N/A",
+          "Weight (Kg)": item.total_weight ? parseFloat(item.total_weight) : 0,
+          "Quantity": item.quantity ? parseFloat(item.quantity) : 0,
+          "Unit": item.unit || "N/A",
+        }));
+      }
+
+      const headerData = [
+        { A: "PROJECT", B: fullQuotation.project_name || "N/A" },
+        { A: "QUOTATION NO", B: fullQuotation.quotation_number || "N/A" },
+        { A: "MATERIAL REQUEST", B: fullQuotation.mr_number || "N/A" },
+        { A: "VENDOR", B: fullQuotation.vendor_name || "N/A" },
+      ];
+
+      if (fullQuotation.type === "inbound") {
+        headerData.push({ A: "TOTAL QUOTATION AMOUNT", B: `INR ${Number(fullQuotation.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}` });
+      }
+
+      headerData.push({}); // Empty row
+
+      const worksheet = XLSX.utils.json_to_sheet(headerData, { skipHeader: true });
+
+      XLSX.utils.sheet_add_json(worksheet, exportData, { origin: `A${headerData.length + 1}` });
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Quotation Details");
+
+      // Set column widths
+      const wscols = Object.keys(exportData[0] || {}).map(() => ({ wch: 25 }));
+      worksheet["!cols"] = wscols;
+
+      XLSX.writeFile(workbook, `Quotation_${fullQuotation.quotation_number}.xlsx`);
+      toast.success("Excel exported successfully");
+    } catch (err) {
+      console.error("Error exporting to excel:", err);
+      toast.error("Failed to export to excel");
     }
   };
 
@@ -778,48 +893,216 @@ const QuotationsPage = ({ defaultTab }) => {
     setShowAddModal(true);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "approved":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-      case "rejected":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      case "sent":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      case "responded":
-        return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+  const columns = useMemo(() => {
+    const commonColumns = [
+      {
+        key: "quotation_number",
+        label: "Quote No.",
+        sortable: true,
+        render: (value, quote) => (
+          <div>
+            <p className=" text-slate-900 text-xs dark:text-white">
+              {value}
+            </p>
+            {quote.reference_id && (
+              <p className="text-xs text-slate-500">
+                Ref: {quote.reference_number}
+              </p>
+            )}
+            {quote.mr_number && (
+              <p className="text-xs text-blue-600   ">
+                MR: {quote.mr_number}
+              </p>
+            )}
+            {quote.rfq_number && (
+              <p className="text-xs text-purple-600   ">
+                RFQ: {quote.rfq_number}
+              </p>
+            )}
+          </div>
+        )
+      },
+      {
+        key: "vendor_name",
+        label: "Vendor",
+        sortable: true,
+      },
+      {
+        key: "project_name",
+        label: "Project",
+        sortable: true,
+        render: (value) => value || "N/A"
+      }
+    ];
+
+    if (activeTab === "inbound") {
+      commonColumns.push({
+        key: "total_amount",
+        label: "Total Amount",
+        sortable: true,
+        align: "right",
+        render: (value) => (
+          <p className=" text-slate-900 dark:text-white text-xs flex items-center justify-end gap-1">
+            <IndianRupee size={14} />
+            {value
+              ? value.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+              : "0.000"}
+          </p>
+        )
+      });
     }
-  };
 
-  const isExpired = (validUntil) => {
-    if (!validUntil) return false;
-    const today = new Date();
-    const expiry = new Date(validUntil);
-    return expiry < today;
-  };
+    commonColumns.push({
+      key: "valid_until",
+      label: "Valid Till",
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center gap-2">
+          <Calendar size={14} className="text-slate-500" />
+          <div>
+            <p className="text-xs  text-slate-900 dark:text-white">
+              {formatDate(value)}
+            </p>
+            <p
+              className={`text-xs ${
+                isExpired(value)
+                  ? "text-red-600 "
+                  : getDaysValid(value) <= 3
+                  ? "text-yellow-600"
+                  : "text-green-600"
+              }`}
+            >
+              {isExpired(value)
+                ? "Expired"
+                : getDaysValid(value) + " days valid"}
+            </p>
+          </div>
+        </div>
+      )
+    });
 
-  const getDaysValid = (validUntil) => {
-    if (!validUntil) return "N/A";
-    const today = new Date();
-    const expiry = new Date(validUntil);
-    const days = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
-    return days > 0 ? days : 0;
-  };
+    commonColumns.push({
+      key: "status",
+      label: "Status",
+      sortable: true,
+      align: "center",
+      render: (value) => (
+        <span
+          className={`inline-flex items-center p-1 rounded text-xs  ${getStatusColor(
+            value
+          )}`}
+        >
+          {value.charAt(0).toUpperCase() +
+            value.slice(1)}
+        </span>
+      )
+    });
 
-  const formatCurrency = (value) => {
-    if (!value) return "₹0";
-    return `₹${(value / 100000).toFixed(2)}L`;
-  };
+    commonColumns.push({
+      key: "actions",
+      label: "Actions",
+      sortable: false,
+      align: "center",
+      render: (_, quote) => (
+        <div className="flex justify-center gap-2">
+          {activeTab === "outbound" && (
+            <button
+              onClick={() => handleRecordResponse(quote)}
+              className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
+              title="Record Vendor Quote"
+            >
+              <Plus size={15} />
+            </button>
+          )}
+          {activeTab === "outbound" && quote.status !== "sent" && (
+            <button
+              onClick={() => handleSendEmail(quote)}
+              className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
+              title="Send to Vendor"
+            >
+              <Mail size={15} />
+            </button>
+          )}
+          {activeTab === "outbound" && quote.status === "sent" && (
+            <button
+              onClick={() => handleViewCommunications(quote)}
+              className={`p-2 rounded transition-colors relative ${
+                quote.unread_communication_count > 0 
+                  ? "bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 animate-pulse" 
+                  : "hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400"
+              }`}
+              title="View Communications"
+            >
+              <MessageSquare size={15} />
+              {quote.unread_communication_count > 0 && (
+                <>
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 animate-ping rounded bg-red-400 opacity-75"></span>
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded bg-red-500 text-xs  text-white border-2 border-white dark:border-slate-800 ">
+                    {quote.unread_communication_count}
+                  </span>
+                </>
+              )}
+            </button>
+          )}
+          {activeTab === "inbound" && quote.status === "pending" && (
+            <button
+              onClick={() => handleInlineStatusUpdate(quote, "approved")}
+              className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
+              title="Quick Approve"
+            >
+              <CheckCircle size={15} />
+            </button>
+          )}
+          {activeTab === "inbound" && (
+            <>
+              {quote.status === "approved" && (
+                <>
+                  <button
+                    onClick={() => handleCreatePOFromQuote(quote)}
+                    className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
+                    title="Create Purchase Order"
+                  >
+                    <Plus size={15} />
+                  </button>
+                  <button
+                    onClick={() => handleViewReceivedQuotation(quote.id)}
+                    className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400 rounded transition-colors"
+                    title="View Received Quotation PDF"
+                  >
+                    <FileText size={15} />
+                  </button>
+                </>
+              )}
+            </>
+          )}
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-IN");
-  };
+          <button
+            onClick={() => handleExportToExcel(quote)}
+            className="p-2 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-600 dark:text-emerald-400 rounded transition-colors"
+            title="Export to Excel"
+          >
+            <FileSpreadsheet size={15} />
+          </button>
+          <button
+            onClick={() => handleViewQuotation(quote)}
+            className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
+            title="View"
+          >
+            <Eye size={15} />
+          </button>
+          <button
+            onClick={() => handleDeleteQuotation(quote.id)}
+            className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
+            title="Delete"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      )
+    });
+
+    return commonColumns;
+  }, [activeTab, formatDate, isExpired, getDaysValid, getStatusColor, handleRecordResponse, handleSendEmail, handleViewCommunications, handleInlineStatusUpdate, handleCreatePOFromQuote, handleViewReceivedQuotation, handleViewQuotation, handleDeleteQuotation, handleExportToExcel]);
 
   return (
     <div className="space-y-2 p-4">
@@ -945,226 +1228,14 @@ const QuotationsPage = ({ defaultTab }) => {
 
       {/* Quotations Table */}
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="p-2 text-center">
-              <p className="text-slate-500 dark:text-slate-400">
-                Loading quotations...
-              </p>
-            </div>
-          ) : error ? (
-            <div className="p-2 text-center">
-              <p className="text-red-600 dark:text-red-400">{error}</p>
-            </div>
-          ) : quotations.length === 0 ? (
-            <div className="p-2 text-center">
-              <p className="text-slate-500 dark:text-slate-400">
-                No quotations found
-              </p>
-            </div>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
-                  <th className="p-2 text-left text-xs  text-slate-900 dark:text-white">
-                    Quote No.
-                  </th>
-                  <th className="p-2 text-left text-xs  text-slate-900 dark:text-white">
-                    Vendor
-                  </th>
-                  <th className="p-2 text-left text-xs  text-slate-900 dark:text-white">
-                    Project
-                  </th>
-                  {activeTab === "inbound" && (
-                    <th className="p-2 text-right text-xs   text-slate-900 dark:text-white">
-                      Total Amount
-                    </th>
-                  )}
-                  <th className="p-2 text-left text-xs  text-slate-900 dark:text-white">
-                    Valid Till
-                  </th>
-                  <th className="p-2 text-center text-xs  text-slate-900 dark:text-white">
-                    Status
-                  </th>
-                  <th className="p-2 text-center text-xs  text-slate-900 dark:text-white">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
-                {quotations.map((quote) => (
-                  <tr
-                    key={quote.id}
-                    className={`hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
-                      isExpired(quote.valid_until)
-                        ? "bg-red-50 dark:bg-red-900/20"
-                        : ""
-                    }`}
-                  >
-                    <td className="p-2">
-                      <p className=" text-slate-900 text-xs dark:text-white">
-                        {quote.quotation_number}
-                      </p>
-                      {quote.reference_id && (
-                        <p className="text-xs text-slate-500">
-                          Ref: {quote.reference_number}
-                        </p>
-                      )}
-                      {quote.mr_number && (
-                        <p className="text-xs text-blue-600   ">
-                          MR: {quote.mr_number}
-                        </p>
-                      )}
-                      {quote.rfq_number && (
-                        <p className="text-xs text-purple-600   ">
-                          RFQ: {quote.rfq_number}
-                        </p>
-                      )}
-                    </td>
-                    <td className="p-2 text-xs text-slate-700 dark:text-slate-300 ">
-                      {quote.vendor_name}
-                    </td>
-                    <td className="p-2 text-xs text-slate-700 dark:text-slate-300 ">
-                      {quote.project_name || "N/A"}
-                    </td>
-                    {activeTab === "inbound" && (
-                      <td className="p-2 text-right">
-                        <p className=" text-slate-900 dark:text-white text-xs flex items-center justify-end gap-1">
-                          <IndianRupee size={14} />
-                          {quote.total_amount
-                            ? quote.total_amount.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })
-                            : "0.000"}
-                        </p>
-                      </td>
-                    )}
-                    <td className="p-2">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={14} className="text-slate-500" />
-                        <div>
-                          <p className="text-xs  text-slate-900 dark:text-white">
-                            {formatDate(quote.valid_until)}
-                          </p>
-                          <p
-                            className={`text-xs ${
-                              isExpired(quote.valid_until)
-                                ? "text-red-600 "
-                                : getDaysValid(quote.valid_until) <= 3
-                                ? "text-yellow-600"
-                                : "text-green-600"
-                            }`}
-                          >
-                            {isExpired(quote.valid_until)
-                              ? "Expired"
-                              : getDaysValid(quote.valid_until) + " days valid"}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-2 text-center">
-                      <span
-                        className={`inline-flex items-center p-1 rounded text-xs  ${getStatusColor(
-                          quote.status
-                        )}`}
-                      >
-                        {quote.status.charAt(0).toUpperCase() +
-                          quote.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="p-2 text-center">
-                      <div className="flex justify-center gap-2">
-                        {activeTab === "outbound" && (
-                          <button
-                            onClick={() => handleRecordResponse(quote)}
-                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
-                            title="Record Vendor Quote"
-                          >
-                            <Plus size={15} />
-                          </button>
-                        )}
-                        {activeTab === "outbound" && quote.status !== "sent" && (
-                          <button
-                            onClick={() => handleSendEmail(quote)}
-                            className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
-                            title="Send to Vendor"
-                          >
-                            <Mail size={15} />
-                          </button>
-                        )}
-                        {activeTab === "outbound" && quote.status === "sent" && (
-                          <button
-                            onClick={() => handleViewCommunications(quote)}
-                            className={`p-2 rounded transition-colors relative ${
-                              quote.unread_communication_count > 0 
-                                ? "bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 animate-pulse" 
-                                : "hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400"
-                            }`}
-                            title="View Communications"
-                          >
-                            <MessageSquare size={15} />
-                            {quote.unread_communication_count > 0 && (
-                              <>
-                                <span className="absolute -top-1 -right-1 flex h-4 w-4 animate-ping rounded bg-red-400 opacity-75"></span>
-                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded bg-red-500 text-xs  text-white border-2 border-white dark:border-slate-800 ">
-                                  {quote.unread_communication_count}
-                                </span>
-                              </>
-                            )}
-                          </button>
-                        )}
-                        {activeTab === "inbound" && quote.status === "pending" && (
-                          <button
-                            onClick={() => handleInlineStatusUpdate(quote, "approved")}
-                            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"
-                            title="Quick Approve"
-                          >
-                            <CheckCircle size={15} />
-                          </button>
-                        )}
-                        {activeTab === "inbound" && (
-                          <>
-                            {quote.status === "approved" && (
-                              <>
-                                <button
-                                  onClick={() => handleCreatePOFromQuote(quote)}
-                                  className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
-                                  title="Create Purchase Order"
-                                >
-                                  <Plus size={15} />
-                                </button>
-                                <button
-                                  onClick={() => handleViewReceivedQuotation(quote.id)}
-                                  className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400 rounded transition-colors"
-                                  title="View Received Quotation PDF"
-                                >
-                                  <FileText size={15} />
-                                </button>
-                              </>
-                            )}
-                          </>
-                        )}
-
-                        <button
-                          onClick={() => handleViewQuotation(quote)}
-                          className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors"
-                          title="View"
-                        >
-                          <Eye size={15} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteQuotation(quote.id)}
-                          className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+        <DataTable
+          columns={columns}
+          data={quotations}
+          loading={loading}
+          error={error}
+          emptyMessage="No quotations found"
+          rowClassName={(quote) => isExpired(quote.valid_until) ? "bg-red-50 dark:bg-red-900/20" : ""}
+        />
       </div>
 
 

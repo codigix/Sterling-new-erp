@@ -529,16 +529,27 @@ const uploadInvoice = async (req, res) => {
             );
         }
 
-        // Only approve PO if it's a full receipt
+        // Always set dc_approved = 1 if a file was uploaded
+        // Update inventory_status and PO status if it's a full receipt
         if (isFullReceipt === 'true' || isFullReceipt === true) {
-            // Ensure we don't revert status if it's already 'sent to inventory'
-            // And only update inventory_status if it's not already at a later stage
             await connection.query(
                 `UPDATE purchase_orders 
                  SET status = CASE WHEN status = 'sent to inventory' THEN 'sent to inventory' ELSE 'approved' END, 
                      inventory_status = CASE 
-                        WHEN inventory_status IN ('material received', 'partially received', 'fulfilled', 'delivered') THEN inventory_status 
+                        WHEN inventory_status IN ('fulfilled', 'delivered') THEN inventory_status 
                         ELSE 'material received' 
+                     END,
+                     dc_approved = 1
+                 WHERE id = ?`, 
+                [id]
+            );
+        } else {
+            // Partial receipt still enables GRN creation via dc_approved = 1
+            await connection.query(
+                `UPDATE purchase_orders 
+                 SET inventory_status = CASE 
+                        WHEN inventory_status IN ('material received', 'partially received', 'fulfilled', 'delivered') THEN inventory_status 
+                        ELSE 'partially received' 
                      END,
                      dc_approved = 1
                  WHERE id = ?`, 

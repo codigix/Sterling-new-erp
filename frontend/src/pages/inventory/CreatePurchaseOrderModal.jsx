@@ -185,6 +185,8 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     tax_template: "No Tax Template",
     notes: "",
     terms: "",
+    quotation_date: null,
+    quotation_valid_until: null,
     items: [],
     subtotal: 0,
     tax_amount: 0,
@@ -380,6 +382,8 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           quotation_id: fullQuote.id,
           vendor_id: fullQuote.vendor_id,
           project_id: fullQuote.project_id || fullQuote.root_card_id || fullQuote.root_card_project_id || prev.project_id || "",
+          quotation_date: fullQuote.quotation_date || fullQuote.created_at,
+          quotation_valid_until: fullQuote.valid_until,
           notes: prev.notes || `Created from Quotation: ${fullQuote.quotation_number || fullQuote.id}`
         }));
       }
@@ -597,6 +601,33 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     if (formData.items.length === 0) {
       toastUtils.warning("Please add at least one item");
       return;
+    }
+
+    const poDate = new Date(formData.order_date).toISOString().split('T')[0];
+
+    if (formData.expected_delivery_date) {
+      const deliveryDate = new Date(formData.expected_delivery_date).toISOString().split('T')[0];
+      if (deliveryDate < poDate) {
+        toastUtils.warning(`Expected delivery date cannot be before Order date (${poDate})`);
+        return;
+      }
+    }
+
+    if (formData.quotation_id && formData.quotation_date) {
+      const quoteDate = new Date(formData.quotation_date).toISOString().split('T')[0];
+      
+      if (poDate < quoteDate) {
+        toastUtils.warning(`PO date cannot be before Quotation date (${quoteDate})`);
+        return;
+      }
+
+      if (formData.quotation_valid_until) {
+        const validUntil = new Date(formData.quotation_valid_until).toISOString().split('T')[0];
+        if (poDate > validUntil) {
+          toastUtils.warning(`PO date cannot be after Quotation validity date (${validUntil})`);
+          return;
+        }
+      }
     }
 
     setSubmitting(true);

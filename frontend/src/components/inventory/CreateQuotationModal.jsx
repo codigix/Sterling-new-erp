@@ -280,6 +280,7 @@ const CreateQuotationModal = ({
     root_card_id: "",
     total_amount: 0,
     valid_until: "",
+    quotation_date: new Date().toISOString().split("T")[0],
     items: [],
     notes: "",
     type: "outbound",
@@ -297,6 +298,7 @@ const CreateQuotationModal = ({
         root_card_id: "",
         total_amount: 0,
         valid_until: "",
+        quotation_date: new Date().toISOString().split("T")[0],
         items: [],
         notes: "",
         type: "outbound",
@@ -799,6 +801,43 @@ const CreateQuotationModal = ({
       return;
     }
 
+    if (!formData.valid_until) {
+      toast.warning("Please select a validity date");
+      return;
+    }
+
+    if (formData.type === "inbound") {
+      if (!formData.quotation_date) {
+        toast.warning("Please select a quotation date");
+        return;
+      }
+
+      if (formData.valid_until && formData.quotation_date > formData.valid_until) {
+        toast.warning("Quotation date cannot be after validity date");
+        return;
+      }
+
+      // If there's a reference RFQ, check if quotation date is >= RFQ date
+      if (formData.rfq_id) {
+        const selectedRfq = rootCardQuotations.find(q => q.id.toString() === formData.rfq_id.toString());
+        if (selectedRfq && selectedRfq.created_at) {
+          const rfqDate = new Date(selectedRfq.created_at).toISOString().split('T')[0];
+          if (formData.quotation_date < rfqDate) {
+            toast.warning(`Quotation date cannot be before RFQ date (${rfqDate})`);
+            return;
+          }
+        }
+      }
+
+      const missingRate = formData.items.some(
+        (item) => !item.rate_per_kg || parseFloat(item.rate_per_kg) <= 0,
+      );
+      if (missingRate) {
+        toast.warning("Please provide Rate/Kg for all items");
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       const payload = {
@@ -1157,13 +1196,14 @@ const CreateQuotationModal = ({
                   </div>
                   <div>
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
-                      Valid Until
+                      Valid Until <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
                       name="valid_until"
                       value={formData.valid_until}
                       onChange={handleFormChange}
+                      required
                       className="w-full p-2 border text-xs border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     />
                   </div>
@@ -1188,6 +1228,19 @@ const CreateQuotationModal = ({
                 {formData.type === "inbound" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
+                      <label className="block text-xs text-slate-700 dark:text-slate-300 mb-2">
+                        Quotation Date <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        name="quotation_date"
+                        value={formData.quotation_date}
+                        onChange={handleFormChange}
+                        required
+                        className="w-full p-2 border text-xs border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                         Total Amount (₹)
                       </label>
@@ -1206,49 +1259,6 @@ const CreateQuotationModal = ({
                         />
                       </div>
                     </div>
-
-                    {/* <div className="flex flex-col">
-                      <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
-                        Quotation Document (PDF/Image)
-                      </label>
-                      <div className="relative w-full h-full">
-                        <input
-                          type="file"
-                          id="quotation-upload"
-                          className="hidden"
-                          accept=".pdf,image/*"
-                          onChange={handleAnalyzeFile}
-                          disabled={analyzing}
-                        />
-                        <label
-                          htmlFor="quotation-upload"
-                          className={`flex items-center justify-center gap-3 p-2 border-2 border-dashed rounded cursor-pointer transition-all w-full h-[50px] ${
-                            uploadedFileName
-                              ? "border-green-500 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400"
-                              : "border-slate-300 dark:border-slate-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-slate-500 dark:text-slate-400"
-                          }`}
-                        >
-                          {analyzing ? (
-                            <>
-                              <Loader2 size={15} className="animate-spin" />
-                              <span className="text-xs ">Analyzing...</span>
-                            </>
-                          ) : uploadedFileName ? (
-                            <>
-                              <FileCheck size={15} />
-                              <span className="text-xs  truncate max-w-[200px]">
-                                {uploadedFileName}
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <Upload size={15} />
-                              <span className="text-xs ">Click to upload for auto-fill</span>
-                            </>
-                          )}
-                        </label>
-                      </div>
-                    </div> */}
                   </div>
                 )}
 
@@ -1257,22 +1267,12 @@ const CreateQuotationModal = ({
                     <label className="block text-sm  text-slate-700 dark:text-slate-300">
                       Line Items
                     </label>
-                    {!preFilledMaterials && (
-                      <button
-                        type="button"
-                        onClick={handleAddItem}
-                        className="flex items-center gap-1 text-xs p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors  whitespace-nowrap"
-                      >
-                        <Plus size={14} />
-                        Add Item
-                      </button>
-                    )}
                   </div>
 
                   {formData.items.length === 0 ? (
                     <p className="text-sm text-slate-500 dark:text-slate-400 py-4 text-center bg-slate-50 dark:bg-slate-700/50 rounded border border-dashed border-slate-300 dark:border-slate-600">
-                      No items added yet. Click "Add Item" to include line items
-                      in this quotation.
+                      No items found. Please select a Material Request or RFQ to
+                      load items.
                     </p>
                   ) : (
                     <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded">
@@ -1312,7 +1312,7 @@ const CreateQuotationModal = ({
                             {formData.type === "inbound" && (
                               <>
                                 <th className="p-2 text-right text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 ">
-                                  Rate/Kg
+                                  Rate/Kg <span className="text-red-500">*</span>
                                 </th>
                                 <th className="p-2 text-right text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 ">
                                   Weight (Kg)
@@ -1322,9 +1322,7 @@ const CreateQuotationModal = ({
                                 </th>
                               </>
                             )}
-                            {!preFilledMaterials && (
-                              <th className="p-2 text-center text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-12"></th>
-                            )}
+                            {/* Removed action column */}
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
@@ -1540,6 +1538,7 @@ const CreateQuotationModal = ({
                                       placeholder="0.00"
                                       min="0"
                                       step="0.01"
+                                      required
                                       className="w-full p-1 text-xs  text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
                                     />
                                   </td>
@@ -1581,17 +1580,7 @@ const CreateQuotationModal = ({
                                   </td>
                                 </>
                               )}
-                              {!preFilledMaterials && (
-                                <td className="p-2 text-center w-12">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveItem(index)}
-                                    className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </td>
-                              )}
+                              {/* Removed remove item button */}
                             </tr>
                           ))}
                         </tbody>
