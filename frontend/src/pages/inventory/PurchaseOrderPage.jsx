@@ -774,9 +774,9 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     
     if (isInventoryView) {
       const matchesInventoryStatus = statusFilter === "all" 
-        ? (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received" || po.inventory_status === "fulfilled" || po.inventory_status === "delivered")
+        ? (po.inventory_status === "pending receipt" || po.inventory_status === "dc uploaded" || po.inventory_status === "material received" || po.inventory_status === "partially received" || po.inventory_status === "fulfilled" || po.inventory_status === "delivered")
         : (statusFilter === "pending receipt" 
-            ? (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received")
+            ? (po.inventory_status === "pending receipt" || po.inventory_status === "dc uploaded" || po.inventory_status === "material received" || po.inventory_status === "partially received")
             : po.inventory_status === statusFilter);
 
       return matchesSearch && matchesInventoryStatus && matchesProject && matchesRootCard;
@@ -1016,6 +1016,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                 <>
                   <option value="all">All Received</option>
                   <option value="pending receipt">Pending Receipt</option>
+                  <option value="dc uploaded">Awaiting DC Approval</option>
                   <option value="material received">Awaiting GRN</option>
                   <option value="partially received">Partially Received</option>
                   <option value="fulfilled">Fulfilled</option>
@@ -1196,6 +1197,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                             className={`w-1 h-1 rounded ${
                               isInventoryView ? (
                                 po.inventory_status === "pending receipt" ? "bg-purple-500" :
+                                po.inventory_status === "dc uploaded" ? "bg-orange-500" :
                                 po.inventory_status === "material received" ? "bg-indigo-500" :
                                 po.inventory_status === "partially received" ? "bg-amber-500" :
                                 "bg-emerald-500"
@@ -1211,6 +1213,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                           ></div>
                           {isInventoryView ? (
                             po.inventory_status === "pending receipt" ? "Pending Receipt" :
+                            po.inventory_status === "dc uploaded" ? "Awaiting DC Approval" :
                             po.inventory_status === "material received" ? "Awaiting GRN" :
                             po.inventory_status === "partially received" ? "Partially Received" :
                             po.inventory_status
@@ -1292,7 +1295,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                               <Send size={14} />
                             </button>
                           )}
-                          {isInventoryView && (po.inventory_status === "pending receipt" || po.inventory_status === "material received" || po.inventory_status === "partially received") && (
+                          {isInventoryView && (po.inventory_status === "material received" || po.inventory_status === "partially received") && po.dc_approved === 1 && (
                             <button
                               onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)}
                               className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"

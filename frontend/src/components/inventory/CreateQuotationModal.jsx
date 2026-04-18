@@ -20,25 +20,45 @@ import { toast } from "react-toastify";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
 import { renderDimensions } from "../../utils/dimensionUtils";
 
+const DimensionInput = ({ label, field, placeholder, item, index, handleItemChange }) => (
+  <div key={field} className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+    <label className="text-[10px] text-slate-500 font-medium">{label}</label>
+    <input
+      type="number"
+      value={
+        item[field] !== null && item[field] !== undefined
+          ? Number(item[field])
+          : ""
+      }
+      onChange={(e) => handleItemChange(index, field, e.target.value)}
+      placeholder={placeholder}
+      className="w-full p-1 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+    />
+  </div>
+);
+
+const VendorDimensionInput = ({ label, field, placeholder, item, index, handleItemChange }) => (
+  <div key={field} className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
+    <label className="text-[10px] text-slate-500 font-medium">{label}</label>
+    <input
+      type="number"
+      value={
+        item[`vendor_${field}`] !== null &&
+        item[`vendor_${field}`] !== undefined
+          ? item[`vendor_${field}`]
+          : ""
+      }
+      onChange={(e) =>
+        handleItemChange(index, `vendor_${field}`, e.target.value)
+      }
+      placeholder={placeholder}
+      className="w-full p-1 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
+    />
+  </div>
+);
+
 const renderDimensionFields = (item, index, handleItemChange) => {
   const group = (item.item_group || "").toLowerCase();
-
-  const InputField = ({ label, field, placeholder }) => (
-    <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
-      <label className="text-[10px] text-slate-500 font-medium">{label}</label>
-      <input
-        type="number"
-        value={
-          item[field] !== null && item[field] !== undefined
-            ? Number(item[field])
-            : ""
-        }
-        onChange={(e) => handleItemChange(index, field, e.target.value)}
-        placeholder={placeholder}
-        className="w-full p-1 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
-      />
-    </div>
-  );
 
   let fields = [];
 
@@ -118,8 +138,14 @@ const renderDimensionFields = (item, index, handleItemChange) => {
 
   return (
     <div className="flex flex-wrap gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
-      {fields.map((f, i) => (
-        <InputField key={i} {...f} />
+      {fields.map((f) => (
+        <DimensionInput
+          key={f.field}
+          {...f}
+          item={item}
+          index={index}
+          handleItemChange={handleItemChange}
+        />
       ))}
     </div>
   );
@@ -128,26 +154,6 @@ const renderDimensionFields = (item, index, handleItemChange) => {
 const renderVendorDimensionFields = (item, index, handleItemChange) => {
   const group = (item.item_group || "").toLowerCase();
 
-  const InputField = ({ label, field, placeholder }) => (
-    <div className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
-      <label className="text-[10px] text-slate-500 font-medium">{label}</label>
-      <input
-        type="number"
-        value={
-          item[`vendor_${field}`] !== null &&
-          item[`vendor_${field}`] !== undefined
-            ? item[`vendor_${field}`]
-            : ""
-        }
-        onChange={(e) =>
-          handleItemChange(index, `vendor_${field}`, e.target.value)
-        }
-        placeholder={placeholder}
-        className="w-full p-1 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none transition-all"
-      />
-    </div>
-  );
-
   let fields = [];
 
   if (group === "plate" || group === "plates") {
@@ -226,8 +232,14 @@ const renderVendorDimensionFields = (item, index, handleItemChange) => {
 
   return (
     <div className="flex flex-wrap gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
-      {fields.map((f, i) => (
-        <InputField key={i} {...f} />
+      {fields.map((f) => (
+        <VendorDimensionInput
+          key={f.field}
+          {...f}
+          item={item}
+          index={index}
+          handleItemChange={handleItemChange}
+        />
       ))}
     </div>
   );

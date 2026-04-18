@@ -539,7 +539,8 @@ const uploadInvoice = async (req, res) => {
                      inventory_status = CASE 
                         WHEN inventory_status IN ('material received', 'partially received', 'fulfilled', 'delivered') THEN inventory_status 
                         ELSE 'material received' 
-                     END
+                     END,
+                     dc_approved = 1
                  WHERE id = ?`, 
                 [id]
             );

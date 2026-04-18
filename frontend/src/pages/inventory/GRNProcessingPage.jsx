@@ -29,6 +29,24 @@ import {
 import { renderDimensions } from "../../utils/dimensionUtils";
 import taskService from "../../utils/taskService";
 
+const renderOriginalDimensions = (item) => {
+  if (!item) return "-";
+  const originalItem = {
+    item_group: item.item_group,
+    length: item.length_original,
+    width: item.width_original,
+    thickness: item.thickness_original,
+    diameter: item.diameter_original,
+    outer_diameter: item.outer_diameter_original,
+    height: item.height_original,
+    side1: item.side1_original,
+    side2: item.side2_original,
+    web_thickness: item.web_thickness_original,
+    flange_thickness: item.flange_thickness_original,
+  };
+  return renderDimensions(originalItem);
+};
+
 const ItemGroupOptions = [
   "Plates", "Round Bar", "Pipe", "Square Bar", "Rectangular Bar", 
   "Square Tube", "Rectangular Tube", "C Channel", "Angle", 
@@ -168,9 +186,10 @@ const GRNProcessingPage = () => {
         const matName = item.material_name || item.vendor_material_name || item.itemName || item.item_name || item.name || item.description;
         return {
           po_item_id: item.id,
-          material_name: matName,
+          material_name: '', // Initially empty as requested
           material_name_original: matName,
           item_code: generateItemCode(matName),
+          item_code_original: generateItemCode(matName),
           item_group: item.item_group || "",
           ordered_qty: parseFloat(item.quantity) || 0,
           received_qty: parseFloat(item.quantity) || 0, // Default to full receipt
@@ -224,15 +243,23 @@ const GRNProcessingPage = () => {
     newItems[idx][field] = value;
     
     // Recalculate weight if dimensions or quantity changed
-    if (['received_qty', 'length', 'width', 'thickness', 'diameter', 'outer_diameter', 'height', 'side1', 'side2', 'web_thickness', 'flange_thickness', 'density', 'item_group'].includes(field)) {
-      const unitWeight = calculateItemWeight(newItems[idx]);
-      newItems[idx].unit_weight = unitWeight;
-      newItems[idx].received_weight = parseFloat((parseFloat(newItems[idx].received_qty || 0) * unitWeight).toFixed(4));
+    const dimensionFields = ['length', 'width', 'thickness', 'diameter', 'outer_diameter', 'height', 'side1', 'side2', 'web_thickness', 'flange_thickness'];
+    if (['received_qty', ...dimensionFields, 'density', 'item_group'].includes(field)) {
+      // Only recalculate unit weight if at least one dimension is entered
+      const hasNewDimensions = dimensionFields.some(f => newItems[idx][f] !== '');
       
-      // Update item code if name changed
-      if (field === 'material_name') {
-        newItems[idx].item_code = generateItemCode(value);
+      if (hasNewDimensions) {
+        const unitWeight = calculateItemWeight(newItems[idx]);
+        newItems[idx].unit_weight = unitWeight;
       }
+      // If no dimensions are entered, it keeps using the initial unit_weight (from PO)
+      
+      newItems[idx].received_weight = parseFloat((parseFloat(newItems[idx].received_qty || 0) * newItems[idx].unit_weight).toFixed(4));
+    }
+
+    // Update item code if name changed
+    if (field === 'material_name') {
+      newItems[idx].item_code = value ? generateItemCode(value) : newItems[idx].item_code_original;
     }
 
     setGrnForm({ ...grnForm, items: newItems });
@@ -252,13 +279,26 @@ const GRNProcessingPage = () => {
         vendor_id: poData.vendor_id,
         posting_date: grnForm.posting_date,
         notes: grnForm.notes,
-        items: grnForm.items.filter(item => Number(item.received_qty) > 0).map(item => ({
-          ...item,
-          received_qty: parseFloat(item.received_qty),
-          received_weight: parseFloat(item.received_weight),
-          rate_per_kg: parseFloat(item.rate_per_kg || item.rate || 0),
-          generate_st: true
-        }))
+        items: grnForm.items.filter(item => Number(item.received_qty) > 0).map(item => {
+          const dimensionFields = ['length', 'width', 'thickness', 'diameter', 'outer_diameter', 'height', 'side1', 'side2', 'web_thickness', 'flange_thickness'];
+          const finalItem = {
+            ...item,
+            material_name: item.material_name || item.material_name_original,
+            received_qty: parseFloat(item.received_qty),
+            received_weight: parseFloat(item.received_weight),
+            rate_per_kg: parseFloat(item.rate_per_kg || item.rate || 0),
+            generate_st: true
+          };
+          
+          // Apply original dimensions if new ones are not provided
+          dimensionFields.forEach(f => {
+            if (!finalItem[f] && finalItem[`${f}_original`]) {
+              finalItem[f] = finalItem[`${f}_original`];
+            }
+          });
+          
+          return finalItem;
+        })
       };
 
       await axios.post("/department/inventory/purchase-orders/receipts", payload);
@@ -479,7 +519,7 @@ const GRNProcessingPage = () => {
     },
   ];
 
-  const GRNCreationUI = () => {
+  const renderGRNCreationUI = () => {
     if (loadingPO) return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <RefreshCw className="animate-spin text-blue-600" size={40} />
@@ -555,7 +595,7 @@ const GRNProcessingPage = () => {
                       <div className="space-y-1">
                         <p className="text-sm font-medium text-slate-900 dark:text-white line-clamp-2">{item.material_name_original || item.material_name}</p>
                         <p className="text-[10px] text-slate-400 uppercase tracking-wider">{item.item_group || "N/A"}</p>
-                        <p className="text-[10px] text-blue-600 font-medium italic">Ordered: {renderDimensions(item)}</p>
+                        <p className="text-[10px] text-blue-600 font-medium italic">Ordered: {renderOriginalDimensions(item)}</p>
                       </div>
                     </td>
                     <td className="px-4 py-6">
@@ -678,13 +718,90 @@ const GRNProcessingPage = () => {
                               </div>
                             </>
                           )}
+                          {(item.item_group?.toLowerCase()?.includes('angle')) && (
+                            <>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">S1</label>
+                                <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="S1" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">S2</label>
+                                <input type="number" value={item.side2 || ''} onChange={(e) => handleItemChange(idx, 'side2', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="S2" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">T</label>
+                                <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="T" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
+                          {(item.item_group?.toLowerCase()?.includes('c channel')) && (
+                            <>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">H</label>
+                                <input type="number" value={item.height || ''} onChange={(e) => handleItemChange(idx, 'height', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="H" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">W</label>
+                                <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="W" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">Tw</label>
+                                <input type="number" value={item.web_thickness || ''} onChange={(e) => handleItemChange(idx, 'web_thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="Tw" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">Tf</label>
+                                <input type="number" value={item.flange_thickness || ''} onChange={(e) => handleItemChange(idx, 'flange_thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="Tf" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
+                          {(item.item_group?.toLowerCase()?.includes('beam')) && (
+                            <>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">W</label>
+                                <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="W" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">H</label>
+                                <input type="number" value={item.height || ''} onChange={(e) => handleItemChange(idx, 'height', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="H" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">Tw</label>
+                                <input type="number" value={item.web_thickness || ''} onChange={(e) => handleItemChange(idx, 'web_thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="Tw" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">Tf</label>
+                                <input type="number" value={item.flange_thickness || ''} onChange={(e) => handleItemChange(idx, 'flange_thickness', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="Tf" />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] text-slate-500 ml-1">L</label>
+                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-[10px] outline-none" placeholder="L" />
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-6 text-center text-sm text-slate-500">{parseFloat(item.ordered_qty).toLocaleString()}</td>
                     <td className="px-4 py-6 text-center text-sm text-slate-500">{item.unit}</td>
                     <td className="px-4 py-6 text-center">
-                      <span className="text-sm font-medium text-slate-900 dark:text-white">{parseFloat(item.received_weight || 0).toFixed(3)} Kg</span>
+                      <div className="flex items-center justify-center gap-1">
+                        <input 
+                          type="number"
+                          step="any"
+                          value={item.received_weight}
+                          onChange={(e) => handleItemChange(idx, 'received_weight', e.target.value)}
+                          className="w-24 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-center focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                        <span className="text-[10px] text-slate-400">Kg</span>
+                      </div>
                     </td>
                     <td className="px-4 py-6">
                       <input 
@@ -730,7 +847,7 @@ const GRNProcessingPage = () => {
     );
   };
 
-  const StatCard = ({ stat }) => {
+  const renderStatCard = (stat) => {
     const Icon = stat.icon;
     return (
       <div className={`relative overflow-hidden rounded border p-2 transition-all duration-300 hover: ${stat.bgColor} ${stat.borderColor}`}>
@@ -764,7 +881,7 @@ const GRNProcessingPage = () => {
   return (
     <div className="space-y-2 p-4">
       {poId ? (
-        <GRNCreationUI />
+        renderGRNCreationUI()
       ) : (
         <>
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -793,7 +910,9 @@ const GRNProcessingPage = () => {
 
       <div className="grid grid-cols-1 my-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {stats.map((stat, idx) => (
-          <StatCard key={idx} stat={stat} />
+          <React.Fragment key={idx}>
+            {renderStatCard(stat)}
+          </React.Fragment>
         ))}
       </div>
 

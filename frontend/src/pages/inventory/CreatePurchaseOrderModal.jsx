@@ -21,6 +21,7 @@ const ItemGroupOptions = [
   "Angle",
   "I Beam",
   "H Beam",
+  "Block",
   "Bought Out",
   "Paint",
 ];
@@ -29,7 +30,8 @@ const MaterialTypeOptions = [
   { label: "Stainless Steel (304/316)", value: "8.00" },
   { label: "Aluminum", value: "2.70" },
   { label: "Copper", value: "8.96" },
-  { label: "Chemical", value: "1.10" }
+  { label: "Chemical", value: "1.10" },
+  { label: "Other", value: "other" }
 ];
 const MaterialGradeOptions = [
   "IS:2062-250", "IS:2062-350", "IS:2062-450", "SA-516 Gr.70", "S690QL",
@@ -72,6 +74,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     web_thickness: "",
     flange_thickness: "",
     material_type: "",
+    densityType: "",
     density: 0,
     unit_weight: 0,
     remark: "",
@@ -136,7 +139,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     const unitWeight = calculateItemWeight(newManualItem);
     const totalWeight = unitWeight * (parseFloat(newManualItem.quantity) || 0);
     
-    if (unitWeight !== newManualItem.calculatedWeight) {
+    if (unitWeight !== newManualItem.calculatedWeight || totalWeight !== newManualItem.total_weight) {
       setNewManualItem(prev => ({ 
         ...prev, 
         calculatedWeight: unitWeight,
@@ -510,6 +513,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       web_thickness: "",
       flange_thickness: "",
       material_type: "",
+      densityType: "",
       density: 0,
       unit_weight: 0,
       remark: "",
@@ -537,6 +541,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     if (field === 'quantity' || field === 'rate' || field === 'total_weight') {
       const quantity = parseFloat(newItems[index].quantity) || 0;
       const rate = parseFloat(newItems[index].rate) || 0;
+      const unit_weight = parseFloat(newItems[index].unit_weight) || 0;
+      
+      // If quantity changed and we have unit weight, recalculate total weight
+      if (field === 'quantity' && unit_weight > 0) {
+        newItems[index].total_weight = quantity * unit_weight;
+      }
+      
       const total_weight = parseFloat(newItems[index].total_weight) || 0;
 
       if (total_weight > 0) {
@@ -847,18 +858,41 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                         <SearchableSelect
                           label="Material (Density)"
                           options={MaterialTypeOptions}
-                          value={newManualItem.density}
+                          value={newManualItem.densityType}
                           onChange={(val) => {
-                            const selected = MaterialTypeOptions.find(opt => opt.value === val);
-                            setNewManualItem(prev => ({ 
-                              ...prev, 
-                              density: val,
-                              material_type: selected ? selected.label : ""
-                            }));
+                            if (val === "other") {
+                              setNewManualItem(prev => ({ 
+                                ...prev, 
+                                densityType: "other",
+                                density: prev.densityType === "other" ? prev.density : 0,
+                                material_type: "Other"
+                              }));
+                            } else {
+                              const selected = MaterialTypeOptions.find(opt => opt.value === val);
+                              setNewManualItem(prev => ({ 
+                                ...prev, 
+                                densityType: val,
+                                density: val,
+                                material_type: selected ? selected.label : ""
+                              }));
+                            }
                           }}
                           placeholder="Select material"
                         />
                       </div>
+                      {newManualItem.densityType === "other" && (
+                        <div className="md:col-span-3">
+                          <label className="block text-[10px] text-slate-500 mb-1 ml-1">Custom Density</label>
+                          <input
+                            type="number"
+                            step="0.001"
+                            value={newManualItem.density}
+                            onChange={(e) => setNewManualItem(prev => ({ ...prev, density: e.target.value }))}
+                            placeholder="Enter density"
+                            className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                          />
+                        </div>
+                      )}
                       <div className="md:col-span-3">
                         <SearchableSelect
                           label="Grade"
@@ -871,6 +905,17 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                       </div>
                     </>
                   )}
+
+                  <div className="md:col-span-3">
+                    <label className="block text-[10px] text-slate-500 mb-1 ml-1">Part Detail</label>
+                    <input
+                      type="text"
+                      value={newManualItem.part_detail}
+                      onChange={(e) => setNewManualItem(prev => ({ ...prev, part_detail: e.target.value }))}
+                      placeholder="Details"
+                      className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                    />
+                  </div>
 
                   {/* Dimension Logic (Plates) */}
                   {(newManualItem.item_group?.toLowerCase() === "plates" || newManualItem.item_group?.toLowerCase() === "plate") && (
@@ -1255,13 +1300,23 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-[10px] text-slate-500 mb-1 ml-1">Rate (₹)</label>
+                    <label className="block text-[10px] text-slate-500 mb-1 ml-1">Rate per Kg (₹)</label>
                     <input
                       type="number"
                       value={newManualItem.rate}
                       onChange={(e) => setNewManualItem(prev => ({ ...prev, rate: e.target.value }))}
                       className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none border-blue-200 dark:border-blue-900/30"
                       placeholder="Rate"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-[10px] text-slate-500 mb-1 ml-1">Remark</label>
+                    <input
+                      type="text"
+                      value={newManualItem.remark}
+                      onChange={(e) => setNewManualItem(prev => ({ ...prev, remark: e.target.value }))}
+                      placeholder="Remarks"
+                      className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -1313,7 +1368,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                       <th className="p-2 text-center w-20">UOM</th>
                       {(!isInventoryView || !viewMode) && (
                         <>
-                          <th className="p-2 text-center w-32">Rate/Price</th>
+                          <th className="p-2 text-center w-32">Rate (per Kg/Unit)</th>
                           <th className="p-2 text-center w-32">Weight (Kg)</th>
                           <th className="p-2 text-right w-40">Total</th>
                         </>
@@ -1347,14 +1402,28 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                                 />
                               )}
                               <span className="text-[10px] text-slate-500">{item.item_group || "No Group"}</span>
+                              {item.remark && <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium italic">Rem: {item.remark}</span>}
                             </div>
                           </td>
                           <td className="p-2">
                             <div className="flex flex-col">
                               {renderDimensionsText(item)}
-                              <span className="text-[10px] text-slate-400 italic">
-                                {item.material_grade} {item.make ? `| Make: ${item.make}` : ""}
-                              </span>
+                              <div className="flex flex-col gap-0.5">
+                                {viewMode ? (
+                                  item.part_detail && <span className="text-[10px] text-blue-500 font-medium">{item.part_detail}</span>
+                                ) : (
+                                  <input 
+                                    type="text"
+                                    className="w-full bg-transparent border-none p-0 text-[10px] text-blue-500 font-medium focus:ring-0"
+                                    placeholder="Part detail..."
+                                    value={item.part_detail || ""}
+                                    onChange={(e) => handleItemChange(idx, 'part_detail', e.target.value)}
+                                  />
+                                )}
+                                <span className="text-[10px] text-slate-400 italic">
+                                  {item.material_grade} {item.make ? `| Make: ${item.make}` : ""}
+                                </span>
+                              </div>
                             </div>
                           </td>
                           <td className="p-2 text-center">
@@ -1388,7 +1457,12 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                                 )}
                               </td>
                               <td className="p-2 text-center text-xs text-slate-500">
-                                {item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)} Kg` : "-"}
+                                {item.total_weight ? (
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
+                                    <span className="font-medium text-slate-700 dark:text-slate-300">Total: {parseFloat(item.total_weight).toFixed(3)} Kg</span>
+                                  </div>
+                                ) : "-"}
                               </td>
                               <td className="p-2 text-right font-medium text-xs">
                                 ₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}
@@ -1397,7 +1471,12 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                           )}
                           {isInventoryView && viewMode && (
                             <td className="p-2 text-center text-xs text-slate-500">
-                               {item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)} Kg` : "-"}
+                               {item.total_weight ? (
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
+                                    <span className="font-medium text-slate-700 dark:text-slate-300">Total: {parseFloat(item.total_weight).toFixed(3)} Kg</span>
+                                  </div>
+                                ) : "-"}
                             </td>
                           )}
                           {!viewMode && (

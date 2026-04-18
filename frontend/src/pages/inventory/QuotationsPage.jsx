@@ -1167,41 +1167,6 @@ const QuotationsPage = ({ defaultTab }) => {
         </div>
       </div>
 
-      {/* Quotation Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-2 border border-blue-200 dark:border-slate-600">
-          <p className="text-sm  text-slate-500 dark:text-slate-400">
-            Total Quotations
-          </p>
-          <p className="text-xl  text-slate-900 dark:text-white mt-1">
-            {stats.total || 0}
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded p-2 border border-yellow-200 dark:border-slate-600">
-          <p className="text-sm  text-slate-500 dark:text-slate-400">
-            Pending Quotes
-          </p>
-          <p className="text-xl  text-slate-900 dark:text-white mt-1">
-            {stats.pending_count || 0}
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-2 border border-green-200 dark:border-slate-600">
-          <p className="text-sm  text-slate-500 dark:text-slate-400">
-            Approved Quotes
-          </p>
-          <p className="text-xl  text-slate-900 dark:text-white mt-1">
-            {stats.approved_count || 0}
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-slate-800 dark:to-slate-700 rounded p-2 border border-purple-200 dark:border-slate-600">
-          <p className="text-sm  text-slate-500 dark:text-slate-400">
-            Total Value
-          </p>
-          <p className="text-xl  text-slate-900 dark:text-white mt-1">
-            {formatCurrency(stats.total_value)}
-          </p>
-        </div>
-      </div>
 
       {/* Add Quotation Modal */}
       <CreateQuotationModal
