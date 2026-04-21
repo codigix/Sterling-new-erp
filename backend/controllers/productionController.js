@@ -7,11 +7,9 @@ exports.getRootCards = async (req, res) => {
     // Basic query to fetch root cards that are ready for production
     // Filtering by status 'Released' or 'Production' (depending on current project's status flow)
     let query = `
-      SELECT rc.*, 
-             q.product_name, q.quantity
+      SELECT rc.* 
       FROM root_cards rc
-      LEFT JOIN quotations q ON rc.id = q.root_card_id
-      WHERE rc.status IN ('Released', 'Production', 'Partially Completed')
+      WHERE rc.status IN ('RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 'Released', 'Production', 'Partially Completed', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED')
     `;
 
     if (assignedOnly === 'true') {

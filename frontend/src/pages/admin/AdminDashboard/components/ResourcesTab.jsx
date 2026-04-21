@@ -116,7 +116,7 @@ const ResourcesTab = () => {
     {
       title: "Resource Allocation",
       description:
-        "Reallocate 2 assembly workers to packaging line to resolve bottleneck.",
+        "Reallocate 2 assembly employees to packaging line to resolve bottleneck.",
       impact: "High",
       savings: "1.5 days faster delivery",
       type: "reallocation",

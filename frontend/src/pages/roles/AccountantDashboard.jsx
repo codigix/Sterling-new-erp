@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import RoleDashboardLayout from "../../components/layout/RoleDashboardLayout";
 import FinancialOverviewPage from "../accountant/FinancialOverviewPage";
+import DepartmentPortalTasksPage from "../department/DepartmentPortalTasksPage";
 import VendorInvoicesPage from "../accountant/VendorInvoicesPage";
 import BillPaymentsPage from "../accountant/BillPaymentsPage";
 import CustomerInvoicesPage from "../accountant/CustomerInvoicesPage";
@@ -200,6 +201,11 @@ const AccountantDashboard = () => {
       icon: BarChart3,
     },
     {
+      title: "Departmental Tasks",
+      path: "/accountant/tasks",
+      icon: FileText,
+    },
+    {
       title: "Accounts Payable",
       icon: CreditCard,
       submenu: [
@@ -332,6 +338,10 @@ const AccountantDashboard = () => {
               handleExport={handleExport}
             />
           }
+        />
+        <Route
+          path="/tasks"
+          element={<DepartmentPortalTasksPage />}
         />
         <Route
           path="/payable/vendor-invoices"

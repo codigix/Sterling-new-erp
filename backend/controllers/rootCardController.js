@@ -107,7 +107,13 @@ const getAllRootCards = async (req, res) => {
     } else if (isProduction) {
       // Production can only see root cards that have been sent to production
       const productionAllowedStatuses = [
+        'RC_CREATED',
+        'DESIGN_IN_PROGRESS',
+        'QUALITY_QAP_PENDING',
+        'DESIGN_QAP_REVIEW',
         'BOM_PREPARATION', 
+        'PARTIALLY_RELEASED',
+        'MATERIAL_RELEASED',
         'MATERIAL_PLANNING', 
         'PURCHASE_ORDER_RELEASED', 
         'PROCUREMENT_IN_PROGRESS', 

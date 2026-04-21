@@ -83,9 +83,9 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
         {val || 'in-house'}
       </Badge>
     )},
-    { key: "workstation", label: "Workstation / Vendor", render: (val, row) => (
+    { key: "vendorName", label: "Vendor (Outsource)", render: (val, row) => (
       <div className="flex flex-col">
-        <span className="text-xs font-medium text-slate-700">{row.type === 'outsource' ? (row.vendorName || '-') : (val || '-')}</span>
+        <span className="text-xs font-medium text-slate-700">{row.type === 'outsource' ? (val || '-') : '-'}</span>
         {row.type === 'outsource' && row.subcontractWarehouse && (
           <span className="text-xs text-slate-500 italic">Wh: {row.subcontractWarehouse}</span>
         )}

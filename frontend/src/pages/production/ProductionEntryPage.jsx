@@ -24,7 +24,6 @@ const ProductionEntryPage = () => {
 
   // Master data for selects
   const [employees, setEmployees] = useState([]);
-  const [workstations, setWorkstations] = useState([]);
   const [nextOperations, setNextOperations] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
 
@@ -33,7 +32,6 @@ const ProductionEntryPage = () => {
     day: 1,
     date: format(new Date(), 'yyyy-MM-dd'),
     operatorId: '',
-    workstationId: '',
     shift: 'A',
     startTime: '08:00',
     startPeriod: 'AM',
@@ -100,16 +98,14 @@ const ProductionEntryPage = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [opRes, empRes, wsRes, whRes] = await Promise.all([
+      const [opRes, empRes, whRes] = await Promise.all([
         axios.get(`/production/work-orders/operations/${id}/details`),
         axios.get('/employee/portal/employees'),
-        axios.get('/production/workstations'),
         axios.get('/inventory/warehouses')
       ]);
       
       setOperation(opRes.data);
       setEmployees(empRes.data || []);
-      setWorkstations(wsRes.data.workstations || []);
       setWarehouses(whRes.data || []);
       
       // If we have work order id, we can fetch all operations for "Next Operation" list
@@ -128,7 +124,6 @@ const ProductionEntryPage = () => {
       setTimeLogForm(prev => ({
         ...prev,
         operatorId: opRes.data.operator_id || '',
-        workstationId: opRes.data.workstation_id || '',
         producedQty: 0
       }));
       
@@ -440,7 +435,7 @@ const ProductionEntryPage = () => {
                   </div>
                 </div>
 
-                <div className="md:col-span-3">
+                <div className="md:col-span-6">
                   <label className="text-xs  text-slate-500  mb-2 block ">Operator <span className="text-red-500">*</span></label>
                   <select 
                     className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm  text-slate-700 appearance-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
@@ -455,26 +450,7 @@ const ProductionEntryPage = () => {
                   </select>
                 </div>
 
-                <div className="md:col-span-3">
-                  <label className="text-xs  text-slate-500  mb-2 block ">Workstation <span className="text-red-500">*</span></label>
-                  <div className="relative">
-                    <select 
-                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded text-sm  text-slate-700 appearance-none pr-8 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all cursor-pointer"
-                      value={timeLogForm.workstationId}
-                      onChange={(e) => setTimeLogForm({...timeLogForm, workstationId: e.target.value})}
-                      required
-                    >
-                      <option value="">Select Workstation</option>
-                      {workstations.map(ws => (
-                        <option key={ws.id} value={ws.id}>{ws.display_name}</option>
-                      ))}
-                    </select>
-                    <X size={14} className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-red-500 transition-colors" />
-                    <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 rotate-90" />
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
+                <div className="md:col-span-4">
                   <label className="text-xs  text-slate-500  mb-2 block  text-center">Shift <span className="text-red-500">*</span></label>
                   <div className="flex items-center gap-1.5 h-11">
                     <div className="flex bg-white border border-slate-200 rounded overflow-hidden h-full flex-1 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
@@ -499,7 +475,7 @@ const ProductionEntryPage = () => {
                   </div>
                 </div>
 
-                <div className="md:col-span-1">
+                <div className="md:col-span-2">
                   <label className="text-xs  text-slate-500  mb-2 block  text-center">Qty <span className="text-red-500">*</span></label>
                   <div className="flex focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 rounded transition-all overflow-hidden border border-slate-200 h-11">
                     <input 

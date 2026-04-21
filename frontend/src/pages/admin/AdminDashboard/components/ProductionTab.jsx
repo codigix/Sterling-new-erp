@@ -25,7 +25,7 @@ const ProductionTab = ({ production }) => {
       estimatedCompletion: "2025-11-25",
       actualCompletion: "2025-11-30",
       bottleneck: "Material Shortage",
-      assignedWorkers: 8,
+      assignedEmployees: 8,
       progress: 78,
     },
     {
@@ -36,7 +36,7 @@ const ProductionTab = ({ production }) => {
       estimatedCompletion: "2025-12-01",
       actualCompletion: "2025-12-01",
       bottleneck: "None",
-      assignedWorkers: 6,
+      assignedEmployees: 6,
       progress: 92,
     },
     {
@@ -47,7 +47,7 @@ const ProductionTab = ({ production }) => {
       estimatedCompletion: "2025-11-22",
       actualCompletion: "2025-11-25",
       bottleneck: "QC Backlog",
-      assignedWorkers: 4,
+      assignedEmployees: 4,
       progress: 85,
     },
     {
@@ -58,7 +58,7 @@ const ProductionTab = ({ production }) => {
       estimatedCompletion: "2025-11-20",
       actualCompletion: "2025-12-02",
       bottleneck: "Equipment Failure",
-      assignedWorkers: 12,
+      assignedEmployees: 12,
       progress: 45,
     },
   ];
@@ -252,10 +252,10 @@ const ProductionTab = ({ production }) => {
                     </div>
                     <div>
                       <span className="text-slate-500 dark:text-slate-400">
-                        Workers:
+                        Employees:
                       </span>
                       <span className="ml-1 font-medium">
-                        {item.assignedWorkers}
+                        {item.assignedEmployees || item.assignedWorkers}
                       </span>
                     </div>
                   </div>

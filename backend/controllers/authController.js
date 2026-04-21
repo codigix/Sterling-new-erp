@@ -16,13 +16,25 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Map department to a default role if needed, or just use department as role
-    const role = department.toLowerCase().replace(/\s+/g, '_');
+    // Map department to ID and Role
+    const departmentMap = {
+      'Admin': { id: 1, role: 'admin' },
+      'Design Engineer': { id: 2, role: 'design_engineer' },
+      'Production': { id: 3, role: 'production' },
+      'Procurement': { id: 4, role: 'procurement' },
+      'Quality': { id: 5, role: 'quality' },
+      'Inventory': { id: 6, role: 'inventory' },
+      'Accountant': { id: 7, role: 'accountant' }
+    };
+
+    const deptInfo = departmentMap[department] || { id: null, role: department.toLowerCase().replace(/\s+/g, '_') };
+    const role = deptInfo.role;
+    const departmentId = deptInfo.id;
 
     // Insert user
     const [result] = await db.query(
-      'INSERT INTO users (full_name, email, password, department, role) VALUES (?, ?, ?, ?, ?)',
-      [fullName, email, hashedPassword, department, role]
+      'INSERT INTO users (full_name, email, password, department, department_id, role) VALUES (?, ?, ?, ?, ?, ?)',
+      [fullName, email, hashedPassword, department, departmentId, role]
     );
 
     res.status(201).json({ message: 'User registered successfully', userId: result.insertId });
@@ -52,7 +64,7 @@ const login = async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user.id, fullName: user.full_name, role: user.role, department: user.department },
+      { id: user.id, fullName: user.full_name, role: user.role, department: user.department, departmentId: user.department_id },
       process.env.JWT_SECRET || 'sterling_secret',
       { expiresIn: '1d' }
     );
@@ -64,7 +76,8 @@ const login = async (req, res) => {
         fullName: user.full_name,
         email: user.email,
         role: user.role,
-        department: user.department
+        department: user.department,
+        departmentId: user.department_id
       }
     });
   } catch (error) {
@@ -75,7 +88,7 @@ const login = async (req, res) => {
 
 const getMe = async (req, res) => {
   try {
-    const [users] = await db.query('SELECT id, full_name, email, department, role FROM users WHERE id = ?', [req.user.id]);
+    const [users] = await db.query('SELECT id, full_name, email, department, department_id, role FROM users WHERE id = ?', [req.user.id]);
     if (users.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -87,7 +100,8 @@ const getMe = async (req, res) => {
         fullName: user.full_name,
         email: user.email,
         role: user.role,
-        department: user.department
+        department: user.department,
+        departmentId: user.department_id
       }
     });
   } catch (error) {

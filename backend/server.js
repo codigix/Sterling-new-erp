@@ -19,6 +19,7 @@ const qualityRoutes = require('./routes/qualityRoutes');
 const grnRoutes = require('./routes/grnRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const productionRoutes = require('./routes/productionRoutes');
+const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 
 const path = require('path');
@@ -88,14 +89,12 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/department/procurement/vendors', quotationRoutes);
 app.use('/api/department/inventory/vendors', quotationRoutes);
 
-// Root Cards (sometimes called directly or through departments)
-app.use('/api/production/root-cards', rootCardRoutes);
-app.use('/api/department/procurement/root-cards', rootCardRoutes);
-app.use('/api/department/inventory/root-cards', rootCardRoutes);
-
 // New Production Flow Routes
 app.use('/api/production', productionRoutes);
 app.use('/api/department/production', productionRoutes);
+
+// Departmental Task Routes
+app.use('/api/departmental-tasks', departmentTaskRoutes);
 
 // Test Route
 app.get('/api/test', async (req, res) => {

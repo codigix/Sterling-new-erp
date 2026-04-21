@@ -116,7 +116,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
         text: 'Material requests have been successfully sent to procurement.',
         confirmButtonColor: '#0f172a'
       }).then(() => {
-        // Only redirect to inventory manager page if user is admin or inventory manager
+        // Only redirect to inventory page if user is admin or has inventory access
         // Production users should stay on their current page (production plan)
         const isProductionUser = user?.role?.toLowerCase().includes('production');
         const canViewInventory = ['Admin', 'Inventory', 'Procurement'].includes(user?.role);

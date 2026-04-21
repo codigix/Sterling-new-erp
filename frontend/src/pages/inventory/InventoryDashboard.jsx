@@ -20,7 +20,7 @@ const MaterialRequestsPage = lazy(() => import("./MaterialRequestsPage"));
 const WarehousesPage = lazy(() => import("./WarehousesPage"));
 const PurchaseOrderDetailPage = lazy(() => import("./PurchaseOrderDetailPage"));
 const PurchaseOrderEditPage = lazy(() => import("./PurchaseOrderEditPage"));
-const InventoryTasksPage = lazy(() => import("../department/InventoryTasksPage"));
+
 import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -275,7 +275,7 @@ const DashboardContent = React.memo(({
                 Assigned Root Cards (Logistics & Inventory)
               </h3>
               <Link
-                to="/department/inventory/department-tasks"
+                to="/department/tasks"
                 className="text-sm text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700"
               >
                 View All Tasks →
@@ -317,7 +317,7 @@ const DashboardContent = React.memo(({
                         PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                       </span>
                       <Link
-                        to={`/department/inventory/department-tasks`}
+                        to={`/department/tasks`}
                         className="text-xs  text-blue-600 hover:text-blue-700"
                       >
                         Process →
@@ -602,7 +602,7 @@ const InventoryDashboard = () => {
     },
     {
       title: "Department Tasks",
-      path: "/department/inventory/department-tasks",
+      path: "/department/tasks",
       icon: ClipboardList,
     },
   ], []);
@@ -750,7 +750,6 @@ const InventoryDashboard = () => {
           />
           <Route path="/purchase-receipt" element={<PurchaseReceiptPage />} />
           <Route path="/grn-processing" element={<GRNProcessingPage />} />
-          <Route path="/department-tasks" element={<InventoryTasksPage />} />
           <Route
             path="*"
             element={<Navigate to="/department/inventory/dashboard" replace />}

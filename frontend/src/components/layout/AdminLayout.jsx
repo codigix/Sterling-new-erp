@@ -61,6 +61,12 @@ const AdminLayout = () => {
       badge: null,
     },
     {
+      title: "Assign Dept Tasks",
+      path: "/admin/department-tasks",
+      icon: CheckSquare,
+      badge: null,
+    },
+    {
       title: "Role Management",
       path: "/admin/roles",
       icon: Shield,
@@ -70,12 +76,6 @@ const AdminLayout = () => {
       title: "Reports",
       path: "/admin/reports",
       icon: FileText,
-      badge: null,
-    },
-    {
-      title: "Accounts",
-      path: "/accountant/dashboard",
-      icon: BarChart3,
       badge: null,
     },
     {

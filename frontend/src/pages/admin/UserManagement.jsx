@@ -169,8 +169,7 @@ const UserManagement = () => {
       'procurement': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
       'qc': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
       'inventory': 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300',
-      'production supervisor': 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300',
-      'worker': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+      'production supervisor': 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300'
     };
     return colors[roleName?.toLowerCase()] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
   };

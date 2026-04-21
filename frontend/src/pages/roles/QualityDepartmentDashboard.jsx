@@ -9,6 +9,7 @@ import QCTasksPage from "../qc/QCTasksPage";
 import QualityQAPPage from "../qc/QualityQAPPage";
 import UniversalRootCardsPage from "../shared/UniversalRootCardsPage";
 import UniversalRootCardDetailPage from "../shared/UniversalRootCardDetailPage";
+import DepartmentPortalTasksPage from "../department/DepartmentPortalTasksPage";
 import {
   CheckCircle,
   AlertCircle,
@@ -282,6 +283,11 @@ const QualityDepartmentDashboard = () => {
       icon: CheckCircle,
     },
     {
+      title: "Departmental Tasks",
+      path: "/department/quality/tasks",
+      icon: Clock,
+    },
+    {
       title: "Root Cards",
       path: "/department/quality/root-cards",
       icon: Layers,
@@ -321,6 +327,7 @@ const QualityDepartmentDashboard = () => {
         <Route path="material-inspection" element={<MaterialInspectionPage />} />
         <Route path="reports" element={<QCTasksPage />} />
         <Route path="qap-upload" element={<QualityQAPPage />} />
+        <Route path="tasks" element={<DepartmentPortalTasksPage />} />
         <Route path="root-cards" element={<UniversalRootCardsPage />} />
         <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
       </Routes>

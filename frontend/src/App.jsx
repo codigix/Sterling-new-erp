@@ -18,11 +18,8 @@ import DesignEngineerLayout from "./components/layout/DesignEngineerLayout";
 // Lazy load role-based dashboards for better performance
 const InventoryDepartmentDashboard = lazy(() => import("./pages/roles/InventoryDepartmentDashboard"));
 const ProcurementDashboard = lazy(() => import("./pages/roles/ProcurementDashboard"));
-const QCManagerDashboard = lazy(() => import("./pages/roles/QCManagerDashboard"));
 const QualityDepartmentDashboard = lazy(() => import("./pages/roles/QualityDepartmentDashboard"));
 const AccountantDashboard = lazy(() => import("./pages/roles/AccountantDashboard"));
-const WorkerDashboard = lazy(() => import("./pages/roles/WorkerDashboard"));
-const ProductionManagerDashboard = lazy(() => import("./pages/roles/ProductionManagerDashboard"));
 
 // BOM Pages (Production)
 const CreateBOMPage = lazy(() => import("./pages/production/bom/CreateBOMPage"));
@@ -46,6 +43,7 @@ import AuditLogs from "./pages/admin/AuditLogs";
 import SystemSettings from "./pages/admin/SystemSettings";
 import RoleManagement from "./pages/admin/RoleManagement";
 import EmployeeManagement from "./pages/admin/EmployeeManagement";
+import DepartmentTasksPage from "./pages/admin/DepartmentTasksPage";
 
 // Sales Pages
 import RootCardDashboard from "./pages/sales/RootCardDashboard";
@@ -65,19 +63,17 @@ const QCInspectionsPage = lazy(() => import("./pages/inventory/QCInspectionsPage
 const QualityInspectionDetail = lazy(() => import("./pages/qc/QualityInspectionDetail"));
 
 // Inventory Pages
-import InventoryTasksPage from "./pages/inventory/InventoryTasksPage";
 
 // Production Pages
 import ProductionTasksPage from "./pages/production/ProductionTasksPage";
 import ProductionDashboard from "./pages/production/ProductionDashboard";
+import DepartmentPortalTasksPage from "./pages/department/DepartmentPortalTasksPage";
 import RootCardBuilderPage from "./pages/production/RootCardBuilderPage";
 import ProductionRootCardDetailPage from "./pages/production/RootCardDetailPage";
 import DailyProductionPlanningPage from "./pages/production/DailyProductionPlanningPage";
 import OperationsPage from "./pages/production/OperationsPage";
 import ProductionPlanDetailPage from "./pages/production/ProductionPlanDetailPage";
 import ProductionPlanFormPage from "./pages/production/ProductionPlanFormPage";
-import WorkstationsPage from "./pages/production/WorkstationsPage";
-import WorkstationFormPage from "./pages/production/WorkstationFormPage";
 import MaterialRequestsPage from "./pages/production/MaterialRequestsPage";
 import ReleasedMaterialsPage from "./pages/production/ReleasedMaterialsPage";
 import DailyProductionUpdatesPage from "./pages/production/DailyProductionUpdatesPage";
@@ -156,6 +152,7 @@ function App() {
                 <Route path="resources" element={<ResourcesPage />} />
                 <Route path="roles" element={<RoleManagement />} />
                 <Route path="employee-management" element={<EmployeeManagement />} />
+                <Route path="department-tasks" element={<DepartmentTasksPage />} />
                 <Route path="reports" element={<ReportsAnalytics />} />
                 <Route path="audit-logs" element={<AuditLogs />} />
                 <Route path="settings" element={<SystemSettings />} />
@@ -167,12 +164,18 @@ function App() {
                 <Route path="root-cards/new-root-card" element={<UniversalNewRootCardPage />} />
                 <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
                 <Route path="engineering" element={<EngineeringTasksPage />} />
+                <Route path="engineering/tasks" element={<DepartmentPortalTasksPage />} />
                 <Route path="engineering/drawings" element={<DesignDrawingManagement />} />
                 <Route path="procurement/*" element={<ProcurementDashboard />} />
+                <Route path="procurement/tasks" element={<DepartmentPortalTasksPage />} />
                 <Route path="qc" element={<QCInspectionsPage />} />
+                <Route path="qc/tasks" element={<DepartmentPortalTasksPage />} />
                 <Route path="qc/inspection/:id" element={<QualityInspectionDetail />} />
                 <Route path="inventory/*" element={<InventoryDepartmentDashboard />} />
                 <Route path="production" element={<ProductionDashboard />} />
+                <Route path="production/tasks" element={<DepartmentPortalTasksPage />} />
+                <Route path="tasks" element={<DepartmentPortalTasksPage />} />
+                <Route path="root-cards/tasks" element={<DepartmentPortalTasksPage />} />
                 
                 {/* Production Flow Routes */}
                 <Route path="production/root-cards" element={<UniversalRootCardsPage />} />
@@ -190,9 +193,6 @@ function App() {
                 <Route path="production/updates" element={<DailyProductionUpdatesPage />} />
                 <Route path="production/employee-work-logs" element={<EmployeeWorkLogsPage />} />
                 <Route path="production/operations" element={<OperationsPage />} />
-                <Route path="production/workstations" element={<WorkstationsPage />} />
-                <Route path="production/workstations/new" element={<WorkstationFormPage />} />
-                <Route path="production/workstations/edit/:id" element={<WorkstationFormPage />} />
               </Route>
               
               <Route path="/department/quality/*" element={<QualityDepartmentDashboard />} />
@@ -231,10 +231,7 @@ function App() {
               
               {/* Role-Based Dashboards */}
               <Route path="/design-engineer/*" element={<DesignEngineerLayout />} />
-              <Route path="/qc-manager/*" element={<QCManagerDashboard />} />
               <Route path="/accountant/*" element={<AccountantDashboard />} />
-              <Route path="/production-manager/*" element={<ProductionManagerDashboard />} />
-              <Route path="/worker/*" element={<WorkerDashboard />} />
               
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/login" replace />} />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../utils/api";
+import { useAuth } from "../../context/AuthContext";
 import {
   Wrench,
   TrendingUp,
@@ -43,33 +44,36 @@ ChartJS.register(
 );
 
 const DesignEngineerDashboard = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState([]);
   const [departmentTasks, setDepartmentTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchDashboardData = useCallback(async () => {
+    if (!user?.departmentId) return;
     try {
       setLoading(true);
       setError(null);
       
       const [tasksResponse, rootCardsResponse] = await Promise.all([
-        axios.get("/employee/tasks?type=design_engineering"),
+        axios.get(`/departmental-tasks/department/${user.departmentId}`),
         axios.get("/root-cards", { params: { includeSteps: true } })
       ]);
 
-      const tasks = tasksResponse.data.tasks || [];
+      const tasks = tasksResponse.data || [];
       const rootCards = rootCardsResponse.data.rootCards || [];
       
       setDepartmentTasks(tasks);
       
-      const pendingCount = tasks.filter(t => t.status === 'pending').length;
-      const completedCount = tasks.filter(t => t.status === 'completed').length;
-      const criticalCount = tasks.filter(t => t.priority === 'critical' && t.status !== 'completed').length;
+      const pendingCount = tasks.filter(t => t.status === 'Pending' || !t.status).length;
+      const inProgressCount = tasks.filter(t => t.status === 'In Progress').length;
+      const completedCount = tasks.filter(t => t.status === 'Completed').length;
+      const criticalCount = tasks.filter(t => t.priority === 'High' && t.status !== 'Completed').length;
 
       setStats([
         {
-          title: "Assigned Cards",
+          title: "Total Tasks",
           value: tasks.length.toString(),
           change: "+0",
           positive: true,
@@ -89,6 +93,16 @@ const DesignEngineerDashboard = () => {
           borderColor: "border-amber-200 dark:border-amber-700",
         },
         {
+          title: "In Progress",
+          value: inProgressCount.toString(),
+          change: inProgressCount > 0 ? "Active" : "None",
+          positive: true,
+          icon: Zap,
+          bgColor: "bg-indigo-100 dark:bg-indigo-900/30",
+          iconColor: "text-indigo-600 dark:text-indigo-400",
+          borderColor: "border-indigo-200 dark:border-indigo-700",
+        },
+        {
           title: "Completed",
           value: completedCount.toString(),
           change: "+0",
@@ -98,16 +112,6 @@ const DesignEngineerDashboard = () => {
           iconColor: "text-green-600 dark:text-green-400",
           borderColor: "border-green-200 dark:border-green-700",
         },
-        {
-          title: "Critical Priority",
-          value: criticalCount.toString(),
-          change: "None",
-          positive: true,
-          icon: AlertCircle,
-          bgColor: "bg-red-100 dark:bg-red-900/30",
-          iconColor: "text-red-600 dark:text-red-400",
-          borderColor: "border-red-200 dark:border-red-700",
-        },
       ]);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
@@ -115,13 +119,11 @@ const DesignEngineerDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.departmentId]);
 
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
-
-
 
   const chartOptions = {
     responsive: true,
@@ -158,26 +160,23 @@ const DesignEngineerDashboard = () => {
   };
 
   const taskStatusData = {
-    labels: ["Pending", "In Progress", "Completed", "On Hold"],
+    labels: ["Pending", "In Progress", "Completed"],
     datasets: [
       {
         data: [
-          departmentTasks.filter((t) => t.status === "pending").length,
-          departmentTasks.filter((t) => t.status === "in_progress").length,
-          departmentTasks.filter((t) => t.status === "completed").length,
-          departmentTasks.filter((t) => t.status === "on_hold").length,
+          departmentTasks.filter((t) => t.status === "Pending" || !t.status).length,
+          departmentTasks.filter((t) => t.status === "In Progress").length,
+          departmentTasks.filter((t) => t.status === "Completed").length,
         ],
         backgroundColor: [
           "rgba(251, 191, 36, 0.85)",
           "rgba(59, 130, 246, 0.85)",
           "rgba(34, 197, 94, 0.85)",
-          "rgba(156, 163, 175, 0.85)",
         ],
         borderColor: [
           "rgb(251, 191, 36)",
           "rgb(59, 130, 246)",
           "rgb(34, 197, 94)",
-          "rgb(156, 163, 175)",
         ],
         borderWidth: 2,
       },
@@ -185,15 +184,14 @@ const DesignEngineerDashboard = () => {
   };
 
   const priorityDistributionData = {
-    labels: ["Critical", "High", "Medium", "Low"],
+    labels: ["High", "Medium", "Low"],
     datasets: [
       {
         label: "Task Count",
         data: [
-          departmentTasks.filter((t) => t.priority === "critical").length,
-          departmentTasks.filter((t) => t.priority === "high").length,
-          departmentTasks.filter((t) => t.priority === "medium").length,
-          departmentTasks.filter((t) => t.priority === "low").length,
+          departmentTasks.filter((t) => t.priority === "High").length,
+          departmentTasks.filter((t) => t.priority === "Medium").length,
+          departmentTasks.filter((t) => t.priority === "Low").length,
         ],
         backgroundColor: "rgba(59, 130, 246, 0.8)",
         borderColor: "rgb(59, 130, 246)",

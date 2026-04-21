@@ -7,7 +7,7 @@ const DEPARTMENT_MANAGERS = {
   },
   productionPlan: {
     department: 'Production',
-    manager: 'Production Manager'
+    manager: 'Production Head'
   },
   materialRequirements: {
     department: 'Inventory Management',
@@ -18,8 +18,8 @@ const DEPARTMENT_MANAGERS = {
     manager: 'Inventory'
   },
   qualityCheck: {
-    department: 'Quality Control',
-    manager: 'QC Manager'
+    department: 'Quality',
+    manager: 'Quality Inspector'
   }
 };
 

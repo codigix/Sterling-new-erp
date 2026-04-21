@@ -20,11 +20,6 @@ import DesignDrawingManagement from '../../pages/design-engineer/DesignDrawingMa
 // QAP Review
 import DesignQAPReviewPage from '../../pages/design-engineer/DesignQAPReviewPage';
 
-// Tasks
-import MyTasksPage from '../../pages/design-engineer/tasks/MyTasksPage';
-import ProjectTasksPage from '../../pages/design-engineer/tasks/ProjectTasksPage';
-import TaskDetailPage from '../../pages/design-engineer/tasks/TaskDetailPage';
-
 // Reports
 import DesignEngineerReportsPage from '../../pages/design-engineer/DesignEngineerReportsPage';
 
@@ -32,6 +27,7 @@ import DesignEngineerReportsPage from '../../pages/design-engineer/DesignEnginee
 import UniversalRootCardsPage from '../../pages/shared/UniversalRootCardsPage';
 import UniversalRootCardDetailPage from '../../pages/shared/UniversalRootCardDetailPage';
 import UniversalNewRootCardPage from '../../pages/shared/UniversalNewRootCardPage';
+import DepartmentPortalTasksPage from '../../pages/department/DepartmentPortalTasksPage';
 
 const navigationItems = [
   {
@@ -45,6 +41,11 @@ const navigationItems = [
     icon: FileText,
   },
   {
+    title: 'Department Tasks',
+    path: '/design-engineer/tasks/assigned',
+    icon: Clock,
+  },
+  {
     title: 'Drawing Management',
     path: '/design-engineer/drawings',
     icon: FileText,
@@ -53,14 +54,6 @@ const navigationItems = [
     title: 'QAP Review',
     path: '/design-engineer/qap-review',
     icon: CheckCircle,
-  },
-  {
-    title: 'Engineering Tasks',
-    icon: Clock,
-    submenu: [
-      { title: 'My Tasks', path: '/design-engineer/tasks/list', icon: Clock },
-      { title: 'Project Tasks', path: '/design-engineer/tasks/projects', icon: Wrench },
-    ]
   },
   {
     title: 'Reports',
@@ -117,10 +110,8 @@ const DesignEngineerLayout = () => {
         {/* QAP Review Route */}
         <Route path="qap-review" element={<DesignQAPReviewPage />} />
         
-        {/* Tasks Routes */}
-        <Route path="tasks/list" element={<MyTasksPage />} />
-        <Route path="tasks/projects" element={<ProjectTasksPage />} />
-        <Route path="tasks/detail/:taskId" element={<TaskDetailPage />} />
+        {/* Department Tasks Route */}
+        <Route path="tasks/assigned" element={<DepartmentPortalTasksPage />} />
         
         {/* Reports Route */}
         <Route path="reports" element={<DesignEngineerReportsPage />} />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import axios from "../../utils/api";
+import DepartmentPortalTasksPage from "../department/DepartmentPortalTasksPage";
 import {
   Package,
   Truck,
@@ -18,7 +19,8 @@ import {
   ClipboardList,
   Activity,
   ShoppingCart,
-  Layers
+  Layers,
+  LayoutDashboard
 } from "lucide-react";
 
 // Lazy load sub-pages
@@ -83,13 +85,12 @@ const ProcurementDashboard = () => {
           <Route path="quotations/received" element={<QuotationsPage defaultTab="inbound" />} />
           <Route path="purchase-orders" element={<PurchaseOrderPage />} />
           <Route path="purchase-orders/:id" element={<PurchaseOrderPage />} />
+          <Route path="tasks" element={<DepartmentPortalTasksPage />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </Suspense>
     </div>
   );
 };
-
-import { LayoutDashboard } from "lucide-react";
 
 export default ProcurementDashboard;

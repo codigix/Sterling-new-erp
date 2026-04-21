@@ -130,10 +130,9 @@ const BOMDetailsPage = () => {
       
       doc.autoTable({
         startY: currentY,
-        head: [['Operation', 'Workstation', 'Cycle (min)', 'Setup (min)']],
+        head: [['Operation', 'Cycle (min)', 'Setup (min)']],
         body: bom.operations.map(o => [
           o.operationName,
-          o.workstation,
           o.cycleTime,
           o.setupTime,
         ]),
@@ -341,7 +340,6 @@ const BOMDetailsPage = () => {
                 <thead>
                   <tr className="border-b border-slate-200">
                     <th className="py-2">Operation</th>
-                    <th className="py-2">Workstation / Vendor</th>
                     <th className="py-2 text-right">Cycle Time</th>
                   </tr>
                 </thead>
@@ -349,7 +347,6 @@ const BOMDetailsPage = () => {
                   {bom.operations?.map((o, i) => (
                     <tr key={i} className="border-b border-slate-100">
                       <td className="py-2">{o.operationName}</td>
-                      <td className="py-2">{o.type === 'outsource' ? o.vendorName : o.workstation}</td>
                       <td className="py-2 text-right">{o.cycleTime}m</td>
                     </tr>
                   ))}

@@ -10,9 +10,9 @@ const StockMovementsPage = lazy(() => import("../inventory/StockMovementsPage"))
 const PurchaseOrderPage = lazy(() => import("../inventory/PurchaseOrderPage"));
 const GRNProcessingPage = lazy(() => import("../inventory/GRNProcessingPage"));
 const SerialTagTrackingPage = lazy(() => import("../inventory/SerialTagTrackingPage"));
-const InventoryTasksPage = lazy(() => import("../department/InventoryTasksPage"));
 const UniversalRootCardsPage = lazy(() => import("../shared/UniversalRootCardsPage"));
 const UniversalRootCardDetailPage = lazy(() => import("../shared/UniversalRootCardDetailPage"));
+const DepartmentPortalTasksPage = lazy(() => import("../department/DepartmentPortalTasksPage"));
 import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -270,7 +270,7 @@ const DashboardContent = React.memo(({
                 Assigned Root Cards (Logistics & Inventory)
               </h3>
               <Link
-                to="/department/inventory/department-tasks"
+                to="/department/inventory/tasks"
                 className="text-sm text-blue-600 dark:text-blue-400  hover:text-blue-700"
               >
                 View All Tasks →
@@ -312,7 +312,7 @@ const DashboardContent = React.memo(({
                         PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                       </span>
                       <Link
-                        to={`/department/inventory/department-tasks`}
+                        to={`/department/inventory/tasks`}
                         className="text-xs  text-blue-600 hover:text-blue-700"
                       >
                         Process →
@@ -481,55 +481,6 @@ const DashboardContent = React.memo(({
 const InventoryDepartmentDashboard = () => {
   const [dateRange, setDateRange] = useState("30days");
 
-  const navigationItems = React.useMemo(() => [
-    {
-      title: "Dashboard",
-      path: "/department/inventory/dashboard",
-      icon: Package,
-    },
-    {
-      title: "Root Cards",
-      path: "/department/inventory/root-cards",
-      icon: Layers,
-    },
-    {
-      title: "Stock Management",
-      icon: Boxes,
-      submenu: [
-        {
-          title: "Stock Entries",
-          path: "/department/inventory/stock/entries",
-          icon: ClipboardList,
-        },
-        {
-          title: "Stock Balance",
-          path: "/department/inventory/stock/balance",
-          icon: Package,
-        },
-        {
-          title: "Stock Movements",
-          path: "/department/inventory/stock/movements",
-          icon: RefreshCw,
-        },
-        {
-          title: "Serial Tag (ST) Tracking",
-          path: "/department/inventory/stock/serial-tags",
-          icon: Barcode,
-        },
-      ],
-    },
-    {
-      title: "Purchase Orders",
-      path: "/department/inventory/purchase-orders",
-      icon: ShoppingCart,
-    },
-    {
-      title: "Department Tasks",
-      path: "/department/inventory/department-tasks",
-      icon: ClipboardList,
-    },
-  ], []);
-
   const inventoryTrendData = React.useMemo(() => ({
     labels: ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"],
     datasets: [
@@ -662,7 +613,7 @@ const InventoryDepartmentDashboard = () => {
           <Route path="stock/serial-tags" element={<SerialTagTrackingPage />} />
           <Route path="purchase-orders" element={<PurchaseOrderPage isInventoryView={true} />} />
           <Route path="grn" element={<GRNProcessingPage />} />
-          <Route path="department-tasks" element={<InventoryTasksPage />} />
+          <Route path="tasks" element={<DepartmentPortalTasksPage />} />
           <Route
             path="*"
             element={<Navigate to="dashboard" replace />}

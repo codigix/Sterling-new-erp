@@ -5,13 +5,11 @@ import { toast } from '../../../utils/toastUtils';
 
 const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, onDelete }) => {
   const [loading, setLoading] = useState(false);
-  const [workstations, setWorkstations] = useState([]);
   const [operators, setOperators] = useState([]);
   const [vendors, setVendors] = useState([]);
   
   const [formData, setFormData] = useState({
     operationName: operation.operation_name || '',
-    workstation: operation.workstation || '',
     operatorId: operation.operator_id || '',
     vendorId: operation.vendor_id || '',
     type: operation.type || 'in-house',
@@ -29,12 +27,10 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
 
   const fetchData = async () => {
     try {
-      const [wsRes, opRes, vRes] = await Promise.all([
-        axios.get('/production/workstations'),
+      const [opRes, vRes] = await Promise.all([
         axios.get('/production/portal/employees'),
         axios.get('/inventory/vendors')
       ]);
-      setWorkstations(wsRes.data?.workstations || []);
       setOperators(opRes.data || []);
       setVendors(vRes.data || []);
     } catch (error) {
@@ -90,24 +86,6 @@ const InlineOperationEdit = ({ operation, workOrderQuantity, onCancel, onSave, o
                   onChange={(e) => setFormData({ ...formData, operationName: e.target.value })}
                   required
                 />
-              </div>
-            </div>
-
-            {/* Workstation */}
-            <div>
-              <label className="block text-xs  text-slate-400  mb-1">Workstation</label>
-              <div className="relative">
-                <Layers size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <select
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded text-xs  focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  value={formData.workstation}
-                  onChange={(e) => setFormData({ ...formData, workstation: e.target.value })}
-                >
-                  <option value="">Select Workstation</option>
-                  {workstations.map(ws => (
-                    <option key={ws.id} value={ws.display_name}>{ws.display_name}</option>
-                  ))}
-                </select>
               </div>
             </div>
 

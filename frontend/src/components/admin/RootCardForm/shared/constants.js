@@ -13,14 +13,14 @@ export const DEPARTMENT_MANAGERS = {
   },
   productionPlan: {
     department: 'Production',
-    manager: 'Production Manager',
-    defaultManager: 'production.manager',
+    manager: 'Production Head',
+    defaultManager: 'production',
     color: 'bg-orange-50 border-orange-200'
   },
   qualityCheck: {
-    department: 'Quality Control',
-    manager: 'QC Manager',
-    defaultManager: 'qc.manager',
+    department: 'Quality',
+    manager: 'Quality Inspector',
+    defaultManager: 'quality',
     color: 'bg-green-50 border-green-200'
   },
 };

@@ -7,6 +7,7 @@ const ROLE_MAP = {
   admin: "/admin/dashboard",
   design_engineer: "/design-engineer/dashboard",
   production: "/department/production",
+  production_head: "/department/production",
   procurement: "/department/procurement",
   quality: "/department/quality",
   inventory: "/department/inventory",

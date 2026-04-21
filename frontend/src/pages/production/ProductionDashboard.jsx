@@ -173,6 +173,12 @@ const ProductionDashboard = () => {
             <Clock size={15} className="text-blue-600" />
             Assigned Root Cards (Production Planning)
           </h2>
+          <Link
+            to="/department/production/tasks"
+            className="text-sm text-blue-600 dark:text-blue-400  hover:text-blue-700"
+          >
+            View All Tasks →
+          </Link>
         </div>
 
         {loadingTasks ? (
@@ -210,7 +216,7 @@ const ProductionDashboard = () => {
                     PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                   </span>
                   <Link
-                    to={`/department/production/root-cards/${task.rootCard?.id || task.rootCardId}`}
+                    to={`/department/production/tasks`}
                     className="text-xs  text-blue-600 hover:text-blue-700"
                   >
                     View Card →
@@ -406,7 +412,7 @@ const ProductionDashboard = () => {
                     {dept.department}
                   </p>
                   <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {dept.allocated} workers
+                    {dept.allocated} employees
                   </span>
                 </div>
                 <div className="w-full bg-slate-300 dark:bg-slate-600 rounded  h-1">
