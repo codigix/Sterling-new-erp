@@ -23,16 +23,7 @@ const RoleManagement = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [permissions] = useState([
-    { id: 1, name: 'Manage Users', description: 'Create, edit, delete users' },
-    { id: 2, name: 'Manage Roles', description: 'Create and manage system roles' },
-    { id: 3, name: 'View Reports', description: 'Access all reports' },
-    { id: 4, name: 'Edit Projects', description: 'Create and edit projects' },
-    { id: 5, name: 'View Dashboard', description: 'Access dashboard' },
-    { id: 6, name: 'Submit Tasks', description: 'Submit tasks and updates' },
-    { id: 7, name: 'System Settings', description: 'Configure system settings' },
-    { id: 8, name: 'Audit Logs', description: 'View system audit logs' }
-  ]);
+  const [permissions, setPermissions] = useState([]);
   const [success, setSuccess] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
@@ -58,9 +49,19 @@ const RoleManagement = () => {
     }
   }, []);
 
+  const fetchPermissions = useCallback(async () => {
+    try {
+      const response = await axios.get('/admin/permissions');
+      setPermissions(response.data || []);
+    } catch (err) {
+      console.error('Failed to fetch permissions:', err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchRoles();
-  }, [fetchRoles]);
+    fetchPermissions();
+  }, [fetchRoles, fetchPermissions]);
 
   const openCreateModal = () => {
     setEditingRole(null);
@@ -461,7 +462,7 @@ const RoleManagement = () => {
             onClick={closeModal}
           ></div>
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 rounded  max-w-lg w-full">
+            <div className="bg-white dark:bg-slate-800 rounded  max-w-lg w-full max-h-[80vh] overflow-auto">
               <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="text-md font-semibold dark:text-white">
                   {editingRole ? 'Edit Role' : 'Create New Role'}

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Card, { CardHeader, CardTitle, CardContent } from "../../../../components/ui/Card";
 import Badge from "../../../../components/ui/Badge";
+import axios from "../../../../utils/api";
 import {
   UserCheck,
   TrendingUp,
@@ -11,84 +12,61 @@ import {
   Factory,
   AlertTriangle,
   CheckCircle,
+  ArrowLeft,
+  FileText,
+  Clock,
+  User,
 } from "lucide-react";
-import { Bar, Doughnut } from "react-chartjs-2";
+import { Bar, Doughnut, Line } from "react-chartjs-2";
 
 const EmployeesTab = () => {
-  const employeeData = [
-    {
-      name: "Rajesh Kumar",
-      department: "Production",
-      role: "Senior Machinist",
-      tasksCompleted: 45,
-      totalTasks: 48,
-      efficiency: 94,
-      avgTime: "6.2 hrs",
-      qualityScore: 4.8,
-      attendance: 98,
-      status: "Excellent",
-    },
-    {
-      name: "Priya Sharma",
-      department: "Quality Control",
-      role: "QC Inspector",
-      tasksCompleted: 38,
-      totalTasks: 40,
-      efficiency: 95,
-      avgTime: "4.8 hrs",
-      qualityScore: 4.9,
-      attendance: 100,
-      status: "Excellent",
-    },
-    {
-      name: "Amit Singh",
-      department: "Engineering",
-      role: "Design Engineer",
-      tasksCompleted: 22,
-      totalTasks: 25,
-      efficiency: 88,
-      avgTime: "8.5 hrs",
-      qualityScore: 4.6,
-      attendance: 95,
-      status: "Good",
-    },
-    {
-      name: "Sneha Patel",
-      department: "Procurement",
-      role: "Procurement Officer",
-      tasksCompleted: 31,
-      totalTasks: 35,
-      efficiency: 89,
-      avgTime: "5.7 hrs",
-      qualityScore: 4.4,
-      attendance: 97,
-      status: "Good",
-    },
-    {
-      name: "Vikram Rao",
-      department: "Warehouse",
-      role: "Inventory",
-      tasksCompleted: 28,
-      totalTasks: 30,
-      efficiency: 93,
-      avgTime: "7.1 hrs",
-      qualityScore: 4.7,
-      attendance: 99,
-      status: "Excellent",
-    },
-    {
-      name: "Kavita Jain",
-      department: "Sales",
-      role: "Sales Executive",
-      tasksCompleted: 15,
-      totalTasks: 18,
-      efficiency: 83,
-      avgTime: "6.8 hrs",
-      qualityScore: 4.2,
-      attendance: 92,
-      status: "Average",
-    },
-  ];
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [performanceData, setPerformanceData] = useState(null);
+  const [dailyReports, setDailyReports] = useState([]);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/reports/employees');
+      setEmployees(response.data);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEmployeeDetails = async (employee) => {
+    try {
+      setDetailsLoading(true);
+      setSelectedEmployee(employee);
+      
+      const [performanceRes, reportsRes] = await Promise.all([
+        axios.get(`/reports/employees/${employee.id}/performance`),
+        axios.get(`/reports/employees/${employee.id}/daily-reports`)
+      ]);
+      
+      setPerformanceData(performanceRes.data);
+      setDailyReports(reportsRes.data);
+    } catch (error) {
+      console.error("Error fetching employee details:", error);
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    setSelectedEmployee(null);
+    setPerformanceData(null);
+    setDailyReports([]);
+  };
 
   const departmentStats = [
     {
@@ -135,19 +113,11 @@ const EmployeesTab = () => {
     },
   ];
 
-  const getPerformanceColor = (status) => {
-    switch (status) {
-      case "Excellent":
-        return "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400";
-      case "Good":
-        return "text-blue-600 bg-blue-100 dark:bg-blue-900 dark:text-blue-400";
-      case "Average":
-        return "text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-400";
-      case "Poor":
-        return "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-400";
-      default:
-        return "text-slate-500 bg-slate-100 dark: dark:text-slate-400";
-    }
+  const getPerformanceStatus = (efficiency) => {
+    if (efficiency >= 90) return "Excellent";
+    if (efficiency >= 80) return "Good";
+    if (efficiency >= 70) return "Average";
+    return "Needs Improvement";
   };
 
   const getQualityColor = (score) => {
@@ -157,8 +127,200 @@ const EmployeesTab = () => {
     return "text-red-600";
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (selectedEmployee) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={handleBack}
+            className="flex items-center text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Overview
+          </button>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+               <User className="w-5 h-5 text-primary-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-800">{selectedEmployee.name}</h2>
+              <p className="text-xs text-slate-500">{selectedEmployee.designation || 'Employee'} • {selectedEmployee.department}</p>
+            </div>
+          </div>
+        </div>
+
+        {detailsLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">Total Updates</p>
+                      <p className="text-2xl font-bold">{performanceData?.stats?.total_updates || 0}</p>
+                    </div>
+                    <FileText className="w-8 h-8 text-blue-500 opacity-20" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">Quantity Produced</p>
+                      <p className="text-2xl font-bold">{performanceData?.stats?.total_produced || 0}</p>
+                    </div>
+                    <BarChart3 className="w-8 h-8 text-green-500 opacity-20" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">Avg Rejections</p>
+                      <p className="text-2xl font-bold text-red-500">{Number(performanceData?.stats?.avg_rejections || 0).toFixed(2)}</p>
+                    </div>
+                    <AlertTriangle className="w-8 h-8 text-red-500 opacity-20" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+               <Card className="lg:col-span-2">
+                 <CardHeader>
+                   <CardTitle className="text-sm font-bold flex items-center">
+                     <TrendingUp className="w-4 h-4 mr-2 text-blue-500" />
+                     Production Performance (Last 30 Days)
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                    <div className="h-64">
+                      <Line 
+                        data={{
+                          labels: performanceData?.trend?.map(t => t.date) || [],
+                          datasets: [{
+                            label: 'Quantity Produced',
+                            data: performanceData?.trend?.map(t => t.count) || [],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                          }]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: { legend: { display: false } },
+                          scales: {
+                            y: { beginAtZero: true }
+                          }
+                        }}
+                      />
+                    </div>
+                 </CardContent>
+               </Card>
+
+               <Card>
+                 <CardHeader>
+                   <CardTitle className="text-sm font-bold flex items-center">
+                     <Clock className="w-4 h-4 mr-2 text-purple-500" />
+                     Work Distribution
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                    <div className="h-64">
+                       <Doughnut 
+                         data={{
+                           labels: ['Produced', 'Rejections'],
+                           datasets: [{
+                             data: [
+                               performanceData?.stats?.total_produced || 1,
+                               performanceData?.stats?.avg_rejections * performanceData?.stats?.total_updates || 0
+                             ],
+                             backgroundColor: ['#10b981', '#ef4444'],
+                             borderWidth: 0
+                           }]
+                         }}
+                         options={{
+                           responsive: true,
+                           maintainAspectRatio: false,
+                           plugins: { legend: { position: 'bottom' } }
+                         }}
+                       />
+                    </div>
+                 </CardContent>
+               </Card>
+            </div>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-bold flex items-center">
+                  <FileText className="w-4 h-4 mr-2 text-primary-500" />
+                  Daily Production Reports
+                </CardTitle>
+                <Badge variant="outline" className="text-[10px]">{dailyReports.length} reports</Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-100 dark:border-slate-800">
+                        <th className="text-left py-3 px-2 font-bold text-slate-500">Date</th>
+                        <th className="text-left py-3 px-2 font-bold text-slate-500">Project</th>
+                        <th className="text-left py-3 px-2 font-bold text-slate-500">Operation</th>
+                        <th className="text-center py-3 px-2 font-bold text-slate-500">Qty Produced</th>
+                        <th className="text-center py-3 px-2 font-bold text-slate-500">Qty Rejected</th>
+                        <th className="text-left py-3 px-2 font-bold text-slate-500">Remarks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dailyReports.map((report, idx) => (
+                        <tr key={idx} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50/50 transition-colors">
+                          <td className="py-3 px-2">{new Date(report.update_date).toLocaleDateString()}</td>
+                          <td className="py-3 px-2">
+                             <div className="flex flex-col">
+                               <span className="font-medium">{report.project_name}</span>
+                               <span className="text-[10px] text-slate-400">{report.project_code}</span>
+                             </div>
+                          </td>
+                          <td className="py-3 px-2 font-medium">{report.operation_name}</td>
+                          <td className="py-3 px-2 text-center text-green-600 font-bold">{report.quantity_produced}</td>
+                          <td className="py-3 px-2 text-center text-red-500">{report.rejection_quantity}</td>
+                          <td className="py-3 px-2 text-slate-500 max-w-xs truncate">{report.remarks || '-'}</td>
+                        </tr>
+                      ))}
+                      {dailyReports.length === 0 && (
+                        <tr>
+                          <td colSpan="6" className="py-10 text-center text-slate-400 italic">No daily reports found for this employee.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full space-y-2 overflow-x-hidden">
+    <div className="w-full space-y-6 overflow-x-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardContent className="p-6">
@@ -237,71 +399,76 @@ const EmployeesTab = () => {
         <CardHeader>
           <CardTitle className="flex items-center text-xs">
             <UserCheck className="w-3 h-3 mr-2" />
-            Top Performing Employees
+            Top Performing Employees (Click to view details)
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {employeeData.slice(0, 4).map((employee, index) => (
-              <div
-                key={index}
-                className="flex items-center text-xs p-4 border border-slate-200 dark:border-slate-700 rounded"
-              >
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded  flex items-center text-xs justify-center">
-                    <span className="text-lg font-semibold text-primary-600 dark:text-primary-400">
-                      {employee.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </span>
+            {employees.length > 0 ? (
+              employees.slice(0, 6).map((employee, index) => (
+                <div
+                  key={index}
+                  onClick={() => fetchEmployeeDetails(employee)}
+                  className="flex items-center text-xs p-4 border border-slate-200 dark:border-slate-700 rounded hover:border-primary-500 hover:shadow-sm cursor-pointer transition-all bg-white"
+                >
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center text-xs justify-center">
+                      <span className="text-lg font-semibold text-primary-600 dark:text-primary-400">
+                        {employee.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <div className="flex items-center text-xs justify-between mb-1">
+                      <h4 className="font-bold text-slate-800">
+                        {employee.name}
+                      </h4>
+                      <Badge className={
+                        employee.efficiency >= 90 ? "bg-green-100 text-green-700" :
+                        employee.efficiency >= 80 ? "bg-blue-100 text-blue-700" :
+                        "bg-yellow-100 text-yellow-700"
+                      }>
+                        {getPerformanceStatus(employee.efficiency)}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-slate-500 mb-2">
+                      {employee.designation || 'Specialist'} • {employee.department}
+                    </p>
+                    <div className="grid grid-cols-3 gap-4 text-[10px]">
+                      <div>
+                        <span className="text-slate-400 uppercase font-bold">
+                          Tasks
+                        </span>
+                        <p className="font-bold text-slate-700">
+                          {employee.tasksCompleted}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 uppercase font-bold">
+                          Efficiency
+                        </span>
+                        <p className="font-bold text-green-600">
+                          {employee.efficiency}%
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 uppercase font-bold">
+                          Rating
+                        </span>
+                        <p className="font-bold text-blue-600">
+                          {employee.rating}/5.0
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="ml-4 flex-1">
-                  <div className="flex items-center text-xs justify-between mb-1">
-                    <h4 className="font-medium  dark:">
-                      {employee.name}
-                    </h4>
-                    <Badge className={getPerformanceColor(employee.status)}>
-                      {employee.status}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
-                    {employee.role} • {employee.department}
-                  </p>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-slate-500 dark:text-slate-400">
-                        Efficiency
-                      </span>
-                      <p className="font-medium text-green-600">
-                        {employee.efficiency}%
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 dark:text-slate-400">
-                        Quality
-                      </span>
-                      <p
-                        className={`font-medium ${getQualityColor(
-                          employee.qualityScore
-                        )}`}
-                      >
-                        {employee.qualityScore}/5.0
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 dark:text-slate-400">
-                        Attendance
-                      </span>
-                      <p className="font-medium text-blue-600">
-                        {employee.attendance}%
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="col-span-2 py-10 text-center text-slate-400 italic">No employee data found.</div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -17,7 +17,8 @@ const {
   uploadQAP,
   getAllRootCardRequirements,
   getRootCardRequirementsById,
-  updateRootCardRequirements
+  updateRootCardRequirements,
+  updateRootCardStatus
 } = require('../controllers/rootCardController');
 const auth = require('../middleware/authMiddleware');
 
@@ -47,6 +48,10 @@ const upload = multer({
 
 // @route   POST api/root-cards
 router.post('/', auth, createRootCard);
+
+// @route   PATCH api/root-cards/:id/status
+// @desc    Update root card status
+router.patch('/:id/status', auth, updateRootCardStatus);
 
 // @route   POST api/root-cards/:id/send-to-design-engineering
 // @desc    Send root card to design engineering

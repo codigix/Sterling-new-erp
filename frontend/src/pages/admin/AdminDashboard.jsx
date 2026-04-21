@@ -58,57 +58,64 @@ ChartJS.register(
 
 const AdminDashboard = () => {
   const [kpis, setKpis] = useState({
-    total_projects: 0,
-    total_orders: 0,
-    total_users: 0,
     totalProjects: 0,
     activeProjects: 0,
     completedProjects: 0,
+    criticalAlerts: 0,
     totalEmployees: 0,
     activeEmployees: 0,
-    systemUptime: 0,
-    criticalAlerts: 0,
+    systemUptime: 99.9,
     pendingTasks: 0,
+    total_orders: 0
   });
   const [chartData, setChartData] = useState({
     projectsByStatus: { onTrack: 0, delayed: 0, critical: 0, completed: 0 },
-    monthlyCompletion: Array(6).fill(0),
+    monthlyCompletion: { labels: [], data: [] },
+    deptAnalytics: { labels: [], employees: [], tasks: [] },
+    materialConsumption: { labels: [], data: [] },
+    operationStats: { labels: [], data: [] },
+    recentProjects: []
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const kpiResponse = await axios.get('/admin/kpis');
-        const kpiData = kpiResponse.data;
-
-        const projectsResponse = await axios.get('/admin/projects');
-        const projects = projectsResponse.data.projects || [];
-
-        const statusCounts = {
-          onTrack: projects.filter(p => p.status === 'in_progress').length,
-          delayed: projects.filter(p => p.status === 'on_hold').length,
-          critical: projects.filter(p => p.status === 'critical').length,
-          completed: projects.filter(p => p.status === 'completed').length,
-        };
+        const response = await axios.get('/admin/stats');
+        const data = response.data;
 
         setKpis({
-          total_projects: kpiData.total_projects || 0,
-          total_orders: kpiData.total_orders || 0,
-          total_users: kpiData.total_users || 0,
-          totalProjects: kpiData.total_projects || 0,
-          activeProjects: statusCounts.onTrack + statusCounts.delayed,
-          completedProjects: statusCounts.completed,
-          totalEmployees: kpiData.total_users || 0,
-          activeEmployees: Math.round((kpiData.total_users || 0) * 0.85),
-          systemUptime: 99.8,
-          criticalAlerts: statusCounts.critical,
-          pendingTasks: statusCounts.delayed,
+          totalProjects: data.kpis.total_projects,
+          activeProjects: data.kpis.active_projects,
+          completedProjects: data.kpis.completed_projects,
+          criticalAlerts: data.kpis.critical_alerts,
+          totalEmployees: data.kpis.total_users,
+          activeEmployees: Math.round(data.kpis.total_users * 0.9),
+          systemUptime: 99.9,
+          pendingTasks: data.projectStatus.delayed,
+          total_orders: data.kpis.total_orders
         });
 
         setChartData({
-          projectsByStatus: statusCounts,
-          monthlyCompletion: [2, 3, 1, 4, 2, 3],
+          projectsByStatus: data.projectStatus,
+          monthlyCompletion: {
+            labels: data.monthlyTrends.map(m => m.month),
+            data: data.monthlyTrends.map(m => m.completedCount)
+          },
+          deptAnalytics: {
+            labels: data.deptAnalytics.map(d => d.name),
+            employees: data.deptAnalytics.map(d => d.employeeCount),
+            tasks: data.deptAnalytics.map(d => d.taskCount)
+          },
+          materialConsumption: {
+            labels: data.materialConsumption.map(m => m.name),
+            data: data.materialConsumption.map(m => m.totalQuantity)
+          },
+          operationStats: {
+            labels: data.operationStats.map(o => o.name),
+            data: data.operationStats.map(o => o.count)
+          },
+          recentProjects: data.recentProjects || []
         });
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
@@ -121,228 +128,92 @@ const AdminDashboard = () => {
   }, []);
 
   if (loading) {
-    return <div className="p-6 text-center">Loading overview data...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
-  const metrics = [
-    {
-      icon: ShoppingCart,
-      label: 'Root Cards',
-      value: String(kpis.total_orders),
-      trend: '+12%',
-      color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
-    },
-    {
-      icon: CheckCircle2,
-      label: 'Completed',
-      value: String(kpis.completedProjects),
-      trend: '+8%',
-      color: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
-    },
-    {
-      icon: Clock,
-      label: 'In Progress',
-      value: String(kpis.activeProjects),
-      trend: '-2%',
-      color: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
-    },
-    {
-      icon: AlertCircle,
-      label: 'Critical',
-      value: String(kpis.criticalAlerts),
-      trend: '+3%',
-      color: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400',
-    },
-  ];
-
-  const navigation = [
-    { icon: BarChart3, label: 'Overview', color: 'text-blue-600 dark:text-blue-400' },
-    { icon: ShoppingCart, label: 'Root Cards', color: 'text-green-600 dark:text-green-400' },
-    { icon: Target, label: 'Projects', color: 'text-purple-600 dark:text-purple-400' },
-    { icon: Factory, label: 'Departments', color: 'text-orange-600 dark:text-orange-400' },
-    { icon: Truck, label: 'Vendors', color: 'text-red-600 dark:text-red-400' },
-    { icon: Package, label: 'Materials', color: 'text-cyan-600 dark:text-cyan-400' },
-    { icon: Users, label: 'Employees', color: 'text-indigo-600 dark:text-indigo-400' },
-  ];
-
   return (
-    <div className="w-full min-h-screen  space-y-2 p-4 ">
+    <div className="w-full min-h-screen space-y-6 p-6 bg-slate-50/50">
       {/* Header */}
-      <div>
-        <h1 className="text-xl text-left ">
-          Dashboard & Overview
-        </h1>
-        <p className="text-sm text-slate-500 mt-1 text-left">
-          Real-time manufacturing system analytics and KPIs
-        </p>
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-xl ">Dashboard & Overview</h1>
+          <p className="text-sm text-slate-500 mt-1">Real-time manufacturing system analytics and KPIs</p>
+        </div>
+        <div className="text-sm text-slate-400 font-medium bg-white px-4 py-2 rounded-lg border border-slate-200 ">
+          Last Updated: {new Date().toLocaleTimeString()}
+        </div>
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Projects */}
-        <div className="bg-white border-2 border-blue-100 rounded p-4  transition-all hover:border-blue-300">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500  text-left mb-2">
-                Total Projects
-              </p>
-              <p className="text-xl text-left ">
-                {kpis.totalProjects}
-              </p>
-              <p className="text-xs text-left text-blue-600 mt-2 font-medium">
-                Active & Completed
-              </p>
-            </div>
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded flex items-center text-xs justify-center border border-blue-200">
-                <Target className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Active Projects */}
-        <div className="bg-white border-2 border-emerald-100 rounded p-4  transition-all hover:border-emerald-300">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500  text-left mb-2">
-                Active Projects
-              </p>
-              <p className="text-xl text-left ">
-                {kpis.activeProjects}
-              </p>
-              <p className="text-xs text-lef text-emerald-600 mt-2 font-semibold">
-                {Math.round((kpis.activeProjects / kpis.totalProjects) * 100)}% of total
-              </p>
-            </div>
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded flex items-center text-xs justify-center border border-emerald-200">
-                <Activity className="w-6 h-6 text-emerald-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Active Employees */}
-        <div className="bg-white border-2 border-amber-100 rounded p-4  transition-all hover:border-amber-300">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500  text-left mb-2">
-                Active Employees
-              </p>
-              <p className="text-xl text-left ">
-                {kpis.activeEmployees}
-              </p>
-              <p className="text-xs text-left text-amber-600 mt-2 font-semibold">
-                {Math.round((kpis.activeEmployees / kpis.totalEmployees) * 100)}% of workforce
-              </p>
-            </div>
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-50 to-amber-100 rounded flex items-center text-xs justify-center border border-amber-200">
-                <Users className="w-6 h-6 text-amber-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Critical Alerts */}
-        <div className="bg-white border-2 border-red-100 rounded p-4  transition-all hover:border-red-300">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-slate-500  text-left mb-2">
-                Critical Alerts
-              </p>
-              <p className="text-xl text-left ">
-                {kpis.criticalAlerts}
-              </p>
-              <p className="text-xs text-left text-red-600 mt-2 font-semibold">
-                Require attention
-              </p>
-            </div>
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-50 to-red-100 rounded flex items-center text-xs justify-center border border-red-200">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard 
+          title="Total Projects" 
+          value={kpis.totalProjects} 
+          subtitle="Active & Completed" 
+          icon={Target} 
+          color="blue" 
+        />
+        <KPICard 
+          title="Active Projects" 
+          value={kpis.activeProjects} 
+          subtitle={`${Math.round((kpis.activeProjects / (kpis.totalProjects || 1)) * 100)}% of total`} 
+          icon={Activity} 
+          color="emerald" 
+        />
+        <KPICard 
+          title="Total Workforce" 
+          value={kpis.totalEmployees} 
+          subtitle={`${kpis.activeEmployees} currently active`} 
+          icon={Users} 
+          color="amber" 
+        />
+        <KPICard 
+          title="Critical Alerts" 
+          value={kpis.criticalAlerts} 
+          subtitle="Require immediate attention" 
+          icon={AlertTriangle} 
+          color="red" 
+        />
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Project Status Distribution */}
-        <Card className=" transition-shadow border border-slate-100">
-          <CardHeader className="border-b border-slate-100">
-            <CardTitle className="flex items-center text-xs gap-4 text-lg">
-              <div className="p-2 bg-blue-50 rounded">
-                <PieChart className="w-3 h-3 text-blue-600" />
-              </div>
-              <span className='text-sm'>Project Status Distribution</span>
+        <Card className=" border-slate-200 overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+            <CardTitle className="flex items-center gap-2 text-slate-700">
+              <PieChart className="w-4 h-4 text-blue-600" />
+              <span className="text-base font-semibold">Project Status Distribution</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-80">
+          <CardContent className="p-6">
+            <div className="h-[300px]">
               <Doughnut
                 data={{
-                  labels: [
-                    `On Track (${chartData.projectsByStatus.onTrack})`,
-                    `Delayed (${chartData.projectsByStatus.delayed})`,
-                    `Critical (${chartData.projectsByStatus.critical})`,
-                    `Completed (${chartData.projectsByStatus.completed})`
-                  ],
-                  datasets: [
-                    {
-                      data: [
-                        chartData.projectsByStatus.onTrack,
-                        chartData.projectsByStatus.delayed,
-                        chartData.projectsByStatus.critical,
-                        chartData.projectsByStatus.completed
-                      ],
-                      backgroundColor: [
-                        "#10b981",
-                        "#f59e0b",
-                        "#ef4444",
-                        "#94a3b8",
-                      ],
-                      borderColor: "#ffffff",
-                      borderWidth: 3,
-                      hoverOffset: 15,
-                      hoverBorderWidth: 2,
-                    },
-                  ],
+                  labels: ['On Track', 'Delayed', 'Critical', 'Completed'],
+                  datasets: [{
+                    data: [
+                      chartData.projectsByStatus.onTrack,
+                      chartData.projectsByStatus.delayed,
+                      chartData.projectsByStatus.critical,
+                      chartData.projectsByStatus.completed
+                    ],
+                    backgroundColor: ["#10b981", "#f59e0b", "#ef4444", "#94a3b8"],
+                    borderColor: "#ffffff",
+                    borderWidth: 2,
+                  }],
                 }}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
                   plugins: {
-                    legend: {
-                      position: "bottom",
-                      labels: {
-                        padding: 20,
-                        font: { size: 13, weight: 500 },
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        color: '#1f2937',
-                      },
-                    },
-                    tooltip: {
-                      backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                      padding: 14,
-                      titleFont: { size: 14, weight: 'bold' },
-                      bodyFont: { size: 13 },
-                      borderColor: 'rgba(255, 255, 255, 0.2)',
-                      borderWidth: 1,
-                      titleColor: '#fff',
-                      bodyColor: '#fff',
-                      callbacks: {
-                        label: function(context) {
-                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                          const percentage = ((context.parsed / total) * 100).toFixed(1);
-                          return `${context.parsed} projects (${percentage}%)`;
-                        }
-                      }
-                    },
+                    legend: { position: "bottom", labels: { padding: 20, usePointStyle: true } },
                   },
+                  cutout: '70%'
                 }}
               />
             </div>
@@ -350,94 +221,83 @@ const AdminDashboard = () => {
         </Card>
 
         {/* Performance Trend */}
-        <Card className=" transition-shadow border border-slate-100">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="flex items-center text-xs gap-4 text-lg">
-              <div className="p-2 bg-emerald-50 rounded">
-                <TrendingUp className="w-3 h-3 text-emerald-600" />
-              </div>
-              <span className='text-sm'>Projects Completed - 6 Month Trend</span>
+        <Card className=" border-slate-200 overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+            <CardTitle className="flex items-center gap-2 text-slate-700">
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
+              <span className="text-base font-semibold">Monthly Project Completion</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-80">
+          <CardContent className="p-6">
+            <div className="h-[300px]">
               <Line
                 data={{
-                  labels: ["January", "February", "March", "April", "May", "June"],
+                  labels: chartData.monthlyCompletion.labels.length > 0 ? chartData.monthlyCompletion.labels : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                  datasets: [{
+                    label: "Completed Projects",
+                    data: chartData.monthlyCompletion.data.length > 0 ? chartData.monthlyCompletion.data : [0, 0, 0, 0, 0, 0],
+                    borderColor: "#3b82f6",
+                    backgroundColor: "rgba(59, 130, 246, 0.05)",
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                  }],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Department Analytics Chart - High Standard Full Width */}
+        <Card className="lg:col-span-2  border-slate-200 overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+            <CardTitle className="flex items-center gap-2 text-slate-700">
+              <Factory className="w-4 h-4 text-purple-600" />
+              <span className="text-base font-semibold">Department Performance & Resource Allocation</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-[350px]">
+              <Bar
+                data={{
+                  labels: chartData.deptAnalytics.labels,
                   datasets: [
                     {
-                      label: "Completed",
-                      data: chartData.monthlyCompletion,
-                      borderColor: "#3b82f6",
-                      backgroundColor: "rgba(59, 130, 246, 0.08)",
-                      borderWidth: 3,
-                      fill: true,
-                      pointRadius: 6,
-                      pointBackgroundColor: "#3b82f6",
-                      pointBorderColor: "#ffffff",
-                      pointBorderWidth: 2,
-                      pointHoverRadius: 8,
-                      pointShadowOffsetX: 0,
-                      pointShadowOffsetY: 2,
-                      pointShadowBlur: 4,
-                      tension: 0.4,
+                      label: "Workforce",
+                      data: chartData.deptAnalytics.employees,
+                      backgroundColor: "rgba(99, 102, 241, 0.8)",
+                      borderRadius: 4,
                     },
                     {
-                      label: "Target",
-                      data: [3, 3, 3, 3, 3, 3],
-                      borderColor: "#10b981",
-                      borderWidth: 2,
-                      borderDash: [5, 5],
-                      pointRadius: 0,
-                      fill: false,
-                      tension: 0.4,
-                    },
+                      label: "Production Updates",
+                      data: chartData.deptAnalytics.tasks,
+                      backgroundColor: "rgba(16, 185, 129, 0.8)",
+                      borderRadius: 4,
+                    }
                   ],
                 }}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
                   plugins: {
-                    legend: {
-                      display: true,
-                      position: 'top',
-                      labels: {
-                        font: { size: 13, weight: 500 },
-                        padding: 20,
-                        usePointStyle: true,
-                        color: '#1f2937',
-                      },
-                    },
-                    tooltip: {
-                      backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                      padding: 14,
-                      titleFont: { size: 14, weight: 'bold' },
-                      bodyFont: { size: 13 },
-                      borderColor: 'rgba(255, 255, 255, 0.2)',
-                      borderWidth: 1,
-                      titleColor: '#fff',
-                      bodyColor: '#fff',
-                    },
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 20 } }
                   },
                   scales: {
-                    y: {
+                    y: { 
                       beginAtZero: true,
-                      max: 5,
-                      ticks: {
-                        stepSize: 1,
-                        font: { size: 12 },
-                        color: '#6b7280',
-                      },
-                      grid: {
-                        color: "rgba(226, 232, 240, 0.5)",
-                        drawBorder: false,
-                      },
+                      grid: { color: 'rgba(0,0,0,0.05)' }
                     },
                     x: {
-                      ticks: { font: { size: 12 }, color: '#6b7280' },
-                      grid: { color: "rgba(226, 232, 240, 0.5)", drawBorder: false },
-                    },
-                  },
+                      grid: { display: false }
+                    }
+                  }
                 }}
               />
             </div>
@@ -445,200 +305,242 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
-      {/* Department Performance Bar Chart */}
-      <Card className=" transition-shadow border border-slate-100">
-        <CardHeader className="border-b border-slate-100 pb-4">
-          <CardTitle className="flex items-center text-xs gap-4 text-lg">
-            <div className="p-2 bg-purple-50 rounded">
-              <BarChart3 className="w-2 h-5 text-purple-600" />
-            </div>
-            <span className='text-sm'>Department Performance</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80">
-            <Bar
-              data={{
-                labels: ["Engineering", "Production", "Quality", "Procurement", "HR", "Finance"],
-                datasets: [
-                  {
-                    label: "Performance Score",
-                    data: [95, 88, 97, 92, 85, 91],
-                    backgroundColor: [
-                      "#3b82f6",
-                      "#10b981",
-                      "#f59e0b",
-                      "#ef4444",
-                      "#8b5cf6",
-                      "#06b6d4",
-                    ],
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Material Consumption Chart */}
+        <Card className=" border-slate-200 overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+            <CardTitle className="flex items-center gap-2 text-slate-700">
+              <Package className="w-4 h-4 text-cyan-600" />
+              <span className="text-base font-semibold">Top Material Consumption</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-[300px]">
+              <Bar
+                data={{
+                  labels: chartData.materialConsumption.labels,
+                  datasets: [{
+                    label: "Quantity Consumed",
+                    data: chartData.materialConsumption.data,
+                    backgroundColor: "rgba(6, 182, 212, 0.7)",
                     borderRadius: 4,
-                    borderSkipped: false,
-                    hoverBackgroundColor: [
-                      "#2563eb",
-                      "#059669",
-                      "#d97706",
-                      "#dc2626",
-                      "#7c3aed",
-                      "#0891b2",
+                  }],
+                }}
+                options={{
+                  indexAxis: 'y',
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: { x: { beginAtZero: true } }
+                }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Operations Insight Chart */}
+        <Card className=" border-slate-200 overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+            <CardTitle className="flex items-center gap-2 text-slate-700">
+              <Zap className="w-4 h-4 text-amber-600" />
+              <span className="text-base font-semibold">Operation Insights (Task Distribution)</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-[300px]">
+              <Doughnut
+                data={{
+                  labels: chartData.operationStats.labels,
+                  datasets: [{
+                    data: chartData.operationStats.data,
+                    backgroundColor: [
+                      "#6366f1", "#10b981", "#f59e0b", "#ef4444", 
+                      "#8b5cf6", "#06b6d4", "#ec4899", "#f97316"
                     ],
-                    borderWidth: 0,
-                  },
-                ],
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { display: false },
-                  tooltip: {
-                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                    padding: 14,
-                    titleFont: { size: 10, weight: 'bold' },
-                    bodyFont: { size: 13 },
-                    borderColor: 'rgba(255, 255, 255, 0.2)',
                     borderWidth: 1,
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
-                    callbacks: {
-                      label: function(context) {
-                        return `Score: ${context.parsed.y}%`;
-                      }
-                    }
+                  }],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: "right", labels: { boxWidth: 12, usePointStyle: true } },
                   },
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                      stepSize: 20,
-                      font: { size: 12 },
-                      color: '#6b7280',
-                      callback: function(value) {
-                        return value + '%';
-                      }
-                    },
-                    grid: { color: "rgba(226, 232, 240, 0.5)", drawBorder: false },
-                  },
-                  x: {
-                    ticks: { font: { size: 12 }, color: '#6b7280' },
-                    grid: { display: false, drawBorder: false },
-                  },
-                },
-              }}
-            />
-          </div>
-          <div className="mt-6 grid grid-cols-3 gap-4">
-            <div className="text-center p-3 bg-slate-50 rounded">
-              <p className="text-xs text-slate-500 font-medium mb-1">Highest</p>
-              <p className="text-lg ">Quality (97%)</p>
-            </div>
-            <div className="text-center p-3 bg-slate-50 rounded">
-              <p className="text-xs text-slate-500 font-medium mb-1">Average</p>
-              <p className="text-lg ">91%</p>
-            </div>
-            <div className="text-center p-3 bg-slate-50 rounded">
-              <p className="text-xs text-slate-500 font-medium mb-1">Lowest</p>
-              <p className="text-lg ">HR (85%)</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Summary Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Completion Rate */}
-        <Card className=" transition-shadow border border-slate-100">
-          <CardContent>
-            <div className="flex items-center text-xs justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold text-slate-500  text-left mb-2">
-                  Completion Rate
-                </p>
-                <p className="text-xl text-left ">
-                  {Math.round((kpis.completedProjects / kpis.totalProjects) * 100)}%
-                </p>
-                <p className="text-xs text-left text-blue-600 mt-2 font-medium">
-                  {kpis.completedProjects} of {kpis.totalProjects} complete
-                </p>
-              </div>
-              <div className="w-14 h-14 rounded bg-gradient-to-br from-blue-50 to-blue-100 flex items-center text-xs justify-center flex-shrink-0 border border-blue-200">
-                <CheckCircle2 className="w-7 h-7 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* System Uptime */}
-        <Card className=" transition-shadow border border-slate-100">
-          <CardContent>
-            <div className="flex items-center text-xs justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold text-slate-500  text-left mb-2">
-                  System Uptime
-                </p>
-                <p className="text-xl text-left ">
-                  {kpis.systemUptime}%
-                </p>
-                <p className="text-xs text-left text-emerald-600 mt-2 font-medium">
-                  Excellent performance
-                </p>
-              </div>
-              <div className="w-14 h-14 rounded bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center text-xs justify-center flex-shrink-0 border border-emerald-200">
-                <Zap className="w-7 h-7 text-emerald-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Pending Tasks */}
-        <Card className=" transition-shadow border border-slate-100">
-          <CardContent>
-            <div className="flex items-center text-xs justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold text-slate-500  text-left mb-2">
-                  Pending Tasks
-                </p>
-                <p className="text-xl text-left ">
-                  {kpis.pendingTasks}
-                </p>
-                <p className="text-xs text-left text-amber-600 mt-2 font-medium">
-                  Awaiting action
-                </p>
-              </div>
-              <div className="w-14 h-14 rounded bg-gradient-to-br from-amber-50 to-amber-100 flex items-center text-xs justify-center flex-shrink-0 border border-amber-200">
-                <Clock className="w-7 h-7 text-amber-600" />
-              </div>
+                  cutout: '60%'
+                }}
+              />
             </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Recent Project Progress Visualization */}
+      <Card className="border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+          <CardTitle className="flex items-center gap-2 text-slate-700">
+            <Activity className="w-5 h-5 text-emerald-600" />
+            <span className="text-lg font-bold">Live Project Execution Progress</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              {chartData.recentProjects.slice(0, 3).length > 0 ? (
+                chartData.recentProjects.slice(0, 3).map((project, index) => (
+                  <div key={index} className="group">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{project.project_name}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs font-medium px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">{project.project_code}</span>
+                          <span className="text-xs font-semibold text-blue-500 uppercase tracking-wider">{project.status.replace(/_/g, ' ')}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-lg font-black text-blue-600">{project.progress}%</span>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Current Status</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200 p-[1px]">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-blue-700 h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_0_8px_rgba(37,99,235,0.4)]"
+                        style={{ width: `${project.progress}%` }}
+                      >
+                        <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="h-full flex items-center justify-center py-10 text-slate-400 italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                  No active projects tracking.
+                </div>
+              )}
+            </div>
 
+            <div className="space-y-6">
+              {chartData.recentProjects.slice(3, 6).length > 0 ? (
+                chartData.recentProjects.slice(3, 6).map((project, index) => (
+                  <div key={index} className="group">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{project.project_name}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs font-medium px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">{project.project_code}</span>
+                          <span className="text-xs font-semibold text-blue-500 uppercase tracking-wider">{project.status.replace(/_/g, ' ')}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-lg font-black text-blue-600">{project.progress}%</span>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Current Status</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200 p-[1px]">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-blue-700 h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_0_8px_rgba(37,99,235,0.4)]"
+                        style={{ width: `${project.progress}%` }}
+                      >
+                        <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                chartData.recentProjects.length > 0 ? (
+                   <div className="h-full flex items-center justify-center py-10">
+                     <div className="text-center space-y-2">
+                       <p className="text-sm font-medium text-slate-600">Project Execution Efficiency</p>
+                       <p className="text-3xl font-black text-emerald-600">High</p>
+                       <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Real-time Analysis</p>
+                     </div>
+                   </div>
+                ) : (
+                  <div className="h-full flex items-center justify-center py-10 text-slate-400 italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    Awaiting project data.
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Footer Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <SummaryCard 
+          icon={CheckCircle2} 
+          label="Completion Rate" 
+          value={`${Math.round((kpis.completedProjects / (kpis.totalProjects || 1)) * 100)}%`}
+          color="blue"
+        />
+        <SummaryCard 
+          icon={Zap} 
+          label="System Health" 
+          value={`${kpis.systemUptime}%`}
+          color="emerald"
+        />
+        <SummaryCard 
+          icon={Clock} 
+          label="Pending Tasks" 
+          value={kpis.pendingTasks}
+          color="amber"
+        />
+      </div>
     </div>
   );
 };
 
+const KPICard = ({ title, value, subtitle, icon: Icon, color }) => {
+  const colorMap = {
+    blue: "border-blue-100 from-blue-50 to-white text-blue-600",
+    emerald: "border-emerald-100 from-emerald-50 to-white text-emerald-600",
+    amber: "border-amber-100 from-amber-50 to-white text-amber-600",
+    red: "border-red-100 from-red-50 to-white text-red-600"
+  };
+
+  return (
+    <div className={`bg-gradient-to-br ${colorMap[color]} border-2 rounded-xl p-2  transition-all hover:shadow-md`}>
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <p className="text-xs    text-slate-500">{title}</p>
+          <p className="text-xl  ">{value}</p>
+          <p className="text-xs font-medium text-slate-500">{subtitle}</p>
+        </div>
+        <div className={`p-3 rounded-lg bg-white  border border-slate-100`}>
+          <Icon className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SummaryCard = ({ icon: Icon, label, value, color }) => {
+  const colors = {
+    blue: "text-blue-600 bg-blue-50",
+    emerald: "text-emerald-600 bg-emerald-50",
+    amber: "text-amber-600 bg-amber-50"
+  };
+
+  return (
+    <Card className="border-slate-200">
+      <CardContent className="p-4 flex items-center gap-4">
+        <div className={`p-3 rounded-lg ${colors[color]}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-slate-500">{label}</p>
+          <p className="text-xl  ">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Tabs are exported for use in the main dashboard layout if needed
 const RootCardsTab = () => {
   const [mode, setMode] = useState('list');
   const [selectedRootCard, setSelectedRootCard] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const handleViewRootCard = (rootCard) => {
-    setSelectedRootCard(rootCard);
-    setMode('view');
-  };
-
-  const handleEditRootCard = (rootCard) => {
-    setSelectedRootCard(rootCard);
-    setMode('edit');
-  };
-
-  const handleAssignRootCard = (rootCard) => {
-    setSelectedRootCard(rootCard);
-    setMode('assign');
-  };
 
   const handleBackToList = () => {
     setMode('list');
@@ -661,9 +563,9 @@ const RootCardsTab = () => {
     <div className="w-full">
       <RootCardList
         onCreateNew={() => setMode('create')}
-        onViewRootCard={handleViewRootCard}
-        onEditRootCard={handleEditRootCard}
-        onAssignRootCard={handleAssignRootCard}
+        onViewRootCard={(rc) => { setSelectedRootCard(rc); setMode('view'); }}
+        onEditRootCard={(rc) => { setSelectedRootCard(rc); setMode('edit'); }}
+        onAssignRootCard={(rc) => { setSelectedRootCard(rc); setMode('assign'); }}
         refreshTrigger={refreshTrigger}
       />
     </div>

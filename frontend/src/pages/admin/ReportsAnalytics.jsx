@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from '../../utils/api';
 import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import DataTable from '../../components/ui/DataTable/DataTable';
+import Modal from '../../components/ui/Modal';
+import Button from '../../components/ui/Button';
 import {
   Download,
   LayoutDashboard,
@@ -14,6 +17,8 @@ import {
   Clock,
   AlertTriangle,
   Star,
+  FileText,
+  Calendar,
 } from 'lucide-react';
 
 const ReportsAnalytics = () => {
@@ -23,56 +28,88 @@ const ReportsAnalytics = () => {
     end: new Date().toISOString().split('T')[0]
   });
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
-
-  const reportData = {
+  const [reportData, setReportData] = useState({
     overview: {
-      completedProjects: 24,
-      onTimeDelivery: 94,
-      totalRevenue: 2850000,
-      activeAlerts: 5
+      completedProjects: 0,
+      onTimeDelivery: 0,
+      totalRevenue: 0,
+      activeAlerts: 0
     },
-    projects: [
-      { id: 1, name: 'ERP System Upgrade', status: 'Active', progress: 65, startDate: '2025-01-15', expectedCompletion: '2025-04-30', onTime: true },
-      { id: 2, name: 'Database Migration', status: 'Completed', progress: 100, startDate: '2024-11-01', expectedCompletion: '2024-12-15', onTime: true },
-      { id: 3, name: 'API Development', status: 'Active', progress: 45, startDate: '2025-02-01', expectedCompletion: '2025-05-15', onTime: true },
-      { id: 4, name: 'UI Redesign', status: 'Planning', progress: 15, startDate: '2025-03-01', expectedCompletion: '2025-06-30', onTime: false },
-      { id: 5, name: 'Mobile App Development', status: 'Active', progress: 35, startDate: '2025-01-20', expectedCompletion: '2025-07-15', onTime: true },
-    ],
-    departments: [
-      { name: 'Engineering', totalUsers: 15, completedTasks: 342, avgEfficiency: 92 },
-      { name: 'Production', totalUsers: 28, completedTasks: 521, avgEfficiency: 88 },
-      { name: 'Quality Control', totalUsers: 12, completedTasks: 287, avgEfficiency: 97 },
-      { name: 'Procurement', totalUsers: 8, completedTasks: 156, avgEfficiency: 85 },
-    ],
-    vendors: [
-      { name: 'ABC Supplies', totalOrders: 45, onTimeDelivery: 96, qualityRating: 4.8, totalValue: 850000, status: 'Excellent' },
-      { name: 'XYZ Industries', totalOrders: 32, onTimeDelivery: 89, qualityRating: 4.2, totalValue: 620000, status: 'Good' },
-      { name: 'Global Trade Ltd', totalOrders: 28, onTimeDelivery: 92, qualityRating: 4.6, totalValue: 750000, status: 'Excellent' },
-      { name: 'Regional Suppliers', totalOrders: 18, onTimeDelivery: 78, qualityRating: 3.9, totalValue: 380000, status: 'Good' },
-      { name: 'Tech Components Co', totalOrders: 52, onTimeDelivery: 94, qualityRating: 4.7, totalValue: 1200000, status: 'Excellent' },
-    ],
+    projects: [],
+    departments: [],
+    vendors: [],
     inventory: {
-      totalItems: 1250,
-      itemsReceived: 320,
-      itemsIssued: 285,
-      lowStockItems: 18,
-      items: [
-        { code: 'MAT-001', description: 'Steel Sheets (20mm)', currentStock: 450, minStock: 200, lastMovement: '2025-12-10', status: 'In Stock' },
-        { code: 'MAT-002', description: 'Aluminum Bars', currentStock: 85, minStock: 150, lastMovement: '2025-12-08', status: 'Low Stock' },
-        { code: 'MAT-003', description: 'Copper Wire', currentStock: 320, minStock: 100, lastMovement: '2025-12-12', status: 'In Stock' },
-        { code: 'MAT-004', description: 'Plastic Components', currentStock: 1200, minStock: 500, lastMovement: '2025-12-11', status: 'In Stock' },
-        { code: 'MAT-005', description: 'Fasteners (Bolts)', currentStock: 2500, minStock: 1000, lastMovement: '2025-12-09', status: 'In Stock' },
-        { code: 'MAT-006', description: 'Rubber Seals', currentStock: 140, minStock: 300, lastMovement: '2025-12-07', status: 'Low Stock' },
-      ]
+      totalItems: 0,
+      itemsReceived: 0,
+      itemsIssued: 0,
+      lowStockItems: 0,
+      items: []
     },
-    employees: [
-      { id: 'EMP-001', name: 'Rajesh Kumar', department: 'Engineering', tasksCompleted: 45, efficiency: 94, qualityScore: 4.8, attendance: 98, rating: 4.8 },
-      { id: 'EMP-002', name: 'Priya Singh', department: 'Production', tasksCompleted: 52, efficiency: 91, qualityScore: 4.6, attendance: 96, rating: 4.7 },
-      { id: 'EMP-003', name: 'Amit Patel', department: 'Quality Control', tasksCompleted: 38, efficiency: 97, qualityScore: 4.9, attendance: 99, rating: 4.9 },
-      { id: 'EMP-004', name: 'Neha Sharma', department: 'Procurement', tasksCompleted: 35, efficiency: 88, qualityScore: 4.4, attendance: 94, rating: 4.5 },
-      { id: 'EMP-005', name: 'Vikram Desai', department: 'Engineering', tasksCompleted: 42, efficiency: 89, qualityScore: 4.3, attendance: 92, rating: 4.4 },
-    ]
+    employees: []
+  });
+  const [loading, setLoading] = useState(false);
+  const [employeeReportModalOpen, setEmployeeReportModalOpen] = useState(false);
+  const [selectedEmployeeForReport, setSelectedEmployeeForReport] = useState(null);
+  const [employeeWorkingHours, setEmployeeWorkingHours] = useState({ daily: [], total_hours: 0 });
+  const [employeeReportLoading, setEmployeeReportLoading] = useState(false);
+  const [employeeDateRange, setEmployeeDateRange] = useState({
+    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0]
+  });
+
+  const handleOpenEmployeeReport = (employee) => {
+    setSelectedEmployeeForReport(employee);
+    setEmployeeReportModalOpen(true);
   };
+
+  const fetchWorkingHours = useCallback(async () => {
+    if (!selectedEmployeeForReport) return;
+    try {
+      setEmployeeReportLoading(true);
+      const response = await axios.get(`/reports/employees/${selectedEmployeeForReport.id}/working-hours`, {
+        params: {
+          start: employeeDateRange.start,
+          end: employeeDateRange.end
+        }
+      });
+      setEmployeeWorkingHours(response.data);
+    } catch (error) {
+      console.error("Error fetching working hours:", error);
+    } finally {
+      setEmployeeReportLoading(false);
+    }
+  }, [selectedEmployeeForReport, employeeDateRange]);
+
+  useEffect(() => {
+    if (employeeReportModalOpen) {
+      fetchWorkingHours();
+    }
+  }, [employeeReportModalOpen, fetchWorkingHours]);
+
+  const fetchReportData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/reports/${selectedReport}`, {
+        params: {
+          start: dateRange.start,
+          end: dateRange.end
+        }
+      });
+      
+      setReportData(prev => ({
+        ...prev,
+        [selectedReport]: response.data
+      }));
+    } catch (error) {
+      console.error(`Error fetching ${selectedReport} report:`, error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedReport, dateRange]);
+
+  useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
 
   const projectColumns = [
     {
@@ -282,6 +319,19 @@ const ReportsAnalytics = () => {
           {value}/5
         </span>
       ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (_, row) => (
+        <button
+          onClick={() => handleOpenEmployeeReport(row)}
+          className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+          title="View Employee Report"
+        >
+          <FileText className="w-4 h-4" />
+        </button>
+      )
     },
   ];
 
@@ -608,6 +658,102 @@ const ReportsAnalytics = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Employee Working Hours Modal */}
+      <Modal
+        isOpen={employeeReportModalOpen}
+        onClose={() => setEmployeeReportModalOpen(false)}
+        title={`Employee Report - ${selectedEmployeeForReport?.name || ''}`}
+        size="lg"
+      >
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 p-4 rounded">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-xl font-bold">
+                {selectedEmployeeForReport?.name?.charAt(0)}
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-800">{selectedEmployeeForReport?.name}</h3>
+                <p className="text-xs text-slate-500">Dept: {selectedEmployeeForReport?.department} | ID: {selectedEmployeeForReport?.id}</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] text-slate-500 font-medium ml-1">START DATE</label>
+                <input
+                  type="date"
+                  value={employeeDateRange.start}
+                  onChange={(e) => setEmployeeDateRange({ ...employeeDateRange, start: e.target.value })}
+                  className="p-1.5 text-xs bg-white border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] text-slate-500 font-medium ml-1">END DATE</label>
+                <input
+                  type="date"
+                  value={employeeDateRange.end}
+                  onChange={(e) => setEmployeeDateRange({ ...employeeDateRange, end: e.target.value })}
+                  className="p-1.5 text-xs bg-white border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <button
+                onClick={fetchWorkingHours}
+                className="mt-5 p-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                title="Refresh Report"
+              >
+                <TrendingUp className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-emerald-50 border border-emerald-100 p-4 rounded text-center">
+              <Clock className="w-6 h-6 text-emerald-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-emerald-700">{employeeWorkingHours.total_hours || 0}</p>
+              <p className="text-xs text-emerald-600 font-medium">Total Working Hours</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-100 p-4 rounded text-center">
+              <CheckCircle2 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-blue-700">
+                {employeeWorkingHours.daily?.reduce((sum, day) => sum + (day.production_count || 0), 0)}
+              </p>
+              <p className="text-xs text-blue-600 font-medium">Total Productions</p>
+            </div>
+            <div className="bg-amber-50 border border-amber-100 p-4 rounded text-center">
+              <TrendingUp className="w-6 h-6 text-amber-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-amber-700">
+                {employeeWorkingHours.daily?.length > 0
+                  ? (employeeWorkingHours.total_hours / employeeWorkingHours.daily.length).toFixed(1)
+                  : 0}h
+              </p>
+              <p className="text-xs text-amber-600 font-medium">Avg. Hours / Day</p>
+            </div>
+          </div>
+
+          <div className="border border-slate-100 rounded overflow-hidden">
+            <DataTable
+              columns={[
+                { key: 'date', label: 'Date', sortable: true, render: (val) => new Date(val).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) },
+                { key: 'total_hours', label: 'Working Hours', sortable: true, render: (val) => `${val || 0} hrs` },
+                { key: 'production_count', label: 'Production Count', sortable: true },
+                {
+                  key: 'status',
+                  label: 'Status',
+                  render: (_, row) => (
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] ${row.total_hours > 8 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                      {row.total_hours > 8 ? 'Overtime' : 'Regular'}
+                    </span>
+                  )
+                }
+              ]}
+              data={employeeWorkingHours.daily || []}
+              striped={true}
+              loading={employeeReportLoading}
+            />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -19,9 +19,8 @@ const qualityRoutes = require('./routes/qualityRoutes');
 const grnRoutes = require('./routes/grnRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const productionRoutes = require('./routes/productionRoutes');
-const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
-
+const reportRoutes = require('./routes/reportRoutes');
 const path = require('path');
 const app = express();
 
@@ -92,6 +91,7 @@ app.use('/api/department/inventory/vendors', quotationRoutes);
 // New Production Flow Routes
 app.use('/api/production', productionRoutes);
 app.use('/api/department/production', productionRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Departmental Task Routes
 app.use('/api/departmental-tasks', departmentTaskRoutes);

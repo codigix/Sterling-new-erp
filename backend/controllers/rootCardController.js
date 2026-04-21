@@ -593,6 +593,45 @@ const updateRootCardRequirements = async (req, res) => {
   }
 };
 
+const updateRootCardStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const [result] = await db.query(
+      'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [status, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+
+    // Send notification to relevant department based on status
+    let department = '';
+    let message = `Root Card ${id} status has been updated to ${status.replace(/_/g, ' ')}.`;
+    let link = `/admin/root-cards/${id}?mode=view`;
+
+    if (status === 'DESIGN_IN_PROGRESS') department = 'Design Engineer';
+    else if (status === 'PRODUCTION_IN_PROGRESS') department = 'Production';
+    else if (status.startsWith('MATERIAL_')) department = 'Inventory';
+    else if (status.includes('QC_')) department = 'Quality';
+    else if (status === 'PURCHASE_ORDER_RELEASED' || status === 'PROCUREMENT_IN_PROGRESS') department = 'Procurement';
+
+    if (department) {
+      await db.query(
+        'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+        [department, 'Root Card Status Updated', message, 'info', link]
+      );
+    }
+
+    res.json({ success: true, message: 'Status updated successfully' });
+  } catch (error) {
+    console.error('Error updating root card status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   createRootCard,
   getAllRootCards,
@@ -608,5 +647,6 @@ module.exports = {
   uploadQAP,
   getAllRootCardRequirements,
   getRootCardRequirementsById,
-  updateRootCardRequirements
+  updateRootCardRequirements,
+  updateRootCardStatus
 };

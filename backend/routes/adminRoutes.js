@@ -1,16 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const { 
+  getDashboardStats,
   getEmployeeList, 
   createEmployee, 
   updateEmployee, 
   deleteEmployee, 
   getRoles, 
+  createRole,
+  updateRole,
+  deleteRole,
+  updateRoleStatus,
+  getPermissions,
   getDesignations,
   getDepartments,
   sendCredentials
 } = require('../controllers/adminController');
 const auth = require('../middleware/authMiddleware');
+
+// @route   GET api/admin/stats
+// @desc    Get dashboard stats
+router.get('/stats', auth, getDashboardStats);
 
 // @route   GET api/admin/employee-list
 // @desc    Get all employees
@@ -28,9 +38,29 @@ router.put('/employee-list/:id', auth, updateEmployee);
 // @desc    Delete an employee
 router.delete('/employee-list/:id', auth, deleteEmployee);
 
+// @route   GET api/admin/permissions
+// @desc    Get all permissions
+router.get('/permissions', auth, getPermissions);
+
 // @route   GET api/admin/roles
 // @desc    Get all roles
 router.get('/roles', auth, getRoles);
+
+// @route   POST api/admin/roles
+// @desc    Create a new role
+router.post('/roles', auth, createRole);
+
+// @route   PUT api/admin/roles/:id
+// @desc    Update a role
+router.put('/roles/:id', auth, updateRole);
+
+// @route   DELETE api/admin/roles/:id
+// @desc    Delete a role
+router.delete('/roles/:id', auth, deleteRole);
+
+// @route   PATCH api/admin/roles/:id/status
+// @desc    Update role status
+router.patch('/roles/:id/status', auth, updateRoleStatus);
 
 // @route   GET api/admin/designations
 // @desc    Get all designations
