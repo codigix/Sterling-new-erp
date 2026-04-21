@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import axios from "../../../utils/api";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import SearchableSelect from "../../../components/ui/SearchableSelect";
 import * as XLSX from "xlsx";
 import { renderDimensions } from "../../../utils/dimensionUtils";
@@ -113,7 +114,7 @@ const CreateBOMPage = () => {
     product: true,
     materials: true,
   });
-  const [isUploading, setIsUploading] = useState(false);
+  /* const [isUploading, setIsUploading] = useState(false);
   const [editingMaterialId, setEditingMaterialId] = useState(null);
   const fileInputRef = React.useRef(null);
 
@@ -146,7 +147,7 @@ const CreateBOMPage = () => {
     processExcelFile(file);
   };
 
-  const processExcelFile = () => {
+  const processExcelFile = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -193,10 +194,10 @@ const CreateBOMPage = () => {
           materials: [...prev.materials, ...newMaterials]
         }));
 
-        Swal.fire('Success', `Successfully imported ${newMaterials.length} materials.`, 'success');
+        toast.success(`Successfully imported ${newMaterials.length} materials.`);
       } catch (error) {
         console.error("Excel processing error:", error);
-        Swal.fire('Error', error.message || 'Failed to process Excel file', 'error');
+        toast.error(error.message || 'Failed to process Excel file');
       } finally {
         setIsUploading(false);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -205,10 +206,12 @@ const CreateBOMPage = () => {
     reader.readAsBinaryString(file);
   };
 
-  const processPdfFile = async () => {
+  const processPdfFile = async (file) => {
     // Basic implementation: use backend if available, or just notify
     Swal.fire('Wait', 'PDF processing requires server-side analysis. Please convert it to Excel first for best results.', 'warning');
-  };
+  }; */
+
+  const [editingMaterialId, setEditingMaterialId] = useState(null);
 
   // Entry form states for "Quick Add"
   const [newMaterial, setNewMaterial] = useState({ 
@@ -353,10 +356,11 @@ const CreateBOMPage = () => {
   });
 
   useEffect(() => {
-    if (!editMode && existingBoms.length >= 0 && !bomData.productInfo.bomNumber) {
+    if (!editMode && !bomData.productInfo.bomNumber) {
       const year = new Date().getFullYear();
-      const nextNumber = (existingBoms.length + 1).toString().padStart(3, '0');
-      const generatedNumber = `BOM-${year}-${nextNumber}`;
+      // Generate a random 4-digit number
+      const randomNumber = Math.floor(1000 + Math.random() * 9000);
+      const generatedNumber = `BOM-${year}-${randomNumber}`;
       
       setBomData(prev => ({
         ...prev,
@@ -366,7 +370,7 @@ const CreateBOMPage = () => {
         }
       }));
     }
-  }, [existingBoms, editMode, bomData.productInfo.bomNumber]);
+  }, [editMode, bomData.productInfo.bomNumber]);
 
   const updateTableRow = useCallback((section, id, field, value) => {
     setBomData(prev => ({
@@ -685,22 +689,13 @@ const CreateBOMPage = () => {
         }
       }
 
-      Swal.fire({
-        icon: "success",
-        title: `BOM ${editMode ? "Updated" : "Created"} Successfully`,
-        text: `Your BOM has been ${editMode ? "updated" : "saved"}!`,
-        timer: 2000,
-      });
+      toast.success(`BOM ${editMode ? "Updated" : "Created"} Successfully`);
 
       setTimeout(() => {
         navigate("/department/production/bom/view");
       }, 2000);
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Failed",
-        text: error.response?.data?.message || "Failed to save BOM",
-      });
+      toast.error(error.response?.data?.message || "Failed to save BOM");
     } finally {
       setSaving(false);
     }
@@ -817,7 +812,7 @@ const CreateBOMPage = () => {
                       </div>
                       Add Raw Material
                     </div>
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                       <input
                         type="file"
                         ref={fileInputRef}
@@ -837,7 +832,7 @@ const CreateBOMPage = () => {
                         )}
                         Bulk Upload (Excel/PDF)
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                     <div className="md:col-span-3">
@@ -1661,7 +1656,7 @@ const CreateBOMPage = () => {
                                   className="w-20 .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs text-center focus:ring-2 focus:ring-emerald-500/20 outline-none"
                                 />
                               ) : (
-                                <span className="text-xs text-slate-500 dark:text-slate-400">{Number(parseFloat(row.quantity || 0).toFixed(4))}</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400">{Number(parseFloat(row.quantity || 0))}</span>
                               )}
                             </td>
                             <td className="px-4 py-3">

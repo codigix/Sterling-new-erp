@@ -20,11 +20,23 @@ import {
   Filter,
   ChevronDown,
   Loader2,
+  FileText
 } from 'lucide-react';
 
-const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDesignEngineering, onSendToProduction, refreshTrigger = 0 }) => {
+const RootCardList = ({ 
+  onCreateNew, 
+  onViewRootCard, 
+  onEditRootCard, 
+  onSendToDesignEngineering, 
+  onSendToProduction, 
+  onSendToQuality,
+  onReturnToDesignEngineering,
+  onUploadQAP,
+  initialFilter = 'all',
+  refreshTrigger = 0 
+}) => {
   const [rootCards, setRootCards] = useState([]);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(initialFilter);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const { user } = useAuth();
@@ -183,6 +195,8 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
           pending: ' text-slate-900 border-slate-300',
           RC_CREATED: ' text-slate-900 border-slate-300',
           DESIGN_IN_PROGRESS: ' text-blue-700 border-blue-200',
+          QUALITY_QAP_PENDING: ' text-amber-700 border-amber-200',
+          DESIGN_QAP_REVIEW: ' text-indigo-700 border-indigo-200',
           DESIGN_APPROVED: ' text-green-700 border-green-200',
           BOM_PREPARATION: ' text-purple-700 border-purple-200',
           MATERIAL_PLANNING: ' text-amber-700 border-amber-200',
@@ -265,7 +279,7 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
           >
             <Download className="w-3 h-3 text-purple-600" />
           </button>
-          {onSendToProduction && (
+          {onSendToProduction && (row.status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_APPROVED') && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -277,18 +291,56 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
               <Send className="w-3 h-3 text-green-600" />
             </button>
           )}
+          {onSendToQuality && row.status === 'DESIGN_IN_PROGRESS' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSendToQuality(row);
+              }}
+              title="Send to Quality"
+              className="p-1 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded transition"
+            >
+              <Send className="w-3 h-3 text-amber-600" />
+            </button>
+          )}
+          {onReturnToDesignEngineering && row.status === 'QUALITY_QAP_PENDING' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onReturnToDesignEngineering(row);
+              }}
+              title="Send to Design Engineer"
+              className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition"
+            >
+              <Send className="w-3 h-3 text-blue-600" />
+            </button>
+          )}
+          {onUploadQAP && row.status === 'QUALITY_QAP_PENDING' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onUploadQAP(row);
+              }}
+              title="Upload QAP"
+              className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded transition"
+            >
+              <Plus className="w-3 h-3 text-emerald-600" />
+            </button>
+          )}
           {isAdmin && (
             <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSendToDesignEngineering(row);
-                }}
-                title="Send to Design Engineering"
-                className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
-              >
-                <Send className="w-3 h-3 text-purple-600" />
-              </button>
+              {onSendToDesignEngineering && row.status === 'RC_CREATED' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSendToDesignEngineering(row);
+                  }}
+                  title="Send to Design Engineering"
+                  className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
+                >
+                  <Send className="w-3 h-3 text-purple-600" />
+                </button>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -312,9 +364,11 @@ const RootCardList = ({ onCreateNew, onViewRootCard, onEditRootCard, onSendToDes
   };
 
   const tabs = [
-    { value: 'all', label: 'All Root Cards', icon: <Filter className="w-3.5 h-3.5" /> },
+    { value: 'all', label: 'All', icon: <Filter className="w-3.5 h-3.5" /> },
     { value: 'RC_CREATED', label: 'Created', icon: <Plus className="w-3.5 h-3.5" /> },
     { value: 'DESIGN_IN_PROGRESS', label: 'In Design', icon: <Edit2 className="w-3.5 h-3.5" /> },
+    { value: 'QUALITY_QAP_PENDING', label: 'QAP Pending', icon: <AlertCircle className="w-3.5 h-3.5" /> },
+    { value: 'BOM_PREPARATION', label: 'BOM Prep', icon: <FileText className="w-3.5 h-3.5" /> },
     { value: 'PRODUCTION_IN_PROGRESS', label: 'In Production', icon: <Send className="w-3.5 h-3.5" /> },
     { value: 'READY_FOR_DELIVERY', label: 'Ready', icon: <CheckCircle2 className="w-3.5 h-3.5" /> }
   ];

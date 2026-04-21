@@ -130,7 +130,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                         </td>
                         <td className="p-2 text-center">
                           <span className=" text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800  rounded border border-slate-100 dark:border-slate-800">
-                            {Number(parseFloat(item.quantity || 0).toFixed(4))}
+                            {Number(parseFloat(item.quantity || 0))}
                           </span>
                         </td>
                         <td className="p-2 text-center">

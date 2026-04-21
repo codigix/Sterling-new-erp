@@ -13,13 +13,9 @@ import {
   FileText, 
   Layers, 
   PackageCheck, 
-  Clock, 
-  AlertCircle,
-  TrendingUp,
   Boxes,
   Hammer,
   Trash2,
-  CheckCircle2,
   Send
 } from "lucide-react";
 import axios from "../../../utils/api";
@@ -28,6 +24,8 @@ import Card, { CardContent, CardHeader } from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
 import DataTable from "../../../components/ui/DataTable/DataTable";
 import { useReactToPrint } from "react-to-print";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import MaterialRequestModal from "./MaterialRequestModal";
 
 const BOMDetailsPage = () => {
@@ -79,24 +77,6 @@ const BOMDetailsPage = () => {
 
     let currentY = 45;
 
-    // Costs Summary
-    doc.setFontSize(12);
-    doc.text("Cost Summary", 14, currentY);
-    currentY += 5;
-
-    doc.autoTable({
-      startY: currentY,
-      head: [['Category', 'Cost']],
-      body: [
-        ['Operation Cost', `INR ${bom.costs.operationCost.toLocaleString()}`],
-        ['Total BOM Cost', `INR ${bom.costs.totalBOMCost.toLocaleString()}`]
-      ],
-      theme: 'grid',
-      headStyles: { fillGray: true }
-    });
-
-    currentY = doc.lastAutoTable.finalY + 10;
-
     // Materials Table
     if (bom.materials?.length > 0) {
       doc.setFontSize(12);
@@ -129,14 +109,12 @@ const BOMDetailsPage = () => {
       
       doc.autoTable({
         startY: currentY,
-        head: [['Component Code', 'Qty', 'Unit', 'Rate', 'Loss %', 'Total']],
+        head: [['Component Code', 'Qty', 'Unit', 'Loss %']],
         body: bom.components.map(c => [
           c.componentCode,
           c.quantity,
           c.uom,
-          c.rate,
           `${c.lossPercent}%`,
-          (c.quantity * c.rate).toFixed(2)
         ]),
         theme: 'striped'
       });
@@ -152,14 +130,12 @@ const BOMDetailsPage = () => {
       
       doc.autoTable({
         startY: currentY,
-        head: [['Operation', 'Workstation', 'Cycle (min)', 'Setup (min)', 'Hourly Rate', 'Cost']],
+        head: [['Operation', 'Workstation', 'Cycle (min)', 'Setup (min)']],
         body: bom.operations.map(o => [
           o.operationName,
           o.workstation,
           o.cycleTime,
           o.setupTime,
-          o.hourlyRate,
-          o.cost
         ]),
         theme: 'striped'
       });
@@ -168,49 +144,37 @@ const BOMDetailsPage = () => {
     doc.save(`BOM_${bom.itemCode}_Rev${bom.revision}.pdf`);
   };
 
-  const stats = useMemo(() => {
-    if (!bom || !bom.costs) return [];
-    return [
-      { label: "Operation Cost", value: `₹${bom.costs.operationCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: Hammer, color: "amber" },
-      { label: "Total BOM Cost", value: `₹${bom.costs.totalBOMCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: TrendingUp, color: "purple" },
-    ];
-  }, [bom]);
-
   const materialColumns = [
     { key: "itemName", label: "Item Name", className: "" },
     { key: "itemGroup", label: "Group", render: (val) => <Badge variant="gray">{val || "NO-GROUP"}</Badge> },
     { key: "partDetail", label: "Dimensions / Grade", render: (val, row) => {
       const dims = [];
-      if (row.length) dims.push(`L: ${row.length}`);
-      if (row.width) dims.push(`W: ${row.width}`);
-      if (row.thickness) dims.push(`T: ${row.thickness}`);
-      if (row.height) dims.push(`H: ${row.height}`);
-      if (row.diameter) dims.push(`D: ${row.diameter}`);
-      if (row.outerDiameter) dims.push(`OD: ${row.outerDiameter}`);
-      if (row.side1) dims.push(`S1: ${row.side1}`);
-      if (row.side2) dims.push(`S2: ${row.side2}`);
-      if (row.webThickness) dims.push(`WT: ${row.webThickness}`);
-      if (row.flangeThickness) dims.push(`FT: ${row.flangeThickness}`);
+      if (parseFloat(row.length) > 0) dims.push(`L: ${parseFloat(row.length)}`);
+      if (parseFloat(row.width) > 0) dims.push(`W: ${parseFloat(row.width)}`);
+      if (parseFloat(row.thickness) > 0) dims.push(`T: ${parseFloat(row.thickness)}`);
+      if (parseFloat(row.height) > 0) dims.push(`H: ${parseFloat(row.height)}`);
+      if (parseFloat(row.diameter) > 0) dims.push(`D: ${parseFloat(row.diameter)}`);
+      if (parseFloat(row.outerDiameter) > 0) dims.push(`OD: ${parseFloat(row.outerDiameter)}`);
+      if (parseFloat(row.side1) > 0) dims.push(`S1: ${parseFloat(row.side1)}`);
+      if (parseFloat(row.side2) > 0) dims.push(`S2: ${parseFloat(row.side2)}`);
+      if (parseFloat(row.webThickness) > 0) dims.push(`WT: ${parseFloat(row.webThickness)}`);
+      if (parseFloat(row.flangeThickness) > 0) dims.push(`FT: ${parseFloat(row.flangeThickness)}`);
       
       return (
         <div className="flex flex-col">
-          <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-1 rounded border border-blue-100 mb-1 w-fit">
-            {dims.length > 0 ? dims.join(" x ") : (val || "-")}
-          </span>
-          <span className="text-xs text-slate-500 ">{row.materialGrade || "-"}</span>
+          {dims.length > 0 && (
+            <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-1 rounded border border-blue-100 mb-1 w-fit">
+              {dims.join(" x ")}
+            </span>
+          )}
+          <span className="text-xs text-slate-500 ">{row.materialGrade || (val || "-")}</span>
         </div>
       );
     }},
     { key: "unitWeight", label: "Weight (Kg)", render: (val, row) => (
       <div className="flex flex-col">
-        <span className="text-xs">Unit: {parseFloat(val || 0).toFixed(3)}</span>
-        <span className="text-xs font-medium text-emerald-600">Total: {parseFloat(row.totalWeight || 0).toFixed(3)}</span>
-      </div>
-    )},
-    { key: "warehouse", label: "WH / Operations", render: (val, row) => (
-      <div className="flex flex-col">
-        <span className="text-xs text-blue-600 ">{val || "-"}</span>
-        <span className="text-xs text-amber-600  italic">{row.operation || "-"}</span>
+        <span className="text-xs">Unit: {Number(parseFloat(val || 0).toFixed(3))}</span>
+        <span className="text-xs font-medium text-emerald-600">Total: {Number(parseFloat(row.totalWeight || 0).toFixed(3))}</span>
       </div>
     )},
     { key: "remark", label: "Remark / Make", render: (val, row) => (
@@ -219,48 +183,7 @@ const BOMDetailsPage = () => {
         <span className="text-xs">{row.make || "-"}</span>
       </div>
     )},
-    { key: "quantity", label: "Oty", render: (val, row) => `${val} ${row.uom}` },
-  ];
-
-  const componentColumns = [
-    { key: "componentCode", label: "Componant Code", className: "" },
-    { key: "quantity", label: "Qty", render: (val, row) => `${val} ${row.uom}` },
-    { key: "rate", label: "Rate", render: (val) => `₹${parseFloat(val).toLocaleString()}` },
-    { key: "lossPercent", label: "Loss %", render: (val) => `${val}%` },
-    { key: "total", label: "Total", render: (_, row) => `₹${(row.quantity * row.rate).toLocaleString()}` },
-  ];
-
-  const operationColumns = [
-    { key: "operationName", label: "Operations", className: "" },
-    { key: "type", label: "EXECUTION", render: (val) => (
-      <Badge variant={val === 'outsource' ? 'warning' : 'info'} className="capitalize">
-        {val || 'in-house'}
-      </Badge>
-    )},
-    { key: "workstation", label: "Worktations / Vendor", render: (val, row) => (
-      <div className="flex flex-col">
-        <span className="text-xs  text-slate-700">{row.type === 'outsource' ? (row.vendorName || '-') : (val || '-')}</span>
-        {row.type === 'outsource' && row.subcontractWarehouse && (
-          <span className="text-xs text-slate-500 italic">Wh: {row.subcontractWarehouse}</span>
-        )}
-      </div>
-    )},
-    { key: "targetWarehouse", label: "Target WH", render: (val) => val || '-' },
-    { key: "cycleTime", label: "Time (Min)", render: (val, row) => (
-      <div className="flex flex-col text-xs">
-        <span>Cycle: {val}m</span>
-        <span>Setup: {row.setupTime}m</span>
-      </div>
-    )},
-    { key: "hourlyRate", label: "Rate", render: (val, row) => (
-      <div className="flex flex-col text-right">
-        <span className="text-xs">₹{parseFloat(row.type === 'outsource' ? row.vendorRatePerUnit : val).toLocaleString()}</span>
-        <span className="text-xs text-slate-400">{row.type === 'outsource' ? '/ Unit' : '/ Hr'}</span>
-      </div>
-    )},
-    { key: "cost", label: "Total Cost", render: (val) => (
-      <span className=" text-slate-900">₹{parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-    )},
+    { key: "quantity", label: "Qty", render: (val, row) => `${Number(parseFloat(val || 0))} ${row.uom}` },
   ];
 
   if (loading) {
@@ -302,8 +225,8 @@ const BOMDetailsPage = () => {
             <ChevronLeft size={15} />
           </button>
           <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl  text-slate-900">{bom.productName} <span className="text-slate-500 font-normal">({bom.productCode})</span></h2>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="text-xl  text-slate-900 break-words max-w-2xl">{bom.productName} <span className="text-slate-500 font-normal">({bom.productCode})</span></h2>
               <Badge 
                 variant={bom.status === 'active' ? 'success' : bom.status === 'approved' ? 'primary' : 'warning'}
                 className="capitalize px-3 py-1 text-xs"
@@ -342,131 +265,24 @@ const BOMDetailsPage = () => {
         bom={bom} 
       />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 my-5 gap-2">
-        {stats.map((stat, idx) => (
-          <Card key={idx} className="border-none  overflow-hidden relative">
-            <CardContent className="p-2 flex items-center gap-4">
-              <div className={`p-3 rounded bg-${stat.color}-50 text-${stat.color}-600`}>
-                <stat.icon size={15} />
-              </div>
-              <div>
-                <p className="text-xs  text-slate-500">{stat.label}</p>
-                <p className="text-xl  text-slate-900">{stat.value}</p>
-              </div>
-            </CardContent>
-            <div className={`absolute top-0 left-0 w-1 h-full bg-${stat.color}-500`} />
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: BOM Info & Summary */}
-        <div className="lg:col-span-1 space-y-2">
-          <Card className="border-none">
-            <CardHeader className="border-b border-slate-100 bg-white p-2">
-              <h3 className=" text-slate-900 flex items-center gap-2 text-sm">
-                <FileText size={15} className="text-blue-600" />
-                General Information
-              </h3>
-            </CardHeader>
-            <CardContent className="p-2 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs   text-slate-400 mb-1">Item Group</p>
-                  <p className="text-sm  text-slate-700">{bom.itemGroup || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-xs   text-slate-400 mb-1">Quantity</p>
-                  <p className="text-sm  text-slate-700">{bom.quantity} {bom.uom}</p>
-                </div>
-                <div>
-                  <p className="text-xs   text-slate-400 mb-1">Created By</p>
-                  <p className="text-sm  text-slate-700">{bom.createdByName || 'System'}</p>
-                </div>
-                <div>
-                  <p className="text-xs   text-slate-400 mb-1">Date</p>
-                  <p className="text-sm  text-slate-700">{new Date(bom.createdAt).toLocaleDateString()}</p>
-                </div>
-              </div>
-              <div>
-                <p className="text-xs   text-slate-400 mb-1">Description</p>
-                <p className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100 italic">
-                  {bom.description || "No description provided."}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none ">
-            <CardHeader className="border-b border-slate-100 bg-white p-2">
-              <h3 className=" text-slate-900 flex items-center gap-2 text-sm">
-                <CheckCircle2 size={15} className="text-green-600" />
-                BOM Status
-              </h3>
-            </CardHeader>
-            <CardContent className="p-2">
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`h-10 w-10 rounded flex items-center justify-center ${
-                  bom.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
-                }`}>
-                  {bom.status === 'active' ? <CheckCircle2 size={15} /> : <Clock size={15} />}
-                </div>
-                <div>
-                  <p className="text-sm  text-slate-900 capitalize">{bom.status} Status</p>
-                  <p className="text-xs text-slate-500">
-                    {bom.status === 'active' ? 'This BOM is currently active and can be used in production.' : 'This BOM is in draft mode and needs approval.'}
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500">Is Active</span>
-                  <Badge variant={bom.isActive ? "success" : "gray"}>{bom.isActive ? "Yes" : "No"}</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Column: Tables */}
-        <div className="lg:col-span-2 space-y-2">
-          {/* Materials Table */}
-          <Card className="border-none ">
-            <CardHeader className="border-b border-slate-100 bg-white flex justify-between items-center">
-              <h3 className=" text-slate-900 flex items-center gap-2 text-sm">
-                <Boxes size={15} className="text-blue-600" />
-                Raw Materials
-              </h3>
-              <Badge variant="primary" className="text-xs">{bom.materials?.length || 0} Items</Badge>
-            </CardHeader>
-            <CardContent className="p-0">
-              <DataTable 
-                columns={materialColumns}
-                data={bom.materials || []}
-                emptyMessage="No raw materials added to this BOM."
-              />
-            </CardContent>
-          </Card>
-
-          {/* Operations Table */}
-          <Card className="border-none ">
-            <CardHeader className="border-b border-slate-100 bg-white  flex justify-between items-center">
-              <h3 className=" text-slate-900 flex items-center gap-2 text-sm">
-                <Hammer size={15} className="text-amber-600" />
-                Manufacturing Operations
-              </h3>
-              <Badge variant="primary" className="text-xs">{bom.operations?.length || 0} Operations</Badge>
-            </CardHeader>
-            <CardContent className="p-0">
-              <DataTable 
-                columns={operationColumns}
-                data={bom.operations || []}
-                emptyMessage="No operations added to this BOM."
-              />
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-2">
+        {/* Materials Table */}
+        <Card className="border-none ">
+          <CardHeader className="border-b border-slate-100 bg-white flex justify-between items-center">
+            <h3 className=" text-slate-900 flex items-center gap-2 text-sm">
+              <Boxes size={15} className="text-blue-600" />
+              Raw Materials
+            </h3>
+            <Badge variant="primary" className="text-xs">{bom.materials?.length || 0} Items</Badge>
+          </CardHeader>
+          <CardContent className="p-0">
+            <DataTable 
+              columns={materialColumns}
+              data={bom.materials || []}
+              emptyMessage="No raw materials added to this BOM."
+            />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Hidden Print Content */}
@@ -490,10 +306,6 @@ const BOMDetailsPage = () => {
               <p className="text-lg ">{bom.productName} ({bom.productCode})</p>
               <p className="text-sm">Group: {bom.itemGroup}</p>
               <p className="text-sm">Quantity: {bom.quantity} {bom.uom}</p>
-            </div>
-            <div>
-              <h4 className="text-xs   text-slate-500 mb-2">Cost Summary</h4>
-              <p className="text-lg  mt-2">Total BOM Cost: ₹{bom.costs?.totalBOMCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
             </div>
           </div>
 
@@ -531,7 +343,6 @@ const BOMDetailsPage = () => {
                     <th className="py-2">Operation</th>
                     <th className="py-2">Workstation / Vendor</th>
                     <th className="py-2 text-right">Cycle Time</th>
-                    <th className="py-2 text-right">Cost</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -540,7 +351,6 @@ const BOMDetailsPage = () => {
                       <td className="py-2">{o.operationName}</td>
                       <td className="py-2">{o.type === 'outsource' ? o.vendorName : o.workstation}</td>
                       <td className="py-2 text-right">{o.cycleTime}m</td>
-                      <td className="py-2 text-right">₹{parseFloat(o.cost).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
                 </tbody>

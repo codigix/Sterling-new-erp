@@ -91,7 +91,7 @@ export const STATUS_LEVELS = [
   { value: "pending", label: "Root Card Created" },
   { value: "RC_CREATED", label: "Root Card Created" },
   { value: "DESIGN_IN_PROGRESS", label: "Design In Progress" },
-  { value: "DESIGN_APPROVED", label: "Design Approved" },
+  { value: "QUALITY_QAP_PENDING", label: "Quality QAP Upload Pending" },
   { value: "BOM_PREPARATION", label: "BOM Preparation" },
   { value: "MATERIAL_PLANNING", label: "Material Planning" },
   { value: "PURCHASE_ORDER_RELEASED", label: "Purchase Order Released" },

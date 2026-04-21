@@ -7,6 +7,7 @@ import RootCardList from '@/components/admin/RootCardList/RootCardList';
 const UniversalRootCardsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [refreshTrigger, setRefreshTrigger] = React.useState(0);
   
   // Determine base path based on current location (admin, department, design-engineer)
   const getBasePath = () => {
@@ -34,6 +35,7 @@ const UniversalRootCardsPage = () => {
     try {
       const response = await axios.post(`/root-cards/${order.id}/send-to-design-engineering`);
       showSuccess(`Root card sent to Design Engineering Department. Notifications sent to ${response.data.notificationsSent || 0} design engineers.`);
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error sending to Design Engineering:', error);
       showError(error.response?.data?.message || 'Failed to send root card to Design Engineering');
@@ -44,9 +46,32 @@ const UniversalRootCardsPage = () => {
     try {
       const response = await axios.post(`/root-cards/${order.id}/send-to-production`);
       showSuccess(`Root card sent to Production Department. Notifications sent to ${response.data.notificationsSent || 0} production managers.`);
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error sending to Production:', error);
       showError(error.response?.data?.message || 'Failed to send root card to Production');
+    }
+  };
+
+  const handleSendToQuality = async (order) => {
+    try {
+      const response = await axios.post(`/root-cards/${order.id}/send-to-quality`);
+      showSuccess(`Root card sent to Quality Department for QAP upload.`);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error('Error sending to Quality:', error);
+      showError(error.response?.data?.message || 'Failed to send root card to Quality');
+    }
+  };
+
+  const handleReturnToDesignEngineering = async (order) => {
+    try {
+      const response = await axios.post(`/root-cards/${order.id}/return-to-design-engineering`);
+      showSuccess(`Root card returned to Design Engineering Department after QAP upload.`);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error('Error returning to Design Engineering:', error);
+      showError(error.response?.data?.message || 'Failed to return root card to Design Engineering');
     }
   };
 
@@ -58,6 +83,9 @@ const UniversalRootCardsPage = () => {
         onEditRootCard={handleEditRootCard}
         onSendToDesignEngineering={location.pathname.startsWith('/admin') ? handleSendToDesignEngineering : undefined}
         onSendToProduction={location.pathname.startsWith('/design-engineer') ? handleSendToProduction : undefined}
+        onSendToQuality={location.pathname.startsWith('/design-engineer') ? handleSendToQuality : undefined}
+        onReturnToDesignEngineering={location.pathname.startsWith('/department/quality') ? handleReturnToDesignEngineering : undefined}
+        refreshTrigger={refreshTrigger}
       />
     </div>
   );

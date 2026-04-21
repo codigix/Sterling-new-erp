@@ -89,7 +89,7 @@ const createRootCard = async (req, res) => {
 };
 
 const getAllRootCards = async (req, res) => {
-  const { assignedOnly } = req.query;
+  const { assignedOnly, includeSteps } = req.query;
   try {
     let query = 'SELECT * FROM root_cards';
     let queryParams = [];
@@ -97,22 +97,58 @@ const getAllRootCards = async (req, res) => {
 
     if (assignedOnly === 'true' && req.user && req.user.id) {
       // Find root cards where this user is assigned to ANY step
-      // OR root cards that are active
       query = `
         SELECT DISTINCT rc.* 
         FROM root_cards rc
         LEFT JOIN root_card_steps rcs ON rc.id = rcs.root_card_id
         WHERE rcs.assigned_to = ? 
-        OR 1=1
       `;
       queryParams.push(req.user.id);
     } else if (isProduction) {
-      // Production can see all root cards
-      query = "SELECT * FROM root_cards";
+      // Production can only see root cards that have been sent to production
+      const productionAllowedStatuses = [
+        'BOM_PREPARATION', 
+        'MATERIAL_PLANNING', 
+        'PURCHASE_ORDER_RELEASED', 
+        'PROCUREMENT_IN_PROGRESS', 
+        'MATERIAL_RECEIVED', 
+        'MATERIAL_QC_PENDING', 
+        'MATERIAL_QC_APPROVED', 
+        'PRODUCTION_IN_PROGRESS', 
+        'DIMENSIONAL_QC_PENDING', 
+        'DIMENSIONAL_QC_APPROVED', 
+        'PAINTING_IN_PROGRESS', 
+        'FINAL_QC_PENDING', 
+        'FINAL_QC_APPROVED', 
+        'READY_FOR_DELIVERY'
+      ];
+      query = `SELECT * FROM root_cards WHERE status IN ('${productionAllowedStatuses.join("', '")}')`;
     }
 
     query += ' ORDER BY created_at DESC';
     const [rows] = await db.query(query, queryParams);
+
+    if (includeSteps === 'true' && rows.length > 0) {
+      // Fetch all steps for these root cards in one query
+      const rootCardIds = rows.map(r => r.id);
+      const [stepRows] = await db.query(
+        'SELECT root_card_id, step_key, step_data FROM root_card_steps WHERE root_card_id IN (?)',
+        [rootCardIds]
+      );
+
+      // Group steps by root_card_id
+      const stepsByRootCard = stepRows.reduce((acc, row) => {
+        if (!acc[row.root_card_id]) acc[row.root_card_id] = {};
+        acc[row.root_card_id][row.step_key] = row.step_data;
+        return acc;
+      }, {});
+
+      // Merge steps into root card rows
+      rows.forEach(row => {
+        row.steps = stepsByRootCard[row.id] || {};
+      });
+    }
+
     res.json({ rootCards: rows });
   } catch (error) {
     console.error('Error fetching root cards:', error);
@@ -300,7 +336,7 @@ const sendToDesignEngineering = async (req, res) => {
     // Send notification to Design Engineering role
     await db.query(
       'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
-      ['Design Engineer', title, message, 'info', `/design-engineer/root-cards/${id}?mode=view`]
+      ['Design Engineer', title, message, 'info', `/design-engineer/root-cards/${id}?mode=edit`]
     );
 
     res.json({ success: true, message: 'Notification sent to Design Engineering department', notificationsSent: 1 });
@@ -324,11 +360,11 @@ const sendToProduction = async (req, res) => {
     // Update root card status
     await db.query(
       'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      ['PRODUCTION_IN_PROGRESS', id]
+      ['BOM_PREPARATION', id]
     );
 
-    const title = 'Production Phase Started';
-    const message = `Root Card ${id} for project "${projectName}" has been sent for Production. All approved drawings are now available.`;
+    const title = 'BOM Preparation Started';
+    const message = `Root Card ${id} for project "${projectName}" has been sent for Production (BOM Preparation). All approved drawings and QAP are now available.`;
 
     // Send notification to Production department
     await db.query(
@@ -339,6 +375,163 @@ const sendToProduction = async (req, res) => {
     res.json({ success: true, message: 'Notification sent to Production department', notificationsSent: 1 });
   } catch (error) {
     console.error('Error sending to Production:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const sendToQuality = async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Check if root card exists
+    const [cards] = await db.query('SELECT project_name FROM root_cards WHERE id = ?', [id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+
+    const projectName = cards[0].project_name;
+    
+    // Fetch approved drawings to store in step data for quick access
+    const [drawings] = await db.query(
+      'SELECT file_path, name FROM design_documents WHERE root_card_id = ? AND status = "Approved" ORDER BY version DESC',
+      [id]
+    );
+
+    if (drawings.length > 0) {
+      // Store the latest approved drawings in the design_engineering step data
+      const [existingStep] = await db.query(
+        'SELECT step_data FROM root_card_steps WHERE root_card_id = ? AND step_key = ?',
+        [id, 'design_engineering']
+      );
+
+      let stepData = {};
+      if (existingStep.length > 0) {
+        stepData = existingStep[0].step_data || {};
+      }
+
+      stepData.approved_drawings = drawings;
+      
+      await db.query(
+        `INSERT INTO root_card_steps (root_card_id, step_key, step_data, status)
+         VALUES (?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE 
+         step_data = VALUES(step_data),
+         updated_at = CURRENT_TIMESTAMP`,
+        [id, 'design_engineering', JSON.stringify(stepData), 'completed']
+      );
+    }
+
+    // Update root card status
+    await db.query(
+      'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      ['QUALITY_QAP_PENDING', id]
+    );
+
+    const title = 'QAP Upload Required';
+    const message = `Root Card ${id} for project "${projectName}" has been sent for QAP upload by Quality department.`;
+
+    // Send notification to Quality department
+    await db.query(
+      'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+      ['Quality', title, message, 'info', `/department/quality/qap-upload`]
+    );
+
+    res.json({ success: true, message: 'Notification sent to Quality department', notificationsSent: 1 });
+  } catch (error) {
+    console.error('Error sending to Quality:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const returnToDesignEngineering = async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Check if root card exists
+    const [cards] = await db.query('SELECT project_name FROM root_cards WHERE id = ?', [id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+
+    const projectName = cards[0].project_name;
+    
+    // Update root card status - Back to DESIGN_QAP_REVIEW so Design Engineer can send to Production
+    await db.query(
+      'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      ['DESIGN_QAP_REVIEW', id]
+    );
+
+    const title = 'QAP Uploaded - Ready for Production Hand-off';
+    const message = `Quality department has uploaded the QAP for Root Card ${id} ("${projectName}"). Please review and send to Production.`;
+
+    // Send notification to Design Engineering
+    await db.query(
+      'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+      ['Design Engineer', title, message, 'info', `/design-engineer/qap-review`]
+    );
+
+    res.json({ success: true, message: 'QAP uploaded and sent to Design Engineering for Production hand-off', notificationsSent: 1 });
+  } catch (error) {
+    console.error('Error returning to Design Engineering:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const uploadQAP = async (req, res) => {
+  const { id } = req.params;
+  const files = req.files || (req.file ? [req.file] : []);
+  
+  if (files.length === 0) {
+    return res.status(400).json({ message: 'No files uploaded' });
+  }
+
+  try {
+    // We can either update a column if it exists, or update the quality step data
+    // Let's update the quality step data for consistency with how other steps work
+    const [existingStep] = await db.query(
+      'SELECT step_data FROM root_card_steps WHERE root_card_id = ? AND step_key = ?',
+      [id, 'quality']
+    );
+
+    let stepData = {};
+    if (existingStep.length > 0) {
+      stepData = existingStep[0].step_data || {};
+    }
+
+    if (!Array.isArray(stepData.qap_files)) {
+      stepData.qap_files = [];
+    }
+
+    // Add all uploaded files to the list
+    files.forEach(file => {
+      stepData.qap_files.push({
+        path: file.filename,
+        uploaded_at: new Date(),
+        uploaded_by: req.user?.id,
+        original_name: file.originalname
+      });
+    });
+
+    // For legacy support, keep the last one in the main column if needed
+    const lastFile = files[files.length - 1];
+    stepData.qap_path = lastFile.filename;
+    stepData.qap_uploaded_at = new Date();
+    stepData.qap_uploaded_by = req.user?.id;
+
+    await db.query(
+      `INSERT INTO root_card_steps (root_card_id, step_key, step_data, status)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE 
+       step_data = VALUES(step_data),
+       updated_at = CURRENT_TIMESTAMP`,
+      [id, 'quality', JSON.stringify(stepData), 'in_progress']
+    );
+
+    res.json({ 
+      success: true, 
+      message: `${files.length} QAP files uploaded successfully`, 
+      qapFiles: stepData.qap_files
+    });
+  } catch (error) {
+    console.error('Error uploading QAP:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -404,6 +597,9 @@ module.exports = {
   deleteRootCard,
   sendToDesignEngineering,
   sendToProduction,
+  sendToQuality,
+  returnToDesignEngineering,
+  uploadQAP,
   getAllRootCardRequirements,
   getRootCardRequirementsById,
   updateRootCardRequirements

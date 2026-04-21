@@ -1005,7 +1005,7 @@ const QuotationsPage = ({ defaultTab }) => {
       align: "center",
       render: (_, quote) => (
         <div className="flex justify-center gap-2">
-          {activeTab === "outbound" && (
+          {activeTab === "outbound" && quote.status === "sent" && (
             <button
               onClick={() => handleRecordResponse(quote)}
               className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 dark:text-green-400 rounded transition-colors"

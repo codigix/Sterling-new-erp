@@ -37,7 +37,10 @@ const ProductionDesignDrawings = () => {
   const fetchRootCards = async () => {
     try {
       const response = await axios.get("/root-cards");
-      setRootCards(Array.isArray(response.data) ? response.data : response.data.rootCards || []);
+      const cards = Array.isArray(response.data) ? response.data : response.data.rootCards || [];
+      // Only show root cards that have been sent to Design Engineering (not in RC_CREATED status)
+      const filteredCards = cards.filter(card => card.status !== 'RC_CREATED');
+      setRootCards(filteredCards);
     } catch (error) {
       console.error("Failed to fetch root cards:", error);
     }

@@ -109,213 +109,19 @@ function RootCardFormContent({
     async (rootCardId) => {
       try {
         setLoading(true);
-
-        const clientPOResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/client_po`)
-          .catch(() => null);
-        const designResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/design_engineering`)
-          .catch(() => null);
-        const productionResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/production`)
-          .catch(() => null);
-        const procurementResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/procurement`)
-          .catch(() => null);
-        const inventoryResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/inventory`)
-          .catch(() => null);
-        const qualityResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/quality`)
-          .catch(() => null);
-        const allStepsResponse = await axios
-          .get(`/root-cards/steps/${rootCardId}/steps`)
-          .catch(() => null);
-
-        if (allStepsResponse?.data?.data?.steps) {
-          const steps = allStepsResponse.data.data.steps;
-          const stepKeyMapping = {
-            design_engineering: "designEngineering",
-            production: "productionPlan",
-            procurement: "materialRequirements",
-            inventory: "inventory",
-            quality: "qualityCheck",
-          };
-          steps.forEach((step) => {
-            if (step.assignedTo) {
-              const camelKey = stepKeyMapping[step.stepKey] || step.stepKey;
-              const assigneeKey = `${camelKey}AssignedTo`;
-              updateField(assigneeKey, step.assignedTo);
-            }
-          });
-        }
-
-        if (clientPOResponse?.data?.data) {
-          const poData = clientPOResponse.data.data;
-          updateField("poNumber", poData.poNumber || "");
-          updateField("poDate", formatDateForInput(poData.poDate));
-          updateField("projectName", poData.projectName || "");
-          updateField("projectCode", poData.projectCode || "");
-          updateField("projectRequirements", poData.projectRequirements || {});
-          updateField("notes", poData.notes || null);
-
-          if (poData.attachments) {
-            setPoDocuments(poData.attachments);
-          }
-
-          if (poData.productDetails) {
-            updateField("productDetails", poData.productDetails);
-            if (poData.productDetails.estimatedEndDate) {
-              updateField(
-                "estimatedEndDate",
-                formatDateForInput(poData.productDetails.estimatedEndDate),
-              );
-            }
-          }
-        }
-
-        if (designResponse?.data?.data) {
-          const designData = designResponse.data.data;
-          updateField("designEngineering", designData);
-        }
-
-        if (procurementResponse?.data?.data) {
-          const materialsData = procurementResponse.data.data;
-          updateField("materialProcurement", materialsData);
-          updateField(
-            "procurementStatus",
-            materialsData.procurementStatus || "pending",
-          );
-          if (materialsData.materials) {
-            updateField("materials", materialsData.materials);
-          } else if (materialsData.materialProcurement?.materials) {
-            updateField(
-              "materials",
-              materialsData.materialProcurement.materials,
-            );
-          }
-
-          if (materialsData.materialDetailsTable) {
-            setMaterialDetailsTable(materialsData.materialDetailsTable);
-            updateField(
-              "materialDetailsTable",
-              materialsData.materialDetailsTable,
-            );
-          }
-        }
-
-        if (productionResponse?.data?.data) {
-          const productionData = productionResponse.data.data;
-          updateField("productionPlan", productionData);
-          
-          const startDate = productionData.productionStartDate || productionData.timeline?.productionStartDate || productionData.timeline?.startDate;
-          const endDate = productionData.estimatedCompletionDate || productionData.timeline?.estimatedCompletionDate || productionData.timeline?.endDate;
-          const status = productionData.procurementStatus || productionData.timeline?.procurementStatus || "";
-
-          updateField("productionStartDate", formatDateForInput(startDate));
-          updateField("estimatedCompletionDate", formatDateForInput(endDate));
-          updateField("procurementStatus", status);
-          updateField("selectedPhases", productionData.selectedPhases || {});
-          
-          const availablePhases = (productionData.availablePhases && productionData.availablePhases.length > 0) 
-            ? productionData.availablePhases 
-            : Object.keys(productionData.selectedPhases || {}).map(name => ({ name }));
-            
-          updateField("availablePhases", availablePhases);
-          
-          if (productionData.phaseDetails) {
-            setProductionPhaseDetails(productionData.phaseDetails);
-          }
-        }
-
-        if (inventoryResponse?.data?.data) {
-          const inventoryData = inventoryResponse.data.data;
-          updateField("inventory", inventoryData || {});
-        }
-
-        if (qualityResponse?.data?.data) {
-          const qcData = qualityResponse.data.data;
-
-          if (
-            qcData.qualityCheck?.inspections &&
-            Array.isArray(qcData.qualityCheck.inspections)
-          ) {
-            qcData.qualityCheck.inspections =
-              qcData.qualityCheck.inspections.map((insp) => ({
-                ...insp,
-                date: formatDateForInput(insp.date),
-              }));
-          }
-
-          updateField("qualityCheck", qcData.qualityCheck || {});
-
-          if (qcData.qualityCompliance)
-            updateField("qualityCompliance", qcData.qualityCompliance);
-          if (qcData.warrantySupport)
-            updateField("warrantySupport", qcData.warrantySupport);
-          if (qcData.paymentTerms)
-            updateField("paymentTerms", qcData.paymentTerms);
-          if (qcData.projectPriority)
-            updateField("projectPriority", qcData.projectPriority);
-          if (qcData.totalAmount)
-            updateField("totalAmount", qcData.totalAmount);
-          if (qcData.internalInfo)
-            updateField("internalInfo", qcData.internalInfo);
-          if (qcData.specialInstructions)
-            updateField("specialInstructions", qcData.specialInstructions);
-          if (qcData.status) updateField("status", qcData.status);
-          if (qcData.internalProjectOwner)
-            updateField("internalProjectOwner", qcData.internalProjectOwner);
-        }
-
+        // Step data is already loaded via the main root card fetch with includeSteps=true
         setLoading(false);
       } catch (error) {
         console.error("Error loading step data:", error);
         setLoading(false);
       }
     },
-    [
-      setLoading,
-      updateField,
-      setPoDocuments,
-      setMaterialDetailsTable,
-      setProductionPhaseDetails,
-    ],
+    [setLoading],
   );
 
   useEffect(() => {
-    const fetchConfigData = async () => {
-      try {
-        const response = await axios.get("/root-cards/config/all");
-        const {
-          projectCategories,
-          materialUnits,
-          materialSources,
-          priorityLevels,
-        } = response.data;
-        setConfigData(
-          projectCategories,
-          materialUnits,
-          materialSources,
-          priorityLevels,
-        );
-      } catch (err) {
-        console.error("Failed to fetch config data:", err);
-      }
-    };
-
-    const fetchEmployees = async () => {
-      try {
-        const response = await axios.get("/employees");
-        setEmployees(response.data || []);
-      } catch (err) {
-        console.error("Failed to fetch employees:", err);
-      }
-    };
-
-    fetchConfigData();
-    fetchEmployees();
-  }, [setConfigData, setEmployees]);
+    // Config and Employee data should be loaded from global stores or specialized hooks if needed
+  }, []);
 
   useEffect(() => {
     if (mode === "assign") {
@@ -344,6 +150,24 @@ function RootCardFormContent({
           ...(formData.projectRequirements || {}),
           ...initialData.project_scope,
         });
+      }
+
+      if (initialData.steps) {
+        if (initialData.steps.design_engineering) {
+          updateField("designEngineering", initialData.steps.design_engineering);
+        }
+        if (initialData.steps.production) {
+          updateField("productionPlan", initialData.steps.production);
+        }
+        if (initialData.steps.procurement) {
+          updateField("materialProcurement", initialData.steps.procurement);
+        }
+        if (initialData.steps.inventory) {
+          updateField("inventory", initialData.steps.inventory);
+        }
+        if (initialData.steps.quality) {
+          updateField("qualityCheck", initialData.steps.quality);
+        }
       }
 
       loadAllStepData(initialData.id);

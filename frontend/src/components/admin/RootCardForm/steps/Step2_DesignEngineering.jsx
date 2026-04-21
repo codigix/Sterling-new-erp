@@ -1,16 +1,19 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { FileText, Eye, Loader2, CheckCircle2, AlertCircle, FileCode, Box, Download } from "lucide-react";
+import { FileText, Eye, Loader2, CheckCircle2, AlertCircle, FileCode, Box, Download, ClipboardCheck, Send } from "lucide-react";
 import FormSection from "../shared/FormSection";
 import { useRootCardContext } from "../hooks";
 import axios from "../../../../utils/api";
 import { getServerUrl, downloadFile } from "../../../../utils/fileUtils";
+import { showSuccess, showError } from "../../../../utils/toastUtils";
 
 export default function Step2_DesignEngineering({ readOnly = false }) {
   const { state, updateField, initialData } = useRootCardContext();
   const rootCardId = initialData?.id || state.createdOrderId;
+  const status = state?.formData?.status || initialData?.status;
   
   const [drawings, setDrawings] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const fetchApprovedDrawings = useCallback(async () => {
     if (!rootCardId) return;
@@ -42,12 +45,150 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
     fetchApprovedDrawings();
   }, [fetchApprovedDrawings]);
 
+  const handleSendToQuality = async () => {
+    if (drawings.length === 0) {
+      showError("Please ensure drawings are uploaded and approved before sending to Quality");
+      return;
+    }
+
+    try {
+      setSending(true);
+      await axios.post(`/root-cards/${rootCardId}/send-to-quality`);
+      updateField("status", "QUALITY_QAP_PENDING");
+      showSuccess("Root card sent to Quality for QAP upload");
+    } catch (error) {
+      console.error("Error sending to Quality:", error);
+      showError(error.response?.data?.message || "Failed to send to Quality");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleSendToProduction = async () => {
+    try {
+      setSending(true);
+      await axios.post(`/root-cards/${rootCardId}/send-to-production`);
+      updateField("status", "BOM_PREPARATION");
+      showSuccess("Root card sent to Production for BOM Preparation");
+    } catch (error) {
+      console.error("Error sending to Production:", error);
+      showError(error.response?.data?.message || "Failed to send to Production");
+    } finally {
+      setSending(false);
+    }
+  };
+
   const getFileUrl = (filePath) => {
     return getServerUrl(filePath);
   };
 
   const content = React.useMemo(() => (
-    <div className="space-y-2">
+    <div className="space-y-4">
+      {/* Action Section */}
+      {!readOnly && (
+        <div className="flex justify-end gap-3 mb-2">
+          {status === 'DESIGN_IN_PROGRESS' && drawings.length > 0 && (
+            <button
+              onClick={handleSendToQuality}
+              disabled={sending}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white hover:bg-amber-700 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+            >
+              {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+              Send to Quality (QAP)
+            </button>
+          )}
+          {/* {status === 'DESIGN_QAP_REVIEW' && (
+            <button
+              onClick={handleSendToProduction}
+              disabled={sending}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+            >
+              {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+              Approve & Send to Production
+            </button>
+          )} */}
+        </div>
+      )}
+
+      {/* QAP Section for Review */}
+      {(state.formData?.qualityCheck?.qap_path || (state.formData?.qualityCheck?.qap_files && state.formData.qualityCheck.qap_files.length > 0)) && (
+        <FormSection
+          title="Project QAP / ATP"
+          subtitle="Quality Assurance Plan uploaded by Quality Department"
+          icon={ClipboardCheck}
+        >
+          <div className="space-y-3">
+            {state.formData.qualityCheck.qap_files && state.formData.qualityCheck.qap_files.length > 0 ? (
+              state.formData.qualityCheck.qap_files.map((file, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                      <FileText className="text-indigo-500" size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {file.original_name || file.path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        Uploaded by Quality Department
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <a 
+                      href={getServerUrl(file.path)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 text-blue-600 hover:bg-blue-50 text-xs rounded-lg transition-colors border border-blue-100"
+                    >
+                      <Eye size={14} /> View
+                    </a>
+                    <button
+                      onClick={() => downloadFile(file.path, file.original_name || 'Project_QAP.pdf')}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 text-xs rounded-lg transition-colors"
+                    >
+                      <Download size={14} /> Download
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                    <FileText className="text-indigo-500" size={16} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      {state.formData.qualityCheck.qap_path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      Uploaded by Quality Department
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a 
+                    href={getServerUrl(state.formData.qualityCheck.qap_path)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 text-blue-600 hover:bg-blue-50 text-xs rounded-lg transition-colors border border-blue-100"
+                  >
+                    <Eye size={14} /> View
+                  </a>
+                  <button
+                    onClick={() => downloadFile(state.formData.qualityCheck.qap_path, 'Project_QAP.pdf')}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 text-xs rounded-lg transition-colors"
+                  >
+                    <Download size={14} /> Download
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </FormSection>
+      )}
+
       <FormSection
         title="Approved Design Drawings"
         subtitle="View and access approved design revisions for this root card"

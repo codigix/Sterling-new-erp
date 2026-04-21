@@ -59,6 +59,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
   };
 
   const fetchEmployees = async () => {
+    /* Old API call causing 404 - Commented out
     try {
       const response = await axios.get('/root-cards/employees');
       const employeeList = Array.isArray(response.data) ? response.data : response.data.users || [];
@@ -66,6 +67,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
     } catch (err) {
       console.error('Failed to load employees:', err);
     }
+    */
   };
 
   const handleAssignEmployee = async (stepId, employeeId) => {

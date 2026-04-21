@@ -162,9 +162,25 @@ exports.getAllDrawings = async (req, res) => {
       WHERE 1=1
     `;
 
-    // Production can only see Approved drawings
+    // Production can only see Approved drawings AND only if Root Card is in Production phase or further
     if (isProduction) {
-      query += " AND d.status = 'Approved'";
+      const productionAllowedStatuses = [
+        'BOM_PREPARATION', 
+        'MATERIAL_PLANNING', 
+        'PURCHASE_ORDER_RELEASED', 
+        'PROCUREMENT_IN_PROGRESS', 
+        'MATERIAL_RECEIVED', 
+        'MATERIAL_QC_PENDING', 
+        'MATERIAL_QC_APPROVED', 
+        'PRODUCTION_IN_PROGRESS', 
+        'DIMENSIONAL_QC_PENDING', 
+        'DIMENSIONAL_QC_APPROVED', 
+        'PAINTING_IN_PROGRESS', 
+        'FINAL_QC_PENDING', 
+        'FINAL_QC_APPROVED', 
+        'READY_FOR_DELIVERY'
+      ];
+      query += ` AND d.status = 'Approved' AND rc.status IN ('${productionAllowedStatuses.join("', '")}')`;
     }
 
     query += " ORDER BY d.created_at DESC";
@@ -193,9 +209,25 @@ exports.getRootCardDrawings = async (req, res) => {
       WHERE d.root_card_id = ?
     `;
 
-    // Production can only see Approved drawings
+    // Production can only see Approved drawings AND only if Root Card is in Production phase or further
     if (isProduction) {
-      query += " AND d.status = 'Approved'";
+      const productionAllowedStatuses = [
+        'BOM_PREPARATION', 
+        'MATERIAL_PLANNING', 
+        'PURCHASE_ORDER_RELEASED', 
+        'PROCUREMENT_IN_PROGRESS', 
+        'MATERIAL_RECEIVED', 
+        'MATERIAL_QC_PENDING', 
+        'MATERIAL_QC_APPROVED', 
+        'PRODUCTION_IN_PROGRESS', 
+        'DIMENSIONAL_QC_PENDING', 
+        'DIMENSIONAL_QC_APPROVED', 
+        'PAINTING_IN_PROGRESS', 
+        'FINAL_QC_PENDING', 
+        'FINAL_QC_APPROVED', 
+        'READY_FOR_DELIVERY'
+      ];
+      query += ` AND d.status = 'Approved' AND rc.status IN ('${productionAllowedStatuses.join("', '")}')`;
     }
 
     const [documents] = await db.query(query, [rootCardId]);

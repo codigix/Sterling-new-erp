@@ -53,19 +53,23 @@ const DesignEngineerDashboard = () => {
       setLoading(true);
       setError(null);
       
-      const response = await axios.get("/employee/tasks?type=design_engineering");
-      const tasks = response.data.tasks || [];
+      const [tasksResponse, rootCardsResponse] = await Promise.all([
+        axios.get("/employee/tasks?type=design_engineering"),
+        axios.get("/root-cards", { params: { includeSteps: true } })
+      ]);
+
+      const tasks = tasksResponse.data.tasks || [];
+      const rootCards = rootCardsResponse.data.rootCards || [];
       
       setDepartmentTasks(tasks);
       
       const pendingCount = tasks.filter(t => t.status === 'pending').length;
-      const inProgressCount = tasks.filter(t => t.status === 'in_progress').length;
       const completedCount = tasks.filter(t => t.status === 'completed').length;
       const criticalCount = tasks.filter(t => t.priority === 'critical' && t.status !== 'completed').length;
 
       setStats([
         {
-          title: "Root Cards",
+          title: "Assigned Cards",
           value: tasks.length.toString(),
           change: "+0",
           positive: true,
@@ -77,8 +81,8 @@ const DesignEngineerDashboard = () => {
         {
           title: "Pending Tasks",
           value: pendingCount.toString(),
-          change: "+0",
-          positive: true,
+          change: pendingCount > 0 ? "Action Required" : "Up to date",
+          positive: pendingCount === 0,
           icon: Clock,
           bgColor: "bg-amber-100 dark:bg-amber-900/30",
           iconColor: "text-amber-600 dark:text-amber-400",

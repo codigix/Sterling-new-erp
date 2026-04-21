@@ -80,8 +80,6 @@ import WorkstationsPage from "./pages/production/WorkstationsPage";
 import WorkstationFormPage from "./pages/production/WorkstationFormPage";
 import MaterialRequestsPage from "./pages/production/MaterialRequestsPage";
 import ReleasedMaterialsPage from "./pages/production/ReleasedMaterialsPage";
-import ProductionDepartmentTasksPage from "./pages/production/ProductionDepartmentTasksPage";
-import ProductionWorkflowTasksPage from "./pages/production/ProductionWorkflowTasksPage";
 import DailyProductionUpdatesPage from "./pages/production/DailyProductionUpdatesPage";
 import EmployeeWorkLogsPage from "./pages/production/EmployeeWorkLogsPage";
 
@@ -195,8 +193,6 @@ function App() {
                 <Route path="production/workstations" element={<WorkstationsPage />} />
                 <Route path="production/workstations/new" element={<WorkstationFormPage />} />
                 <Route path="production/workstations/edit/:id" element={<WorkstationFormPage />} />
-                <Route path="production/department-tasks" element={<ProductionDepartmentTasksPage />} />
-                <Route path="production/workflow-tasks" element={<ProductionWorkflowTasksPage />} />
               </Route>
               
               <Route path="/department/quality/*" element={<QualityDepartmentDashboard />} />

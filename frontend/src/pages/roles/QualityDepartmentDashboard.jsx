@@ -6,6 +6,7 @@ import QCInspectionsPage from "../inventory/QCInspectionsPage";
 import MaterialInspectionPage from "../qc/MaterialInspectionPage";
 import QualityInspectionDetail from "../qc/QualityInspectionDetail";
 import QCTasksPage from "../qc/QCTasksPage";
+import QualityQAPPage from "../qc/QualityQAPPage";
 import UniversalRootCardsPage from "../shared/UniversalRootCardsPage";
 import UniversalRootCardDetailPage from "../shared/UniversalRootCardDetailPage";
 import {
@@ -23,6 +24,7 @@ import {
   History,
   FileCheck,
   Zap,
+  Upload,
 } from "lucide-react";
 
 const DashboardHome = () => {
@@ -37,22 +39,26 @@ const DashboardHome = () => {
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      const [inspectionsRes, tasksRes, reportsRes] = await Promise.all([
+      const [inspectionsRes, tasksRes, reportsRes, rootCardsRes] = await Promise.all([
         axios.get("/qc/grn-inspections"),
         axios.get("/qc/tasks"),
-        axios.get("/qc/reports")
+        axios.get("/qc/reports"),
+        axios.get("/root-cards", { params: { includeSteps: false } })
       ]);
 
       const pendingGRNs = inspectionsRes.data?.stats?.pendingGRN || 0;
       const pendingInProcess = tasksRes.data?.tasks?.length || 0;
       const totalReports = reportsRes.data?.length || 0;
       const recentReports = reportsRes.data?.slice(0, 5) || [];
+      
+      const pendingQAPs = (rootCardsRes.data.rootCards || []).filter(rc => rc.status === 'QUALITY_QAP_PENDING').length;
 
       setStats({
         pendingGRNs,
         pendingInProcess,
         totalReports,
-        recentReports
+        recentReports,
+        pendingQAPs
       });
     } catch (err) {
       console.error("Error fetching quality dashboard data:", err);
@@ -75,12 +81,12 @@ const DashboardHome = () => {
       path: "/department/quality/incoming"
     },
     {
-      title: "In-Process QC",
-      value: stats.pendingInProcess,
-      icon: Activity,
-      color: "text-blue-500",
-      bg: "bg-blue-50 dark:bg-blue-900/20",
-      path: "/department/quality/root-cards"
+      title: "QAP Uploads",
+      value: stats.pendingQAPs || 0,
+      icon: Upload,
+      color: "text-indigo-500",
+      bg: "bg-indigo-50 dark:bg-indigo-900/20",
+      path: "/department/quality/qap-upload"
     },
     {
       title: "Finalized Reports",
@@ -281,6 +287,11 @@ const QualityDepartmentDashboard = () => {
       icon: Layers,
     },
     {
+      title: "QAP Upload",
+      path: "/department/quality/qap-upload",
+      icon: Upload,
+    },
+    {
       title: "Incoming Inspections",
       path: "/department/quality/incoming",
       icon: ClipboardCheck,
@@ -309,6 +320,7 @@ const QualityDepartmentDashboard = () => {
         <Route path="inspection/:id" element={<QualityInspectionDetail />} />
         <Route path="material-inspection" element={<MaterialInspectionPage />} />
         <Route path="reports" element={<QCTasksPage />} />
+        <Route path="qap-upload" element={<QualityQAPPage />} />
         <Route path="root-cards" element={<UniversalRootCardsPage />} />
         <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
       </Routes>

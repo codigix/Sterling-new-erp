@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import RoleDashboardLayout from './RoleDashboardLayout';
+import axios from '@/utils/api';
 import {
   Wrench,
   FileText,
@@ -15,6 +16,9 @@ import DesignEngineerDashboard from '../../pages/roles/DesignEngineerDashboard';
 
 // Drawings
 import DesignDrawingManagement from '../../pages/design-engineer/DesignDrawingManagement';
+
+// QAP Review
+import DesignQAPReviewPage from '../../pages/design-engineer/DesignQAPReviewPage';
 
 // Tasks
 import MyTasksPage from '../../pages/design-engineer/tasks/MyTasksPage';
@@ -46,6 +50,11 @@ const navigationItems = [
     icon: FileText,
   },
   {
+    title: 'QAP Review',
+    path: '/design-engineer/qap-review',
+    icon: CheckCircle,
+  },
+  {
     title: 'Engineering Tasks',
     icon: Clock,
     submenu: [
@@ -61,9 +70,38 @@ const navigationItems = [
 ];
 
 const DesignEngineerLayout = () => {
+  const [qapReviewCount, setQapReviewCount] = useState(0);
+
+  useEffect(() => {
+    const fetchQapCount = async () => {
+      try {
+        const response = await axios.get('/root-cards', { 
+          params: { assignedOnly: true } 
+        });
+        const pendingCount = (response.data.rootCards || []).filter(rc => 
+          rc.status === 'DESIGN_QAP_REVIEW'
+        ).length;
+        setQapReviewCount(pendingCount);
+      } catch (error) {
+        console.error("Error fetching QAP count:", error);
+      }
+    };
+
+    fetchQapCount();
+    const interval = setInterval(fetchQapCount, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  const dynamicNavigation = navigationItems.map(item => {
+    if (item.title === 'QAP Review' && qapReviewCount > 0) {
+      return { ...item, badge: qapReviewCount };
+    }
+    return item;
+  });
+
   return (
     <RoleDashboardLayout
-      roleNavigation={navigationItems}
+      roleNavigation={dynamicNavigation}
       roleName="Design Engineer"
       roleIcon={Wrench}
     >
@@ -75,6 +113,9 @@ const DesignEngineerLayout = () => {
         
         {/* Drawings Routes */}
         <Route path="drawings" element={<DesignDrawingManagement />} />
+        
+        {/* QAP Review Route */}
+        <Route path="qap-review" element={<DesignQAPReviewPage />} />
         
         {/* Tasks Routes */}
         <Route path="tasks/list" element={<MyTasksPage />} />

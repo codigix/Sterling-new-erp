@@ -10,7 +10,6 @@ import {
   Edit2, 
   FileText, 
   Send, 
-  TrendingUp,
   Filter,
   MoreVertical,
   ClipboardList
@@ -18,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "../../../utils/api";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import Badge from "../../../components/ui/Badge";
 import DataTable from "../../../components/ui/DataTable/DataTable";
 import Card, { CardContent } from "../../../components/ui/Card";
@@ -58,9 +58,7 @@ const ViewBOMsPage = () => {
       setLoading(true);
       const [bomRes, rcRes] = await Promise.all([
         axios.get("/engineering/bom/comprehensive"),
-        axios.get("/root-cards", {
-          params: { assignedOnly: true }
-        })
+        axios.get("/root-cards")
       ]);
       setBoms(bomRes.data.boms || []);
       setRootCards(rcRes.data.rootCards || rcRes.data || []);
@@ -89,71 +87,13 @@ const ViewBOMsPage = () => {
     try {
       await axios.delete(`/engineering/bom/comprehensive/${bomId}`);
       setBoms(boms.filter(b => b.id !== bomId));
-      Swal.fire({
-        icon: "success",
-        title: "Deleted Successfully",
-        text: "BOM has been deleted.",
-        timer: 1500,
-        showConfirmButton: false
-      });
+      toast.success("BOM deleted successfully");
     } catch (err) {
       console.error("Failed to delete BOM:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Delete Failed",
-        text: "Could not delete BOM. Please try again.",
-      });
+      toast.error("Could not delete BOM. Please try again.");
     }
   };
   
-  const handleSendToAdmin = async (bomId) => {
-    const result = await Swal.fire({
-      icon: "question",
-      title: "Send BOM to Admin",
-      text: "This will set the BOM status to 'active' and notify the admin. Are you sure?",
-      showCancelButton: true,
-      confirmButtonColor: "#3b82f6",
-      confirmButtonText: "Yes, Send",
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      await axios.patch(`/engineering/bom/comprehensive/${bomId}/status`, {
-        status: "active"
-      });
-      
-      // Update local state
-      setBoms(boms.map(b => b.id === bomId ? { ...b, status: 'active' } : b));
-      
-      // If we have a taskId from the URL, try to complete it
-      if (taskIdFromUrl) {
-        try {
-          await axios.patch(`/department/portal/tasks/${taskIdFromUrl}`, {
-            status: "completed"
-          });
-        } catch (taskErr) {
-          console.error("Failed to complete task:", taskErr);
-        }
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "Sent Successfully",
-        text: "BOM has been sent to admin.",
-        timer: 1500,
-        showConfirmButton: false
-      });
-    } catch (err) {
-      console.error("Failed to send BOM:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Failed to Send",
-        text: "Could not send BOM to admin. Please try again.",
-      });
-    }
-  };
-
   const handleMaterialRequest = async (bomId) => {
     try {
       setLoading(true);
@@ -162,11 +102,7 @@ const ViewBOMsPage = () => {
       setIsRequestModalOpen(true);
     } catch (err) {
       console.error("Failed to fetch BOM details for request:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to load BOM details. Please try again.",
-      });
+      toast.error("Failed to load BOM details. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -199,20 +135,18 @@ const ViewBOMsPage = () => {
     const total = boms.length;
     const active = boms.filter(b => b.status === 'active').length;
     const draft = boms.filter(b => b.status === 'draft').length;
-    const totalCost = boms.reduce((acc, bom) => acc + (parseFloat(bom.totalCost) || 0), 0);
 
     return [
       { label: "Total BOMs", value: total, icon: FileText, color: "blue" },
       { label: "Active BOMs", value: active, icon: Send, color: "green" },
       { label: "Draft BOMs", value: draft, icon: AlertCircle, color: "amber" },
-      { label: "Total Cost", value: `₹${totalCost.toLocaleString()}`, icon: TrendingUp, color: "purple" },
     ];
   }, [boms]);
 
   const rootCardMap = useMemo(() => {
     const map = {};
     (Array.isArray(rootCards) ? rootCards : []).forEach(rc => {
-      map[rc.id] = rc;
+      map[String(rc.id)] = rc;
     });
     return map;
   }, [rootCards]);
@@ -222,10 +156,10 @@ const ViewBOMsPage = () => {
       key: "rootCardId",
       label: "PROJECT / ROOT CARD",
       render: (val) => {
-        const rc = rootCardMap[val];
+        const rc = rootCardMap[String(val)];
         return (
-          <div className="flex flex-col">
-            <span className=" text-slate-900 text-xs truncate max-w-[150px]" title={rc?.project_name}>
+          <div className="flex flex-col max-w-[250px]">
+            <span className="text-slate-900 text-xs break-words" title={rc?.project_name}>
               {rc?.project_name || 'N/A'}
             </span>
             <span className="text-xs text-slate-500 font-mono">
@@ -259,15 +193,6 @@ const ViewBOMsPage = () => {
           </Badge>
         );
       }
-    },
-    {
-      key: "totalCost",
-      label: "TOTAL COST",
-      render: (val) => (
-        <span className=" text-slate-900">
-          ₹{(parseFloat(val) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-        </span>
-      )
     },
     {
       key: "status",
@@ -384,7 +309,7 @@ const ViewBOMsPage = () => {
 
       {/* Stats Cards */}
       {!isSendToAdminTask && (
-        <div className="grid grid-cols-1 md:grid-cols-4 my-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 my-5 gap-4">
           {stats.map((stat, idx) => (
             <Card key={idx} className="border-none  overflow-hidden relative">
               <CardContent className="p-2 flex items-center gap-4">

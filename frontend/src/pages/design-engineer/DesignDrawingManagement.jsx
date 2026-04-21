@@ -67,7 +67,9 @@ const DesignDrawingManagement = () => {
     try {
       const response = await axios.get("/root-cards");
       const cards = response.data.rootCards || response.data.data || (Array.isArray(response.data) ? response.data : []);
-      setRootCards(cards);
+      // Only show root cards that have been sent to Design Engineering (not in RC_CREATED status)
+      const filteredCards = cards.filter(card => card.status !== 'RC_CREATED');
+      setRootCards(filteredCards);
     } catch (error) {
       console.error("Error fetching root cards:", error);
       setRootCards([]);
