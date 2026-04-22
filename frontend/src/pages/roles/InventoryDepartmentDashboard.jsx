@@ -186,7 +186,7 @@ const DashboardContent = React.memo(({
   ];
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 p-4">
       {loadingStats ? (
         <div className="flex justify-center ">
           <Loader2 className="animate-spin text-blue-600" size={40} />

@@ -143,7 +143,7 @@ const AdminDashboard = () => {
           <h1 className="text-xl ">Dashboard & Overview</h1>
           <p className="text-sm text-slate-500 mt-1">Real-time manufacturing system analytics and KPIs</p>
         </div>
-        <div className="text-sm text-slate-400 font-medium bg-white px-4 py-2 rounded-lg border border-slate-200 ">
+        <div className="text-sm text-slate-400  bg-white px-4 py-2 rounded border border-slate-200 ">
           Last Updated: {new Date().toLocaleTimeString()}
         </div>
       </div>
@@ -187,7 +187,7 @@ const AdminDashboard = () => {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <CardTitle className="flex items-center gap-2 text-slate-700">
               <PieChart className="w-4 h-4 text-blue-600" />
-              <span className="text-base font-semibold">Project Status Distribution</span>
+              <span className="text-base ">Project Status Distribution</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -225,7 +225,7 @@ const AdminDashboard = () => {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <CardTitle className="flex items-center gap-2 text-slate-700">
               <TrendingUp className="w-4 h-4 text-emerald-600" />
-              <span className="text-base font-semibold">Monthly Project Completion</span>
+              <span className="text-base ">Monthly Project Completion</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -260,7 +260,7 @@ const AdminDashboard = () => {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <CardTitle className="flex items-center gap-2 text-slate-700">
               <Factory className="w-4 h-4 text-purple-600" />
-              <span className="text-base font-semibold">Department Performance & Resource Allocation</span>
+              <span className="text-base ">Department Performance & Resource Allocation</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -311,7 +311,7 @@ const AdminDashboard = () => {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <CardTitle className="flex items-center gap-2 text-slate-700">
               <Package className="w-4 h-4 text-cyan-600" />
-              <span className="text-base font-semibold">Top Material Consumption</span>
+              <span className="text-base ">Top Material Consumption</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -343,7 +343,7 @@ const AdminDashboard = () => {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <CardTitle className="flex items-center gap-2 text-slate-700">
               <Zap className="w-4 h-4 text-amber-600" />
-              <span className="text-base font-semibold">Operation Insights (Task Distribution)</span>
+              <span className="text-base ">Operation Insights (Task Distribution)</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -379,7 +379,7 @@ const AdminDashboard = () => {
         <CardHeader className="bg-slate-50/50 border-b border-slate-100">
           <CardTitle className="flex items-center gap-2 text-slate-700">
             <Activity className="w-5 h-5 text-emerald-600" />
-            <span className="text-lg font-bold">Live Project Execution Progress</span>
+            <span className="text-md ">Live Project Execution Progress</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -390,15 +390,15 @@ const AdminDashboard = () => {
                   <div key={index} className="group">
                     <div className="flex justify-between items-center mb-2">
                       <div className="flex flex-col">
-                        <span className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{project.project_name}</span>
+                        <span className=" text-slate-800 group-hover:text-blue-600 transition-colors">{project.project_name}</span>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs font-medium px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">{project.project_code}</span>
-                          <span className="text-xs font-semibold text-blue-500 uppercase tracking-wider">{project.status.replace(/_/g, ' ')}</span>
+                          <span className="text-xs  p-1 bg-slate-100 text-slate-600 rounded-full">{project.project_code}</span>
+                          <span className="text-xs  text-blue-500  ">{project.status.replace(/_/g, ' ')}</span>
                         </div>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="text-lg font-black text-blue-600">{project.progress}%</span>
-                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Current Status</span>
+                        <span className="text-lg  text-blue-600">{project.progress}%</span>
+                        <span className="text-xs text-slate-400   ">Current Status</span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200 p-[1px]">
@@ -418,21 +418,21 @@ const AdminDashboard = () => {
               )}
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-2">
               {chartData.recentProjects.slice(3, 6).length > 0 ? (
                 chartData.recentProjects.slice(3, 6).map((project, index) => (
                   <div key={index} className="group">
                     <div className="flex justify-between items-center mb-2">
                       <div className="flex flex-col">
-                        <span className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{project.project_name}</span>
+                        <span className=" text-slate-800 group-hover:text-blue-600 transition-colors">{project.project_name}</span>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs font-medium px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">{project.project_code}</span>
-                          <span className="text-xs font-semibold text-blue-500 uppercase tracking-wider">{project.status.replace(/_/g, ' ')}</span>
+                          <span className="text-xs  p-1 bg-slate-100 text-slate-600 rounded-full">{project.project_code}</span>
+                          <span className="text-xs  text-blue-500  ">{project.status.replace(/_/g, ' ')}</span>
                         </div>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="text-lg font-black text-blue-600">{project.progress}%</span>
-                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Current Status</span>
+                        <span className="text-lg  text-blue-600">{project.progress}%</span>
+                        <span className="text-xs text-slate-400   ">Current Status</span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200 p-[1px]">
@@ -449,9 +449,9 @@ const AdminDashboard = () => {
                 chartData.recentProjects.length > 0 ? (
                    <div className="h-full flex items-center justify-center py-10">
                      <div className="text-center space-y-2">
-                       <p className="text-sm font-medium text-slate-600">Project Execution Efficiency</p>
-                       <p className="text-3xl font-black text-emerald-600">High</p>
-                       <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Real-time Analysis</p>
+                       <p className="text-sm  text-slate-600">Project Execution Efficiency</p>
+                       <p className="text-3xl  text-emerald-600">High</p>
+                       <p className="text-xs text-slate-400  tracking-widest ">Real-time Analysis</p>
                      </div>
                    </div>
                 ) : (
@@ -504,9 +504,9 @@ const KPICard = ({ title, value, subtitle, icon: Icon, color }) => {
         <div className="space-y-1">
           <p className="text-xs    text-slate-500">{title}</p>
           <p className="text-xl  ">{value}</p>
-          <p className="text-xs font-medium text-slate-500">{subtitle}</p>
+          <p className="text-xs  text-slate-500">{subtitle}</p>
         </div>
-        <div className={`p-3 rounded-lg bg-white  border border-slate-100`}>
+        <div className={`p-3 rounded bg-white  border border-slate-100`}>
           <Icon className="w-6 h-6" />
         </div>
       </div>
@@ -524,11 +524,11 @@ const SummaryCard = ({ icon: Icon, label, value, color }) => {
   return (
     <Card className="border-slate-200">
       <CardContent className="p-4 flex items-center gap-4">
-        <div className={`p-3 rounded-lg ${colors[color]}`}>
+        <div className={`p-3 rounded ${colors[color]}`}>
           <Icon className="w-6 h-6" />
         </div>
         <div>
-          <p className="text-sm font-medium text-slate-500">{label}</p>
+          <p className="text-sm  text-slate-500">{label}</p>
           <p className="text-xl  ">{value}</p>
         </div>
       </CardContent>

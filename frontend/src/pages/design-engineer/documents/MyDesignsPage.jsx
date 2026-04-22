@@ -372,7 +372,7 @@ const MyDesignsPage = () => {
       label: "Design Name",
       sortable: true,
       render: (value) => (
-        <span className="font-medium text-slate-900 dark:text-white text-xs">
+        <span className=" text-slate-900 dark:text-white text-xs">
           {value}
         </span>
       ),
@@ -471,7 +471,7 @@ const MyDesignsPage = () => {
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="inline-flex items-center justify-center gap-2 py-2 px-4  bg-blue-600 dark:bg-blue-600 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors font-medium  text-xs"
+          className="inline-flex items-center justify-center gap-2 py-2 px-4  bg-blue-600 dark:bg-blue-600 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors   text-xs"
         >
           <Plus size={15} />
           New Design
@@ -547,7 +547,7 @@ const MyDesignsPage = () => {
             <div className="p-6 space-y-4">
               {/* Design Name */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Design Name *
                 </label>
                 <input
@@ -571,7 +571,7 @@ const MyDesignsPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                     Customer Name (Auto)
                   </label>
                   <input
@@ -585,7 +585,7 @@ const MyDesignsPage = () => {
 
               {/* Product / Assembly Name */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Product / Assembly Name
                 </label>
                 <input
@@ -605,7 +605,7 @@ const MyDesignsPage = () => {
               {/* Design Type and Design Category */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                     Design Type
                   </label>
                   <select
@@ -623,7 +623,7 @@ const MyDesignsPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                     Design Category
                   </label>
                   <select
@@ -645,7 +645,7 @@ const MyDesignsPage = () => {
 
               {/* Priority */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Priority
                 </label>
                 <select
@@ -663,7 +663,7 @@ const MyDesignsPage = () => {
 
               {/* Reference Documents Upload */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Reference Documents
                 </label>
                 <div className="border border-dashed border-slate-300 dark:border-slate-600 rounded p-4">
@@ -675,7 +675,7 @@ const MyDesignsPage = () => {
                   />
                   {uploadedFiles.length > 0 && (
                     <div className="mt-4 space-y-2">
-                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      <p className="text-xs  text-slate-500 dark:text-slate-400">
                         Uploaded Files:
                       </p>
                       {uploadedFiles.map((file, index) => (
@@ -701,7 +701,7 @@ const MyDesignsPage = () => {
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Description
                 </label>
                 <textarea
@@ -719,14 +719,14 @@ const MyDesignsPage = () => {
               <button
                 onClick={() => setShowCreateForm(false)}
                 disabled={creating}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm disabled:opacity-50"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateDesign}
                 disabled={creating}
-                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors  text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {creating && <Loader2 size={15} className="animate-spin" />}
                 {creating ? "Creating..." : "Create Design"}
@@ -752,19 +752,19 @@ const MyDesignsPage = () => {
               </h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
                 Are you sure you want to delete{" "}
-                <span className="font-semibold">"{selectedDesign.name}"</span>?
+                <span className="">"{selectedDesign.name}"</span>?
                 This cannot be undone.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium text-sm"
+                  className="flex-1 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors  text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="flex-1 p-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm"
+                  className="flex-1 p-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors  text-sm"
                 >
                   Delete
                 </button>
@@ -792,57 +792,57 @@ const MyDesignsPage = () => {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400 ">
                     Project
                   </p>
-                  <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
+                  <p className="text-sm  text-slate-900 text-left dark:text-white mt-1">
                     {selectedDesign.project}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400 ">
                     Status
                   </p>
-                  <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
+                  <p className="text-sm  text-slate-900 text-left dark:text-white mt-1">
                     {selectedDesign.status}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400 ">
                     Author
                   </p>
-                  <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
+                  <p className="text-sm  text-slate-900 text-left dark:text-white mt-1">
                     {selectedDesign.author}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400 ">
                     Version
                   </p>
-                  <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
+                  <p className="text-sm  text-slate-900 text-left dark:text-white mt-1">
                     {selectedDesign.version}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400 ">
                     Date
                   </p>
-                  <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
+                  <p className="text-sm  text-slate-900 text-left dark:text-white mt-1">
                     {selectedDesign.date}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400 ">
                     Category
                   </p>
-                  <p className="text-sm font-medium text-slate-900 text-left dark:text-white mt-1">
+                  <p className="text-sm  text-slate-900 text-left dark:text-white mt-1">
                     {selectedDesign.category}
                   </p>
                 </div>
               </div>
 
               <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-3">
+                <p className="text-xs  text-slate-500 dark:text-slate-400  mb-3">
                   Design Documents
                 </p>
                 {selectedDesign.documents && selectedDesign.documents.length > 0 ? (
@@ -857,7 +857,7 @@ const MyDesignsPage = () => {
                             <Download size={15} />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-slate-900 dark:text-white">
+                            <p className="text-sm  text-slate-900 dark:text-white">
                               {doc.name}
                             </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -867,7 +867,7 @@ const MyDesignsPage = () => {
                         </div>
                         <button
                           onClick={() => handleDownloadDocument(selectedDesign.id, doc)}
-                          className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                          className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-xs  text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                         >
                           Download
                         </button>

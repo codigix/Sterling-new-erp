@@ -138,6 +138,110 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     breakTime: "60"
   });
 
+  const assignmentColumns = useMemo(() => [
+    {
+      key: "projectName",
+      label: "Project / Ref",
+      render: (value, entry) => (
+        <div>
+          <p className="text-xs font-medium text-slate-900 dark:text-white">{entry.projectName}</p>
+          <span className="text-[10px] text-slate-400">{entry.projectRef}</span>
+        </div>
+      )
+    },
+    {
+      key: "operation_name",
+      label: "Operation",
+      render: (value, entry) => (
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded w-fit">{entry.operation_name}</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded w-fit ${entry.assignment_type === "inhouse" ? "bg-blue-50 text-blue-600" : "bg-orange-50 text-orange-600"}`}>
+            {entry.assignment_type === "inhouse" ? "In-house" : "Outsource"}
+          </span>
+        </div>
+      )
+    },
+    {
+      key: "operator_vendor",
+      label: "Operator / Vendor",
+      render: (value, entry) => (
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+            {entry.assignment_type === "inhouse" ? entry.operator_name : entry.vendor_name}
+          </span>
+          {entry.assignment_type === "inhouse" && (
+            <p className="text-[10px] text-slate-400">{format12h(entry.start_time)} - {format12h(entry.end_time)}</p>
+          )}
+          {entry.remarks && <p className="text-[10px] text-indigo-500 font-medium mt-0.5">{entry.remarks}</p>}
+        </div>
+      )
+    },
+    {
+      key: "total_hours",
+      label: "Load",
+      align: "center",
+      render: (value, entry) => (
+        <span className="text-xs font-medium text-slate-900 dark:text-white">
+          {entry.assignment_type === "inhouse" ? `${entry.total_hours?.toFixed(1) || "0.0"}h` : "-"}
+        </span>
+      )
+    },
+    ...(mode !== "view" ? [{
+      key: "actions",
+      label: "Action",
+      align: "right",
+      render: (value, entry) => (
+        <div className="flex items-center justify-end gap-1">
+          <button onClick={() => editAssignment(entry)} className="p-1.5 text-slate-300 hover:text-amber-600 transition-colors">
+            <Edit2 size={14} />
+          </button>
+          <button onClick={() => removeAssignment(entry.id)} className="p-1.5 text-slate-300 hover:text-red-600 transition-colors">
+            <Trash2 size={14} />
+          </button>
+        </div>
+      )
+    }] : [])
+  ], [mode]);
+
+  const releasedMaterialsColumns = useMemo(() => [
+    {
+      key: "item_details",
+      label: "Item Details",
+      render: (value, item) => (
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded flex items-center justify-center">
+            <Package size={14} />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-slate-900 dark:text-white">{item.item_name}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-slate-400">{item.item_code}</p>
+              <p className="text-[10px] text-indigo-500 font-medium bg-indigo-50 dark:bg-indigo-900/20 px-1 rounded">{renderDimensions(item)}</p>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: "quantity",
+      label: "Qty",
+      align: "center",
+      render: (value) => <span className="text-xs font-medium text-emerald-600">{value ? parseFloat(value).toString() : "0"}</span>
+    },
+    {
+      key: "uom",
+      label: "UOM",
+      align: "center",
+      render: (value) => <span className="text-xs text-slate-500">{value}</span>
+    },
+    {
+      key: "st_numbers",
+      label: "ST Numbers",
+      align: "right",
+      render: (value, item) => <span className="text-xs font-medium text-indigo-500">{item.serials?.length || 0} PCS</span>
+    }
+  ], []);
+
   const calculateHours = useCallback((startStr, startPeriod, endStr, endPeriod, breakMins) => {
     if (!startStr || !endStr) return 0;
     try {
@@ -386,14 +490,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 bg-slate-900/70 backdrop-blur-md">
         <div className="bg-slate-50 dark:bg-slate-950 w-full max-w-5xl rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[98vh]">
           {/* Modal Header - BOM Style */}
         <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
           <div className="flex items-center gap-4">
-            <div className="p-2 bg-indigo-600 text-white rounded shadow-lg shadow-indigo-600/20">
-              <Calendar size={15} />
-            </div>
+            
             <div>
               <h2 className="text-lg  text-slate-900 dark:text-white  ">
                 {mode === "view" ? "View Production Plan" : mode === "edit" ? "Edit Production Plan" : "Daily Production Planning"}
@@ -599,7 +701,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                             <input
                               type="text"
                               placeholder="Add instructions or remarks..."
-                              className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-medium outline-none placeholder:text-slate-300"
+                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none placeholder:text-slate-300"
                               value={newAssignment.remarks}
                               onChange={(e) => setNewAssignment({ ...newAssignment, remarks: e.target.value })}
                             />
@@ -608,7 +710,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                           <div className="md:col-span-2">
                             <button
                               onClick={handleAddAssignment}
-                              className="w-full h-[38px] bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs   shadow-lg transition-all flex items-center justify-center gap-2"
+                              className="w-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs transition-all flex items-center justify-center gap-2"
                             >
                               <Plus size={14} />
                               Add
@@ -616,79 +718,25 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pt-2 border-t border-slate-100 dark:border-slate-700/50">
-                          
-                        </div>
+                      
                       </div>
                     )}
 
                     {/* Assignments List in this section */}
                     {dailyPlan.length > 0 && (
                       <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden ">
-                        <table className="w-full text-left border-collapse bg-white">
-                          <thead>
-                            <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
-                              <th className="px-4 py-2.5 text-xs  text-slate-400  ">Project / Ref</th>
-                              <th className="px-4 py-2.5 text-xs  text-slate-400  ">Operation</th>
-                              <th className="px-4 py-2.5 text-xs  text-slate-400  ">Operator / Vendor</th>
-                              <th className="px-4 py-2.5 text-xs  text-slate-400   text-center">Load</th>
-                              {mode !== "view" && <th className="px-4 py-2.5 text-xs  text-slate-400   text-right">Action</th>}
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {dailyPlan.map((entry) => (
-                              <tr key={entry.id} className="hover:bg-indigo-50/10 transition-all">
-                                <td className="px-4 py-3">
-                                  <p className="text-xs  text-slate-900 dark:text-white  ">{entry.projectName}</p>
-                                  <span className="text-xs  text-slate-400 ">{entry.projectRef}</span>
-                                </td>
-                                <td className="px-4 py-3">
-                                  <div className="flex flex-col gap-1">
-                                    <span className="text-xs  text-indigo-600 dark:text-indigo-400   bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded w-fit">{entry.operation_name}</span>
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded w-fit ${entry.assignment_type === "inhouse" ? "bg-blue-50 text-blue-600" : "bg-orange-50 text-orange-600"}`}>
-                                      {entry.assignment_type === "inhouse" ? "In-house" : "Outsource"}
-                                    </span>
-                                  </div>
-                                </td>
-                                <td className="px-4 py-3">
-                                  <div className="flex flex-col gap-1">
-                                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                                      {entry.assignment_type === "inhouse" ? entry.operator_name : entry.vendor_name}
-                                    </span>
-                                    {entry.assignment_type === "inhouse" && (
-                                      <p className="text-xs text-slate-400">{format12h(entry.start_time)} - {format12h(entry.end_time)}</p>
-                                    )}
-                                    {entry.remarks && <p className="text-xs text-indigo-500   mt-0.5">{entry.remarks}</p>}
-                                  </div>
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  <span className="text-xs  text-slate-900 dark:text-white">
-                                    {entry.assignment_type === "inhouse" ? `${entry.total_hours.toFixed(1)}h` : "-"}
-                                  </span>
-                                </td>
-                                {mode !== "view" && (
-                                  <td className="px-4 py-3 text-right">
-                                    <div className="flex items-center justify-end gap-1">
-                                      <button onClick={() => editAssignment(entry)} className="p-1.5 text-slate-300 hover:text-amber-600 transition-colors">
-                                        <Edit2 size={14} />
-                                      </button>
-                                      <button onClick={() => removeAssignment(entry.id)} className="p-1.5 text-slate-300 hover:text-red-600 transition-colors">
-                                        <Trash2 size={14} />
-                                      </button>
-                                    </div>
-                                  </td>
-                                )}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                        <DataTable
+                          columns={assignmentColumns}
+                          data={dailyPlan}
+                          emptyMessage="No assignments added yet"
+                        />
                       </div>
                     )}
                   </div>
                 </AccordionSection>
               ) : mode !== "view" ? (
                 <div className="py-12 flex flex-col items-center justify-center bg-white dark:bg-slate-900 rounded border border-dashed border-slate-200 dark:border-slate-800">
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-full mb-4">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-full mb-4">
                     <Target size={32} className="text-slate-300" />
                   </div>
                   <h4 className="text-xs  text-slate-900 dark:text-white   mb-1">Project Selection Required</h4>
@@ -701,14 +749,14 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
         {/* Modal Footer */}
         <div className="p-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
-          <button onClick={onClose} className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded text-xs    hover:bg-slate-200 transition-all">
+          <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded text-xs    hover:bg-slate-200 transition-all">
             {mode === "view" ? "Close Viewer" : "Cancel Workspace"}
           </button>
           {mode !== "view" && (
             <button
               onClick={handleFinalize}
               disabled={loading}
-              className="px-10 py-2.5 bg-indigo-600 text-white rounded text-xs    hover:bg-indigo-700 transition-all  shadow-indigo-600/30 flex items-center gap-2 disabled:opacity-50"
+              className="p-2 bg-indigo-600 text-white rounded text-xs    hover:bg-indigo-700 transition-all  shadow-indigo-600/30 flex items-center gap-2 disabled:opacity-50"
             >
               {loading ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
               {mode === "edit" ? "Update Today's Plan" : "Finalize Today's Plan"}
@@ -722,9 +770,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[85vh]">
               <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-900/10">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-600 text-white rounded">
-                    <Package size={15} />
-                  </div>
+                  
                   <div>
                     <h3 className="text-sm  text-slate-900 dark:text-white  ">
                       Released Materials: {selectedProject?.name}
@@ -740,7 +786,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex-1 overflow-y-auto p-2">
                 {releasedMaterials.length === 0 ? (
                   <div className="py-20 text-center">
                     <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
@@ -762,39 +808,11 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                           </div>
                           <span className="text-xs  text-slate-400  ">{entry.remarks || 'NO REMARKS'}</span>
                         </div>
-                        <table className="w-full text-left">
-                          <thead>
-                            <tr className="text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
-                              <th className="px-4 py-2">Item Details</th>
-                              <th className="px-4 py-2 text-center">Qty</th>
-                              <th className="px-4 py-2 text-center">UOM</th>
-                              <th className="px-4 py-2 text-right">ST Numbers</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {entry.items?.map((item, idx) => (
-                              <tr key={idx} className="text-xs hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td className="px-4 py-2.5">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-7 h-7 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded flex items-center justify-center">
-                                      <Package size={14} />
-                                    </div>
-                                    <div>
-                                      <p className=" text-slate-900 dark:text-white  ">{item.item_name}</p>
-                                      <div className="flex items-center gap-2">
-                                        <p className="text-xs  text-slate-400 ">{item.item_code}</p>
-                                        <p className="text-[10px] text-indigo-500 font-medium bg-indigo-50 dark:bg-indigo-900/20 px-1 rounded">{renderDimensions(item)}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="px-4 py-2.5 text-center  text-emerald-600">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</td>
-                                <td className="px-4 py-2.5 text-center  text-slate-500 ">{item.uom}</td>
-                                <td className="px-4 py-2.5 text-right  text-indigo-500">{item.serials?.length || 0} PCS</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                        <DataTable
+                          columns={releasedMaterialsColumns}
+                          data={entry.items || []}
+                          emptyMessage="No items in this entry"
+                        />
                       </div>
                     ))}
                   </div>
@@ -822,7 +840,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                 <div className="p-1.5 bg-amber-500 text-white rounded">
                   <Edit2 size={15} />
                 </div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Edit Assignment</h3>
+                <h3 className="text-sm  text-slate-900 dark:text-white">Edit Assignment</h3>
               </div>
               <button onClick={() => { setIsEditModalOpen(false); setEditingAssignmentId(null); }} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
                 <X size={15} className="text-slate-500" />
@@ -831,7 +849,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             
             <div className="p-4 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operation</label>
+                <label className="text-xs  text-slate-400  ">Operation</label>
                 <SearchableSelect
                   options={operations}
                   value={editForm.operation}
@@ -842,7 +860,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Type</label>
+                <label className="text-xs  text-slate-400  ">Type</label>
                 <select
                   className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
                   value={editForm.type}
@@ -856,7 +874,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               <div className="space-y-1.5">
                 {editForm.type === "inhouse" ? (
                   <>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operator</label>
+                    <label className="text-xs  text-slate-400  ">Operator</label>
                     <SearchableSelect
                       options={operators}
                       value={editForm.operator}
@@ -867,7 +885,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                   </>
                 ) : (
                   <>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Vendor</label>
+                    <label className="text-xs  text-slate-400  ">Vendor</label>
                     <SearchableSelect
                       options={vendors}
                       value={editForm.vendor}
@@ -882,7 +900,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               {editForm.type === "inhouse" && (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Start Time</label>
+                    <label className="text-xs  text-slate-400  ">Start Time</label>
                     <div className="flex gap-1">
                       <input
                         type="time"
@@ -901,7 +919,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">End Time</label>
+                    <label className="text-xs  text-slate-400  ">End Time</label>
                     <div className="flex gap-1">
                       <input
                         type="time"
@@ -923,7 +941,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               )}
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Remarks</label>
+                <label className="text-xs  text-slate-400  ">Remarks</label>
                 <input
                   type="text"
                   placeholder="Instructions or remarks..."
@@ -937,13 +955,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
               <button 
                 onClick={() => { setIsEditModalOpen(false); setEditingAssignmentId(null); }}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                className="px-4 py-2 text-xs  text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleUpdateAssignment}
-                className="px-6 py-2 bg-indigo-600 text-white rounded text-xs font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2"
+                className="px-6 py-2 bg-indigo-600 text-white rounded text-xs  hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2"
               >
                 <Check size={14} /> Update Assignment
               </button>
@@ -1036,13 +1054,13 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
         {/* 1. Raw Material Details */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 bg-indigo-600 text-white rounded-lg shadow-lg shadow-indigo-600/20">
+            <div className="p-1.5 bg-indigo-600 text-white rounded shadow-lg shadow-indigo-600/20">
               <Settings2 size={15} />
             </div>
             <h4 className="text-xs  text-slate-900 dark:text-white  ">Raw Material Context</h4>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-100 dark:border-slate-700  space-y-3">
+          <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-100 dark:border-slate-700  space-y-3">
             <div>
               <label className="text-xs  text-slate-400   block mb-1">Item Group</label>
               <select
@@ -1096,7 +1114,7 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
         <div className="lg:col-span-1 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-emerald-600 text-white rounded-lg">
+              <div className="p-1.5 bg-emerald-600 text-white rounded">
                 <Target size={15} />
               </div>
               <h4 className="text-xs  text-slate-900 dark:text-white  ">Cutting Plan</h4>
@@ -1109,58 +1127,94 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
             </button>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700  overflow-hidden">
-            <table className="w-full text-left border-collapse bg-white">
-              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-                <tr>
-                  <th className="p-2 text-xs  text-slate-400 ">Part</th>
-                  <th className="p-2 text-xs  text-slate-400 ">L (mm)</th>
-                  {group.includes("PLATE") && <th className="p-2 text-xs  text-slate-400 ">W (mm)</th>}
-                  <th className="p-2 text-xs  text-slate-400 ">Qty</th>
-                  <th className="p-2"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                {parts.map((p, idx) => (
-                  <tr key={p.id}>
-                    <td className="p-2"><input className="w-10 bg-transparent text-xs  outline-none " value={p.code} onChange={(e) => {
-                      const newParts = [...parts];
-                      newParts[idx].code = e.target.value;
-                      setParts(newParts);
-                    }} /></td>
-                    <td className="p-2"><input type="number" className="w-12 bg-transparent text-xs  outline-none" value={p.l} onChange={(e) => {
-                      const newParts = [...parts];
-                      newParts[idx].l = e.target.value;
-                      setParts(newParts);
-                    }} /></td>
-                    {group.includes("PLATE") && (
-                      <td className="p-2"><input type="number" className="w-12 bg-transparent text-xs  outline-none" value={p.w} onChange={(e) => {
+          <div className="bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  overflow-hidden">
+            <DataTable
+              data={parts}
+              columns={[
+                {
+                  header: "Part",
+                  accessorKey: "code",
+                  cell: (info) => (
+                    <input 
+                      className="w-10 bg-transparent text-xs  outline-none " 
+                      value={info.getValue()} 
+                      onChange={(e) => {
                         const newParts = [...parts];
-                        newParts[idx].w = e.target.value;
+                        newParts[info.row.index].code = e.target.value;
                         setParts(newParts);
-                      }} /></td>
-                    )}
-                    <td className="p-2"><input type="number" className="w-10 bg-transparent text-xs  outline-none text-emerald-600" value={p.qty} onChange={(e) => {
-                      const newParts = [...parts];
-                      newParts[idx].qty = e.target.value;
-                      setParts(newParts);
-                    }} /></td>
-                    <td className="p-2">
-                      <button onClick={() => setParts(parts.filter(pt => pt.id !== p.id))} className="text-slate-300 hover:text-red-500 transition-colors">
-                        <Trash2 size={12} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      }} 
+                    />
+                  )
+                },
+                {
+                  header: "L (mm)",
+                  accessorKey: "l",
+                  cell: (info) => (
+                    <input 
+                      type="number" 
+                      className="w-12 bg-transparent text-xs  outline-none" 
+                      value={info.getValue()} 
+                      onChange={(e) => {
+                        const newParts = [...parts];
+                        newParts[info.row.index].l = e.target.value;
+                        setParts(newParts);
+                      }} 
+                    />
+                  )
+                },
+                ...(group.includes("PLATE") ? [{
+                  header: "W (mm)",
+                  accessorKey: "w",
+                  cell: (info) => (
+                    <input 
+                      type="number" 
+                      className="w-12 bg-transparent text-xs  outline-none" 
+                      value={info.getValue()} 
+                      onChange={(e) => {
+                        const newParts = [...parts];
+                        newParts[info.row.index].w = e.target.value;
+                        setParts(newParts);
+                      }} 
+                    />
+                  )
+                }] : []),
+                {
+                  header: "Qty",
+                  accessorKey: "qty",
+                  cell: (info) => (
+                    <input 
+                      type="number" 
+                      className="w-10 bg-transparent text-xs  outline-none text-emerald-600" 
+                      value={info.getValue()} 
+                      onChange={(e) => {
+                        const newParts = [...parts];
+                        newParts[info.row.index].qty = e.target.value;
+                        setParts(newParts);
+                      }} 
+                    />
+                  )
+                },
+                {
+                  header: "",
+                  id: "actions",
+                  cell: (info) => (
+                    <button 
+                      onClick={() => setParts(parts.filter(pt => pt.id !== info.row.original.id))} 
+                      className="text-slate-300 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )
+                }
+              ]}
+            />
           </div>
         </div>
 
         {/* 3. Calculated Results */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 bg-amber-500 text-white rounded-lg">
+            <div className="p-1.5 bg-amber-500 text-white rounded">
               <Activity size={15} />
             </div>
             <h4 className="text-xs  text-slate-900 dark:text-white  ">Execution Summary</h4>
@@ -1405,6 +1459,97 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       console.error("Error fetching MCR details:", error);
     }
   };
+
+  const mcrColumns = useMemo(() => [
+    {
+      key: "item_details",
+      label: "Item Details",
+      render: (value, entry) => (
+        <div>
+          <p className="text-xs font-medium text-slate-900 dark:text-white">{entry.item_name}</p>
+          <p className="text-[10px] text-slate-400">{entry.item_code}</p>
+        </div>
+      )
+    },
+    {
+      key: "st_code",
+      label: "ST Code",
+      render: (value, entry) => (
+        <span className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 px-2 py-0.5 rounded text-[10px] font-medium border border-indigo-100 dark:border-indigo-900/50">
+          {entry.full_data?.selectedSerial || entry.serial_number}
+        </span>
+      )
+    },
+    {
+      key: "item_group",
+      label: "Item Group",
+      align: "center",
+      render: (value) => <span className="text-[10px] text-slate-500 uppercase">{value}</span>
+    },
+    {
+      key: "material_grade",
+      label: "Material Grade",
+      align: "center",
+      render: (value) => <span className="text-[10px] text-slate-500">{value}</span>
+    },
+    {
+      key: "dims",
+      label: "Cutting Dims (mm)",
+      align: "center",
+      render: (value) => <span className="text-[10px] font-medium text-slate-700 dark:text-slate-300">{value}</span>
+    },
+    {
+      key: "weight",
+      label: "Weight (KG)",
+      align: "center",
+      render: (value, entry) => {
+        const totalWeight = parseFloat(entry.weight || entry.total_weight_consumed || 0);
+        const qty = parseInt(entry.full_data?.produced_qty || entry.produced_qty || 1);
+        const unitWeight = parseFloat(entry.unit_weight_consumed || (totalWeight / qty));
+        
+        return (
+          <div className="flex flex-col">
+            <span className="text-[9px] text-slate-400">Unit: {unitWeight.toFixed(3)}</span>
+            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">{totalWeight.toFixed(3)} KG</span>
+          </div>
+        );
+      }
+    },
+    {
+      key: "produced_qty",
+      label: "Produced Qty",
+      align: "center",
+      render: (value, entry) => (
+        <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-100 dark:border-emerald-900/50">
+          {entry.full_data?.produced_qty || entry.produced_qty || 0} NOS
+        </span>
+      )
+    },
+    {
+      key: "scrap",
+      label: "Scrap (KG)",
+      align: "center",
+      render: (value, entry) => (
+        <div className="flex flex-col">
+          <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">{parseFloat(entry.scrap_weight || 0).toFixed(3)} KG</span>
+          <span className="text-[9px] text-slate-400">({parseFloat(entry.scrap_percent || 0).toFixed(1)}%)</span>
+        </div>
+      )
+    },
+    {
+      key: "actions",
+      label: "",
+      align: "right",
+      render: (value, entry) => (
+        <button
+          onClick={() => setReportEntries(reportEntries.filter(e => e.id !== entry.id))}
+          className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
+        >
+          <Trash2 size={14} />
+        </button>
+      )
+    }
+  ], [reportEntries]);
 
   const uniqueItemOptions = useMemo(() => {
     const items = new Map();
@@ -2187,11 +2332,11 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
 
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded shadow-2xl flex flex-col max-h-[98vh] overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-5xl rounded shadow-2xl flex flex-col max-h-[98vh] overflow-hidden">
         {/* Header */}
         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
           <div className="flex items-center gap-4">
-            <div className="p-2 bg-indigo-600 text-white rounded-lg">
+            <div className="p-2 bg-indigo-600 text-white rounded">
               <Scissors size={15} />
             </div>
             <div>
@@ -2220,7 +2365,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
           <div className="space-y-4">
 
             {/* 1. CONFIGURATION FORM (BOM Style) */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded border border-slate-200  overflow-hidden">
+            <div className="bg-white dark:bg-slate-900">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                 
                 {/* Left Side: All Form Inputs (Inputs Column) */}
@@ -2229,7 +2374,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                   {/* Row 1: Item Identification */}
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     <div className="md:col-span-6 space-y-1.5">
-                      <label className="text-xs  text-slate-400 font-medium  tracking-wider block">Item Name / Code *</label>
+                      <label className="text-xs  text-slate-400    block">Item Name / Code *</label>
                       <SearchableSelect
                         options={uniqueItemOptions}
                         value={selectedItemCode}
@@ -2242,7 +2387,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     </div>
 
                     <div className="md:col-span-3 space-y-1.5">
-                      <label className="text-xs  text-slate-400 font-medium  tracking-wider block">Item Group</label>
+                      <label className="text-xs  text-slate-400    block">Item Group</label>
                       <input
                         type="text"
                         readOnly
@@ -2253,7 +2398,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     </div>
 
                     <div className="md:col-span-3 space-y-1.5">
-                      <label className="text-xs  text-slate-400 font-medium  tracking-wider block">Material Grade</label>
+                      <label className="text-xs  text-slate-400    block">Material Grade</label>
                       <input
                         type="text"
                         readOnly
@@ -2267,7 +2412,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                   {/* Row 2: Stock Tracking Code Selection */}
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     <div className="md:col-span-8 space-y-1.5">
-                      <label className="text-xs  text-slate-400 font-medium  tracking-wider block">Select ST Code *</label>
+                      <label className="text-xs  text-slate-400    block">Select ST Code *</label>
                       <SearchableSelect
                         options={stOptions}
                         value={selectedItem?.value}
@@ -2309,14 +2454,14 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     </div>
 
                     <div className="md:col-span-4 space-y-1.5">
-                      <label className="text-xs  text-indigo-600 font-semibold  tracking-wider block flex items-center gap-1">
+                      <label className="text-xs  text-indigo-600    block flex items-center gap-1">
                         Produced Qty *
                       </label>
                       <input
                         type="number"
                         placeholder="PCS"
                         min="1"
-                        className={`w-full h-9 bg-indigo-50/50 border rounded px-3 py-1.5 text-xs font-semibold text-indigo-700 focus:border-indigo-500 outline-none ${remainingInfo && parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces ? 'border-red-500' : 'border-indigo-100'}`}
+                        className={`w-full h-9 bg-indigo-50/50 border rounded px-3 py-1.5 text-xs  text-indigo-700 focus:border-indigo-500 outline-none ${remainingInfo && parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces ? 'border-red-500' : 'border-indigo-100'}`}
                         value={cuttingForm.produced_qty}
                         onChange={(e) => setCuttingForm({ ...cuttingForm, produced_qty: e.target.value })}
                       />
@@ -2333,15 +2478,15 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET")) && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <label className="text-xs text-blue-600  block">Cut Length (L)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Width (W)</label>
+                            <label className="text-xs text-blue-600  block">Cut Width (W)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Thickness (T)</label>
+                            <label className="text-xs text-slate-400  block">Thickness (T)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
                           </div>
                         </>
@@ -2351,15 +2496,15 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {selectedItemGroup.includes("BLOCK") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut L</label>
+                            <label className="text-xs text-blue-600  block">Cut L</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut W</label>
+                            <label className="text-xs text-blue-600  block">Cut W</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut H</label>
+                            <label className="text-xs text-blue-600  block">Cut H</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
                           </div>
                         </>
@@ -2369,11 +2514,11 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {selectedItemGroup.includes("ROUND") && !selectedItemGroup.includes("PIPE") && !selectedItemGroup.includes("TUBE") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Diameter (Ø)</label>
+                            <label className="text-xs text-slate-400  block">Diameter (Ø)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w || selectedItem?.dims?.d || ""} />
                           </div>
                           <div className="col-span-2 space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <label className="text-xs text-blue-600  block">Cut Length (L)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                         </>
@@ -2383,19 +2528,19 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {(selectedItemGroup.includes("BAR") && !selectedItemGroup.includes("ROUND") && !selectedItemGroup.includes("PLATE")) && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">
+                            <label className="text-xs text-slate-400  block">
                               {selectedItemGroup.includes("SQUARE") ? "Side (S1)" : "Width (W)"}
                             </label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">
+                            <label className="text-xs text-slate-400  block">
                               {selectedItemGroup.includes("SQUARE") ? "Side (S2)" : "Thickness (T)"}
                             </label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk || cuttingForm.raw_h} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <label className="text-xs text-blue-600  block">Cut Length (L)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                         </>
@@ -2405,19 +2550,19 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {(selectedItemGroup.includes("SQUARE") || selectedItemGroup.includes("RECT")) && selectedItemGroup.includes("TUBE") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Width (W)</label>
+                            <label className="text-xs text-slate-400  block">Width (W)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Height (H)</label>
+                            <label className="text-xs text-slate-400  block">Height (H)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_h} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Thk (T)</label>
+                            <label className="text-xs text-slate-400  block">Thk (T)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
                           </div>
                           <div className="col-span-3 space-y-1.5 mt-[-10px]">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <label className="text-xs text-blue-600  block">Cut Length (L)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                         </>
@@ -2427,15 +2572,15 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {(selectedItemGroup.includes("PIPE") || selectedItemGroup.includes("TUBE")) && !selectedItemGroup.includes("SQUARE") && !selectedItemGroup.includes("RECT") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Outer Dia (OD)</label>
+                            <label className="text-xs text-slate-400  block">Outer Dia (OD)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w || selectedItem?.dims?.od || ""} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Wall Thk (T)</label>
+                            <label className="text-xs text-slate-400  block">Wall Thk (T)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <label className="text-xs text-blue-600  block">Cut Length (L)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                         </>
@@ -2445,19 +2590,19 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {selectedItemGroup.includes("CHANNEL") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Web Width (W)</label>
+                            <label className="text-xs text-slate-400  block">Web Width (W)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Flange Height (H)</label>
+                            <label className="text-xs text-slate-400  block">Flange Height (H)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_h} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Thickness (T)</label>
+                            <label className="text-xs text-slate-400  block">Thickness (T)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
                           </div>
                           <div className="col-span-3 space-y-1.5 mt-[-10px]">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <label className="text-xs text-blue-600  block">Cut Length (L)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                         </>
@@ -2467,23 +2612,23 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {selectedItemGroup.includes("BEAM") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Total Height (H)</label>
+                            <label className="text-xs text-slate-400  block">Total Height (H)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_h} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Flange Width (W)</label>
+                            <label className="text-xs text-slate-400  block">Flange Width (W)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_w} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Web Thick (Tw)</label>
+                            <label className="text-xs text-slate-400  block">Web Thick (Tw)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_tw} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Flange Thick (Tf)</label>
+                            <label className="text-xs text-slate-400  block">Flange Thick (Tf)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_tf} />
                           </div>
                           <div className="col-span-2 space-y-1.5">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <label className="text-xs text-blue-600  block">Cut Length (L)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                         </>
@@ -2493,19 +2638,19 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       {selectedItemGroup.includes("ANGLE") && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Side 1</label>
+                            <label className="text-xs text-slate-400  block">Side 1</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_s1} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Side 2</label>
+                            <label className="text-xs text-slate-400  block">Side 2</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_s2} />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs text-slate-400 font-medium block">Thickness (T)</label>
+                            <label className="text-xs text-slate-400  block">Thickness (T)</label>
                             <input type="number" readOnly className="w-full h-9 bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-500 cursor-not-allowed outline-none" value={cuttingForm.raw_thk} />
                           </div>
                           <div className="col-span-3 space-y-1.5 mt-[-10px]">
-                            <label className="text-xs text-blue-600 font-semibold block">Cut Length (L)</label>
+                            <label className="text-xs text-blue-600  block">Cut Length (L)</label>
                             <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                           </div>
                         </>
@@ -2525,24 +2670,24 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                         !selectedItemGroup.includes("ANGLE") && (
                          <>
                            <div className="space-y-1.5">
-                             <label className="text-xs text-blue-600 font-semibold block">Dim 1 (L)</label>
+                             <label className="text-xs text-blue-600  block">Dim 1 (L)</label>
                              <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_l} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_l: e.target.value })} />
                            </div>
                            <div className="space-y-1.5">
-                             <label className="text-xs text-blue-600 font-semibold block">Dim 2 (W)</label>
+                             <label className="text-xs text-blue-600  block">Dim 2 (W)</label>
                              <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_w} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_w: e.target.value })} />
                            </div>
                            <div className="space-y-1.5">
-                             <label className="text-xs text-blue-600 font-semibold block">Dim 3 (T)</label>
+                             <label className="text-xs text-blue-600  block">Dim 3 (T)</label>
                              <input type="number" placeholder="Enter mm" className="w-full h-9 bg-white border border-blue-300 rounded px-2.5 py-1.5 text-xs outline-none" value={cuttingForm.raw_thk} onChange={(e) => setCuttingForm({ ...cuttingForm, raw_thk: e.target.value })} />
                            </div>
                          </>
                        )}
                     </div>
 
-                    <div className="md:col-span-6 flex items-center justify-around bg-slate-50 dark:bg-slate-800/50 h-9 rounded-lg border border-slate-100 dark:border-slate-800 px-4">
+                    <div className="md:col-span-6 flex items-center justify-around bg-slate-50 dark:bg-slate-800/50 h-9 rounded border border-slate-100 dark:border-slate-800 px-4">
                       <div className="flex items-center gap-2">
-                        <label className="text-xs text-slate-400 font-medium ">Inventory</label>
+                        <label className="text-xs text-slate-400  ">Inventory</label>
                         <input type="checkbox" className="w-4 h-4 text-emerald-600 rounded border-slate-300 cursor-pointer" checked={cuttingForm.return_to_stock} onChange={(e) => {
                           const checked = e.target.checked;
                           let rL = "", rW = "", rT = "", rH = "", rTw = "", rTf = "", rS1 = "", rS2 = "", rD = "", rOD = "";
@@ -2612,13 +2757,13 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                         }} />
                       </div>
                       <div className="flex items-center gap-2">
-                        <label className="text-xs text-slate-400 font-medium ">Consumed?</label>
+                        <label className="text-xs text-slate-400  ">Consumed?</label>
                         <input type="checkbox" className="w-4 h-4 text-indigo-600 rounded border-slate-300 cursor-pointer" checked={cuttingForm.is_finished} onChange={(e) => setCuttingForm({ ...cuttingForm, is_finished: e.target.checked })} />
                       </div>
                     </div>
 
                     <div className="md:col-span-12">
-                      <button onClick={handleAddToTable} className="w-full h-9 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-semibold shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2">
+                      <button onClick={handleAddToTable} className="w-full h-9 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs  shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2">
                         <Plus size={14} /> Add to Report
                       </button>
                     </div>
@@ -2626,7 +2771,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                     {/* Return Dimensions Nested Row (Only if Inventory Checked) */}
                     {cuttingForm.return_to_stock && (
                       <div className="md:col-span-12 mt-4 p-3 bg-emerald-50/50 rounded border border-emerald-100 flex items-center gap-6">
-                        <span className="text-xs text-emerald-600 font-semibold  tracking-wider">Stock Return Dimensions:</span>
+                        <span className="text-xs text-emerald-600   ">Stock Return Dimensions:</span>
                         <div className="flex-1 grid grid-cols-2 gap-4">
                           {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET")) && (
                             <>
@@ -2763,14 +2908,14 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       </div>
 
                       <div className="pt-4 border-t border-slate-200/60 space-y-2">
-                        <div className="flex justify-between items-center bg-slate-100/50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/30">
+                        <div className="flex justify-between items-center bg-slate-100/50 dark:bg-slate-800/50 p-2 rounded border border-slate-200/30">
                           <span className="text-xs text-slate-500    flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
                             Total Absolute Weight
                           </span>
                           <span className="text-xs text-slate-7md">{remainingInfo.absoluteOriginalWeight.toFixed(3)} KG</span>
                         </div>
-                        <div className="flex justify-between items-center bg-rose-50/50 dark:bg-rose-900/10 p-2 rounded-lg border border-rose-100/50 dark:border-rose-900/20">
+                        <div className="flex justify-between items-center bg-rose-50/50 dark:bg-rose-900/10 p-2 rounded border border-rose-100/50 dark:border-rose-900/20">
                           <span className="text-xs text-rose-500    flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-rose-400"></div>
                             Calculated Scrap Loss
@@ -2784,8 +2929,8 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
                         <Clipboard size={32} className="text-slate-400" />
                       </div>
-                      <div className="max-w-[180px]">
-                        <p className="text-xs text-slate-500   tracking-wider">Weight Analysis Ready</p>
+                      <div className="">
+                        <p className="text-xs text-slate-500   ">Weight Analysis Ready</p>
                         <p className="text-xs text-slate-400 mt-1 leading-relaxed">Select an item and ST code to calculate job weights</p>
                       </div>
                     </div>
@@ -2796,104 +2941,31 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             </div>
 
             {/* 2. SUMMARY TABLE (The List) */}
-            <div className="bg-white dark:bg-slate-900 rounded border border-slate-200  overflow-hidden min-h-[200px]">
-              <div className="px-6 py-3 bg-slate-900 text-white flex justify-between items-center">
-                <h4 className="text-xs    flex items-center gap-2"><Clipboard size={14} /> Reported Items Summary</h4>
-                <span className="text-xs  bg-white/20 px-3 py-1 rounded-full">{reportEntries.length} Items Configured</span>
-              </div>
-              <table className="w-full text-left">
-                <thead className="bg-slate-50 text-xs  text-slate-400   border-b">
-                  <tr>
-                    <th className="px-6 py-3">#</th>
-                    <th className="px-6 py-3">Item Details</th>
-                    <th className="px-6 py-3">ST Code</th>
-                    <th className="px-6 py-3 text-center">Item Group</th>
-                    <th className="px-6 py-3 text-center">Material Grade</th>
-                    <th className="px-6 py-3 text-center">Cutting Dims (mm)</th>
-                    <th className="px-6 py-3 text-center">Weight (KG)</th>
-                    <th className="px-6 py-3 text-center">Produced Qty</th>
-                    <th className="px-6 py-3 text-center">Scrap (KG)</th>
-                    <th className="px-6 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50 ">
-                  {reportEntries.length === 0 ? (
-                    <tr><td colSpan="9" className="px-6 py-12 text-center text-slate-400 text-xs  italic">No items added to report yet. Use the form above.</td></tr>
-                  ) : (
-                    reportEntries.map((entry, idx) => (
-                      <tr key={entry.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="p-2 text-xs text-slate-400">{idx + 1}</td>
-                        <td className="p-2">
-                          <p className="text-xs  text-slate-900 ">{entry.item_name}</p>
-                          <p className="text-xs text-slate-400">{entry.item_code}</p>
-                        </td>
-                        <td className="p-2">
-                          <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded text-xs ">
-                            {entry.full_data?.selectedSerial}
-                          </span>
-                        </td>
-                        <td className="p-2 text-center">
-                          <span className="text-xs  text-slate-500  ">{entry.item_group}</span>
-                        </td>
-                        <td className="p-2 text-center">
-                          <span className="text-xs  text-slate-500  ">{entry.material_grade}</span>
-                        </td>
-                        <td className="p-2 text-center text-slate-700 text-xs ">
-                          {entry.dims}
-                        </td>
-                        <td className="p-2 text-center">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-400">
-                              Unit: {parseFloat(entry.unit_weight_consumed || (entry.weight || entry.total_weight_consumed || 0) / (parseInt(entry.full_data?.produced_qty || 1))).toFixed(3)} KG
-                            </span>
-                            <span className="text-xs font-medium text-indigo-600">
-                              Total: {parseFloat(entry.weight || entry.total_weight_consumed || 0).toFixed(3)} KG
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-2 text-center">
-                          <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-xs ">
-                            {entry.full_data?.produced_qty} NOS
-                          </span>
-                        </td>
-                        <td className="p-2 text-center">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-xs font-medium text-red-600">
-                              {parseFloat(entry.scrap_weight || 0).toFixed(3)} KG
-                            </span>
-                            <span className="text-[10px] text-slate-400">
-                              ({parseFloat(entry.scrap_percent || 0).toFixed(1)}%)
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-2 text-right">
-                          <button
-                            onClick={() => setReportEntries(reportEntries.filter(e => e.id !== entry.id))}
-                            className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-all"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+            <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div className="p-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <Clipboard size={16} className="text-indigo-500" /> 
+                  Reported Items Summary
+                </h4>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-medium">
+                    {reportEntries.length} Items Configured
+                  </span>
+                  {reportEntries.length > 0 && (
+                    <div className="flex items-center gap-2 px-2 py-0.5 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 rounded">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400">Total Scrap:</span>
+                      <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                        {reportEntries.reduce((acc, curr) => acc + (parseFloat(curr.scrap_weight) || 0), 0).toFixed(3)} KG
+                      </span>
+                    </div>
                   )}
-                </tbody>
-                {reportEntries.length > 0 && (
-                  <tfoot className="bg-slate-50 border-t-2 border-slate-100 dark:bg-slate-800/50 dark:border-slate-800">
-                    <tr>
-                      <td colSpan="8" className="px-6 py-4 text-right">
-                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-4">
-                          Total Report Scrap:
-                        </span>
-                        <span className="text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 px-4 py-2 rounded-lg border border-rose-100 dark:border-rose-900/30">
-                          {reportEntries.reduce((acc, curr) => acc + (parseFloat(curr.scrap_weight) || 0), 0).toFixed(3)} KG
-                        </span>
-                      </td>
-                      <td colSpan="2"></td>
-                    </tr>
-                  </tfoot>
-                )}
-              </table>
+                </div>
+              </div>
+              <DataTable
+                columns={mcrColumns}
+                data={reportEntries}
+                emptyMessage="No items added to report yet. Use the form above."
+              />
             </div>
 
           </div>
@@ -3130,7 +3202,7 @@ const DailyProductionPlanningPage = () => {
             <Target size={15} />
           </div>
           <div>
-            <span className="text-sm text-slate-900 dark:text-white font-medium block" title={value}>
+            <span className="text-sm text-slate-900 dark:text-white  block" title={value}>
               {value || assignment.project_name || "General Plan"}
             </span>
             <span className="text-[10px] text-slate-400">{assignment.projectRef || assignment.root_card_id}</span>
@@ -3162,7 +3234,7 @@ const DailyProductionPlanningPage = () => {
           <span className="text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded w-fit">
             {value}
           </span>
-          <span className={`text-[9px] font-bold uppercase tracking-tighter ${assignment.assignment_type === "outsource" ? "text-orange-500" : "text-blue-500"}`}>
+          <span className={`text-[9px]    ${assignment.assignment_type === "outsource" ? "text-orange-500" : "text-blue-500"}`}>
             {assignment.assignment_type === "outsource" ? "Outsourced" : "In-house"}
           </span>
         </div>
@@ -3173,7 +3245,7 @@ const DailyProductionPlanningPage = () => {
       label: "Operator / Vendor",
       sortable: true,
       render: (value, assignment) => (
-        <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+        <span className="text-xs text-slate-700 dark:text-slate-300 ">
           {assignment.assignment_type === "outsource" ? assignment.vendor_name : (value || assignment.operator_name)}
         </span>
       )
@@ -3285,11 +3357,11 @@ const DailyProductionPlanningPage = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 ">
       {/* Page Header */}
-      <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className=" mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4">
           
           <div>
-            <h1 className="text-2xl  text-slate-900 dark:text-white  ">Production Management</h1>
+            <h1 className="text-xl  text-slate-900 dark:text-white  ">Production Management</h1>
             <p className="text-xs  text-slate-500   mt-1">Daily Workshop Floor Planning & Execution</p>
           </div>
         </div>
@@ -3317,16 +3389,7 @@ const DailyProductionPlanningPage = () => {
         ) : (
           <div className="">
             <div className=" border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col lg:flex-row items-center gap-4">
-              <div className="relative w-full lg:w-1/3">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-                <input
-                  type="text"
-                  placeholder="Quick Search..."
-                  className="w-full pl-11 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-1 focus:ring-indigo-500 outline-none  "
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+              
 
               <div className="w-full lg:w-1/5 flex items-center gap-2">
                 <div className="flex-1">
@@ -3392,7 +3455,7 @@ const DailyProductionPlanningPage = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 overflow-hidden mt-4">
+            <div className="my-4">
               <DataTable
                 columns={columns}
                 data={flattenedAssignments}

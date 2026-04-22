@@ -3,6 +3,7 @@ import { Download, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import RootCardWizard from '../../sales/RootCardWizard';
+import DataTable from '../../ui/DataTable/DataTable';
 
 export default function RootCardViewOnly({ formData, initialData, onBack, employees = [] }) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -81,9 +82,9 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
         });
       }
 
-      if (state.poDocuments?.length > 0) {
+      if (formData.attachments?.length > 0) {
         addSection('Step 1: PO Attachments', {
-          'Attachments': state.poDocuments.map(doc => doc.name).join(', ')
+          'Attachments': formData.attachments.map(doc => typeof doc === 'string' ? doc.split('/').pop() : doc.name).join(', ')
         });
       }
 
@@ -420,34 +421,42 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
               )}
 
               {Array.isArray(formData.materialDetailsTable) && formData.materialDetailsTable.length > 0 && (
-                <div className="bg-white border-b border-slate-200 p-2 mb-0 overflow-x-auto">
+                <div className="bg-white border-b border-slate-200 p-2 mb-0">
                   <h3 className="text-md  text-slate-900 mb-4">Material Details Table</h3>
-                  <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded">
-                    <thead className="bg-slate-50">
-                      <tr>
-                        <th className="p-2 text-left text-xs  text-slate-500  r">Sr. No.</th>
-                        <th className="p-2 text-left text-xs  text-slate-500  r">Description</th>
-                        <th className="p-2 text-left text-xs  text-slate-500  r">Spec/Size</th>
-                        <th className="p-2 text-left text-xs  text-slate-500  r">Qty</th>
-                        <th className="p-2 text-left text-xs  text-slate-500  r">UOM</th>
-                        <th className="p-2 text-left text-xs  text-slate-500  r">Category</th>
-                        <th className="p-2 text-left text-xs  text-slate-500  r">Source</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-slate-200">
-                      {formData.materialDetailsTable.map((row, idx) => (
-                        <tr key={idx}>
-                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{idx + 1}</td>
-                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.materialDescription}</td>
-                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.specification}</td>
-                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.quantity}</td>
-                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.uom}</td>
-                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.category}</td>
-                          <td className="p-2 whitespace-nowrap text-sm text-slate-900">{row.source}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <DataTable
+                    data={formData.materialDetailsTable}
+                    columns={[
+                      {
+                        key: "index",
+                        label: "Sr. No.",
+                        render: (_, __, ___, idx) => idx + 1
+                      },
+                      {
+                        key: "materialDescription",
+                        label: "Description"
+                      },
+                      {
+                        key: "specification",
+                        label: "Spec/Size"
+                      },
+                      {
+                        key: "quantity",
+                        label: "Qty"
+                      },
+                      {
+                        key: "uom",
+                        label: "UOM"
+                      },
+                      {
+                        key: "category",
+                        label: "Category"
+                      },
+                      {
+                        key: "source",
+                        label: "Source"
+                      }
+                    ]}
+                  />
                 </div>
               )}
             </div>

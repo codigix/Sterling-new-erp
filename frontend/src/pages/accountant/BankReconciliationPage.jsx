@@ -104,7 +104,7 @@ const BankReconciliationPage = () => {
             Reconcile bank statements with book records
           </p>
         </div>
-        <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+        <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
           <Download size={15} />
           Export
         </button>
@@ -140,7 +140,7 @@ const BankReconciliationPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+              <p className="text-sm  text-slate-500 dark:text-slate-400 mb-2">
                 Book Balance
               </p>
               <p className="text-xl  text-slate-900 dark:text-white text-xs">
@@ -151,7 +151,7 @@ const BankReconciliationPage = () => {
               </p>
             </div>
             <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+              <p className="text-sm  text-slate-500 dark:text-slate-400 mb-2">
                 Statement Balance
               </p>
               <p className="text-xl  text-slate-900 dark:text-white text-xs">
@@ -264,7 +264,7 @@ const BankReconciliationPage = () => {
                 className="flex items-center text-xs justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded"
               >
                 <div className="flex-1">
-                  <p className="font-medium text-slate-900 dark:text-white text-xs">
+                  <p className=" text-slate-900 dark:text-white text-xs">
                     {deposit.description}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -301,7 +301,7 @@ const BankReconciliationPage = () => {
                 className="flex items-center text-xs justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded"
               >
                 <div className="flex-1">
-                  <p className="font-medium text-slate-900 dark:text-white text-xs">
+                  <p className=" text-slate-900 dark:text-white text-xs">
                     {withdrawal.description}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">

@@ -139,7 +139,7 @@ const RootCardList = ({
       sortable: true,
       render: (value, row) => (
         <div className="flex flex-col gap-1">
-          <span className="font-semibold text-slate-900 dark:text-white">
+          <span className=" text-slate-900 dark:text-white">
             {value || '-'}
           </span>
           <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -374,24 +374,24 @@ const RootCardList = ({
   ];
 
   return (
-    <div className="w-full space-y-4 ">
+    <div className="w-full space-y-4 p-4">
       {/* Header Section */}
       <div className="flex items-center text-xs justify-between mb-2">
         <div>
           <h1 className="text-xl  text-slate-900 dark:text-white text-left ">
             Root Cards
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-left">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-left">
             Manage and track all root cards
           </p>
         </div>
         {isAdmin && (
           <Button
             onClick={onCreateNew}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white  transition-all h-10 px-4"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white  transition-all p-2"
           >
             <Plus className="w-4 h-4" />
-            <span className="font-semibold">New Root Card</span>
+            <span className="">New Root Card</span>
           </Button>
         )}
       </div>
@@ -409,7 +409,7 @@ const RootCardList = ({
                 onClick={() => setFilter(tab.value)}
                 className={`flex items-center gap-2 py-3 px-1 relative transition-all duration-200 group whitespace-nowrap ${
                   isActive 
-                    ? 'text-blue-600 font-semibold' 
+                    ? 'text-blue-600 ' 
                     : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
                 }`}
               >
@@ -438,12 +438,12 @@ const RootCardList = ({
       </div>
 
       {/* DataTable */}
-      <Card shadow="md" padding="none" className=" dark:border-slate-700 overflow-hidden">
+      <div shadow="md" padding="none" className=" dark:border-slate-700 overflow-hidden">
         <CardContent className="p-0  flex flex-col">
           {loading ? (
             <div className="flex-1 flex flex-col items-center justify-center py-20 space-y-4">
               <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-              <p className="text-sm font-medium text-slate-500 animate-pulse">
+              <p className="text-sm  text-slate-500 animate-pulse">
                 Loading root cards...
               </p>
             </div>
@@ -458,7 +458,7 @@ const RootCardList = ({
             />
           )}
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };

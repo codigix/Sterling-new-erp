@@ -1,8 +1,33 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../utils/api";
-import { Loader2, Package, Factory, Clock, CheckCircle, AlertTriangle, Users, TrendingUp, FileText, ShoppingCart, ChevronRight, Target, Layers } from "lucide-react";
+import { Loader2, Package, Factory, Clock, CheckCircle, AlertTriangle, Users, TrendingUp, FileText, ShoppingCart, ChevronRight, Target, Layers, BarChart3, PieChart } from "lucide-react";
 import ProductionPhasesDisplay from "../../components/production/ProductionPhasesDisplay";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+} from 'chart.js';
+import { Bar, Doughnut, Pie, Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement
+);
 
 const ProductionDashboard = () => {
   const [plans, setPlans] = useState([]);
@@ -71,436 +96,184 @@ const ProductionDashboard = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredRootCards = rootCards.filter(rc => {
-    const searchStr = `${rc.id} ${rc.project_name} ${rc.project_code}`.toLowerCase();
-    return searchStr.includes(searchTerm.toLowerCase());
-  });
+  // Chart Data Preparation
+  const planStatusData = {
+    labels: ['In Progress', 'Planning', 'Completed', 'Delayed'],
+    datasets: [{
+      data: [
+        plans.filter(p => p.status === 'in_progress').length,
+        plans.filter(p => p.status === 'planning').length,
+        plans.filter(p => p.status === 'completed').length,
+        plans.filter(p => p.status === 'delayed').length,
+      ],
+      backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#ef4444'],
+      borderWidth: 1,
+    }]
+  };
 
-  const stats = [
-    {
-      title: "Active Plans",
-      value: plans.filter(p => p.status === 'in_progress' || p.status === 'planning').length.toString(),
-      change: "+2",
-      positive: true,
-      icon: Clock,
-    },
-    {
-      title: "Completed",
-      value: plans.filter(p => p.status === 'completed').length.toString(),
-      change: "+3",
-      positive: true,
-      icon: CheckCircle,
-    },
-    {
-      title: "In-Progress Tasks",
-      value: plans.reduce((acc, p) => acc + (p.active_stages_count || 0), 0).toString(),
-      change: "+5",
-      positive: false,
-      icon: Target,
-    },
-    {
-      title: "Potential Delays",
-      value: plans.filter(p => p.status === 'delayed').length.toString(),
-      change: "0",
-      positive: true,
-      icon: AlertTriangle,
-    },
-    {
-      title: "Active BOMs",
-      value: bomCount.toString(),
-      change: "BOM Revisions",
-      positive: true,
-      icon: Layers,
-      path: "/department/production/bom/view"
-    },
-  ];
+  const taskStatusData = {
+    labels: ['Pending', 'In Progress', 'Completed'],
+    datasets: [{
+      data: [
+        departmentTasks.filter(t => t.status === 'pending').length,
+        departmentTasks.filter(t => t.status === 'in_progress').length,
+        departmentTasks.filter(t => t.status === 'completed').length,
+      ],
+      backgroundColor: ['#fbbf24', '#3b82f6', '#10b981'],
+    }]
+  };
+
+  const progressData = {
+    labels: plans.slice(0, 6).map(p => {
+      const name = p.plan_name || "Unnamed Plan";
+      return name.substring(0, 15) + (name.length > 15 ? '...' : '');
+    }),
+    datasets: [{
+      label: 'Progress %',
+      data: plans.slice(0, 6).map(p => p.progress_percentage || 0),
+      backgroundColor: '#3b82f6',
+    }]
+  };
+
+  const stageData = {
+    labels: ['Cutting', 'Welding', 'Finishing', 'Inspection'],
+    datasets: [{
+      label: 'Active Count',
+      data: [3, 2, 1, 2], // Hardcoded as per the existing static list in original file
+      backgroundColor: '#8b5cf6',
+    }]
+  };
+
+  const teamUtilizationData = {
+    labels: ['Cutting & Prep', 'Welding', 'Assembly', 'Finishing'],
+    datasets: [{
+      label: 'Utilization %',
+      data: [85, 92, 78, 65], // Hardcoded as per the existing static list in original file
+      backgroundColor: '#10b981',
+    }]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          boxWidth: 12,
+          font: { size: 10 },
+          color: '#64748b'
+        }
+      }
+    }
+  };
 
   return (
-    <div className="space-y-2 p-4">
+    <div className="space-y-4 p-4 bg-slate-50 dark:bg-slate-900 min-h-screen">
       {/* Page Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-2">
         <div>
-          <h1 className="text-xl  text-slate-900 dark:text-white">Production Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs">Overview of manufacturing activities and performance</p>
+          <h1 className="text-xl  text-slate-900 dark:text-white">Production Analytics</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs">Graphical overview of manufacturing performance</p>
+        </div>
+        <div className="flex gap-2">
+           <Link to="/department/production/plans" className="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1 rounded hover:bg-slate-100 transition-colors flex items-center gap-1">
+              <Clock size={12} /> Plans
+           </Link>
+           <Link to="/department/production/tasks" className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors flex items-center gap-1">
+              <Target size={12} /> Tasks
+           </Link>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          const CardContent = (
-            <div className="flex items-center text-xs justify-between">
-              <div>
-                <p className="text-sm  text-slate-500 dark:text-slate-400">
-                  {stat.title}
-                </p>
-                <p className="text-xl  text-slate-900 dark:text-white  mt-2">
-                  {stat.value}
-                </p>
-                <p
-                  className={`text-xs mt-2 ${
-                    stat.positive ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {stat.positive ? "↑" : "→"} {stat.change}
-                </p>
-              </div>
-              <Icon size={20} className="text-blue-500" />
-            </div>
-          );
-
-          return stat.path ? (
-            <Link
-              key={stat.title}
-              to={stat.path}
-              className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700  transition-all hover:border-blue-500 hover:shadow-md block"
-            >
-              {CardContent}
-            </Link>
-          ) : (
-            <div
-              key={stat.title}
-              className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700  transition-shadow"
-            >
-              {CardContent}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Assigned Production Planning Tasks Section */}
-      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700 ">
-        <div className="flex items-center justify-between ">
-          <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2">
-            <Clock size={15} className="text-blue-600" />
-            Assigned Root Cards (Production Planning)
-          </h2>
-          <Link
-            to="/department/production/tasks"
-            className="text-sm text-blue-600 dark:text-blue-400  hover:text-blue-700"
-          >
-            View All Tasks →
-          </Link>
-        </div>
-
-        {loadingTasks ? (
-          <div className="flex justify-center p-2">
-            <Loader2 className="animate-spin text-blue-600" size={15} />
-          </div>
-        ) : departmentTasks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 mt-3 lg:grid-cols-3 gap-2">
-            {departmentTasks.slice(0, 6).map((task) => (
-              <div
-                key={task.id}
-                className="border border-slate-200 dark:border-slate-700 rounded p-2 hover:border-blue-400 transition-all bg-slate-50 dark:bg-slate-900/50"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h4 className=" text-sm text-slate-900 dark:text-white line-clamp-1">
-                      {task.rootCard?.title || task.title}
-                    </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {task.rootCard?.customer || task.salesOrder?.customer || "No Customer"}
-                    </p>
-                  </div>
-                  <span
-                    className={`p-1 text-xs  rounded  ${
-                      task.status === "pending"
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-blue-100 text-blue-700"
-                    }`}
-                  >
-                    {task.status}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between mt-4">
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                    PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
-                  </span>
-                  <Link
-                    to={`/department/production/tasks`}
-                    className="text-xs  text-blue-600 hover:text-blue-700"
-                  >
-                    View Card →
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center p-2 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-700">
-            <Package className="mx-auto text-slate-300 mb-2" size={15} />
-            <p className="text-slate-500 dark:text-slate-400 ">
-              No active production planning tasks assigned.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Active Production Plans Overview */}
-      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-md text-slate-900 dark:text-white flex items-center gap-2">
-            <Target size={15} className="text-blue-600" />
-            Active Production Plans
-          </h2>
-          <Link
-            to="/department/production/plans"
-            className="text-xs  text-blue-600 hover:text-blue-700 flex items-center gap-1"
-          >
-            Manage All <ChevronRight size={14} />
-          </Link>
-        </div>
-        
-        {loadingPlans ? (
-          <div className="flex justify-center p-2">
-            <Loader2 className="animate-spin text-blue-600" size={15} />
-          </div>
-        ) : plans.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {plans.filter(p => p.status !== 'completed').slice(0, 3).map((plan, idx) => (
-              <div
-                key={plan.id}
-                className="border-l-2 border-blue-500 bg-slate-50 dark:bg-slate-900/50 p-2 rounded hover: transition-all"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1 min-w-0">
-                    <p className=" text-slate-900 dark:text-white truncate">
-                      {plan.plan_name}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1  font-semibold">
-                      {plan.product_name || "Multiple Products"}
-                    </p>
-                  </div>
-                  <span
-                    className={`p-1 text-xs rounded    ${
-                      plan.status === "in_progress"
-                        ? "bg-blue-100 text-blue-700"
-                        : plan.status === "delayed"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-amber-100 text-amber-700"
-                    }`}
-                  >
-                    {plan.status?.replace('_', ' ')}
-                  </span>
-                </div>
-                
-                <div className=" space-y-2">
-                  <div className="flex justify-between text-xs  text-slate-500">
-                    <span>Progress</span>
-                    <span>{plan.progress_percentage || 0}%</span>
-                  </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-1 overflow-hidden">
-                    <div
-                      className={`h-full rounded  ${plan.status === 'delayed' ? 'bg-red-500' : 'bg-blue-600'}`}
-                      style={{ width: `${plan.progress_percentage || 0}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between my-2">
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                    <Clock size={12} />
-                    <span>Ends {plan.end_date ? new Date(plan.end_date).toLocaleDateString() : 'TBD'}</span>
-                  </div>
-                  <Link
-                    to={`/department/production/plans/${plan.id}`}
-                    className="text-xs  text-blue-600 hover:text-blue-700"
-                  >
-                    Details
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-800">
-            <Package className="mx-auto text-slate-300 mb-2" size={32} />
-            <p className="text-sm text-slate-500 ">No active production plans.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Production Phases */}
-      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 p-2">
-          <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2">
-            <Factory size={15} className="text-blue-600" />
-            Production Phases
-          </h2>
-          <div className="w-full sm:w-96">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search root cards..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900 text-xs focus:ring-1 focus:ring-blue-500 outline-none"
-              />
-              <FileText className="absolute left-3 top-2.5 text-slate-400" size={14} />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {loadingRootCards ? (
-            <div className="col-span-full flex justify-center p-8">
-              <Loader2 className="animate-spin text-blue-600" size={24} />
-            </div>
-          ) : filteredRootCards.length > 0 ? (
-            filteredRootCards.slice(0, 6).map(rc => (
-              <div key={rc.id} className="border border-slate-100 dark:border-slate-700 rounded p-3 bg-slate-50/50 dark:bg-slate-900/30">
-                <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">
-                  <div className="truncate pr-2">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{rc.project_name || 'No Name'}</p>
-                    <p className="text-[10px] text-slate-500 font-medium">#{rc.id} | {rc.project_code || 'No Code'}</p>
-                  </div>
-                  <Link to={`/department/production/root-cards/${rc.id}`} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-blue-600">
-                    <ChevronRight size={14} />
-                  </Link>
-                </div>
-                <ProductionPhasesDisplay rootCardId={rc.id} editable={false} />
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-800">
-               <p className="text-slate-500 dark:text-slate-400 text-xs">No root cards found matching your search.</p>
-            </div>
-          )}
-          {filteredRootCards.length > 6 && (
-             <div className="col-span-full text-center pt-2">
-                <p className="text-[10px] text-slate-400 italic">Showing top results. Use search to find specific root cards.</p>
-             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Manufacturing Stages Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-        {/* Stages Status */}
-        <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-md  text-slate-900 dark:text-white text-left mb-4">
-            Stage Status
-          </h2>
-          <div className="space-y-3">
-            {[
-              { name: "Cutting & Preparation", status: "Active", count: 3 },
-              { name: "Welding & Assembly", status: "Active", count: 2 },
-              { name: "Finishing", status: "Pending", count: 1 },
-              { name: "Final Inspection", status: "Completed", count: 2 },
-            ].map((stage, idx) => (
-              <div
-                key={idx}
-                className="flex items-center text-xs justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded"
-              >
-                <div>
-                  <p className=" text-slate-900 dark:text-white text-xs">
-                    {stage.name}
-                  </p>
-                </div>
-                <div className="flex items-center text-xs gap-2">
-                  <span
-                    className={`p-1 text-xs rounded  ${
-                      stage.status === "Active"
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                        : stage.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                        : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    }`}
-                  >
-                    {stage.status}
-                  </span>
-                  <span className="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300  text-xs rounded">
-                    {stage.count}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Team Allocation */}
-        <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-md  text-slate-900 dark:text-white text-left mb-4">
-            Team Allocation
-          </h2>
-          <div className="space-y-2">
-            {[
-              { department: "Cutting & Prep", allocated: 8, utilization: 85 },
-              { department: "Welding", allocated: 6, utilization: 92 },
-              { department: "Assembly", allocated: 5, utilization: 78 },
-              { department: "Finishing", allocated: 4, utilization: 65 },
-            ].map((dept, idx) => (
-              <div
-                key={idx}
-                className="p-2 bg-slate-50 dark:bg-slate-700 rounded"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <p className=" text-slate-900 dark:text-white text-xs">
-                    {dept.department}
-                  </p>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {dept.allocated} employees
-                  </span>
-                </div>
-                <div className="w-full bg-slate-300 dark:bg-slate-600 rounded  h-1">
-                  <div
-                    className="bg-green-500 h-1 rounded "
-                    style={{ width: `${dept.utilization}%` }}
-                  ></div>
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  {dept.utilization}% Utilized
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
-        <h2 className="text-md  text-slate-900 dark:text-white text-left mb-4">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          <Link
-            to="/department/production/plans"
-            className="p-2 bg-blue-50 dark:bg-blue-900 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
-          >
-            <Clock
-              size={15}
-              className="text-blue-600 dark:text-blue-300 mb-2"
+      {/* Main Charts Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Production Progress */}
+        <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 col-span-1 lg:col-span-2">
+          <h3 className="text-sm  text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+            <TrendingUp size={16} className="text-blue-500" />
+            Top Production Plans Progress
+          </h3>
+          <div className="h-64">
+            <Bar 
+              data={progressData} 
+              options={{
+                ...chartOptions,
+                plugins: { ...chartOptions.plugins, legend: { display: false } },
+                scales: {
+                  y: { beginAtZero: true, max: 100, ticks: { font: { size: 10 } } },
+                  x: { ticks: { font: { size: 10 } } }
+                }
+              }} 
             />
-            <p className=" text-blue-900 dark:text-blue-100">
-              Production Plans
-            </p>
-          </Link>
-          <Link
-            to="/department/production/active-stages"
-            className="p-4 bg-green-50 dark:bg-green-900 rounded hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
-          >
-            <Factory
-              size={15}
-              className="text-green-600 dark:text-green-300 mb-2"
+          </div>
+        </div>
+
+        {/* Plan Status Distribution */}
+        <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
+          <h3 className="text-sm  text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+            <PieChart size={16} className="text-amber-500" />
+            Plan Status Distribution
+          </h3>
+          <div className="h-64">
+            <Doughnut data={planStatusData} options={chartOptions} />
+          </div>
+        </div>
+
+        {/* Task Status */}
+        <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
+          <h3 className="text-sm  text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+            <CheckCircle size={16} className="text-green-500" />
+            Planning Task Status
+          </h3>
+          <div className="h-64">
+            <Pie data={taskStatusData} options={chartOptions} />
+          </div>
+        </div>
+
+        {/* Manufacturing Stages */}
+        <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
+          <h3 className="text-sm  text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+            <Factory size={16} className="text-purple-500" />
+            Manufacturing Stage Activity
+          </h3>
+          <div className="h-64">
+            <Bar 
+              data={stageData} 
+              options={{
+                ...chartOptions,
+                plugins: { ...chartOptions.plugins, legend: { display: false } },
+                indexAxis: 'y',
+                scales: {
+                  x: { beginAtZero: true, ticks: { font: { size: 10 } } },
+                  y: { ticks: { font: { size: 10 } } }
+                }
+              }} 
             />
-            <p className=" text-green-900 dark:text-green-100">
-              Active Stages
-            </p>
-          </Link>
-          <Link
-            to="/department/production/assign-tasks"
-            className="p-4 bg-purple-50 dark:bg-purple-900 rounded hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
-          >
-            <Users
-              size={15}
-              className="text-purple-600 dark:text-purple-300 mb-2"
+          </div>
+        </div>
+
+        {/* Team Utilization */}
+        <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
+          <h3 className="text-sm  text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+            <Users size={16} className="text-blue-500" />
+            Resource Utilization
+          </h3>
+          <div className="h-64">
+            <Line 
+              data={{
+                ...teamUtilizationData,
+                datasets: [{
+                  ...teamUtilizationData.datasets[0],
+                  borderColor: '#10b981',
+                  tension: 0.4,
+                  fill: true,
+                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                }]
+              }} 
+              options={chartOptions} 
             />
-            <p className=" text-purple-900 dark:text-purple-100">
-              Assign Tasks
-            </p>
-          </Link>
+          </div>
         </div>
       </div>
     </div>

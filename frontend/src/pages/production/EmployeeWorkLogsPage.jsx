@@ -15,6 +15,7 @@ import {
   TrendingUp,
   History
 } from "lucide-react";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const EmployeeWorkLogsPage = () => {
   const [employees, setEmployees] = useState([]);
@@ -103,22 +104,78 @@ const EmployeeWorkLogsPage = () => {
     return matchesProject && matchesDate;
   });
 
+  const employeeColumns = [
+    {
+      header: "Employee Name",
+      accessor: "name",
+      render: (value) => (
+        <span className="text-xs text-slate-900 dark:text-white">{value}</span>
+      ),
+    },
+    {
+      header: "Projects Worked",
+      accessor: "total_projects",
+      align: "center",
+      render: (value) => (
+        <span className="p-1 bg-slate-100 dark:bg-slate-800 rounded text-xs text-slate-600 dark:text-slate-400">
+          {value} Projects
+        </span>
+      ),
+    },
+    {
+      header: "Total Hours",
+      accessor: "total_hours",
+      align: "center",
+      render: (value) => (
+        <span className="text-xs text-slate-900 dark:text-white">{value} hrs</span>
+      ),
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      align: "center",
+      render: (value) => (
+        <span
+          className={`p-1 rounded-full text-xs ${
+            value === "Active"
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-slate-100 text-slate-500"
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
+      header: "Action",
+      align: "right",
+      render: (_, emp) => (
+        <button
+          onClick={() => fetchEmployeeDetails(emp)}
+          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+        >
+          <ChevronRight size={15} />
+        </button>
+      ),
+    },
+  ];
+
   const renderEmployeeList = () => (
     <div className="space-y-6 p-4">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-        <div className=" flex items-center gap-2">
-          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
-            <Users size={20} />
+        <div className="bg-white p-2 flex items-center gap-2">
+          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
+            <Users size={15} />
           </div>
           <div>
             <p className="text-xs text-slate-500  tracking-wider ">Total Operators</p>
             <p className="text-xl  text-slate-900 dark:text-white">{employees.length}</p>
           </div>
         </div>
-        <div className=" flex items-center gap-2">
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded">
-            <Clock size={20} />
+        <div className="bg-white p-2 flex items-center gap-2">
+          <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded">
+            <Clock size={15} />
           </div>
           <div>
             <p className="text-xs text-slate-500  tracking-wider ">Total Man-Hours</p>
@@ -127,9 +184,9 @@ const EmployeeWorkLogsPage = () => {
             </p>
           </div>
         </div>
-        <div className=" flex items-center gap-2">
-          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded">
-            <Briefcase size={20} />
+        <div className="bg-white p-2 flex items-center gap-2">
+          <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded">
+            <Briefcase size={15} />
           </div>
           <div>
             <p className="text-xs text-slate-500  tracking-wider ">Avg. Hours/Emp</p>
@@ -140,85 +197,79 @@ const EmployeeWorkLogsPage = () => {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="">
-        <div className="relative border border-slate-200 rounded">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-          <input 
-            type="text" 
-            placeholder="SEARCH EMPLOYEES..." 
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs outline-none focus:ring-1 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
-
       {/* Employee Table */}
-      <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800  overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse bg-white">
-            <thead>
-              <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="p-2 text-xs text-slate-400 ">Employee Name</th>
-                <th className="p-2 text-xs text-slate-400  text-center">Projects Worked</th>
-                <th className="p-2 text-xs text-slate-400  text-center">Total Hours</th>
-                <th className="p-2 text-xs text-slate-400  text-center">Status</th>
-                <th className="p-2 text-xs text-slate-400  text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {loading ? (
-                <tr>
-                  <td colSpan="5" className="p-12 text-center">
-                    <p className="text-xs text-slate-400">Loading employees...</p>
-                  </td>
-                </tr>
-              ) : filteredEmployees.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="p-12 text-center text-xs text-slate-400">No employees found</td>
-                </tr>
-              ) : (
-                filteredEmployees.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="p-2">
-                      <div className="flex items-center gap-3">
-                        
-                        <span className="text-xs  text-slate-900 dark:text-white">{emp.name}</span>
-                      </div>
-                    </td>
-                    <td className="p-2 text-center">
-                      <span className="p-1 bg-slate-100 dark:bg-slate-800 rounded text-xs text-slate-600 dark:text-slate-400">
-                        {emp.total_projects} Projects
-                      </span>
-                    </td>
-                    <td className="p-2 text-center">
-                      <span className="text-xs  text-slate-900 dark:text-white">{emp.total_hours} hrs</span>
-                    </td>
-                    <td className="p-2 text-center">
-                      <span className={`p-1 rounded-full text-xs   ${
-                        emp.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                      }`}>
-                        {emp.status}
-                      </span>
-                    </td>
-                    <td className="p-2 text-right">
-                      <button 
-                        onClick={() => fetchEmployeeDetails(emp)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                      >
-                        <ChevronRight size={15} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        columns={employeeColumns}
+        data={employees}
+        loading={loading}
+        searchPlaceholder="SEARCH EMPLOYEES..."
+      />
     </div>
   );
+
+  const workLogColumns = [
+    {
+      header: "Date",
+      accessor: "work_date",
+      render: (value) => (
+        <span className="text-xs text-slate-600 dark:text-slate-400">
+          {new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </span>
+      ),
+    },
+    {
+      header: "Project / Root Card",
+      accessor: "project_name",
+      render: (_, log) => (
+        <div className="flex items-center gap-2">
+          <Target size={14} className="text-blue-500 flex-shrink-0" />
+          <div>
+            <p className="text-sm text-slate-900 dark:text-white">{log.project_name}</p>
+            <p className="text-xs text-slate-400 font-mono">{log.root_card_id}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Operation",
+      accessor: "operation_name",
+      render: (value) => (
+        <span className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-1 rounded border border-blue-100 dark:border-blue-900/30">
+          {value}
+        </span>
+      ),
+    },
+    {
+      header: "Start Time",
+      accessor: "start_time",
+      align: "center",
+      render: (value) => (
+        <div className="flex items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+          <Clock size={12} className="text-emerald-500" />
+          {format12h(value)}
+        </div>
+      ),
+    },
+    {
+      header: "End Time",
+      accessor: "end_time",
+      align: "center",
+      render: (value) => (
+        <div className="flex items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+          <Clock size={12} className="text-rose-500" />
+          {format12h(value)}
+        </div>
+      ),
+    },
+    {
+      header: "Total Hours",
+      accessor: "actual_hours",
+      align: "center",
+      render: (value) => (
+        <span className="text-sm text-slate-900 dark:text-white">{value} hrs</span>
+      ),
+    },
+  ];
 
   const renderEmployeeDetails = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -253,7 +304,7 @@ const EmployeeWorkLogsPage = () => {
         </div>
       </div>
 
-    <div className=" dark:border-slate-800  overflow-hidden">
+      <div className=" dark:border-slate-800  overflow-hidden">
         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-2">
           <h3 className="text-sm  text-slate-900 dark:text-white flex items-center gap-2">
             <History size={15} className="text-blue-500" />
@@ -261,91 +312,23 @@ const EmployeeWorkLogsPage = () => {
           </h3>
           <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
             <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-              <input 
-                type="text" 
-                placeholder="Search Project / Root Card..." 
-                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs outline-none focus:ring-1 focus:ring-blue-500"
-                value={projectSearchTerm}
-                onChange={(e) => setProjectSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="relative">
               <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input 
                 type="date" 
-                className="pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs outline-none focus:ring-1 focus:ring-blue-500"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
               />
             </div>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left bg-white border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="p-2 text-xs text-slate-400 ">Date</th>
-                <th className="p-2 text-xs text-slate-400 ">Project / Root Card</th>
-                <th className="p-2 text-xs text-slate-400 ">Operation</th>
-                <th className="p-2 text-xs text-slate-400  text-center">Start Time</th>
-                <th className="p-2 text-xs text-slate-400  text-center">End Time</th>
-                <th className="p-2 text-xs text-slate-400  text-center">Total Hours</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {loadingDetails ? (
-                <tr>
-                  <td colSpan="6" className="p-12 text-center">
-                    <Loader2 size={24} className="animate-spin text-blue-600 mx-auto mb-2" />
-                    <p className="text-xs text-slate-400">Loading work logs...</p>
-                  </td>
-                </tr>
-              ) : filteredWorkLogs.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="p-12 text-center text-xs text-slate-400">No work history found for this employee</td>
-                </tr>
-              ) : (
-                filteredWorkLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="p-2 text-xs text-slate-600 dark:text-slate-400">
-                      {new Date(log.work_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="p-2">
-                      <div className="flex items-center gap-2">
-                        <Target size={14} className="text-blue-500 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm  text-slate-900 dark:text-white">{log.project_name}</p>
-                          <p className="text-xs text-slate-400 font-mono">{log.root_card_id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-2">
-                      <span className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-1 rounded border border-blue-100 dark:border-blue-900/30">
-                        {log.operation_name}
-                      </span>
-                    </td>
-                    <td className="p-2 text-center">
-                      <div className="flex items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
-                        <Clock size={12} className="text-emerald-500" />
-                        {format12h(log.start_time)}
-                      </div>
-                    </td>
-                    <td className="p-2 text-center">
-                      <div className="flex items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
-                        <Clock size={12} className="text-rose-500" />
-                        {format12h(log.end_time)}
-                      </div>
-                    </td>
-                    <td className="p-2 text-center">
-                      <span className="text-sm  text-slate-900 dark:text-white">{log.actual_hours} hrs</span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+
+        <DataTable
+          columns={workLogColumns}
+          data={filteredWorkLogs}
+          loading={loadingDetails}
+          searchPlaceholder="Search Project / Root Card..."
+        />
       </div>
     </div>
   );
@@ -353,7 +336,7 @@ const EmployeeWorkLogsPage = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
       {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className=" mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-2">
          
           <div>
@@ -372,7 +355,7 @@ const EmployeeWorkLogsPage = () => {
         )}
       </div>
 
-      <div className="max-w-7xl mx-auto">
+      <div className=" mx-auto">
         {!selectedEmployee ? renderEmployeeList() : renderEmployeeDetails()}
       </div>
     </div>

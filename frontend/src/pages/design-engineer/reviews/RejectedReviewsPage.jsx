@@ -43,20 +43,20 @@ const RejectedReviewsPage = () => {
                     size={15}
                     className="text-red-600 dark:text-red-400"
                   />
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-lg  text-slate-900 dark:text-white">
                     {review.design}
                   </h3>
                 </div>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   Rejected by:{" "}
-                  <span className="font-medium">{review.rejectedBy}</span>
+                  <span className="">{review.rejectedBy}</span>
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   Rejected Date
                 </p>
-                <p className="font-semibold text-slate-900 dark:text-white">
+                <p className=" text-slate-900 dark:text-white">
                   {review.rejectedDate}
                 </p>
               </div>
@@ -64,7 +64,7 @@ const RejectedReviewsPage = () => {
 
             <div className="bg-red-50 dark:bg-red-900/20 rounded p-3 mb-4">
               <p className="text-sm text-red-800 dark:text-red-200">
-                <span className="font-semibold">Reason:</span> {review.reason}
+                <span className="">Reason:</span> {review.reason}
               </p>
             </div>
 

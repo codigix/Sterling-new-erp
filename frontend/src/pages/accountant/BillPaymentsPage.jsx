@@ -1,18 +1,13 @@
 import { useState } from "react";
 import {
-  Search,
-  Filter,
   Download,
   Plus,
   Eye,
-  CreditCard,
   CheckCircle,
 } from "lucide-react";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const BillPaymentsPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-
   const billPayments = [
     {
       id: 1,
@@ -66,13 +61,6 @@ const BillPaymentsPage = () => {
     },
   ];
 
-  const filteredPayments = billPayments.filter(
-    (payment) =>
-      (payment.paymentNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        payment.vendor.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter === "all" || payment.status === statusFilter)
-  );
-
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -115,15 +103,71 @@ const BillPaymentsPage = () => {
   const completedAmount = billPayments
     .filter((b) => b.status === "completed")
     .reduce((sum, b) => sum + b.amount, 0);
-  const pendingAmount = billPayments
-    .filter((b) => b.status !== "completed")
-    .reduce((sum, b) => sum + b.amount, 0);
+  const pendingAmount = totalAmount - completedAmount;
+
+  const columns = [
+    {
+      header: "Payment",
+      accessorKey: "paymentNo",
+      cell: (info) => (
+        <span className=" text-slate-900 dark:text-white text-xs">
+          {info.getValue()}
+        </span>
+      ),
+    },
+    {
+      header: "Vendor",
+      accessorKey: "vendor",
+    },
+    {
+      header: "Amount",
+      accessorKey: "amount",
+      cell: (info) => (
+        <span className=" text-slate-900 dark:text-white text-xs">
+          ₹{info.getValue().toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    {
+      header: "Method",
+      accessorKey: "method",
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      cell: (info) => (
+        <span
+          className={`px-3 py-1 rounded text-xs  ${getStatusColor(
+            info.getValue()
+          )}`}
+        >
+          {info.getValue().charAt(0).toUpperCase() + info.getValue().slice(1)}
+        </span>
+      ),
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      cell: (info) => (
+        <div className="flex justify-center gap-2">
+          <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
+            <Eye size={15} className="text-slate-500 dark:text-slate-400" />
+          </button>
+          {info.row.original.status === "pending" && (
+            <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
+              <CheckCircle size={15} className="text-green-600 dark:text-green-400" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white">
             Bill Payments
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -131,11 +175,11 @@ const BillPaymentsPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
             <Plus size={15} />
             New Payment
           </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors ">
             <Download size={15} />
             Export
           </button>
@@ -148,7 +192,7 @@ const BillPaymentsPage = () => {
             key={stat.label}
             className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4"
           >
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-sm  text-slate-500 dark:text-slate-400">
               {stat.label}
             </p>
             <p className={`text-2xl  mt-2 ${stat.color}`}>
@@ -160,98 +204,28 @@ const BillPaymentsPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <div className="relative mb-6">
-            <Search
-              size={15}
-              className="absolute left-3 top-3 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Search payments..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 dark:bg-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Payment
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Vendor
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Method
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-center font-semibold text-slate-900 dark:text-white">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filteredPayments.map((payment) => (
-                  <tr
-                    key={payment.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <td className="p-1 font-medium text-slate-900 dark:text-white text-xs">
-                      {payment.paymentNo}
-                    </td>
-                    <td className="p-1 text-slate-700 dark:text-slate-300">
-                      {payment.vendor}
-                    </td>
-                    <td className="p-1 font-medium text-slate-900 dark:text-white text-xs">
-                      ₹{payment.amount.toLocaleString("en-IN")}
-                    </td>
-                    <td className="p-1 text-slate-700 dark:text-slate-300">
-                      {payment.method}
-                    </td>
-                    <td className="p-1">
-                      <span
-                        className={`px-3 py-1 rounded  text-xs font-medium ${getStatusColor(
-                          payment.status
-                        )}`}
-                      >
-                        {payment.status.charAt(0).toUpperCase() +
-                          payment.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="p-1 flex justify-center gap-2">
-                      <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
-                        <Eye
-                          size={15}
-                          className="text-slate-500 dark:text-slate-400"
-                        />
-                      </button>
-                      {payment.status === "pending" && (
-                        <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
-                          <CheckCircle
-                            size={15}
-                            className="text-green-600 dark:text-green-400"
-                          />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={columns}
+            data={billPayments}
+            searchPlaceholder="Search payments..."
+            filters={[
+              {
+                key: "status",
+                label: "Status",
+                options: [
+                  { label: "All Payments", value: "all" },
+                  { label: "Completed", value: "completed" },
+                  { label: "Pending", value: "pending" },
+                  { label: "Scheduled", value: "scheduled" },
+                ],
+              },
+            ]}
+          />
         </div>
 
         <div className="space-y-4">
           <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
+            <h3 className="text-lg  text-slate-900 dark:text-white mb-4">
               Payment Summary
             </h3>
             <div className="space-y-3">
@@ -259,7 +233,7 @@ const BillPaymentsPage = () => {
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   Total Amount
                 </p>
-                <p className="text-xl  text-slate-900 dark:text-white text-xs">
+                <p className="text-xl  text-slate-900 dark:text-white">
                   ₹{totalAmount.toLocaleString("en-IN")}
                 </p>
               </div>
@@ -280,22 +254,6 @@ const BillPaymentsPage = () => {
                 </p>
               </div>
             </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
-              Status Filter
-            </h3>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
-            >
-              <option value="all">All Payments</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="scheduled">Scheduled</option>
-            </select>
           </div>
         </div>
       </div>

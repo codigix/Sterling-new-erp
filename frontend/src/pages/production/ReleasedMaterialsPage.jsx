@@ -78,7 +78,7 @@ const ReleasedMaterialsPage = () => {
       label: "PROJECT",
       render: (val) => (
         <div className="flex flex-col">
-          <span className="font-semibold text-slate-700">{val || "General Stock"}</span>
+          <span className=" text-slate-700">{val || "General Stock"}</span>
           <span className="text-xs text-slate-400   ">Project Assignment</span>
         </div>
       )
@@ -126,19 +126,7 @@ const ReleasedMaterialsPage = () => {
         <Button variant="secondary" icon={Clock} onClick={fetchReleasedMaterials}>Refresh</Button>
       </div>
 
-      <div className="border-none">
-        <div className="">
-          <div className="max-w-md">
-            <Input
-              placeholder="Search by Entry No, Project or Remarks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              leftIcon={<Search size={15} />}
-              className="mb-0"
-            />
-          </div>
-        </div>
-      </div>
+      
 
       <div className="border-none  overflow-hidden">
         <DataTable
@@ -155,14 +143,12 @@ const ReleasedMaterialsPage = () => {
           <div className="bg-white dark:bg-slate-900 w-full max-w-[800px] rounded overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-blue-50/30">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded bg-blue-100 flex items-center justify-center text-blue-600">
-                  <Package size={15} />
-                </div>
+                
                 <div>
                   <h3 className="text-lg  text-slate-900 dark:text-white">
                     Released Items: {selectedEntry.entry_no}
                   </h3>
-                  <p className="text-xs text-slate-500 font-medium">{selectedEntry.project_name || "General Production"}</p>
+                  <p className="text-xs text-slate-500 ">{selectedEntry.project_name || "General Production"}</p>
                 </div>
               </div>
               <button
@@ -199,121 +185,130 @@ const ReleasedMaterialsPage = () => {
                 </div>
 
                 <div className="border border-slate-100 rounded overflow-hidden ">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-xs  text-slate-400   border-b border-slate-100">
-                      <tr>
-                        <th className="p-2">Item Details</th>
-                        <th className="p-2">Dimensions</th>
-                        <th className="p-2 text-center">Released Qty</th>
-                        <th className="p-2 text-center">Unit</th>
-                        <th className="p-2 text-center">Weight (Kg)</th>
-                        <th className="p-2 text-right">ST Numbers</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                      {selectedEntry.items?.map((item, idx) => {
-                        const isExpanded = expandedItem === idx;
-                        return (
-                          <React.Fragment key={idx}>
-                            <tr
-                              className={`hover:bg-slate-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/30' : ''}`}
-                              onClick={() => setExpandedItem(isExpanded ? null : idx)}
-                            >
-                              <td className="p-2">
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-8 h-8 rounded flex items-center justify-center ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`}>
-                                    <Package size={15} />
-                                  </div>
-                                  <div>
-                                    <p className=" text-slate-900 text-xs  ">{item.item_name}</p>
-                                    <p className="text-xs  text-slate-400  ">{item.item_code}</p>
-                                  </div>
-                                  {item.serials && item.serials.length > 0 && (
-                                    <div className="ml-auto pr-2">
-                                      {isExpanded ? <ChevronUp size={16} className="text-blue-600" /> : <ChevronDown size={16} className="text-slate-400" />}
-                                    </div>
-                                  )}
-                                </div>
-                              </td>
-                              <td className="p-2">
-                                <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
-                                  {renderDimensions(item)}
-                                </span>
-                              </td>
-                              <td className="p-2 text-center">
-                                <span className="p-1  text-emerald-600 text-xs">
-                                  {item.quantity}
-                                </span>
-                              </td>
-                              <td className="p-2 text-center">
-                                <span className="text-xs  text-slate-500 ">{item.uom}</span>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="flex flex-col items-center">
-                                  <span className="text-xs text-slate-900">
-                                    {Number(item.total_weight || 0).toFixed(3)} Kg
+                  <DataTable
+                    data={selectedEntry.items || []}
+                    showSearch={false}
+                    renderRowDetail={(item) => {
+                      if (!item.serials || item.serials.length === 0) return null;
+                      return (
+                        <div className="bg-white border border-slate-100 rounded overflow-hidden">
+                          <DataTable
+                            data={item.serials}
+                            showSearch={false}
+                            columns={[
+                              {
+                                key: "serial_number",
+                                label: "#",
+                                className: "w-12 text-center",
+                                render: (_, __, ___, sIdx) => (
+                                  <span className="text-[10px] text-slate-400">{sIdx + 1}</span>
+                                ),
+                              },
+                              {
+                                key: "serial_number",
+                                label: "Item Code",
+                                render: (val) => (
+                                  <span className="text-[10px] text-slate-700">
+                                    {(val || "").replace("ST-", "")}
                                   </span>
-                                  <span className="text-[8px] text-slate-400">
-                                    Unit: {Number(item.unit_weight || 0).toFixed(3)}
+                                ),
+                              },
+                              {
+                                key: "serial_number",
+                                label: "ST Code",
+                                render: (val) => (
+                                  <span className="text-[10px] text-indigo-600 font-mono">
+                                    {val}
                                   </span>
-                                </div>
-                              </td>
-                              <td className="p-2 text-right">
-                                <span className="text-xs  text-blue-600 rounded   ">
-                                  {item.serials?.length || 0} Pieces
-                                </span>
-                              </td>
-                            </tr>
-                            {isExpanded && item.serials && item.serials.length > 0 && (
-                              <tr className="bg-slate-50/50">
-                                <td colSpan="6" className="px-2 py-4">
-                                  <div className="bg-white border border-slate-100 rounded  overflow-hidden">
-                                    <table className="w-full text-left border-collapse bg-white">
-                                      <thead>
-                                        <tr className="bg-slate-50 border-b border-slate-100">
-                                          <th className="p-2 text-[8px]  text-slate-400   w-12 text-center">#</th>
-                                          <th className="p-2 text-[8px]  text-slate-400  ">Item Code</th>
-                                          <th className="p-2 text-[8px]  text-indigo-400  ">ST Code</th>
-                                          <th className="p-2 text-[8px]  text-slate-400">Dimensions</th>
-                                          <th className="p-2 text-[8px]  text-slate-400">Weight</th>
-                                          <th className="p-2 text-[8px]  text-emerald-400   text-right">QC STATUS</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="divide-y divide-slate-50">
-                                        {item.serials.map((stObj, sIdx) => {
-                                          const stCode = stObj.serial_number;
-                                          const itemCodePerPiece = stCode.replace('ST-', '');
-                                          const pieceWeight = stObj.unit_weight || stObj.total_weight || item.unit_weight || 0;
-                                          return (
-                                            <tr key={sIdx} className="hover:bg-slate-50 transition-colors">
-                                              <td className="p-2 text-xs  text-slate-400 text-center">{sIdx + 1}</td>
-                                              <td className="p-2 text-xs  text-slate-700  ">{itemCodePerPiece}</td>
-                                              <td className="p-2 text-xs  text-indigo-600  ">{stCode}</td>
-                                              <td className="p-2 text-xs text-slate-500 italic">
-                                                {renderDimensions(stObj)}
-                                              </td>
-                                              <td className="p-2 text-xs text-slate-500">
-                                                {Number(pieceWeight).toFixed(3)} Kg
-                                              </td>
-                                              <td className="p-2 text-right">
-                                                <span className="px-2 py-0.5 rounded text-[8px]   er bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                                  {stObj.inspection_status || 'ACCEPTED'}
-                                                </span>
-                                              </td>
-                                            </tr>
-                                          );
-                                        })}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                                ),
+                              },
+                              {
+                                key: "dimensions",
+                                label: "Dimensions",
+                                render: (_, stObj) => <span className="text-[10px] text-slate-500 italic">{renderDimensions(stObj)}</span>
+                              },
+                              {
+                                key: "weight",
+                                label: "Weight",
+                                render: (_, stObj) => (
+                                  <span className="text-[10px] text-slate-500">
+                                    {Number(stObj.unit_weight || stObj.total_weight || item.unit_weight || 0).toFixed(3)} Kg
+                                  </span>
+                                )
+                              },
+                              {
+                                key: "inspection_status",
+                                label: "QC STATUS",
+                                className: "text-right",
+                                render: (status) => (
+                                  <span className="px-2 py-0.5 rounded text-[8px] bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase">
+                                    {status || 'ACCEPTED'}
+                                  </span>
+                                )
+                              }
+                            ]}
+                          />
+                        </div>
+                      );
+                    }}
+                    columns={[
+                      {
+                        key: "item_name",
+                        label: "Item Details",
+                        render: (val, item) => (
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded flex items-center justify-center bg-blue-50 text-blue-600">
+                              <Package size={15} />
+                            </div>
+                            <div>
+                              <p className=" text-slate-900 text-xs font-medium ">{val}</p>
+                              <p className="text-[10px] text-slate-400">{item.item_code}</p>
+                            </div>
+                          </div>
+                        )
+                      },
+                      {
+                        key: "dimensions",
+                        label: "Dimensions",
+                        render: (_, item) => (
+                          <span className="text-[10px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                            {renderDimensions(item)}
+                          </span>
+                        )
+                      },
+                      {
+                        key: "quantity",
+                        label: "Released Qty",
+                        className: "text-center",
+                        render: (val) => <span className="text-emerald-600 font-medium text-xs">{val}</span>
+                      },
+                      {
+                        key: "uom",
+                        label: "Unit",
+                        className: "text-center",
+                        render: (val) => <span className="text-xs text-slate-500">{val}</span>
+                      },
+                      {
+                        key: "total_weight",
+                        label: "Weight (Kg)",
+                        className: "text-center",
+                        render: (val, item) => (
+                          <div className="flex flex-col items-center">
+                            <span className="text-xs text-slate-900">{Number(val || 0).toFixed(3)} Kg</span>
+                            <span className="text-[8px] text-slate-400">Unit: {Number(item.unit_weight || 0).toFixed(3)}</span>
+                          </div>
+                        )
+                      },
+                      {
+                        key: "serials",
+                        label: "ST Numbers",
+                        className: "text-right",
+                        render: (serials) => (
+                          <span className="text-xs text-blue-600 font-medium">{serials?.length || 0} Pieces</span>
+                        )
+                      }
+                    ]}
+                  />
                 </div>
               </div>
             </div>

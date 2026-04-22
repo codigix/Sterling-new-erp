@@ -161,7 +161,7 @@ const NotificationsPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-500">
         <Loader2 className="animate-spin mb-4 text-blue-600" size={40} />
-        <p className="font-medium">Loading notifications...</p>
+        <p className="">Loading notifications...</p>
       </div>
     );
   }
@@ -172,12 +172,12 @@ const NotificationsPage = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-200 dark:shadow-none">
+            <div className="p-2.5 bg-blue-600 text-white rounded  shadow-lg shadow-blue-200 dark:shadow-none">
               <Bell size={28} />
             </div>
             Notification Center
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">
+          <p className="text-slate-500 dark:text-slate-400 ">
             Stay updated with your latest activities and task assignments.
             {unreadCount > 0 && (
               <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-600 rounded  text-xs ">
@@ -248,7 +248,7 @@ const NotificationsPage = () => {
                     <div
                       key={notif.id}
                       onClick={() => handleNotificationClick(notif)}
-                      className={`group relative bg-white dark:bg-slate-900 rounded-2xl border transition-all cursor-pointer overflow-hidden ${
+                      className={`group relative bg-white dark:bg-slate-900 rounded  border transition-all cursor-pointer overflow-hidden ${
                         !notif.is_read
                           ? "border-blue-100 dark:border-blue-900/30 "
                           : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 "
@@ -260,7 +260,7 @@ const NotificationsPage = () => {
 
                       <div className="p-5 flex items-start gap-5">
                         <div
-                          className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${styles.bg}`}
+                          className={`w-12 h-12 rounded  flex items-center justify-center flex-shrink-0 ${styles.bg}`}
                         >
                           {styles.icon}
                         </div>

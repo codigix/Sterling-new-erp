@@ -1105,138 +1105,106 @@ const QuotationsPage = ({ defaultTab }) => {
   }, [activeTab, formatDate, isExpired, getDaysValid, getStatusColor, handleRecordResponse, handleSendEmail, handleViewCommunications, handleInlineStatusUpdate, handleCreatePOFromQuote, handleViewReceivedQuotation, handleViewQuotation, handleDeleteQuotation, handleExportToExcel]);
 
   return (
-    <div className="space-y-2 p-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-md  text-slate-900 dark:text-white  flex items-center gap-2">
-            
-            Vendor Quotations
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-xs">
-            Manage and compare vendor quotes
-          </p>
-        </div>
-        <div className="flex gap-3 flex-wrap">
-          <button
-            onClick={() => {
-              setInitialData({
-                vendor_id: "",
-                root_card_id: "",
-                total_amount: 0,
-                valid_until: "",
-                items: [],
-                notes: "",
-                type: activeTab,
-                reference_id: null,
-              });
-              setShowAddModal(true);
-            }}
-            className={`flex items-center text-xs gap-2 p-2 text-white rounded transition-colors  ${
-              activeTab === "outbound"
-                ? "bg-indigo-600 hover:bg-indigo-700"
-                : "bg-green-600 hover:bg-green-700"
-            }`}
-          >
-            {activeTab === "outbound" ? <Send size={15} /> : <Plus size={15} />}
-            {activeTab === "outbound" ? "Request Quote" : "Record Quote"}
-          </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
-            <Download size={15} />
-            Export Report
-          </button>
-        </div>
-      </div>
-
+    <div className="space-y-4 p-4">
       {isFromDepartmentTasks() && (
-        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded p-4 flex items-start gap-3">
+        <div className="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded p-3 flex items-start gap-3 shadow-sm">
           <div className="flex-1">
-            <p className="text-xs  text-blue-900 dark:text-blue-300">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300">
               📋 Inventory Task Context
             </p>
-            <p className="text-xs text-blue-800 dark:text-blue-400 mt-1">
-              You're working on a task from the Department Tasks workflow. When you complete actions here, the task status will be automatically updated.
+            <p className="text-xs text-indigo-800 dark:text-indigo-400 mt-1">
+              You're working on a task from the Department Tasks workflow. Actions here will automatically update task status.
             </p>
           </div>
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex my-5 border-b border-slate-200 dark:border-slate-700">
-        <button
-          className={`p-2  text-xs transition-colors relative ${
-            activeTab === "outbound"
-              ? "text-blue-600 dark:text-blue-400"
-              : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-          }`}
-          onClick={() => handleTabChange("outbound")}
-        >
-          Sent Requests (RFQ)
-          {activeTab === "outbound" && (
-            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400" />
-          )}
-        </button>
-        <button
-          className={`p-2  text-xs transition-colors relative ${
-            activeTab === "inbound"
-              ? "text-blue-600 dark:text-blue-400"
-              : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-          }`}
-          onClick={() => handleTabChange("inbound")}
-        >
-          Received Quotes
-          {activeTab === "inbound" && (
-            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400" />
-          )}
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="dark:border-slate-700 mb-5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search 
-              size={15}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Search quote, vendor..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-            />
+      {/* Main Table */}
+      <DataTable
+        title={activeTab === "outbound" ? "Sent Requests (RFQ)" : "Received Quotes"}
+        titleIcon={<FileText size={16} />}
+        titleExtra={
+          <div className="flex items-center gap-2">
+            <div className="flex border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
+              <button
+                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  activeTab === "outbound"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-500 hover:bg-slate-50"
+                }`}
+                onClick={() => handleTabChange("outbound")}
+              >
+                Sent (RFQ)
+              </button>
+              <button
+                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  activeTab === "inbound"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-500 hover:bg-slate-50"
+                }`}
+                onClick={() => handleTabChange("inbound")}
+              >
+                Received
+              </button>
+            </div>
+            <button
+              onClick={() => {
+                setInitialData({
+                  vendor_id: "",
+                  root_card_id: "",
+                  total_amount: 0,
+                  valid_until: "",
+                  items: [],
+                  notes: "",
+                  type: activeTab,
+                  reference_id: null,
+                });
+                setShowAddModal(true);
+              }}
+              className={`flex items-center gap-2 px-3 py-1.5 text-white rounded text-xs transition-all shadow-sm ${
+                activeTab === "outbound"
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }`}
+            >
+              {activeTab === "outbound" ? <Send size={14} /> : <Plus size={14} />}
+              {activeTab === "outbound" ? "Request Quote" : "Record Quote"}
+            </button>
+            <button className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-all shadow-sm">
+              <Download size={14} /> Export
+            </button>
           </div>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
-          >
-            <option value="all">All Quotations</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-
-          <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={15} />
-            Advanced Filter
-          </button>
-        </div>
-      </div>
-
-      {/* Quotations Table */}
-      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <DataTable
-          columns={columns}
-          data={quotations}
-          loading={loading}
-          error={error}
-          emptyMessage="No quotations found"
-          rowClassName={(quote) => isExpired(quote.valid_until) ? "bg-red-50 dark:bg-red-900/20" : ""}
-        />
-      </div>
+        }
+        columns={columns}
+        data={quotations}
+        loading={loading}
+        error={error}
+        emptyMessage="No quotations found"
+        rowClassName={(quote) => isExpired(quote.valid_until) ? "bg-red-50 dark:bg-red-900/20" : ""}
+        filters={[
+          {
+            label: "Status",
+            key: "status",
+            options: [
+              { label: "Pending", value: "pending" },
+              { label: "Sent", value: "sent" },
+              { label: "Responded", value: "responded" },
+              { label: "Approved", value: "approved" },
+              { label: "Rejected", value: "rejected" },
+            ],
+          },
+          {
+            label: "Vendor",
+            key: "vendor_name",
+            options: Array.from(new Set(quotations.map(q => q.vendor_name).filter(Boolean))).map(v => ({ label: v, value: v }))
+          },
+          {
+            label: "Project",
+            key: "project_name",
+            options: Array.from(new Set(quotations.map(q => q.project_name).filter(Boolean))).map(p => ({ label: p, value: p }))
+          }
+        ]}
+      />
 
 
       {/* Add Quotation Modal */}
@@ -1270,7 +1238,7 @@ const QuotationsPage = ({ defaultTab }) => {
           onClick={() => setShowEmailModal(false)}
         >
           <div
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg"
+            className="bg-white dark:bg-slate-800 rounded  shadow-2xl w-full max-w-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-800 flex justify-between items-center px-8 py-6 border-b border-slate-200 dark:border-slate-600">
@@ -1477,7 +1445,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
       {showUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl  w-full max-w-md p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded   w-full max-w-md p-6 border border-slate-200 dark:border-slate-700">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl  text-slate-900 dark:text-white">
                 Upload Received Quotation
@@ -1492,7 +1460,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
             <div className="space-y-4">
               {quotationToApprove && (
-                <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-200 dark:border-slate-700 space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="text-slate-500   er">Project Name:</span>
                     <span className="text-slate-900 dark:text-white ">{quotationToApprove.project_name || "N/A"}</span>

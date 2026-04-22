@@ -64,11 +64,11 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded  shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
               <User size={20} />
             </div>
             <div>
@@ -94,7 +94,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
                 <LayoutDashboard size={14} className="text-blue-500" /> Select Project
               </label>
               <select 
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  "
                 value={formData.projectId}
                 onChange={(e) => setFormData({...formData, projectId: e.target.value})}
               >
@@ -109,7 +109,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
                 <Settings2 size={14} className="text-blue-500" /> Select Operation
               </label>
               <select 
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  "
                 value={formData.operationId}
                 onChange={(e) => setFormData({...formData, operationId: e.target.value})}
               >
@@ -124,7 +124,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
                 <User size={14} className="text-blue-500" /> Assign Operator / Employee
               </label>
               <select 
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  "
                 value={formData.employeeId}
                 onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
               >
@@ -140,7 +140,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
               </label>
               <input 
                 type="time"
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none "
                 value={formData.startTime}
                 onChange={(e) => setFormData({...formData, startTime: e.target.value})}
               />
@@ -152,7 +152,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
               </label>
               <input 
                 type="time"
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none "
                 value={formData.endTime}
                 onChange={(e) => setFormData({...formData, endTime: e.target.value})}
               />
@@ -165,7 +165,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
               <input 
                 type="number"
                 placeholder="60"
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none "
                 value={formData.breakTime}
                 onChange={(e) => setFormData({...formData, breakTime: e.target.value})}
               />
@@ -185,7 +185,7 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
               <textarea 
                 rows="3"
                 placeholder="Enter any specific instructions for the operator..."
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.remarks}
                 onChange={(e) => setFormData({...formData, remarks: e.target.value})}
               />
@@ -195,22 +195,22 @@ const OperatorAssignmentModal = ({ isOpen, onClose, date }) => {
           {/* Overlap Warning (UI Placeholder) */}
           <div className="mt-6 flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-100 dark:border-amber-800/50 text-amber-700 dark:text-amber-400">
             <AlertCircle size={15} className="mt-0.5 flex-shrink-0" />
-            <p className="text-xs font-medium">
+            <p className="text-xs ">
               System will automatically check for overlapping assignments for the selected operator on {new Date(date).toLocaleDateString()} before saving.
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex justify-end gap-3">
+        <div className="p-2 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex justify-end gap-3">
           <button 
             onClick={onClose}
-            className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded text-sm  hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors  "
+            className="p-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded text-sm  hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors  "
           >
             Cancel
           </button>
           <button 
-            className="px-8 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2  "
+            className="p-2 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2  "
           >
             <Save size={15} /> Confirm Assignment
           </button>

@@ -97,7 +97,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
         <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
           <AlertCircle size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-red-800 dark:text-red-300">{error}</p>
+            <p className="text-sm  text-red-800 dark:text-red-300">{error}</p>
           </div>
         </div>
       )}
@@ -125,11 +125,11 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded  font-semibold text-sm">
+                    <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded   text-sm">
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-slate-900 dark:text-white">
+                      <p className=" text-slate-900 dark:text-white">
                         {phase.stage_name}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
@@ -203,7 +203,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
       {editable && isAdding && (
         <form onSubmit={handleAddPhase} className="p-4 border-2 border-blue-300 dark:border-blue-700 rounded bg-blue-50 dark:bg-blue-900/20 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
               Phase Name *
             </label>
             <input
@@ -218,7 +218,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                 Type
               </label>
               <select
@@ -232,7 +232,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                 Status
               </label>
               <select
@@ -247,7 +247,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                 Planned Start
               </label>
               <input
@@ -259,7 +259,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                 Planned End
               </label>
               <input
@@ -272,7 +272,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
               Notes
             </label>
             <textarea

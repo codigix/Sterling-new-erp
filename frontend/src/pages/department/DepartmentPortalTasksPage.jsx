@@ -123,7 +123,7 @@ const DepartmentPortalTasksPage = () => {
           Low: "bg-green-100 text-green-700 border-green-200",
         };
         return (
-          <span className={`px-2.5 py-1 rounded-full text-[10px]    border ${priorityColors[value] || "bg-slate-100 text-slate-700 border-slate-200"}`}>
+          <span className={`px-2.5 py-1 rounded-full text-xs    border ${priorityColors[value] || "bg-slate-100 text-slate-700 border-slate-200"}`}>
             {value}
           </span>
         );
@@ -142,7 +142,7 @@ const DepartmentPortalTasksPage = () => {
         const Icon = config.icon;
 
         return (
-          <div className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs  ${config.color}`}>
+          <div className={`inline-flex items-center px-2.5 py-1 rounded text-xs  ${config.color}`}>
             <Icon size={14} className="mr-1.5" />
             {status}
           </div>
@@ -178,29 +178,29 @@ const DepartmentPortalTasksPage = () => {
             <h1 className="text-xl  text-slate-900">
               Departmental Tasks
             </h1>
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-500 text-xs">
               Tasks assigned by Admin to the <span className=" text-blue-600 ">{user?.department}</span> department
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right hidden md:block">
-            <p className="text-xs text-slate-400 font-medium  ">Last Sync</p>
+            <p className="text-xs text-slate-400   ">Last Sync</p>
             <p className="text-sm  text-slate-700">Just now</p>
           </div>
           <Button variant="ghost" size="sm" onClick={fetchTasks} className="rounded-full h-10 w-10 p-0 hover:bg-slate-100">
-            <Clock size={20} className="text-slate-600" />
+            <Clock size={15} className="text-slate-600" />
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 my-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 my-3 gap-2">
         <Card className="bg-white border-none  ring-1 ring-slate-200">
-          <CardContent className="p-2">
+          <CardContent className="">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm  text-slate-500  ">Pending</p>
-              <div className="p-2 bg-amber-50 rounded-lg">
-                <Clock className="text-amber-600" size={18} />
+              <div className=" bg-amber-50 rounded">
+                <Clock className="text-amber-600" size={15} />
               </div>
             </div>
             <h3 className="text-xl  text-slate-900">
@@ -209,11 +209,11 @@ const DepartmentPortalTasksPage = () => {
           </CardContent>
         </Card>
         <Card className="bg-white border-none  ring-1 ring-slate-200">
-          <CardContent className="p-2">
+          <CardContent className="">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm  text-slate-500  ">Completed</p>
-              <div className="p-2 bg-green-50 rounded-lg">
-                <CheckCircle2 className="text-green-600" size={18} />
+              <div className=" bg-green-50 rounded">
+                <CheckCircle2 className="text-green-600" size={15} />
               </div>
             </div>
             <h3 className="text-xl  text-slate-900">
@@ -223,10 +223,10 @@ const DepartmentPortalTasksPage = () => {
         </Card>
       </div>
 
-      <Card className="bg-white border-none  ring-1 ring-slate-200 overflow-hidden">
-        <CardHeader className="bg-slate-50 border-b border-slate-200 px-6 py-4">
-          <CardTitle className="text-lg  text-slate-800">Your Department's Task List</CardTitle>
-        </CardHeader>
+      
+        <div className="bg-slate-50">
+          <div className="text-lg">Your Department's Task List</div>
+        </div>
         <CardContent className="p-0">
           <DataTable
             columns={columns}
@@ -243,7 +243,7 @@ const DepartmentPortalTasksPage = () => {
             </div>
           )}
         </CardContent>
-      </Card>
+      
 
       {/* Task Details Modal */}
       <Modal 
@@ -254,12 +254,12 @@ const DepartmentPortalTasksPage = () => {
       >
         {selectedTask && (
           <div className="flex flex-col h-full">
-            <ModalBody className="p-6 space-y-6">
+            <ModalBody className="">
               {/* Header Info */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-2 border-b border-slate-100">
                 <div>
                   <h2 className="text-xl  text-slate-900 mb-1">{selectedTask.title}</h2>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs text-slate-500">
                     Assigned to <span className=" text-blue-600">{user?.department}</span> Department
                   </p>
                 </div>
@@ -281,30 +281,30 @@ const DepartmentPortalTasksPage = () => {
               </div>
 
               {/* Description */}
-              <div className="space-y-2">
-                <h3 className="text-sm  text-slate-400  tracking-widest flex items-center gap-2">
+              <div className="my-4">
+                <h3 className="text-sm  text-slate-400   flex items-center gap-2">
                   <Info size={14} className="text-blue-500" /> Description
                 </h3>
-                <div className="bg-slate-50 rounded-xl p-4 text-slate-700 leading-relaxed border border-slate-100 text-sm">
+                <div className="bg-slate-50 rounded p-2 text-slate-700 leading-relaxed border border-slate-100 text-sm">
                   {selectedTask.description || "No additional details provided for this task."}
                 </div>
               </div>
 
               {/* Grid Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
-                <div className="space-y-4">
-                  <h3 className="text-sm  text-slate-400  tracking-widest flex items-center gap-2">
+                <div className="space-y-2">
+                  <h3 className="text-sm  text-slate-400   flex items-center gap-2">
                     <Calendar size={14} className="text-blue-500" /> Timeline
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      <p className="text-[10px] text-slate-400   mb-1">Assigned On</p>
+                    <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                      <p className="text-xs text-slate-400   mb-1">Assigned On</p>
                       <p className="text-sm  text-slate-700">
                         {new Date(selectedTask.assignment_date).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                       </p>
                     </div>
-                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      <p className="text-[10px] text-slate-400   mb-1">Due Date</p>
+                    <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                      <p className="text-xs text-slate-400   mb-1">Due Date</p>
                       <p className="text-sm  text-slate-700">
                         {new Date(selectedTask.due_date).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                       </p>
@@ -312,14 +312,14 @@ const DepartmentPortalTasksPage = () => {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-sm  text-slate-400  tracking-widest flex items-center gap-2">
+                <div className="space-y-2">
+                  <h3 className="text-sm  text-slate-400   flex items-center gap-2">
                     <Tag size={14} className="text-blue-500" /> Assignment
                   </h3>
-                  <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <p className="text-[10px] text-slate-400   mb-1">Assigned By</p>
+                  <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                    <p className="text-xs text-slate-400   mb-1">Assigned By</p>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px]  text-blue-600">
+                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs  text-blue-600">
                         {selectedTask.assignedByName?.charAt(0) || 'A'}
                       </div>
                       <p className="text-sm  text-slate-700">{selectedTask.assignedByName || 'Administrator'}</p>
@@ -341,8 +341,8 @@ const DepartmentPortalTasksPage = () => {
                 )}
 
                 {selectedTask.status === 'Completed' && (
-                  <div className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-green-50 text-green-700 rounded border border-green-100 ">
-                    <CheckCircle2 size={20} /> Task Successfully Completed
+                  <div className="w-full flex items-center justify-center gap-2 p-2 bg-green-50 text-green-700 rounded border border-green-100 ">
+                    <CheckCircle2 size={15} /> Task Successfully Completed
                   </div>
                 )}
 

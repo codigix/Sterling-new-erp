@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
+const { logAudit } = require('../utils/auditLogger');
 
 const getDashboardStats = async (req, res) => {
   try {
@@ -186,6 +187,8 @@ const createEmployee = async (req, res) => {
       [fullName, firstName, lastName, email, hashedPassword, designation, department, departmentId, role, roleId, loginId, JSON.stringify(actions || [])]
     );
 
+    await logAudit(req.user?.fullName || 'Admin', 'Create Employee', 'account', `New employee created: ${fullName} (${designation})`, req.ip, 'success');
+
     res.status(201).json({ 
       message: 'Employee created successfully', 
       id: result.insertId 
@@ -221,6 +224,7 @@ const updateEmployee = async (req, res) => {
     params.push(id);
 
     await db.query(query, params);
+    await logAudit(req.user?.fullName || 'Admin', 'Update Employee', 'account', `Employee details updated for: ${fullName}`, req.ip, 'success');
     res.json({ message: 'Employee updated successfully' });
   } catch (error) {
     console.error('Error updating employee:', error);
@@ -231,7 +235,12 @@ const updateEmployee = async (req, res) => {
 const deleteEmployee = async (req, res) => {
   const { id } = req.params;
   try {
+    // Get user details before deleting for logging
+    const [users] = await db.query('SELECT full_name FROM users WHERE id = ?', [id]);
+    const userName = users.length > 0 ? users[0].full_name : 'Unknown User';
+
     await db.query('DELETE FROM users WHERE id = ?', [id]);
+    await logAudit(req.user?.fullName || 'Admin', 'Delete Employee', 'account', `Employee deleted: ${userName}`, req.ip, 'success');
     res.json({ message: 'Employee deleted successfully' });
   } catch (error) {
     console.error('Error deleting employee:', error);

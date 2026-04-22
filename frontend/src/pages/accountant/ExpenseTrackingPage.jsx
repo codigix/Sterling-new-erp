@@ -8,12 +8,15 @@ import {
   CheckCircle,
   Clock,
   X,
+  FileText,
+  User,
+  IndianRupee,
+  RefreshCw
 } from "lucide-react";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const ExpenseTrackingPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [loading, setLoading] = useState(false);
 
   const expenses = [
     {
@@ -84,296 +87,149 @@ const ExpenseTrackingPage = () => {
     },
   ];
 
-  const filteredExpenses = expenses.filter(
-    (expense) =>
-      (expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        expense.employee.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter === "all" || expense.status === statusFilter) &&
-      (categoryFilter === "all" || expense.category === categoryFilter)
-  );
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "approved":
-        return <CheckCircle size={15} className="text-green-600" />;
-      case "pending":
-        return <Clock size={15} className="text-yellow-600" />;
-      case "rejected":
-        return <X size={15} className="text-red-600" />;
-      default:
-        return null;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-      case "approved":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-      case "rejected":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
-    }
-  };
-
   const stats = [
-    { label: "Total Expenses", value: expenses.length, color: "text-blue-600" },
+    { label: "Total Expenses", value: expenses.length, color: "text-blue-600", bgColor: "bg-blue-50" },
     {
       label: "Approved",
       value: expenses.filter((e) => e.status === "approved").length,
-      color: "text-green-600",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50"
     },
     {
       label: "Pending",
       value: expenses.filter((e) => e.status === "pending").length,
-      color: "text-yellow-600",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50"
     },
     {
       label: "Total Amount",
-      value:
-        "₹" +
-        expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString("en-IN"),
+      value: "₹" + expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString("en-IN"),
       color: "text-purple-600",
+      bgColor: "bg-purple-50"
     },
   ];
 
-  const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const approvedAmount = expenses
-    .filter((e) => e.status === "approved")
-    .reduce((sum, e) => sum + e.amount, 0);
-  const pendingAmount = expenses
-    .filter((e) => e.status === "pending")
-    .reduce((sum, e) => sum + e.amount, 0);
-
-  const expensesByCategory = {};
-  expenses.forEach((expense) => {
-    expensesByCategory[expense.category] =
-      (expensesByCategory[expense.category] || 0) + expense.amount;
-  });
+  const columns = [
+    {
+      header: "Date",
+      accessor: "date",
+      render: (val) => <span className="text-xs text-slate-500 ">{val}</span>
+    },
+    {
+      header: "Employee / Category",
+      accessor: "employee",
+      render: (val, row) => (
+        <div className="flex flex-col">
+          <span className="text-xs  text-slate-900 flex items-center gap-1.5">
+            <User size={12} className="text-slate-400" />
+            {val}
+          </span>
+          <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded w-fit mt-1">{row.category}</span>
+        </div>
+      )
+    },
+    {
+      header: "Description",
+      accessor: "description",
+      render: (val) => <span className="text-xs text-slate-600 line-clamp-1" title={val}>{val}</span>
+    },
+    {
+      header: "Amount",
+      accessor: "amount",
+      className: "text-right",
+      render: (val) => (
+        <span className="text-xs  text-slate-900 flex items-center justify-end gap-1">
+          <IndianRupee size={12} />
+          {val.toLocaleString("en-IN")}
+        </span>
+      )
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      className: "text-right",
+      render: (status) => (
+        <span className={`px-2 py-0.5 rounded text-[10px]  border ${
+          status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+          status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+          'bg-red-50 text-red-600 border-red-100'
+        }`}>
+          {status.toUpperCase()}
+        </span>
+      )
+    }
+  ];
 
   return (
-    <div className="space-y-2">
+    <div className="p-4 space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
+            <FileText className="text-blue-600" size={20} />
             Expense Tracking
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-slate-500 text-xs mt-0.5">
             Manage and approve employee expenses
           </p>
         </div>
-        <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+        <div className="flex gap-2">
+          <button className="flex items-center text-xs gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors  shadow-sm">
             <Plus size={15} />
             New Expense
           </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded transition-colors ">
             <Download size={15} />
             Export
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4"
+            className="bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 p-3 shadow-sm"
           >
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-[10px]  text-slate-400 uppercase tracking-wider mb-1">
               {stat.label}
             </p>
-            <p className={`text-2xl  mt-2 ${stat.color}`}>
+            <p className={`text-lg  ${stat.color}`}>
               {stat.value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="flex gap-4 flex-wrap mb-6">
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Search Expenses
-              </label>
-              <div className="relative">
-                <Search
-                  size={15}
-                  className="absolute left-3 top-3 text-slate-400"
-                />
-                <input
-                  type="text"
-                  placeholder="Search description or employee..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Category
-              </label>
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
-              >
-                <option value="all">All Categories</option>
-                <option value="Travel">Travel</option>
-                <option value="Meals">Meals</option>
-                <option value="Office Supplies">Office Supplies</option>
-                <option value="Client Meeting">Client Meeting</option>
-                <option value="Conferences">Conferences</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 dark:bg-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Employee
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-900 dark:text-white">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filteredExpenses.map((expense) => (
-                  <tr
-                    key={expense.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <td className="p-1 text-slate-700 dark:text-slate-300">
-                      {expense.date}
-                    </td>
-                    <td className="p-1 text-slate-900 dark:text-white font-medium">
-                      {expense.description}
-                    </td>
-                    <td className="p-1 text-slate-700 dark:text-slate-300">
-                      {expense.employee}
-                    </td>
-                    <td className="p-1">
-                      <span className=" bg-slate-100 dark:bg-slate-700 rounded text-xs font-medium text-slate-700 dark:text-slate-300">
-                        {expense.category}
-                      </span>
-                    </td>
-                    <td className="p-1 text-right font-medium text-slate-900 dark:text-white text-xs">
-                      ₹{expense.amount.toLocaleString("en-IN")}
-                    </td>
-                    <td className="p-1">
-                      <div className="flex items-center text-xs gap-2">
-                        {getStatusIcon(expense.status)}
-                        <span
-                          className={`px-3 py-1 rounded  text-xs font-medium ${getStatusColor(
-                            expense.status
-                          )}`}
-                        >
-                          {expense.status.charAt(0).toUpperCase() +
-                            expense.status.slice(1)}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
-              Expense Summary
-            </h3>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Total Amount
-                </p>
-                <p className="text-xl  text-slate-900 dark:text-white text-xs">
-                  ₹{totalAmount.toLocaleString("en-IN")}
-                </p>
-              </div>
-              <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Approved
-                </p>
-                <p className="text-xl  text-green-600">
-                  ₹{approvedAmount.toLocaleString("en-IN")}
-                </p>
-              </div>
-              <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Pending
-                </p>
-                <p className="text-xl  text-yellow-600">
-                  ₹{pendingAmount.toLocaleString("en-IN")}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
-              By Category
-            </h3>
-            <div className="space-y-3">
-              {Object.entries(expensesByCategory).map(([category, amount]) => (
-                <div key={category}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {category}
-                    </span>
-                    <span className="text-sm  text-slate-900 dark:text-white text-xs">
-                      ₹{amount.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">
-                    <div
-                      className="bg-purple-600 h-2 rounded "
-                      style={{ width: `${(amount / totalAmount) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <DataTable 
+        columns={columns}
+        data={expenses}
+        loading={loading}
+        searchPlaceholder="Search employee, description..."
+        filters={[
+          {
+            label: "Status",
+            column: "status",
+            options: [
+              { label: "ALL", value: "" },
+              { label: "APPROVED", value: "approved" },
+              { label: "PENDING", value: "pending" },
+              { label: "REJECTED", value: "rejected" }
+            ]
+          },
+          {
+            label: "Category",
+            column: "category",
+            options: [
+              { label: "ALL CATEGORIES", value: "" },
+              { label: "TRAVEL", value: "Travel" },
+              { label: "MEALS", value: "Meals" },
+              { label: "OFFICE SUPPLIES", value: "Office Supplies" },
+              { label: "CLIENT MEETING", value: "Client Meeting" },
+              { label: "CONFERENCES", value: "Conferences" }
+            ]
+          }
+        ]}
+      />
     </div>
   );
 };

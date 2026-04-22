@@ -249,17 +249,17 @@ const ProjectCard = ({
             <div className="flex-1">
               {(project.project_name || project.steps?.step2_design?.specifications?.designName) && (
                 <div>
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400  tracking-wide">
                     Project Name
                   </p>
                   <div className="flex gap-2">
-                    <p className="font-semibold text-lg text-slate-900 dark:text-white">
+                    <p className=" text-lg text-slate-900 dark:text-white">
                       {projectName}
                     </p>
                     {project.priority && (
                       <div>
                         <span
-                          className={`inline-block mt-1 text-xs font-medium rounded  capitalize ${
+                          className={`inline-block mt-1 text-xs  rounded  capitalize ${
                             project.priority === "critical"
                               ? "text-red-800 dark:bg-red-900 dark:text-red-200"
                               : project.priority === "high"
@@ -278,7 +278,7 @@ const ProjectCard = ({
               )}
               {project.project_code && (
                 <div className="text-xs font-mono text-blue-600 dark:text-blue-400">
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-wide">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400 tracking-wide">
                     {project.project_code}
                   </p>
                 </div>
@@ -309,7 +309,7 @@ const ProjectCard = ({
             <div className="flex items-center gap-2 text-sm mb-3">
               <User size={14} className="text-slate-500" />
               <span className="text-slate-700 dark:text-slate-300 text-xs">
-                <span className="font-medium">Client:</span>{" "}
+                <span className="">Client:</span>{" "}
                 {project.customer ||
                   project.customer_name ||
                   project.client_name}
@@ -326,7 +326,7 @@ const ProjectCard = ({
                 <Calendar size={15} />
                 <span>
                   Start:{" "}
-                  <span className="font-medium text-slate-900 dark:text-white text-xs">
+                  <span className=" text-slate-900 dark:text-white text-xs">
                     {formatDate(
                       project.order_date ||
                         project.planned_start ||
@@ -341,7 +341,7 @@ const ProjectCard = ({
                 <Calendar size={15} />
                 <span>
                   End:{" "}
-                  <span className="font-medium text-slate-900 dark:text-white text-xs">
+                  <span className=" text-slate-900 dark:text-white text-xs">
                     {formatDate(
                       project.due_date ||
                         project.planned_end ||
@@ -362,7 +362,7 @@ const ProjectCard = ({
                   Status
                 </p>
                 <span
-                  className={`inline-block mt-1 px-3 py-1 text-xs font-semibold rounded  capitalize ${
+                  className={`inline-block mt-1 px-3 py-1 text-xs  rounded  capitalize ${
                     project.status === "active" ||
                     project.status === "in_progress"
                       ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
@@ -414,12 +414,12 @@ const ProjectCard = ({
         </div>
       </div>
       {/* Progress Bar */}
-      <div className="px-4 py-3 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+      <div className="p-2 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs  text-slate-700 dark:text-slate-200">
             Progress
           </span>
-          <span className="text-xs font-medium text-slate-900 dark:text-white text-xs">
+          <span className="text-xs  text-slate-900 dark:text-white text-xs">
             {progress}% ({tasks.filter((t) => t.status === "completed").length}/
             {tasks.length})
           </span>
@@ -437,7 +437,7 @@ const ProjectCard = ({
       {/* Expandable Workflow Tasks Section */}
       {isExpanded && (
         <div className="border-t border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-700/30">
-          <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <h3 className=" text-slate-900 dark:text-white mb-4 flex items-center gap-2">
             <span>Workflow Tasks</span>
             <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
               ({workflowTasks.length})
@@ -458,7 +458,7 @@ const ProjectCard = ({
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-slate-900 dark:text-white text-xs hover:text-blue-600 dark:hover:text-blue-400">
+                      <h4 className=" text-slate-900 dark:text-white text-xs hover:text-blue-600 dark:hover:text-blue-400">
                         {task.task_title || task.title}
                       </h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
@@ -476,7 +476,7 @@ const ProjectCard = ({
                         updatingTaskId === task.id ||
                         task.status === "completed"
                       }
-                      className={` text-xs font-semibold rounded  border-0 cursor-pointer whitespace-nowrap flex-shrink-0 ${getStatusColor(
+                      className={` text-xs  rounded  border-0 cursor-pointer whitespace-nowrap flex-shrink-0 ${getStatusColor(
                         task.status
                       )} ${
                         task.status === "completed"
@@ -514,7 +514,7 @@ const ProjectCard = ({
                   <div className="flex flex-wrap items-center gap-2 mb-3">
 
                     {project?.code && (
-                      <span className="inline-block  text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">
+                      <span className="inline-block  text-xs  bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">
                         {project.code}
                       </span>
                     )}
@@ -524,7 +524,7 @@ const ProjectCard = ({
                           const notes = JSON.parse(task.notes);
                           if (notes.workflow_step) {
                             return (
-                              <span className="inline-block  text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded">
+                              <span className="inline-block  text-xs  bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded">
                                 Step {notes.step_order}: {notes.workflow_step}
                               </span>
                             );

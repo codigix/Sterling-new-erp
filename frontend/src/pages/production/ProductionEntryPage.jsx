@@ -12,6 +12,7 @@ import axios from '../../utils/api';
 import { showSuccess, showError } from '../../utils/toastUtils';
 import Swal from 'sweetalert2';
 import { format, differenceInMinutes, parse } from 'date-fns';
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const ProductionEntryPage = () => {
   const { id } = useParams(); // Operation ID
@@ -248,7 +249,7 @@ const ProductionEntryPage = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="animate-spin text-indigo-600 mx-auto mb-4" size={40} />
-          <p className="text-slate-500 font-medium   er">Loading production entry...</p>
+          <p className="text-slate-500    er">Loading production entry...</p>
         </div>
       </div>
     );
@@ -266,9 +267,9 @@ const ProductionEntryPage = () => {
   };
 
   const renderPagination = () => (
-    <div className="px-4 py-3 bg-white border-t border-slate-100 flex items-center justify-between">
+    <div className="p-2 bg-white border-t border-slate-100 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-slate-500 font-medium">Rows per page:</span>
+        <span className="text-xs text-slate-500 ">Rows per page:</span>
         <select className="bg-transparent text-xs  text-slate-700 outline-none">
           <option>10</option>
           <option>25</option>
@@ -326,7 +327,7 @@ const ProductionEntryPage = () => {
 
       <div className="max-w-[1600px] mx-auto px-6 py-6 space-y-2">
         {/* Main Stats Header */}
-        <div className="bg-white rounded-2xl border border-slate-200  p-6">
+        <div className="bg-white rounded  border border-slate-200  p-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-center gap-4 flex-1">
               <div className="w-12 h-12 bg-slate-50 rounded flex items-center justify-center text-slate-400 border border-slate-100">
@@ -342,23 +343,23 @@ const ProductionEntryPage = () => {
             <div className="grid grid-cols-3 md:grid-cols-6 gap-8 border-l border-slate-100 pl-8">
               <div>
                 <p className="text-xs  text-slate-400   mb-1">Planned</p>
-                <p className="text-sm  text-slate-900">{stats.planned} <span className="text-xs text-slate-400 font-medium">Units</span></p>
+                <p className="text-sm  text-slate-900">{stats.planned} <span className="text-xs text-slate-400 ">Units</span></p>
               </div>
               <div>
                 <p className="text-xs  text-slate-400   mb-1">Produced</p>
-                <p className="text-sm  text-slate-900">{stats.produced} <span className="text-xs text-slate-400 font-medium">Units</span></p>
+                <p className="text-sm  text-slate-900">{stats.produced} <span className="text-xs text-slate-400 ">Units</span></p>
               </div>
               <div>
                 <p className="text-xs  text-slate-400   mb-1 text-emerald-500">Accepted</p>
-                <p className="text-sm  text-emerald-600">{stats.accepted} <span className="text-xs text-emerald-400 font-medium">Units</span></p>
+                <p className="text-sm  text-emerald-600">{stats.accepted} <span className="text-xs text-emerald-400 ">Units</span></p>
               </div>
               <div>
                 <p className="text-xs  text-slate-400   mb-1 text-indigo-500">Transferred</p>
-                <p className="text-sm  text-indigo-600">{stats.transferred} <span className="text-xs text-indigo-400 font-medium">Units</span></p>
+                <p className="text-sm  text-indigo-600">{stats.transferred} <span className="text-xs text-indigo-400 ">Units</span></p>
               </div>
               <div>
                 <p className="text-xs  text-slate-400   mb-1 text-amber-500">BALANCE WIP</p>
-                <p className="text-sm  text-amber-600">{stats.balanceWip} <span className="text-xs text-amber-400 font-medium">Units</span></p>
+                <p className="text-sm  text-amber-600">{stats.balanceWip} <span className="text-xs text-amber-400 ">Units</span></p>
               </div>
               <div>
                 <p className="text-xs  text-slate-400   mb-1">Current Op</p>
@@ -373,7 +374,7 @@ const ProductionEntryPage = () => {
 
         {/* Performance Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl border border-slate-200  p-6 flex items-center gap-5">
+          <div className="bg-white rounded  border border-slate-200  p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-pink-50 text-pink-500 rounded flex items-center justify-center border border-pink-100">
               <TrendingUp size={15} />
             </div>
@@ -382,7 +383,7 @@ const ProductionEntryPage = () => {
               <h3 className="text-xl  text-slate-900">{stats.efficiency}% <span className="text-xs text-slate-400  ml-1 ">0 / 0 MIN</span></h3>
             </div>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-200  p-6 flex items-center gap-5">
+          <div className="bg-white rounded  border border-slate-200  p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded flex items-center justify-center border border-amber-100">
               <ShieldCheck size={15} />
             </div>
@@ -391,7 +392,7 @@ const ProductionEntryPage = () => {
               <h3 className="text-xl  text-slate-900">{stats.qualityYield}% <span className="text-xs text-slate-400  ml-1 ">ACCEPTANCE RATE</span></h3>
             </div>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-200  p-6 flex items-center gap-5">
+          <div className="bg-white rounded  border border-slate-200  p-6 flex items-center gap-5">
             <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded flex items-center justify-center border border-blue-100">
               <Zap size={15} />
             </div>
@@ -403,7 +404,7 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Add Time Log */}
-        <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden mb-8">
+        <div className="bg-white rounded  border border-slate-200  overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
             <div className="p-1.5 bg-blue-100 text-blue-600 rounded">
               <Plus size={15} />
@@ -566,7 +567,7 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Quality & Rejection Entry */}
-        <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden mb-8">
+        <div className="bg-white rounded  border border-slate-200  overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
             <div className="p-1.5 bg-blue-100 text-blue-600 rounded">
               <ShieldCheck size={15} />
@@ -690,7 +691,7 @@ const ProductionEntryPage = () => {
               <div className="p-1.5 bg-white rounded text-amber-500 h-fit ">
                 <Info size={15} />
               </div>
-              <p className="text-xs font-medium text-amber-700 leading-normal">
+              <p className="text-xs  text-amber-700 leading-normal">
                 <span className="   mr-1">Quality Gate Active</span>
                 Only <span className="">Approved</span> quality inspection records contribute to the <span className="">Accepted Quantity</span> of this job card. Pending records will block the progression to subsequent operations.
               </p>
@@ -704,7 +705,7 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Operational Downtime */}
-        <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden mb-8">
+        <div className="bg-white rounded  border border-slate-200  overflow-hidden mb-8">
           <div className="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center gap-3">
             <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded">
               <AlertCircle size={15} />
@@ -838,7 +839,7 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Next Stage Configuration */}
-        <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden mb-8">
+        <div className="bg-white rounded  border border-slate-200  overflow-hidden mb-8">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
             <div className="flex items-center gap-4">
               <h2 className="text-sm  text-slate-900  ">Next Stage Configuration</h2>
@@ -950,7 +951,7 @@ const ProductionEntryPage = () => {
         </div>
 
         {/* Daily Production Report */}
-        <div className="bg-[#FBFCFE] rounded-2xl border border-slate-200  overflow-hidden">
+        <div className="bg-[#FBFCFE] rounded  border border-slate-200  overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-1.5 bg-blue-50 text-blue-600 rounded">

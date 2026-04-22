@@ -57,12 +57,12 @@ const ProjectProductionDetailTab = () => {
             <input 
               type="text" 
               placeholder="Search by project name or reference..." 
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm  outline-none focus:ring-2 focus:ring-blue-500 "
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm  outline-none focus:ring-2 focus:ring-blue-500 "
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-colors">
+          <button className="p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-colors">
             <Filter size={20} />
           </button>
         </div>
@@ -74,7 +74,7 @@ const ProjectProductionDetailTab = () => {
             <div className="p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/50">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-600 text-white rounded-lg shadow-lg shadow-blue-600/20">
+                  <div className="p-2 bg-blue-600 text-white rounded shadow-lg shadow-blue-600/20">
                     <Briefcase size={15} />
                   </div>
                   <div>
@@ -118,10 +118,10 @@ const ProjectProductionDetailTab = () => {
               </div>
               
               <div className="grid grid-cols-2 gap-3">
-                <button className="flex items-center justify-center gap-2 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-xs    hover:bg-slate-800 transition-all">
+                <button className="flex items-center justify-center gap-2 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs    hover:bg-slate-800 transition-all">
                   <History size={14} /> Full History
                 </button>
-                <button className="flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-lg text-xs    hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
+                <button className="flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded text-xs    hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
                   View Timeline <Zap size={14} />
                 </button>
               </div>

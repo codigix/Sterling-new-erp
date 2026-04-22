@@ -223,7 +223,7 @@ const PurchaseOrderEditMR = () => {
     
     if (parts.length === 0) return null;
     return (
-      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-1">
+      <div className="text-[10px] text-blue-600 dark:text-blue-400  mt-1">
         Dim: {parts.join(" \u00d7 ")} mm
       </div>
     );
@@ -273,7 +273,7 @@ const PurchaseOrderEditMR = () => {
                   setActiveSection(section.id);
                   document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all ${
+                className={`w-full flex items-center gap-3 p-2 rounded transition-all ${
                   activeSection === section.id 
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20" 
                   : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -307,7 +307,7 @@ const PurchaseOrderEditMR = () => {
         <div className="max-w-4xl mx-auto">
           <header className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-blue-500/20">
+              <div className="p-3 bg-blue-600 rounded  shadow-lg shadow-blue-500/20">
                 <Settings className="text-white" size={15} />
               </div>
               <div>
@@ -341,14 +341,14 @@ const PurchaseOrderEditMR = () => {
 
           <form className="space-y-8" onSubmit={handleSubmit}>
             {/* FOUNDATION Section */}
-            <section id="foundation" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
+            <section id="foundation" className="bg-white dark:bg-slate-900 rounded  border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400">
                     <Settings size={15} />
                   </div>
                   <div>
-                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Foundation <span className="text-slate-400 ml-2 font-medium">SETTINGS</span></h3>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Foundation <span className="text-slate-400 ml-2 ">SETTINGS</span></h3>
                     <p className="text-xs text-slate-500  ">Core order parameters and identification</p>
                   </div>
                 </div>
@@ -387,14 +387,14 @@ const PurchaseOrderEditMR = () => {
             </section>
 
             {/* VENDOR Section */}
-            <section id="vendor" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
+            <section id="vendor" className="bg-white dark:bg-slate-900 rounded  border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded">
                     <User size={15} />
                   </div>
                   <div>
-                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Vendor <span className="text-slate-400 ml-2 font-medium">PARTNER</span></h3>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Vendor <span className="text-slate-400 ml-2 ">PARTNER</span></h3>
                     <p className="text-xs text-slate-500  ">Supplier selection and profile information</p>
                   </div>
                 </div>
@@ -404,7 +404,7 @@ const PurchaseOrderEditMR = () => {
                   Select Supplier <span className="text-red-500">*</span>
                 </label>
                 <select 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer"
                   value={formData.vendor_id}
                   onChange={(e) => setFormData({...formData, vendor_id: e.target.value})}
                   required
@@ -418,14 +418,14 @@ const PurchaseOrderEditMR = () => {
             </section>
 
             {/* ORDER ITEMS Section */}
-            <section id="items" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
+            <section id="items" className="bg-white dark:bg-slate-900 rounded  border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded">
                     <Package size={15} />
                   </div>
                   <div>
-                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Order <span className="text-slate-400 ml-2 font-medium">ITEMS</span></h3>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Order <span className="text-slate-400 ml-2 ">ITEMS</span></h3>
                     <p className="text-xs text-slate-500  ">Line items and technical specifications</p>
                   </div>
                 </div>
@@ -520,14 +520,14 @@ const PurchaseOrderEditMR = () => {
             </section>
 
             {/* LOGISTICS Section */}
-            <section id="logistics" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
+            <section id="logistics" className="bg-white dark:bg-slate-900 rounded  border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-orange-50/30 dark:bg-orange-800/10">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded">
                     <Truck size={15} />
                   </div>
                   <div>
-                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Shipping <span className="text-slate-400 ml-2 font-medium">LOGISTICS</span></h3>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Shipping <span className="text-slate-400 ml-2 ">LOGISTICS</span></h3>
                     <p className="text-xs text-slate-500  ">Delivery coordinates and trade conditions</p>
                   </div>
                 </div>
@@ -544,7 +544,7 @@ const PurchaseOrderEditMR = () => {
                       <textarea 
                         value={formData.shipping_address}
                         onChange={(e) => setFormData({...formData, shipping_address: e.target.value})}
-                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
+                        className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
                         rows={3}
                         placeholder="Unit / Street / Landmark"
                       />
@@ -562,7 +562,7 @@ const PurchaseOrderEditMR = () => {
                         <select 
                           value={formData.incoterm}
                           onChange={(e) => setFormData({...formData, incoterm: e.target.value})}
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all cursor-pointer"
+                          className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all cursor-pointer"
                         >
                           <option value="EXW - Ex Works">EXW - Ex Works</option>
                           <option value="FOB - Free On Board">FOB - Free On Board</option>
@@ -576,7 +576,7 @@ const PurchaseOrderEditMR = () => {
                           value={formData.shipping_rule}
                           onChange={(e) => setFormData({...formData, shipping_rule: e.target.value})}
                           placeholder="e.g. Courier, Freight Forwarder"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                          className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -586,14 +586,14 @@ const PurchaseOrderEditMR = () => {
             </section>
 
             {/* FINANCE & TERMS Section */}
-            <section id="finance" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden ">
+            <section id="finance" className="bg-white dark:bg-slate-900 rounded  border border-slate-100 dark:border-slate-800 overflow-hidden ">
               <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-red-50/30 dark:bg-red-800/10">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 rounded">
                     <CreditCard size={15} />
                   </div>
                   <div>
-                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Revenue <span className="text-slate-400 ml-2 font-medium">FINANCE</span></h3>
+                    <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Revenue <span className="text-slate-400 ml-2 ">FINANCE</span></h3>
                     <p className="text-xs text-slate-500  ">Taxation, payment terms and commercial summary</p>
                   </div>
                 </div>
@@ -615,7 +615,7 @@ const PurchaseOrderEditMR = () => {
                             value={formData.payment_terms}
                             onChange={(e) => setFormData({...formData, payment_terms: e.target.value})}
                             placeholder="e.g. 100% Advance"
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </div>
                         <div>
@@ -624,7 +624,7 @@ const PurchaseOrderEditMR = () => {
                             type="date"
                             value={formData.payment_due_date}
                             onChange={(e) => setFormData({...formData, payment_due_date: e.target.value})}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -647,7 +647,7 @@ const PurchaseOrderEditMR = () => {
                               setFormData(prev => ({...prev, tax_rate: val}));
                               calculateTotals(formData.items, val, formData.advance_paid);
                             }}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </div>
                         <div>
@@ -660,7 +660,7 @@ const PurchaseOrderEditMR = () => {
                               setFormData(prev => ({...prev, advance_paid: val}));
                               calculateTotals(formData.items, formData.tax_rate, val);
                             }}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -668,7 +668,7 @@ const PurchaseOrderEditMR = () => {
                   </div>
 
                   {/* Purchase Valuation Summary */}
-                  <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-full">
+                  <div className="bg-slate-900 rounded  overflow-hidden shadow-2xl flex flex-col h-full">
                     <div className="p-2 border-b border-white/5 flex items-center justify-between">
                       <h4 className="text-xs  text-white/50  tracking-[0.2em]">Purchase Valuation</h4>
                       <Calculator size={15} className="text-white/20" />
@@ -709,7 +709,7 @@ const PurchaseOrderEditMR = () => {
                           </div>
                           <div>
                             <p className="text-xs  text-white  tracking-wider">Payment Channel</p>
-                            <p className="text-xs text-white/50   font-medium">Bank Transfer / NEFT</p>
+                            <p className="text-xs text-white/50   ">Bank Transfer / NEFT</p>
                           </div>
                         </div>
                       </div>

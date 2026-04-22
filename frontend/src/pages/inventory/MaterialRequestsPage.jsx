@@ -31,6 +31,7 @@ import Swal from "sweetalert2";
 import { showSuccess, showError } from "../../utils/toastUtils";
 import CreatePurchaseOrderModal from "./CreatePurchaseOrderModal";
 import { renderDimensions } from "../../utils/dimensionUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const MaterialRequestDetailModal = ({
   isOpen,
@@ -429,7 +430,7 @@ const MaterialRequestDetailModal = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded  shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
           <h2 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
@@ -496,131 +497,121 @@ const MaterialRequestDetailModal = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Items Table */}
             <div className="lg:col-span-2 space-y-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <List size={15} className="text-slate-400" />
-                  <h3 className="text-sm  text-slate-700 dark:text-slate-300  tracking-wider">
-                    Line Items
-                  </h3>
-                </div>
-                <button
-                  onClick={fetchStockLevels}
-                  disabled={loadingStock}
-                  className="text-xs  text-blue-600 flex items-center gap-1   hover:underline disabled:opacity-50"
-                >
-                  <RefreshCw
-                    size={12}
-                    className={loadingStock ? "animate-spin" : ""}
-                  />{" "}
-                  Refresh Stock
-                </button>
-              </div>
-              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden ">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-xs   text-slate-500 tracking-wider">
-                      <th className="px-6 py-3 text-left">Item Details</th>
-                      <th className="px-6 py-3 text-center">Quantity</th>
-                      <th className="px-6 py-3 text-center">Stock Level</th>
-                      <th className="px-6 py-3 text-center">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-                    {request.items &&
-                      request.items.map((item, idx) => {
+              <DataTable
+                title="Line Items"
+                titleIcon={<List size={15} />}
+                titleExtra={
+                  <button
+                    onClick={fetchStockLevels}
+                    disabled={loadingStock}
+                    className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-medium hover:bg-blue-100 transition-all disabled:opacity-50"
+                  >
+                    <RefreshCw
+                      size={10}
+                      className={loadingStock ? "animate-spin" : ""}
+                    />
+                    Sync Stock
+                  </button>
+                }
+                data={request.items || []}
+                  columns={[
+                    {
+                      key: "material_name",
+                      label: "Item Details",
+                      render: (_, item) => (
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-medium text-slate-900 dark:text-white ">
+                            {item.material_name}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-slate-400">
+                              {item.material_code || "No Code"}
+                            </span>
+                            <span className="text-[10px] text-blue-500 font-medium">
+                              {renderDimensions(item)} mm
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    },
+                    {
+                      key: "quantity",
+                      label: "Requested",
+                      className: "text-center",
+                      render: (val, item) => (
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white">
+                            {val}
+                          </span>
+                          <span className="text-[10px] text-slate-400 uppercase">{item.unit}</span>
+                        </div>
+                      )
+                    },
+                    {
+                      key: "stock_level",
+                      label: "Availability",
+                      className: "text-center",
+                      render: (_, item) => {
                         const stockInfo = stockLevels[item.id] || {
                           quantity: 0,
                           warehouses: "",
                         };
                         const stockQty = stockInfo.quantity;
-
+                        const isAvailable = Number(stockQty || 0) >= Number(item.quantity || 0) && Number(stockQty || 0) > 0;
+                        
                         return (
-                          <tr
-                            key={idx}
-                            className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors"
-                          >
-                            <td className="p-2">
-                              <div>
-                                <p className=" text-slate-900 dark:text-white ">
-                                  {item.material_name}
-                                </p>
-                                <p className="text-xs text-slate-400 font-medium mt-0.5">
-                                  {item.material_code || "No Code"}
-                                </p>
-                                {/* Dimensions Display */}
-                                <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-1">
-                                  Dim: {renderDimensions(item)} mm
+                          <div className="flex flex-col items-center">
+                            <span
+                              className={`text-xs font-bold ${isAvailable ? "text-emerald-600" : Number(stockQty || 0) > 0 ? "text-amber-600" : "text-red-600"}`}
+                            >
+                              {Number(stockQty || 0).toFixed(3)}
+                            </span>
+                            <div className="flex flex-wrap justify-center gap-1 mt-1">
+                              {selectedWarehouse ? (
+                                <div className="flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[9px] text-slate-500 border border-slate-200">
+                                  <Warehouse size={8} />
+                                  {warehouses.find(w => String(w.id) === String(selectedWarehouse))?.name || "Selected"}
                                 </div>
-                              </div>
-                            </td>
-                            <td className="p-2 text-center">
-                              <span className=" text-slate-900 dark:text-white">
-                                {item.quantity} {item.unit}
-                              </span>
-                            </td>
-                            <td className="p-2 text-center">
-                              <div className="flex flex-col items-center">
-                                <span
-                                  className={`text-sm  ${Number(stockQty || 0) >= Number(item.quantity || 0) && Number(stockQty || 0) > 0 ? "text-emerald-600" : Number(stockQty || 0) > 0 ? "text-amber-600" : "text-red-600"}`}
-                                >
-                                  {Number(stockQty || 0).toFixed(3)} {item.unit}
-                                </span>
-                                <div className="flex flex-col items-center gap-1 mt-1">
-                                  {selectedWarehouse ? (
-                                    <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-500 ">
-                                      <Warehouse size={10} />
-                                      {warehouses.find(
-                                        (w) =>
-                                          String(w.id) ===
-                                          String(selectedWarehouse),
-                                      )?.name || "Selected Warehouse"}
-                                    </div>
-                                  ) : stockInfo.warehouses ? (
-                                    stockInfo.warehouses
-                                      .split(",")
-                                      .map((wh, i) => (
-                                        <div
-                                          key={i}
-                                          className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded text-xs  text-blue-600 dark:text-blue-400 "
-                                        >
-                                          <Warehouse size={10} />
-                                          {wh.trim()}
-                                        </div>
-                                      ))
-                                  ) : (
-                                    <span className="text-xs text-slate-400  font-medium italic">
-                                      Not in any warehouse
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="p-2 text-center">
-                              {stockQty >= Number(item.quantity || 0) &&
-                              stockQty > 0 ? (
-                                <span className="px-2 py-0.5 rounded text-xs   bg-emerald-100 text-emerald-600 whitespace-nowrap">
-                                  in stock
-                                </span>
+                              ) : stockInfo.warehouses ? (
+                                stockInfo.warehouses.split(",").slice(0, 2).map((wh, i) => (
+                                  <div key={i} className="flex items-center gap-1 px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 rounded text-[9px] text-indigo-600 border border-indigo-100">
+                                    <Warehouse size={8} />
+                                    {wh.trim()}
+                                  </div>
+                                ))
                               ) : (
-                                <span className="px-2 py-0.5 rounded text-xs   bg-red-100 text-red-600 whitespace-nowrap">
-                                  out of stock
-                                </span>
+                                <span className="text-[9px] text-slate-400 italic">No Stock</span>
                               )}
-                              <p className="text-xs text-slate-400 mt-1  font-medium">
-                                {item.status}
-                              </p>
-                            </td>
-                          </tr>
+                            </div>
+                          </div>
                         );
-                      })}
-                  </tbody>
-                </table>
-              </div>
+                      }
+                    },
+                    {
+                      key: "status",
+                      label: "Status",
+                      className: "text-center",
+                      render: (val, item) => {
+                        const stockInfo = stockLevels[item.id] || { quantity: 0 };
+                        const isAvailable = stockInfo.quantity >= Number(item.quantity || 0) && stockInfo.quantity > 0;
+                        
+                        return (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${isAvailable ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"}`}>
+                              {isAvailable ? "Ready" : "Order Req"}
+                            </span>
+                            <span className="text-[10px] text-slate-400">{val}</span>
+                          </div>
+                        );
+                      }
+                    }
+                  ]}
+                />
             </div>
 
             {/* Sidebar info */}
             <div className="space-y-2">
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700  space-y-2">
+              <div className="bg-white dark:bg-slate-800 p-6 rounded  border border-slate-100 dark:border-slate-700  space-y-2">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <Warehouse size={15} className="text-slate-400" />
@@ -632,7 +623,7 @@ const MaterialRequestDetailModal = ({
                     Select Warehouse
                   </label>
                   <select
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm font-medium"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm "
                     value={selectedWarehouse}
                     onChange={(e) => setSelectedWarehouse(e.target.value)}
                   >
@@ -645,7 +636,7 @@ const MaterialRequestDetailModal = ({
                   </select>
                   <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30 rounded flex gap-3">
                     <AlertCircle size={14} className="text-orange-600 mt-0.5" />
-                    <p className="text-xs text-orange-700 dark:text-orange-400 font-medium leading-relaxed">
+                    <p className="text-xs text-orange-700 dark:text-orange-400  leading-relaxed">
                       Changing the warehouse will trigger a real-time stock
                       verification for all line items.
                     </p>
@@ -671,7 +662,7 @@ const MaterialRequestDetailModal = ({
                           the selected warehouse.
                         </p>
                       </div>
-                      <p className="text-xs text-amber-700 dark:text-amber-500 font-medium pl-7">
+                      <p className="text-xs text-amber-700 dark:text-amber-500  pl-7">
                         You can create a Purchase Order for the out-of-stock
                         items.
                       </p>
@@ -691,7 +682,7 @@ const MaterialRequestDetailModal = ({
                     </div>
                   )}
                   <div className="mt-4 space-y-2">
-                    <div className="flex justify-between text-xs font-medium">
+                    <div className="flex justify-between text-xs ">
                       <span className="text-slate-500 ">
                         Required By
                       </span>
@@ -702,7 +693,7 @@ const MaterialRequestDetailModal = ({
                           : "N/A"}
                       </span>
                     </div>
-                    <div className="flex justify-between text-xs font-medium">
+                    <div className="flex justify-between text-xs ">
                       <span className="text-slate-500 ">
                         Created On
                       </span>
@@ -744,7 +735,7 @@ const MaterialRequestDetailModal = ({
                               Swal.fire("Error", "Failed to view quotation PDF", "error");
                             }
                           }}
-                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs  hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all  flex items-center justify-center gap-2"
+                          className="w-full py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded text-xs  hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all  flex items-center justify-center gap-2"
                         >
                           <Download size={12} />
                           VIEW VENDOR QUOTATION
@@ -1014,9 +1005,9 @@ const MaterialRequestsPage = () => {
     };
 
     return (
-      <div className="py-10 px-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 my-4 mx-8 animate-in slide-in-from-top-4 duration-500  relative">
+      <div className="py-10 px-6 bg-white dark:bg-slate-800/50 rounded  border border-slate-100 dark:border-slate-700 my-4 mx-8 animate-in slide-in-from-top-4 duration-500  relative">
         {localLoading && (
-          <div className="absolute inset-0 bg-white/50 dark:bg-slate-800/50 z-20 flex items-center justify-center rounded-2xl">
+          <div className="absolute inset-0 bg-white/50 dark:bg-slate-800/50 z-20 flex items-center justify-center rounded ">
             <RefreshCw className="animate-spin text-blue-600" size={15} />
           </div>
         )}
@@ -1067,7 +1058,7 @@ const MaterialRequestsPage = () => {
                   >
                     {step.label}
                   </span>
-                  <span className="block text-xs font-medium text-slate-400 mt-0.5  er opacity-80">
+                  <span className="block text-xs  text-slate-400 mt-0.5  er opacity-80">
                     {step.subLabel}
                   </span>
                 </div>
@@ -1400,7 +1391,7 @@ const MaterialRequestsPage = () => {
 
     return (
       <span
-        className={` rounded-md text-xs font-medium flex items-center gap-1 w-fit ${styles[s] || styles.draft}`}
+        className={` rounded-md text-xs  flex items-center gap-1 w-fit ${styles[s] || styles.draft}`}
       >
         {(s === "fulfilled" || s === "received" || s === "completed") && (
           <CheckCircle size={12} />
@@ -1416,7 +1407,7 @@ const MaterialRequestsPage = () => {
     // Show loading state if check haven't finished
     if (isAvailable === undefined) {
       return (
-        <span className=" rounded-md text-xs font-medium bg-slate-100 text-slate-500 flex items-center gap-1 w-fit animate-pulse">
+        <span className=" rounded-md text-xs  bg-slate-100 text-slate-500 flex items-center gap-1 w-fit animate-pulse">
           <Clock size={12} />
           checking...
         </span>
@@ -1425,14 +1416,14 @@ const MaterialRequestsPage = () => {
 
     if (isAvailable) {
       return (
-        <span className=" rounded-md text-xs font-medium bg-emerald-100 text-emerald-700 flex items-center gap-1 w-fit">
+        <span className=" rounded-md text-xs  bg-emerald-100 text-emerald-700 flex items-center gap-1 w-fit">
           <CheckCircle size={12} />
           available
         </span>
       );
     }
     return (
-      <span className=" rounded-md text-xs font-medium bg-red-100 text-red-700 flex items-center gap-1 w-fit">
+      <span className=" rounded-md text-xs  bg-red-100 text-red-700 flex items-center gap-1 w-fit">
         <XCircle size={12} />
         unavailable
       </span>
@@ -1440,296 +1431,230 @@ const MaterialRequestsPage = () => {
   };
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen dark:bg-slate-900">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded">
-            <ClipboardList
-              className="text-blue-600 dark:text-blue-400"
-              size={15}
-            />
-          </div>
-          <div>
-            <h1 className="text-xl  text-slate-900 dark:text-white">
-              Material Requests
-            </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <Clock size={14} /> Updated {new Date().toLocaleTimeString()}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800">
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2 ${viewMode === "list" ? "bg-blue-50 text-blue-600" : "text-slate-400"}`}
-            >
-              <List size={20} />
-            </button>
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2 ${viewMode === "grid" ? "bg-blue-50 text-blue-600" : "text-slate-400"}`}
-            >
-              <LayoutGrid size={20} />
-            </button>
-          </div>
+    <div className="p-4 space-y-4 bg-slate-50 min-h-screen dark:bg-slate-900">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {[
+          {
+            label: "Total Requests",
+            value: stats.total,
+            icon: ClipboardList,
+            color: "blue",
+            active: activeTab === "total",
+          },
+          {
+            label: "Draft",
+            value: stats.draft,
+            icon: FileText,
+            color: "orange",
+            active: activeTab === "draft",
+          },
+          {
+            label: "Approved",
+            value: stats.approved,
+            icon: ShieldCheck,
+            color: "blue",
+            active: activeTab === "approved",
+          },
+          {
+            label: "Processing",
+            value: stats.processing,
+            icon: RefreshCw,
+            color: "purple",
+            active: activeTab === "processing",
+          },
+          {
+            label: "Fulfilled",
+            value: stats.fulfilled,
+            icon: CheckCircle,
+            color: "emerald",
+            active: activeTab === "fulfilled",
+          },
+          {
+            label: "Cancelled",
+            value: stats.cancelled,
+            icon: XCircle,
+            color: "red",
+            active: activeTab === "cancelled",
+          },
+        ].map((stat, idx) => (
           <button
-            onClick={fetchMaterialRequests}
-            className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50 transition-colors"
+            key={idx}
+            onClick={() => {
+              setActiveTab(stat.label.toLowerCase());
+              setStatusFilter(
+                stat.label === "Total Requests"
+                  ? "All Statuses"
+                  : stat.label,
+              );
+            }}
+            className={`p-3 rounded border transition-all text-left shadow-sm ${
+              activeTab === stat.label.toLowerCase()
+                ? "bg-indigo-600 border-indigo-600 text-white shadow-indigo-100"
+                : "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-200"
+            }`}
           >
-            <RefreshCw size={15} />
-            Refresh
-          </button>
-          <button
-            onClick={() => setShowNewRequestModal(true)}
-            className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={15} />
-            New Request
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <RefreshCw className="animate-spin text-blue-600" size={32} />
-        </div>
-      ) : (
-        <>
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-            {[
-              {
-                label: "Total Requests",
-                value: stats.total,
-                icon: ClipboardList,
-                color: "blue",
-                active: activeTab === "total",
-              },
-              {
-                label: "Draft",
-                value: stats.draft,
-                icon: FileText,
-                color: "orange",
-                active: activeTab === "draft",
-              },
-              {
-                label: "Approved",
-                value: stats.approved,
-                icon: ShieldCheck,
-                color: "blue",
-                active: activeTab === "approved",
-              },
-              {
-                label: "Processing",
-                value: stats.processing,
-                icon: RefreshCw,
-                color: "purple",
-                active: activeTab === "processing",
-              },
-              {
-                label: "Fulfilled",
-                value: stats.fulfilled,
-                icon: CheckCircle,
-                color: "emerald",
-                active: activeTab === "fulfilled",
-              },
-              {
-                label: "Cancelled",
-                value: stats.cancelled,
-                icon: XCircle,
-                color: "red",
-                active: activeTab === "cancelled",
-              },
-            ].map((stat, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setActiveTab(stat.label.toLowerCase());
-                  setStatusFilter(
-                    stat.label === "Total Requests"
-                      ? "All Statuses"
-                      : stat.label,
-                  );
-                }}
-                className={`p-4 rounded border transition-all text-left bg-white dark:bg-slate-800 ${
-                  activeTab === stat.label.toLowerCase()
-                    ? "border-blue-500 ring-1 ring-blue-500 "
-                    : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
-                }`}
-              >
-                <div
-                  className={`p-2 rounded w-fit mb-3 bg-${stat.color}-50 dark:bg-${stat.color}-900/20`}
-                >
-                  <stat.icon
-                    className={`text-${stat.color}-600 dark:text-${stat.color}-400`}
-                    size={20}
-                  />
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className={`text-[10px] uppercase tracking-wider font-medium mb-1 ${activeTab === stat.label.toLowerCase() ? "text-indigo-100" : "text-slate-400"}`}>
                   {stat.label}
                 </p>
-                <p className="text-2xl  text-slate-900 dark:text-white mt-1">
+                <p className={`text-xl font-bold leading-tight ${activeTab === stat.label.toLowerCase() ? "text-white" : "text-slate-900 dark:text-white"}`}>
                   {stat.value}
                 </p>
-              </button>
-            ))}
-          </div>
-
-          {/* Filters and Search */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-4 mb-6 flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                size={15}
-              />
-              <input
-                type="text"
-                placeholder="Search by ID, requester or department..."
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-3">
-              <div className="relative">
-                <select
-                  className="appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-500 dark:text-slate-300"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option>All Statuses</option>
-                  <option>Draft</option>
-                  <option>Submitted</option>
-                  <option>Approved</option>
-                  <option>Ordered</option>
-                  <option>Received</option>
-                  <option>Cancelled</option>
-                </select>
-                <Filter
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                  size={15}
-                />
               </div>
-              <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
-                <LayoutGrid size={15} />
-                Columns
+              <div className={`p-2 rounded ${activeTab === stat.label.toLowerCase() ? "bg-white/20 text-white" : `bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600 dark:text-${stat.color}-400`}`}>
+                <stat.icon size={18} />
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <DataTable
+        title="Material Requests"
+        titleIcon={<ClipboardList size={16} />}
+        titleExtra={
+          <div className="flex items-center gap-2">
+            <div className="flex border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-1.5 ${viewMode === "list" ? "bg-indigo-50 text-indigo-600" : "text-slate-400 hover:bg-slate-50"}`}
+                title="List View"
+              >
+                <List size={14} />
               </button>
-              <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
-                <Download size={15} />
-                Export
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 ${viewMode === "grid" ? "bg-indigo-50 text-indigo-600" : "text-slate-400 hover:bg-slate-50"}`}
+                title="Grid View"
+              >
+                <LayoutGrid size={14} />
               </button>
             </div>
+            <button
+              onClick={fetchMaterialRequests}
+              className="p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:bg-slate-50 transition-all shadow-sm"
+              title="Refresh"
+            >
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            </button>
+            <button
+              onClick={() => setShowNewRequestModal(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs transition-all shadow-sm"
+            >
+              <Plus size={14} /> New Request
+            </button>
           </div>
-
-          {/* Table */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="p-2 w-10"></th>
-                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
-                    ID
-                  </th>
-                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
-                    Requester
-                  </th>
-                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
-                    Status
-                  </th>
-                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
-                    Required By
-                  </th>
-                  <th className="p-2 text-xs  text-slate-500  tracking-wider">
-                    Availability
-                  </th>
-                  <th className="p-2 text-xs  text-slate-500  tracking-wider text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {materialRequests.length > 0 ? (
-                  materialRequests.map((req) => (
-                    <React.Fragment key={req.id}>
-                      <tr
-                        className={`hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors ${expandedRows.has(req.id) ? "bg-blue-50/30 dark:bg-blue-900/10" : ""}`}
-                      >
-                        <td className="p-2">
-                          <button
-                            onClick={() => toggleRow(req.id)}
-                            className={`p-1 rounded transition-all ${expandedRows.has(req.id) ? "bg-blue-100 text-blue-600 rotate-180" : "text-slate-400 hover:bg-slate-100"}`}
-                          >
-                            <ChevronDown size={15} />
-                          </button>
-                        </td>
-                        <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
-                          {req.mr_number || `MR-${req.id}`}
-                        </td>
-                        <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
-                          {req.created_by_name || "System"}
-                        </td>
-                        <td className="p-2">
-                          {getStatusBadge(req.status)}
-                        </td>
-                        <td className="p-2 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                          <Clock size={14} className="text-slate-400" />
-                          {req.required_date
-                            ? new Date(req.required_date).toLocaleDateString()
-                            : "N/A"}
-                        </td>
-                        <td className="p-2">
-                          {getAvailabilityBadge(req.id)}
-                        </td>
-                        <td className="p-2 text-right">
-                          <div className="flex justify-end gap-1">
-                            <button
-                              onClick={() => fetchRequestDetails(req.id)}
-                              className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
-                              title="View Details"
-                            >
-                              <Eye size={15} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(req.id)}
-                              className="p-2 text-slate-400 hover:text-red-600 transition-colors"
-                              title="Delete Request"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      {expandedRows.has(req.id) && (
-                        <tr>
-                          <td colSpan="7" className="px-0 py-0 border-none">
-                            <WorkflowStepper request={req} />
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="7"
-                      className="px-6 py-10 text-center text-slate-500"
-                    >
-                      No material requests found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        }
+        data={materialRequests}
+        loading={loading}
+        onSearch={(val) => setSearchQuery(val)}
+        externalFilterValues={{ status: statusFilter }}
+        onFilterChange={(f) => setStatusFilter(f.status)}
+        filters={[
+          {
+            key: "status",
+            label: "All Statuses",
+            options: [
+              { label: "Draft", value: "Draft" },
+              { label: "Submitted", value: "Submitted" },
+              { label: "Approved", value: "Approved" },
+              { label: "Ordered", value: "Ordered" },
+              { label: "Received", value: "Received" },
+              { label: "Cancelled", value: "Cancelled" },
+            ]
+          }
+        ]}
+        columns={[
+          {
+            key: "mr_number",
+            label: "MR Details",
+            render: (val, req) => (
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-slate-900 dark:text-white">{val || `MR-${req.id}`}</p>
+                <div className="flex items-center gap-2">
+                  <Calendar size={12} className="text-slate-400" />
+                  <p className="text-[10px] text-slate-500">
+                    {req.created_at ? new Date(req.created_at).toLocaleDateString("en-GB", { day: '2-digit', month: 'short' }) : "N/A"}
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          {
+            key: "created_by_name",
+            label: "Requester",
+            render: (val) => (
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
+                  <User size={12} />
+                </div>
+                <span className="text-xs text-slate-700 dark:text-slate-300">{val || "System"}</span>
+              </div>
+            )
+          },
+          {
+            key: "status",
+            label: "Status",
+            className: "text-center",
+            render: (val) => getStatusBadge(val)
+          },
+          {
+            key: "required_date",
+            label: "Required By",
+            render: (val) => (
+              <div className="flex items-center gap-2 px-2 py-1 bg-slate-50 dark:bg-slate-900/50 rounded-full border border-slate-100 dark:border-slate-800 w-fit">
+                <Clock size={12} className="text-slate-400" />
+                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400">
+                  {val ? new Date(val).toLocaleDateString("en-GB", { day: '2-digit', month: 'short' }) : "N/A"}
+                </span>
+              </div>
+            )
+          },
+          {
+            key: "availability",
+            label: "Availability",
+            render: (_, req) => getAvailabilityBadge(req.id)
+          },
+          {
+            key: "actions",
+            label: "Actions",
+            className: "text-right",
+            render: (_, req) => (
+              <div className="flex justify-end gap-1">
+                <button
+                  onClick={() => fetchRequestDetails(req.id)}
+                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all"
+                  title="View Details"
+                >
+                  <Eye size={14} />
+                </button>
+                <button
+                  onClick={() => handleDelete(req.id)}
+                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"
+                  title="Delete Request"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            )
+          }
+        ]}
+        renderRowDetail={(req) => (
+          <div className="bg-slate-50/50 dark:bg-slate-900/50">
+            <WorkflowStepper request={req} />
           </div>
+        )}
+        emptyMessage="No material requests found"
+      />
         </>
       )}
 
       {/* New Request Modal */}
       {showNewRequestModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[90vh]">
+          <div className="bg-white dark:bg-slate-800 rounded  w-full max-w-5xl shadow-2xl flex flex-col max-h-[90vh]">
             <form
               onSubmit={handleSubmit}
               className="flex flex-col h-full overflow-hidden"
@@ -1867,7 +1792,7 @@ const MaterialRequestsPage = () => {
                               >
                                 <purpose.icon size={15} />
                               </div>
-                              <span className="text-sm font-medium">
+                              <span className="text-sm ">
                                 {purpose.id}
                               </span>
                             </button>
@@ -1878,7 +1803,7 @@ const MaterialRequestsPage = () => {
                   </div>
 
                   {/* Right Side - Items */}
-                  <div className="lg:col-span-8 bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 h-fit">
+                  <div className="lg:col-span-8 bg-slate-50 dark:bg-slate-900/50 rounded  p-6 border border-slate-200 dark:border-slate-700 h-fit">
                     <div className="flex justify-between items-center mb-6">
                       <div className="flex items-start gap-3">
                         <div className="p-2 bg-blue-100 rounded text-blue-600">
@@ -1964,66 +1889,45 @@ const MaterialRequestsPage = () => {
                     </div>
 
                     <div className="border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800">
-                      <table className="w-full">
-                        <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-xs  text-slate-500 ">
-                              Item Info
-                            </th>
-                            <th className="px-4 py-3 text-center text-xs  text-slate-500 ">
-                              Qty
-                            </th>
-                            <th className="px-4 py-3 text-right text-xs  text-slate-500 ">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {newRequest.items.length > 0 ? (
-                            newRequest.items.map((item) => (
-                              <tr
-                                key={item.id}
-                                className="border-b border-slate-100 dark:border-slate-700 last:border-0"
+                      <DataTable
+                        data={newRequest.items || []}
+                        columns={[
+                          {
+                            key: "item",
+                            label: "Item Info",
+                            render: (val, item) => (
+                              <div>
+                                <p className=" text-slate-900 dark:text-white text-sm">
+                                  {val}
+                                </p>
+                                <p className="text-xs text-slate-400">
+                                  {item.uom}
+                                </p>
+                              </div>
+                            )
+                          },
+                          {
+                            key: "quantity",
+                            label: "Qty",
+                            className: "text-center"
+                          },
+                          {
+                            key: "actions",
+                            label: "Actions",
+                            className: "text-right",
+                            render: (_, item) => (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveItem(item.id)}
+                                className="p-1 text-slate-400 hover:text-red-500"
                               >
-                                <td className="px-4 py-3">
-                                  <p className="font-medium text-slate-900 dark:text-white text-sm">
-                                    {item.item}
-                                  </p>
-                                  <p className="text-xs text-slate-400">
-                                    {item.uom}
-                                  </p>
-                                </td>
-                                <td className="px-4 py-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
-                                  {item.quantity}
-                                </td>
-                                <td className="px-4 py-3 text-right">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveItem(item.id)}
-                                    className="p-1 text-slate-400 hover:text-red-500"
-                                  >
-                                    <Trash2 size={15} />
-                                  </button>
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td
-                                colSpan="3"
-                                className="px-4 py-12 text-center"
-                              >
-                                <div className="flex flex-col items-center gap-2 text-slate-400">
-                                  <Warehouse size={48} className="opacity-20" />
-                                  <p className="text-sm font-medium">
-                                    No items added yet
-                                  </p>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
+                                <Trash2 size={15} />
+                              </button>
+                            )
+                          }
+                        ]}
+                        emptyMessage="No items added yet"
+                      />
                     </div>
 
                     <div className="mt-6">
@@ -2031,7 +1935,7 @@ const MaterialRequestsPage = () => {
                         <FileText size={14} /> Notes & Special Instructions
                       </label>
                       <textarea
-                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500"
                         rows="3"
                         placeholder="Add any additional notes for this material request..."
                         value={newRequest.notes}

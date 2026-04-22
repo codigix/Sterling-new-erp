@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import useRootCardInventoryTask from "../../hooks/useRootCardInventoryTask";
 
+import DataTable from "../../components/ui/DataTable/DataTable";
+
 const BatchManagementPage = () => {
   const { completeCurrentTask } = useRootCardInventoryTask();
   const [searchQuery, setSearchQuery] = useState("");
@@ -161,210 +163,109 @@ const BatchManagementPage = () => {
     return days;
   };
 
-  return (
-    <div className="space-y-2">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-md  text-slate-900 dark:text-white text-xs flex items-center  gap-2">
-            <Package size={15} />
-            Batch Management
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
-            Track and manage inventory batches
-          </p>
-        </div>
-        <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium">
-            <Plus size={15} />
-            New Batch
-          </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Download size={15} />
-            Export
-          </button>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Search batch or item..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-            />
+  const columns = [
+    {
+      key: "batchNo",
+      label: "Batch Number",
+      sortable: true,
+    },
+    {
+      key: "item",
+      label: "Item",
+      sortable: true,
+    },
+    {
+      key: "quantity",
+      label: "Quantity",
+      align: "center",
+      sortable: true,
+      render: (val, row) => (
+        <span>
+          {val} <span className="text-xs text-slate-500">{row.unit}</span>
+        </span>
+      )
+    },
+    {
+      key: "supplier",
+      label: "Supplier",
+      sortable: true,
+    },
+    {
+      key: "expiryDate",
+      label: "Expiry Date",
+      sortable: true,
+      render: (val) => {
+        const daysLeft = calculateDaysUntilExpiry(val);
+        return (
+          <div>
+            <p className="text-xs">{val}</p>
+            <p className={`text-[10px] mt-0.5 ${
+              daysLeft <= 0 ? "text-red-600" : daysLeft <= 30 ? "text-yellow-600" : "text-green-600"
+            }`}>
+              {daysLeft <= 0 ? "Expired" : daysLeft === 1 ? "1 day left" : `${daysLeft} days left`}
+            </p>
           </div>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
-          >
-            <option value="all">All Batches</option>
-            <option value="active">Active</option>
-            <option value="expiring">Expiring Soon</option>
-            <option value="expired">Expired</option>
-          </select>
-
-          <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={15} />
-            Advanced Filter
+        );
+      }
+    },
+    {
+      key: "status",
+      label: "Status",
+      align: "center",
+      sortable: true,
+      render: (val) => (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium ${getStatusColor(val)}`}>
+          {getStatusIcon(val)}
+          {val.charAt(0).toUpperCase() + val.slice(1)}
+        </span>
+      )
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "center",
+      render: (_, row) => (
+        <div className="flex justify-center gap-1">
+          <button className="p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors">
+            <Eye size={14} />
+          </button>
+          <button className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors">
+            <Trash2 size={14} />
           </button>
         </div>
-      </div>
+      )
+    }
+  ];
 
-      {/* Batches Table */}
-      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  Batch Number
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  Item
-                </th>
-                <th className="px-6 py-3 text-center text-sm font-semibold text-slate-900 dark:text-white">
-                  Quantity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  Supplier
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  Expiry Date
-                </th>
-                <th className="px-6 py-3 text-center text-sm font-semibold text-slate-900 dark:text-white">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-center text-sm font-semibold text-slate-900 dark:text-white">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
-              {filteredData.map((batch) => {
-                const daysLeft = calculateDaysUntilExpiry(batch.expiryDate);
-                return (
-                  <tr
-                    key={batch.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <td className="p-1">
-                      <p className=" text-slate-900 dark:text-white text-xs">
-                        {batch.batchNo}
-                      </p>
-                    </td>
-                    <td className="p-1 text-slate-700 dark:text-slate-300">
-                      {batch.item}
-                    </td>
-                    <td className="p-1 text-center">
-                      <span className="font-semibold text-slate-900 dark:text-white">
-                        {batch.quantity}
-                      </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">
-                        {batch.unit}
-                      </span>
-                    </td>
-                    <td className="p-1 text-slate-700 dark:text-slate-300">
-                      {batch.supplier}
-                    </td>
-                    <td className="p-1">
-                      <div>
-                        <p className="font-medium text-slate-900 dark:text-white text-xs">
-                          {batch.expiryDate}
-                        </p>
-                        <p
-                          className={`text-xs mt-1 ${
-                            daysLeft <= 0
-                              ? "text-red-600"
-                              : daysLeft <= 30
-                              ? "text-yellow-600"
-                              : "text-green-600"
-                          }`}
-                        >
-                          {daysLeft <= 0
-                            ? "Expired"
-                            : daysLeft === 1
-                            ? "1 day left"
-                            : `${daysLeft} days left`}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="p-1 text-center">
-                      <span
-                        className={`inline-flex items-center text-xs gap-1 px-3 py-1 rounded  text-xs font-semibold ${getStatusColor(
-                          batch.status
-                        )}`}
-                      >
-                        {getStatusIcon(batch.status)}
-                        {batch.status.charAt(0).toUpperCase() +
-                          batch.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="p-1 text-center">
-                      <div className="flex justify-center gap-2">
-                        <button className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 rounded transition-colors">
-                          <Eye size={15} />
-                        </button>
-                        <button className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors">
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Batch Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-green-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-            Active Batches
-          </p>
-          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {filteredData.filter((b) => b.status === "active").length}
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-yellow-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-            Expiring Soon
-          </p>
-          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {filteredData.filter((b) => b.status === "expiring").length}
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-red-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-            Expired Batches
-          </p>
-          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {filteredData.filter((b) => b.status === "expired").length}
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-blue-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-            Total Quantity
-          </p>
-          <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {filteredData
-              .reduce((sum, batch) => sum + batch.quantity, 0)
-              .toLocaleString()}
-          </p>
-        </div>
-      </div>
+  return (
+    <div className="space-y-4 p-4">
+      <DataTable
+        title="Batch Management"
+        titleIcon={<Package size={15} />}
+        titleExtra={
+          <div className="flex items-center gap-2 ml-4">
+            <button className="flex items-center text-xs gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow-sm">
+              <Plus size={14} /> New Batch
+            </button>
+            <button className="flex items-center text-xs gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors shadow-sm">
+              <Download size={14} /> Export
+            </button>
+          </div>
+        }
+        data={batchData}
+        columns={columns}
+        filters={[
+          {
+            label: "Status",
+            key: "status",
+            options: [
+              { label: "Active", value: "active" },
+              { label: "Expiring Soon", value: "expiring" },
+              { label: "Expired", value: "expired" },
+            ],
+          },
+        ]}
+      />
     </div>
   );
 };

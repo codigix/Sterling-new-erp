@@ -17,6 +17,7 @@ import {
   Trash2
 } from "lucide-react";
 import { toast } from "react-toastify";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const DailyProductionUpdatesPage = () => {
   const [updates, setUpdates] = useState([]);
@@ -120,103 +121,98 @@ const DailyProductionUpdatesPage = () => {
 
         {/* Updates Table */}
         <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800  overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse bg-white">
-              <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                  <th className="p-2 text-xs  text-slate-400  ">Project / Root Card</th>
-                  <th className="p-2 text-xs  text-slate-400  ">Work Date</th>
-                  <th className="p-2 text-xs  text-slate-400  ">Operation</th>
-                  <th className="p-2 text-xs  text-slate-400  ">Operator</th>
-                  <th className="p-2 text-xs  text-slate-400   text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {loading ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center">
-                      <Loader2 size={15} className="animate-spin text-blue-600 mx-auto mb-2" />
-                      <p className="text-xs  text-slate-400  ">Fetching floor updates...</p>
-                    </td>
-                  </tr>
-                ) : filteredUpdates.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center text-xs  text-slate-400  ">No production updates found</td>
-                  </tr>
-                ) : (
-                  filteredUpdates.map((update) => (
-                    <tr key={update.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="p-2">
-                        <div className="flex items-start gap-3">
-                          <div className="mt-1 p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
-                            <Target size={14} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs  text-slate-900 dark:text-white   truncate max-w-[200px] font-semibold">{update.project_name || "N/A"}</p>
-                            <p className="text-[10px] text-slate-400 mb-1">{update.root_card_id}</p>
-                            
-                            {/* Operation Sequence Display */}
-                            {update.project_operations?.length > 0 ? (
-                              <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                                {update.project_operations.map((op, idx) => (
-                                  <React.Fragment key={idx}>
-                                    <div className="flex items-center gap-1 group relative">
-                                      <span className={`text-[9px] px-1.5 py-0.5 rounded-sm border font-medium ${
-                                        op.status === 'Completed' 
-                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30' 
-                                          : op.status === 'In Progress'
-                                          ? 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30 animate-pulse'
-                                          : 'bg-slate-50 text-slate-500 border-slate-100 dark:bg-slate-800/50 dark:text-slate-500 dark:border-slate-800'
-                                      }`}>
-                                        {op.name}
-                                      </span>
-                                      {idx < update.project_operations.length - 1 && (
-                                        <div className="w-2 h-[1px] bg-slate-200 dark:bg-slate-800" />
-                                      )}
-                                    </div>
-                                  </React.Fragment>
-                                ))}
+          <DataTable
+            data={filteredUpdates}
+            loading={loading}
+            columns={[
+              {
+                header: "Project / Root Card",
+                accessorKey: "project_name",
+                cell: (info) => (
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
+                      <Target size={14} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs  text-slate-900 dark:text-white   truncate max-w-[200px] ">{info.getValue() || "N/A"}</p>
+                      <p className="text-[10px] text-slate-400 mb-1">{info.row.original.root_card_id}</p>
+                      
+                      {/* Operation Sequence Display */}
+                      {info.row.original.project_operations?.length > 0 ? (
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                          {info.row.original.project_operations.map((op, idx) => (
+                            <React.Fragment key={idx}>
+                              <div className="flex items-center gap-1 group relative">
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded-sm border  ${
+                                  op.status === 'Completed' 
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30' 
+                                    : op.status === 'In Progress'
+                                    ? 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30 animate-pulse'
+                                    : 'bg-slate-50 text-slate-500 border-slate-100 dark:bg-slate-800/50 dark:text-slate-500 dark:border-slate-800'
+                                }`}>
+                                  {op.name}
+                                </span>
+                                {idx < info.row.original.project_operations.length - 1 && (
+                                  <div className="w-2 h-[1px] bg-slate-200 dark:bg-slate-800" />
+                                )}
                               </div>
-                            ) : (
-                              <span className="text-[9px] text-slate-300 italic">No project operations tracked</span>
-                            )}
-                          </div>
+                            </React.Fragment>
+                          ))}
                         </div>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex items-center gap-2">
-                          <Calendar size={12} className="text-slate-400" />
-                          <span className="text-xs  text-slate-700 dark:text-slate-300 ">
-                            {new Date(update.work_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-2">
-                        <span className="text-xs  text-blue-600 dark:text-blue-400   bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 rounded border border-blue-100 dark:border-blue-900/30">
-                          {update.operation_name}
-                        </span>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-xs  text-slate-500 ">
-                            {update.operator_name?.charAt(0)}
-                          </div>
-                          <span className="text-xs  text-slate-700 dark:text-slate-300  truncate max-w-[120px]">{update.operator_name}</span>
-                        </div>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex justify-center">
-                          <span className={`px-2.5 py-1 rounded border text-xs    ${getStatusColor(update.status)}`}>
-                            {update.status}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                      ) : (
+                        <span className="text-[9px] text-slate-300 italic">No project operations tracked</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              },
+              {
+                header: "Work Date",
+                accessorKey: "work_date",
+                cell: (info) => (
+                  <div className="flex items-center gap-2">
+                    <Calendar size={12} className="text-slate-400" />
+                    <span className="text-xs  text-slate-700 dark:text-slate-300 ">
+                      {new Date(info.getValue()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    </span>
+                  </div>
+                )
+              },
+              {
+                header: "Operation",
+                accessorKey: "operation_name",
+                cell: (info) => (
+                  <span className="text-xs  text-blue-600 dark:text-blue-400   bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 rounded border border-blue-100 dark:border-blue-900/30">
+                    {info.getValue()}
+                  </span>
+                )
+              },
+              {
+                header: "Operator",
+                accessorKey: "operator_name",
+                cell: (info) => (
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-xs  text-slate-500 ">
+                      {info.getValue()?.charAt(0)}
+                    </div>
+                    <span className="text-xs  text-slate-700 dark:text-slate-300  truncate max-w-[120px]">{info.getValue()}</span>
+                  </div>
+                )
+              },
+              {
+                header: "Status",
+                accessorKey: "status",
+                headerClass: "text-center",
+                cell: (info) => (
+                  <div className="flex justify-center">
+                    <span className={`px-2.5 py-1 rounded border text-xs    ${getStatusColor(info.getValue())}`}>
+                      {info.getValue()}
+                    </span>
+                  </div>
+                )
+              }
+            ]}
+          />
         </div>
       </div>
     </div>

@@ -140,7 +140,7 @@ const SearchableSelect = ({
   return (
     <div className={`relative ${className}`} ref={wrapperRef}>
       {label && (
-        <label htmlFor={inputId} className="block text-xs  text-slate-900 dark:text-slate-100 mb-1.5  ">
+        <label htmlFor={inputId} className="block text-xs  text-slate-900 dark:text-slate-100 mb-1  ">
           {label}
         </label>
       )}
@@ -212,7 +212,7 @@ const SearchableSelect = ({
                   onClick={() => handleSelect(option)}
                   className={`
                     p-2 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors
-                    ${String(value) === String(option.value) ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-700 dark:text-slate-300'}
+                    ${String(value) === String(option.value) ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 ' : 'text-slate-700 dark:text-slate-300'}
                   `}
                 >
                   <div className="flex flex-col">
@@ -231,7 +231,7 @@ const SearchableSelect = ({
                   onChange(searchTerm);
                   setIsOpen(false);
                 }}
-                className="px-4 py-3 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 text-blue-600 dark:text-blue-400 font-medium italic border-t border-slate-100 dark:border-slate-700"
+                className="p-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 text-blue-600 dark:text-blue-400  italic border-t border-slate-100 dark:border-slate-700"
               >
                 Use custom: "{searchTerm}"
               </div>
@@ -247,7 +247,7 @@ const SearchableSelect = ({
                   onChange(searchTerm);
                   setIsOpen(false);
                 }}
-                className="px-4 py-3 text-sm cursor-pointer border-t border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-blue-600 dark:text-blue-400 font-medium italic"
+                className="p-2 text-sm cursor-pointer border-t border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-blue-600 dark:text-blue-400  italic"
               >
                 Use custom: "{searchTerm}"
               </div>
@@ -257,7 +257,7 @@ const SearchableSelect = ({
         document.body
       )}
       
-      {error && <p className="mt-1 text-xs text-red-500 font-medium">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-500 ">{error}</p>}
     </div>
   );
 };

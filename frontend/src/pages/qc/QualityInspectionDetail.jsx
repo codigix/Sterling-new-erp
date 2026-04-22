@@ -665,7 +665,7 @@ const QualityInspectionDetail = () => {
             </h3>
             
             <textarea 
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-4 py-3 text-xs  text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all min-h-[100px]"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs  text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all min-h-[100px]"
               placeholder="Enter overall inspection remarks..."
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}

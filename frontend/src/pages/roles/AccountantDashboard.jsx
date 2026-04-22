@@ -26,20 +26,20 @@ import {
 } from "lucide-react";
 
 const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
-  <div className="space-y-2">
+  <div className="space-y-2 p-4">
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
+        <h1 className="text-xl  text-slate-900 dark:text-white">
           Financial Dashboard
         </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-slate-500 text-xs dark:text-slate-400 mt-1">
           Monitor financial performance and transactions
         </p>
       </div>
       <div className="flex gap-3 flex-wrap">
         <button
           onClick={handleExport}
-          className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
+          className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors "
         >
           <TrendingUp size={15} />
           Export Report
@@ -47,7 +47,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
         <select
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value)}
-          className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white font-medium"
+          className="p-2 bg-white dark:bg-slate-700 border text-xs border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white "
         >
           <option value="current-month">Current Month</option>
           <option value="last-quarter">Last Quarter</option>
@@ -63,18 +63,18 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
         return (
           <div
             key={stat.title}
-            className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6  transition-shadow"
+            className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-2  transition-shadow"
           >
             <div className="flex items-center text-xs justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-xs  text-slate-500 dark:text-slate-400">
                   {stat.title}
                 </p>
                 <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
                   {stat.value}
                 </p>
                 <p
-                  className={`text-sm mt-1 font-medium ${
+                  className={`text-sm mt-1  ${
                     stat.positive ? "text-green-600" : "text-red-600"
                   }`}
                 >
@@ -94,8 +94,8 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-        <h2 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
+      <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-2">
+        <h2 className="text-lg  text-slate-900 dark:text-white mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-2 gap-3">
@@ -104,7 +104,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             className="p-4 bg-blue-50 dark:bg-slate-700 rounded hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors"
           >
             <Coins size={15} className="text-blue-600 mb-2" />
-            <p className="font-medium text-slate-900 dark:text-white text-xs">
+            <p className=" text-slate-900 dark:text-white text-xs">
               Vendor Invoices
             </p>
           </Link>
@@ -113,7 +113,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             className="p-4 bg-green-50 dark:bg-slate-700 rounded hover:bg-green-100 dark:hover:bg-slate-600 transition-colors"
           >
             <Coins size={15} className="text-green-600 mb-2" />
-            <p className="font-medium text-slate-900 dark:text-white text-xs">
+            <p className=" text-slate-900 dark:text-white text-xs">
               Customer Invoices
             </p>
           </Link>
@@ -122,7 +122,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             className="p-4 bg-purple-50 dark:bg-slate-700 rounded hover:bg-purple-100 dark:hover:bg-slate-600 transition-colors"
           >
             <FileText size={15} className="text-purple-600 mb-2" />
-            <p className="font-medium text-slate-900 dark:text-white text-xs">
+            <p className=" text-slate-900 dark:text-white text-xs">
               Income Statement
             </p>
           </Link>
@@ -131,15 +131,15 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             className="p-4 bg-orange-50 dark:bg-slate-700 rounded hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
           >
             <PieChart size={15} className="text-orange-600 mb-2" />
-            <p className="font-medium text-slate-900 dark:text-white text-xs">
+            <p className=" text-slate-900 dark:text-white text-xs">
               Budget
             </p>
           </Link>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-        <h2 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-2">
+        <h2 className="text-lg  text-slate-900 dark:text-white mb-4">
           Alerts
         </h2>
         <div className="space-y-3">
@@ -149,7 +149,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
               className="text-red-600 flex-shrink-0 mt-0.5"
             />
             <div>
-              <p className="font-medium text-red-900 dark:text-red-200 text-sm">
+              <p className=" text-red-900 dark:text-red-200 text-sm">
                 Outstanding Bills
               </p>
               <p className="text-xs text-red-700 dark:text-red-300">
@@ -163,7 +163,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
               className="text-yellow-600 flex-shrink-0 mt-0.5"
             />
             <div>
-              <p className="font-medium text-yellow-900 dark:text-yellow-200 text-sm">
+              <p className=" text-yellow-900 dark:text-yellow-200 text-sm">
                 Overdue Invoices
               </p>
               <p className="text-xs text-yellow-700 dark:text-yellow-300">
@@ -177,7 +177,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
               className="text-blue-600 flex-shrink-0 mt-0.5"
             />
             <div>
-              <p className="font-medium text-blue-900 dark:text-blue-200 text-sm">
+              <p className=" text-blue-900 dark:text-blue-200 text-sm">
                 Budget Alert
               </p>
               <p className="text-xs text-blue-700 dark:text-blue-300">

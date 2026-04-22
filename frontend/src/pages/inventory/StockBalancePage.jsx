@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../utils/api";
 import { renderDimensions } from "../../utils/dimensionUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 import {
   Package,
   Search,
@@ -21,6 +22,71 @@ import {
 } from "lucide-react";
 
 import toastUtils from "../../utils/toastUtils";
+
+const SerialDetailTable = ({ item }) => {
+  if (!item.serials || item.serials.length === 0) {
+    return (
+      <div className="p-4 text-center text-slate-400 text-xs">
+        No individual pieces tracking found for this item
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 overflow-hidden animate-in slide-in-from-top-4 duration-300">
+      <DataTable
+        title="Itemized Pieces (Available)"
+        titleIcon={<Boxes size={14} />}
+        titleExtra={
+          <div className="text-[10px] text-slate-500 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-100 dark:border-slate-700">
+            {item.serials.length} units in stock
+          </div>
+        }
+        data={item.serials}
+        columns={[
+          {
+            key: "serial_number_short",
+            label: "Item Code",
+            render: (_, st) => st.serial_number.replace(/^ST-/, "")
+          },
+          {
+            key: "item_name",
+            label: "Item Name",
+            render: () => item.name
+          },
+          {
+            key: "dimensions",
+            label: "Dimensions",
+            render: (_, st) => (
+              <div className="text-xs text-blue-600 font-mono">
+                {renderDimensions(st)}
+              </div>
+            )
+          },
+          {
+            key: "weight",
+            label: "Weight",
+            className: "text-center",
+            render: (_, st) => {
+              const pieceWeight = st.unit_weight || st.total_weight || item.unit_weight || 0;
+              return `${Number(pieceWeight).toFixed(3)} Kg`;
+            }
+          },
+          {
+            key: "serial_number",
+            label: "ST Number",
+            className: "text-right",
+            render: (val) => (
+              <span className="p-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 rounded text-xs border border-cyan-100 dark:border-cyan-800">
+                {val}
+              </span>
+            )
+          }
+        ]}
+      />
+    </div>
+  );
+};
 
 const StockBalancePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -127,285 +193,116 @@ const StockBalancePage = () => {
 
   return (
     <div className="space-y-2 p-4 animate-in fade-in duration-500">
-      {/* Header Section */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div className="flex items-center gap-4">
-          <div className="p-2 rounded bg-cyan-600 flex items-center justify-center text-white shadow-lg shadow-cyan-200 dark:shadow-none">
-            <Warehouse size={15} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs  text-cyan-600 dark:text-cyan-400  ">Inventory</span>
-              <span className="text-slate-300 dark:text-slate-500">›</span>
-              <span className="text-xs  text-slate-500 dark:text-slate-400  ">Stock Balance</span>
-            </div>
-            <h1 className="text-md text-slate-900 dark:text-white ">
-              Inventory Ledger
-            </h1>
-            <p className="text-xs  text-slate-500 dark:text-slate-400">
-              Real-time stock levels and material tracking
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={fetchMaterials} className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:text-cyan-600 transition-all hover:">
-            <RefreshCw size={15} />
-          </button>
-          <button className="flex items-center gap-2 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded  text-xs   hover:bg-slate-800 transition-all  shadow-slate-900/10">
-            <Download size={15} /> Export Data
-          </button>
-        </div>
-      </div>
-
-      {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-        <div className="bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-800  flex items-center justify-between group hover:border-cyan-200 transition-all duration-300">
-          <div>
-            <p className="text-xs  text-slate-400   mb-2">Total Materials</p>
-            <h3 className="text-xl  text-slate-900 dark:text-white leading-none ">{totalItems}</h3>
-          </div>
-          <div className="p-4 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded group-hover:scale-110 transition-transform">
-            <Package size={15} />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-800  flex items-center justify-between group hover:border-emerald-200 transition-all duration-300">
-          <div>
-            <p className="text-xs  text-slate-400   mb-2">Aggregate Balance</p>
-            <h3 className="text-xl  text-slate-900 dark:text-white leading-none ">{totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
-          </div>
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded group-hover:scale-110 transition-transform">
-            <Calculator size={15} />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-800  flex items-center justify-between group hover:border-red-200 transition-all duration-300">
-          <div>
-            <p className="text-xs  text-slate-400   mb-2">Low Stock Alerts</p>
-            <h3 className="text-xl  text-red-600 leading-none ">{lowStockItems}</h3>
-          </div>
-          <div className="p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded group-hover:scale-110 transition-transform animate-pulse">
-            <AlertTriangle size={15} />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Card */}
-      <div className="">
-        {/* Table Controls */}
-        <div className=" border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30">
-          <div className="flex flex-col md:flex-row gap-2">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-4 -translate-y-1/2 text-slate-400" size={15} />
-              <input
-                type="text"
-                placeholder="Search by material description..."
-                className="w-full pl-12 pr-4 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-cyan-500 outline-none  transition-all"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <label className="text-xs  text-slate-400  ">Filter:</label>
-              <select className="px-6 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-cyan-500 ">
-                <option>ALL MATERIALS</option>
-                <option>PLATES & BLOCKS</option>
-                <option>ROUND BARS</option>
-                <option>PIPES & FITTINGS</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto my-5">
-          <table className="w-full text-left border-collapse bg-white">
-            <thead>
-              <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="p-2 text-xs  text-slate-400   text-center"></th>
-                <th className="p-2 text-xs  text-slate-400  ">
-                  <div className="flex items-center gap-2 cursor-pointer hover:text-cyan-600 transition-colors">
-                    Item name <ArrowUpDown size={12} />
-                  </div>
-                </th>
-                <th className="p-2 text-xs  text-slate-400   text-right">
-                  Stock Balance
-                </th>
-                <th className="p-2 text-xs  text-slate-400   text-center">
-                  Weight (Kg)
-                </th>
-                <th className="p-2 text-xs  text-slate-400   text-center">
-                  Unit
-                </th>
-                <th className="p-2 text-xs  text-slate-400   text-center">
-                  Last Update
-                </th>
-                <th className="p-2 text-xs  text-slate-400   text-right">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-              {filteredData.map((item) => {
-    const isExpanded = expandedItem === item.id;
-
-    return (
-      <React.Fragment key={item.id}>
-        <tr className={`group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors ${isExpanded ? 'bg-cyan-50/20 dark:bg-cyan-900/10' : ''}`}>
-          <td className="p-2 text-center">
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpandedItem(isExpanded ? null : item.id);
-              }}
-              className={`p-1 rounded transition-all ${isExpanded ? 'bg-cyan-100 text-cyan-600' : 'bg-slate-100 text-slate-400'}`}
-            >
-              {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+      <DataTable
+        title="Inventory Ledger"
+        titleIcon={<Warehouse size={15} />}
+        titleExtra={
+          <div className="flex items-center gap-2 ml-4">
+            <button onClick={fetchMaterials} className="p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:text-cyan-600 transition-all">
+              <RefreshCw size={14} />
             </button>
-          </td>
-          <td className="p-2">
-            <div className="space-y-1">
-              <p className="text-xs  text-slate-900 dark:text-white   line-clamp-2 leading-tight">
-                {item.name}
-              </p>
-              <div className="text-xs text-blue-600 font-mono">
-                {renderDimensions(item)}
-              </div>
-            </div>
-          </td>
-                      <td className="p-2 text-right">
-                        <div className="flex flex-col items-end gap-1">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded  ${item.quantity <= item.reorderLevel ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
-                            <span className={`text-xs  ${item.quantity <= item.reorderLevel ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>
-                              {item.quantity.toLocaleString(undefined, { minimumFractionDigits: 3 })}
-                            </span>
-                          </div>
-                          {item.quantity <= item.reorderLevel && (
-                            <span className="text-xs  text-red-500  er">Below Threshold</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-2 text-center">
-                        <div className="flex flex-col items-center">
-                           <span className="text-xs  text-slate-900 dark:text-white">
-                              {Number(item.total_weight || 0).toFixed(3)} Kg
-                           </span>
-                           <span className="text-xs text-slate-400">
-                              Unit: {Number(item.unit_weight || 0).toFixed(3)}
-                           </span>
-                        </div>
-                      </td>
-                      <td className="p-2 text-center">
-                        <span className="text-xs  text-slate-400  ">{item.unit}</span>
-                      </td>
-                      <td className="p-2 text-center">
-                        <p className="text-xs  text-slate-500 dark:text-slate-400">{item.lastUpdated}</p>
-                      </td>
-                      <td className="p-2 text-right">
-                        <div className="flex justify-end gap-2  group-hover:opacity-100 transition-opacity">
-                          <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
-                            <MoreVertical size={15} />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteMaterial(item.id)}
-                            className="p-2 text-slate-400 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    
-                    {/* Expandable Serial Breakdown */}
-                    {isExpanded && (
-                      <tr className="bg-slate-50/50 dark:bg-slate-900/50">
-                        <td colSpan="7" className="p-2">
-                          <div className="bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  overflow-hidden animate-in slide-in-from-top-4 duration-300">
-                             <div className="p-2 border-b border-slate-50 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
-                                <h4 className="text-xs  text-slate-400   flex items-center gap-2">
-                                  <Boxes size={14} /> Itemized Pieces (Available)
-                                </h4>
-                                <div className="text-xs  text-slate-500 bg-white dark:bg-slate-900 px-3 py-1 rounded  border border-slate-100 dark:border-slate-700">
-                                  {item.serials?.length || 0} units in stock
-                                </div>
-                             </div>
-                             
-                             <div className="overflow-hidden">
-                               <table className="w-full text-left text-xs">
-                                 <thead>
-                                   <tr className="bg-slate-50/30 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700">
-                                     <th className="p-2  text-slate-400   text-center">#</th>
-                                     <th className="p-2  text-slate-400  ">Item Code</th>
-                                     <th className="p-2  text-slate-400  ">Item Name</th>
-                                     <th className="p-2  text-slate-400  ">Dimensions</th>
-                                     <th className="p-2  text-slate-400   text-center">Weight</th>
-                                     <th className="p-2  text-cyan-500   text-right">ST Number</th>
-                                   </tr>
-                                 </thead>
-                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-700 ">
-                                   {item.serials && item.serials.length > 0 ? (
-                                     item.serials.map((st, sIdx) => {
-                                       const pieceWeight = st.unit_weight || st.total_weight || item.unit_weight || 0;
-                                       return (
-                                       <tr key={sIdx} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors">
-                                         <td className="p-2 text-slate-400  text-center">{sIdx + 1}</td>
-                                         <td className="p-2  text-slate-700 dark:text-slate-300  ">
-                                           {st.serial_number.replace(/^ST-/, "")}
-                                         </td>
-                                         <td className="p-2 text-slate-500 dark:text-slate-400  ">
-                                           {item.name}
-                                         </td>
-                                         <td className="p-2">
-                                           <div className="text-xs text-blue-600 font-mono">
-                                             {renderDimensions(st)}
-                                           </div>
-                                         </td>
-                                         <td className="p-2 text-center text-slate-500 dark:text-slate-400">
-                                            {Number(pieceWeight).toFixed(3)} Kg
-                                         </td>
-                                         <td className="p-2 text-right">
-                                           <span className="p-1 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 rounded text-xs    border border-cyan-100 dark:border-cyan-800">
-                                             {st.serial_number}
-                                           </span>
-                                         </td>
-                                       </tr>
-                                     )})
-                                   ) : (
-                                     <tr>
-                                       <td colSpan="6" className="p-2 text-center text-slate-400    text-xs">
-                                         No individual pieces tracking found for this item
-                                       </td>
-                                     </tr>
-                                   )}
-                                 </tbody>
-                               </table>
-                             </div>
-                          </div>
-                        </td>
-                      </tr>
+            <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs hover:bg-slate-800 transition-all shadow-sm">
+              <Download size={14} /> Export Data
+            </button>
+          </div>
+        }
+        filters={[
+          {
+            key: "item_group",
+            label: "Category",
+            options: Array.from(new Set(stockData.map(item => item.item_group).filter(Boolean))).map(cat => ({ label: cat, value: cat }))
+          }
+        ]}
+        data={stockData}
+        columns={[
+              {
+                key: "name",
+                label: "Item name",
+                render: (_, item) => (
+                  <div className="space-y-1">
+                    <p className="text-xs  text-slate-900 dark:text-white   line-clamp-2 leading-tight">
+                      {item.name}
+                    </p>
+                    <div className="text-xs text-blue-600 font-mono">
+                      {renderDimensions(item)}
+                    </div>
+                  </div>
+                )
+              },
+              {
+                key: "quantity",
+                label: "Stock Balance",
+                className: "text-right",
+                render: (val, item) => (
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded  ${val <= item.reorderLevel ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
+                      <span className={`text-xs  ${val <= item.reorderLevel ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>
+                        {val.toLocaleString(undefined, { minimumFractionDigits: 3 })}
+                      </span>
+                    </div>
+                    {val <= item.reorderLevel && (
+                      <span className="text-xs  text-red-500  er">Below Threshold</span>
                     )}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-          {filteredData.length === 0 && (
-            <div className="p-5 text-center">
-              <div className="flex flex-col items-center gap-4 text-slate-400">
-                <div className="p-2 rounded  bg-slate-50 flex items-center justify-center">
-                   <AlertTriangle size={15} className="opacity-20" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm   ">No stock found</p>
-                  <p className="text-xs ">Verify your filters or search terms</p>
-                </div>
+                  </div>
+                )
+              },
+              {
+                key: "total_weight",
+                label: "Weight (Kg)",
+                className: "text-center",
+                render: (_, item) => (
+                  <div className="flex flex-col items-center">
+                     <span className="text-xs  text-slate-900 dark:text-white">
+                        {Number(item.total_weight || 0).toFixed(3)} Kg
+                     </span>
+                     <span className="text-xs text-slate-400">
+                        Unit: {Number(item.unit_weight || 0).toFixed(3)}
+                     </span>
+                  </div>
+                )
+              },
+              {
+                key: "unit",
+                label: "Unit",
+                className: "text-center",
+                render: (val) => <span className="text-xs  text-slate-400  ">{val}</span>
+              },
+              {
+                key: "lastUpdated",
+                label: "Last Update",
+                className: "text-center",
+                render: (val) => <p className="text-xs  text-slate-500 dark:text-slate-400">{val}</p>
+              },
+              {
+                key: "actions",
+                label: "Actions",
+                className: "text-right",
+                render: (_, item) => (
+                  <div className="flex justify-end gap-2">
+                    <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                      <MoreVertical size={15} />
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteMaterial(item.id)}
+                      className="p-2 text-slate-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                )
+              }
+            ]}
+            renderRowDetail={(item) => (
+              <div className="p-2 bg-slate-50/50 dark:bg-slate-900/50">
+                <SerialDetailTable item={item} />
               </div>
-            </div>
-          )}
+            )}
+            emptyMessage="No stock found. Verify your filters or search terms"
+          />
         </div>
-      </div>
-    </div>
-  );
-};
+      );
+    };
 
 export default StockBalancePage;
 

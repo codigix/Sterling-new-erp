@@ -5,7 +5,8 @@ const {
     getStockEntries, 
     getStockMovements,
     getWarehouses, 
-    getStockBalance 
+    getStockBalance,
+    getInventoryPortalData
 } = require('../controllers/inventoryController');
 const auth = require('../middleware/authMiddleware');
 
@@ -14,5 +15,6 @@ router.get('/stock-movements', auth, getStockMovements);
 router.post('/stock-entries', auth, createStockEntry);
 router.get('/warehouses', auth, getWarehouses);
 router.get('/materials', auth, getStockBalance);
+router.get('/stock', auth, getInventoryPortalData);
 
 module.exports = router;

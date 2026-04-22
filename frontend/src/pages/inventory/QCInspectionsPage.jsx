@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "../../utils/api";
 import { getServerUrl } from "../../utils/fileUtils";
 import Swal from "sweetalert2";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   CheckCircle,
   Search,
@@ -25,13 +25,10 @@ import {
 import taskService from "../../utils/taskService";
 import { showSuccess, showError } from "../../utils/toastUtils";
 import { renderDimensions } from "../../utils/dimensionUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const QCInspectionsPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [rootCardFilter, setRootCardFilter] = useState("all");
   const [inspections, setInspections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [taskId, setTaskId] = useState(null);
@@ -53,11 +50,10 @@ const QCInspectionsPage = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [reportSearchQuery, setReportSearchQuery] = useState("");
-  const [expandedReportItems, setExpandedReportItems] = useState({});
 
   // Modal State
   const [showInspectModal, setShowInspectModal] = useState(false);
-  const [selectedGRN, setSelectedGRN] = useState(null);
+  const [selectedGRN] = useState(null);
   const [inspectionForm, setInspectionForm] = useState({
     items: [],
     status: "pending",
@@ -74,9 +70,6 @@ const QCInspectionsPage = () => {
     // Handle search parameter from notification
     const params = new URLSearchParams(window.location.search);
     const initialSearch = params.get("search");
-    if (initialSearch) {
-      setSearchQuery(initialSearch);
-    }
     
     fetchInspections();
   }, []);
@@ -140,7 +133,6 @@ const QCInspectionsPage = () => {
         ...inspection,
         materials: enhancedMaterials
       });
-      setExpandedReportItems({});
       setShowReportModal(true);
     } catch (error) {
       console.error("Error fetching report data:", error);
@@ -223,102 +215,6 @@ const QCInspectionsPage = () => {
     } catch (error) {
       console.error("Error updating inspection type:", error);
       showError("Failed to update inspection type");
-    }
-  };
-
-  const handleInspectClick = async (grn) => {
-    try {
-      let items = [];
-      let existingInspection = null;
-
-      // Try to get existing inspection details first
-      try {
-        const inspectionRes = await axios.get(
-          `/qc/portal/inspections/grn/${grn.dbId}`
-        );
-        existingInspection = inspectionRes.data;
-      } catch {
-        // No inspection yet, ignore 404
-      }
-
-      if (existingInspection) {
-        // If inspection exists, use its items_results combined with GRN items if possible,
-        // or just use items_results if it captures everything.
-        // But items_results might not have descriptions.
-        // We need GRN items for descriptions.
-      }
-
-      // Fetch GRN details using the single GRN endpoint
-      const grnRes = await axios.get(`/inventory/grns/${grn.dbId}`);
-      const targetGRN = grnRes.data;
-
-      if (!targetGRN) {
-        showError("GRN details not found");
-        return;
-      }
-
-      items = targetGRN.items || [];
-
-      // Prepare form data
-      let formItems = items.map((item) => ({
-        ...item,
-        invoice_quantity: item.invoice_quantity || 0,
-        accepted: Number(
-          item.received_quantity !== undefined
-            ? item.received_quantity
-            : item.quantity
-        ),
-        rejected: 0,
-        overage: 0,
-        notes: "",
-      }));
-
-      let formStatus = "pending";
-      let formRemarks = "";
-
-      if (existingInspection) {
-        formStatus = existingInspection.status;
-        formRemarks = existingInspection.remarks || "";
-        if (
-          existingInspection.items_results &&
-          Array.isArray(existingInspection.items_results)
-        ) {
-          // Merge results
-          formItems = formItems.map((item) => {
-            // find result for this item. Assuming matching by index or item code if available.
-            // For now assuming index matching or we need unique ID.
-            // GRN items usually have item_code or just order.
-            // Let's match by description or item_code if available.
-            const savedResult = existingInspection.items_results.find(
-              (r) => r.description === item.description
-            );
-            if (savedResult) {
-              // Ensure the ordered quantity always comes from the actual GRN record, not stale inspection results
-              return { ...item, ...savedResult, quantity: item.quantity };
-            }
-            return item;
-          });
-        }
-      }
-
-      // Ensure UI helper fields are set
-      formItems = formItems.map((item) => ({
-        ...item,
-        total_received_val:
-          (Number(item.accepted) || 0) + (Number(item.overage) || 0),
-      }));
-
-      setSelectedGRN(grn);
-      setInspectionForm({
-        items: formItems,
-        status: formStatus,
-        remarks: formRemarks,
-        inspectorId: null,
-      });
-      setShowInspectModal(true);
-    } catch (error) {
-      console.error("Error preparing inspection:", error);
-      toastUtils.error("Failed to prepare inspection form");
     }
   };
 
@@ -457,14 +353,269 @@ const QCInspectionsPage = () => {
     }
   };
 
-  const filteredData = inspections.filter(
-    (inspection) =>
-      (inspection.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inspection.poNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inspection.vendor.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter === "all" || inspection.qcStatus === statusFilter) &&
-      (rootCardFilter === "all" || String(inspection.rootCardId) === String(rootCardFilter))
-  );
+  const columns = [
+    {
+      key: "id",
+      label: "GRN ID",
+      sortable: true,
+    },
+    {
+      key: "projectName",
+      label: "Project / Root Card",
+      sortable: true,
+      render: (value, row) => (
+        value ? (
+          <Link
+            to={`/department/quality/root-cards/${row.rootCardId}`}
+            className="text-blue-600 hover:underline"
+          >
+            {value}
+          </Link>
+        ) : "N/A"
+      ),
+    },
+    {
+      key: "poNumber",
+      label: "PO No.",
+      sortable: true,
+    },
+    {
+      key: "vendor",
+      label: "Vendor",
+      sortable: true,
+    },
+    {
+      key: "qcStatus",
+      label: "Status",
+      sortable: true,
+      render: (value, row) => (
+        <span
+          className={`p-1 rounded text-xs ${getStatusColor(
+            row.finalReportId ? "completed" : value
+          )}`}
+        >
+          {row.finalReportId 
+            ? "Report Generated" 
+            : value === "completed"
+            ? "QC Completed"
+            : value === "passed" || value === "approved"
+            ? "Approved"
+            : value.replace('_', ' ')}
+        </span>
+      ),
+    },
+    {
+      key: "inspectionType",
+      label: "Inspection Type",
+      sortable: true,
+      render: (value, row) => (
+        <select
+          value={value || 'Inhouse'}
+          onChange={(e) => handleTypeChange(row.dbId, e.target.value)}
+          className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="Inhouse">Inhouse</option>
+          <option value="Outsource">Outsource</option>
+        </select>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Action",
+      align: "center",
+      sortable: false,
+      render: (_, row) => (
+        <div className="flex justify-center">
+          {row.finalReportId ? (
+            <button
+              onClick={() => navigate("/department/quality/reports")}
+              className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-xs transition-all flex items-center gap-2"
+            >
+              <Eye size={14} />
+              View Report
+            </button>
+          ) : row.qcStatus === 'completed' ? (
+            <button
+              onClick={() => handleShowReport(row)}
+              className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs transition-all shadow-emerald-200 flex items-center gap-2"
+            >
+              <FileText size={14} />
+              QC Report
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${row.rootCardId}`)}
+              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-all shadow-blue-200"
+            >
+              Do Inspection
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  const reportColumns = [
+    {
+      key: "material_name",
+      label: "Material & ST Numbers",
+      render: (value, row) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center">
+            <Package size={15} />
+          </div>
+          <div>
+            <p className="text-xs text-slate-900 dark:text-white">{value}</p>
+            <p className="text-xs text-slate-400">{row.item_group}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "dimensions",
+      label: "Dimensions",
+      render: (_, row) => (
+        <div className="text-xs text-slate-500 font-mono">
+          {renderDimensions(row)}
+        </div>
+      ),
+    },
+    {
+      key: "received_qty",
+      label: "Received Qty",
+      align: "center",
+      render: (value, row) => (
+        <span className="text-xs text-slate-700 dark:text-slate-300">
+          {value} {row.unit}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      label: "Summary Status",
+      align: "center",
+      render: (_, row) => {
+        const acceptedCount = row.serials?.filter(s => s.inspection_status === 'Accepted').length || 0;
+        const rejectedCount = row.serials?.filter(s => s.inspection_status === 'Rejected').length || 0;
+        return (
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex gap-2">
+              {acceptedCount > 0 && (
+                <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs border border-green-100">
+                  {acceptedCount} Passed
+                </span>
+              )}
+              {rejectedCount > 0 && (
+                <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs border border-red-100">
+                  {rejectedCount} Failed
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "reports",
+      label: "Reports",
+      align: "right",
+      render: (_, row) => (
+        <div className="flex flex-col items-end gap-2">
+          {row.common_document_path && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(getServerUrl(row.common_document_path), '_blank');
+              }}
+              className="flex items-center gap-2 text-xs text-green-600 hover:text-green-700 transition-colors"
+            >
+              <CheckCircle size={12} /> Accepted <Eye size={12} />
+            </button>
+          )}
+          {row.rejected_document_path && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(getServerUrl(row.rejected_document_path), '_blank');
+              }}
+              className="flex items-center gap-2 text-xs text-red-600 hover:text-red-700 transition-colors"
+            >
+              <AlertTriangle size={12} /> Rejected <Eye size={12} />
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  const inspectColumns = [
+    {
+      key: "description",
+      label: "Item Details",
+      render: (value, row) => (
+        <div>
+          <p className="text-slate-900 dark:text-white text-xs">{value}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{row.category}</p>
+        </div>
+      ),
+    },
+    {
+      key: "quantity",
+      label: "Expected",
+      align: "center",
+      render: (value, row) => (
+        <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+          {value} {row.unit}
+        </span>
+      ),
+    },
+    {
+      key: "invoice_quantity",
+      label: "Invoice Quantity",
+      align: "center",
+      render: (value, row, _, idx) => (
+        <input
+          type="number"
+          className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center transition-all"
+          value={value}
+          onChange={(e) => handleQuantityChange(idx, "invoice_quantity", e.target.value)}
+        />
+      ),
+    },
+    {
+      key: "total_received_val",
+      label: "Received",
+      align: "center",
+      render: (value, row, _, idx) => (
+        <input
+          type="number"
+          className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center transition-all"
+          value={value}
+          onChange={(e) => handleQuantityChange(idx, "total_received", e.target.value)}
+        />
+      ),
+    },
+    {
+      key: "rejected",
+      label: "Shortage",
+      align: "center",
+      render: (value) => (
+        <span className={`text-xs ${Number(value) > 0 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "overage",
+      label: "Overage",
+      align: "center",
+      render: (value) => (
+        <span className={`text-xs ${Number(value) > 0 ? 'text-orange-500 font-bold' : 'text-slate-400'}`}>
+          {value}
+        </span>
+      ),
+    },
+  ];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -508,172 +659,33 @@ const QCInspectionsPage = () => {
         </div>
       </div>
 
-      <div className=" dark:bg-slate-800 rounded my-5  dark:border-slate-700">
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search
-              size={15}
-              className="absolute left-3 top-3 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Search inspection, GRN or vendor..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 p-2 border text-xs border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
-            />
-          </div>
-          <select
-            value={rootCardFilter}
-            onChange={(e) => setRootCardFilter(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs max-w-[200px]"
-          >
-            <option value="all">All Projects / Root Cards</option>
-            {uniqueRootCards.map((rc) => (
-              <option key={rc.id} value={rc.id}>
-                {rc.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
-          >
-            <option value="all">All Status</option>
-            <option value="completed">Completed</option>
-            <option value="passed">Approved</option>
-            <option value="shortage">Shortage</option>
-            <option value="overage">Overage</option>
-            <option value="pending">Pending</option>
-          </select>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full bg-white">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  GRN ID
-                </th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  Project / Root Card
-                </th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  PO No.
-                </th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  Vendor
-                </th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  Status
-                </th>
-                <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
-                  Inspection Type
-                </th>
-                <th className="p-2 text-center text-xs font-semibold text-slate-900 dark:text-white">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="10" className="p-2 text-center text-slate-500">
-                    Loading...
-                  </td>
-                </tr>
-              ) : filteredData.length === 0 ? (
-                <tr>
-                  <td colSpan="10" className="p-2 text-center text-slate-500">
-                    No inspections found
-                  </td>
-                </tr>
-              ) : (
-                filteredData.map((inspection) => (
-                  <tr
-                    key={inspection.id}
-                    className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                  >
-                    <td className="p-2 text-xs  text-slate-900 text-left dark:text-white">
-                      {inspection.id}
-                    </td>
-                    <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
-                      {inspection.projectName ? (
-                        <Link
-                          to={`/department/quality/root-cards/${inspection.rootCardId}`}
-                          className="text-blue-600 hover:underline "
-                        >
-                          {inspection.projectName}
-                        </Link>
-                      ) : (
-                        "N/A"
-                      )}
-                    </td>
-                    <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
-                      {inspection.poNumber}
-                    </td>
-                    <td className="p-2 text-xs text-slate-500 dark:text-slate-400">
-                      {inspection.vendor}
-                    </td>
-                    <td className="p-2 text-xs">
-                      <span
-                        className={`p-1 rounded  text-xs    ${getStatusColor(
-                          inspection.finalReportId ? "completed" : inspection.qcStatus
-                        )}`}
-                      >
-                        {inspection.finalReportId 
-                          ? "Report Generated" 
-                          : inspection.qcStatus === "completed"
-                          ? "QC Completed"
-                          : inspection.qcStatus === "passed" || inspection.qcStatus === "approved"
-                          ? "Approved"
-                          : inspection.qcStatus.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="p-2 text-xs">
-                      <select
-                        value={inspection.inspectionType || 'Inhouse'}
-                        onChange={(e) => handleTypeChange(inspection.dbId, e.target.value)}
-                        className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded  text-xs outline-none focus:ring-1 focus:ring-blue-500"
-                      >
-                        <option value="Inhouse">Inhouse</option>
-                        <option value="Outsource">Outsource</option>
-                      </select>
-                    </td>
-                    <td className="p-2 text-center text-xs">
-                      {inspection.finalReportId ? (
-                        <button
-                          onClick={() => navigate("/department/quality/reports")}
-                          className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-xs    transition-all  flex items-center gap-2 mx-auto"
-                        >
-                          <Eye size={14} />
-                          View Report
-                        </button>
-                      ) : inspection.qcStatus === 'completed' ? (
-                        <button
-                          onClick={() => handleShowReport(inspection)}
-                          className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs    transition-all  shadow-emerald-200 flex items-center gap-2 mx-auto"
-                        >
-                          <FileText size={14} />
-                          QC Report
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${inspection.rootCardId}`)}
-                          className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs    transition-all  shadow-blue-200"
-                        >
-                          Do Inspection
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        title="Quality Inspections"
+        titleIcon={Package}
+        columns={columns}
+        data={inspections}
+        loading={loading}
+        emptyMessage="No inspections found"
+        initialSearchValue={new URLSearchParams(window.location.search).get("search") || ""}
+        filters={[
+          {
+            key: "rootCardId",
+            label: "All Projects / Root Cards",
+            options: uniqueRootCards.map((rc) => ({ label: rc.name, value: rc.id }))
+          },
+          {
+            key: "qcStatus",
+            label: "All Status",
+            options: [
+              { label: "Completed", value: "completed" },
+              { label: "Approved", value: "passed" },
+              { label: "Shortage", value: "shortage" },
+              { label: "Overage", value: "overage" },
+              { label: "Pending", value: "pending" },
+            ]
+          }
+        ]}
+      />
 
       {/* QC Report Modal */}
       {showReportModal && reportData && (
@@ -682,7 +694,7 @@ const QCInspectionsPage = () => {
             {/* Modal Header */}
             <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+                <div className="w-12 h-12 rounded  bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
                   <FileText size={15} />
                 </div>
                 <div>
@@ -729,148 +741,54 @@ const QCInspectionsPage = () => {
                   </div>
                 </div>
 
-                <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-2xl ">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                        <th className="p-2 text-xs  text-slate-400  ">Material & ST Numbers</th>
-                        <th className="p-2 text-xs  text-slate-400  ">Dimensions</th>
-                        <th className="px-4 py-4 text-xs  text-slate-400   text-center">Received Qty</th>
-                        <th className="px-4 py-4 text-xs  text-slate-400   text-center">Summary Status</th>
-                        <th className="p-2 text-xs  text-slate-400   text-right">Reports</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                      {reportData.materials?.filter(item => 
-                        item.material_name.toLowerCase().includes(reportSearchQuery.toLowerCase()) ||
-                        item.item_group.toLowerCase().includes(reportSearchQuery.toLowerCase()) ||
-                        item.serials?.some(s => s.serial_number.toLowerCase().includes(reportSearchQuery.toLowerCase()))
-                      ).map((item, idx) => {
-                        const acceptedCount = item.serials?.filter(s => s.inspection_status === 'Accepted').length || 0;
-                        const rejectedCount = item.serials?.filter(s => s.inspection_status === 'Rejected').length || 0;
-                        const isExpanded = expandedReportItems[idx];
-                        
-                        return (
-                          <React.Fragment key={idx}>
-                            <tr 
-                              className={`hover:bg-slate-50/30 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/10' : ''}`}
-                              onClick={() => setExpandedReportItems(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                            >
-                              <td className="p-2">
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600'}`}>
-                                    <Package size={15} />
-                                  </div>
-                                  <div>
-                                    <p className="text-xs  text-slate-900 dark:text-white   flex items-center gap-2">
-                                      {item.material_name}
-                                      {isExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
-                                    </p>
-                                    <p className="text-xs  text-slate-400  ">{item.item_group}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="p-2">
-                                <div className="text-xs text-slate-500 font-mono">
-                                  {renderDimensions(item)}
-                                </div>
-                              </td>
-                              <td className="px-4 py-5 text-center">
-                                <span className="text-xs  text-slate-700 dark:text-slate-300">
-                                  {item.received_qty} {item.unit}
-                                </span>
-                              </td>
-                              <td className="px-4 py-5">
-                                <div className="flex flex-col items-center gap-1">
-                                  <div className="flex gap-2">
-                                    {acceptedCount > 0 && (
-                                      <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs   border border-green-100">
-                                        {acceptedCount} Passed
-                                      </span>
-                                    )}
-                                    {rejectedCount > 0 && (
-                                      <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs   border border-red-100">
-                                        {rejectedCount} Failed
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="p-2">
-                                <div className="flex flex-col items-end gap-2">
-                                  {item.common_document_path && (
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        window.open(getServerUrl(item.common_document_path), '_blank');
-                                      }}
-                                      className="flex items-center gap-2 text-xs  text-green-600  hover:text-green-700 transition-colors"
-                                    >
-                                      <CheckCircle size={12} /> Accepted <Eye size={12} />
-                                    </button>
-                                  )}
-                                  {item.rejected_document_path && (
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        window.open(getServerUrl(item.rejected_document_path), '_blank');
-                                      }}
-                                      className="flex items-center gap-2 text-xs  text-red-600  hover:text-red-700 transition-colors"
-                                    >
-                                      <AlertTriangle size={12} /> Rejected <Eye size={12} />
-                                    </button>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                            
-                            {isExpanded && (
-                              <tr>
-                                <td colSpan="4" className="px-8 py-4 bg-slate-50/50 dark:bg-slate-800/20">
-                                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                                    {item.serials?.map((s, sIdx) => (
-                                      <div 
-                                        key={sIdx}
-                                        className={`p-3 rounded border flex flex-col gap-1.5 transition-all ${
-                                          s.inspection_status === 'Accepted' 
-                                            ? 'bg-white dark:bg-slate-900 border-green-100 dark:border-green-900/30' 
-                                            : 'bg-white dark:bg-slate-900 border-red-100 dark:border-red-900/30'
-                                        }`}
-                                      >
-                                        <div className="flex items-center justify-between">
-                                          <span className="text-[8px]  text-slate-400  ">ST Number</span>
-                                          <span className={`w-2 h-2 rounded  ${s.inspection_status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                        </div>
-                                        <p className="text-xs  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
-                                          {s.serial_number}
-                                        </p>
-                                        <div className="text-xs text-blue-600 font-mono">
-                                          {renderDimensions(s.dimensions)}
-                                        </div>
-                                        <div className={`mt-1 px-2 py-0.5 rounded text-[8px]   er w-fit ${
-                                          s.inspection_status === 'Accepted' 
-                                            ? 'bg-green-50 text-green-600' 
-                                            : 'bg-red-50 text-red-600'
-                                        }`}>
-                                          {s.inspection_status}
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                <div className="mt-4">
+                  <DataTable
+                    columns={reportColumns}
+                    data={reportData.materials?.filter(item => 
+                      item.material_name.toLowerCase().includes(reportSearchQuery.toLowerCase()) ||
+                      item.item_group.toLowerCase().includes(reportSearchQuery.toLowerCase()) ||
+                      item.serials?.some(s => s.serial_number.toLowerCase().includes(reportSearchQuery.toLowerCase()))
+                    )}
+                    showSearch={false}
+                    expandableRow={(item) => (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 bg-slate-50/50 dark:bg-slate-800/20 rounded-xl">
+                        {item.serials?.map((s, sIdx) => (
+                          <div 
+                            key={sIdx}
+                            className={`p-3 rounded border flex flex-col gap-1.5 transition-all ${
+                              s.inspection_status === 'Accepted' 
+                                ? 'bg-white dark:bg-slate-900 border-green-100 dark:border-green-900/30' 
+                                : 'bg-white dark:bg-slate-900 border-red-100 dark:border-red-900/30'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[8px]  text-slate-400  ">ST Number</span>
+                              <span className={`w-2 h-2 rounded  ${s.inspection_status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                            </div>
+                            <p className="text-xs  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
+                              {s.serial_number}
+                            </p>
+                            <div className="text-xs text-blue-600 font-mono">
+                              {renderDimensions(s.dimensions)}
+                            </div>
+                            <div className={`mt-1 px-2 py-0.5 rounded text-[8px]   er w-fit ${
+                              s.inspection_status === 'Accepted' 
+                                ? 'bg-green-50 text-green-600' 
+                                : 'bg-red-50 text-red-600'
+                            }`}>
+                              {s.inspection_status}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  />
                 </div>
               </div>
 
               {/* General Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-4">
+                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded  border border-slate-100 dark:border-slate-700 space-y-4">
                   <h4 className="text-xs  text-slate-400  tracking-[0.2em] flex items-center gap-2">
                     <Search size={14} /> Inspection Details
                   </h4>
@@ -885,7 +803,7 @@ const QCInspectionsPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
+                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded  border border-slate-100 dark:border-slate-700 space-y-2">
                   <h4 className="text-xs  text-slate-400  tracking-[0.2em]">Summary Status</h4>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-emerald-600">
@@ -931,7 +849,7 @@ const QCInspectionsPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 rounded  w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h2 className="text-lg  text-slate-900 dark:text-white">
                 QC Inspection - {selectedGRN.id}
               </h2>
               <button
@@ -948,7 +866,7 @@ const QCInspectionsPage = () => {
                   <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide  mb-1">
                     PO Number
                   </p>
-                  <p className="font-semibold text-slate-900 dark:text-white text-lg">
+                  <p className=" text-slate-900 dark:text-white text-lg">
                     {selectedGRN.poNumber}
                   </p>
                 </div>
@@ -956,121 +874,22 @@ const QCInspectionsPage = () => {
                   <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide  mb-1">
                     Vendor
                   </p>
-                  <p className="font-semibold text-slate-900 dark:text-white text-lg">
+                  <p className=" text-slate-900 dark:text-white text-lg">
                     {selectedGRN.vendor}
                   </p>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                <h3 className=" text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                   <CheckCircle size={15} className="text-blue-600" />
                   Items Inspection
                 </h3>
-                <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded ">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
-                        <th className="p-3 text-left font-semibold text-slate-900 dark:text-white">
-                          Item Details
-                        </th>
-                        <th className="p-3 text-center font-semibold text-slate-900 dark:text-white w-24">
-                          Expected
-                        </th>
-                        <th className="p-3 text-center font-semibold text-slate-900 dark:text-white w-32">
-                          Invoice Quantity
-                        </th>
-                        <th className="p-3 text-center font-semibold text-slate-900 dark:text-white w-32">
-                          Received
-                        </th>
-                        <th className="p-3 text-center font-semibold text-slate-900 dark:text-white w-32">
-                          Shortage
-                        </th>
-                        <th className="p-3 text-center font-semibold text-slate-900 dark:text-white w-32">
-                          Overage
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                      {inspectionForm.items.map((item, idx) => (
-                        <tr
-                          key={idx}
-                          className="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                        >
-                          <td className="p-3">
-                            <p className=" text-slate-900 dark:text-white text-xs">
-                              {item.description}
-                            </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                              {item.category}
-                            </p>
-                          </td>
-                          <td className="p-3 text-center">
-                            <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700  text-slate-700 dark:text-slate-300">
-                              {item.quantity} {item.unit}
-                            </span>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex justify-center">
-                              <input
-                                type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center  transition-all "
-                                value={item.invoice_quantity}
-                                onChange={(e) =>
-                                  handleQuantityChange(
-                                    idx,
-                                    "invoice_quantity",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex justify-center">
-                              <input
-                                type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center  transition-all "
-                                value={
-                                  item.total_received_val !== undefined
-                                    ? item.total_received_val
-                                    : ""
-                                }
-                                onChange={(e) =>
-                                  handleQuantityChange(
-                                    idx,
-                                    "total_received",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex justify-center">
-                              <input
-                                type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center  cursor-not-allowed"
-                                value={item.rejected}
-                                readOnly
-                              />
-                            </div>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex justify-center">
-                              <input
-                                type="number"
-                                className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-center  cursor-not-allowed"
-                                value={item.overage}
-                                readOnly
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  columns={inspectColumns}
+                  data={inspectionForm.items}
+                  showSearch={false}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-700/30 p-5 rounded border border-slate-100 dark:border-slate-700">

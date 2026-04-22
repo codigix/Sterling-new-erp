@@ -8,6 +8,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import CreatePurchaseOrderModal from "./CreatePurchaseOrderModal";
 import { renderDimensions } from "../../utils/dimensionUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 import {
   ShoppingCart,
   Search,
@@ -33,6 +34,113 @@ import {
   Layers,
   FileSpreadsheet,
 } from "lucide-react";
+
+const PurchaseOrderDetailTable = ({ po }) => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPOItems = async () => {
+      try {
+        const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
+        setItems(response.data.items || []);
+      } catch (error) {
+        console.error("Error fetching PO items:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPOItems();
+  }, [po.id]);
+
+  if (loading) {
+    return (
+      <div className="p-4 flex justify-center">
+        <RefreshCw size={20} className="animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-2 rounded ">
+      <DataTable
+        title="Order Items Breakdown"
+        titleIcon={<Package size={16} />}
+        data={items}
+        columns={[
+          {
+            key: "material_name",
+            label: "Item Details",
+            render: (val, item) => (
+              <div>
+                <p className=" text-slate-900 dark:text-white">{val}</p>
+                <p className="text-[10px] text-slate-500">{item.item_group}</p>
+              </div>
+            )
+          },
+          {
+            key: "dimensions",
+            label: "Dimensions",
+            render: (_, item) => (
+              <span className="text-xs text-slate-500">
+                {renderDimensions(item)}
+              </span>
+            )
+          },
+          {
+            key: "quantity",
+            label: "Ordered Qty",
+            align: "right",
+            render: (val, item) => (
+              <div className="flex flex-col items-end">
+                <span className=" text-slate-900 dark:text-white">
+                  {Number(val).toLocaleString()} {item.unit || item.uom}
+                </span>
+                {item.total_weight > 0 && (
+                  <span className="text-[10px] text-slate-500">
+                    {Number(item.total_weight).toFixed(3)} Kg
+                  </span>
+                )}
+              </div>
+            )
+          },
+          {
+            key: "received_qty",
+            label: "Received",
+            align: "right",
+            render: (val, item) => (
+              <span className={` ${Number(val || 0) >= Number(item.quantity || 0) ? 'text-emerald-600' : 'text-blue-600'}`}>
+                {Number(val || 0).toLocaleString()}
+              </span>
+            )
+          },
+          {
+            key: "rate",
+            label: "Rate",
+            align: "right",
+            render: (val, item) => (
+              <div className="flex flex-col items-end">
+                <span className="text-slate-900 dark:text-white">
+                  ₹{Number(item.rate_per_kg || val || 0).toLocaleString()}
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  per {item.rate_per_kg ? 'Kg' : (item.unit || 'Unit')}
+                </span>
+              </div>
+            )
+          },
+          {
+            key: "amount",
+            label: "Total Amount",
+            align: "right",
+            className: " text-slate-900 dark:text-white",
+            render: (val) => `₹${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+          }
+        ]}
+      />
+    </div>
+  );
+};
 
 const KanbanView = ({
   data,
@@ -87,7 +195,7 @@ const KanbanView = ({
               <div
                 className={`w-2 h-2 rounded ${getStatusColor(col.id)}`}
               />
-              <h3 className="text-xs  text-slate-700 dark:text-slate-300  ">
+              <h3 className="text-xs  text-slate-700 dark:text-slate-300">
                 {col.title}
               </h3>
               <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs  text-slate-500">
@@ -99,7 +207,7 @@ const KanbanView = ({
           <div className="flex flex-col gap-3 flex-1">
             {data.filter((po) => po.status === col.id).length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 bg-slate-50/50 dark:bg-slate-800/20 rounded border border-dashed border-slate-200 dark:border-slate-800/50">
-                <p className="text-xs  text-slate-400  ">
+                <p className="text-xs  text-slate-400">
                   No orders
                 </p>
               </div>
@@ -117,12 +225,12 @@ const KanbanView = ({
                   return (
                     <div
                       key={po.id}
-                      className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800 p-4  transition-all group border-l-4 border-l-blue-500"
+                      className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800 p-4 shadow-sm transition-all group border-l-4 border-l-blue-500"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <button
                           onClick={() => handleViewPO(po)}
-                          className="text-xs  text-blue-600 hover:text-blue-700  "
+                          className="text-xs  text-blue-600 hover:text-blue-700 font-mono"
                         >
                           {po.po_number}
                         </button>
@@ -157,7 +265,7 @@ const KanbanView = ({
                               }
                             />
                             {po.unread_communication_count > 0 && (
-                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-fulder-2 border-white dark:border-slate-900 ">
+                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 ">
                                 {po.unread_communication_count}
                               </span>
                             )}
@@ -194,28 +302,10 @@ const KanbanView = ({
                               <Send size={14} />
                             </button>
                           )}
-                          {isInventoryView && (po.inventory_status === "material received" || po.inventory_status === "partially received") && po.dc_approved === 1 && (
-                            <button
-                              onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)}
-                              className="p-1 text-slate-400 hover:text-blue-600 rounded transition-all"
-                              title="Create GRN"
-                            >
-                              <FileText size={14} />
-                            </button>
-                          )}
-                          {po.status !== "draft" && !isInventoryView && (
-                            <button
-                              onClick={() => handleUploadInvoice(po)}
-                              className="p-1 text-slate-400 hover:text-orange-600 rounded transition-all"
-                              title="View Attachments/Invoice"
-                            >
-                              <Paperclip size={14} />
-                            </button>
-                          )}
                         </div>
                       </div>
 
-                      <h4 className="text-xs  text-slate-700 dark:text-slate-300 mb-1   truncate">
+                      <h4 className="text-xs  text-slate-700 dark:text-slate-300 mb-1  truncate">
                         {po.vendor_name || "N/A"}
                       </h4>
 
@@ -233,14 +323,14 @@ const KanbanView = ({
                         </div>
                         <div className="flex items-center gap-1">
                           <FileText size={10} className="text-slate-400" />
-                          <span className="text-xs  text-slate-400  ">
+                          <span className="text-xs  text-slate-400 font-mono">
                             #{po.mr_number || po.quotation_id || "Direct"}
                           </span>
                         </div>
                         {po.root_card_id && (
                           <div className="flex items-center gap-1">
                             <Layers size={10} className="text-blue-600 flex-shrink-0" />
-                            <span className="text-xs  text-blue-600   break-words">
+                            <span className="text-xs  text-blue-600  break-words">
                               Project: {po.root_card_project_name || "N/A"}
                             </span>
                           </div>
@@ -250,19 +340,19 @@ const KanbanView = ({
                       <div className="flex items-center justify-between mb-3">
                         {!isInventoryView ? (
                           <div>
-                            <p className="text-xs  text-slate-900 dark:text-white  ">
+                            <p className="text-xs  text-slate-900 dark:text-white ">
                               ₹{formatCurrency(po.total_amount)}
                             </p>
-                            <p className="text-[8px]  text-slate-400   mt-0.5">
+                            <p className="text-[8px]  text-slate-400 uppercase mt-0.5">
                               Total Value
                             </p>
                           </div>
                         ) : (
                           <div>
-                            <p className="text-xs  text-slate-900 dark:text-white  ">
+                            <p className="text-xs  text-slate-900 dark:text-white ">
                               {po.total_qty || 0} {po.uom || "Units"}
                             </p>
-                            <p className="text-[8px]  text-slate-400   mt-0.5">
+                            <p className="text-[8px]  text-slate-400 uppercase mt-0.5">
                               Total Quantity
                             </p>
                           </div>
@@ -273,17 +363,17 @@ const KanbanView = ({
                           >
                             {fulfillmentPercent}%
                           </p>
-                          <p className="text-[8px]  text-slate-400   mt-0.5">
+                          <p className="text-[8px]  text-slate-400 uppercase mt-0.5">
                             Received
                           </p>
                         </div>
                       </div>
 
-                      <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded  low-hidden">
+                      <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-500 ${fulfillmentPercent === 100 ? "bg-emerald-500" : "bg-blue-500"}`}
                           style={{ width: `${fulfillmentPercent}%` }}
-                        ></div>
+                        />
                       </div>
                     </div>
                   );
@@ -318,7 +408,6 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       axios.get(`/department/procurement/quotations/${qid}`).then(res => {
         setPreFilledFromQuotation(res.data);
         setShowCreateModal(true);
-        // Clear the URL parameter after it's been used to avoid reopening on refresh
         navigate(location.pathname, { replace: true });
       }).catch(err => console.error("Error fetching quotation for PO:", err));
     }
@@ -326,18 +415,15 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     if (location.state?.quotation) {
       setPreFilledFromQuotation(location.state.quotation);
       setShowCreateModal(true);
-      // Clear the state after it's been used
       navigate(location.pathname, { replace: true, state: {} });
     }
 
-    // Check for project filter in URL
     const projFilter = params.get('projectFilter');
     if (projFilter) {
       setProjectFilter(projFilter);
-      // Optional: clear the param from URL if you want it to be a one-time thing
-      // navigate(location.pathname, { replace: true });
     }
   }, [location.state, location.search, location.pathname, navigate]);
+
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showMonitorModal, setShowMonitorModal] = useState(false);
   const [selectedPOForMonitor, setSelectedPOForMonitor] = useState(null);
@@ -360,17 +446,13 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
   useEffect(() => {
     fetchPurchaseOrders();
     fetchStats();
-
-    // Auto-refresh dashboard every 30 seconds to check for new replies
     const interval = setInterval(() => {
-      fetchPurchaseOrders();
+      fetchPurchaseOrders(true);
       fetchStats();
     }, 30000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-refresh communications when modal is open
   useEffect(() => {
     let interval;
     if (showMonitorModal && selectedPOForMonitor) {
@@ -418,7 +500,6 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
   const generatePOPDF = async (po) => {
     const doc = new jsPDF();
-
     try {
       const logo = await loadImage("/logo.png");
       doc.addImage(logo, "PNG", 14, 5, 50, 15);
@@ -432,7 +513,6 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     const formatDate = (dateStr) => {
       if (!dateStr) return "N/A";
       try {
-        // Handle ISO string or YYYY-MM-DD
         const date = new Date(dateStr);
         const d = date.getDate().toString().padStart(2, '0');
         const m = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -449,47 +529,16 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     doc.text(`Vendor: ${po.vendor_name || "N/A"}`, 14, 55);
 
     if (po.expected_delivery_date) {
-      doc.text(
-        `Expected Delivery: ${formatDate(po.expected_delivery_date)}`,
-        14,
-        60,
-      );
+      doc.text(`Expected Delivery: ${formatDate(po.expected_delivery_date)}`, 14, 60);
     }
 
-    if (po.delivery_location) {
-      doc.text(
-        `Delivery Location: ${po.delivery_location}`,
-        14,
-        65,
-      );
-    }
-
-    if (po.location_link) {
-      doc.setTextColor(59, 130, 246);
-      doc.text("Location Map Link", 14, 70, { link: { url: po.location_link } });
-      doc.setTextColor(0, 0, 0);
-    }
-
-    const tableColumn = [
-      "#",
-      "Item Name / Group",
-      "Qty",
-      "UOM",
-      "Rate/Kg",
-      "Weight (Kg)",
-      "Total",
-    ];
-
+    const tableColumn = ["#", "Item Name / Group", "Qty", "UOM", "Rate/Kg", "Weight (Kg)", "Total"];
     const tableRows = (po.items || []).map((item, index) => {
       const dimText = renderDimensions(item);
       const dimDisplay = dimText ? `\nDim: ${dimText} mm` : "";
-
       return [
         index + 1,
-        {
-          content: `${item.material_name || "N/A"}\n${item.item_group || "-"}${dimDisplay}`,
-          styles: { fontStyle: "bold" },
-        },
+        { content: `${item.material_name || "N/A"}\n${item.item_group || "-"}${dimDisplay}`, styles: { fontStyle: "bold" } },
         item.quantity ? parseFloat(item.quantity).toString() : "0",
         item.unit || item.uom || "Nos",
         `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
@@ -517,67 +566,26 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     });
 
     const finalY = doc.lastAutoTable.finalY + 10;
-
     doc.setFontSize(11);
-    doc.text(`Subtotal: INR ${Number(po.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`, 140, finalY);
-    doc.text(
-      `Tax Amount: INR ${Number(po.tax_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
-      140,
-      finalY + 7,
-    );
-
+    doc.text(`Subtotal: INR ${Number(po.subtotal || 0).toLocaleString()}`, 140, finalY);
+    doc.text(`Tax Amount: INR ${Number(po.tax_amount || 0).toLocaleString()}`, 140, finalY + 7);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text(
-      `Total Amount: INR ${Number(po.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
-      140,
-      finalY + 15,
-    );
-    doc.setFont("helvetica", "normal");
-
-    let currentY = finalY + 25;
-    
-    if (po.notes) {
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.text("Notes:", 14, currentY);
-      doc.setFont("helvetica", "normal");
-      currentY += 5;
-      const splitNotes = doc.splitTextToSize(po.notes, 180);
-      doc.text(splitNotes, 14, currentY);
-      currentY += (splitNotes.length * 5) + 10;
-    }
-
-    if (po.terms) {
-      if (currentY > 260) {
-        doc.addPage();
-        currentY = 20;
-      }
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.text("Terms & Conditions:", 14, currentY);
-      doc.setFont("helvetica", "normal");
-      currentY += 5;
-      const splitTerms = doc.splitTextToSize(po.terms, 180);
-      doc.text(splitTerms, 14, currentY);
-    }
-
+    doc.text(`Total Amount: INR ${Number(po.total_amount || 0).toLocaleString()}`, 140, finalY + 15);
     return doc;
   };
 
   const handleSendEmail = async (po) => {
     try {
-      // Fetch full PO details to get items
       const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
       const fullPO = response.data;
-      
       setEmailData({
         poId: fullPO.id,
         poNumber: fullPO.po_number,
         email: fullPO.vendor_email || "",
         subject: `Purchase Order ${fullPO.po_number} from Sterling`,
         message: `Dear ${fullPO.vendor_name || "Vendor"},\n\nPlease find attached the Purchase Order ${fullPO.po_number}.\n\nBest regards,\nSterling`,
-        po: fullPO, // Store the whole po object to generate PDF later
+        po: fullPO,
       });
       setShowEmailModal(true);
     } catch (error) {
@@ -588,7 +596,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
   const handleMonitorReplies = async (po) => {
     setSelectedPOForMonitor(po);
-    setCommunications([]); // Clear previous communications
+    setCommunications([]);
     setShowMonitorModal(true);
     fetchCommunications(po.id);
   };
@@ -596,16 +604,14 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
   const closeMonitorModal = () => {
     setShowMonitorModal(false);
     setSelectedPOForMonitor(null);
-    fetchPurchaseOrders(); // Refresh to update unread counts
+    fetchPurchaseOrders(true);
     fetchStats();
   };
 
   const fetchCommunications = async (poId) => {
     try {
       setFetchingCommunications(true);
-      const response = await axios.get(
-        `/department/procurement/purchase-orders/${poId}/communications`,
-      );
+      const response = await axios.get(`/department/procurement/purchase-orders/${poId}/communications`);
       setCommunications(response.data);
     } catch (error) {
       console.error("Error fetching communications:", error);
@@ -620,7 +626,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       setSelectedPOForUpload(response.data);
       setShowUploadModal(true);
       setFilesToUpload([]);
-      setIsFullReceipt(false); // Reset to partial by default
+      setIsFullReceipt(false);
     } catch (error) {
       console.error("Error fetching PO for upload:", error);
       toastUtils.error("Failed to load PO details");
@@ -632,26 +638,16 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       toastUtils.error("Please select files to upload");
       return;
     }
-
     try {
       setUploadingFiles(true);
       const formData = new FormData();
-      filesToUpload.forEach((file) => {
-        formData.append("files", file);
-      });
+      filesToUpload.forEach((file) => formData.append("files", file));
       formData.append("poId", selectedPOForUpload.id);
       formData.append("isFullReceipt", isFullReceipt);
 
-      await axios.post(
-        `/department/procurement/purchase-orders/${selectedPOForUpload.id}/invoices`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-
+      await axios.post(`/department/procurement/purchase-orders/${selectedPOForUpload.id}/invoices`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       toastUtils.success("Files uploaded successfully");
       setShowUploadModal(false);
       fetchPurchaseOrders();
@@ -665,16 +661,11 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
   const viewAttachment = async (attachmentId, fileName) => {
     try {
-      const response = await axios.get(
-        `/department/procurement/purchase-orders/attachments/${attachmentId}/download`,
-        {
-          responseType: "blob",
-        },
-      );
-      const mimeType = response.headers['content-type'] || 'application/pdf';
-      const file = new Blob([response.data], { type: mimeType });
-      const fileURL = URL.createObjectURL(file);
-      window.open(fileURL, '_blank');
+      const response = await axios.get(`/department/procurement/purchase-orders/attachments/${attachmentId}/download`, {
+        responseType: "blob",
+      });
+      const file = new Blob([response.data], { type: response.headers['content-type'] || 'application/pdf' });
+      window.open(URL.createObjectURL(file), '_blank');
     } catch (error) {
       console.error("Error viewing attachment:", error);
       toastUtils.error("Failed to view attachment");
@@ -683,12 +674,9 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
 
   const downloadAttachment = async (attachmentId, fileName) => {
     try {
-      const response = await axios.get(
-        `/department/procurement/purchase-orders/attachments/${attachmentId}/download`,
-        {
-          responseType: "blob",
-        },
-      );
+      const response = await axios.get(`/department/procurement/purchase-orders/attachments/${attachmentId}/download`, {
+        responseType: "blob",
+      });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -708,21 +696,6 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         status: "sent to inventory",
         inventory_status: "pending receipt",
       });
-
-      // Send notification to Inventory department
-      const projectPart = po.root_card_project_name ? ` for project: ${po.root_card_project_name}` : "";
-      const filterLink = po.root_card_project_name 
-        ? `/department/inventory/purchase-orders?projectFilter=${encodeURIComponent(po.root_card_project_name)}`
-        : "/department/inventory/purchase-orders";
-
-      await axios.post("/notifications", {
-        department: "inventory",
-        title: "New Purchase Order Received",
-        message: `Purchase Order ${po.po_number} from ${po.vendor_name || 'Vendor'}${projectPart} has been sent to inventory for processing.`,
-        type: "info",
-        link: filterLink
-      });
-
       toastUtils.success(`PO ${po.po_number} sent to inventory successfully`);
       fetchPurchaseOrders();
       fetchStats();
@@ -736,23 +709,12 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     e.preventDefault();
     setSendingEmail(true);
     try {
-      // Generate PDF
       const doc = await generatePOPDF(emailData.po);
       const pdfBase64 = doc.output("datauristring");
-
-      await axios.post(`/department/procurement/purchase-orders/${emailData.poId}/email`, {
-        ...emailData,
-        pdfBase64,
-      });
-
-      // Update status to submitted if it was draft
+      await axios.post(`/department/procurement/purchase-orders/${emailData.poId}/email`, { ...emailData, pdfBase64 });
       if (emailData.po.status === "draft") {
-        await axios.patch(
-          `/department/procurement/purchase-orders/${emailData.poId}/status`,
-          { status: "submitted" },
-        );
+        await axios.patch(`/department/procurement/purchase-orders/${emailData.poId}/status`, { status: "submitted" });
       }
-
       setShowEmailModal(false);
       toastUtils.success("Purchase Order emailed successfully");
       fetchPurchaseOrders();
@@ -765,37 +727,10 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-IN", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 3,
-    }).format(amount || 0);
+    return new Intl.NumberFormat("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 3 }).format(amount || 0);
   };
 
   const projects = Array.from(new Set(purchaseOrders.map(po => po.root_card_project_name).filter(Boolean))).sort();
-  const rootCardsList = Array.from(new Set(purchaseOrders.map(po => po.root_card_id).filter(Boolean))).sort();
-
-  const filteredData = purchaseOrders.filter((po) => {
-    const matchesSearch =
-      (po.po_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (po.vendor_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (po.root_card_project_name || "").toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || po.status === statusFilter;
-    const matchesProject = projectFilter === "all" || po.root_card_project_name === projectFilter;
-    const matchesRootCard = rootCardFilter === "all" || String(po.root_card_id) === rootCardFilter;
-    
-    if (isInventoryView) {
-      const matchesInventoryStatus = statusFilter === "all" 
-        ? (po.inventory_status === "pending receipt" || po.inventory_status === "dc uploaded" || po.inventory_status === "material received" || po.inventory_status === "partially received" || po.inventory_status === "fulfilled" || po.inventory_status === "delivered")
-        : (statusFilter === "pending receipt" 
-            ? (po.inventory_status === "pending receipt" || po.inventory_status === "dc uploaded" || po.inventory_status === "material received" || po.inventory_status === "partially received")
-            : po.inventory_status === statusFilter);
-
-      return matchesSearch && matchesInventoryStatus && matchesProject && matchesRootCard;
-    }
-    
-    return matchesSearch && matchesStatus && matchesProject && matchesRootCard;
-  });
 
   const handleViewPO = (po) => {
     setEditPO(po);
@@ -821,1039 +756,201 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     }
   };
 
-  const handleExportToExcel = async (po) => {
-    try {
-      const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
-      const fullPO = response.data;
-      const items = fullPO.items || [];
-
-      const exportData = items.map((item) => {
-        const rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
-        const totalAmount = parseFloat(item.amount) || (parseFloat(item.total_weight) * (parseFloat(item.rate_per_kg) || 0)) || (parseFloat(item.quantity) * (parseFloat(item.rate) || 0)) || 0;
-        
-        return {
-          "Item Name": item.material_name || "N/A",
-          "Item Group": item.item_group || "N/A",
-          "Dimensions": renderDimensions(item),
-          "Ordered Qty": item.quantity ? parseFloat(item.quantity) : 0,
-          "Unit": item.unit || item.uom || "Nos",
-          "Rate/Kg (INR)": rate,
-          "Weight (Kg)": item.total_weight ? parseFloat(item.total_weight) : 0,
-          "Total Amount (INR)": totalAmount,
-        };
-      });
-
-      const headerData = [
-        { A: "PROJECT", B: fullPO.root_card_project_name || fullPO.project_name || "N/A" },
-        { A: "PO NUMBER", B: fullPO.po_number || "N/A" },
-        { A: "PO DATE", B: fullPO.po_date || fullPO.created_at ? new Date(fullPO.po_date || fullPO.created_at).toLocaleDateString("en-GB") : "N/A" },
-        { A: "VENDOR", B: fullPO.vendor_name || "N/A" },
-        { A: "TOTAL AMOUNT", B: `INR ${Number(fullPO.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}` },
-        {}, // Empty row
-      ];
-
-      const worksheet = XLSX.utils.json_to_sheet(headerData, { skipHeader: true });
-      XLSX.utils.sheet_add_json(worksheet, exportData, { origin: `A${headerData.length + 1}` });
-
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Purchase Order Details");
-
-      // Set column widths
-      const wscols = Object.keys(exportData[0] || {}).map(() => ({ wch: 25 }));
-      worksheet["!cols"] = wscols;
-
-      XLSX.writeFile(workbook, `PurchaseOrder_${fullPO.po_number}.xlsx`);
-      toastUtils.success("Excel exported successfully");
-    } catch (error) {
-      console.error("Error exporting PO to excel:", error);
-      toastUtils.error("Failed to export Purchase Order to excel");
-    }
-  };
-
-
   return (
     <div className="p-4 bg-slate-50/50 dark:bg-slate-950 min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-600 rounded shadow-lg shadow-blue-500/20">
-              <ShoppingCart className="text-white" size={15} />
-            </div>
-            <div>
-              <nav className="flex items-center gap-2 text-xs  text-slate-400   mb-0.5">
-                <span>{isInventoryView ? "Inventory" : "Buying"}</span>
-                <ChevronRight size={10} />
-                <span className="text-blue-600">{isInventoryView ? "Incoming Material" : "Procurement"}</span>
-              </nav>
-              <h1 className="text-md  text-slate-900 dark:text-white ">
-                {isInventoryView ? "Received Purchase Orders" : "Purchase Orders"}
-              </h1>
-            </div>
-          </div>
-          <p className="text-xs  text-slate-400   flex items-center gap-2">
-            {isInventoryView ? "Process incoming material from suppliers" : "Manage procurement cycles and supplier orders"}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          
-          <button
-            onClick={fetchPurchaseOrders}
-            className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-400 hover:bg-slate-50  transition-all"
-          >
-            <RefreshCw size={15} />
-          </button>
-          {!isInventoryView && (
-            <button
-              onClick={() => {
-                setEditPO(null);
-                setShowCreateModal(true);
-              }}
-              className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all"
-            >
-              <Plus size={15} /> Create Order
+      <DataTable
+        title={isInventoryView ? "Received Purchase Orders" : "Purchase Orders"}
+        titleIcon={<ShoppingCart size={15} />}
+        titleExtra={
+          <div className="flex items-center gap-2 ml-4">
+            <button onClick={fetchPurchaseOrders} className="p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:bg-slate-50 transition-all">
+              <RefreshCw size={14} />
             </button>
-          )}
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      {!isInventoryView && (
-        <div className="grid grid-cols-1 md:grid-cols-6 my-5 gap-4">
-          {[
-            {
-              label: "Total Orders",
-              value: stats?.total || 0,
-              subValue: `Total: ₹${formatCurrency(stats?.total_amount)}`,
-              icon: FileText,
-              color: "blue",
-              active: true,
-            },
-            {
-              label: "Draft",
-              value: stats?.draft || 0,
-              subValue: "Pending submission",
-              icon: FileText,
-              color: "orange",
-            },
-            {
-              label: "Submitted",
-              value: stats?.submitted || 0,
-              subValue: "Active orders",
-              icon: Mail,
-              color: "blue",
-            },
-            {
-              label: "To Receive",
-              value: stats?.to_receive || 0,
-              subValue: "Awaiting delivery",
-              icon: Download,
-              color: "indigo",
-            },
-            {
-              label: "Replies",
-              value: stats?.unread_replies_count || 0,
-              subValue: "New communications",
-              icon: MessageSquare,
-              color: "blue",
-              isNew: (stats?.unread_replies_count || 0) > 0,
-            },
-            {
-              label: "Fulfilled",
-              value: stats?.fulfilled || 0,
-              subValue: "Fully received",
-              icon: CheckCircle,
-              color: "emerald",
-            },
-          ].map((card, idx) => {
-            const Icon = card.icon;
-            const colors = {
-              blue: "border-blue-200 bg-blue-50 text-blue-600",
-              orange: "border-orange-200 bg-orange-50 text-orange-600",
-              indigo: "border-indigo-200 bg-indigo-50 text-indigo-600",
-              red: "border-red-200 bg-red-50 text-red-600",
-              emerald: "border-emerald-200 bg-emerald-50 text-emerald-600",
-            };
-
-            return (
-              <div
-                key={idx}
-                className={`bg-white dark:bg-slate-900 p-2 rounded border ${card.active ? "border-blue-500 ring-2 ring-blue-500/10 shadow-lg shadow-blue-500/5" : "border-slate-100 dark:border-slate-800 "} relative overflow-hidden group transition-all hover: ${card.isNew ? "ring-2 ring-blue-400 animate-blink" : ""}`}
-              >
-                <div
-                  className={`absolute top-0 right-0 p-2 opacity-5 transform rotate-12 transition-transform group-hover:rotate-6`}
-                >
-                  <Icon size={15} />
-                </div>
-                <div className="relative">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs  text-slate-400  ">
-                      {card.label}
-                    </p>
-                    <div
-                      className={`w-6 h-6 rounded-md flex items-center justify-center border ${colors[card.color]}`}
-                    >
-                      <Icon size={12} />
-                    </div>
-                  </div>
-                  <h2 className="text-xl  text-slate-900 dark:text-white mb-0.5 ">
-                    {card.value}
-                  </h2>
-                  <p className="text-xs font-medium text-slate-500   italic">
-                    {card.subValue}
-                  </p>
-                </div>
-                {card.active && (
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Search & Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1 relative group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
-            <Search size={15} />
-          </div>
-          <input
-            type="text"
-            placeholder="Search by PO # or supplier..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none "
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 ">
-            <Filter size={14} />
-            <span className="text-xs   ">
-              Project:
-            </span>
-            <select
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
-              className="bg-transparent border-none text-xs    text-blue-600 focus:ring-0 cursor-pointer max-w-[150px]"
-            >
-              <option value="all">All Projects</option>
-              {projects.map(project => (
-                <option key={project} value={project}>{project}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 ">
-            <Filter size={14} />
-            <span className="text-xs   ">
-              Root Card:
-            </span>
-            <select
-              value={rootCardFilter}
-              onChange={(e) => setRootCardFilter(e.target.value)}
-              className="bg-transparent border-none text-xs    text-blue-600 focus:ring-0 cursor-pointer max-w-[120px]"
-            >
-              <option value="all">All Root Cards</option>
-              {rootCardsList.map(rcId => (
-                <option key={rcId} value={String(rcId)}>RC-{rcId}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-slate-500 ">
-            <Filter size={14} />
-            <span className="text-xs   ">
-              Status:
-            </span>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-transparent border-none text-xs    text-blue-600 focus:ring-0 cursor-pointer"
-            >
-              {isInventoryView ? (
-                <>
-                  <option value="all">All Received</option>
-                  <option value="pending receipt">Pending Receipt</option>
-                  <option value="dc uploaded">Awaiting DC Approval</option>
-                  <option value="material received">Awaiting GRN</option>
-                  <option value="partially received">Partially Received</option>
-                  <option value="fulfilled">Fulfilled</option>
-                </>
-              ) : (
-                <>
-                  <option value="all">All Orders</option>
-                  <option value="draft">Draft</option>
-                  <option value="submitted">Submitted</option>
-                  <option value="approved">Approved</option>
-                  <option value="sent to inventory">Sent to Inventory</option>
-                  <option value="material received">Material Received</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="fulfilled">Fulfilled</option>
-                </>
-              )}
-            </select>
-          </div>
-          <button className="p-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all">
-            <Filter size={15} />
-          </button>
-        </div>
-      </div>
-
-      {/* Purchase Orders Table */}
-      <div className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800  overflow-hidden mb-8">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse bg-white text-xs">
-            <thead>
-              <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="p-2 text-xs font-bold text-slate-400  ">
-                  PO Details
-                </th>
-                <th className="p-2 text-xs font-bold text-slate-400  ">
-                  Supplier
-                </th>
-                <th className="p-2 text-xs font-bold text-slate-400  ">
-                  Project
-                </th>
-                <th className="p-2 text-xs font-bold text-slate-400  ">
-                  Order -- Expected
-                </th>
-                {!isInventoryView && (
-                  <th className="p-2 text-xs font-bold text-slate-400  ">
-                    Amount
-                  </th>
-                )}
-                <th className="p-2 text-xs font-bold text-slate-400   text-center">
-                  Status
-                </th>
-                <th className="p-2 text-xs font-bold text-slate-400   text-center">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="p-2 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded ate-spin"></div>
-                      <span className="text-xs  text-slate-400  ">
-                        Loading orders...
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              ) : filteredData.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center gap-3 opacity-20">
-                      <ShoppingCart size={48} className="text-slate-400" />
-                      <span className="text-xs  text-slate-400  ">
-                        No orders found
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredData.map((po) => {
-                  return (
-                    <tr
-                      key={po.id}
-                      className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group"
-                    >
-                      <td className="p-2">
-                        <button
-                          onClick={() => handleViewPO(po)}
-                          className="text-xs  text-blue-600 hover:text-blue-700   block mb-0.5"
-                        >
-                          {po.po_number}
-                        </button>
-                      </td>
-                      <td className="p-2">
-                        <p className="text-xs  text-slate-700 dark:text-slate-300 mb-0.5  ">
-                          {po.vendor_name || "N/A"}
-                        </p>
-                        <p className="text-xs  text-emerald-500   flex items-center gap-1">
-                          <span className="w-1 h-1 rounded bg-emerald-500"></span>{" "}
-                          Active Vendor
-                        </p>
-                      </td>
-                      <td className="p-2 ">
-                        {po.root_card_project_name ? (
-                          <div className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 rounded bg-blue-500 mt-1 flex-shrink-0"></div>
-                            <p className="text-xs  text-slate-700   break-words leading-relaxed">
-                              {po.root_card_project_name}
-                            </p>
-                          </div>
-                        ) : (
-                          <span className="text-xs  text-slate-300   italic">
-                            Direct PO
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-2">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1.5 p-1 rounded bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-700">
-                            <Calendar size={10} />
-                            <span className="text-xs  ">
-                              {new Date(
-                                po.order_date || po.created_at,
-                              ).toLocaleDateString("en-GB", {
-                                day: "numeric",
-                                month: "short",
-                              })}
-                            </span>
-                          </div>
-                          <ChevronRight size={10} className="text-slate-300" />
-                          <div className="flex items-center gap-1.5 p-1 rounded bg-orange-50 dark:bg-orange-900/30 text-orange-600 border border-orange-100 dark:border-orange-800/30">
-                            <Clock size={10} />
-                            <span className="text-xs  ">
-                              {po.expected_delivery_date
-                                ? new Date(
-                                    po.expected_delivery_date,
-                                  ).toLocaleDateString("en-GB", {
-                                    day: "numeric",
-                                    month: "short",
-                                  })
-                                : "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      {!isInventoryView && (
-                        <td className="p-2">
-                          <p className="text-xs  text-slate-900 dark:text-white">
-                            ₹{formatCurrency(po.total_amount)}
-                          </p>
-                          <p className="text-xs  text-emerald-500  ">
-                            Net Value
-                          </p>
-                        </td>
-                      )}
-                      <td className="p-2 text-center">
-                        <span
-                          className={`inline-flex items-center gap-1.5 p-1 rounded text-xs    border  ${
-                            po.status === "draft"
-                              ? "bg-orange-50 text-orange-600 border-orange-100"
-                              : po.status === "submitted"
-                                ? "bg-blue-50 text-blue-600 border-blue-100"
-                                : po.status === "approved"
-                                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                  : po.status === "goods arrival"
-                                    ? "bg-amber-50 text-amber-600 border-amber-100"
-                                    : po.status === "sent to inventory"
-                                      ? "bg-purple-50 text-purple-600 border-purple-100"
-                                      : po.status === "material received"
-                                        ? "bg-indigo-50 text-indigo-600 border-indigo-100"
-                                        : po.status === "fulfilled" ||
-                                          po.status === "delivered"
-                                        ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                                        : "bg-slate-50 text-slate-500 border-slate-200"
-                          }`}
-                        >
-                          <div
-                            className={`w-1 h-1 rounded ${
-                              isInventoryView ? (
-                                po.inventory_status === "pending receipt" ? "bg-purple-500" :
-                                po.inventory_status === "dc uploaded" ? "bg-orange-500" :
-                                po.inventory_status === "material received" ? "bg-indigo-500" :
-                                po.inventory_status === "partially received" ? "bg-amber-500" :
-                                "bg-emerald-500"
-                              ) : (
-                                po.status === "draft" ? "bg-orange-500" :
-                                po.status === "submitted" ? "bg-blue-500" :
-                                po.status === "goods arrival" ? "bg-amber-500" :
-                                po.status === "sent to inventory" ? "bg-purple-500" :
-                                po.status === "material received" ? "bg-indigo-500" :
-                                "bg-emerald-500"
-                              )
-                            }`}
-                          ></div>
-                          {isInventoryView ? (
-                            po.inventory_status === "pending receipt" ? "Pending Receipt" :
-                            po.inventory_status === "dc uploaded" ? "Awaiting DC Approval" :
-                            po.inventory_status === "material received" ? "Awaiting GRN" :
-                            po.inventory_status === "partially received" ? "Partially Received" :
-                            po.inventory_status
-                          ) : po.status}
-                        </span>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex items-center justify-center gap-1">
-                          <button
-                            onClick={() => handleViewPO(po)}
-                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
-                            title="View"
-                          >
-                            <Eye size={14} />
-                          </button>
-                          {po.status === "draft" && !isInventoryView && (
-                            <>
-                              <button
-                                onClick={() => handleEditPO(po)}
-                                className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
-                                title="Edit"
-                              >
-                                <Edit size={14} />
-                              </button>
-                              <button
-                                onClick={() => handleSendEmail(po)}
-                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded transition-all"
-                                title="Send"
-                              >
-                                <Send size={14} />
-                              </button>
-                            </>
-                          )}
-                          {isInventoryView && ["sent to inventory", "approved"].includes(po.status) ? (
-                            <button
-                              onClick={() => handleUploadInvoice(po)}
-                              className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-emerald-900/30 rounded transition-all"
-                              title="Upload DC & Status Update"
-                            >
-                              <Paperclip size={14} />
-                            </button>
-                          ) : null}
-                          {!isInventoryView && (
-                            <button
-                              onClick={() => handleDownloadPO(po)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all"
-                              title="Download PDF"
-                            >
-                              <Download size={14} />
-                            </button>
-                          )}
-                          {!isInventoryView && (
-                            <button
-                              onClick={() => handleExportToExcel(po)}
-                              className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
-                              title="Export to Excel"
-                            >
-                              <FileSpreadsheet size={14} />
-                            </button>
-                          )}
-                          {!["sent to inventory", "material received", "fulfilled", "delivered"].includes(po.status) && !isInventoryView && (
-                            <button
-                              onClick={() => handleMonitorReplies(po)}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all relative group/msg"
-                              title="Monitor Replies"
-                            >
-                              <MessageSquare
-                                size={14}
-                                className={
-                                  po.unread_communication_count > 0
-                                    ? "text-blue-600 animate-blink"
-                                    : ""
-                                }
-                              />
-                              {po.unread_communication_count > 0 && (
-                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-fulder-2 border-white dark:border-slate-900  animate-blink">
-                                  {po.unread_communication_count}
-                                </span>
-                              )}
-                            </button>
-                          )}
-                          {["submitted", "approved"].includes(po.status) && !isInventoryView && (
-                            <button
-                              onClick={() => handleSendToInventory(po)}
-                              className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
-                              title="Send to Inventory"
-                            >
-                              <Send size={14} />
-                            </button>
-                          )}
-                          {isInventoryView && (po.inventory_status === "material received" || po.inventory_status === "partially received") && po.dc_approved === 1 && (
-                            <button
-                              onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
-                              title="Create GRN"
-                            >
-                              <FileText size={14} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Email PO Modal */}
-      {showEmailModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-              <div>
-                <h3 className="text-lg  text-slate-900 dark:text-white flex items-center gap-3">
-                  <Mail className="text-blue-600" size={20} />
-                  Send Purchase Order
-                </h3>
-                <p className="text-xs  text-slate-400   mt-1">
-                  PO: {emailData.poNumber}
-                </p>
-              </div>
-              <button
-                onClick={() => setShowEmailModal(false)}
-                className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-all "
-              >
-                <X size={20} className="text-slate-400" />
+            {!isInventoryView && (
+              <button onClick={() => { setEditPO(null); setShowCreateModal(true); }} className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 shadow-sm transition-all">
+                <Plus size={14} /> Create Order
               </button>
-            </div>
-
-            <form onSubmit={submitEmail} className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs  text-slate-400   mb-2">
-                  Recipient Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={emailData.email}
-                  onChange={(e) =>
-                    setEmailData({ ...emailData, email: e.target.value })
-                  }
-                  placeholder="vendor@example.com"
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs  text-slate-400   mb-2">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  value={emailData.subject}
-                  onChange={(e) =>
-                    setEmailData({ ...emailData, subject: e.target.value })
-                  }
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs  text-slate-400   mb-2">
-                  Message
-                </label>
-                <textarea
-                  value={emailData.message}
-                  onChange={(e) =>
-                    setEmailData({ ...emailData, message: e.target.value })
-                  }
-                  rows={4}
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowEmailModal(false)}
-                  className="flex-1 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded  text-xs   hover:bg-slate-200 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={sendingEmail}
-                  className="flex-1 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2"
-                >
-                  {sendingEmail ? (
-                    <RefreshCw size={15} className="animate-spin" />
-                  ) : (
-                    <Send size={15} />
-                  )}
-                  {sendingEmail ? "Sending..." : "Send PO"}
-                </button>
-              </div>
-            </form>
+            )}
           </div>
-        </div>
-      )}
-
-      {/* Monitor Replies Modal */}
-      {showMonitorModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
-            <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+        }
+        filters={[
+          {
+            key: isInventoryView ? "inventory_status" : "status",
+            label: "Status",
+            options: [
+              { label: "Draft", value: "draft" },
+              { label: "Submitted", value: "submitted" },
+              { label: "Approved", value: "approved" },
+              { label: "Goods Arrival", value: "goods arrival" },
+              { label: "Sent to Inventory", value: "sent to inventory" },
+              { label: "Material Received", value: "material received" },
+              { label: "Completed", value: "completed" },
+              { label: "Cancelled", value: "cancelled" },
+            ]
+          },
+          {
+            key: "root_card_project_name",
+            label: "Project",
+            options: projects.map(p => ({ label: p, value: p }))
+          }
+        ]}
+        data={purchaseOrders}
+        columns={[
+          {
+            key: "po_number",
+            label: "PO Details",
+            render: (val, po) => (
+              <button onClick={() => handleViewPO(po)} className="text-xs text-blue-600 hover:text-blue-700  font-mono">
+                {val}
+              </button>
+            )
+          },
+          {
+            key: "vendor_name",
+            label: "Supplier",
+            render: (val) => (
               <div>
-                <h3 className="text-md  text-slate-900 dark:text-white flex items-center gap-3">
-                  <MessageSquare className="text-blue-600" size={20} />
-                  Email Communications
-                </h3>
-                <p className="text-xs  text-slate-400   mt-1">
-                  PO: {selectedPOForMonitor?.po_number}
+                <p className="text-xs text-slate-700 dark:text-slate-300 ">{val || "N/A"}</p>
+                <p className="text-[10px] text-emerald-500 flex items-center gap-1 mt-0.5 ">
+                  <span className="w-1 h-1 rounded bg-emerald-500"></span> Active Vendor
                 </p>
               </div>
+            )
+          },
+          {
+            key: "root_card_project_name",
+            label: "Project",
+            render: (val) => val ? (
+              <div className="flex items-start gap-2 max-w-[200px]">
+                <div className="w-1.5 h-1.5 rounded bg-blue-500 mt-1 flex-shrink-0"></div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 ">
+                  {val}
+                </p>
+              </div>
+            ) : (
+              <span className="text-[10px] text-slate-400 italic ">Direct PO</span>
+            )
+          },
+          {
+            key: "order_date",
+            label: "Order -- Expected",
+            render: (_, po) => (
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => fetchCommunications(selectedPOForMonitor?.id)}
-                  className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-all  text-slate-400 hover:text-blue-600"
-                  title="Refresh"
-                >
-                  <RefreshCw
-                    size={15}
-                    className={fetchingCommunications ? "animate-spin" : ""}
-                  />
-                </button>
-                <button
-                  onClick={closeMonitorModal}
-                  className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-all "
-                >
-                  <X size={15} className="text-slate-400" />
-                </button>
+                <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-700 ">
+                  <Calendar size={10} />
+                  <span className="text-[10px]">
+                    {new Date(po.order_date || po.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                  </span>
+                </div>
+                <ChevronRight size={10} className="text-slate-300" />
+                <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-orange-50 dark:bg-orange-900/30 text-orange-600 border border-orange-100 dark:border-orange-800/30 ">
+                  <Clock size={10} />
+                  <span className="text-[10px]">
+                    {po.expected_delivery_date ? new Date(po.expected_delivery_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "N/A"}
+                  </span>
+                </div>
               </div>
-            </div>
+            )
+          },
+          ...(!isInventoryView ? [{
+            key: "total_amount",
+            label: "Amount",
+            render: (val) => (
+              <div>
+                <p className="text-xs  text-slate-900 dark:text-white">₹{formatCurrency(val)}</p>
+                <p className="text-[10px] text-emerald-500 ">Net Value</p>
+              </div>
+            )
+          }] : []),
+          {
+            key: isInventoryView ? "inventory_status" : "status",
+            label: "Status",
+            className: "text-center",
+            render: (val, po) => {
+              const status = isInventoryView ? po.inventory_status : po.status;
+              const config = {
+                draft: "bg-orange-50 text-orange-600 border-orange-100 dot-orange-500",
+                submitted: "bg-blue-50 text-blue-600 border-blue-100 dot-blue-500",
+                approved: "bg-emerald-50 text-emerald-600 border-emerald-100 dot-emerald-500",
+                "goods arrival": "bg-amber-50 text-amber-600 border-amber-100 dot-amber-500",
+                "sent to inventory": "bg-purple-50 text-purple-600 border-purple-100 dot-purple-500",
+                "material received": "bg-indigo-50 text-indigo-600 border-indigo-100 dot-indigo-500",
+                "dc uploaded": "bg-orange-50 text-orange-600 border-orange-100 dot-orange-500",
+                "partially received": "bg-amber-50 text-amber-600 border-amber-100 dot-amber-500",
+                fulfilled: "bg-emerald-100 text-emerald-700 border-emerald-200 dot-emerald-500",
+                delivered: "bg-emerald-100 text-emerald-700 border-emerald-200 dot-emerald-500",
+                "pending receipt": "bg-purple-50 text-purple-600 border-purple-100 dot-purple-500",
+              };
+              const style = config[status] || "bg-slate-50 text-slate-500 border-slate-200 dot-slate-500";
+              const dotMatch = style.match(/dot-(\w+)-(\d+)/);
+              const dotColor = dotMatch ? `bg-${dotMatch[1]}-${dotMatch[2]}` : "bg-slate-500";
+              return (
+                <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px]  border ${style.replace(/dot-\w+-\d+/, '')}`}>
+                  <div className={`w-1 h-1 rounded-full ${dotColor}`}></div>
+                  <span className="capitalize">{status?.replace(/_/g, ' ')}</span>
+                </span>
+              );
+            }
+          },
+          {
+            key: "actions",
+            label: "Actions",
+            align: "center",
+            render: (_, po) => (
+              <div className="flex items-center justify-center gap-1">
+                <button onClick={() => handleViewPO(po)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all"><Eye size={14} /></button>
+                {po.status === "draft" && !isInventoryView && (
+                  <button onClick={() => handleEditPO(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all"><Edit size={14} /></button>
+                )}
+                <button onClick={() => handleDownloadPO(po)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"><Download size={14} /></button>
+                {isInventoryView && ["material received", "partially received"].includes(po.inventory_status) && po.dc_approved === 1 && (
+                  <button onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-all"><FileText size={14} /></button>
+                )}
+              </div>
+            )
+          }
+        ]}
+        renderRowDetail={(po) => <PurchaseOrderDetailTable po={po} />}
+        searchPlaceholder="Search by PO #, supplier, or project..."
+        filters={[
+          {
+            key: "status",
+            label: "Status",
+            options: isInventoryView ? [
+              { label: "All Received", value: "all" },
+              { label: "Pending Receipt", value: "pending receipt" },
+              { label: "Awaiting DC Approval", value: "dc uploaded" },
+              { label: "Awaiting GRN", value: "material received" },
+              { label: "Partially Received", value: "partially received" },
+              { label: "Fulfilled", value: "fulfilled" }
+            ] : [
+              { label: "All Orders", value: "all" },
+              { label: "Draft", value: "draft" },
+              { label: "Submitted", value: "submitted" },
+              { label: "Approved", value: "approved" },
+              { label: "Sent to Inventory", value: "sent to inventory" },
+              { label: "Material Received", value: "material received" },
+              { label: "Delivered", value: "delivered" },
+              { label: "Fulfilled", value: "fulfilled" }
+            ]
+          },
+          {
+            key: "root_card_project_name",
+            label: "Project",
+            options: [ { label: "All Projects", value: "all" }, ...projects.map(p => ({ label: p, value: p })) ]
+          }
+        ]}
+      />
 
-            <div className="flex-1 overflow-y-auto p-2 bg-slate-50/30 dark:bg-slate-950/30 custom-scrollbar">
-              {fetchingCommunications ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-3">
-                  <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded ate-spin"></div>
-                  <p className="text-xs  text-slate-400  ">
-                    Fetching replies...
-                  </p>
-                </div>
-              ) : communications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center">
-                  <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded mb-4">
-                    <Mail size={15} className="text-slate-400" />
-                  </div>
-                  <h4 className="text-xs  text-slate-900 dark:text-white  ">
-                    No communications found
-                  </h4>
-                  <p className="text-xs font-medium text-slate-500 mt-1  ">
-                    Replies to PO emails will appear here
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {communications.map((comm) => (
-                    <div
-                      key={comm.id}
-                      className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800  overflow-hidden"
-                    >
-                      <div className="p-2 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-flex items-center justify-center ${comm.is_outgoing ? "bg-indigo-100 text-indigo-600" : "bg-blue-100 text-blue-600"}`}
-                          >
-                            <User size={15} />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-xs  text-slate-900 dark:text-white  ">
-                                {comm.sender_email}
-                              </p>
-                              {comm.is_outgoing ? (
-                                <span className="flex items-center gap-1 p-1 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[8px]    border border-indigo-100 dark:border-indigo-800/50">
-                                  <Send size={8} />
-                                  Sent
-                                </span>
-                              ) : (
-                                <span className="flex items-center gap-1 p-1 rounded bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[8px]    border border-emerald-100 dark:border-emerald-800/50">
-                                  <Mail size={8} />
-                                  Received
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <Clock size={10} className="text-slate-400" />
-                              <span className="text-xs  text-slate-400  ">
-                                {new Date(
-                                  comm.created_at || comm.received_at,
-                                ).toLocaleString("en-GB", {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        {comm.has_attachments > 0 && (
-                          <div className="flex items-center gap-1.5 p-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded text-xs    border border-emerald-100 dark:border-emerald-800/30">
-                            <Paperclip size={10} />
-                            {comm.attachments?.length || "Attached"}
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h4 className="text-xs  text-slate-700 dark:text-slate-300 mb-2   italic opacity-60">
-                          Subject: {comm.subject}
-                        </h4>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed whitespace-pre-wrap font-medium">
-                          {comm.content_text}
-                        </div>
-
-                        {comm.attachments && comm.attachments.length > 0 && (
-                          <div className=" border-t border-slate-50 dark:border-slate-800">
-                            <p className="text-xs  text-slate-400   mb-3 flex items-center gap-2">
-                              <Paperclip size={10} /> Attachments
-                            </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              {comm.attachments.map((file) => (
-                                <button
-                                  key={file.id}
-                                  onClick={() =>
-                                    downloadAttachment(file.id, file.file_name)
-                                  }
-                                  className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded group hover:border-blue-200 dark:hover:border-blue-800 transition-all text-left"
-                                >
-                                  <div className="flex items-center gap-2 overflow-hidden">
-                                    <FileText
-                                      size={14}
-                                      className="text-blue-500 shrink-0"
-                                    />
-                                    <span className="text-xs  text-slate-500 dark:text-slate-400 truncate  ">
-                                      {file.file_name}
-                                    </span>
-                                  </div>
-                                  <Download
-                                    size={14}
-                                    className="text-slate-300 group-hover:text-blue-500 transition-colors shrink-0"
-                                  />
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 border-t border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end">
-              <button
-                onClick={closeMonitorModal}
-                className="px-8 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded  text-xs   hover:bg-slate-50 transition-all "
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Create/Edit PO Modal Component */}
       <CreatePurchaseOrderModal
         isOpen={showCreateModal}
-        onClose={() => {
-          setShowCreateModal(false);
-          setEditPO(null);
-          setPreFilledFromQuotation(null);
-          setModalViewMode(false);
-        }}
+        onClose={() => { setShowCreateModal(false); setEditPO(null); setPreFilledFromQuotation(null); setModalViewMode(false); }}
         editData={editPO}
         isInventoryView={isInventoryView}
         initialViewMode={modalViewMode}
         preFilledFromQuotation={preFilledFromQuotation}
-        onPOCreated={() => {
-          fetchPurchaseOrders();
-          fetchStats();
-        }}
+        onPOCreated={() => { fetchPurchaseOrders(); fetchStats(); }}
       />
-
-      {/* Upload Invoice Modal */}
-      {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded max-w-md w-full max-h-[90vh] overflow-auto shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
-            <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-              <h3 className="text-md  text-slate-900 dark:text-white flex items-center gap-3">
-                <Paperclip className="text-blue-600" size={15} />
-                {selectedPOForUpload?.status === 'approved' ? 'View Delivery Challans' : 'Upload Delivery Challan'}
-              </h3>
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded transition-all "
-              >
-                <X size={15} className="text-slate-400" />
-              </button>
-            </div>
-
-            <div className="p-2 space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded border border-blue-100 dark:border-blue-800/50">
-                <div className="flex justify-between gap-3">
-                  <div>
-                    <p className="text-xs  text-blue-600 dark:text-blue-400   mb-1">
-                      Target PO:
-                    </p>
-                    <p className="text-xs  text-slate-900 dark:text-white ">
-                      {selectedPOForUpload?.po_number}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs  text-blue-600 dark:text-blue-400   mb-1">
-                      Project Name:
-                    </p>
-                    <p className="text-xs  text-slate-700 dark:text-slate-300   break-words leading-relaxed">
-                      {selectedPOForUpload?.root_card_project_name || selectedPOForUpload?.project_name || "N/A (Direct PO)"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {selectedPOForUpload?.attachments && selectedPOForUpload.attachments.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs  text-slate-400  ">
-                    Existing Delivery Challans / Attachments
-                  </p>
-                  <div className="max-h-25 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
-                    {selectedPOForUpload.attachments.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-2 bg-emerald-50/50 dark:bg-emerald-900/20 rounded border border-emerald-100 dark:border-emerald-800/50"
-                      >
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <FileText size={14} className="text-emerald-600 shrink-0" />
-                          <span className="text-xs  text-slate-500 dark:text-slate-400 truncate ">
-                            {file.file_name}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            onClick={() => viewAttachment(file.id, file.file_name)}
-                            className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] text-blue-600 hover:bg-blue-50 transition-all"
-                            title="View/Download"
-                          >
-                            <Eye size={10} />
-                            View/Download
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {selectedPOForUpload?.status !== 'approved' && (
-                <div>
-                  <label className="block text-xs  text-slate-400   mb-2">
-                    Select Files
-                  </label>
-                  <div className="relative group">
-                    <input
-                      type="file"
-                      multiple
-                      onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    />
-                    <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 group-hover:border-blue-500 dark:group-hover:border-blue-500 rounded p-2 flex flex-col items-center justify-center gap-2 transition-all bg-slate-50/30 dark:bg-slate-950/30">
-                      <div className="p-3 bg-white dark:bg-slate-800 rounded-fuext-slate-400 group-hover:text-blue-500 transition-all">
-                        <Upload size={15} />
-                      </div>
-                      <p className="text-xs  text-slate-500  ">
-                        Click or drag files to upload
-                      </p>
-                      <p className="text-xs font-medium text-slate-400  ">
-                        PDF, Images, or Documents
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {filesToUpload.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs  text-slate-400  ">
-                    Selected Files ({filesToUpload.length})
-                  </p>
-                  <div className="max-h-32 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
-                    {filesToUpload.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700"
-                      >
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <FileText size={14} className="text-blue-500 shrink-0" />
-                          <span className="text-xs  text-slate-500 dark:text-slate-400 truncate ">
-                            {file.name}
-                          </span>
-                        </div>
-                        <span className="text-xs  text-slate-400 ">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {selectedPOForUpload?.status !== 'approved' && (
-                <div>
-                  <label className="block text-xs  text-slate-400   mb-2">
-                    Receiving Status
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setIsFullReceipt(false)}
-                      className={`flex items-center justify-center gap-2 p-2 rounded border text-xs transition-all ${
-                        !isFullReceipt
-                          ? "bg-amber-50 border-amber-500 text-amber-700 dark:bg-amber-900/30 dark:border-amber-400 dark:text-amber-200"
-                          : "bg-white border-slate-200 text-slate-500 dark:bg-slate-800 dark:border-slate-700"
-                      }`}
-                    >
-                      <Clock size={14} />
-                      Partial Receipt
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsFullReceipt(true)}
-                      className={`flex items-center justify-center gap-2 p-2 rounded border text-xs transition-all ${
-                        isFullReceipt
-                          ? "bg-emerald-50 border-emerald-500 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-400 dark:text-emerald-200"
-                          : "bg-white border-slate-200 text-slate-500 dark:bg-slate-800 dark:border-slate-700"
-                      }`}
-                    >
-                      <CheckCircle size={14} />
-                      Full Receipt
-                    </button>
-                  </div>
-                  {isFullReceipt && (
-                    <p className="text-[10px] text-emerald-600 mt-1 italic">
-                      * This will approve the PO and enable GRN creation.
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-4 border-t border-slate-50 dark:border-slate-800">
-                <button
-                  onClick={() => setShowUploadModal(false)}
-                  className="flex-1 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded  text-xs   hover:bg-slate-200 transition-all"
-                >
-                  {selectedPOForUpload?.status === 'approved' ? 'Close' : 'Cancel'}
-                </button>
-                {selectedPOForUpload?.status !== 'approved' && (
-                  <button
-                    onClick={handleFileUpload}
-                    disabled={uploadingFiles || filesToUpload.length === 0}
-                    className="flex-1 p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {uploadingFiles ? (
-                      <RefreshCw size={15} className="animate-spin" />
-                    ) : (
-                      <Upload size={15} />
-                    )}
-                    {uploadingFiles ? "Uploading..." : "Upload & Continue"}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

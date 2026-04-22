@@ -309,11 +309,55 @@ const getStockBalance = async (req, res) => {
     }
 };
 
+const getInventoryPortalData = async (req, res) => {
+  try {
+    // 1. Get stock stats
+    const [statsResult] = await db.query(`
+      SELECT 
+        COUNT(DISTINCT item_code) as totalSKUs,
+        SUM(actual_qty) as totalQuantity,
+        SUM(actual_qty * valuation_rate) as totalValue
+      FROM stock_ledger
+    `);
+
+    // 2. Get low stock items (using a mock threshold of 10 for now)
+    const [lowStockResult] = await db.query(`
+      SELECT item_code, material_name as name, SUM(actual_qty) as quantity
+      FROM stock_ledger
+      GROUP BY item_code, material_name
+      HAVING quantity < 10 AND quantity > 0
+    `);
+
+    // 3. Format data for the dashboard
+    const portalData = {
+      stats: {
+        totalSKUs: statsResult[0].totalSKUs || 0,
+        totalQuantity: statsResult[0].totalQuantity || 0,
+        totalValue: statsResult[0].totalValue || 0,
+        lowStock: lowStockResult.length
+      },
+      stock: lowStockResult.map(item => ({
+        id: item.item_code,
+        name: item.name,
+        quantity: item.quantity,
+        status: 'low-stock',
+        reorder_level: 10
+      }))
+    };
+
+    res.json(portalData);
+  } catch (error) {
+    console.error('Error fetching inventory portal data:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
     createStockEntry,
     getStockEntries,
     getStockMovements,
     getWarehouses,
     getStockBalance,
+    getInventoryPortalData,
     generateStockEntryNo // Exported for use in other controllers
 };

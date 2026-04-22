@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import Card, {
   CardContent,
   CardTitle,
-  CardHeader,
+  
 } from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { Modal, ModalBody, ModalFooter } from "../../components/ui/Modal";
@@ -130,7 +130,7 @@ const DepartmentTasksPage = () => {
       key: "title",
       render: (value, row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-slate-900">{row.title}</span>
+          <span className=" text-slate-900">{row.title}</span>
           <span className="text-xs text-slate-500 line-clamp-1">{row.description}</span>
         </div>
       ),
@@ -139,7 +139,7 @@ const DepartmentTasksPage = () => {
       label: "Department",
       key: "departmentName",
       render: (value) => (
-        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+        <span className="px-2 py-1 rounded-full text-xs  bg-blue-100 text-blue-700">
           {value}
         </span>
       ),
@@ -148,7 +148,7 @@ const DepartmentTasksPage = () => {
       label: "Assigned By",
       key: "assignedByName",
       render: (value) => (
-        <span className="text-xs text-slate-600 font-medium">
+        <span className="text-xs text-slate-600 ">
           {value || "Admin"}
         </span>
       ),
@@ -163,7 +163,7 @@ const DepartmentTasksPage = () => {
           Low: "bg-green-100 text-green-700",
         };
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[value] || "bg-slate-100"}`}>
+          <span className={`px-2 py-1 rounded-full text-xs  ${priorityColors[value] || "bg-slate-100"}`}>
             {value}
           </span>
         );
@@ -176,11 +176,11 @@ const DepartmentTasksPage = () => {
         <div className="flex flex-col gap-1">
           <div className="flex items-center text-xs text-slate-600">
             <Calendar size={14} className="mr-1 text-blue-500" />
-            <span className="font-medium">Assign:</span> {new Date(row.assignmentDate).toLocaleDateString()}
+            <span className="">Assign:</span> {new Date(row.assignmentDate).toLocaleDateString()}
           </div>
           <div className="flex items-center text-xs text-slate-600">
             <Clock size={14} className="mr-1 text-amber-500" />
-            <span className="font-medium">Due:</span> {new Date(row.dueDate).toLocaleDateString()}
+            <span className="">Due:</span> {new Date(row.dueDate).toLocaleDateString()}
           </div>
         </div>
       ),
@@ -189,7 +189,7 @@ const DepartmentTasksPage = () => {
       label: "Status",
       key: "status",
       render: (value) => (
-        <span className="flex items-center text-xs font-medium text-slate-700">
+        <span className="flex items-center text-xs  text-slate-700">
           <CheckCircle2 size={14} className="mr-1 text-slate-400" />
           {value || "Pending"}
         </span>
@@ -262,7 +262,7 @@ const DepartmentTasksPage = () => {
           <h1 className="text-xl  text-slate-900 flex items-center gap-2">
             Assign Department Task
           </h1>
-          <p className="text-slate-500 text-sm">Assign and track tasks for different departments</p>
+          <p className="text-slate-500 text-xs">Assign and track tasks for different departments</p>
         </div>
         <Button
           onClick={() => {
@@ -271,44 +271,44 @@ const DepartmentTasksPage = () => {
           }}
           className="flex items-center gap-2"
         >
-          <Plus size={18} />
+          <Plus size={15} />
           Assign New Task
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-white">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-blue-100 rounded">
-              <ClipboardList className="text-blue-600" size={24} />
+          <CardContent className=" flex items-center gap-4">
+            <div className=" bg-blue-100 rounded">
+              <ClipboardList className="text-blue-600" size={15} />
             </div>
             <div>
-              <p className="text-sm text-slate-500 font-medium">Total Tasks</p>
-              <h3 className="text-2xl  text-slate-900">{tasks.length}</h3>
+              <p className="text-sm text-slate-500 ">Total Tasks</p>
+              <h3 className="text-xl  text-slate-900">{tasks.length}</h3>
             </div>
           </CardContent>
         </Card>
         <Card className="bg-white">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-amber-100 rounded">
-              <Clock className="text-amber-600" size={24} />
+          <CardContent className="flex items-center gap-4">
+            <div className=" bg-amber-100 rounded">
+              <Clock className="text-amber-600" size={15} />
             </div>
             <div>
-              <p className="text-sm text-slate-500 font-medium">Pending Tasks</p>
-              <h3 className="text-2xl  text-slate-900">
+              <p className="text-sm text-slate-500 ">Pending Tasks</p>
+              <h3 className="text-xl  text-slate-900">
                 {tasks.filter(t => t.status !== 'Completed').length}
               </h3>
             </div>
           </CardContent>
         </Card>
         <Card className="bg-white">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-green-100 rounded">
-              <CheckCircle2 className="text-green-600" size={24} />
+          <CardContent className=" flex items-center gap-4">
+            <div className=" bg-green-100 rounded">
+              <CheckCircle2 className="text-green-600" size={15} />
             </div>
             <div>
-              <p className="text-sm text-slate-500 font-medium">Completed</p>
-              <h3 className="text-2xl  text-slate-900">
+              <p className="text-sm text-slate-500 ">Completed</p>
+              <h3 className="text-xl  text-slate-900">
                 {tasks.filter(t => t.status === 'Completed').length}
               </h3>
             </div>
@@ -316,23 +316,14 @@ const DepartmentTasksPage = () => {
         </Card>
       </div>
 
-      <Card className="overflow-hidden border-slate-200">
-        <CardHeader className="bg-white border-b border-slate-200 p-4">
+      <div className="">
+        <div className="">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+           
             <div className="flex items-center gap-2">
-              <Filter size={18} className="text-slate-400" />
+              <Filter size={15} className="text-slate-400" />
               <select
-                className="border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="border border-slate-200 rounded p-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 value={filterDepartment}
                 onChange={(e) => setFilterDepartment(e.target.value)}
               >
@@ -345,7 +336,7 @@ const DepartmentTasksPage = () => {
               </select>
             </div>
           </div>
-        </CardHeader>
+        </div>
         <CardContent className="p-0">
           <DataTable
             columns={columns}
@@ -355,12 +346,12 @@ const DepartmentTasksPage = () => {
           {!loading && filteredTasks.length === 0 && (
             <div className="py-12 text-center">
               <ClipboardList size={48} className="mx-auto text-slate-300 mb-4" />
-              <h3 className="text-lg font-medium text-slate-900">No tasks found</h3>
+              <h3 className="text-lg  text-slate-900">No tasks found</h3>
               <p className="text-slate-500">Assign your first departmental task to get started.</p>
             </div>
           )}
         </CardContent>
-      </Card>
+      </div>
 
       {/* Task Assignment Modal */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="lg">
@@ -434,7 +425,7 @@ const DepartmentTasksPage = () => {
                 <div className="space-y-1">
                   <label className="text-xs  text-slate-700">Assignment Date</label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <input
                       type="date"
                       name="assignmentDate"
@@ -449,7 +440,7 @@ const DepartmentTasksPage = () => {
                 <div className="space-y-1">
                   <label className="text-xs  text-slate-700">Due Date</label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <input
                       type="date"
                       name="dueDate"

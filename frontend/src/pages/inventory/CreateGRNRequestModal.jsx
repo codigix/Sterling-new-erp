@@ -3,6 +3,7 @@ import { X, CheckCircle, Package, User, Calendar, Trash2, Plus, LayoutGrid, Truc
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
   const [loading, setLoading] = useState(false);
@@ -289,7 +290,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     
     if (parts.length === 0) return null;
     return (
-      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+      <div className="text-[10px] text-blue-600 dark:text-blue-400  mt-0.5">
         Dim: {parts.join(" \u00d7 ")} mm
       </div>
     );
@@ -302,7 +303,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
 
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded  shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
           <h2 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
@@ -330,14 +331,14 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                     <label className="text-xs  text-slate-400   block mb-1"># GRN Number</label>
                     <input 
                       disabled 
-                      className="w-full px-3 py-2 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-500"
+                      className="w-full px-3 py-2 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-500"
                       value={`GRN-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`}
                     />
                   </div>
                   <div>
                     <label className="text-xs  text-slate-400   block mb-1">Purchase Order</label>
                     <select
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                       value={formData.po_id || ""}
                       onChange={(e) => handlePOChange(e.target.value)}
                     >
@@ -352,7 +353,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                     <div className="relative">
                       <input 
                         type="date"
-                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                         value={formData.receipt_date}
                         onChange={(e) => setFormData({ ...formData, receipt_date: e.target.value })}
                       />
@@ -401,7 +402,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                   <span className="text-xs   tracking-wider">Transporter Notes</span>
                 </div>
                 <textarea 
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
                   placeholder="Vehicle number, driver details etc..."
                   value={formData.transporter_notes}
                   onChange={(e) => setFormData({ ...formData, transporter_notes: e.target.value })}
@@ -418,7 +419,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                   </div>
                   <div>
                     <h3 className="text-xs  text-slate-900 dark:text-white  tracking-wider">Receipt Items</h3>
-                    <p className="text-xs text-slate-500 font-medium">Verify received quantities against PO</p>
+                    <p className="text-xs text-slate-500 ">Verify received quantities against PO</p>
                   </div>
                 </div>
                 <button 
@@ -430,101 +431,106 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-auto border border-slate-100 dark:border-slate-800 rounded-2xl ">
-                <table className="w-full text-left border-collapse bg-white min-w-[900px]">
-                  <thead className="sticky top-0 z-20 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-md">
-                    <tr>
-                      <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">Item Details</th>
-                      <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center w-24">PO Qty</th>
-                      <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center w-24">Received</th>
-                      <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center w-24">Rate</th>
-                      <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center w-32">Total</th>
-                      <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                    {formData.items.map((item, idx) => {
-                      const itemName = item.material_name || item.itemName || item.item_name || item.name || item.description;
-                      const itemCode = item.material_code || item.itemCode || item.item_code || item.code || "GENERIC";
-                      const isPredefined = item.is_po_item || item.material_id || item.id || itemName;
+              <div className="flex-1 border border-slate-100 dark:border-slate-800 rounded  overflow-hidden">
+                <DataTable
+                  data={formData.items}
+                  showSearch={false}
+                  columns={[
+                    {
+                      key: "item_details",
+                      label: "Item Details",
+                      className: "min-w-[250px]",
+                      render: (_, item, idx) => {
+                        const itemName = item.material_name || item.itemName || item.item_name || item.name || item.description;
+                        const itemCode = item.material_code || item.itemCode || item.item_code || item.code || "GENERIC";
+                        const isPredefined = item.is_po_item || item.material_id || item.id || itemName;
 
-                      return (
-                      <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                        <td className="px-4 py-4 min-w-[250px]">
-                          {isPredefined ? (
-                            <div className="space-y-1">
-                              <h4 className="text-xs  text-slate-900 dark:text-white   leading-tight">
-                                {itemName}
-                              </h4>
-                              {renderDimensionsText(item)}
-                              <div className="flex items-center gap-1.5 mt-1">
-                                <span className="text-[10px]  text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-800  tracking-wider">
-                                  {itemCode}
-                                </span>
-                              </div>
+                        return isPredefined ? (
+                          <div className="space-y-1">
+                            <h4 className="text-xs  text-slate-900 dark:text-white   leading-tight">
+                              {itemName}
+                            </h4>
+                            {renderDimensionsText(item)}
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="text-[10px]  text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-800  tracking-wider">
+                                {itemCode}
+                              </span>
                             </div>
-                          ) : (
-                            <select 
-                              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
-                              value={item.material_id || ""}
-                              onChange={(e) => handleItemSelect(idx, e.target.value)}
-                            >
-                              <option value="">Select Item</option>
-                              {Array.isArray(allMaterials) && allMaterials.map(m => (
-                                <option key={m.id} value={m.id}>{m.itemCode || m.item_code} - {m.itemName || m.name}</option>
-                              ))}
-                            </select>
-                          )}
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                          <span className="text-xs  text-slate-500">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</span>
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                          <input 
-                            type="number"
-                            step="any"
-                            className="w-20 .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-blue-600 text-center outline-none focus:ring-2 focus:ring-blue-500"
-                            value={item.received_quantity !== undefined && item.received_quantity !== null ? parseFloat(item.received_quantity) : ""}
-                            onChange={(e) => handleItemChange(idx, "received_quantity", e.target.value)}
-                          />
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                           <input 
-                            type="number"
-                            step="any"
-                            className="w-20 .5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-500 text-center outline-none focus:ring-2 focus:ring-blue-500"
-                            value={item.rate}
-                            onChange={(e) => handleItemChange(idx, "rate", e.target.value)}
-                          />
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                          <span className="text-xs  text-slate-900 dark:text-white">
-                            ₹{((Number(item.received_quantity) || 0) * (Number(item.rate) || 0)).toLocaleString()}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                          <button 
-                            type="button"
-                            onClick={() => handleRemoveItem(idx)}
-                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </td>
-                      </tr>
-                    )})}
-                    {formData.items.length === 0 && (
-                      <tr>
-                        <td colSpan="6" className="px-4 py-12 text-center">
-                          <div className="flex flex-col items-center justify-center space-y-2 opacity-40">
-                            <Package size={40} />
-                            <p className="text-xs   ">No Items Added Yet</p>
                           </div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                        ) : (
+                          <select 
+                            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-1.5 text-xs  text-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                            value={item.material_id || ""}
+                            onChange={(e) => handleItemSelect(idx, e.target.value)}
+                          >
+                            <option value="">Select Item</option>
+                            {Array.isArray(allMaterials) && allMaterials.map(m => (
+                              <option key={m.id} value={m.id}>{m.itemCode || m.item_code} - {m.itemName || m.name}</option>
+                            ))}
+                          </select>
+                        );
+                      }
+                    },
+                    {
+                      key: "quantity",
+                      label: "PO Qty",
+                      className: "text-center w-24",
+                      render: (val) => <span className="text-xs  text-slate-500">{val ? parseFloat(val).toString() : "0"}</span>
+                    },
+                    {
+                      key: "received_quantity",
+                      label: "Received",
+                      className: "text-center w-24",
+                      render: (val, _, __, idx) => (
+                        <input 
+                          type="number"
+                          step="any"
+                          className="w-20 px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-blue-600 text-center outline-none focus:ring-2 focus:ring-blue-500"
+                          value={val !== undefined && val !== null ? parseFloat(val) : ""}
+                          onChange={(e) => handleItemChange(idx, "received_quantity", e.target.value)}
+                        />
+                      )
+                    },
+                    {
+                      key: "rate",
+                      label: "Rate",
+                      className: "text-center w-24",
+                      render: (val, _, __, idx) => (
+                        <input 
+                          type="number"
+                          step="any"
+                          className="w-20 px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-500 text-center outline-none focus:ring-2 focus:ring-blue-500"
+                          value={val}
+                          onChange={(e) => handleItemChange(idx, "rate", e.target.value)}
+                        />
+                      )
+                    },
+                    {
+                      key: "total",
+                      label: "Total",
+                      className: "text-center w-32",
+                      render: (_, item) => (
+                        <span className="text-xs  text-slate-900 dark:text-white">
+                          ₹{((Number(item.received_quantity) || 0) * (Number(item.rate) || 0)).toLocaleString()}
+                        </span>
+                      )
+                    },
+                    {
+                      key: "action",
+                      label: "Action",
+                      className: "text-center",
+                      render: (_, __, idx) => (
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveItem(idx)}
+                          className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )
+                    }
+                  ]}
+                />
               </div>
             </div>
           </div>

@@ -57,7 +57,7 @@ const AddProductionPhaseModal = ({ isOpen, onClose, onSuccess }) => {
             step="0.01"
           />
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 text-left">
+            <label className="block text-sm  text-slate-700 dark:text-slate-300 text-left">
               Description (Optional)
             </label>
             <textarea

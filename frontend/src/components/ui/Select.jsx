@@ -49,7 +49,7 @@ const Select = ({
   };
 
   return (
-    <div className={`space-y-2 mt-3 ${containerClassName}`}>
+    <div className={`space-y-2  ${containerClassName}`}>
       <SearchableSelect
         label={label}
         options={extractedOptions}

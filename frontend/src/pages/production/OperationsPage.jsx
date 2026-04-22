@@ -16,6 +16,7 @@ import {
   Truck,
   Loader2
 } from "lucide-react";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
   const [formData, setFormData] = useState({
@@ -181,18 +182,75 @@ const OperationsPage = () => {
     }
   };
 
-  const filteredOps = operations.filter(op => 
-    op.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const operationColumns = [
+    {
+      header: "Operation Name",
+      accessor: "name",
+      render: (value) => (
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
+            <Wrench size={15} />
+          </div>
+          <span className="text-xs text-slate-900 dark:text-white tracking-tight">
+            {value}
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: "Type",
+      accessor: "type",
+      render: (value) => (
+        <span
+          className={`px-2.5 py-1 text-xs rounded border flex items-center gap-1.5 w-fit ${
+            value === "In-house"
+              ? "bg-blue-100 text-blue-700 border-blue-200"
+              : "bg-amber-100 text-amber-700 border-amber-200"
+          }`}
+        >
+          {value === "In-house" ? <Factory size={10} /> : <Truck size={10} />}
+          {value}
+        </span>
+      ),
+    },
+    {
+      header: "Description",
+      accessor: "description",
+      render: (value) => (
+        <span className="text-xs text-slate-500 tracking-tight">
+          {value || "NO DESCRIPTION"}
+        </span>
+      ),
+    },
+    {
+      header: "Actions",
+      align: "right",
+      render: (_, op) => (
+        <div className="flex justify-end gap-2">
+          <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+            <Edit2 size={15} />
+          </button>
+          <button
+            onClick={() => handleDeleteOperation(op.id)}
+            className="p-2 text-slate-400 hover:text-red-600 transition-colors"
+          >
+            <Trash2 size={15} />
+          </button>
+          <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
       {/* Page Header */}
-      <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="max-w-7xl mx-auto  flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-4">
-         
           <div>
-            <h1 className="text-2xl  text-slate-900 dark:text-white  ">Manufacturing Operations</h1>
+            <h1 className="text-xl  text-slate-900 dark:text-white  ">Manufacturing Operations</h1>
             <p className="text-xs  text-slate-500   mt-1">Global Operation Dictionary for Planning</p>
           </div>
         </div>
@@ -205,101 +263,19 @@ const OperationsPage = () => {
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className=" mx-auto space-y-2">
         {/* Table/List Area */}
-        <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800  overflow-hidden">
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="relative flex-1 w-full max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-              <input
-                type="text"
-                placeholder="SEARCH OPERATIONS..."
-                className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-1 focus:ring-indigo-500 outline-none  "
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <button className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs    text-slate-500 flex items-center gap-2 hover:bg-slate-50 transition-all">
-                <Filter size={14} /> Filter
-              </button>
-            </div>
-          </div>
+        <div className="">
+          
 
           <div className="overflow-x-auto min-h-[400px]">
-            {loading ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Loader2 className="animate-spin text-indigo-600 mb-4" size={32} />
-                <p className="text-xs  text-slate-400  ">Loading operations...</p>
-              </div>
-            ) : filteredOps.length > 0 ? (
-              <table className="w-full text-left border-collapse bg-white">
-                <thead>
-                  <tr className="bg-slate-50/30 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-                    <th className="p-2 text-xs  text-slate-400  ">Operation Name</th>
-                    <th className="p-2 text-xs  text-slate-400  ">Type</th>
-                    <th className="p-2 text-xs  text-slate-400  ">Description</th>
-                    <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {filteredOps.map((op) => (
-                    <tr key={op.id} className="hover:bg-indigo-50/10 dark:hover:bg-indigo-900/10 transition-all">
-                      <td className="p-2">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
-                            <Wrench size={15} />
-                          </div>
-                          <span className="text-xs  text-slate-900 dark:text-white tracking-tight">
-                            {op.name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-2">
-                        <span className={`px-2.5 py-1 text-xs  rounded   border flex items-center gap-1.5 w-fit ${
-                          op.type === "In-house"
-                            ? "bg-blue-100 text-blue-700 border-blue-200"
-                            : "bg-amber-100 text-amber-700 border-amber-200"
-                        }`}>
-                          {op.type === "In-house" ? <Factory size={10} /> : <Truck size={10} />}
-                          {op.type}
-                        </span>
-                      </td>
-                      <td className="p-2 text-xs  text-slate-500  tracking-tight">
-                        {op.description || "NO DESCRIPTION"}
-                      </td>
-                      <td className="p-2 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
-                            <Edit2 size={15} />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteOperation(op.id)}
-                            className="p-2 text-slate-400 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                          <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
-                            <ChevronRight size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-                <Settings2 size={48} className="mb-4 opacity-10" />
-                <p className="text-xs   ">No Operations Found</p>
-                <button 
-                  onClick={() => setIsModalOpen(true)}
-                  className="mt-4 text-xs  text-indigo-600  hover:underline"
-                >
-                  Click here to create your first operation
-                </button>
-              </div>
-            )}
+            <DataTable
+              columns={operationColumns}
+              data={operations}
+              loading={loading}
+              searchPlaceholder="SEARCH OPERATIONS..."
+              emptyMessage="No Operations Found"
+            />
           </div>
         </div>
       </div>

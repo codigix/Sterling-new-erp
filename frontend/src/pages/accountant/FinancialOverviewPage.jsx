@@ -61,14 +61,14 @@ const FinancialOverviewPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
             <Download size={15} />
             Export
           </button>
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
           >
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
@@ -83,13 +83,13 @@ const FinancialOverviewPage = () => {
             key={metric.label}
             className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6"
           >
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-sm  text-slate-500 dark:text-slate-400">
               {metric.label}
             </p>
             <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
               {metric.value}
             </p>
-            <p className="text-sm text-green-600 dark:text-green-400 mt-1 font-medium">
+            <p className="text-sm text-green-600 dark:text-green-400 mt-1 ">
               {metric.change}
             </p>
           </div>
@@ -108,7 +108,7 @@ const FinancialOverviewPage = () => {
             {monthlyData.slice(-6).map((data) => (
               <div key={data.month}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <span className="text-sm  text-slate-700 dark:text-slate-300">
                     {data.month}
                   </span>
                   <span className="text-sm  text-slate-900 dark:text-white text-xs">
@@ -137,7 +137,7 @@ const FinancialOverviewPage = () => {
             {departmentExpenses.map((dept) => (
               <div key={dept.dept}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <span className="text-sm  text-slate-700 dark:text-slate-300">
                     {dept.dept}
                   </span>
                   <span className="text-sm  text-slate-900 dark:text-white text-xs">

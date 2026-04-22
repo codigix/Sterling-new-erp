@@ -351,7 +351,7 @@ const CreateProjectPage = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Project Name
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
@@ -359,7 +359,7 @@ const CreateProjectPage = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Project Code
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
@@ -367,7 +367,7 @@ const CreateProjectPage = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       PO Number
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
@@ -375,7 +375,7 @@ const CreateProjectPage = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Client Name
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
@@ -383,12 +383,12 @@ const CreateProjectPage = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Priority
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
                       <span
-                        className={`inline-block  rounded text-xs font-semibold ${
+                        className={`inline-block  rounded text-xs  ${
                           projectData.priority === "critical"
                             ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                             : projectData.priority === "high"
@@ -403,12 +403,12 @@ const CreateProjectPage = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Status
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
                       <span
-                        className={`inline-block  rounded text-xs font-semibold ${
+                        className={`inline-block  rounded text-xs  ${
                           projectData.status === "completed"
                             ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                             : projectData.status === "active" ||
@@ -428,7 +428,7 @@ const CreateProjectPage = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Start Date
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
@@ -438,7 +438,7 @@ const CreateProjectPage = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Delivery Date
                     </label>
                     <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
@@ -577,7 +577,7 @@ const CreateProjectPage = () => {
                   {projectData.steelSections &&
                     projectData.steelSections.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -606,7 +606,7 @@ const CreateProjectPage = () => {
                   />
                   {projectData.plates && projectData.plates.length > 0 && (
                     <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                      <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                         Selected:
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -636,7 +636,7 @@ const CreateProjectPage = () => {
                   {projectData.fasteners &&
                     projectData.fasteners.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -666,7 +666,7 @@ const CreateProjectPage = () => {
                   {projectData.components &&
                     projectData.components.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -696,7 +696,7 @@ const CreateProjectPage = () => {
                   {projectData.electrical &&
                     projectData.electrical.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -726,7 +726,7 @@ const CreateProjectPage = () => {
                   {projectData.consumables &&
                     projectData.consumables.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -763,7 +763,7 @@ const CreateProjectPage = () => {
                 />
                 <label htmlFor="refUpload" className="cursor-pointer block">
                   <Upload className="mx-auto mb-3 text-blue-500" size={32} />
-                  <p className="text-slate-900 dark:text-white font-medium">
+                  <p className="text-slate-900 dark:text-white ">
                     Click to upload reference materials
                   </p>
                   <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
@@ -773,7 +773,7 @@ const CreateProjectPage = () => {
               </div>
               {uploadedFiles.references.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  <h4 className="text-sm  text-slate-900 dark:text-white">
                     Uploaded Files ({uploadedFiles.references.length})
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -814,7 +814,7 @@ const CreateProjectPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white text-xs mb-2">
+                <label className="block text-sm  text-slate-900 dark:text-white text-xs mb-2">
                   Design Specifications Summary
                 </label>
                 <textarea
@@ -828,7 +828,7 @@ const CreateProjectPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white text-xs mb-2">
+                <label className="block text-sm  text-slate-900 dark:text-white text-xs mb-2">
                   Manufacturing Instructions
                 </label>
                 <textarea
@@ -845,7 +845,7 @@ const CreateProjectPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white text-xs mb-2">
+                <label className="block text-sm  text-slate-900 dark:text-white text-xs mb-2">
                   Quality & Safety Requirements
                 </label>
                 <textarea
@@ -859,7 +859,7 @@ const CreateProjectPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white text-xs mb-2">
+                <label className="block text-sm  text-slate-900 dark:text-white text-xs mb-2">
                   Additional Notes
                 </label>
                 <textarea

@@ -54,7 +54,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded  shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Modal Header */}
         <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
           <div className="flex items-center gap-4">
@@ -84,7 +84,7 @@ const MaterialRequestTraceabilityModal = ({ isOpen, onClose, planId, planName })
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 size={40} className="text-purple-500 animate-spin mb-4" />
-              <p className="text-sm font-medium text-slate-500">Loading traceability data...</p>
+              <p className="text-sm  text-slate-500">Loading traceability data...</p>
             </div>
           ) : error ? (
             <div className="text-center py-20">
@@ -180,7 +180,7 @@ const RequestCard = ({ request, getStatusColor }) => {
             <p className="text-xs  text-slate-900 dark:text-white  ">
               {request.mr_number}
             </p>
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-xs text-slate-500 ">
               Requested: {request.created_at ? new Date(request.created_at).toLocaleDateString() : 'N/A'}
             </p>
           </div>
@@ -203,7 +203,7 @@ const RequestCard = ({ request, getStatusColor }) => {
                 <p className="text-[13px]  text-slate-900 dark:text-white flex items-center flex-wrap">
                   {item.material_name || item.materialName || item.itemName || item.specification || 'Item Details Not Set'}
                   {(item.material_code || item.materialCode || item.item_code || item.itemCode) && (
-                    <span className="ml-2 text-slate-500 font-medium text-xs">
+                    <span className="ml-2 text-slate-500  text-xs">
                       ({item.material_code || item.materialCode || item.item_code || item.itemCode})
                     </span>
                   )}

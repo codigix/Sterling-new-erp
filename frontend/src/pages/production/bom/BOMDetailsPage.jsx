@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { 
-  useParams, 
-  useNavigate 
+import {
+  useParams,
+  useNavigate
 } from "react-router-dom";
-import { 
-  ChevronLeft, 
-  Printer, 
-  Download, 
-  Edit2, 
-  FileText, 
-  Layers, 
-  PackageCheck, 
+import {
+  ChevronLeft,
+  Printer,
+  Download,
+  Edit2,
+  FileText,
+  Layers,
+  PackageCheck,
   Boxes,
   Hammer,
   Trash2,
@@ -82,7 +82,7 @@ const BOMDetailsPage = () => {
       doc.setFontSize(12);
       doc.text("Materials Breakdown", 14, currentY);
       currentY += 5;
-      
+
       doc.autoTable({
         startY: currentY,
         head: [['Item Name', 'Group', 'Grade/Detail', 'Remark/Make', 'Qty', 'Unit']],
@@ -106,7 +106,7 @@ const BOMDetailsPage = () => {
       doc.setFontSize(12);
       doc.text("Components / Sub-Assemblies", 14, currentY);
       currentY += 5;
-      
+
       doc.autoTable({
         startY: currentY,
         head: [['Component Code', 'Qty', 'Unit', 'Loss %']],
@@ -127,7 +127,7 @@ const BOMDetailsPage = () => {
       doc.setFontSize(12);
       doc.text("Operations Breakdown", 14, currentY);
       currentY += 5;
-      
+
       doc.autoTable({
         startY: currentY,
         head: [['Operation', 'Cycle (min)', 'Setup (min)']],
@@ -146,42 +146,48 @@ const BOMDetailsPage = () => {
   const materialColumns = [
     { key: "itemName", label: "Item Name", className: "" },
     { key: "itemGroup", label: "Group", render: (val) => <Badge variant="gray">{val || "NO-GROUP"}</Badge> },
-    { key: "partDetail", label: "Dimensions / Grade", render: (val, row) => {
-      const dims = [];
-      if (parseFloat(row.length) > 0) dims.push(`L: ${parseFloat(row.length)}`);
-      if (parseFloat(row.width) > 0) dims.push(`W: ${parseFloat(row.width)}`);
-      if (parseFloat(row.thickness) > 0) dims.push(`T: ${parseFloat(row.thickness)}`);
-      if (parseFloat(row.height) > 0) dims.push(`H: ${parseFloat(row.height)}`);
-      if (parseFloat(row.diameter) > 0) dims.push(`D: ${parseFloat(row.diameter)}`);
-      if (parseFloat(row.outerDiameter) > 0) dims.push(`OD: ${parseFloat(row.outerDiameter)}`);
-      if (parseFloat(row.side1) > 0) dims.push(`S1: ${parseFloat(row.side1)}`);
-      if (parseFloat(row.side2) > 0) dims.push(`S2: ${parseFloat(row.side2)}`);
-      if (parseFloat(row.webThickness) > 0) dims.push(`WT: ${parseFloat(row.webThickness)}`);
-      if (parseFloat(row.flangeThickness) > 0) dims.push(`FT: ${parseFloat(row.flangeThickness)}`);
-      
-      return (
+    {
+      key: "partDetail", label: "Dimensions / Grade", render: (val, row) => {
+        const dims = [];
+        if (parseFloat(row.length) > 0) dims.push(`L: ${parseFloat(row.length)}`);
+        if (parseFloat(row.width) > 0) dims.push(`W: ${parseFloat(row.width)}`);
+        if (parseFloat(row.thickness) > 0) dims.push(`T: ${parseFloat(row.thickness)}`);
+        if (parseFloat(row.height) > 0) dims.push(`H: ${parseFloat(row.height)}`);
+        if (parseFloat(row.diameter) > 0) dims.push(`D: ${parseFloat(row.diameter)}`);
+        if (parseFloat(row.outerDiameter) > 0) dims.push(`OD: ${parseFloat(row.outerDiameter)}`);
+        if (parseFloat(row.side1) > 0) dims.push(`S1: ${parseFloat(row.side1)}`);
+        if (parseFloat(row.side2) > 0) dims.push(`S2: ${parseFloat(row.side2)}`);
+        if (parseFloat(row.webThickness) > 0) dims.push(`WT: ${parseFloat(row.webThickness)}`);
+        if (parseFloat(row.flangeThickness) > 0) dims.push(`FT: ${parseFloat(row.flangeThickness)}`);
+
+        return (
+          <div className="flex flex-col">
+            {dims.length > 0 && (
+              <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-1 rounded border border-blue-100 mb-1 w-fit">
+                {dims.join(" x ")}
+              </span>
+            )}
+            <span className="text-xs text-slate-500 ">{row.materialGrade || (val || "-")}</span>
+          </div>
+        );
+      }
+    },
+    {
+      key: "unitWeight", label: "Weight (Kg)", render: (val, row) => (
         <div className="flex flex-col">
-          {dims.length > 0 && (
-            <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-1 rounded border border-blue-100 mb-1 w-fit">
-              {dims.join(" x ")}
-            </span>
-          )}
-          <span className="text-xs text-slate-500 ">{row.materialGrade || (val || "-")}</span>
+          <span className="text-xs">Unit: {Number(parseFloat(val || 0).toFixed(3))}</span>
+          <span className="text-xs  text-emerald-600">Total: {Number(parseFloat(row.totalWeight || 0).toFixed(3))}</span>
         </div>
-      );
-    }},
-    { key: "unitWeight", label: "Weight (Kg)", render: (val, row) => (
-      <div className="flex flex-col">
-        <span className="text-xs">Unit: {Number(parseFloat(val || 0).toFixed(3))}</span>
-        <span className="text-xs font-medium text-emerald-600">Total: {Number(parseFloat(row.totalWeight || 0).toFixed(3))}</span>
-      </div>
-    )},
-    { key: "remark", label: "Remark / Make", render: (val, row) => (
-      <div className="flex flex-col">
-        <span className="text-xs text-slate-500 italic">{val || "-"}</span>
-        <span className="text-xs">{row.make || "-"}</span>
-      </div>
-    )},
+      )
+    },
+    {
+      key: "remark", label: "Remark / Make", render: (val, row) => (
+        <div className="flex flex-col">
+          <span className="text-xs text-slate-500 italic">{val || "-"}</span>
+          <span className="text-xs">{row.make || "-"}</span>
+        </div>
+      )
+    },
     { key: "quantity", label: "Qty", render: (val, row) => `${Number(parseFloat(val || 0))} ${row.uom}` },
   ];
 
@@ -200,9 +206,9 @@ const BOMDetailsPage = () => {
           <AlertCircle size={20} />
           <p>{error || "BOM not found"}</p>
         </div>
-        <Button 
-          variant="secondary" 
-          className="mt-4" 
+        <Button
+          variant="secondary"
+          className="mt-4"
           icon={ChevronLeft}
           onClick={() => navigate("/department/production/bom/view")}
         >
@@ -213,22 +219,22 @@ const BOMDetailsPage = () => {
   }
 
   return (
-    <div className="p-6 space-y-2 bg-slate-50/50 min-h-screen">
+    <div className="p-4 space-y-2 bg-slate-50/50 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <button 
+      <div className="flex flex-col md:flex-row justify-between items-start">
+        <div className="flex items-start gap-2">
+          <button
             onClick={() => navigate("/department/production/bom/view")}
-            className="p-2 hover:bg-white rounded  transition-colors border border-transparent hover:border-slate-200"
+            className="p-1 hover:bg-white rounded  transition-colors border border-transparent hover:border-slate-200"
           >
             <ChevronLeft size={15} />
           </button>
           <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <h2 className="text-xl  text-slate-900 break-words max-w-2xl">{bom.productName} <span className="text-slate-500 font-normal">({bom.productCode})</span></h2>
-              <Badge 
+            <div className="">
+              <h2 className="text-lg  text-slate-900 break-words max-w-2xl">{bom.productName} <span className="text-slate-500 font-normal">({bom.productCode})</span></h2>
+              <Badge
                 variant={bom.status === 'active' ? 'success' : bom.status === 'approved' ? 'primary' : 'warning'}
-                className="capitalize px-3 py-1 text-xs"
+                className="capitalize p-1 text-xs"
               >
                 {bom.status}
               </Badge>
@@ -238,18 +244,17 @@ const BOMDetailsPage = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" icon={Printer} onClick={handlePrint}>Print</Button>
+        <div className="flex items-start gap-1">
           <Button variant="secondary" icon={Download} onClick={handleExportPDF}>Export PDF</Button>
-          <Button 
-            variant="info" 
-            icon={Send} 
+          <Button
+            variant="secondary"
+            icon={Send}
             onClick={() => setIsRequestModalOpen(true)}
           >
             Send Material Request
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             icon={Edit2}
             onClick={() => navigate(`/department/production/bom/create?bomId=${bom.id}`)}
           >
@@ -258,30 +263,30 @@ const BOMDetailsPage = () => {
         </div>
       </div>
 
-      <MaterialRequestModal 
-        isOpen={isRequestModalOpen} 
-        onClose={() => setIsRequestModalOpen(false)} 
-        bom={bom} 
+      <MaterialRequestModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        bom={bom}
       />
 
-      <div className="space-y-2">
+      <div className="my-4">
         {/* Materials Table */}
-        <Card className="border-none ">
-          <CardHeader className="border-b border-slate-100 bg-white flex justify-between items-center">
-            <h3 className=" text-slate-900 flex items-center gap-2 text-sm">
+        <div className="border-none ">
+          <div className="border-b border-slate-100 flex justify-between items-center">
+            <h3 className=" text-slate-900 flex items-center gap-2 text-md">
               <Boxes size={15} className="text-blue-600" />
               Raw Materials
             </h3>
             <Badge variant="primary" className="text-xs">{bom.materials?.length || 0} Items</Badge>
-          </CardHeader>
-          <CardContent className="p-0">
-            <DataTable 
+          </div>
+          <div className="p-0">
+            <DataTable
               columns={materialColumns}
               data={bom.materials || []}
               emptyMessage="No raw materials added to this BOM."
             />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Hidden Print Content */}

@@ -18,7 +18,7 @@ const OverviewTab = ({ kpis }) => (
   <div className="w-full space-y-8 overflow-x-hidden">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div className="group relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-400 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-400 rounded  opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
         <Card className="h-full  transition-all duration-300 border border-blue-100 dark:border-blue-900">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
@@ -28,7 +28,7 @@ const OverviewTab = ({ kpis }) => (
                     <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+                <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">
                   Total Projects
                 </p>
                 <p className="text-3xl   dark:">
@@ -44,7 +44,7 @@ const OverviewTab = ({ kpis }) => (
       </div>
 
       <div className="group relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-400 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-400 rounded  opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
         <Card className="h-full  transition-all duration-300 border border-emerald-100 dark:border-emerald-900">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
@@ -54,13 +54,13 @@ const OverviewTab = ({ kpis }) => (
                     <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+                <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">
                   Active Projects
                 </p>
                 <p className="text-3xl   dark:">
                   {kpis.activeProjects}
                 </p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium">
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 ">
                   {Math.round((kpis.activeProjects / kpis.totalProjects) * 100)}
                   % of total
                 </p>
@@ -71,7 +71,7 @@ const OverviewTab = ({ kpis }) => (
       </div>
 
       <div className="group relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-600 to-amber-400 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-600 to-amber-400 rounded  opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
         <Card className="h-full  transition-all duration-300 border border-amber-100 dark:border-amber-900">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
@@ -81,13 +81,13 @@ const OverviewTab = ({ kpis }) => (
                     <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+                <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">
                   Active Employees
                 </p>
                 <p className="text-3xl   dark:">
                   {kpis.activeEmployees}
                 </p>
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 font-medium">
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 ">
                   {Math.round(
                     (kpis.activeEmployees / kpis.totalEmployees) * 100
                   )}
@@ -100,7 +100,7 @@ const OverviewTab = ({ kpis }) => (
       </div>
 
       <div className="group relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-400 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-400 rounded  opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
         <Card className="h-full  transition-all duration-300 border border-red-100 dark:border-red-900">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
@@ -110,13 +110,13 @@ const OverviewTab = ({ kpis }) => (
                     <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+                <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">
                   Critical Alerts
                 </p>
                 <p className="text-3xl   dark:">
                   {kpis.criticalAlerts}
                 </p>
-                <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
+                <p className="text-xs text-red-600 dark:text-red-400 mt-2 ">
                   Require attention
                 </p>
               </div>

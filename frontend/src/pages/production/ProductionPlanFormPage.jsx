@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Zap, Calendar, User, FileText, Plus, Trash2, Loader2, Edit2, Save, Settings, Package, Layers, ChevronDown, ChevronUp, Activity, ArrowLeft, AlertCircle, CheckCircle, X, Send } from 'lucide-react';
 import axios from '../../utils/api';
+import DataTable from "../../components/ui/DataTable/DataTable";
 import Card, { CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import Swal from 'sweetalert2';
 import MaterialRequestModal from '../../components/production/MaterialRequestModal';
@@ -16,7 +17,7 @@ const SectionHeader = ({ title, subtitle, section, isExpanded, onToggle, icon: I
     }`}
   >
     <div className="flex items-center gap-6">
-      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-2xl transform transition-all group-hover:scale-110 ${colorClass || 'bg-indigo-600 shadow-indigo-500/30'}`}>
+      <div className={`w-16 h-16 rounded  flex items-center justify-center text-white shadow-2xl transform transition-all group-hover:scale-110 ${colorClass || 'bg-indigo-600 shadow-indigo-500/30'}`}>
         <div className="flex flex-col items-center">
           <span className="text-[22px]  leading-none mb-1 drop- er">{number}</span>
           {Icon && <Icon size={15} className="drop-" />}
@@ -95,7 +96,7 @@ const ProductionPlanFormPage = () => {
         <div className="p-6 border-t border-slate-100 dark:border-slate-700/50 space-y-2 animate-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm  text-slate-700 dark:text-slate-300">
                 Plan Identity <span className="text-red-500">*</span>
               </label>
               <input
@@ -109,7 +110,7 @@ const ProductionPlanFormPage = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm  text-slate-700 dark:text-slate-300">
                 Naming Series
               </label>
               <input
@@ -124,7 +125,7 @@ const ProductionPlanFormPage = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm  text-slate-700 dark:text-slate-300">
                 Operational Status
               </label>
               <select
@@ -143,7 +144,7 @@ const ProductionPlanFormPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+              <label className="text-sm  text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 Source Sales Order <span className="text-red-500">*</span>
               </label>
               <select
@@ -163,7 +164,7 @@ const ProductionPlanFormPage = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm  text-slate-700 dark:text-slate-300">
                 Target Quantity <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center">
@@ -185,7 +186,7 @@ const ProductionPlanFormPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-700/30">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+              <label className="text-sm  text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 <Calendar size={14} className="text-blue-500" />
                 Production Start Date
               </label>
@@ -200,7 +201,7 @@ const ProductionPlanFormPage = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+              <label className="text-sm  text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 <Calendar size={14} className="text-orange-500" />
                 Estimated Completion
               </label>
@@ -217,7 +218,7 @@ const ProductionPlanFormPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+              <label className="text-sm  text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 <User size={14} className="text-green-500" />
                 Supervisor
               </label>
@@ -238,7 +239,7 @@ const ProductionPlanFormPage = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm  text-slate-700 dark:text-slate-300">
                 Notes
               </label>
               <textarea
@@ -273,147 +274,145 @@ const ProductionPlanFormPage = () => {
       
       {expandedSections.finishedGoods && (
         <div className="border-t border-slate-100 dark:border-slate-700/50 animate-in slide-in-from-top-4 duration-300">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
-                  <th className="p-2">No.</th>
-                  <th className="p-2">Item Code</th>
-                  <th className="p-2">Bom No.</th>
-                  <th className="p-2 text-center">Planned Qty</th>
-                  <th className="p-2 text-center">Uom</th>
-                  <th className="p-2">Finished Goods Warehouse</th>
-                  <th className="p-2">Planned Start Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                {finishedGoods.map((fg, idx) => {
-                  const isRowExpanded = expandedRows[`fg-${idx}`];
-                  return (
-                    <React.Fragment key={`fg-${idx}`}>
-                      <tr 
-                        onClick={() => toggleRow(`fg-${idx}`)}
-                        className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer ${isRowExpanded ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''}`}
-                      >
-                        <td className="p-2 text-slate-400 font-medium">{idx + 1}</td>
-                        <td className="p-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
-                              <Package size={14} className="text-blue-500" />
-                            </div>
-                            <div>
-                              <div className=" text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors ">
-                                {fg.itemCode}
-                              </div>
-                              <div className="text-xs text-slate-500  font-medium">
-                                {fg.productName}
-                              </div>
-                            </div>
-                            {fg.rawMaterials?.length > 0 && (
-                              isRowExpanded ? <ChevronUp size={12} className="text-slate-400" /> : <ChevronDown size={12} className="text-slate-400" />
-                            )}
+          <DataTable
+            data={finishedGoods}
+            showSearch={false}
+            emptyMessage="No finished goods data available. Please select a Sales Order first."
+            renderRowDetail={(fg) => fg.rawMaterials?.length > 0 ? (
+              <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  animate-in zoom-in-95 duration-200">
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-50 dark:border-slate-700">
+                  <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded">
+                    <Layers size={14} className="text-blue-500" />
+                  </div>
+                  <h5 className="text-xs  text-slate-900 dark:text-slate-100  ">Raw Materials from BOM</h5>
+                </div>
+                <DataTable
+                  showSearch={false}
+                  data={fg.rawMaterials}
+                  columns={[
+                    {
+                      header: "No.",
+                      cell: (info) => info.row.index + 1,
+                      className: "w-12"
+                    },
+                    {
+                      header: "Item",
+                      accessorKey: "specification",
+                      cell: (info) => (
+                        <>
+                          <div className=" text-black dark:text-white  text-[12px] ">
+                            {info.getValue() || info.row.original.itemName || 'Unnamed Material'}
                           </div>
-                        </td>
-                        <td className="p-2">
-                          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-                            <div className="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded flex items-center gap-1 border border-blue-100 dark:border-blue-800">
-                              <Settings size={10} />
-                              {fg.bomNo}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-2 text-center">
-                          <span className="text-sm  text-blue-600 dark:text-blue-400">
-                            {fg.plannedQty}
-                          </span>
-                        </td>
-                        <td className="p-2 text-center text-xs  text-slate-400 ">
-                          {fg.uom || 'Nos'}
-                        </td>
-                        <td className="p-2">
-                          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium">
-                            <Package size={14} className="text-slate-400" />
-                            {fg.warehouse}
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium">
-                            <Calendar size={14} className="text-slate-400" />
-                            {fg.startDate}
-                          </div>
-                        </td>
-                      </tr>
-                      {isRowExpanded && fg.rawMaterials?.length > 0 && (
-                        <tr className="bg-slate-50/30 dark:bg-slate-900/10">
-                          <td colSpan="7" className="p-2">
-                            <div className="p-4 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700  animate-in zoom-in-95 duration-200">
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-50 dark:border-slate-700">
-                                <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded">
-                                  <Layers size={14} className="text-blue-500" />
-                                </div>
-                                <h5 className="text-xs  text-slate-900 dark:text-slate-100  ">Raw Materials from BOM</h5>
-                              </div>
-                              <table className="w-full text-xs">
-                                <thead>
-                                  <tr className="text-slate-400  tracking-wider ">
-                                    <th className="px-3 py-2 text-left w-12">No.</th>
-                                    <th className="px-3 py-2 text-left">Item</th>
-                                    <th className="px-3 py-2 text-center">Qty Per Unit</th>
-                                    <th className="px-3 py-2 text-right">Total Required Qty</th>
-                                    <th className="px-3 py-2 text-left pl-6">Uom</th>
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
-                                  {fg.rawMaterials.map((rm, rmIdx) => (
-                                    <tr key={rmIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                      <td className="px-3 py-3 text-slate-400 ">{rmIdx + 1}</td>
-                                      <td className="px-3 py-3">
-                                        <div className=" text-black dark:text-white  text-[12px] ">
-                                          {rm.specification || rm.itemName || 'Unnamed Material'}
-                                        </div>
-                                        {(rm.itemName && rm.itemName !== rm.specification) && (
-                                          <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5">{rm.itemName}</div>
-                                        )}
-                                      </td>
-                                      <td className="px-3 py-3 text-center">
-                                        <span className=" text-slate-700 dark:text-slate-300">
-                                          {rm.qtyPerUnit || rm.quantity || '--'}
-                                        </span>
-                                      </td>
-                                      <td className="px-3 py-3 text-right">
-                                        <span className=" text-blue-600 dark:text-blue-400 text-sm">
-                                          {rm.requiredQty}
-                                        </span>
-                                      </td>
-                                      <td className="px-3 py-3 text-left pl-6">
-                                        <span className="text-xs  text-slate-400  ">
-                                          {rm.uom || 'KG'}
-                                        </span>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-                {finishedGoods.length === 0 && (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center gap-2 opacity-40">
-                        <Package size={32} />
-                        <p className="text-sm italic">No finished goods data available. Please select a Sales Order first.</p>
+                          {(info.row.original.itemName && info.row.original.itemName !== info.getValue()) && (
+                            <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5">{info.row.original.itemName}</div>
+                          )}
+                        </>
+                      )
+                    },
+                    {
+                      header: "Qty Per Unit",
+                      accessorKey: "qtyPerUnit",
+                      className: "text-center",
+                      cell: (info) => info.getValue() || info.row.original.quantity || '--'
+                    },
+                    {
+                      header: "Total Required Qty",
+                      accessorKey: "requiredQty",
+                      className: "text-right",
+                      cell: (info) => (
+                        <span className=" text-blue-600 dark:text-blue-400 text-sm">
+                          {info.getValue()}
+                        </span>
+                      )
+                    },
+                    {
+                      header: "Uom",
+                      accessorKey: "uom",
+                      className: "pl-6",
+                      cell: (info) => (
+                        <span className="text-xs  text-slate-400  ">
+                          {info.getValue() || 'KG'}
+                        </span>
+                      )
+                    }
+                  ]}
+                />
+              </div>
+            ) : null}
+            columns={[
+              {
+                header: "No.",
+                cell: (info) => info.row.index + 1
+              },
+              {
+                header: "Item Code",
+                accessorKey: "itemCode",
+                cell: (info) => (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                      <Package size={14} className="text-blue-500" />
+                    </div>
+                    <div>
+                      <div className=" text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors ">
+                        {info.getValue()}
                       </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                      <div className="text-xs text-slate-500  ">
+                        {info.row.original.productName}
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                header: "Bom No.",
+                accessorKey: "bomNo",
+                cell: (info) => (
+                  <div className="flex items-center gap-2 text-xs  text-slate-500">
+                    <div className="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded flex items-center gap-1 border border-blue-100 dark:border-blue-800">
+                      <Settings size={10} />
+                      {info.getValue()}
+                    </div>
+                  </div>
+                )
+              },
+              {
+                header: "Planned Qty",
+                accessorKey: "plannedQty",
+                className: "text-center",
+                cell: (info) => (
+                  <span className="text-sm  text-blue-600 dark:text-blue-400">
+                    {info.getValue()}
+                  </span>
+                )
+              },
+              {
+                header: "Uom",
+                accessorKey: "uom",
+                className: "text-center text-xs  text-slate-400 ",
+                cell: (info) => info.getValue() || 'Nos'
+              },
+              {
+                header: "Finished Goods Warehouse",
+                accessorKey: "warehouse",
+                cell: (info) => (
+                  <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs ">
+                    <Package size={14} className="text-slate-400" />
+                    {info.getValue()}
+                  </div>
+                )
+              },
+              {
+                header: "Planned Start Date",
+                accessorKey: "startDate",
+                cell: (info) => (
+                  <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs ">
+                    <Calendar size={14} className="text-slate-400" />
+                    {info.getValue()}
+                  </div>
+                )
+              }
+            ]}
+          />
         </div>
       )}
     </div>
@@ -493,52 +492,60 @@ const ProductionPlanFormPage = () => {
                   <div className="w-2 h-2 rounded  bg-orange-500  shadow-orange-500/50" />
                   <h4 className="text-xs  text-orange-700 dark:text-orange-400  ">Core Materials</h4>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left">
-                    <thead>
-                      <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
-                        <th className="p-2">Item</th>
-                        <th className="p-2 text-center">Required Qty</th>
-                        <th className="p-2">Warehouse</th>
-                        <th className="p-2">BOM Ref</th>
-                        <th className="p-2 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                      {coreMaterials.map((m, idx) => (
-                        <tr key={`core-${idx}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
-                          <td className="p-2">
-                            <div className=" text-black dark:text-white  text-[13px] ">{m.specification || m.itemName || 'Unnamed Material'}</div>
-                            {(m.itemName && m.itemName !== m.specification) && (
-                              <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5 italic">{m.itemName}</div>
-                            )}
-                          </td>
-                          <td className="p-2 text-center">
-                            <div className="flex flex-col items-center">
-                              <span className="text-sm  text-orange-600 dark:text-orange-400">{m.requiredQty}</span>
-                              <span className="text-xs text-slate-400  ">{m.uom || 'KG'}</span>
-                            </div>
-                          </td>
-                          <td className="p-2">
-                            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs ">
-                              <Package size={14} className="text-slate-400" />
-                              <span>{m.warehouse || m.location || '-'}</span>
-                            </div>
-                          </td>
-                          <td className="p-2">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 rounded text-xs  text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 w-fit">
-                              <Layers size={10} className="text-orange-500" />
-                              {m.bomRef || 'N/A'}
-                            </div>
-                          </td>
-                          <td className="p-2 text-center">
-                            <span className="text-slate-300 ">--</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  data={coreMaterials}
+                  showSearch={false}
+                  columns={[
+                    {
+                      header: "Item",
+                      accessorKey: "specification",
+                      cell: (info) => (
+                        <>
+                          <div className=" text-black dark:text-white  text-[13px] ">{info.getValue() || info.row.original.itemName || 'Unnamed Material'}</div>
+                          {(info.row.original.itemName && info.row.original.itemName !== info.getValue()) && (
+                            <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5 italic">{info.row.original.itemName}</div>
+                          )}
+                        </>
+                      )
+                    },
+                    {
+                      header: "Required Qty",
+                      accessorKey: "requiredQty",
+                      className: "text-center",
+                      cell: (info) => (
+                        <div className="flex flex-col items-center">
+                          <span className="text-sm  text-orange-600 dark:text-orange-400">{info.getValue()}</span>
+                          <span className="text-xs text-slate-400  ">{info.row.original.uom || 'KG'}</span>
+                        </div>
+                      )
+                    },
+                    {
+                      header: "Warehouse",
+                      accessorKey: "warehouse",
+                      cell: (info) => (
+                        <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs ">
+                          <Package size={14} className="text-slate-400" />
+                          <span>{info.getValue() || info.row.original.location || '-'}</span>
+                        </div>
+                      )
+                    },
+                    {
+                      header: "BOM Ref",
+                      accessorKey: "bomRef",
+                      cell: (info) => (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 rounded text-xs  text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 w-fit">
+                          <Layers size={10} className="text-orange-500" />
+                          {info.getValue() || 'N/A'}
+                        </div>
+                      )
+                    },
+                    {
+                      header: "Status",
+                      className: "text-center",
+                      cell: () => <span className="text-slate-300 ">--</span>
+                    }
+                  ]}
+                />
               </>
             )}
 
@@ -547,62 +554,60 @@ const ProductionPlanFormPage = () => {
               <div className="w-2 h-2 rounded  bg-red-500  shadow-red-500/50" />
               <h4 className="text-xs  text-red-700 dark:text-red-400  ">Exploded Components</h4>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
-                    <th className="p-2">Component Specification</th>
-                    <th className="p-2 text-center">Required Qty</th>
-                    <th className="p-2">Source Assembly</th>
-                    <th className="p-2">BOM Ref</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                  {explodedComponents.map((m, idx) => (
-                    <tr key={`exp-${idx}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
-                      <td className="p-2">
-                        <div className=" text-black dark:text-white  text-[13px] ">
-                          {m.specification || m.itemName || 'Unnamed Component'}
-                        </div>
-                        {(m.itemName && m.itemName !== m.specification) && (
-                          <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5 italic">{m.itemName}</div>
-                        )}
-                      </td>
-                      <td className="p-2 text-center">
-                        <div className="flex flex-col items-center">
-                          <span className="text-sm  text-red-600 dark:text-red-400">
-                            {m.requiredQty}
-                          </span>
-                          <span className="text-xs text-slate-400  ">{m.uom || 'KG'}</span>
-                        </div>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 w-fit">
-                          <Activity size={10} className="text-red-500" />
-                          {m.sourceAssemblyCode || 'ROOT'}
-                        </div>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-xs  text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-800 w-fit">
-                          <FileText size={10} className="text-blue-500" />
-                          {m.bomRef || 'N/A'}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {explodedComponents.length === 0 && (
-                    <tr>
-                      <td colSpan="4" className="px-6 py-12 text-center text-slate-400 italic text-sm">
-                        <div className="flex flex-col items-center gap-2 opacity-60">
-                          <Activity size={15} />
-                          <span>No exploded components available.</span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              data={explodedComponents}
+              showSearch={false}
+              emptyMessage="No exploded components available."
+              columns={[
+                {
+                  header: "Component Specification",
+                  accessorKey: "specification",
+                  cell: (info) => (
+                    <>
+                      <div className=" text-black dark:text-white  text-[13px] ">
+                        {info.getValue() || info.row.original.itemName || 'Unnamed Component'}
+                      </div>
+                      {(info.row.original.itemName && info.row.original.itemName !== info.getValue()) && (
+                        <div className="text-xs text-slate-500 dark:text-slate-400  mt-0.5 italic">{info.row.original.itemName}</div>
+                      )}
+                    </>
+                  )
+                },
+                {
+                  header: "Required Qty",
+                  accessorKey: "requiredQty",
+                  className: "text-center",
+                  cell: (info) => (
+                    <div className="flex flex-col items-center">
+                      <span className="text-sm  text-red-600 dark:text-red-400">
+                        {info.getValue()}
+                      </span>
+                      <span className="text-xs text-slate-400  ">{info.row.original.uom || 'KG'}</span>
+                    </div>
+                  )
+                },
+                {
+                  header: "Source Assembly",
+                  accessorKey: "sourceAssemblyCode",
+                  cell: (info) => (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 w-fit">
+                      <Activity size={10} className="text-red-500" />
+                      {info.getValue() || 'ROOT'}
+                    </div>
+                  )
+                },
+                {
+                  header: "BOM Ref",
+                  accessorKey: "bomRef",
+                  cell: (info) => (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-xs  text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-800 w-fit">
+                      <FileText size={10} className="text-blue-500" />
+                      {info.getValue() || 'N/A'}
+                    </div>
+                  )
+                }
+              ]}
+            />
           </div>
         )}
       </div>
@@ -647,7 +652,7 @@ const ProductionPlanFormPage = () => {
                         onClick={() => toggleRow(`sa-${idx}`)}
                         className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer ${isRowExpanded ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''}`}
                       >
-                        <td className="p-2 text-slate-400 font-medium">{idx + 1}</td>
+                        <td className="p-2 text-slate-400 ">{idx + 1}</td>
                         <td className="p-2">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
@@ -657,7 +662,7 @@ const ProductionPlanFormPage = () => {
                               <div className=" text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors ">
                                 {sa.itemCode}
                               </div>
-                              <div className="text-xs text-slate-500  font-medium">
+                              <div className="text-xs text-slate-500  ">
                                 {sa.itemName || 'Sub Assembly'}
                               </div>
                             </div>
@@ -669,13 +674,13 @@ const ProductionPlanFormPage = () => {
                         <td className="p-2">
                           <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                             <Package size={14} className="text-slate-400" />
-                            <span className="font-medium">{sa.targetWarehouse}</span>
+                            <span className="">{sa.targetWarehouse}</span>
                           </div>
                         </td>
                         <td className="p-2">
                           <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
                             <Calendar size={14} className="text-slate-400" />
-                            <span className="font-medium">{sa.scheduledDate}</span>
+                            <span className="">{sa.scheduledDate}</span>
                           </div>
                         </td>
                         <td className="p-2 text-center">
@@ -688,7 +693,7 @@ const ProductionPlanFormPage = () => {
                             </span>
                           </div>
                         </td>
-                        <td className="p-2 text-xs font-medium text-slate-500">
+                        <td className="p-2 text-xs  text-slate-500">
                           <div className="flex items-center gap-2">
                             <FileText size={14} className="text-red-400" />
                             {sa.bomNo}
@@ -938,139 +943,102 @@ const ProductionPlanFormPage = () => {
           )}
 
           {/* Stages List */}
-          <div className="space-y-4">
-            {formData.stages.map((stage, index) => {
-              const isEditing = editingStageId === stage.id;
-              const isAuto = stage.notes?.includes('Auto-populated');
-
-              return (
-                <div 
-                  key={stage.id} 
-                  className={`relative p-5 rounded border-2 transition-all ${
-                    isEditing 
-                      ? 'border-purple-500 bg-purple-50/10' 
-                      : isAuto
-                        ? 'border-blue-100 dark:border-blue-900/30 bg-blue-50/20 dark:bg-blue-900/5'
-                        : 'border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20'
-                  }`}
-                >
-                  {!isEditing ? (
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div className="flex-1 min-w-[240px]">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className={`w-6 h-6 rounded  flex items-center justify-center text-xs  ${
-                            isAuto ? 'bg-blue-500 text-white' : 'bg-slate-900 dark:bg-slate-700 text-white'
-                          }`}>
-                            {index + 1}
-                          </span>
-                          <h5 className=" text-slate-900 dark:text-white">{stage.stageName}</h5>
-                          <span className={`px-2 py-0.5 rounded text-xs   tracking-wider ${
-                            stage.stageType === 'in_house' 
-                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' 
-                              : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                          }`}>
-                            {stage.stageType === 'in_house' ? 'In House' : 'Outsource'}
-                          </span>
-                          {isAuto && (
-                            <span className="flex items-center gap-1 text-xs  text-blue-500  tracking-wider">
-                              <Zap size={10} fill="currentColor" />
-                              Auto
-                            </span>
-                          )}
-                        </div>
-                        
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                          <div className="space-y-1">
-                            <span className="text-slate-400  ">Resources</span>
-                            <p className="font-medium text-slate-700 dark:text-slate-300">
-                              {stage.assignedEmployeeId ? getEmployeeName(stage.assignedEmployeeId) : 'Unassigned'}
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400  ">Facility</span>
-                            <p className="font-medium text-slate-700 dark:text-slate-300">
-                              {stage.facilityId ? getFacilityName(stage.facilityId) : 'N/A'}
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400  ">Timeline</span>
-                            <p className="font-medium text-slate-700 dark:text-slate-300">
-                              {stage.plannedStartDate} → {stage.plannedEndDate}
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400  ">Target</span>
-                            <p className="font-medium text-slate-700 dark:text-slate-300">
-                              {stage.targetWarehouse || 'N/A'}
-                            </p>
-                          </div>
+          <div className="mt-4">
+            <DataTable
+              data={formData.stages}
+              showSearch={false}
+              emptyMessage="No production phases defined yet"
+              columns={[
+                {
+                  header: "Phase Name",
+                  accessorKey: "stageName",
+                  cell: (info) => (
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded ${info.row.original.stageType === 'outsource' ? 'bg-orange-50 dark:bg-orange-900/20' : 'bg-purple-50 dark:bg-purple-900/20'}`}>
+                        {info.row.original.stageType === 'outsource' ? (
+                          <Package size={14} className="text-orange-500" />
+                        ) : (
+                          <Activity size={14} className="text-purple-500" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-medium text-slate-900 dark:text-white">{info.getValue()}</div>
+                        <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
+                          {info.row.original.stageType === 'outsource' ? 'External Processing' : 'In-House Operation'}
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => startEditStage(stage)}
-                          className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-500 transition-colors"
-                        >
-                          <Edit2 size={15} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeStage(stage.id)}
-                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-slate-400 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                    </div>
+                  )
+                },
+                {
+                  header: "Assignment & Facility",
+                  cell: (info) => (
+                    <div className="space-y-1.5">
+                      {info.row.original.stageType === 'in_house' ? (
+                        <>
+                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                            <User size={12} className="text-slate-400" />
+                            <span>{getEmployeeName(info.row.original.assignedEmployeeId)}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-slate-400">
+                            <MapPin size={12} />
+                            <span>{getFacilityName(info.row.original.facilityId)}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 italic">
+                          <Package size={12} />
+                          <span>External Vendor</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                },
+                {
+                  header: "Timeline",
+                  cell: (info) => (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                        <Calendar size={12} className="text-slate-400" />
+                        <span>{info.row.original.plannedStartDate} → {info.row.original.plannedEndDate}</span>
                       </div>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {/* Inline Edit UI */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input
-                          type="text"
-                          value={editedStage.stageName}
-                          onChange={(e) => setEditedStage({...editedStage, stageName: e.target.value})}
-                          className="p-2 border border-purple-300 dark:border-purple-700 rounded bg-white dark:bg-slate-900 text-sm"
-                        />
-                        <select
-                          value={editedStage.stageType}
-                          onChange={(e) => setEditedStage({...editedStage, stageType: e.target.value})}
-                          className="p-2 border border-purple-300 dark:border-purple-700 rounded bg-white dark:bg-slate-900 text-sm"
-                        >
-                          <option value="in_house">In House</option>
-                          <option value="outsource">Outsource</option>
-                        </select>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={saveEditedStage}
-                          className="px-4 py-1.5 bg-purple-600 text-white rounded text-xs  hover:bg-purple-700"
-                        >
-                          Save Changes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={cancelEditStage}
-                          className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded text-xs "
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                  )
+                },
+                {
+                  header: "Target Warehouse",
+                  accessorKey: "targetWarehouse",
+                  cell: (info) => (
+                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                      <Package size={14} className="text-slate-400" />
+                      <span>{info.getValue() || 'N/A'}</span>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-            
-            {formData.stages.length === 0 && (
-              <div className="py-12 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded flex flex-col items-center justify-center text-slate-400 gap-3">
-                <Activity size={32} strokeWidth={1.5} />
-                <p className="text-sm font-medium">No production phases defined yet</p>
-              </div>
-            )}
+                  )
+                },
+                {
+                  header: "Actions",
+                  className: "text-right",
+                  cell: (info) => (
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEditStage(info.row.original)}
+                        className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-500 transition-colors"
+                      >
+                        <Edit2 size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeStage(info.row.original.id)}
+                        className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-slate-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  )
+                }
+              ]}
+            />
           </div>
         </div>
       )}
@@ -2015,7 +1983,7 @@ const ProductionPlanFormPage = () => {
                 <button
                   type="button"
                   onClick={() => id ? setIsViewMode(true) : navigate(-1)}
-                  className="text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-white transition-all text-sm px-2"
+                  className="text-slate-500 dark:text-slate-400  hover:text-slate-900 dark:hover:text-white transition-all text-sm px-2"
                 >
                   {id ? 'Cancel Editing' : 'Discard Changes'}
                 </button>
@@ -2039,14 +2007,14 @@ const ProductionPlanFormPage = () => {
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-red-700 dark:text-red-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
             <AlertCircle size={15} />
-            <p className="text-sm font-medium">{error}</p>
+            <p className="text-sm ">{error}</p>
           </div>
         )}
         
         {success && (
           <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-green-700 dark:text-green-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
             <CheckCircle size={15} />
-            <p className="text-sm font-medium">{success}</p>
+            <p className="text-sm ">{success}</p>
           </div>
         )}
 
@@ -2107,7 +2075,7 @@ const ProductionPlanFormPage = () => {
                   <span className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs  rounded border border-slate-200 dark:border-slate-700">
                     {formData.procurementStatus || 'Draft'}
                   </span>
-                  <span className="text-slate-400 text-xs font-medium">{formData.procurementStatus || 'Draft'}</span>
+                  <span className="text-slate-400 text-xs ">{formData.procurementStatus || 'Draft'}</span>
                 </div>
               </div>
               <div className="h-10 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
@@ -2160,6 +2128,7 @@ const ProductionPlanFormPage = () => {
         </div>
       </div>
     </div>
+    
   );
 };
 

@@ -4,6 +4,7 @@ import axios from "../../../utils/api";
 import { toast } from "react-toastify";
 import Button from "../../../components/ui/Button";
 import { renderDimensions } from "../../../utils/dimensionUtils";
+import DataTable from "../../../components/ui/DataTable/DataTable";
 
 const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
   const [remarks, setRemarks] = useState("");
@@ -37,9 +38,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
         {/* Header */}
         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
-              <ShoppingCart size={20} />
-            </div>
+            
             <div>
               <h3 className="text-lg  text-slate-900 dark:text-white">Material Request</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Requesting materials for {bom.productName} ({bom.productCode}) • BOM: {bom.bomNumber}</p>
@@ -54,95 +53,121 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-2">
+        <div className="flex-1 overflow-y-auto p-2 space-y-2">
           <div className="space-y-4">
             <div className="flex items-center justify-between ml-1">
-              <h4 className="text-xs  text-slate-400   flex items-center gap-2">
-                <Box size={14} className="text-slate-300" />
+              <h4 className="text-md  text-slate-900   flex items-center gap-2">
+                <Box size={14} className="text-slate-900" />
                 Materials List
               </h4>
             </div>
             
             <div className="border border-slate-200 dark:border-slate-800 rounded overflow-hidden ">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-xs    border-b border-slate-200 dark:border-slate-800">
-                    <tr>
-                      <th className="p-2 w-12 text-center">#</th>
-                      <th className="p-2">Item Name / Group</th>
-                      <th className="p-2">Part Detail / Grade</th>
-                      <th className="p-2">Remark / Make</th>
-                      <th className="p-2 text-center">Weight (Kg)</th>
-                      <th className="p-2 text-center">Qty</th>
-                      <th className="p-2 text-center">UOM</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
-                    {bom?.materials?.map((item, index) => (
-                      <tr key={index} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
-                        <td className="p-2 text-center text-xs font-medium text-slate-400">
-                          {index + 1}
-                        </td>
-                        <td className="p-2">
-                          <div className="flex flex-col">
-                            <span className=" text-slate-700 dark:text-slate-200 text-xs group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                              {item.itemName}
-                            </span>
-                            <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                              Dim: {renderDimensions(item)} mm
-                            </span>
-                            <span className="text-xs font-medium text-slate-400 dark:text-slate-500  ">
-                              {item.itemGroup || "NO-GROUP"}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-slate-700 dark:text-slate-300">
-                              {item.partDetail || "-"}
-                            </span>
-                            <span className="text-xs font-medium text-slate-500 dark:text-slate-500  ">
-                              {item.materialGrade || "-"}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-slate-500 italic">
-                              {item.remark || "-"}
-                            </span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400">
-                              {item.make || "-"}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-2 text-center">
-                          <div className="flex flex-col items-center">
-                            <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                              {Number((parseFloat(item.totalWeight || item.total || 0) || (parseFloat(item.calculatedWeight || item.unitWeight || 0) * parseFloat(item.quantity || 0))).toFixed(3))} Kg
-                            </span>
-                            {(parseFloat(item.unitWeight) > 0 || parseFloat(item.calculatedWeight) > 0) && (
-                              <span className="text-xs text-slate-400">
-                                Unit: {Number(parseFloat(item.unitWeight || item.calculatedWeight || 0).toFixed(3))}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-2 text-center">
-                          <span className=" text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800  rounded border border-slate-100 dark:border-slate-800">
-                            {Number(parseFloat(item.quantity || 0))}
+              <DataTable
+                data={bom?.materials || []}
+                columns={[
+                  {
+                    header: "#",
+                    accessorKey: "itemName",
+                    className: "w-12 text-center",
+                    render: (_, __, ___, idx) => (
+                      <span className="text-[10px] text-slate-400">{idx + 1}</span>
+                    ),
+                  },
+                  {
+                    header: "Item Name / Group",
+                    accessorKey: "itemName",
+                    className: "p-2",
+                    render: (val, item) => (
+                      <div className="flex flex-col">
+                        <span className=" text-slate-700 dark:text-slate-200 text-xs group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          {val}
+                        </span>
+                        <span className="text-xs text-blue-600 dark:text-blue-400 ">
+                          Dim: {renderDimensions(item)} mm
+                        </span>
+                        <span className="text-xs  text-slate-400 dark:text-slate-500  ">
+                          {item.itemGroup || "NO-GROUP"}
+                        </span>
+                      </div>
+                    ),
+                  },
+                  {
+                    header: "Part Detail / Grade",
+                    accessorKey: "partDetail",
+                    className: "p-2",
+                    render: (val, item) => (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-slate-700 dark:text-slate-300">
+                          {val || "-"}
+                        </span>
+                        <span className="text-xs  text-slate-500 dark:text-slate-500  ">
+                          {item.materialGrade || "-"}
+                        </span>
+                      </div>
+                    ),
+                  },
+                  {
+                    header: "Remark / Make",
+                    accessorKey: "remark",
+                    className: "p-2",
+                    render: (val, item) => (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-slate-500 italic">{val || "-"}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          {item.make || "-"}
+                        </span>
+                      </div>
+                    ),
+                  },
+                  {
+                    header: "Weight (Kg)",
+                    accessorKey: "totalWeight",
+                    className: "p-2",
+                    render: (_, item) => (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-left  text-slate-700 dark:text-slate-200">
+                          {Number(
+                            (
+                              parseFloat(item.totalWeight || item.total || 0) ||
+                              parseFloat(item.calculatedWeight || item.unitWeight || 0) *
+                                parseFloat(item.quantity || 0)
+                            ).toFixed(3)
+                          )}{" "}
+                          Kg
+                        </span>
+                        {(parseFloat(item.unitWeight) > 0 ||
+                          parseFloat(item.calculatedWeight) > 0) && (
+                          <span className="text-xs text-slate-400">
+                            Unit:{" "}
+                            {Number(parseFloat(item.unitWeight || item.calculatedWeight || 0).toFixed(3))}
                           </span>
-                        </td>
-                        <td className="p-2 text-center">
-                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-500 dark:text-slate-400">
-                            {item.uom}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        )}
+                      </div>
+                    ),
+                  },
+                  {
+                    header: "Qty",
+                    accessorKey: "quantity",
+                    className: "p-2 text-center",
+                    render: (val) => (
+                      <span className=" text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-800">
+                        {Number(parseFloat(val || 0))}
+                      </span>
+                    ),
+                  },
+                  {
+                    header: "UOM",
+                    accessorKey: "uom",
+                    className: "p-2",
+                    render: (val) => (
+                      <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-500 dark:text-slate-400">
+                        {val}
+                      </span>
+                    ),
+                  },
+                ]}
+              />
             </div>
           </div>
 
@@ -155,7 +180,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
               placeholder="Enter any additional instructions or remarks for this material request..."
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded text-sm focus:ring-2 focus:ring-blue-500/20 outline-none min-h-[100px] resize-none"
+              className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none min-h-[100px] resize-none"
             />
           </div>
 

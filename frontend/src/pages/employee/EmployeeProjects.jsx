@@ -60,19 +60,19 @@ const EmployeeProjects = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded p-4  transition-all hover:border-blue-300 dark:hover:border-blue-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Total Projects</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">Total Projects</p>
           <p className="text-3xl  text-slate-900 dark:text-white">{projects.length}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Assigned to you</p>
         </div>
 
         <div className="bg-white border-2 border-cyan-100 dark:border-cyan-900/30 rounded p-4  transition-all hover:border-cyan-300 dark:hover:border-cyan-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">In Progress</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">In Progress</p>
           <p className="text-3xl  text-slate-900 dark:text-white">{projects.filter(p => p.status === 'in_progress').length}</p>
           <p className="text-xs text-cyan-600 dark:text-cyan-400 mt-2">Active projects</p>
         </div>
 
         <div className="bg-white border-2 border-green-100 dark:border-green-900/30 rounded p-4  transition-all hover:border-green-300 dark:hover:border-green-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Completed</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">Completed</p>
           <p className="text-3xl  text-slate-900 dark:text-white">{projects.filter(p => p.status === 'completed').length}</p>
           <p className="text-xs text-green-600 dark:text-green-400 mt-2">Finished</p>
         </div>
@@ -85,7 +85,7 @@ const EmployeeProjects = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <Briefcase className="w-3 h-3 text-slate-500 dark:text-slate-400" />
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-lg  text-slate-900 dark:text-white">
                     {project.name}
                   </h3>
                 </div>
@@ -105,7 +105,7 @@ const EmployeeProjects = () => {
 
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Progress</p>
+                <p className="text-sm  text-slate-700 dark:text-slate-300">Progress</p>
                 <p className="text-sm text-slate-500 dark:text-slate-400">{project.progress}%</p>
               </div>
               <div className="w-full bg-slate-200 dark:bg-slate-700 rounded  h-2">

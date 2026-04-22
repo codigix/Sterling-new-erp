@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from '../../utils/api';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../context/AuthContext';
+import DataTable from '../ui/DataTable/DataTable';
 
 const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSavePlan }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,7 +143,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded  shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-4">
@@ -190,53 +191,52 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
               <h3 className="text-xs  text-black dark:text-slate-200  tracking-wider">Requested Components ({consolidatedMaterials?.length || 0})</h3>
             </div>
             <div className="border border-slate-100 dark:border-slate-800 rounded overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-800 text-xs   text-slate-500 tracking-wider">
-                    <th className="px-6 py-3 text-left">Component Intelligence</th>
-                    <th className="px-6 py-3 text-center">Required</th>
-                    <th className="px-6 py-3 text-center">Unit</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                  {consolidatedMaterials && consolidatedMaterials.map((m, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="p-2">
-                        <div>
-                          <p className=" text-slate-900 dark:text-white text-xs">
-                            {m.itemName || m.specification}
-                            {(m.itemCode || m.materialCode) && (
-                              <span className="ml-1 text-slate-400 font-medium">
-                                ({m.itemCode || m.materialCode})
-                              </span>
-                            )}
-                          </p>
-                          {/* Dimensions Display */}
-                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[10px] text-slate-500 font-medium uppercase tracking-tight">
-                            {m.itemGroup && <span className="text-blue-600 dark:text-blue-400">{m.itemGroup}</span>}
-                            {m.length > 0 && <span>L: {m.length}</span>}
-                            {m.width > 0 && <span>W: {m.width}</span>}
-                            {m.thickness > 0 && <span>T: {m.thickness}</span>}
-                            {m.diameter > 0 && <span>Dia: {m.diameter}</span>}
-                            {m.outer_diameter > 0 || m.outerDiameter > 0 && <span>OD: {m.outer_diameter || m.outerDiameter}</span>}
-                            {m.height > 0 && <span>H: {m.height}</span>}
-                            {m.side1 > 0 && <span>S/W: {m.side1}</span>}
-                            {m.side2 > 0 && <span>H: {m.side2}</span>}
-                            {m.web_thickness > 0 || m.webThickness > 0 && <span>Tw: {m.web_thickness || m.webThickness}</span>}
-                            {m.flange_thickness > 0 || m.flangeThickness > 0 && <span>Tf: {m.flange_thickness || m.flangeThickness}</span>}
-                          </div>
+              <DataTable
+                data={consolidatedMaterials || []}
+                columns={[
+                  {
+                    key: 'itemName',
+                    label: 'Component Intelligence',
+                    render: (_, m) => (
+                      <div>
+                        <p className=" text-slate-900 dark:text-white text-xs">
+                          {m.itemName || m.specification}
+                          {(m.itemCode || m.materialCode) && (
+                            <span className="ml-1 text-slate-400 ">
+                              ({m.itemCode || m.materialCode})
+                            </span>
+                          )}
+                        </p>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[10px] text-slate-500  uppercase tracking-tight">
+                          {m.itemGroup && <span className="text-blue-600 dark:text-blue-400">{m.itemGroup}</span>}
+                          {m.length > 0 && <span>L: {m.length}</span>}
+                          {m.width > 0 && <span>W: {m.width}</span>}
+                          {m.thickness > 0 && <span>T: {m.thickness}</span>}
+                          {m.diameter > 0 && <span>Dia: {m.diameter}</span>}
+                          {(m.outer_diameter > 0 || m.outerDiameter > 0) && <span>OD: {m.outer_diameter || m.outerDiameter}</span>}
+                          {m.height > 0 && <span>H: {m.height}</span>}
+                          {m.side1 > 0 && <span>S/W: {m.side1}</span>}
+                          {m.side2 > 0 && <span>H: {m.side2}</span>}
+                          {(m.web_thickness > 0 || m.webThickness > 0) && <span>Tw: {m.web_thickness || m.webThickness}</span>}
+                          {(m.flange_thickness > 0 || m.flangeThickness > 0) && <span>Tf: {m.flange_thickness || m.flangeThickness}</span>}
                         </div>
-                      </td>
-                      <td className="p-2 text-center">
-                        <span className=" text-slate-900 dark:text-white">{m.requiredQty}</span>
-                      </td>
-                      <td className="p-2 text-center">
-                        <span className="text-xs text-slate-400  ">{m.uom || 'KG'}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    )
+                  },
+                  {
+                    key: 'requiredQty',
+                    label: 'Required',
+                    className: 'text-center',
+                    render: (val) => <span className=" text-slate-900 dark:text-white">{val}</span>
+                  },
+                  {
+                    key: 'uom',
+                    label: 'Unit',
+                    className: 'text-center',
+                    render: (val) => <span className="text-xs text-slate-400  ">{val || 'KG'}</span>
+                  }
+                ]}
+              />
             </div>
           </div>
         </div>

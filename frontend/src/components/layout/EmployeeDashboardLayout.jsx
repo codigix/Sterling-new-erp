@@ -82,15 +82,15 @@ const EmployeeDashboardLayout = () => {
         <div className="flex items-center justify-between h-full px-6">
           {/* Left side - Logo and mobile menu */}
           <div className="flex items-center">
+            <Link to="/employee/dashboard" className="flex items-center">
+              <img src="/logo.png" alt="Sterling ERP" className="h-8 w-auto" />
+            </Link>
             <button
-              className="lg:hidden mr-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="ml-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <Menu size={20} />
             </button>
-            <Link to="/employee/dashboard" className="flex items-center">
-              <img src="/logo.png" alt="Sterling ERP" className="h-8 w-auto" />
-            </Link>
           </div>
 
           <div className="flex-1"></div>
@@ -115,7 +115,7 @@ const EmployeeDashboardLayout = () => {
                   <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-xs text-slate-500 dark:text-slate-300  capitalize">
                     {user?.department || user?.role || "Employee"}
                   </span>
                 </div>
@@ -124,11 +124,11 @@ const EmployeeDashboardLayout = () => {
 
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 py-1 z-50">
-                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
+                  <div className="p-2 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
                     <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-xs font-medium text-blue-100  tracking-wider">
+                    <p className="text-xs  text-blue-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>
@@ -180,14 +180,14 @@ const EmployeeDashboardLayout = () => {
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded transition-all duration-200 ${
+                  className={`flex items-center space-x-3 p-2 rounded transition-all duration-200 ${
                     active
                       ? "bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-2 border-primary-200 dark:border-primary-900/50 "
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/30 border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-600"
                   }`}
                 >
                   <Icon size={20} className="flex-shrink-0" />
-                  <span className="font-medium text-sm">{item.title}</span>
+                  <span className=" text-sm">{item.title}</span>
                 </Link>
               );
             })}

@@ -106,7 +106,7 @@ const WorkstationFormPage = () => {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
-        <p className="text-slate-500 font-medium">Fetching details...</p>
+        <p className="text-slate-500 ">Fetching details...</p>
       </div>
     );
   }
@@ -127,7 +127,7 @@ const WorkstationFormPage = () => {
               <h1 className="text-xl  text-slate-900">
                 {isEdit ? 'Edit Workstation' : 'New Workstation'}
               </h1>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-slate-500 ">
                 {isEdit ? `Modifying asset ${formData.workstation_id}` : 'Register a new manufacturing asset'}
               </p>
             </div>
@@ -157,7 +157,7 @@ const WorkstationFormPage = () => {
           <div className="lg:col-span-8 space-y-8">
             
             {/* Identity & Localization */}
-            <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden">
+            <div className="bg-white rounded  border border-slate-200  overflow-hidden">
               <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-blue-50 rounded flex items-center justify-center text-blue-600 border border-blue-100/50">
                   <Info size={20} />
@@ -226,7 +226,7 @@ const WorkstationFormPage = () => {
             </div>
 
             {/* Technical Specifications */}
-            <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden">
+            <div className="bg-white rounded  border border-slate-200  overflow-hidden">
               <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-purple-50 rounded flex items-center justify-center text-purple-600 border border-purple-100/50">
                   <Cpu size={20} />
@@ -303,7 +303,7 @@ const WorkstationFormPage = () => {
 
           <div className="lg:col-span-4 space-y-8">
             {/* Operational Status */}
-            <div className="bg-white rounded-2xl border border-slate-200  p-6">
+            <div className="bg-white rounded  border border-slate-200  p-6">
               <h3 className="text-sm  text-slate-900 mb-6  tracking-wider">Operational Status</h3>
               <div className="flex items-center gap-4 p-4 bg-slate-50 rounded border border-slate-100">
                 <div className="relative inline-flex items-center cursor-pointer">
@@ -318,13 +318,13 @@ const WorkstationFormPage = () => {
                 </div>
                 <div>
                   <p className="text-sm  text-slate-900">Active Node</p>
-                  <p className="text-xs text-slate-500 font-medium">Determines if work orders can be scheduled to this asset.</p>
+                  <p className="text-xs text-slate-500 ">Determines if work orders can be scheduled to this asset.</p>
                 </div>
               </div>
             </div>
 
             {/* Maintenance */}
-            <div className="bg-white rounded-2xl border border-slate-200  overflow-hidden">
+            <div className="bg-white rounded  border border-slate-200  overflow-hidden">
               <div className="p-2 border-b border-slate-100 flex items-center gap-4">
                 <div className="w-10 h-10 bg-blue-50 rounded flex items-center justify-center text-blue-600 border border-blue-100/50">
                   <Settings size={20} />

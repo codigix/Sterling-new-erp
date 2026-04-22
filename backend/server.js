@@ -78,12 +78,18 @@ app.use('/api/inventory/grns', grnRoutes);
 app.use('/api/grn', grnRoutes);
 
 // Multi-path registration for Inventory
+app.use('/api/department/inventory/portal', inventoryRoutes);
 app.use('/api/department/inventory/warehouses', inventoryRoutes);
 app.use('/api/department/inventory/stock-entries', inventoryRoutes);
 app.use('/api/department/inventory/materials', inventoryRoutes);
 app.use('/api/inventory/stock-entries', inventoryRoutes);
 app.use('/api/inventory/materials', inventoryRoutes);
 app.use('/api/inventory', inventoryRoutes);
+
+// Procurement Portal Compatibility Routes
+app.use('/api/procurement/portal/purchase-requests', materialRequestRoutes);
+app.use('/api/procurement/portal/purchase-orders', purchaseOrderRoutes);
+app.use('/api/procurement/portal/quotes', quotationRoutes);
 
 // Multi-path registration for Vendors
 app.use('/api/department/procurement/vendors', quotationRoutes);

@@ -74,17 +74,17 @@ const RegisterPage = () => {
 
       <div className="w-full max-w-lg bg-white rounded  border border-slate-200 p-5">
         <div className="flex bg-slate-100 p-1 rounded-md mb-4">
-          <Link to="/login" className="flex-1 py-1.5 text-xs font-medium rounded text-slate-500 hover:text-slate-700 text-center">
+          <Link to="/login" className="flex-1 py-1.5 text-xs  rounded text-slate-500 hover:text-slate-700 text-center">
             Sign In
           </Link>
-          <button className="flex-1 py-1.5 text-xs font-medium rounded bg-white text-blue-600 ">
+          <button className="flex-1 py-1.5 text-xs  rounded bg-white text-blue-600 ">
             Register
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <div className="flex flex-col">
-            <label htmlFor="fullName" className="text-xs font-medium text-slate-900 mb-0.5">Full Name</label>
+            <label htmlFor="fullName" className="text-xs  text-slate-900 mb-0.5">Full Name</label>
             <div className="relative flex items-center">
               <User className="absolute left-3 text-slate-400" size={14} />
               <input
@@ -101,7 +101,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="email" className="text-xs font-medium text-slate-900 mb-0.5">Email Address</label>
+            <label htmlFor="email" className="text-xs  text-slate-900 mb-0.5">Email Address</label>
             <div className="relative flex items-center">
               <Mail className="absolute left-3 text-slate-400" size={14} />
               <input
@@ -118,7 +118,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="flex flex-col">
-            <label className="text-xs font-medium text-slate-900 mb-0.5">Department</label>
+            <label className="text-xs  text-slate-900 mb-0.5">Department</label>
             <div className="grid grid-cols-3 gap-1.5">
               {DEPARTMENTS.map((dept) => {
                 const Icon = dept.icon;
@@ -135,7 +135,7 @@ const RegisterPage = () => {
                     onClick={() => handleDeptSelect(dept.id)}
                   >
                     <Icon size={14} />
-                    <span className="text-xs font-medium text-center leading-tight">{dept.name}</span>
+                    <span className="text-xs  text-center leading-tight">{dept.name}</span>
                   </button>
                 );
               })}
@@ -143,7 +143,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="password" title="Password" className="text-xs font-medium text-slate-900 mb-0.5">Password</label>
+            <label htmlFor="password" title="Password" className="text-xs  text-slate-900 mb-0.5">Password</label>
             <div className="relative flex items-center">
               <Lock className="absolute left-3 text-slate-400" size={14} />
               <input
@@ -168,7 +168,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="confirmPassword" title="Confirm Password" className="text-xs font-medium text-slate-900 mb-0.5">Confirm Password</label>
+            <label htmlFor="confirmPassword" title="Confirm Password" className="text-xs  text-slate-900 mb-0.5">Confirm Password</label>
             <div className="relative flex items-center">
               <Lock className="absolute left-3 text-slate-400" size={14} />
               <input
@@ -198,7 +198,7 @@ const RegisterPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="mt-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="mt-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm  flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? "Creating Account..." : (
               <>

@@ -156,18 +156,18 @@ const DepartmentLayout = () => {
         <div className="flex items-center text-xs justify-between h-full px-6">
           {/* Left side - Logo and mobile menu */}
           <div className="flex items-center text-xs">
-            <button
-              className="lg:hidden mr-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            >
-              <Menu size={20} />
-            </button>
             <Link
               to={getDepartmentRole().path}
               className="flex items-center text-xs"
             >
               <img src="/logo.png" alt="Sterling ERP" className="h-8 w-auto" />
             </Link>
+            <button
+              className="ml-4 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              <Menu size={20} />
+            </button>
           </div>
 
           <div className="flex-1"></div>
@@ -192,7 +192,7 @@ const DepartmentLayout = () => {
                   <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-xs text-slate-500 dark:text-slate-300  capitalize">
                     {user?.department || user?.role}
                   </span>
                 </div>
@@ -201,11 +201,11 @@ const DepartmentLayout = () => {
 
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 py-1 z-50">
-                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
+                  <div className="p-2 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
                     <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-xs font-medium text-blue-100  tracking-wider">
+                    <p className="text-xs  text-blue-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>
@@ -231,22 +231,12 @@ const DepartmentLayout = () => {
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-            <button
-              className="hidden lg:flex items-center text-xs justify-center w-8 h-8 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            >
-              <Menu size={20} />
-            </button>
-          </div>
-
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-2">
             {/* Accounts Sidebar Logic */}
             {getDepartmentRole().title === "Accounts" ? (
               <div>
-                <h6 className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${sidebarCollapsed ? "text-center" : ""}`}>
+                <h6 className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${sidebarCollapsed ? "text-center" : ""}`}>
                   {!sidebarCollapsed && "ACCOUNTANT"}
                 </h6>
                 <ul className="space-y-1">
@@ -262,7 +252,7 @@ const DepartmentLayout = () => {
                               onClick={() => {
                                 setExpandedSections(prev => ({...prev, [item.title]: !prev[item.title]}))
                               }}
-                              className="w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                              className="w-full flex items-center text-xs px-3 py-2 text-xs  rounded text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                             >
                               <IconComponent size={15} className="flex-shrink-0" />
                               {!sidebarCollapsed && (
@@ -276,7 +266,7 @@ const DepartmentLayout = () => {
                               <ul className="mt-1 ml-3 border-l border-slate-200 pl-3 space-y-1">
                                 {item.submenu.map(sub => (
                                   <li key={sub.path}>
-                                    <Link to={sub.path} className={`flex items-center text-xs px-3 py-1.5 text-xs font-medium rounded ${isActive(sub.path) ? "bg-blue-100 text-blue-700" : "text-slate-500 hover:bg-slate-50"}`}>
+                                    <Link to={sub.path} className={`flex items-center text-xs px-3 py-1.5 text-xs  rounded ${isActive(sub.path) ? "bg-blue-100 text-blue-700" : "text-slate-500 hover:bg-slate-50"}`}>
                                       <sub.icon size={14} className="mr-2" />
                                       {sub.title}
                                     </Link>
@@ -288,7 +278,7 @@ const DepartmentLayout = () => {
                         ) : (
                           <Link
                             to={item.path}
-                            className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                            className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                               isActive(item.path)
                                 ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -309,7 +299,7 @@ const DepartmentLayout = () => {
                 {getDepartmentRole().title !== "Production" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                  className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -323,7 +313,7 @@ const DepartmentLayout = () => {
                       <li>
                         <Link
                           to={dept.path}
-                          className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                          className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                             isActive(dept.path)
                               ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -343,7 +333,7 @@ const DepartmentLayout = () => {
                     <li>
                       <Link
                         to="/department/inventory/root-cards"
-                        className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                        className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                           isActive("/department/inventory/root-cards")
                             ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -362,7 +352,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Engineering" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                  className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -372,7 +362,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/engineering/drawings"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/engineering/drawings")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -390,7 +380,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Production" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                  className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -400,7 +390,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/production")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -413,7 +403,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/root-cards"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/root-cards")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -426,7 +416,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/design-drawings"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/design-drawings")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -439,7 +429,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/bom/view"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/bom/view") || location.pathname.includes("/production/bom")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -453,7 +443,7 @@ const DepartmentLayout = () => {
                     <div className="group flex items-center">
                       <Link
                         to="/department/production/released-materials"
-                        className={`flex-1 flex items-center text-xs px-3 py-2 text-xs font-medium rounded-l transition-colors ${
+                        className={`flex-1 flex items-center text-xs px-3 py-2 text-xs  rounded-l transition-colors ${
                           isActive("/department/production/released-materials")
                             ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -476,7 +466,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/plans"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/plans")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -490,7 +480,7 @@ const DepartmentLayout = () => {
                   {/* <li>
                     <Link
                       to="/department/production/updates"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/updates")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -503,7 +493,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/employee-work-logs"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/employee-work-logs")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -516,7 +506,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/operations"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/operations")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -542,7 +532,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Procurement" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                  className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -552,7 +542,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement") || isActive("/department/procurement/dashboard")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -565,7 +555,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/root-cards"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/root-cards")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -578,7 +568,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/material-requests"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/material-requests")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -591,7 +581,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/quotations"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/quotations")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -604,7 +594,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/purchase-orders"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/purchase-orders")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -617,7 +607,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/vendors"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/vendors")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -635,7 +625,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Inventory" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                  className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -645,7 +635,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/purchase-orders"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/purchase-orders")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -658,7 +648,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/grn"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/grn")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -676,7 +666,7 @@ const DepartmentLayout = () => {
             {getDepartmentRole().title === "Inventory" && (
               <div>
                 <h6
-                  className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                  className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                     sidebarCollapsed ? "text-center" : ""
                   }`}
                 >
@@ -686,7 +676,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/stock/entries"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/stock/entries")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -699,7 +689,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/stock/balance"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/stock/balance")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -712,7 +702,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/stock/movements"
-                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/stock/movements")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -731,7 +721,7 @@ const DepartmentLayout = () => {
             {/* Department Assignments Section - Visible to all departments */}
             <div>
               <h6
-                className={`text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wider mb-3 ${
+                className={`text-xs  text-slate-500 dark:text-slate-400 tracking-wider mb-3 ${
                   sidebarCollapsed ? "text-center" : ""
                 }`}
               >
@@ -741,7 +731,7 @@ const DepartmentLayout = () => {
                 <li>
                   <Link
                     to={`${getDepartmentRole().path}/tasks`}
-                    className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                    className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                       isActive(`${getDepartmentRole().path}/tasks`)
                         ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -757,7 +747,7 @@ const DepartmentLayout = () => {
             {/* Quick Actions */}
             <div>
               <h6
-                className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                   sidebarCollapsed ? "text-center" : ""
                 }`}
               >
@@ -767,7 +757,7 @@ const DepartmentLayout = () => {
                 <li>
                   <Link
                     to="/notifications"
-                    className="flex items-center text-xs px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    className="flex items-center text-xs px-3 py-2 text-sm  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
                     <AlertCircle size={15} className="flex-shrink-0" />
                     {!sidebarCollapsed && (
@@ -785,7 +775,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/admin/dashboard"
-                      className="flex items-center text-xs px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                      className="flex items-center text-xs px-3 py-2 text-sm  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                     >
                       <Home size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && (

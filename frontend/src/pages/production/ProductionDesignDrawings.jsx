@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import axios from "../../utils/api";
 import { getServerUrl, downloadFile } from "../../utils/fileUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const ProductionDesignDrawings = () => {
   const [searchParams] = useSearchParams();
@@ -96,8 +97,104 @@ const ProductionDesignDrawings = () => {
     }
   };
 
+  const drawingColumns = [
+    {
+      header: "Drawing Name",
+      accessor: "name",
+      render: (value, doc) => (
+        <div className="flex flex-col">
+          <div className="text-slate-900 dark:text-white group-hover:text-green-600 transition-colors text-xs font-medium">
+            {value}
+          </div>
+          <div className="text-[10px] text-slate-400 line-clamp-1">
+            {doc.description}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Type",
+      accessor: "type",
+      render: (value) => (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+          {value}
+        </span>
+      ),
+    },
+    {
+      header: "Project / PO",
+      accessor: "project_name",
+      render: (value, doc) => (
+        <div className="flex flex-col">
+          <div className="text-[10px] text-slate-600 dark:text-slate-300">
+            {value || "-"}
+          </div>
+          <div className="text-[10px] text-slate-400">{doc.po_number}</div>
+        </div>
+      ),
+    },
+    {
+      header: "Version",
+      accessor: "version",
+      render: (value) => (
+        <span className="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1 rounded text-[10px]">
+          v{value}
+        </span>
+      ),
+    },
+    {
+      header: "Approved Date",
+      accessor: "updated_at",
+      render: (value) => (
+        <span className="text-[10px] text-slate-500">
+          {new Date(value).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      header: "Actions",
+      align: "right",
+      render: (_, doc) => (
+        <div className="flex items-center justify-end gap-1">
+          {doc.dwg_path && (
+            <button
+              onClick={() => downloadFile(doc.dwg_path, `${doc.name}.dwg`)}
+              className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+              title="Download DWG File"
+            >
+              <Eye size={14} />
+            </button>
+          )}
+          {doc.step_path && (
+            <button
+              onClick={() => downloadFile(doc.step_path, `${doc.name}.step`)}
+              className="p-1.5 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded transition-colors"
+              title="Download STEP File"
+            >
+              <Eye size={14} />
+            </button>
+          )}
+          <button
+            onClick={() => handleView(doc)}
+            className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+            title="View"
+          >
+            <Eye size={14} />
+          </button>
+          <button
+            onClick={() => handleDownload(doc)}
+            className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded transition-colors"
+            title="Download"
+          >
+            <Download size={14} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
@@ -123,7 +220,7 @@ const ProductionDesignDrawings = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 bg-white dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700 ">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 ">
         <div className="md:col-span-2 relative">
           <Search className="absolute left-3 top-4 -translate-y-1/2 text-slate-400" size={15} />
           <input
@@ -158,10 +255,10 @@ const ProductionDesignDrawings = () => {
           <Loader2 className="animate-spin inline-block mb-2" size={15} />
           <p>Loading drawings...</p>
         </div>
-      ) : filteredDrawings.length === 0 ? (
-        <div className="p-4 text-center bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-500">
+      ) : drawings.length === 0 ? (
+        <div className="p-4 text-center bg-white dark:bg-slate-800 rounded border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-500">
           <Package size={15} className="mx-auto  opacity-20" />
-          <p>{searchQuery ? "No drawings match your search" : "No approved drawings found"}</p>
+          <p>No approved drawings found</p>
         </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -194,7 +291,7 @@ const ProductionDesignDrawings = () => {
                     {doc.dwg_path && (
                       <button 
                         onClick={() => downloadFile(doc.dwg_path, `${doc.name}.dwg`)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-medium rounded border border-blue-200 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px]  rounded border border-blue-200 transition-colors"
                         title="Download DWG File"
                       >
                         <Eye size={12} /> DWG File
@@ -203,7 +300,7 @@ const ProductionDesignDrawings = () => {
                     {doc.step_path && (
                       <button 
                         onClick={() => downloadFile(doc.step_path, `${doc.name}.step`)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-[10px] font-medium rounded border border-orange-200 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-[10px]  rounded border border-orange-200 transition-colors"
                         title="Download STEP File"
                       >
                         <Eye size={12} /> STEP File
@@ -212,22 +309,22 @@ const ProductionDesignDrawings = () => {
                   </div>
                 )}
 
-                <div className=" border-t border-slate-50 dark:border-slate-700 flex items-center justify-between">
-                  <div className="text-xs text-slate-500">
-                    Approved on: {new Date(doc.updated_at).toLocaleDateString()}
+                <div className=" border-t border-slate-50 dark:border-slate-700 flex items-center justify-between pt-2">
+                  <div className="text-[10px] text-slate-500">
+                    Approved: {new Date(doc.updated_at).toLocaleDateString()}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <button 
                       onClick={() => handleView(doc)}
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-xs  transition-colors"
+                      className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-[10px] transition-colors"
                     >
-                      <Eye size={14} /> View
+                      <Eye size={12} /> View
                     </button>
                     <button 
                       onClick={() => handleDownload(doc)}
-                      className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white p-2 rounded text-xs  transition-colors"
+                      className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-[10px] transition-colors"
                     >
-                      <Download size={14} /> Download
+                      <Download size={12} /> Save
                     </button>
                   </div>
                 </div>
@@ -236,84 +333,13 @@ const ProductionDesignDrawings = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse bg-white">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-                  <th className="p-2  text-xs  text-slate-500  ">Drawing Name</th>
-                  <th className="p-2  text-xs  text-slate-500  ">Type</th>
-                  <th className="p-2  text-xs  text-slate-500  ">Project / PO</th>
-                  <th className="p-2  text-xs  text-slate-500  ">Version</th>
-                  <th className="p-2  text-xs  text-slate-500  ">Approved Date</th>
-                  <th className="p-2  text-xs  text-slate-500   text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {filteredDrawings.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors group">
-                    <td className="p-2 ">
-                      <div className=" text-slate-900 dark:text-white group-hover:text-green-600 transition-colors text-xs">{doc.name}</div>
-                      <div className="text-xs text-slate-400 line-clamp-1">{doc.description}</div>
-                    </td>
-                    <td className="p-2 ">
-                      <span className="inline-flex items-center p-1 rounded text-xs   bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 ">
-                        {doc.type}
-                      </span>
-                    </td>
-                    <td className="p-2 ">
-                      <div className="text-xs text-slate-600 dark:text-slate-300">{doc.project_name || "-"}</div>
-                      <div className="text-xs text-slate-400">{doc.po_number}</div>
-                    </td>
-                    <td className="p-2  text-xs">
-                      <span className="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20  rounded ">
-                        v{doc.version}
-                      </span>
-                    </td>
-                    <td className="p-2  text-xs text-slate-500">
-                      {new Date(doc.updated_at).toLocaleDateString()}
-                    </td>
-                    <td className="p-2  text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {doc.dwg_path && (
-                          <button 
-                            onClick={() => downloadFile(doc.dwg_path, `${doc.name}.dwg`)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                            title="Download DWG File"
-                          >
-                            <Eye size={15} />
-                          </button>
-                        )}
-                        {doc.step_path && (
-                          <button 
-                            onClick={() => downloadFile(doc.step_path, `${doc.name}.step`)}
-                            className="p-2 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded-lg transition-colors"
-                            title="Download STEP File"
-                          >
-                            <Eye size={15} />
-                          </button>
-                        )}
-                        <button 
-                          onClick={() => handleView(doc)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                          title="View"
-                        >
-                          <Eye size={15} />
-                        </button>
-                        <button 
-                          onClick={() => handleDownload(doc)}
-                          className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
-                          title="Download"
-                        >
-                          <Download size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden p-2">
+          <DataTable
+            columns={drawingColumns}
+            data={filteredDrawings}
+            emptyMessage="No approved drawings found"
+            showSearch={false}
+          />
         </div>
       )}
     </div>

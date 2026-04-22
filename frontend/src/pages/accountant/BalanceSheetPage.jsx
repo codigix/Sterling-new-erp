@@ -66,7 +66,7 @@ const BalanceSheetPage = () => {
             Financial position as of today
           </p>
         </div>
-        <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+        <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
           <Download size={15} />
           Export
         </button>
@@ -74,7 +74,7 @@ const BalanceSheetPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-blue-50 dark:bg-blue-900 rounded border border-blue-200 dark:border-blue-700 p-4">
-          <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+          <p className="text-sm  text-blue-700 dark:text-blue-300">
             Total Assets
           </p>
           <p className="text-2xl  text-blue-600 dark:text-blue-400 mt-2">
@@ -82,7 +82,7 @@ const BalanceSheetPage = () => {
           </p>
         </div>
         <div className="bg-red-50 dark:bg-red-900 rounded border border-red-200 dark:border-red-700 p-4">
-          <p className="text-sm font-medium text-red-700 dark:text-red-300">
+          <p className="text-sm  text-red-700 dark:text-red-300">
             Total Liabilities
           </p>
           <p className="text-2xl  text-red-600 dark:text-red-400 mt-2">
@@ -93,7 +93,7 @@ const BalanceSheetPage = () => {
           </p>
         </div>
         <div className="bg-green-50 dark:bg-green-900 rounded border border-green-200 dark:border-green-700 p-4">
-          <p className="text-sm font-medium text-green-700 dark:text-green-300">
+          <p className="text-sm  text-green-700 dark:text-green-300">
             Total Equity
           </p>
           <p className="text-2xl  text-green-600 dark:text-green-400 mt-2">
@@ -110,7 +110,7 @@ const BalanceSheetPage = () => {
 
           <div className="space-y-2">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-3">
                 Current Assets
               </h3>
               <div className="space-y-2 pl-4 border-l-2 border-blue-200 dark:border-blue-700">
@@ -150,7 +150,7 @@ const BalanceSheetPage = () => {
                     )}
                   </span>
                 </div>
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between font-semibold text-slate-900 dark:text-white">
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between  text-slate-900 dark:text-white">
                   <span>Total Current Assets</span>
                   <span>
                     ₹
@@ -163,7 +163,7 @@ const BalanceSheetPage = () => {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-3">
                 Fixed Assets
               </h3>
               <div className="space-y-2 pl-4 border-l-2 border-blue-200 dark:border-blue-700">
@@ -185,7 +185,7 @@ const BalanceSheetPage = () => {
                     )}
                   </span>
                 </div>
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between font-semibold text-slate-900 dark:text-white">
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between  text-slate-900 dark:text-white">
                   <span>Total Fixed Assets</span>
                   <span>
                     ₹
@@ -215,7 +215,7 @@ const BalanceSheetPage = () => {
 
           <div className="space-y-2">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-3">
                 Current Liabilities
               </h3>
               <div className="space-y-2 pl-4 border-l-2 border-red-200 dark:border-red-700">
@@ -237,7 +237,7 @@ const BalanceSheetPage = () => {
                     )}
                   </span>
                 </div>
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between font-semibold text-slate-900 dark:text-white">
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between  text-slate-900 dark:text-white">
                   <span>Total Current Liabilities</span>
                   <span>
                     ₹
@@ -250,7 +250,7 @@ const BalanceSheetPage = () => {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-3">
                 Long-term Liabilities
               </h3>
               <div className="space-y-2 pl-4 border-l-2 border-red-200 dark:border-red-700">
@@ -263,7 +263,7 @@ const BalanceSheetPage = () => {
                     )}
                   </span>
                 </div>
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between font-semibold text-slate-900 dark:text-white">
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between  text-slate-900 dark:text-white">
                   <span>Total Long-term Liabilities</span>
                   <span>
                     ₹
@@ -276,7 +276,7 @@ const BalanceSheetPage = () => {
             </div>
 
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-3">
                 Equity
               </h3>
               <div className="space-y-2 pl-4 border-l-2 border-green-200 dark:border-green-700">
@@ -295,7 +295,7 @@ const BalanceSheetPage = () => {
                     )}
                   </span>
                 </div>
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between font-semibold text-slate-900 dark:text-white">
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between  text-slate-900 dark:text-white">
                   <span>Total Equity</span>
                   <span>
                     ₹
@@ -325,7 +325,7 @@ const BalanceSheetPage = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+            <p className="text-sm  text-slate-500 dark:text-slate-400 mb-2">
               Current Ratio
             </p>
             <p className="text-xl  text-slate-900 dark:text-white text-xs">
@@ -336,7 +336,7 @@ const BalanceSheetPage = () => {
             </p>
           </div>
           <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+            <p className="text-sm  text-slate-500 dark:text-slate-400 mb-2">
               Debt-to-Equity
             </p>
             <p className="text-xl  text-slate-900 dark:text-white text-xs">
@@ -347,7 +347,7 @@ const BalanceSheetPage = () => {
             </p>
           </div>
           <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+            <p className="text-sm  text-slate-500 dark:text-slate-400 mb-2">
               Asset Turnover
             </p>
             <p className="text-xl  text-slate-900 dark:text-white text-xs">
@@ -362,7 +362,7 @@ const BalanceSheetPage = () => {
 
       {balanceCheck < 1 && (
         <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded p-4">
-          <p className="text-green-800 dark:text-green-200 font-medium">
+          <p className="text-green-800 dark:text-green-200 ">
             ✓ Balance sheet is balanced
           </p>
         </div>

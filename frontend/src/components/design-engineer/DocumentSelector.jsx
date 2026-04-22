@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import axios from '../../utils/api';
 import { getServerUrl, downloadFile } from '../../utils/fileUtils';
 import { Download, FileText, FileCode, Calendar, User, Trash2, CheckCircle, XCircle, MessageSquare, Eye } from 'lucide-react';
+import DataTable from '../ui/DataTable/DataTable';
 
 const DocumentSelector = ({ documentType, title, description }) => {
   const [searchParams] = useSearchParams();
@@ -214,7 +215,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
       : 'bg-yellow-100 text-yellow-800';
     
     return (
-      <span className={` rounded text-xs font-medium ${statusClass}`}>
+      <span className={` rounded text-xs  ${statusClass}`}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
@@ -260,7 +261,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
       </div>
 
       <div className="bg-white rounded  p-6 mb-8">
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="block text-sm  text-gray-700 mb-3">
           Select Root Card *
         </label>
         <select
@@ -301,74 +302,80 @@ const DocumentSelector = ({ documentType, title, description }) => {
       {selectedRootCard && documents.length > 0 ? (
         <div className="bg-white rounded  overflow-hidden">
           <div className="p-2 border-b border-gray-200 bg-gray-50">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg  text-gray-900">
               {documentType === 'raw-designs' ? 'Raw Design Drawings' : 'Required Documents'} ({documents.length})
             </h2>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Filename</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Format</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Size</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Upload Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700  tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {documents.map((doc, index) => {
-                  const fileName = doc.name || doc.title || doc.file_name;
-                  const fileFormat = doc.format || doc.fileName?.split('.').pop() || 'Unknown';
-                  
-                  return (
-                    <tr key={doc.id || index} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="p-2">
-                        <div className="flex items-center">
-                          <FileText className="w-4 h-4 text-gray-400 mr-2" />
-                          <span className="text-sm text-gray-900 break-words">{fileName}</span>
-                        </div>
-                      </td>
-                      <td className="p-2 text-sm text-gray-600">
-                        {fileFormat}
-                      </td>
-                      <td className="p-2 text-sm text-gray-600">
-                        {formatFileSize(doc.size)}
-                      </td>
-                      <td className="p-2 text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                          {formatDate(doc.created_at || doc.uploadedAt)}
-                        </div>
-                      </td>
-                      <td className="p-2 text-sm">
-                        {getStatusBadge(doc.status)}
-                      </td>
-                      <td className="p-2 text-sm space-x-2 flex flex-wrap gap-2">
-                        <button
-                          onClick={() => handleDownload(doc)}
-                          className="inline-flex items-center  bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-xs"
-                          title="Download file"
-                        >
-                          <Download className="w-3 h-3 mr-1" />
-                          Download
-                        </button>
-                        <button
-                          onClick={() => handleViewFile(doc)}
-                          className="inline-flex items-center  bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors text-xs"
-                          title="View file"
-                        >
-                          <Eye className="w-3 h-3 mr-1" />
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="border border-gray-200">
+            <DataTable
+              data={documents || []}
+              columns={[
+                {
+                  key: "fileName",
+                  label: "Filename",
+                  render: (_, doc) => {
+                    const fileName = doc.name || doc.title || doc.file_name;
+                    return (
+                      <div className="flex items-center">
+                        <FileText className="w-4 h-4 text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-900 break-words">{fileName}</span>
+                      </div>
+                    );
+                  }
+                },
+                {
+                  key: "format",
+                  label: "Format",
+                  render: (_, doc) => doc.format || doc.fileName?.split('.').pop() || 'Unknown'
+                },
+                {
+                  key: "size",
+                  label: "Size",
+                  render: (val) => formatFileSize(val)
+                },
+                {
+                  key: "created_at",
+                  label: "Upload Date",
+                  render: (_, doc) => (
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                      {formatDate(doc.created_at || doc.uploadedAt)}
+                    </div>
+                  )
+                },
+                {
+                  key: "status",
+                  label: "Status",
+                  render: (val) => getStatusBadge(val)
+                },
+                {
+                  key: "actions",
+                  label: "Actions",
+                  className: "space-x-2 flex flex-wrap gap-2",
+                  render: (_, doc) => (
+                    <>
+                      <button
+                        onClick={() => handleDownload(doc)}
+                        className="inline-flex items-center  bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-xs"
+                        title="Download file"
+                      >
+                        <Download className="w-3 h-3 mr-1" />
+                        Download
+                      </button>
+                      <button
+                        onClick={() => handleViewFile(doc)}
+                        className="inline-flex items-center  bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors text-xs"
+                        title="View file"
+                      >
+                        <Eye className="w-3 h-3 mr-1" />
+                        View
+                      </button>
+                    </>
+                  )
+                }
+              ]}
+            />
           </div>
         </div>
       ) : selectedRootCard && documents.length === 0 ? (
@@ -396,7 +403,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
           <div className="bg-white rounded shadow-lg p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg  text-gray-900">
                 {modalAction === 'approve' ? '✓ Approve' : '✗ Reject'} Document
               </h3>
               <button
@@ -408,7 +415,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm  text-gray-700 mb-2">
                 Comments (Optional)
               </label>
               <textarea
@@ -448,7 +455,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
           <div className="bg-white rounded shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{viewerFile.name}</h3>
+                <h3 className="text-lg  text-gray-900">{viewerFile.name}</h3>
                 <p className="text-xs text-gray-500 mt-1">Format: {viewerFile.extension?.toUpperCase() || 'Unknown'} | Size: {formatFileSize(viewerFile.size)}</p>
               </div>
               <button
@@ -464,7 +471,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
                 <div className="w-full h-full flex items-center justify-center p-8">
                   <div className="text-center">
                     <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-700 font-semibold mb-2">File Information Not Available</p>
+                    <p className="text-gray-700  mb-2">File Information Not Available</p>
                     <p className="text-sm text-gray-600 mb-4">This file was uploaded before the path storage was implemented.</p>
                     <p className="text-sm text-gray-600">Please re-upload the file to view it or download from your original upload.</p>
                   </div>

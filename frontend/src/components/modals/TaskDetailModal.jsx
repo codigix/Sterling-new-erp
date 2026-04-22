@@ -129,8 +129,8 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
 
             {task.started_at && (
               <div>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Started Date</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">Started Date</p>
+                <p className="text-sm  text-slate-900 dark:text-white">
                   {new Date(task.started_at).toLocaleDateString('en-IN')} {new Date(task.started_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
@@ -138,8 +138,8 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
 
             {task.created_at && (
               <div>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Created Date</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">Created Date</p>
+                <p className="text-sm  text-slate-900 dark:text-white">
                   {new Date(task.created_at).toLocaleDateString('en-IN')}
                 </p>
               </div>

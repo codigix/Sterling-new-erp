@@ -150,7 +150,7 @@ const ProductionProjectCard = ({
         <div className="flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  tracking-wide">
                 Root Card / Project
               </p>
               <h3 className=" text-lg text-slate-900 dark:text-white">

@@ -187,7 +187,7 @@ const ProjectListPage = () => {
                   setFilterStatus("all");
                   setFilterPriority("all");
                 }}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition"
+                className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-sm  transition"
               >
                 Reset Filters
               </button>
@@ -252,7 +252,7 @@ const ProjectListPage = () => {
                             />
                           </div>
                           <div>
-                            <p className="font-semibold text-slate-900 dark:text-white text-xs">
+                            <p className=" text-slate-900 dark:text-white text-xs">
                               {project.title}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
@@ -364,21 +364,21 @@ const ProjectListPage = () => {
             <div className="p-6 space-y-4">
               <p className="text-slate-500 dark:text-slate-300">
                 Are you sure you want to delete the project{" "}
-                <span className="font-semibold">{deleteConfirm.title}</span>?
+                <span className="">{deleteConfirm.title}</span>?
                 This action cannot be undone.
               </p>
             </div>
             <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="p-2 text-sm font-medium text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+                className="p-2 text-sm  text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDeleteProject(deleteConfirm.id)}
                 disabled={deleting}
-                className="p-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 disabled:opacity-50 transition"
+                className="p-2 text-sm  text-white bg-red-600 rounded hover:bg-red-700 disabled:opacity-50 transition"
               >
                 {deleting ? "Deleting..." : "Delete"}
               </button>

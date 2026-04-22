@@ -149,36 +149,36 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
         <CardContent className="space-y-2 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-1">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  mb-1">
                 Product Name
               </p>
-              <p className="text-slate-900 dark:text-white font-medium">{task.product_name || 'N/A'}</p>
+              <p className="text-slate-900 dark:text-white ">{task.product_name || 'N/A'}</p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-1">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  mb-1">
                 Project
               </p>
-              <p className="text-slate-900 dark:text-white font-medium">{task.project_name || 'N/A'}</p>
+              <p className="text-slate-900 dark:text-white ">{task.project_name || 'N/A'}</p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-1">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  mb-1">
                 Production Stage
               </p>
-              <p className="text-slate-900 dark:text-white font-medium">{task.stage_name || 'N/A'}</p>
+              <p className="text-slate-900 dark:text-white ">{task.stage_name || 'N/A'}</p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-1">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  mb-1">
                 Selected Vendor
               </p>
-              <p className="text-slate-900 dark:text-white font-medium">{task.vendor_name || 'Not Selected'}</p>
+              <p className="text-slate-900 dark:text-white ">{task.vendor_name || 'Not Selected'}</p>
             </div>
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Workflow Steps</h3>
+            <h3 className="text-lg  text-slate-900 dark:text-white mb-4">Workflow Steps</h3>
             
             <div className="space-y-3">
               <StepIndicator
@@ -280,7 +280,7 @@ const OutsourcingTaskScreen = ({ taskId, onClose, onTaskCompleted }) => {
             {task.status === 'completed' && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-4 text-center">
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mx-auto mb-2" />
-                <p className="text-green-800 dark:text-green-200 font-medium">
+                <p className="text-green-800 dark:text-green-200 ">
                   Task Completed Successfully!
                 </p>
               </div>
@@ -316,7 +316,7 @@ const StepIndicator = ({ title, description, status, isActive, onClick }) => {
       <div className="flex items-center gap-3">
         {statusIcons[status]}
         <div className="flex-1">
-          <h4 className="font-semibold text-slate-900 dark:text-white">{title}</h4>
+          <h4 className=" text-slate-900 dark:text-white">{title}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
         </div>
         {status !== 'disabled' && <ChevronDown className="w-3 h-3" />}

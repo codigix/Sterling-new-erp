@@ -277,7 +277,7 @@ const DesignEngineerDashboard = () => {
                     </span>
                   </div>
                 </div>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                <p className="text-xs  text-slate-500 dark:text-slate-400 mb-1">
                   {stat.title}
                 </p>
                 <p className="text-lg  text-slate-900 dark:text-white text-xs">
@@ -494,7 +494,7 @@ const DesignEngineerDashboard = () => {
                   }`}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white text-xs truncate">
+                  <p className="text-sm  text-slate-900 dark:text-white text-xs truncate">
                     {task.title}
                   </p>
                   <div className="flex items-center gap-2 mt-1">

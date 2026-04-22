@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   X,
   Plus,
@@ -19,10 +19,11 @@ import axios from "../../utils/api";
 import { toast } from "react-toastify";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
 import { renderDimensions } from "../../utils/dimensionUtils";
+import DataTable from "../ui/DataTable/DataTable";
 
 const DimensionInput = ({ label, field, placeholder, item, index, handleItemChange }) => (
-  <div key={field} className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
-    <label className="text-[10px] text-slate-500 font-medium">{label}</label>
+  <div key={field} className="flex flex-col gap-1 ">
+    <label className="text-[10px] text-slate-500 ">{label}</label>
     <input
       type="number"
       value={
@@ -38,8 +39,8 @@ const DimensionInput = ({ label, field, placeholder, item, index, handleItemChan
 );
 
 const VendorDimensionInput = ({ label, field, placeholder, item, index, handleItemChange }) => (
-  <div key={field} className="flex flex-col gap-1 min-w-[70px] max-w-[80px]">
-    <label className="text-[10px] text-slate-500 font-medium">{label}</label>
+  <div key={field} className="">
+    <label className="text-[10px] text-slate-500 ">{label}</label>
     <input
       type="number"
       value={
@@ -137,7 +138,7 @@ const renderDimensionFields = (item, index, handleItemChange) => {
   if (fields.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+    <div className="flex gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-full">
       {fields.map((f) => (
         <DimensionInput
           key={f.field}
@@ -231,7 +232,7 @@ const renderVendorDimensionFields = (item, index, handleItemChange) => {
   if (fields.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-fit">
+    <div className="flex gap-2 mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800 w-full">
       {fields.map((f) => (
         <VendorDimensionInput
           key={f.field}
@@ -249,7 +250,7 @@ const renderDimensionsText = (item) => {
   const dims = renderDimensions(item);
   if (dims === "-") return null;
   return (
-    <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+    <div className="text-xs text-blue-600 dark:text-blue-400  mt-0.5">
       Dim: {dims} mm
     </div>
   );
@@ -262,7 +263,6 @@ const CreateQuotationModal = ({
   initialData = null,
   preFilledMaterials = null,
   vendors = [],
-  rootCards = [],
   materialRequests = [],
 }) => {
   const { completeCurrentTask } = useRootCardInventoryTask();
@@ -272,8 +272,6 @@ const CreateQuotationModal = ({
   const [loadingMaterials, setLoadingMaterials] = useState(false);
   const [savingRequirements, setSavingRequirements] = useState(false);
   const [rootCardQuotations, setRootCardQuotations] = useState([]);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [uploadedFileName, setUploadedFileName] = useState("");
 
   const [formData, setFormData] = useState({
     vendor_id: "",
@@ -343,7 +341,6 @@ const CreateQuotationModal = ({
       setFormData(initialFormState);
       setAnalysisMode(false);
       setRootCardMaterials([]);
-      setUploadedFileName("");
     }
   }, [isOpen]); // Only run when modal opens/closes
 
@@ -352,56 +349,6 @@ const CreateQuotationModal = ({
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
-
-  const handleAddItem = () => {
-    setFormData((prev) => ({
-      ...prev,
-      items: [
-        ...prev.items,
-        {
-          item_name: "",
-          vendor_item_name: "",
-          item_group: "",
-          part_detail: "",
-          material_grade: "",
-          make: "",
-          remark: "",
-          quantity: "",
-          unit: "",
-          unit_price: "",
-          total_weight: "",
-          rate_per_kg: "",
-          length: "",
-          width: "",
-          thickness: "",
-          diameter: "",
-          outer_diameter: "",
-          height: "",
-          side1: "",
-          side2: "",
-          web_thickness: "",
-          flange_thickness: "",
-          vendor_length: "",
-          vendor_width: "",
-          vendor_thickness: "",
-          vendor_diameter: "",
-          vendor_outer_diameter: "",
-          vendor_height: "",
-          vendor_side1: "",
-          vendor_side2: "",
-          vendor_web_thickness: "",
-          vendor_flange_thickness: "",
-        },
-      ],
-    }));
-  };
-
-  const handleRemoveItem = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      items: prev.items.filter((_, i) => i !== index),
     }));
   };
 
@@ -474,62 +421,6 @@ const CreateQuotationModal = ({
         total_amount: Number(newTotal.toFixed(3)),
       };
     });
-  };
-
-  const handleAnalyzeFile = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setUploadedFileName(file.name);
-
-    const analysisFormData = new FormData();
-    analysisFormData.append("file", file);
-    analysisFormData.append("items", JSON.stringify(formData.items));
-
-    try {
-      setAnalyzing(true);
-      const response = await axios.post(
-        "/department/procurement/quotations/analyze",
-        analysisFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-
-      setFormData((prev) => ({
-        ...prev,
-        items: response.data.items,
-        total_amount: Number(parseFloat(response.data.total_amount).toFixed(3)),
-        // We don't set document_path because we aren't storing the file permanently
-        // until the user actually records the quote, but since the user said
-        // "dont store the uploaded file", we might skip storing it entirely if requested.
-        // For now, we just fill the prices.
-      }));
-
-      const missingData = response.data.items.filter((item) =>
-        formData.type === "inbound"
-          ? item.rate_per_kg === 0 || item.total_weight === 0
-          : item.unit_price === 0,
-      ).length;
-
-      if (missingData > 0) {
-        toast.info(
-          `Data extracted for some items, but ${missingData} items could not be automatically matched. Please enter them manually.`,
-        );
-      } else {
-        toast.success("Details fetched successfully from the document!");
-      }
-    } catch (error) {
-      console.error("Error analyzing quotation:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to analyze document",
-      );
-    } finally {
-      setAnalyzing(false);
-      // e.target.value = ''; // Keep it if we want to show it's "selected"
-    }
   };
 
   const handleRootCardChange = async (e) => {
@@ -891,6 +782,290 @@ const CreateQuotationModal = ({
     return date.toLocaleDateString("en-IN");
   };
 
+  const columns = useMemo(() => {
+    const common = [
+      {
+        header: "#",
+        accessor: "index",
+        className: "w-12 text-center",
+        render: (_, __, ___, index) => (
+          <span className="text-xs text-slate-400">{index + 1}</span>
+        ),
+      },
+      {
+        header: "Item Name / Group",
+        accessor: "item_name",
+        className: "w-1/4",
+        render: (value, item, _, index) => (
+          <div className="flex flex-col">
+           
+            <input
+              type="text"
+              value={item.item_group}
+              onChange={(e) =>
+                handleItemChange(index, "item_group", e.target.value)
+              }
+              placeholder="Group"
+              disabled
+              className="w-full p-1 text-xs text-slate-500 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
+            />
+             <input
+              type="text"
+              value={item.item_name}
+              onChange={(e) =>
+                handleItemChange(index, "item_name", e.target.value)
+              }
+              placeholder="Item name"
+              disabled
+              className="w-full text-xs p-1 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-slate-50 dark:bg-slate-900 transition-all disabled:opacity-80"
+            />
+            {(formData.type === "outbound" || formData.type === "inbound") &&
+              renderDimensionsText(item)}
+          </div>
+        ),
+      },
+    ];
+
+    if (formData.type === "inbound") {
+      return [
+        ...common,
+        {
+          header: "Vendor Material Name",
+          accessor: "vendor_item_name",
+          className: "w-1/4",
+          render: (value, item, _, index) => (
+            <div className="flex flex-col">
+              <input
+                type="text"
+                value={item.vendor_item_name}
+                onChange={(e) =>
+                  handleItemChange(index, "vendor_item_name", e.target.value)
+                }
+                placeholder="Vendor Material Name (if different)"
+                className="w-full p-2 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
+              />
+              {renderVendorDimensionFields(item, index, handleItemChange)}
+            </div>
+          ),
+        },
+        {
+          header: "Qty",
+          accessor: "quantity",
+          className: "w-24",
+          render: (value, item, _, index) => (
+            <input
+              type="number"
+              value={
+                item.quantity !== undefined && item.quantity !== null
+                  ? parseFloat(item.quantity).toString()
+                  : ""
+              }
+              onChange={(e) =>
+                handleItemChange(index, "quantity", e.target.value)
+              }
+              placeholder="0"
+              min="0"
+              step="any"
+              disabled={preFilledMaterials}
+              className="w-full p-1 text-xs text-center text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+            />
+          ),
+        },
+        {
+          header: "UOM",
+          accessor: "unit",
+          className: "w-20",
+          render: (value, item, _, index) => (
+            <input
+              type="text"
+              value={item.unit}
+              onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+              placeholder="Unit"
+              disabled={preFilledMaterials}
+              className="w-full p-1 text-xs text-center text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-none rounded disabled:opacity-80"
+            />
+          ),
+        },
+        {
+          header: (
+            <>
+              Rate/Kg <span className="text-red-500">*</span>
+            </>
+          ),
+          accessor: "rate_per_kg",
+          align: "right",
+          render: (value, item, _, index) => (
+            <input
+              type="number"
+              value={item.rate_per_kg}
+              onChange={(e) =>
+                handleItemChange(index, "rate_per_kg", e.target.value)
+              }
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              required
+              className="w-full p-1 text-xs text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
+            />
+          ),
+        },
+        {
+          header: "Weight (Kg)",
+          accessor: "total_weight",
+          align: "right",
+          render: (value, item, _, index) => (
+            <input
+              type="number"
+              value={
+                item.total_weight !== null && item.total_weight !== undefined
+                  ? Number(parseFloat(item.total_weight)).toFixed(3)
+                  : ""
+              }
+              onChange={(e) =>
+                handleItemChange(index, "total_weight", e.target.value)
+              }
+              placeholder="0.000"
+              min="0"
+              step="0.001"
+              className="w-full p-1 text-xs text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
+            />
+          ),
+        },
+        {
+          header: "Total",
+          accessor: "total",
+          align: "right",
+          render: (_, item) => (
+            <span className="text-xs text-emerald-600">
+              ₹
+              {Number(item.total_weight * item.rate_per_kg || 0).toLocaleString(
+                undefined,
+                {
+                  minimumFractionDigits: 3,
+                  maximumFractionDigits: 3,
+                }
+              )}
+            </span>
+          ),
+        },
+      ];
+    } else {
+      return [
+        ...common,
+        {
+          header: "Part Detail / Grade",
+          accessor: "part_detail",
+          className: "w-1/4",
+          render: (value, item, _, index) => (
+            <div className="flex flex-col gap-1">
+              <input
+                type="text"
+                value={item.part_detail}
+                onChange={(e) =>
+                  handleItemChange(index, "part_detail", e.target.value)
+                }
+                placeholder="Part Detail"
+                disabled={preFilledMaterials}
+                className="w-full text-xs text-slate-700 p-1 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+              />
+              <input
+                type="text"
+                value={item.material_grade}
+                onChange={(e) =>
+                  handleItemChange(index, "material_grade", e.target.value)
+                }
+                placeholder="Grade"
+                disabled={preFilledMaterials}
+                className="w-full p-1 text-xs text-slate-500 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
+              />
+            </div>
+          ),
+        },
+        {
+          header: "Remark / Make",
+          accessor: "remark",
+          render: (value, item, _, index) => (
+            <div className="flex flex-col gap-1">
+              <input
+                type="text"
+                value={item.remark}
+                onChange={(e) =>
+                  handleItemChange(index, "remark", e.target.value)
+                }
+                placeholder="Remark"
+                disabled={preFilledMaterials}
+                className="w-full text-xs italic text-slate-500 p-1 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+              />
+              <input
+                type="text"
+                value={item.make}
+                onChange={(e) => handleItemChange(index, "make", e.target.value)}
+                placeholder="Make"
+                disabled={preFilledMaterials}
+                className="w-full p-1 text-xs text-slate-500 dark:text-slate-400 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
+              />
+            </div>
+          ),
+        },
+        {
+          header: "Weight (Kg)",
+          accessor: "total_weight",
+          className: "w-24",
+          align: "center",
+          render: (value, item) => (
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-slate-700 dark:text-slate-200">
+                {parseFloat(item.total_weight || 0).toFixed(3)} Kg
+              </span>
+            </div>
+          ),
+        },
+        {
+          header: "Qty",
+          accessor: "quantity",
+          className: "w-24",
+          render: (value, item, _, index) => (
+            <input
+              type="number"
+              value={
+                item.quantity !== undefined && item.quantity !== null
+                  ? parseFloat(item.quantity).toString()
+                  : ""
+              }
+              onChange={(e) =>
+                handleItemChange(index, "quantity", e.target.value)
+              }
+              placeholder="0"
+              min="0"
+              step="any"
+              disabled={preFilledMaterials}
+              className="w-full p-1 text-xs text-center text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
+            />
+          ),
+        },
+        {
+          header: "UOM",
+          accessor: "unit",
+          className: "w-20",
+          render: (value, item, _, index) => (
+            <input
+              type="text"
+              value={item.unit}
+              onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+              placeholder="Unit"
+              disabled={preFilledMaterials}
+              className="w-full p-1 text-xs text-center text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-none rounded disabled:opacity-80"
+            />
+          ),
+        },
+      ];
+    }
+  }, [
+    formData.type,
+    handleItemChange,
+    preFilledMaterials,
+  ]);
+
   if (!isOpen) return null;
 
   return (
@@ -899,7 +1074,7 @@ const CreateQuotationModal = ({
       onClick={onClose}
     >
       <div
-        className={`bg-white dark:bg-slate-800 rounded w-full ${formData.type === "outbound" ? "max-w-6xl" : "max-w-[80vw]"} max-h-[95vh] overflow-hidden flex flex-col`}
+        className={`bg-white dark:bg-slate-800 rounded w-full ${formData.type === "outbound" ? "max-w-5xl" : "max-w-[80vw]"} max-h-[95vh] overflow-hidden flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center p-2 border-b border-slate-200 dark:border-slate-600">
@@ -953,98 +1128,88 @@ const CreateQuotationModal = ({
                 </p>
               ) : (
                 <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded">
-                  <table className="w-full">
-                    <thead className="bg-slate-50 dark:bg-slate-700/50">
-                      <tr>
-                        <th className="p-2 text-left text-xs  text-slate-500  border-b border-slate-200 dark:border-slate-700">
-                          Include
-                        </th>
-                        <th className="p-2 text-left text-xs  text-slate-500  border-b border-slate-200 dark:border-slate-700">
-                          Material
-                        </th>
-                        <th className="p-2 text-left text-xs  text-slate-500  border-b border-slate-200 dark:border-slate-700">
-                          Current Stock
-                        </th>
-                        <th className="p-2 text-left text-xs  text-slate-500  border-b border-slate-200 dark:border-slate-700">
-                          Required Qty
-                        </th>
-                        <th className="p-2 text-left text-xs  text-slate-500  border-b border-slate-200 dark:border-slate-700">
-                          Shortage
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                      {rootCardMaterials.map((material, idx) => {
-                        const required =
-                          parseFloat(material.requiredQuantity) || 0;
-                        const stock = parseFloat(material.currentStock) || 0;
-                        const shortage = Math.max(0, required - stock);
-
-                        return (
-                          <tr
-                            key={idx}
-                            className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition ${
-                              shortage > 0
-                                ? "bg-red-50/30 dark:bg-red-900/10"
-                                : ""
-                            }`}
-                          >
-                            <td className="p-2">
-                              <input
-                                type="checkbox"
-                                checked={material.selected || false}
-                                onChange={(e) =>
-                                  handleRequirementChange(
-                                    idx,
-                                    "selected",
-                                    e.target.checked,
-                                  )
-                                }
-                                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                              />
-                            </td>
-                            <td className="p-2">
-                              <div className="text-sm  text-slate-900 dark:text-white text-xs">
-                                {material.itemName}
-                              </div>
-                              <div className="text-xs text-slate-500">
-                                {material.category || material.materialType}
-                              </div>
-                            </td>
-                            <td className="p-2 text-sm text-slate-700 dark:text-slate-300">
-                              {stock}
-                            </td>
-                            <td className="p-2">
-                              <input
-                                type="number"
-                                min="0"
-                                value={material.requiredQuantity}
-                                onChange={(e) =>
-                                  handleRequirementChange(
-                                    idx,
-                                    "requiredQuantity",
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-24  text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                              />
-                            </td>
-                            <td className="p-2">
-                              <span
-                                className={`text-sm  ${
-                                  shortage > 0
-                                    ? "text-red-600"
-                                    : "text-green-600"
-                                }`}
-                              >
-                                {shortage}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  <DataTable
+                    data={rootCardMaterials || []}
+                    columns={[
+                      {
+                        key: "selected",
+                        label: "Include",
+                        className: "w-10",
+                        render: (val, material, idx) => (
+                          <input
+                            type="checkbox"
+                            checked={val || false}
+                            onChange={(e) =>
+                              handleRequirementChange(
+                                idx,
+                                "selected",
+                                e.target.checked,
+                              )
+                            }
+                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          />
+                        )
+                      },
+                      {
+                        key: "itemName",
+                        label: "Material",
+                        render: (val, material) => (
+                          <>
+                            <div className="text-sm  text-slate-900 dark:text-white text-xs">
+                              {val}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {material.category || material.materialType}
+                            </div>
+                          </>
+                        )
+                      },
+                      {
+                        key: "currentStock",
+                        label: "Current Stock",
+                        render: (val) => <span className="text-sm text-slate-700 dark:text-slate-300">{val}</span>
+                      },
+                      {
+                        key: "requiredQuantity",
+                        label: "Required Qty",
+                        render: (val, material, idx) => (
+                          <input
+                            type="number"
+                            min="0"
+                            value={val}
+                            onChange={(e) =>
+                              handleRequirementChange(
+                                idx,
+                                "requiredQuantity",
+                                e.target.value,
+                              )
+                            }
+                            className="w-24  text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                          />
+                        )
+                      },
+                      {
+                        key: "shortage",
+                        label: "Shortage",
+                        render: (_, material) => {
+                          const required = parseFloat(material.requiredQuantity) || 0;
+                          const stock = parseFloat(material.currentStock) || 0;
+                          const shortage = Math.max(0, required - stock);
+                          return (
+                            <span className={`text-sm  ${shortage > 0 ? "text-red-600" : "text-green-600"}`}>
+                              {shortage}
+                            </span>
+                          );
+                        }
+                      }
+                    ]}
+                    getRowClassName={(material) => {
+                      const required = parseFloat(material.requiredQuantity) || 0;
+                      const stock = parseFloat(material.currentStock) || 0;
+                      const shortage = Math.max(0, required - stock);
+                      return shortage > 0 ? "bg-red-50/30 dark:bg-red-900/10" : "";
+                    }}
+                  />
                 </div>
               )}
             </div>
@@ -1077,7 +1242,8 @@ const CreateQuotationModal = ({
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
               <div className="space-y-2">
                 {!preFilledMaterials && (
-                  <div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Select Material Request (Optional)
                     </label>
@@ -1110,6 +1276,51 @@ const CreateQuotationModal = ({
                         ))}
                       </select>
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
+                      Vendor <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="vendor_id"
+                      value={formData.vendor_id}
+                      onChange={handleFormChange}
+                      required
+                      disabled={
+                        formData.type === "inbound" && formData.reference_id
+                      }
+                      className={`w-full text-xs p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                        formData.type === "inbound" && formData.reference_id
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <option value="">-- Select a Vendor --</option>
+                      {vendors.map((vendor) => (
+                        <option key={vendor.id} value={vendor.id}>
+                          {vendor.name}{" "}
+                          {vendor.vendor_type
+                            ? `(${vendor.vendor_type
+                                .replace("_", " ")
+                                .toUpperCase()})`
+                            : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
+                      Valid Until <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      name="valid_until"
+                      value={formData.valid_until}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full p-2 border text-xs border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    />
+                  </div>
                   </div>
                 )}
 
@@ -1162,51 +1373,8 @@ const CreateQuotationModal = ({
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
-                      Vendor <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      name="vendor_id"
-                      value={formData.vendor_id}
-                      onChange={handleFormChange}
-                      required
-                      disabled={
-                        formData.type === "inbound" && formData.reference_id
-                      }
-                      className={`w-full text-xs p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
-                        formData.type === "inbound" && formData.reference_id
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      <option value="">-- Select a Vendor --</option>
-                      {vendors.map((vendor) => (
-                        <option key={vendor.id} value={vendor.id}>
-                          {vendor.name}{" "}
-                          {vendor.vendor_type
-                            ? `(${vendor.vendor_type
-                                .replace("_", " ")
-                                .toUpperCase()})`
-                            : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
-                      Valid Until <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      name="valid_until"
-                      value={formData.valid_until}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full p-2 border text-xs border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                  </div>
+                <div >
+                  
                 </div>
 
                 {/* {formData.root_card_id && !preFilledMaterials && (
@@ -1241,7 +1409,7 @@ const CreateQuotationModal = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                      <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                         Total Amount (₹)
                       </label>
                       <div className="relative">
@@ -1255,7 +1423,7 @@ const CreateQuotationModal = ({
                           onChange={handleFormChange}
                           placeholder="0.000"
                           disabled
-                          className="w-full pl-8 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition opacity-75 cursor-not-allowed"
+                          className="w-full pl-8 pr-4 p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 text-xs dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition opacity-75 cursor-not-allowed"
                         />
                       </div>
                     </div>
@@ -1275,334 +1443,24 @@ const CreateQuotationModal = ({
                       load items.
                     </p>
                   ) : (
-                    <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded">
-                      <table className="w-full">
-                        <thead className="bg-slate-50 dark:bg-slate-700/50">
-                          <tr>
-                            <th className="p-2 text-center text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-12">
-                              #
-                            </th>
-                            <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-1/4">
-                              Item Name / Group
-                            </th>
-                            {formData.type === "inbound" && (
-                              <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-1/4">
-                                Vendor Material Name
-                              </th>
-                            )}
-                            {formData.type === "outbound" && (
-                              <>
-                                <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-1/4">
-                                  Part Detail / Grade
-                                </th>
-                                <th className="p-2 text-left text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700">
-                                  Remark / Make
-                                </th>
-                                <th className="p-2 text-center text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-24">
-                                  Weight (Kg)
-                                </th>
-                              </>
-                            )}
-                            <th className="p-2 text-center text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-24">
-                              Qty
-                            </th>
-                            <th className="p-2 text-center text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 w-20">
-                              UOM
-                            </th>
-                            {formData.type === "inbound" && (
-                              <>
-                                <th className="p-2 text-right text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 ">
-                                  Rate/Kg <span className="text-red-500">*</span>
-                                </th>
-                                <th className="p-2 text-right text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 ">
-                                  Weight (Kg)
-                                </th>
-                                <th className="p-2 text-right text-xs   text-slate-500  border-b border-slate-200 dark:border-slate-700 ">
-                                  Total
-                                </th>
-                              </>
-                            )}
-                            {/* Removed action column */}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
-                          {formData.items.map((item, index) => (
-                            <tr
-                              key={index}
-                              className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition group"
-                            >
-                              <td className="p-2 text-center text-xs  text-slate-400">
-                                {index + 1}
-                              </td>
-                              <td className="p-2">
-                                <div className="flex flex-col gap-1">
-                                  <input
-                                    type="text"
-                                    value={item.item_name}
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        "item_name",
-                                        e.target.value,
-                                      )
-                                    }
-                                    placeholder="Item name"
-                                    disabled
-                                    className="w-full  text-xs p-1  text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-slate-50 dark:bg-slate-900 transition-all disabled:opacity-80"
-                                  />
-                                  <input
-                                    type="text"
-                                    value={item.item_group}
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        "item_group",
-                                        e.target.value,
-                                      )
-                                    }
-                                    placeholder="Group"
-                                    disabled
-                                    className="w-full p-1 text-xs  text-slate-500  border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
-                                  />
-                                  {(formData.type === "outbound" ||
-                                    formData.type === "inbound") &&
-                                    renderDimensionsText(item)}
-                                </div>
-                              </td>
-                              {formData.type === "inbound" && (
-                                <td className="p-2">
-                                  <div className="flex flex-col gap-2">
-                                    <input
-                                      type="text"
-                                      value={item.vendor_item_name}
-                                      onChange={(e) =>
-                                        handleItemChange(
-                                          index,
-                                          "vendor_item_name",
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="Vendor Material Name (if different)"
-                                      className="w-full p-2 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
-                                    />
-                                    {renderVendorDimensionFields(
-                                      item,
-                                      index,
-                                      handleItemChange,
-                                    )}
-                                  </div>
-                                </td>
-                              )}
-                              {formData.type === "outbound" && (
-                                <>
-                                  <td className="p-2">
-                                    <div className="flex flex-col gap-1">
-                                      <input
-                                        type="text"
-                                        value={item.part_detail}
-                                        onChange={(e) =>
-                                          handleItemChange(
-                                            index,
-                                            "part_detail",
-                                            e.target.value,
-                                          )
-                                        }
-                                        placeholder="Part Detail"
-                                        disabled={preFilledMaterials}
-                                        className="w-full  text-xs text-slate-700 p-1 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
-                                      />
-                                      <input
-                                        type="text"
-                                        value={item.material_grade}
-                                        onChange={(e) =>
-                                          handleItemChange(
-                                            index,
-                                            "material_grade",
-                                            e.target.value,
-                                          )
-                                        }
-                                        placeholder="Grade"
-                                        disabled={preFilledMaterials}
-                                        className="w-full p-1 text-xs  text-slate-500  border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
-                                      />
-                                    </div>
-                                  </td>
-                                  <td className="p-2">
-                                    <div className="flex flex-col gap-1">
-                                      <input
-                                        type="text"
-                                        value={item.remark}
-                                        onChange={(e) =>
-                                          handleItemChange(
-                                            index,
-                                            "remark",
-                                            e.target.value,
-                                          )
-                                        }
-                                        placeholder="Remark"
-                                        disabled={preFilledMaterials}
-                                        className="w-full  text-xs italic text-slate-500 p-1 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
-                                      />
-                                      <input
-                                        type="text"
-                                        value={item.make}
-                                        onChange={(e) =>
-                                          handleItemChange(
-                                            index,
-                                            "make",
-                                            e.target.value,
-                                          )
-                                        }
-                                        placeholder="Make"
-                                        disabled={preFilledMaterials}
-                                        className="w-full p-1 text-xs text-slate-500 dark:text-slate-400 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
-                                      />
-                                    </div>
-                                  </td>
-                                </>
-                              )}
-                              {formData.type === "outbound" && (
-                                <td className="p-2 text-center w-24">
-                                  <div className="flex flex-col items-center">
-                                    <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                                      {parseFloat(
-                                        item.total_weight || 0,
-                                      ).toFixed(3)}{" "}
-                                      Kg
-                                    </span>
-                                    {parseFloat(item.unit_weight) > 0 && (
-                                      <span className="text-xs text-slate-400">
-                                        Unit:{" "}
-                                        {Number(
-                                          parseFloat(
-                                            item.unit_weight || 0,
-                                          ).toFixed(3),
-                                        )}
-                                      </span>
-                                    )}
-                                  </div>
-                                </td>
-                              )}
-                              <td className="p-2 w-24">
-                                <input
-                                  type="number"
-                                  value={
-                                    item.quantity !== undefined &&
-                                    item.quantity !== null
-                                      ? parseFloat(item.quantity).toString()
-                                      : ""
-                                  }
-                                  onChange={(e) =>
-                                    handleItemChange(
-                                      index,
-                                      "quantity",
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="0"
-                                  min="0"
-                                  step="any"
-                                  disabled={preFilledMaterials}
-                                  className="w-full p-1 text-xs  text-center text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all disabled:opacity-80"
-                                />
-                              </td>
-                              <td className="p-2 w-20">
-                                <input
-                                  type="text"
-                                  value={item.unit}
-                                  onChange={(e) =>
-                                    handleItemChange(
-                                      index,
-                                      "unit",
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="Unit"
-                                  disabled={preFilledMaterials}
-                                  className="w-full p-1 text-xs  text-center text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-none rounded  disabled:opacity-80"
-                                />
-                              </td>
-                              {formData.type === "inbound" && (
-                                <>
-                                  <td className="p-2 ">
-                                    <input
-                                      type="number"
-                                      value={item.rate_per_kg}
-                                      onChange={(e) =>
-                                        handleItemChange(
-                                          index,
-                                          "rate_per_kg",
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="0.00"
-                                      min="0"
-                                      step="0.01"
-                                      required
-                                      className="w-full p-1 text-xs  text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
-                                    />
-                                  </td>
-                                  <td className="p-2 ">
-                                    <input
-                                      type="number"
-                                      value={
-                                        item.total_weight !== null &&
-                                        item.total_weight !== undefined
-                                          ? Number(
-                                              parseFloat(item.total_weight),
-                                            ).toFixed(3)
-                                          : ""
-                                      }
-                                      onChange={(e) =>
-                                        handleItemChange(
-                                          index,
-                                          "total_weight",
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="0.000"
-                                      min="0"
-                                      step="0.001"
-                                      className="w-full p-1 text-xs  text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
-                                    />
-                                  </td>
-                                  <td className="p-2 text-right ">
-                                    <span className="text-xs  text-emerald-600">
-                                      ₹
-                                      {Number(
-                                        item.total_weight * item.rate_per_kg ||
-                                          0,
-                                      ).toLocaleString(undefined, {
-                                        minimumFractionDigits: 3,
-                                        maximumFractionDigits: 3,
-                                      })}
-                                    </span>
-                                  </td>
-                                </>
-                              )}
-                              {/* Removed remove item button */}
-                            </tr>
-                          ))}
-                        </tbody>
-                        {formData.type === "inbound" && (
-                          <tfoot className="bg-slate-50 dark:bg-slate-700/50">
-                            <tr>
-                              <td
-                                colSpan="5"
-                                className="p-2 text-right text-xs  text-slate-500 "
-                              >
-                                Grand Total
-                              </td>
-                              <td className="p-2 text-right">
-                                <span className="text-lg  text-blue-600 dark:text-blue-400">
-                                  {formatCurrency(formData.total_amount)}
-                                </span>
-                              </td>
-                              {!preFilledMaterials && <td></td>}
-                            </tr>
-                          </tfoot>
-                        )}
-                      </table>
+                    <div className="space-y-0">
+                      <DataTable
+                        columns={columns}
+                        data={formData.items}
+                        showSearch={false}
+                        striped={true}
+                        hover={true}
+                      />
+                      {formData.type === "inbound" && (
+                        <div className="mt-0 border border-t-0 border-slate-200 dark:border-slate-700 rounded-b bg-slate-50 dark:bg-slate-700/50 p-3 flex justify-end items-center gap-4">
+                          <span className="text-xs text-slate-500">
+                            Grand Total
+                          </span>
+                          <span className="text-lg text-blue-600 dark:text-blue-400 font-semibold">
+                            {formatCurrency(formData.total_amount)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

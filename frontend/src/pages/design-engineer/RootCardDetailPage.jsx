@@ -98,7 +98,7 @@ const RootCardDetailPage = () => {
       <div className="max-w-6xl mx-auto">
         <button
           onClick={() => navigate('/design-engineer/root-cards')}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 font-medium"
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 "
         >
           <ArrowLeft size={20} />
           Back to Root Cards
@@ -111,21 +111,21 @@ const RootCardDetailPage = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="text-sm font-semibold text-slate-500">PO Number</label>
+                <label className="text-sm  text-slate-500">PO Number</label>
                 <p className="text-lg text-slate-900 mt-1">{rootCard.po_number}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-500">Project Name</label>
+                <label className="text-sm  text-slate-500">Project Name</label>
                 <p className="text-lg text-slate-900 mt-1">{rootCard.project_name}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-500">Customer</label>
+                <label className="text-sm  text-slate-500">Customer</label>
                 <p className="text-lg text-slate-900 mt-1">{rootCard.customer}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-500">Status</label>
+                <label className="text-sm  text-slate-500">Status</label>
                 <p className="text-lg text-slate-900 mt-1">
-                  <span className={`px-3 py-1 rounded  text-sm font-medium ${
+                  <span className={`px-3 py-1 rounded  text-sm  ${
                     rootCard.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                     rootCard.status === 'completed' ? 'bg-green-100 text-green-800' :
                     'bg-blue-100 text-blue-800'
@@ -135,9 +135,9 @@ const RootCardDetailPage = () => {
                 </p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-500">Priority</label>
+                <label className="text-sm  text-slate-500">Priority</label>
                 <p className="text-lg text-slate-900 mt-1">
-                  <span className={`px-3 py-1 rounded  text-sm font-medium ${
+                  <span className={`px-3 py-1 rounded  text-sm  ${
                     rootCard.priority === 'High' ? 'bg-red-100 text-red-800' :
                     rootCard.priority === 'Medium' ? 'bg-orange-100 text-orange-800' :
                     'bg-green-100 text-green-800'
@@ -147,11 +147,11 @@ const RootCardDetailPage = () => {
                 </p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-500">Order Date</label>
+                <label className="text-sm  text-slate-500">Order Date</label>
                 <p className="text-lg text-slate-900 mt-1">{new Date(rootCard.order_date).toLocaleDateString()}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-500">Due Date</label>
+                <label className="text-sm  text-slate-500">Due Date</label>
                 <p className="text-lg text-slate-900 mt-1">{new Date(rootCard.due_date).toLocaleDateString()}</p>
               </div>
             </div>
@@ -179,7 +179,7 @@ const RootCardDetailPage = () => {
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileText size={15} className="text-blue-600 flex-shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-900 truncate">{design.name || design.title}</p>
+                          <p className="text-sm  text-slate-900 truncate">{design.name || design.title}</p>
                           <p className="text-xs text-slate-500">
                             {design.created_at && new Date(design.created_at).toLocaleDateString()}
                           </p>
@@ -219,7 +219,7 @@ const RootCardDetailPage = () => {
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileText size={15} className="text-green-600 flex-shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-900 truncate">{doc.name || doc.title}</p>
+                          <p className="text-sm  text-slate-900 truncate">{doc.name || doc.title}</p>
                           <p className="text-xs text-slate-500">
                             {doc.created_at && new Date(doc.created_at).toLocaleDateString()}
                           </p>

@@ -17,6 +17,7 @@ import {
   PackageCheck
 } from "lucide-react";
 import ProductionUpdateModal from "./ProductionUpdateModal";
+import DataTable from "../../ui/DataTable/DataTable";
 
 const DailyProductionUpdateTab = () => {
   const [selectedDate, setSelectedDate] = useState(new Date(Date.now() - 86400000).toISOString().split('T')[0]);
@@ -93,6 +94,104 @@ const DailyProductionUpdateTab = () => {
     }
   };
 
+  const columns = [
+    {
+      key: "employeeName",
+      label: "Operator",
+      render: (val, row) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center text-xs">
+            {val.split(' ').map(n => n[0]).join('')}
+          </div>
+          <span className="text-sm  text-slate-900 dark:text-white tracking-tight">{val}</span>
+        </div>
+      )
+    },
+    {
+      key: "projectName",
+      label: "Project / Operation",
+      render: (val, row) => (
+        <div className="flex flex-col gap-0.5">
+          <span className="text-sm  text-slate-900 dark:text-white line-clamp-1">{val}</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400 tracking-wider">{row.operationName}</span>
+        </div>
+      )
+    },
+    {
+      key: "actualStartTime",
+      label: "Actual Time",
+      render: (_, row) => (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+            <Clock size={12} className="text-blue-500" />
+            {row.actualStartTime} - {row.actualEndTime}
+          </div>
+          <span className="text-xs text-slate-400 ml-5">Total: {row.actualHours.toFixed(2)}h</span>
+        </div>
+      )
+    },
+    {
+      key: "output",
+      label: "Output",
+      align: "center",
+      render: (_, row) => (
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex gap-2">
+            <div className="flex flex-col items-center px-2 py-0.5 bg-green-50 dark:bg-green-900/20 rounded border border-green-100 dark:border-green-800">
+              <span className="text-[8px] text-green-600">Comp</span>
+              <span className="text-xs text-green-700 dark:text-green-400">{row.qtyCompleted}</span>
+            </div>
+            <div className="flex flex-col items-center px-2 py-0.5 bg-slate-50 dark:bg-slate-700 rounded border border-slate-100 dark:border-slate-600">
+              <span className="text-[8px] text-slate-500">Pend</span>
+              <span className="text-xs text-slate-700 dark:text-slate-300">{row.pendingQty}</span>
+            </div>
+          </div>
+          {(row.reworkQty > 0 || row.scrapQty > 0) && (
+            <div className="flex gap-2">
+              {row.reworkQty > 0 && (
+                <span className="text-xs text-amber-600 flex items-center gap-0.5">
+                  <AlertTriangle size={10} /> {row.reworkQty} REWORK
+                </span>
+              )}
+              {row.scrapQty > 0 && (
+                <span className="text-xs text-red-600 flex items-center gap-0.5">
+                  <AlertTriangle size={10} /> {row.scrapQty} SCRAP
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      key: "status",
+      label: "Status",
+      align: "center",
+      render: (val) => (
+        <span className={`px-2 py-0.5 text-xs rounded tracking-wider ${getStatusBadge(val)}`}>
+          {val}
+        </span>
+      )
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right",
+      render: (_, row) => (
+        <div className="flex items-center justify-end gap-2">
+          {row.canSendToQC && (
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded text-xs hover:bg-blue-200 transition-colors">
+              <Send size={12} /> Send to QC
+            </button>
+          )}
+          <button className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <Edit2 size={15} />
+          </button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="space-y-6">
       {/* Date and Form Header */}
@@ -114,12 +213,12 @@ const DailyProductionUpdateTab = () => {
           <div className="flex gap-3 w-full md:w-auto">
             <button 
               onClick={() => setIsUpdateModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors shadow-lg w-full md:w-auto  "
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded text-sm  hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors shadow-lg w-full md:w-auto  "
             >
               <History size={15} />
               New Work Entry
             </button>
-            <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 w-full md:w-auto  ">
+            <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 w-full md:w-auto  ">
               <Plus size={15} />
               Import Planned Assignments
             </button>
@@ -134,108 +233,15 @@ const DailyProductionUpdateTab = () => {
             <PackageCheck size={20} className="text-green-600" />
             Actual Production Updates for {new Date(selectedDate).toLocaleDateString()}
           </h3>
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-              <input 
-                type="text" 
-                placeholder="Search by project or operator..." 
-                className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none"
-              />
-            </div>
-            <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-              <Filter size={15} className="text-slate-500" />
-            </button>
-          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse bg-white">
-            <thead>
-              <tr className="bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700">
-                <th className="p-2 text-xs  text-slate-500  tracking-wider">Operator</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider">Project / Operation</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider">Actual Time</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider text-center">Output</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider text-center">Status</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-              {productionUpdates.map((update) => (
-                <tr key={update.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-all group">
-                  <td className="p-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center  text-xs">
-                        {update.employeeName.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <span className="text-sm font-semibold text-slate-900 dark:text-white  tracking-tight">{update.employeeName}</span>
-                    </div>
-                  </td>
-                  <td className="p-2">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium text-slate-900 dark:text-white line-clamp-1">{update.projectName}</span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400  tracking-wider">{update.operationName}</span>
-                    </div>
-                  </td>
-                  <td className="p-2">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
-                        <Clock size={12} className="text-blue-500" />
-                        {update.actualStartTime} - {update.actualEndTime}
-                      </div>
-                      <span className="text-xs  text-slate-400 ml-5 ">Total: {update.actualHours.toFixed(2)}h</span>
-                    </div>
-                  </td>
-                  <td className="p-2">
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="flex gap-2">
-                        <div className="flex flex-col items-center px-2 py-0.5 bg-green-50 dark:bg-green-900/20 rounded border border-green-100 dark:border-green-800">
-                          <span className="text-[8px]  text-green-600 ">Comp</span>
-                          <span className="text-xs  text-green-700 dark:text-green-400">{update.qtyCompleted}</span>
-                        </div>
-                        <div className="flex flex-col items-center px-2 py-0.5 bg-slate-50 dark:bg-slate-700 rounded border border-slate-100 dark:border-slate-600">
-                          <span className="text-[8px]  text-slate-500 ">Pend</span>
-                          <span className="text-xs  text-slate-700 dark:text-slate-300">{update.pendingQty}</span>
-                        </div>
-                      </div>
-                      {(update.reworkQty > 0 || update.scrapQty > 0) && (
-                        <div className="flex gap-2">
-                          {update.reworkQty > 0 && (
-                            <span className="text-xs text-amber-600  flex items-center gap-0.5">
-                              <AlertTriangle size={10} /> {update.reworkQty} REWORK
-                            </span>
-                          )}
-                          {update.scrapQty > 0 && (
-                            <span className="text-xs text-red-600  flex items-center gap-0.5">
-                              <AlertTriangle size={10} /> {update.scrapQty} SCRAP
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-2 text-center">
-                    <span className={`px-2 py-0.5 text-xs  rounded  tracking-wider ${getStatusBadge(update.status)}`}>
-                      {update.status}
-                    </span>
-                  </td>
-                  <td className="p-2 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {update.canSendToQC && (
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-xs  hover:bg-blue-200 transition-colors ">
-                          <Send size={12} /> Send to QC
-                        </button>
-                      )}
-                      <button className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        <Edit2 size={15} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="p-6">
+          <DataTable
+            columns={columns}
+            data={productionUpdates}
+            showSearch={true}
+            searchPlaceholder="Search by project or operator..."
+          />
         </div>
       </div>
 

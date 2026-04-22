@@ -315,7 +315,7 @@ const DrawingsPage = () => {
                   key={drawing.id}
                   className="hover:bg-slate-50 dark:hover:bg-slate-700"
                 >
-                  <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
+                  <td className="p-2 text-sm  text-slate-900 dark:text-white">
                     {drawing.name}
                   </td>
                   <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
@@ -329,7 +329,7 @@ const DrawingsPage = () => {
                   </td>
                   <td className="p-2">
                     <span
-                      className={`px-3 py-1 text-xs font-medium rounded  ${
+                      className={`px-3 py-1 text-xs  rounded  ${
                         drawing.status === "Final"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
@@ -376,7 +376,7 @@ const DrawingsPage = () => {
               <div className="mb-4 h-32 bg-slate-100 dark:bg-slate-700 rounded flex items-center text-xs justify-center">
                 <span className="text-4xl">📄</span>
               </div>
-              <h3 className="font-medium text-slate-900 dark:text-white text-xs mb-2">
+              <h3 className=" text-slate-900 dark:text-white text-xs mb-2">
                 {drawing.name}
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
@@ -479,12 +479,12 @@ const DrawingsPage = () => {
                             }}
                             className={`w-full text-left px-3 py-2.5 text-sm border-b border-slate-100 dark:border-slate-600 hover:bg-blue-50 dark:hover:bg-slate-600 transition-colors ${
                               uploadFormData.designName === design.title
-                                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium"
+                                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 "
                                 : "text-slate-900 dark:text-white"
                             }`}
                           >
                             <div className="flex justify-between items-center">
-                              <span className="font-medium">
+                              <span className="">
                                 {design.title}
                               </span>
                               <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -643,13 +643,13 @@ const DrawingsPage = () => {
             <div className="flex gap-3 p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 sticky bottom-0">
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUploadSubmit}
-                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors  text-sm"
               >
                 Upload Drawing
               </button>
@@ -717,7 +717,7 @@ const DrawingsPage = () => {
                   setShowViewModal(false);
                   setSelectedDrawing(null);
                 }}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
               >
                 Close
               </button>
@@ -727,7 +727,7 @@ const DrawingsPage = () => {
                   setShowViewModal(false);
                   setSelectedDrawing(null);
                 }}
-                className="flex-1 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors  text-sm"
               >
                 Download
               </button>
@@ -753,7 +753,7 @@ const DrawingsPage = () => {
                   setShowDeleteModal(false);
                   setSelectedDrawing(null);
                 }}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
                 disabled={deleteLoading}
               >
                 Cancel
@@ -761,7 +761,7 @@ const DrawingsPage = () => {
               <button
                 onClick={confirmDeleteDrawing}
                 disabled={deleteLoading}
-                className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors  text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {deleteLoading && <Loader2 size={15} className="animate-spin" />}
                 Delete

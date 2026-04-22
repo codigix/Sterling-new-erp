@@ -29,11 +29,10 @@ import {
 } from "lucide-react";
 import taskService from "../../utils/taskService";
 import CreateGRNRequestModal from "./CreateGRNRequestModal";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const PurchaseReceiptPage = () => {
   const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [grnData, setGrnData] = useState([]);
   const [showNewGRNModal, setShowNewGRNModal] = useState(false);
   const [approvedPOs, setApprovedPOs] = useState([]);
@@ -46,6 +45,7 @@ const PurchaseReceiptPage = () => {
   const [viewMode, setViewMode] = useState("list"); // kanban, list
   const [availableStocks, setAvailableStocks] = useState([]);
   const [loadingStocks, setLoadingStocks] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchStocks = useCallback(async () => {
     setLoadingStocks(true);
@@ -172,7 +172,7 @@ const PurchaseReceiptPage = () => {
     
     if (parts.length === 0) return null;
     return (
-      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+      <div className="text-xs text-blue-600 dark:text-blue-400 ">
         Dim: {parts.join(" \u00d7 ")} mm
       </div>
     );
@@ -272,14 +272,133 @@ const PurchaseReceiptPage = () => {
     }
   };
 
-  const filteredData = grnData.filter((grn) => {
-    const matchesSearch =
-      grn.grnNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (grn.vendor || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (grn.poNo || "").toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || grn.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const grnColumns = [
+    {
+      key: "grnNo",
+      label: "Receipt No.",
+      sortable: true,
+      render: (value, row) => (
+        <div className="flex flex-col">
+          <span className="text-xs font-medium text-slate-900 dark:text-white">{value}</span>
+          <span className="text-[10px] text-slate-500">{row.poNo}</span>
+        </div>
+      )
+    },
+    {
+      key: "vendor",
+      label: "Vendor",
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
+            <User size={14} />
+          </div>
+          <span className="text-xs text-slate-700 dark:text-slate-300">{value}</span>
+        </div>
+      )
+    },
+    {
+      key: "receivedDate",
+      label: "Received Date",
+      sortable: true,
+      align: "center",
+      render: (value) => (
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+          <Calendar size={12} className="text-slate-400" />
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            {value ? new Date(value).toLocaleDateString() : 'N/A'}
+          </span>
+        </div>
+      )
+    },
+    {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      align: "center",
+      render: (value) => (
+        <span
+          className={`px-3 py-1 rounded text-[10px] font-medium uppercase tracking-wider ${
+            value === "completed" ? "bg-green-100 text-green-700" :
+            value === "pending" ? "bg-slate-100 text-slate-700" :
+            value === "qc_pending" ? "bg-purple-100 text-purple-700" :
+            value === "approved" ? "bg-blue-100 text-blue-700" :
+            value === "rejected" ? "bg-red-100 text-red-700" :
+            value === "shortage" ? "bg-amber-100 text-amber-700" :
+            value === "overage" ? "bg-cyan-100 text-cyan-700" :
+            "bg-slate-100 text-slate-700"
+          }`}
+        >
+          {value.replace('_', ' ')}
+        </span>
+      )
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right",
+      render: (_, row) => (
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => handleViewGRN(row)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-[11px] font-medium hover:bg-blue-100 transition-colors"
+          >
+            <Eye size={14} /> View
+          </button>
+          <button 
+            onClick={() => handlePrintGRN(row)}
+            className="p-1.5 bg-slate-100 text-slate-500 rounded hover:bg-slate-200 transition-colors"
+          >
+            <Printer size={14} />
+          </button>
+        </div>
+      )
+    }
+  ];
+
+  const stockColumns = [
+    {
+      key: "itemName",
+      label: "Material Name",
+      sortable: true,
+      render: (value, row) => (
+        <div className="flex flex-col">
+          <span className="text-xs font-medium text-slate-900 dark:text-white">{value}</span>
+          <span className="text-[10px] text-slate-500">{row.itemCode}</span>
+        </div>
+      )
+    },
+    {
+      key: "quantity",
+      label: "In Stock",
+      sortable: true,
+      align: "center",
+      render: (value, row) => (
+        <span className={`text-xs font-medium ${value <= (row.reorderLevel || 0) ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>
+          {Number(value).toFixed(2)}
+        </span>
+      )
+    },
+    {
+      key: "unit",
+      label: "Unit",
+      sortable: true,
+      align: "center",
+      render: (value) => <span className="text-xs text-slate-500">{value}</span>
+    },
+    {
+      key: "warehouse",
+      label: "Warehouse",
+      sortable: true,
+      align: "center",
+      render: (value) => (
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+          <Warehouse size={12} className="text-slate-400" />
+          <span className="text-[11px] text-slate-500">{value || "Main Store"}</span>
+        </div>
+      )
+    }
+  ];
 
   const stats = [
     { 
@@ -355,7 +474,7 @@ const PurchaseReceiptPage = () => {
           <div className="flex items-baseline gap-2">
             <span className="text-2xl  text-slate-900 dark:text-white leading-none">{stat.value}</span>
           </div>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-500 mt-2  tracking-wider">{stat.description}</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-500 mt-2  tracking-wider">{stat.description}</p>
         </div>
         <div className="absolute -right-4 -bottom-4 opacity-10">
           <Icon size={80} />
@@ -373,7 +492,7 @@ const PurchaseReceiptPage = () => {
       {/* Header section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200 dark:shadow-none">
+          <div className="w-12 h-12 rounded  bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200 dark:shadow-none">
             <Truck size={15} />
           </div>
           <div>
@@ -385,7 +504,7 @@ const PurchaseReceiptPage = () => {
             <h1 className="text-2xl  text-slate-900 dark:text-white ">
               Purchase Receipts
             </h1>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-sm  text-slate-500 dark:text-slate-400">
               Receive material shipments against approved purchase orders
             </p>
           </div>
@@ -436,7 +555,7 @@ const PurchaseReceiptPage = () => {
       </div>
 
       {/* Tabs and Content Section */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden ">
+      <div className="bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 overflow-hidden ">
         {/* Tabs */}
         <div className="px-6 pt-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between flex-wrap gap-4">
           <div className="flex gap-1">
@@ -455,200 +574,35 @@ const PurchaseReceiptPage = () => {
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1 relative group">
-              <Search
-                size={15}
-                className="absolute left-3 top-3 text-slate-400 group-focus-within:text-blue-500 transition-colors"
-              />
-              <input
-                type="text"
-                placeholder={activeTab === "grn_request" ? "Search by GRN #, PO #, or Supplier..." : "Search by Material Name or Code..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded bg-slate-50/50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {activeTab === "grn_request" && (
-                <div className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50/50 dark:bg-slate-900">
-                  <span className="text-xs  text-slate-400  ">Status:</span>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-transparent text-xs  text-slate-700 dark:text-white focus:outline-none  tracking-wide cursor-pointer"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="pending">Pending</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-              )}
-              
-              <button className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400 hover:bg-slate-200 transition-colors">
-                <Filter size={15} />
-              </button>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            {activeTab === "grn_request" ? (
-              <table className="w-full text-left border-collapse bg-white">
-                <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900/50">
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
-                      GRN Number
-                    </th>
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
-                      Supplier
-                    </th>
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
-                      Receipt Date
-                    </th>
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
-                      Status
-                    </th>
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                  {filteredData.map((grn) => (
-                    <tr
-                      key={grn.id}
-                      className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
-                    >
-                      <td className="px-4 py-4">
-                        <div className="space-y-1">
-                          <h4 className="text-xs  text-slate-900 dark:text-white   leading-tight">
-                            {grn.grnNo}
-                          </h4>
-                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                            PO: {grn.poNo}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
-                            <Warehouse size={14} />
-                          </div>
-                          <span className="text-xs  text-slate-700 dark:text-slate-300">
-                            {grn.vendor}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="inline-flex items-center gap-1.5  rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                          <Calendar size={12} className="text-slate-400" />
-                          <span className="text-xs  text-slate-500 dark:text-slate-400">
-                            {grn.receivedDate ? new Date(grn.receivedDate).toLocaleDateString() : 'N/A'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span
-                          className={`px-3 py-1 rounded  text-xs    ${
-                            grn.status === "completed" ? "bg-green-100 text-green-700" :
-                            grn.status === "pending" ? "bg-slate-100 text-slate-700" :
-                            grn.status === "qc_pending" ? "bg-purple-100 text-purple-700" :
-                            grn.status === "approved" ? "bg-blue-100 text-blue-700" :
-                            grn.status === "rejected" ? "bg-red-100 text-red-700" :
-                            grn.status === "shortage" ? "bg-amber-100 text-amber-700" :
-                            grn.status === "overage" ? "bg-cyan-100 text-cyan-700" :
-                            "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {grn.status.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleViewGRN(grn)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-xs   tracking-wider hover:bg-blue-100 transition-colors"
-                          >
-                            <Eye size={14} /> View Details
-                          </button>
-                          <button 
-                            onClick={() => handlePrintGRN(grn)}
-                            className="p-1.5 bg-slate-100 text-slate-500 rounded hover:bg-slate-200 transition-colors"
-                          >
-                            <Printer size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <table className="w-full text-left border-collapse bg-white">
-                <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900/50">
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800">
-                      Material Name
-                    </th>
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
-                      In Stock
-                    </th>
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
-                      Unit
-                    </th>
-                    <th className="px-4 py-3 text-xs  text-slate-400   border-b border-slate-100 dark:border-slate-800 text-center">
-                      Warehouse
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                  {availableStocks
-                    .filter(m => 
-                      m.itemName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                      m.itemCode.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                    .map((stock) => (
-                    <tr
-                      key={stock.id}
-                      className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
-                    >
-                      <td className="px-4 py-4">
-                        <div className="space-y-1">
-                          <h4 className="text-xs  text-slate-900 dark:text-white   leading-tight">
-                            {stock.itemName}
-                          </h4>
-                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                            {stock.itemCode}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span className={`text-xs  ${stock.quantity <= (stock.reorderLevel || 0) ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>
-                          {Number(stock.quantity).toFixed(2)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span className="text-xs  text-slate-500  ">
-                          {stock.unit}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <div className="inline-flex items-center gap-1.5  rounded bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                          <Warehouse size={12} className="text-slate-400" />
-                          <span className="text-xs  text-slate-500 dark:text-slate-400">
-                            {stock.warehouse || 'Main Warehouse'}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+        <div className="p-0">
+          {activeTab === "grn_request" ? (
+            <DataTable
+              columns={grnColumns}
+              data={grnData}
+              loading={loading}
+              filters={[
+                {
+                  key: "status",
+                  label: "All Status",
+                  options: [
+                    { label: "Completed", value: "completed" },
+                    { label: "Pending", value: "pending" },
+                    { label: "QC Pending", value: "qc_pending" },
+                    { label: "Approved", value: "approved" },
+                    { label: "Rejected", value: "rejected" },
+                    { label: "Shortage", value: "shortage" },
+                    { label: "Overage", value: "overage" },
+                  ]
+                }
+              ]}
+            />
+          ) : (
+            <DataTable
+              columns={stockColumns}
+              data={availableStocks}
+              loading={loadingStocks}
+            />
+          )}
         </div>
       </div>
 
@@ -661,7 +615,7 @@ const PurchaseReceiptPage = () => {
 
       {showViewModal && selectedGRN && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded  shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             <div className="p-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
               <h2 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
                 GRN Details - {selectedGRN.grnNo}
@@ -731,9 +685,9 @@ const PurchaseReceiptPage = () => {
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 dark:bg-slate-900/50">
                       <tr>
-                        <th className="px-4 py-3 text-xs  text-slate-400  ">Item</th>
-                        <th className="px-4 py-3 text-xs  text-slate-400   text-center">Received Qty</th>
-                        <th className="px-4 py-3 text-xs  text-slate-400   text-center">Unit</th>
+                        <th className="p-2 text-xs  text-slate-400  ">Item</th>
+                        <th className="p-2 text-xs  text-slate-400   text-center">Received Qty</th>
+                        <th className="p-2 text-xs  text-slate-400   text-center">Unit</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -745,7 +699,7 @@ const PurchaseReceiptPage = () => {
                                 {item.material_name || item.description || "N/A"}
                               </h4>
                               {renderDimensionsText(item)}
-                              <p className="text-xs font-medium text-slate-500  tracking-wider">
+                              <p className="text-xs  text-slate-500  tracking-wider">
                                 {item.material_code || item.item_code || "N/A"}
                               </p>
                             </div>

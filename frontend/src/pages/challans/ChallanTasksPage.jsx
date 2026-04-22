@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
+import DataTable from "../../components/ui/DataTable/DataTable";
 import "../../styles/TaskPage.css";
 
 const ChallanTasksPage = () => {
@@ -97,6 +98,65 @@ const ChallanTasksPage = () => {
     ).length,
   };
 
+  const columns = [
+    { key: "id", label: "Challan ID", className: "" },
+    {
+      key: "type",
+      label: "Type",
+      render: (val) => (
+        <Badge className={getTypeColor(val)}>
+          {val === "outward" ? (
+            <ArrowUp size={14} className="inline mr-1" />
+          ) : (
+            <ArrowDown size={14} className="inline mr-1" />
+          )}
+          {val.charAt(0).toUpperCase() + val.slice(1)}
+        </Badge>
+      )
+    },
+    { key: "stage", label: "Stage/Process" },
+    { key: "vendor", label: "Vendor" },
+    { key: "items", label: "Items", align: "center" },
+    {
+      key: "challanDate",
+      label: "Date",
+      render: (val, row) => (
+        <>
+          {val}
+          {row.type === "outward" && ` (Return: ${row.expectedReturn})`}
+          {row.type === "inward" && ` (Received: ${row.receivedDate})`}
+        </>
+      )
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (val) => (
+        <Badge className={getStatusColor(val)}>
+          {val.charAt(0).toUpperCase() + val.slice(1)}
+        </Badge>
+      )
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "center",
+      render: () => (
+        <div className="flex justify-center gap-2">
+          <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 transition-colors">
+            <Eye size={15} />
+          </button>
+          <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
+            <Edit2 size={15} />
+          </button>
+          <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 transition-colors">
+            <Download size={15} />
+          </button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="task-page-container">
       {/* Stats Cards */}
@@ -146,7 +206,7 @@ const ChallanTasksPage = () => {
         <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab("all")}
-            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded  transition-colors whitespace-nowrap ${
               activeTab === "all"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -156,7 +216,7 @@ const ChallanTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("outward")}
-            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded  transition-colors whitespace-nowrap ${
               activeTab === "outward"
                 ? "bg-purple-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -166,7 +226,7 @@ const ChallanTasksPage = () => {
           </button>
           <button
             onClick={() => setActiveTab("inward")}
-            className={`p-2 rounded font-medium transition-colors whitespace-nowrap ${
+            className={`p-2 rounded  transition-colors whitespace-nowrap ${
               activeTab === "inward"
                 ? "bg-green-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700  dark: hover:"
@@ -241,94 +301,12 @@ const ChallanTasksPage = () => {
 
       {/* Challans Table */}
       <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Challan ID
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Stage/Process
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Vendor
-                </th>
-                <th className="px-6 py-3 text-center text-sm font-semibold">
-                  Items
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredChallans.map((challan) => (
-                <tr
-                  key={challan.id}
-                  className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs transition-colors"
-                >
-                  <td className="p-1 text-sm font-medium">{challan.id}</td>
-                  <td className="p-1">
-                    <Badge className={getTypeColor(challan.type)}>
-                      {challan.type === "outward" ? (
-                        <ArrowUp size={14} className="inline mr-1" />
-                      ) : (
-                        <ArrowDown size={14} className="inline mr-1" />
-                      )}
-                      {challan.type.charAt(0).toUpperCase() +
-                        challan.type.slice(1)}
-                    </Badge>
-                  </td>
-                  <td className="p-1 text-sm text-slate-700 dark:text-slate-300">
-                    {challan.stage}
-                  </td>
-                  <td className="p-1 text-sm text-slate-700 dark:text-slate-300">
-                    {challan.vendor}
-                  </td>
-                  <td className="p-1 text-sm text-center font-medium">
-                    {challan.items}
-                  </td>
-                  <td className="p-1 text-sm text-slate-700 dark:text-slate-300">
-                    {challan.challanDate}
-                    {challan.type === "outward" &&
-                      ` (Return: ${challan.expectedReturn})`}
-                    {challan.type === "inward" &&
-                      ` (Received: ${challan.receivedDate})`}
-                  </td>
-                  <td className="p-1">
-                    <Badge className={getStatusColor(challan.status)}>
-                      {challan.status.charAt(0).toUpperCase() +
-                        challan.status.slice(1)}
-                    </Badge>
-                  </td>
-                  <td className="p-1">
-                    <div className="flex gap-2">
-                      <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
-                        <Eye size={15} />
-                      </button>
-                      <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
-                        <Edit2 size={15} />
-                      </button>
-                      <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
-                        <Download size={15} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={columns}
+          data={filteredChallans}
+          showSearch={true}
+          searchPlaceholder="Search challans..."
+        />
       </Card>
     </div>
   );

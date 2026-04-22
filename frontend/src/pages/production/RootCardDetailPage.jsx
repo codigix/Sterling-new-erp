@@ -33,9 +33,10 @@ const RootCardDetailPage = () => {
     setLoading(true);
     try {
       const response = await axios.get(`/production/root-cards/${id}`, { __sessionGuard: true });
-      setCard(response.data);
-      setFormData(response.data);
-      setStages(response.data.stages || []);
+      const cardData = response.data.rootCard || response.data;
+      setCard(cardData);
+      setFormData(cardData);
+      setStages(response.data.stages || cardData.stages || []);
       setError(null);
     } catch (err) {
       setError('Failed to fetch root card details');
@@ -190,8 +191,11 @@ const RootCardDetailPage = () => {
           <ArrowLeft size={15} className="text-slate-500 dark:text-slate-400" />
         </button>
         <div>
-          <h1 className="text-3xl  text-slate-900 dark:text-white">{card.title}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Root Card #{card.code}</p>
+          <h1 className="text-3xl  text-slate-900 dark:text-white">{card.project_name || card.title}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Root Card #{card.id}</p>
+          {card.project_code && (
+            <p className="text-xs text-slate-400">Project Code: {card.project_code}</p>
+          )}
         </div>
       </div>
 
@@ -199,7 +203,7 @@ const RootCardDetailPage = () => {
         <div className="rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300 flex items-start gap-3">
           <AlertCircle size={15} className="flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium">{error}</p>
+            <p className="">{error}</p>
           </div>
         </div>
       )}
@@ -207,7 +211,7 @@ const RootCardDetailPage = () => {
       <div className="flex gap-4">
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className="flex items-center gap-2 p-2 rounded text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+          className="flex items-center gap-2 p-2 rounded text-xs bg-blue-600 hover:bg-blue-700 text-white  transition-colors"
         >
           <Edit size={15} />
           {isEditing ? 'Cancel' : 'Edit'}
@@ -215,7 +219,7 @@ const RootCardDetailPage = () => {
         {card.status === 'planning' && (
           <button
             onClick={handleStartProduction}
-            className="flex items-center gap-2 p-2 rounded text-xs bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
+            className="flex items-center gap-2 p-2 rounded text-xs bg-green-600 hover:bg-green-700 text-white  transition-colors"
           >
             <Play size={15} />
             Start Production
@@ -223,7 +227,7 @@ const RootCardDetailPage = () => {
         )}
         <button
           onClick={handleDelete}
-          className="flex items-center gap-2 p-2 rounded text-xs bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+          className="flex items-center gap-2 p-2 rounded text-xs bg-red-600 hover:bg-red-700 text-white  transition-colors"
         >
           <Trash2 size={15} />
           Delete
@@ -237,40 +241,46 @@ const RootCardDetailPage = () => {
             <div className="space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Title
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                    Project Name
                   </label>
                   {isEditing ? (
                     <input
                       type="text"
-                      value={formData.title || ''}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      value={formData.project_name || ''}
+                      onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
                       className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     />
                   ) : (
-                    <p className="text-slate-900 dark:text-white font-medium">{card.title}</p>
+                    <p className="text-slate-900 dark:text-white ">{card.project_name}</p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Product
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                    PO Number
                   </label>
-                  <p className="text-slate-900 dark:text-white font-medium">{card.product_name || '-'}</p>
+                  <p className="text-slate-900 dark:text-white ">{card.po_number || '-'}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Code
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                    Root Card ID
                   </label>
-                  <p className="text-slate-900 dark:text-white font-medium">{card.code || '-'}</p>
+                  <p className="text-slate-900 dark:text-white ">{card.id || '-'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                    Project Code
+                  </label>
+                  <p className="text-slate-900 dark:text-white ">{card.project_code || '-'}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Status
                   </label>
                   {isEditing ? (
@@ -287,13 +297,13 @@ const RootCardDetailPage = () => {
                       <option value="cancelled">Cancelled</option>
                     </select>
                   ) : (
-                    <Badge className={`inline-block text-sm font-semibold px-3 py-1.5 rounded  ${getStatusColor(card.status)}`}>
+                    <Badge className={`inline-block text-sm  px-3 py-1.5 rounded  ${getStatusColor(card.status)}`}>
                       {getStatusLabel(card.status)}
                     </Badge>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Priority
                   </label>
                   {isEditing ? (
@@ -308,7 +318,7 @@ const RootCardDetailPage = () => {
                       <option value="critical">Critical</option>
                     </select>
                   ) : (
-                    <p className={`font-semibold ${getPriorityColor(card.priority)}`}>
+                    <p className={` ${getPriorityColor(card.priority)}`}>
                       {card.priority ? card.priority.toUpperCase() : '-'}
                     </p>
                   )}
@@ -317,7 +327,7 @@ const RootCardDetailPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Planned Start Date
                   </label>
                   {isEditing ? (
@@ -334,7 +344,7 @@ const RootCardDetailPage = () => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Planned End Date
                   </label>
                   {isEditing ? (
@@ -353,7 +363,7 @@ const RootCardDetailPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                   Notes
                 </label>
                 {isEditing ? (
@@ -372,7 +382,7 @@ const RootCardDetailPage = () => {
                 <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                   <button
                     onClick={handleSave}
-                    className="px-6 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                    className="px-6 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white  transition-colors"
                   >
                     Save Changes
                   </button>
@@ -381,7 +391,7 @@ const RootCardDetailPage = () => {
                       setIsEditing(false);
                       setFormData(card);
                     }}
-                    className="px-6 py-2 rounded bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-medium transition-colors hover:bg-slate-300 dark:hover:bg-slate-600"
+                    className="px-6 py-2 rounded bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white  transition-colors hover:bg-slate-300 dark:hover:bg-slate-600"
                   >
                     Cancel
                   </button>
@@ -396,7 +406,7 @@ const RootCardDetailPage = () => {
               {!isAddingStage && (
                 <button
                   onClick={() => setIsAddingStage(true)}
-                  className="flex items-center gap-2 p-2 rounded text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors text-sm"
+                  className="flex items-center gap-2 p-2 rounded text-xs bg-blue-600 hover:bg-blue-700 text-white  transition-colors text-sm"
                 >
                   <Plus size={15} />
                   Add Phase
@@ -408,7 +418,7 @@ const RootCardDetailPage = () => {
               <div className="mb-6 p-4 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700/50 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                       Phase Name *
                     </label>
                     <input
@@ -420,7 +430,7 @@ const RootCardDetailPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                       Type
                     </label>
                     <select
@@ -435,7 +445,7 @@ const RootCardDetailPage = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                       Planned Start
                     </label>
                     <input
@@ -446,7 +456,7 @@ const RootCardDetailPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                       Planned End
                     </label>
                     <input
@@ -458,7 +468,7 @@ const RootCardDetailPage = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Notes
                   </label>
                   <textarea
@@ -472,7 +482,7 @@ const RootCardDetailPage = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={handleAddStage}
-                    className="p-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors text-sm"
+                    className="p-2 rounded bg-blue-600 hover:bg-blue-700 text-white  transition-colors text-sm"
                   >
                     Save Phase
                   </button>
@@ -487,7 +497,7 @@ const RootCardDetailPage = () => {
                         notes: ''
                       });
                     }}
-                    className="p-2 rounded bg-slate-300 dark:bg-slate-600 text-slate-900 dark:text-white font-medium transition-colors text-sm"
+                    className="p-2 rounded bg-slate-300 dark:bg-slate-600 text-slate-900 dark:text-white  transition-colors text-sm"
                   >
                     Cancel
                   </button>
@@ -506,12 +516,12 @@ const RootCardDetailPage = () => {
                   <div key={stage.id || index} className="flex items-start justify-between p-4 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-700/30 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Phase {index + 1}</span>
-                        <Badge className={`text-xs font-semibold  rounded ${getStageTypeColor(stage.stage_type || stage.stageType)}`}>
+                        <span className="text-sm  text-slate-500 dark:text-slate-400">Phase {index + 1}</span>
+                        <Badge className={`text-xs   rounded ${getStageTypeColor(stage.stage_type || stage.stageType)}`}>
                           {(stage.stage_type || stage.stageType) === 'in_house' ? 'In-House' : 'Outsource'}
                         </Badge>
                       </div>
-                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2">{stage.stage_name || stage.stageName}</h4>
+                      <h4 className=" text-slate-900 dark:text-white mb-2">{stage.stage_name || stage.stageName}</h4>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         {(stage.planned_start || stage.plannedStart) && (
                           <div>
@@ -552,21 +562,21 @@ const RootCardDetailPage = () => {
                   <User size={15} />
                   Supervisor
                 </div>
-                <p className="font-medium text-slate-900 dark:text-white">{card.assigned_supervisor_name || '-'}</p>
+                <p className=" text-slate-900 dark:text-white">{card.assigned_supervisor_name || '-'}</p>
               </div>
               <div>
                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
                   <Package size={15} />
                   Customer
                 </div>
-                <p className="font-medium text-slate-900 dark:text-white">{card.customer_name || '-'}</p>
+                <p className=" text-slate-900 dark:text-white">{card.customer_name || '-'}</p>
               </div>
               <div>
                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
                   <Tag size={15} />
                   Project
                 </div>
-                <p className="font-medium text-slate-900 dark:text-white">{card.project_name || '-'}</p>
+                <p className=" text-slate-900 dark:text-white">{card.project_name || '-'}</p>
               </div>
               <div>
                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
@@ -586,36 +596,36 @@ const RootCardDetailPage = () => {
               <div className="space-y-4 text-sm">
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Project Name</p>
-                  <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.name || '-'}</p>
+                  <p className=" text-slate-900 dark:text-white">{card.projectDetails.name || '-'}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Project Code</p>
-                  <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.code || '-'}</p>
+                  <p className=" text-slate-900 dark:text-white">{card.projectDetails.code || '-'}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Client</p>
-                  <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.clientName || '-'}</p>
+                  <p className=" text-slate-900 dark:text-white">{card.projectDetails.clientName || '-'}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Project Status</p>
-                  <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.status ? card.projectDetails.status.replace('_', ' ').toUpperCase() : '-'}</p>
+                  <p className=" text-slate-900 dark:text-white">{card.projectDetails.status ? card.projectDetails.status.replace('_', ' ').toUpperCase() : '-'}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Project Priority</p>
-                  <p className={`font-medium ${getPriorityColor(card.projectDetails.priority)}`}>
+                  <p className={` ${getPriorityColor(card.projectDetails.priority)}`}>
                     {card.projectDetails.priority ? card.projectDetails.priority.toUpperCase() : '-'}
                   </p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Expected Dates</p>
-                  <p className="font-medium text-slate-900 dark:text-white text-xs">
+                  <p className=" text-slate-900 dark:text-white text-xs">
                     {card.projectDetails.expectedStart ? new Date(card.projectDetails.expectedStart).toLocaleDateString() : '-'} to{' '}
                     {card.projectDetails.expectedEnd ? new Date(card.projectDetails.expectedEnd).toLocaleDateString() : '-'}
                   </p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Project Manager</p>
-                  <p className="font-medium text-slate-900 dark:text-white">{card.projectDetails.managerName || '-'}</p>
+                  <p className=" text-slate-900 dark:text-white">{card.projectDetails.managerName || '-'}</p>
                 </div>
                 {card.projectDetails.summary && (
                   <div>
@@ -633,29 +643,29 @@ const RootCardDetailPage = () => {
               <div className="space-y-4 text-sm">
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">PO Number</p>
-                  <p className="font-medium text-slate-900 dark:text-white">{card.rootCardDetails.poNumber || '-'}</p>
+                  <p className=" text-slate-900 dark:text-white">{card.rootCardDetails.poNumber || '-'}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Order Date</p>
-                  <p className="font-medium text-slate-900 dark:text-white">
+                  <p className=" text-slate-900 dark:text-white">
                     {card.rootCardDetails.orderDate ? new Date(card.rootCardDetails.orderDate).toLocaleDateString() : '-'}
                   </p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Due Date</p>
-                  <p className="font-medium text-slate-900 dark:text-white">
+                  <p className=" text-slate-900 dark:text-white">
                     {card.rootCardDetails.dueDate ? new Date(card.rootCardDetails.dueDate).toLocaleDateString() : '-'}
                   </p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Total Amount</p>
-                  <p className="font-medium text-slate-900 dark:text-white">
+                  <p className=" text-slate-900 dark:text-white">
                     {card.rootCardDetails.total ? `${card.rootCardDetails.currency || 'INR'} ${card.rootCardDetails.total}` : '-'}
                   </p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">Order Status</p>
-                  <p className="font-medium text-slate-900 dark:text-white">
+                  <p className=" text-slate-900 dark:text-white">
                     {card.rootCardDetails.status ? card.rootCardDetails.status.replace('_', ' ').toUpperCase() : '-'}
                   </p>
                 </div>
@@ -680,14 +690,14 @@ const RootCardDetailPage = () => {
             <div className="space-y-3">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Current Status</span>
+                  <span className="text-sm  text-slate-700 dark:text-slate-300">Current Status</span>
                 </div>
-                <Badge className={`inline-block text-xs font-semibold px-3 py-2 rounded  ${getStatusColor(card.status)}`}>
+                <Badge className={`inline-block text-xs  px-3 py-2 rounded  ${getStatusColor(card.status)}`}>
                   {getStatusLabel(card.status)}
                 </Badge>
               </div>
               <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Phases</span>
+                <span className="text-sm  text-slate-700 dark:text-slate-300">Total Phases</span>
                 <p className="text-2xl  text-slate-900 dark:text-white mt-1">{stages.length}</p>
               </div>
             </div>

@@ -94,13 +94,13 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
         <div className="bg-slate-50 border border-slate-100 rounded p-4">
           <div className="text-xs  text-slate-400  tracking-wider mb-1">Dispatched</div>
           <div className="text-xl  text-slate-700">
-            {parseFloat(operation?.dispatched_qty || 0).toFixed(6)} <span className="text-sm font-medium text-slate-400">units</span>
+            {parseFloat(operation?.dispatched_qty || 0).toFixed(6)} <span className="text-sm  text-slate-400">units</span>
           </div>
         </div>
         <div className="bg-indigo-50/50 border border-indigo-100 rounded p-4">
           <div className="text-xs  text-indigo-400  tracking-wider mb-1 text-right">Pending Receipt</div>
           <div className="text-xl  text-indigo-600 text-right">
-            {parseFloat(operation?.dispatched_qty || 0).toFixed(0)} <span className="text-sm font-medium text-indigo-400">units</span>
+            {parseFloat(operation?.dispatched_qty || 0).toFixed(0)} <span className="text-sm  text-indigo-400">units</span>
           </div>
         </div>
       </div>
@@ -115,7 +115,7 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
             step="any"
             value={formData.quantityReceived}
             onChange={(e) => handleUpdateField('quantityReceived', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded text-slate-900  focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+            className="w-full p-2 bg-white border border-slate-200 rounded text-slate-900  focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
             placeholder="Enter quantity received..."
             disabled={loading}
           />
@@ -131,7 +131,7 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
               step="any"
               value={formData.acceptedQty}
               onChange={(e) => handleUpdateField('acceptedQty', e.target.value)}
-              className="w-full px-4 py-3 bg-emerald-50/30 border border-emerald-100 rounded text-emerald-700  focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+              className="w-full p-2 bg-emerald-50/30 border border-emerald-100 rounded text-emerald-700  focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
               disabled={loading}
             />
           </div>
@@ -144,7 +144,7 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
               step="any"
               value={formData.rejectedQty}
               onChange={(e) => handleUpdateField('rejectedQty', e.target.value)}
-              className="w-full px-4 py-3 bg-rose-50/30 border border-rose-100 rounded text-rose-700  focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none"
+              className="w-full p-2 bg-rose-50/30 border border-rose-100 rounded text-rose-700  focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none"
               disabled={loading}
             />
           </div>
@@ -157,7 +157,7 @@ const InwardChallanForm = ({ operation, onChallanCreated }) => {
           <textarea
             value={formData.notes}
             onChange={(e) => handleUpdateField('notes', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none"
+            className="w-full p-2 bg-white border border-slate-200 rounded text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none"
             placeholder="Notes about quality or delivery..."
             rows="3"
             disabled={loading}

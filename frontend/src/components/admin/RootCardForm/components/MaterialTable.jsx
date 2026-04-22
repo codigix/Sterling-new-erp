@@ -1,5 +1,6 @@
 import React from "react";
 import { FileText, Edit2, Trash2 } from "lucide-react";
+import DataTable from "../../../ui/DataTable/DataTable";
 
 const getMaterialType = (material) => {
   const typeMap = {
@@ -57,116 +58,97 @@ export default function MaterialTable({
     return null;
   }
 
+  const columns = [
+    {
+      key: "name",
+      label: "Material Name",
+      render: (_, row) => getMaterialName(row),
+    },
+    {
+      key: "type",
+      label: "Type",
+      render: (_, row) => (
+        <span className="text-xs bg-slate-700 text-slate-300 rounded px-2 py-0.5">
+          {getMaterialType(row)}
+        </span>
+      ),
+    },
+    { key: "quantity", label: "Qty" },
+    { key: "unit", label: "Unit", render: (val) => val || "-" },
+    {
+      key: "source",
+      label: "Source",
+      render: (val) => (
+        val ? (
+          <span className="text-xs bg-blue-900 text-blue-200 rounded px-2 py-0.5 capitalize">
+            {val}
+          </span>
+        ) : "-"
+      ),
+    },
+    {
+      key: "assignee",
+      label: "Assignee",
+      render: (val, row) => (
+        <select
+          value={val || ""}
+          onChange={(e) => onAssigneeChange(row.id, e.target.value)}
+          className="w-full bg-slate-700 border border-slate-600 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Select Assignee</option>
+          {employees.map((emp) => (
+            <option key={emp._id || emp.id} value={emp._id || emp.id}>
+              {emp.name || emp.employeeName}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "center",
+      render: (_, row) => (
+        <div className="flex items-center text-xs justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => onView(row)}
+            className="w-8 h-8 rounded bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors"
+            title="View Details"
+          >
+            <FileText size={15} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onEdit(row)}
+            className="w-8 h-8 rounded bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors"
+            title="Edit"
+          >
+            <Edit2 size={15} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(row.id)}
+            className="w-8 h-8 rounded bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-colors"
+            title="Delete"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="mt-8">
-      <h5 className="text-lg font-semibold text-slate-200 mb-4">
-        Material Requirements Table
-      </h5>
-      <div className="overflow-x-auto bg-slate-800 rounded border border-slate-700">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-slate-600 ">
-              <th className="p-2 text-left text-slate-300 font-medium">
-                Material Name
-              </th>
-              <th className="p-2 text-left text-slate-300 font-medium">
-                Type
-              </th>
-              <th className="p-2 text-left text-slate-300 font-medium">
-                Qty
-              </th>
-              <th className="p-2 text-left text-slate-300 font-medium">
-                Unit
-              </th>
-              <th className="p-2 text-left text-slate-300 font-medium">
-                Source
-              </th>
-              <th className="p-2 text-left text-slate-300 font-medium">
-                Assignee
-              </th>
-              <th className="p-2 text-left text-slate-300 font-medium">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {materials.map((material) => (
-              <tr
-                key={material.id}
-                className="border-b border-slate-700 hover:bg-slate-700/50 transition-colors"
-              >
-                <td className="p-2 text-left  font-medium">
-                  {getMaterialName(material)}
-                </td>
-                <td className="p-2 text-left">
-                  <span className="text-xs bg-slate-700 text-slate-300  rounded">
-                    {getMaterialType(material)}
-                  </span>
-                </td>
-                <td className="p-2 text-left  font-medium">
-                  {material.quantity}
-                </td>
-                <td className="p-2 text-left text-slate-300">
-                  {material.unit || "-"}
-                </td>
-                <td className="p-2 text-left text-slate-300">
-                  {material.source ? (
-                    <span className="text-xs bg-blue-900 text-blue-200  rounded capitalize">
-                      {material.source}
-                    </span>
-                  ) : (
-                    "-"
-                  )}
-                </td>
-                <td className="p-2 text-left text-slate-300">
-                  <select
-                    value={material.assignee || ""}
-                    onChange={(e) =>
-                      onAssigneeChange(material.id, e.target.value)
-                    }
-                    className="w-full  bg-slate-700 border border-slate-600 rounded  text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Assignee</option>
-                    {employees.map((emp) => (
-                      <option key={emp._id || emp.id} value={emp._id || emp.id}>
-                        {emp.name || emp.employeeName}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-2 text-left">
-                  <div className="flex items-center text-xs justify-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onView(material)}
-                      className="w-8 h-8 rounded  bg-indigo-600 hover:bg-indigo-700 text-white flex items-center text-xs justify-center transition-colors"
-                      title="View Details"
-                    >
-                      <FileText size={15} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onEdit(material)}
-                      className="w-8 h-8 rounded  bg-blue-600 hover:bg-blue-700 text-white flex items-center text-xs justify-center transition-colors"
-                      title="Edit"
-                    >
-                      <Edit2 size={15} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDelete(material.id)}
-                      className="w-8 h-8 rounded  bg-red-600 hover:bg-red-700 text-white flex items-center text-xs justify-center transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        title="Material Requirements Table"
+        columns={columns}
+        data={materials}
+        striped={false}
+        hover={true}
+        rowClassName={() => "border-b border-slate-700"}
+      />
     </div>
   );
 }

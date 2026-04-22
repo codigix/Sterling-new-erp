@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Zap, AlertCircle, Hammer, TrendingUp, PackageCheck, FileText, Loader2, Eye, Send, Edit2, Trash2 } from "lucide-react";
+import { Zap, AlertCircle, Hammer, TrendingUp, PackageCheck, FileText, Loader2, Send, Edit2, Trash2 } from "lucide-react";
 import axios from "../../../../utils/api";
 import Badge from "../../../ui/Badge";
-import Card, { CardContent, CardHeader } from "../../../ui/Card";
 import DataTable from "../../../ui/DataTable/DataTable";
-import Modal, { ModalBody, ModalHeader } from "../../../ui/Modal";
 import Button from "../../../ui/Button";
 import { useRootCardContext } from "../hooks";
 
@@ -15,8 +13,20 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
   const [boms, setBoms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBOM, setSelectedBOM] = useState(null);
+
+  const fetchBOMDetails = async (bomId) => {
+    try {
+      setLoading(true);
+      const detailsRes = await axios.get(`/engineering/bom/comprehensive/${bomId}`);
+      setSelectedBOM(detailsRes.data.bom || detailsRes.data);
+    } catch (err) {
+      console.error("Failed to fetch BOM details:", err);
+      setError("Failed to load BOM details");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchData = useCallback(async () => {
     if (!rootCardId) return;
@@ -32,6 +42,10 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
       // 2. Filter for this root card and only show active BOM
       const activeBoms = allBoms.filter(b => String(b.rootCardId) === String(rootCardId) && b.isActive);
       setBoms(activeBoms);
+
+      if (activeBoms.length > 0) {
+        await fetchBOMDetails(activeBoms[0].id);
+      }
     } catch (err) {
       console.error("Failed to fetch BOMs:", err);
       setError("Failed to load BOM list");
@@ -44,22 +58,8 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
     fetchData();
   }, [fetchData]);
 
-  const handleViewDetails = async (bomId) => {
-    try {
-      setLoading(true);
-      const detailsRes = await axios.get(`/engineering/bom/comprehensive/${bomId}`);
-      setSelectedBOM(detailsRes.data.bom || detailsRes.data);
-      setIsModalOpen(true);
-    } catch (err) {
-      console.error("Failed to fetch BOM details:", err);
-      setError("Failed to load BOM details");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const materialColumns = [
-    { key: "itemName", label: "Item Name", className: "font-medium" },
+    { key: "itemName", label: "Item Name", className: "" },
     { key: "itemGroup", label: "Group", render: (val) => <Badge variant="gray">{val || "NO-GROUP"}</Badge> },
     { key: "partDetail", label: "Part Detail / Grade", render: (val, row) => (
       <div className="flex flex-col">
@@ -70,14 +70,14 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
     { key: "warehouse", label: "WH / Operation", render: (val, row) => (
       <div className="flex flex-col">
         <span className="text-xs text-blue-600 ">{val || "-"}</span>
-        <span className="text-xs text-amber-600 font-medium italic">{row.operation || "-"}</span>
+        <span className="text-xs text-amber-600  italic">{row.operation || "-"}</span>
       </div>
     )},
     { key: "quantity", label: "QTY", render: (val, row) => `${val} ${row.uom}` },
   ];
 
   const operationColumns = [
-    { key: "operationName", label: "Operation", className: "font-medium" },
+    { key: "operationName", label: "Operation", className: "" },
     { key: "type", label: "Execution", render: (val) => (
       <Badge variant={val === 'outsource' ? 'warning' : 'info'} className="capitalize">
         {val || 'in-house'}
@@ -85,7 +85,7 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
     )},
     { key: "vendorName", label: "Vendor (Outsource)", render: (val, row) => (
       <div className="flex flex-col">
-        <span className="text-xs font-medium text-slate-700">{row.type === 'outsource' ? (val || '-') : '-'}</span>
+        <span className="text-xs  text-slate-700">{row.type === 'outsource' ? (val || '-') : '-'}</span>
         {row.type === 'outsource' && row.subcontractWarehouse && (
           <span className="text-xs text-slate-500 italic">Wh: {row.subcontractWarehouse}</span>
         )}
@@ -121,9 +121,9 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
     <div className="space-y-2">
       {boms.length > 0 ? (
         <div className="">
-          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div className="p-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div>
-              <h3 className="text-sm font-medium text-slate-500  tracking-wider">Active BOM</h3>
+              <h3 className="text-xs  text-slate-500">Active BOM</h3>
               <div className="flex items-center gap-3 mt-1">
                 <span className="text-xl  text-slate-900">{boms[0].bomNumber.split('-V')[0]}</span>
                 <Badge variant="secondary" className="font-mono">
@@ -135,34 +135,10 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
                 </Badge>
               </div>
             </div>
-            <Button 
-              variant="primary" 
-              onClick={() => handleViewDetails(boms[0].id)}
-              className="flex items-center gap-2"
-            >
-              <Eye size={15} />
-              View BOM Details
-            </Button>
           </div>
-        </div>
-      ) : (
-        <div className="p-12 text-center bg-slate-50 rounded border-2 border-dashed border-slate-200">
-          <FileText className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-          <h3 className="text-lg font-medium text-slate-900">No Active BOM</h3>
-          <p className="text-slate-500 mt-1">There is currently no active Bill of Materials for this project.</p>
-        </div>
-      )}
 
-      {/* BOM Details Modal */}
-      {selectedBOM && (
-        <Modal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          title={`BOM Details - ${selectedBOM.bomNumber}`}
-          size="xl"
-        >
-          <ModalBody className="p-0">
-            <div className="p-6 space-y-8">
+          {selectedBOM && (
+            <div className="p-2 space-y-2">
               <section>
                 <h3 className=" text-slate-900 flex items-center gap-2 text-sm  tracking-wide mb-4">
                   <PackageCheck size={15} className="text-purple-600" />
@@ -187,8 +163,14 @@ export default function Step3_ProductionPlan({ readOnly = false }) {
                 />
               </section>
             </div>
-          </ModalBody>
-        </Modal>
+          )}
+        </div>
+      ) : (
+        <div className="p-12 text-center bg-slate-50 rounded border-2 border-dashed border-slate-200">
+          <FileText className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+          <h3 className="text-lg  text-slate-900">No Active BOM</h3>
+          <p className="text-slate-500 mt-1">There is currently no active Bill of Materials for this project.</p>
+        </div>
       )}
     </div>
   );

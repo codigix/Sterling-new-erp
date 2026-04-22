@@ -106,7 +106,7 @@ const ApprovedReviewsPage = () => {
                       size={15}
                       className="text-green-600 dark:text-green-400"
                     />
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                    <h3 className="text-lg  text-slate-900 dark:text-white">
                       {review.design}
                     </h3>
                   </div>
@@ -115,14 +115,14 @@ const ApprovedReviewsPage = () => {
                   </p>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                     Approved by:{" "}
-                    <span className="font-medium text-slate-900 dark:text-white">{review.approvedBy}</span>
+                    <span className=" text-slate-900 dark:text-white">{review.approvedBy}</span>
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-slate-500 dark:text-slate-400">
                     Approved Date
                   </p>
-                  <p className="font-semibold text-slate-900 dark:text-white">
+                  <p className=" text-slate-900 dark:text-white">
                     {review.approvedDate}
                   </p>
                 </div>

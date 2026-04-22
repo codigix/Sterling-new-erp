@@ -30,7 +30,7 @@ const Input = ({
   return (
     <div className={`space-y-1  ${containerClassName}`}>
       {label && (
-        <label className="block text-xs font-medium text-slate-700 mb-0.5 text-left">
+        <label className="block text-xs  text-slate-700 mb-0.5 text-left">
           {label}
         </label>
       )}
@@ -52,7 +52,7 @@ const Input = ({
           </div>
         )}
       </div>
-      {error && <p className="text-xs text-red-600 font-medium mt-0.5">{error}</p>}
+      {error && <p className="text-xs text-red-600  mt-0.5">{error}</p>}
       {helperText && !error && (
         <p className="text-xs text-slate-500 mt-0.5">{helperText}</p>
       )}

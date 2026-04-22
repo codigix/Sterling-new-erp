@@ -5,6 +5,7 @@ import {
   Save, X, Activity, Box, FileText, Layout, ListChecks, Zap, Loader2 
 } from 'lucide-react';
 import axios from '../../utils/api';
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const ProductionPlanDetailPage = () => {
   const { id } = useParams();
@@ -153,7 +154,7 @@ const ProductionPlanDetailPage = () => {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded  h-12 w-12 border-4 border-purple-200 border-b-purple-600 mb-4"></div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Syncing plan data...</p>
+          <p className="text-slate-500 dark:text-slate-400 ">Syncing plan data...</p>
         </div>
       </div>
     );
@@ -162,7 +163,7 @@ const ProductionPlanDetailPage = () => {
   if (!plan) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-6">
-        <div className="text-center max-w-md bg-white dark:bg-slate-800 p-8 rounded-2xl  border border-slate-200 dark:border-slate-700">
+        <div className="text-center max-w-md bg-white dark:bg-slate-800 p-8 rounded   border border-slate-200 dark:border-slate-700">
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded  flex items-center justify-center mx-auto mb-4">
             <AlertCircle size={32} />
           </div>
@@ -197,7 +198,7 @@ const ProductionPlanDetailPage = () => {
                   Plan Details
                 </span>
                 <span className="text-slate-300 dark:text-slate-700">•</span>
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 font-mono">
+                <span className="text-xs  text-slate-500 dark:text-slate-400 font-mono">
                   #{plan.id}
                 </span>
               </div>
@@ -254,21 +255,21 @@ const ProductionPlanDetailPage = () => {
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-red-700 dark:text-red-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
             <AlertCircle size={15} />
-            <p className="text-sm font-medium">{error}</p>
+            <p className="text-sm ">{error}</p>
           </div>
         )}
 
         {success && (
           <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-green-700 dark:text-green-400 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
             <CheckCircle size={15} />
-            <p className="text-sm font-medium">{success}</p>
+            <p className="text-sm ">{success}</p>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Info Card */}
           <div className="lg:col-span-2 space-y-2">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl  border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded   border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
@@ -436,7 +437,7 @@ const ProductionPlanDetailPage = () => {
             </div>
 
             {/* Stages Table */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl  border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded   border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded">
@@ -453,56 +454,57 @@ const ProductionPlanDetailPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead>
-                    <tr className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-400  text-xs tracking-wider ">
-                      <th className="p-2">Phase Name</th>
-                      <th className="p-2">Type</th>
-                      <th className="p-2 text-center">Status</th>
-                      <th className="p-2">Timeline</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                    {plan.stages?.map((stage, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="p-2">
-                          <div className=" text-slate-900 dark:text-white">{stage.stage_name}</div>
-                          <div className="text-xs text-slate-500 mt-0.5 font-medium">{stage.notes || 'Standard processing'}</div>
-                        </td>
-                        <td className="p-2">
-                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs  rounded ">
-                            {stage.stage_type || 'In-House'}
-                          </span>
-                        </td>
-                        <td className="p-2 text-center">
-                          <div className="flex justify-center">
-                            {getStageStatusIcon(stage.status)}
-                          </div>
-                        </td>
-                        <td className="p-2">
-                          <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                            {stage.planned_start ? new Date(stage.planned_start).toLocaleDateString() : 'N/A'} - {stage.planned_end ? new Date(stage.planned_end).toLocaleDateString() : 'N/A'}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {!plan.stages?.length && (
-                      <tr>
-                        <td colSpan="4" className="px-6 py-12 text-center text-slate-500 italic">
-                          No production stages have been initialized for this plan.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              
+              <DataTable
+                data={plan.stages || []}
+                columns={[
+                  {
+                    header: "Phase Name",
+                    accessorKey: "stage_name",
+                    cell: (info) => (
+                      <div>
+                        <div className=" text-slate-900 dark:text-white">{info.getValue()}</div>
+                        <div className="text-xs text-slate-500 mt-0.5 ">
+                          {info.row.original.notes || 'Standard processing'}
+                        </div>
+                      </div>
+                    )
+                  },
+                  {
+                    header: "Type",
+                    accessorKey: "stage_type",
+                    cell: (info) => (
+                      <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs  rounded ">
+                        {info.getValue() || 'In-House'}
+                      </span>
+                    )
+                  },
+                  {
+                    header: "Status",
+                    accessorKey: "status",
+                    headerClass: "text-center",
+                    cell: (info) => (
+                      <div className="flex justify-center">
+                        {getStageStatusIcon(info.getValue())}
+                      </div>
+                    )
+                  },
+                  {
+                    header: "Timeline",
+                    cell: (info) => (
+                      <div className="text-xs  text-slate-500 dark:text-slate-400">
+                        {info.row.original.planned_start ? new Date(info.row.original.planned_start).toLocaleDateString() : 'N/A'} - {info.row.original.planned_end ? new Date(info.row.original.planned_end).toLocaleDateString() : 'N/A'}
+                      </div>
+                    )
+                  }
+                ]}
+              />
             </div>
           </div>
 
           {/* Sidebar Cards */}
           <div className="space-y-2">
-            <div className="bg-slate-900 rounded-2xl p-6 text-white  shadow-slate-900/20 relative overflow-hidden group">
+            <div className="bg-slate-900 rounded  p-6 text-white  shadow-slate-900/20 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                 <Box size={80} />
               </div>
@@ -518,7 +520,7 @@ const ProductionPlanDetailPage = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-2xl  border border-slate-200 dark:border-slate-700 p-6">
+            <div className="bg-white dark:bg-slate-800 rounded   border border-slate-200 dark:border-slate-700 p-6">
               <p className="text-xs    text-slate-400 mb-4 flex items-center gap-2">
                 <FileText size={12} className="text-blue-500" />
                 Linked Resources
@@ -540,11 +542,11 @@ const ProductionPlanDetailPage = () => {
             </div>
 
             {/* Health Indicators */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl  border border-slate-200 dark:border-slate-700 p-6">
+            <div className="bg-white dark:bg-slate-800 rounded   border border-slate-200 dark:border-slate-700 p-6">
               <p className="text-xs    text-slate-400 mb-4">Plan Intelligence</p>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Timeline Health</span>
+                  <span className="text-xs text-slate-500 ">Timeline Health</span>
                   <div className="flex gap-1">
                     <div className="w-1.5 h-1.5 rounded  bg-green-500" />
                     <div className="w-1.5 h-1.5 rounded  bg-green-500" />
@@ -552,11 +554,11 @@ const ProductionPlanDetailPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Resource Load</span>
+                  <span className="text-xs text-slate-500 ">Resource Load</span>
                   <span className="text-xs  text-amber-500 ">Optimal</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Risk Factor</span>
+                  <span className="text-xs text-slate-500 ">Risk Factor</span>
                   <span className="text-xs  text-green-500 ">Minimal</span>
                 </div>
               </div>
@@ -566,7 +568,7 @@ const ProductionPlanDetailPage = () => {
 
         {/* Sticky Detail Status Bar */}
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-6xl z-50">
-          <div className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl p-4 flex items-center justify-between">
+          <div className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded  p-4 flex items-center justify-between">
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded bg-blue-500/20 flex items-center justify-center">

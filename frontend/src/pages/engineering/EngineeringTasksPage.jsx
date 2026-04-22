@@ -4,6 +4,7 @@ import { Plus, Upload, Download, CheckCircle, Clock, AlertCircle, Eye, Edit2, Tr
 import axios from '../../utils/api';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
+import DataTable from '../../components/ui/DataTable/DataTable';
 import '../../styles/TaskPage.css';
 
 const EngineeringTasksPage = () => {
@@ -174,7 +175,7 @@ const EngineeringTasksPage = () => {
       )}
 
       <div className="mb-6">
-        <label className="block text-sm font-medium  dark: mb-2">
+        <label className="block text-sm   dark: mb-2">
           Select Root Card
         </label>
         <select
@@ -198,7 +199,7 @@ const EngineeringTasksPage = () => {
       <div className="flex gap-2 mb-6 border-b border-slate-200 dark:border-slate-700">
         <button
           onClick={() => setActiveTab('documents')}
-          className={`p-2 font-medium border-b-2 transition-colors ${
+          className={`p-2  border-b-2 transition-colors ${
             activeTab === 'documents'
               ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-slate-500 dark:text-slate-400 hover:'
@@ -208,7 +209,7 @@ const EngineeringTasksPage = () => {
         </button>
         <button
           onClick={() => setActiveTab('bom')}
-          className={`p-2 font-medium border-b-2 transition-colors ${
+          className={`p-2  border-b-2 transition-colors ${
             activeTab === 'bom'
               ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-slate-500 dark:text-slate-400 hover:'
@@ -236,7 +237,7 @@ const EngineeringTasksPage = () => {
               <form onSubmit={handleUploadDocument} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                       Document Type
                     </label>
                     <select
@@ -253,7 +254,7 @@ const EngineeringTasksPage = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                       Document Name
                     </label>
                     <input
@@ -267,7 +268,7 @@ const EngineeringTasksPage = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                     Select File
                   </label>
                   <input
@@ -297,51 +298,39 @@ const EngineeringTasksPage = () => {
           )}
 
           <Card>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700">
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Document Name</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Type</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Uploaded By</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Status</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {documents.length === 0 && (
-                    <tr>
-                      <td colSpan="5" className="px-6 py-6 text-center text-sm text-slate-500">
-                        No documents uploaded for this root card
-                      </td>
-                    </tr>
-                  )}
-                  {documents.map(doc => (
-                    <tr key={doc.id} className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs transition-colors">
-                      <td className="p-1 text-sm font-medium  dark:">{doc.documentName}</td>
-                      <td className="p-1 text-sm text-slate-700 dark:text-slate-300">{getDocumentTypeLabel(doc.documentType)}</td>
-                      <td className="p-1 text-sm text-slate-700 dark:text-slate-300">{doc.uploadedByName}</td>
-                      <td className="p-1">
-                        <Badge className={`flex items-center text-xs gap-1 w-fit ${getStatusColor(doc.status)}`}>
-                          {getStatusIcon(doc.status)}
-                          {doc.status.replace(/_/g, ' ')}
-                        </Badge>
-                      </td>
-                      <td className="p-1">
-                        <div className="flex gap-2">
-                          <button className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors">
-                            <Download size={15} />
-                          </button>
-                          <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
-                            <Eye size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={[
+                { key: 'documentName', label: 'Document Name' },
+                { key: 'documentType', label: 'Type', render: (val) => getDocumentTypeLabel(val) },
+                { key: 'uploadedByName', label: 'Uploaded By' },
+                {
+                  key: 'status',
+                  label: 'Status',
+                  render: (val) => (
+                    <Badge className={`flex items-center text-xs gap-1 w-fit ${getStatusColor(val)}`}>
+                      {getStatusIcon(val)}
+                      {val.replace(/_/g, ' ')}
+                    </Badge>
+                  )
+                },
+                {
+                  key: 'actions',
+                  label: 'Actions',
+                  render: (_, doc) => (
+                    <div className="flex gap-2">
+                      <button className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 transition-colors">
+                        <Download size={15} />
+                      </button>
+                      <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
+                        <Eye size={15} />
+                      </button>
+                    </div>
+                  )
+                }
+              ]}
+              data={documents}
+              emptyMessage="No documents uploaded for this root card"
+            />
           </Card>
         </div>
       )}
@@ -357,53 +346,41 @@ const EngineeringTasksPage = () => {
           </button>
 
           <Card>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700">
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Product Name</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Item Code</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Revision</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Status</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold  dark:">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {boms.length === 0 && (
-                    <tr>
-                      <td colSpan="5" className="px-6 py-6 text-center text-sm text-slate-500">
-                        No BOMs found for this root card
-                      </td>
-                    </tr>
-                  )}
-                  {boms.map(bom => (
-                    <tr key={bom.id} className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs transition-colors">
-                      <td className="p-1 text-sm font-medium  dark:">{bom.productName}</td>
-                      <td className="p-1 text-sm text-slate-700 dark:text-slate-300">{bom.itemCode}</td>
-                      <td className="p-1 text-sm text-slate-700 dark:text-slate-300">Rev {bom.revision}</td>
-                      <td className="p-1">
-                        <Badge className={`flex items-center text-xs gap-1 w-fit ${getStatusColor(bom.status)}`}>
-                          {bom.status.replace(/_/g, ' ')}
-                        </Badge>
-                      </td>
-                      <td className="p-1">
-                        <div className="flex gap-2">
-                          <Link 
-                            to={`/department/production/bom/view?bomId=${bom.id}`}
-                            className="p-2 rounded bg-slate-200 dark:bg-slate-700  dark: hover: transition-colors"
-                          >
-                            <Eye size={15} />
-                          </Link>
-                          <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
-                            <Download size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={[
+                { key: 'productName', label: 'Product Name' },
+                { key: 'itemCode', label: 'Item Code' },
+                { key: 'revision', label: 'Revision', render: (val) => `Rev ${val}` },
+                {
+                  key: 'status',
+                  label: 'Status',
+                  render: (val) => (
+                    <Badge className={`flex items-center text-xs gap-1 w-fit ${getStatusColor(val)}`}>
+                      {val.replace(/_/g, ' ')}
+                    </Badge>
+                  )
+                },
+                {
+                  key: 'actions',
+                  label: 'Actions',
+                  render: (_, bom) => (
+                    <div className="flex gap-2">
+                      <Link 
+                        to={`/department/production/bom/view?bomId=${bom.id}`}
+                        className="p-2 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 transition-colors"
+                      >
+                        <Eye size={15} />
+                      </Link>
+                      <button className="p-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 transition-colors">
+                        <Download size={15} />
+                      </button>
+                    </div>
+                  )
+                }
+              ]}
+              data={boms}
+              emptyMessage="No BOMs found for this root card"
+            />
           </Card>
         </div>
       )}

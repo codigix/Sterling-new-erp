@@ -312,14 +312,14 @@ const MaterialRequestPage = () => {
       {showNewForm && (
         <Card className="mb-6">
           <div className="p-6 border-b">
-            <h3 className="text-md font-semibold  dark:">
+            <h3 className="text-md   dark:">
               Create Material Request
             </h3>
           </div>
           <form onSubmit={handleCreateRequest} className="p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Root Card ID
                 </label>
                 <input
@@ -333,7 +333,7 @@ const MaterialRequestPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Material Name
                 </label>
                 <input
@@ -350,7 +350,7 @@ const MaterialRequestPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Code
                 </label>
                 <input
@@ -363,7 +363,7 @@ const MaterialRequestPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Quantity
                 </label>
                 <input
@@ -378,7 +378,7 @@ const MaterialRequestPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Unit
                 </label>
                 <select
@@ -394,7 +394,7 @@ const MaterialRequestPage = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Priority
                 </label>
                 <select
@@ -412,7 +412,7 @@ const MaterialRequestPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                 Specification
               </label>
               <textarea
@@ -427,7 +427,7 @@ const MaterialRequestPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Required Date
                 </label>
                 <input
@@ -439,7 +439,7 @@ const MaterialRequestPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Remarks
                 </label>
                 <input
@@ -484,25 +484,25 @@ const MaterialRequestPage = () => {
           <table className="w-full">
             <thead className="bg-slate-100 dark:bg-slate-800">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <th className="px-6 py-3 text-left text-sm  text-slate-700 dark:text-slate-300">
                   Material
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <th className="px-6 py-3 text-left text-sm  text-slate-700 dark:text-slate-300">
                   Source
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <th className="px-6 py-3 text-left text-sm  text-slate-700 dark:text-slate-300">
                   Code
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <th className="px-6 py-3 text-left text-sm  text-slate-700 dark:text-slate-300">
                   Quantity
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <th className="px-6 py-3 text-left text-sm  text-slate-700 dark:text-slate-300">
                   Priority
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <th className="px-6 py-3 text-left text-sm  text-slate-700 dark:text-slate-300">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <th className="px-6 py-3 text-left text-sm  text-slate-700 dark:text-slate-300">
                   Actions
                 </th>
               </tr>
@@ -516,12 +516,12 @@ const MaterialRequestPage = () => {
                   <td className="p-1 text-sm text-slate-700 dark:text-slate-300">
                     <div className="flex flex-col">
                       <span>{request.material_name}</span>
-                      <span className="text-[10px] text-blue-600 font-medium">{renderDimensions(request)}</span>
+                      <span className="text-[10px] text-blue-600 ">{renderDimensions(request)}</span>
                     </div>
                   </td>
                   <td className="p-1 text-sm">
                     <div className="flex flex-col">
-                      <span className="font-medium text-slate-900 dark:text-white">
+                      <span className=" text-slate-900 dark:text-white">
                         {request.production_plan_name || request.customer || "Direct Request"}
                       </span>
                       {request.production_plan_id && (
@@ -591,13 +591,13 @@ const MaterialRequestPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center text-xs justify-center z-50 p-4">
           <Card className="w-full max-w-md">
             <div className="p-6 border-b">
-              <h3 className="text-md font-semibold  dark:">
+              <h3 className="text-md   dark:">
                 Add Vendor Quote - {selectedRequest.material_name}
               </h3>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Vendor ID
                 </label>
                 <input
@@ -610,7 +610,7 @@ const MaterialRequestPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Quoted Price
                 </label>
                 <input
@@ -624,7 +624,7 @@ const MaterialRequestPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Delivery Days
                 </label>
                 <input
@@ -637,7 +637,7 @@ const MaterialRequestPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Notes
                 </label>
                 <textarea

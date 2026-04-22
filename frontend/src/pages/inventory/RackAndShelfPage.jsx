@@ -1,21 +1,14 @@
 import React, { useState } from "react";
 import {
   Grid3x3,
-  Search,
   Plus,
-  Filter,
   Download,
-  Layers,
-  Package,
-  AlertCircle,
   Edit,
   Trash2,
 } from "lucide-react";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const RackAndShelfPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedWing, setSelectedWing] = useState("all");
-
   const wings = ["all", "Wing A", "Wing B", "Wing C", "Wing D", "Wing E"];
 
   const rackData = [
@@ -141,13 +134,6 @@ const RackAndShelfPage = () => {
     },
   ];
 
-  const filteredData = rackData.filter(
-    (rack) =>
-      (rack.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        rack.item.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (selectedWing === "all" || rack.wing === selectedWing)
-  );
-
   const getStatusColor = (status) => {
     switch (status) {
       case "active":
@@ -173,192 +159,120 @@ const RackAndShelfPage = () => {
   };
 
   return (
-    <div className="space-y-2">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-md  text-slate-900 dark:text-white text-xs flex items-center  gap-2">
-            <Grid3x3 size={15} />
-            Rack & Shelf Management
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
-            Warehouse location and capacity tracking
-          </p>
-        </div>
-        <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium">
-            <Plus size={15} />
-            Add Location
-          </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Download size={15} />
-            Export Map
-          </button>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Search location or item..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-            />
+    <div className="space-y-4 p-4">
+      <DataTable
+        title="Rack & Shelf Management"
+        titleIcon={<Grid3x3 size={15} />}
+        titleExtra={
+          <div className="flex items-center gap-2 ml-4">
+            <button className="flex items-center text-xs gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow-sm">
+              <Plus size={14} /> Add Location
+            </button>
+            <button className="flex items-center text-xs gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors shadow-sm">
+              <Download size={14} /> Export Map
+            </button>
           </div>
-
-          <select
-            value={selectedWing}
-            onChange={(e) => setSelectedWing(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
-          >
-            {wings.map((wing) => (
-              <option key={wing} value={wing}>
-                {wing === "all" ? "All Wings" : wing}
-              </option>
-            ))}
-          </select>
-
-          <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={15} />
-            More Filters
-          </button>
-        </div>
-      </div>
-
-      {/* Rack Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredData.map((rack) => (
-          <div
-            key={rack.id}
-            className={`border rounded p-4 ${getStatusColor(rack.status)}`}
-          >
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <p className="text-xs   opacity-75">
-                  Location
-                </p>
-                <p className="text-xl  text-slate-900 dark:text-white text-xs">
-                  {rack.location}
-                </p>
-                <p className="text-xs opacity-75 mt-1">{rack.wing}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs opacity-75">Rack {rack.rack}</p>
-                <p className="text-sm font-semibold">Shelf {rack.shelf}</p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 rounded p-3 mb-3">
-              <div className="flex items-center text-xs justify-between mb-2">
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Item
-                  </p>
-                  <p className="font-medium text-slate-900 dark:text-white text-xs text-sm">
-                    {rack.item}
-                  </p>
+        }
+        filters={[
+          {
+            key: "wing",
+            label: "Wing",
+            options: wings.filter(w => w !== "all").map(w => ({ label: w, value: w }))
+          }
+        ]}
+        data={rackData}
+        columns={[
+          {
+            key: "location",
+            label: "Location ID",
+            render: (val) => <span className="font-mono text-xs font-bold text-blue-600">{val}</span>
+          },
+          {
+            key: "wing",
+            label: "Wing",
+            render: (val) => <span className="text-xs">{val}</span>
+          },
+          {
+            key: "item",
+            label: "Stored Item",
+            render: (val) => <span className="text-xs">{val}</span>
+          },
+          {
+            key: "utilization",
+            label: "Utilization",
+            render: (val) => (
+              <div className="flex items-center gap-2 min-w-[100px]">
+                <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className={`h-full ${getUtilizationColor(val)}`} style={{ width: `${Math.min(val, 100)}%` }} />
                 </div>
-                <Layers size={15} className="text-blue-500" />
+                <span className="text-[10px] text-slate-500">{val}%</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <p className="text-slate-500 dark:text-slate-400">Current</p>
-                  <p className=" text-slate-900 dark:text-white text-xs">
-                    {rack.current}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-slate-500 dark:text-slate-400">Capacity</p>
-                  <p className=" text-slate-900 dark:text-white text-xs">
-                    {rack.capacity}
-                  </p>
-                </div>
+            )
+          },
+          {
+             key: "capacity",
+             label: "Current / Capacity",
+             render: (_, row) => <span className="text-[10px] text-slate-500">{row.current} / {row.capacity}</span>
+          },
+          {
+            key: "status",
+            label: "Status",
+            render: (val) => (
+              <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusColor(val)}`}>
+                {val.toUpperCase()}
+              </span>
+            )
+          },
+          {
+            key: "actions",
+            label: "Actions",
+            align: "right",
+            render: () => (
+              <div className="flex justify-end gap-1">
+                <button className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-blue-600"><Edit size={14} /></button>
+                <button className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-red-600"><Trash2 size={14} /></button>
               </div>
-            </div>
-
-            <div className="mb-3">
-              <div className="flex justify-between items-center mb-1">
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Utilization
-                </p>
-                <p className="text-xs  text-slate-700 dark:text-slate-300">
-                  {rack.utilization}%
-                </p>
-              </div>
-              <div className="w-full bg-slate-300 dark:bg-slate-700 rounded  h-2 overflow-hidden">
-                <div
-                  className={`h-2 rounded  transition-all ${getUtilizationColor(
-                    rack.utilization
-                  )}`}
-                  style={{ width: `${Math.min(rack.utilization, 100)}%` }}
-                ></div>
-              </div>
-              {rack.utilization > 100 && (
-                <div className="flex items-center text-xs gap-1 mt-1 text-red-600 dark:text-red-400">
-                  <AlertCircle size={12} />
-                  <p className="text-xs">Over capacity</p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <button className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors flex items-center text-xs justify-center gap-1">
-                <Edit size={14} />
-                Edit
-              </button>
-              <button className="flex-1 px-3 py-2 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500 text-slate-900 dark:text-white rounded text-xs font-medium transition-colors flex items-center text-xs justify-center gap-1">
-                <Trash2 size={14} />
-                Remove
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            )
+          }
+        ]}
+      />
 
       {/* Warehouse Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-blue-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Locations
           </p>
           <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {filteredData.length}
+            {rackData.length}
           </p>
         </div>
         <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-green-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Active Locations
           </p>
           <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {filteredData.filter((r) => r.status === "active").length}
+            {rackData.filter((r) => r.status === "active").length}
           </p>
         </div>
         <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-yellow-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Avg. Utilization
           </p>
           <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
             {Math.round(
-              filteredData.reduce((sum, r) => sum + r.utilization, 0) /
-                filteredData.length
+              rackData.reduce((sum, r) => sum + r.utilization, 0) /
+                rackData.length
             )}
             %
           </p>
         </div>
         <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-red-200 dark:border-slate-600">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Over Capacity
           </p>
           <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {filteredData.filter((r) => r.utilization > 100).length}
+            {rackData.filter((r) => r.utilization > 100).length}
           </p>
         </div>
       </div>

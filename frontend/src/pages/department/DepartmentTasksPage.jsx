@@ -106,7 +106,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">Total Tasks</CardTitle>
+            <CardTitle className="text-sm  text-gray-600">Total Tasks</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl ">{stats.total || 0}</div>
@@ -115,7 +115,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-yellow-600">Pending</CardTitle>
+            <CardTitle className="text-sm  text-yellow-600">Pending</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl  text-yellow-600">{stats.pending || 0}</div>
@@ -124,7 +124,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-blue-600">In Progress</CardTitle>
+            <CardTitle className="text-sm  text-blue-600">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl  text-blue-600">{stats.in_progress || 0}</div>
@@ -133,7 +133,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-green-600">Completed</CardTitle>
+            <CardTitle className="text-sm  text-green-600">Completed</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl  text-green-600">{stats.completed || 0}</div>
@@ -142,7 +142,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-red-600">On Hold</CardTitle>
+            <CardTitle className="text-sm  text-red-600">On Hold</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl  text-red-600">{stats.on_hold || 0}</div>
@@ -151,7 +151,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-red-700">Critical</CardTitle>
+            <CardTitle className="text-sm  text-red-700">Critical</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl  text-red-700">{stats.critical_count || 0}</div>
@@ -211,7 +211,7 @@ const DepartmentTasksPage = ({ departmentName }) => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         {getStatusIcon(task.status)}
-                        <h3 className="font-semibold text-gray-900">{task.title}</h3>
+                        <h3 className=" text-gray-900">{task.title}</h3>
                       </div>
                       <p className="text-sm text-gray-600 mb-3">{task.description}</p>
                       

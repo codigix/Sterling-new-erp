@@ -30,7 +30,7 @@ const MultiSelect = ({
   return (
     <div className={`space-y-2 ${containerClassName}`}>
       {label && (
-        <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1 text-left">
+        <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1 text-left">
           {label}
         </label>
       )}
@@ -101,7 +101,7 @@ const MultiSelect = ({
                   onClick={() => handleSelect(option)}
                   className={`px-3 py-2 cursor-pointer text-sm flex items-center gap-2 transition-colors ${
                     safeValue.includes(option)
-                      ? "bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-200 font-medium"
+                      ? "bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-200 "
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                   }`}
                 >
@@ -118,7 +118,7 @@ const MultiSelect = ({
           </div>
         )}
       </div>
-      {error && <p className="text-sm text-red-400 font-medium">{error}</p>}
+      {error && <p className="text-sm text-red-400 ">{error}</p>}
       {helperText && !error && (
         <p className="text-sm text-slate-400">{helperText}</p>
       )}

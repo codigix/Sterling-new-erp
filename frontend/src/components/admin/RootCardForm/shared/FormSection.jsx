@@ -7,7 +7,7 @@ export default function FormSection({ title, subtitle, icon: Icon, children }) {
         <div className="flex items-center text-xs gap-2.5 mb-4 pb-3 border-b border-slate-100">
           {Icon && <Icon className="text-purple-600" size={20} />}
           <div>
-            <h4 className="text-sm font-semibold text-slate-900 text-left">
+            <h4 className="text-sm  text-slate-900 text-left">
               {title}
             </h4>
             {subtitle && (

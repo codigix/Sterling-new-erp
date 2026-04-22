@@ -179,7 +179,7 @@ const DashboardHome = () => {
                     <p className="text-xs  text-slate-400  ">
                       {new Date(report.created_at).toLocaleDateString()}
                     </p>
-                    <span className="inline-block px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 text-xs  mt-1 ">
+                    <span className="inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 text-xs  mt-1 ">
                       {report.inspection_type}
                     </span>
                   </div>
@@ -255,7 +255,7 @@ const DashboardHome = () => {
           <div className="flex justify-evenly gap-2">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
               <div key={day} className="flex flex-col items-center gap-2">
-                <div className="w-8 bg-indigo-50 dark:bg-slate-900 rounded-lg h-52 flex items-end overflow-hidden relative group">
+                <div className="w-8 bg-indigo-50 dark:bg-slate-900 rounded h-52 flex items-end overflow-hidden relative group">
                   <div 
                     className="w-full bg-indigo-500 group-hover:bg-indigo-600 transition-all duration-500 rounded-t-lg"
                     style={{ height: `${Math.floor(Math.random() * 80) + 20}%` }}

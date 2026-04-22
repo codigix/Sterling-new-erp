@@ -147,7 +147,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-3 h-3 text-blue-600" />
-              <span className="font-semibold text-gray-900">Overall Progress</span>
+              <span className=" text-gray-900">Overall Progress</span>
             </div>
             <span className="text-2xl  text-blue-600">
               {progress.completionPercentage}%
@@ -178,7 +178,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
 
       {/* Workflow Steps */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-gray-900">Workflow Steps</h3>
+        <h3 className=" text-gray-900">Workflow Steps</h3>
         <div className="space-y-2">
           {tasks.map((task, index) => {
             const stepInfo = WORKFLOW_STEPS.find(s => s.step === task.step_number);
@@ -199,10 +199,10 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-900">
+                          <span className=" text-gray-900">
                             Step {task.step_number}: {stepInfo?.name}
                           </span>
-                          <span className={` rounded text-xs font-medium ${getStatusBadge(task.status)}`}>
+                          <span className={` rounded text-xs  ${getStatusBadge(task.status)}`}>
                             {task.status}
                           </span>
                         </div>
@@ -231,7 +231,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                   <div className="bg-indigo-50 border border-indigo-200 rounded p-4 mt-2">
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm  text-gray-700 mb-2">
                           Completion Notes (Optional)
                         </label>
                         <textarea
@@ -279,7 +279,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                   <div className="bg-green-50 border border-green-200 rounded p-4 mt-2">
                     <div className="flex items-center gap-2 text-green-700">
                       <CheckCircle2 className="w-3 h-3" />
-                      <span className="font-medium">
+                      <span className="">
                         Completed by {task.completed_by_name} on{' '}
                         {new Date(task.completed_at).toLocaleString()}
                       </span>
@@ -302,7 +302,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
         <div className="flex items-start gap-3">
           <AlertCircle className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="text-sm text-blue-700">
-            <p className="font-semibold mb-1">Project-Specific Tracking</p>
+            <p className=" mb-1">Project-Specific Tracking</p>
             <p>
               This workflow is tied to project <strong>{projectTitle}</strong>. Tasks can only
               be marked complete from this Department Tasks view to maintain accurate project-level tracking.

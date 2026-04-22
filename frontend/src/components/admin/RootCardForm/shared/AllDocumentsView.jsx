@@ -51,14 +51,14 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
             id="poDocumentsUploadAll"
           />
           <Upload className="mx-auto mb-2 text-purple-500" size={32} />
-          <p className="text-slate-900 font-medium">Click to upload new PO files</p>
+          <p className="text-slate-900 ">Click to upload new PO files</p>
           <p className="text-slate-500 text-xs mt-1">Files will be added to Step 1: Client PO</p>
         </div>
       )}
 
       <div className="mt-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-slate-900">
+          <h4 className="text-sm  text-slate-900">
             All Project Documents ({allFiles.length})
           </h4>
         </div>
@@ -83,10 +83,10 @@ export default function AllDocumentsView({ readOnly = false, onUploadPO }) {
                       {file.name}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded  font-medium">
+                      <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded  ">
                         {file.step}
                       </span>
-                      <span className="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded  font-medium">
+                      <span className="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded  ">
                         {file.category}
                       </span>
                       {file.size && (

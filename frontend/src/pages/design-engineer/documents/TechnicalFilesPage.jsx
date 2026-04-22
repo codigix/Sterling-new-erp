@@ -231,22 +231,22 @@ const TechnicalFilesPage = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700">
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 ">
+                <th className="px-6 py-3 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   File Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 ">
+                <th className="px-6 py-3 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Type
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 ">
+                <th className="px-6 py-3 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 ">
+                <th className="px-6 py-3 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Size
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 ">
+                <th className="px-6 py-3 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 ">
+                <th className="px-6 py-3 text-left text-xs  text-slate-700 dark:text-slate-300 ">
                   Actions
                 </th>
               </tr>
@@ -257,7 +257,7 @@ const TechnicalFilesPage = () => {
                   <td className="p-2">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getFileIcon(file.name || file.type)}</span>
-                      <span className="text-sm font-medium text-slate-900 dark:text-white">
+                      <span className="text-sm  text-slate-900 dark:text-white">
                         {file.name}
                       </span>
                     </div>
@@ -330,7 +330,7 @@ const TechnicalFilesPage = () => {
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   File Name *
                 </label>
                 <input
@@ -344,7 +344,7 @@ const TechnicalFilesPage = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                     Category *
                   </label>
                   <select
@@ -360,7 +360,7 @@ const TechnicalFilesPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Description
                 </label>
                 <textarea
@@ -373,7 +373,7 @@ const TechnicalFilesPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Upload File *
                 </label>
                 <input
@@ -402,7 +402,7 @@ const TechnicalFilesPage = () => {
                   setFormData({ name: "", category: "Documentation", description: "" });
                   setUploadedFile(null);
                 }}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
                 disabled={creating}
               >
                 Cancel
@@ -410,7 +410,7 @@ const TechnicalFilesPage = () => {
               <button
                 onClick={handleCreateFile}
                 disabled={creating}
-                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors  text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {creating && <Loader2 size={15} className="animate-spin" />}
                 Upload File
@@ -438,25 +438,25 @@ const TechnicalFilesPage = () => {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Type</label>
                   <p className="text-sm text-slate-900 dark:text-white">{selectedFile.type || selectedFile.name.split('.').pop().toUpperCase()}</p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Category</label>
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Category</label>
                   <p className="text-sm text-slate-900 dark:text-white">{selectedFile.category}</p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Size</label>
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Size</label>
                   <p className="text-sm text-slate-900 dark:text-white">{selectedFile.size}</p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Date</label>
                   <p className="text-sm text-slate-900 dark:text-white">{new Date(selectedFile.createdAt || selectedFile.date).toLocaleDateString()}</p>
                 </div>
               </div>
               {selectedFile.description && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Description</label>
                   <p className="text-sm text-slate-700 dark:text-slate-300">{selectedFile.description}</p>
                 </div>
               )}
@@ -467,7 +467,7 @@ const TechnicalFilesPage = () => {
                   setShowViewModal(false);
                   setSelectedFile(null);
                 }}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
               >
                 Close
               </button>
@@ -477,7 +477,7 @@ const TechnicalFilesPage = () => {
                   setShowViewModal(false);
                   setSelectedFile(null);
                 }}
-                className="flex-1 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors  text-sm"
               >
                 Download
               </button>
@@ -499,7 +499,7 @@ const TechnicalFilesPage = () => {
                   setShowDeleteModal(false);
                   setSelectedFile(null);
                 }}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
                 disabled={deleteLoading}
               >
                 Cancel
@@ -507,7 +507,7 @@ const TechnicalFilesPage = () => {
               <button
                 onClick={confirmDeleteFile}
                 disabled={deleteLoading}
-                className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors  text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {deleteLoading && <Loader2 size={15} className="animate-spin" />}
                 Delete

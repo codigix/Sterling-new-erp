@@ -297,7 +297,7 @@ const SpecificationsPage = () => {
                     className="text-blue-600 dark:text-blue-400 mt-1"
                   />
                   <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-white">
+                    <h3 className=" text-slate-900 dark:text-white">
                       {spec.title}
                     </h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -366,7 +366,7 @@ const SpecificationsPage = () => {
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Title *
                 </label>
                 <input
@@ -379,7 +379,7 @@ const SpecificationsPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Description
                 </label>
                 <textarea
@@ -392,7 +392,7 @@ const SpecificationsPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   Version
                 </label>
                 <input
@@ -405,7 +405,7 @@ const SpecificationsPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                   {isEditing ? "Update File (Optional)" : "Upload File *"}
                 </label>
                 <input
@@ -440,7 +440,7 @@ const SpecificationsPage = () => {
                   setIsEditing(false);
                   setSelectedSpec(null);
                 }}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
                 disabled={creating}
               >
                 Cancel
@@ -448,7 +448,7 @@ const SpecificationsPage = () => {
               <button
                 onClick={handleSubmit}
                 disabled={creating}
-                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors  text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {creating && <Loader2 size={15} className="animate-spin" />}
                 {isEditing ? "Update Specification" : "Create Specification"}
@@ -478,7 +478,7 @@ const SpecificationsPage = () => {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">
                     Version
                   </label>
                   <p className="text-sm text-slate-900 dark:text-white">
@@ -486,7 +486,7 @@ const SpecificationsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">
                     Date
                   </label>
                   <p className="text-sm text-slate-900 dark:text-white">
@@ -496,7 +496,7 @@ const SpecificationsPage = () => {
               </div>
               {selectedSpec.description && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">
                     Description
                   </label>
                   <p className="text-sm text-slate-700 dark:text-slate-300">
@@ -511,7 +511,7 @@ const SpecificationsPage = () => {
                   setShowViewModal(false);
                   setSelectedSpec(null);
                 }}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
               >
                 Close
               </button>
@@ -521,7 +521,7 @@ const SpecificationsPage = () => {
                   setShowViewModal(false);
                   setSelectedSpec(null);
                 }}
-                className="flex-1 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors  text-sm"
               >
                 Download
               </button>
@@ -547,7 +547,7 @@ const SpecificationsPage = () => {
                   setShowDeleteModal(false);
                   setSelectedSpec(null);
                 }}
-                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors  text-sm"
                 disabled={deleteLoading}
               >
                 Cancel
@@ -555,7 +555,7 @@ const SpecificationsPage = () => {
               <button
                 onClick={confirmDeleteSpecification}
                 disabled={deleteLoading}
-                className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 p-2.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors  text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {deleteLoading && <Loader2 size={15} className="animate-spin" />}
                 Delete

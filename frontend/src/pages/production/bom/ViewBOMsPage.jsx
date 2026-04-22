@@ -275,7 +275,7 @@ const ViewBOMsPage = () => {
   ];
 
   return (
-    <div className="p-6 space-y-2 bg-slate-50/50 min-h-screen">
+    <div className="p-4 space-y-2 bg-slate-50/50 min-h-screen">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl  text-slate-900">
@@ -317,7 +317,7 @@ const ViewBOMsPage = () => {
                   <stat.icon size={15} />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-slate-500">{stat.label}</p>
+                  <p className="text-xs  text-slate-500">{stat.label}</p>
                   <p className="text-xl  text-slate-900">{stat.value}</p>
                 </div>
               </CardContent>
@@ -375,7 +375,7 @@ const ViewBOMsPage = () => {
       {error && (
         <div className="flex items-center gap-3 p-2 rounded bg-red-50 border border-red-200">
           <AlertCircle size={15} className="text-red-600" />
-          <p className="text-sm font-medium text-red-800">{error}</p>
+          <p className="text-sm  text-red-800">{error}</p>
         </div>
       )}
 

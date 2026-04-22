@@ -83,7 +83,7 @@ const EmployeeAlerts = () => {
           </p>
         </div>
         {unreadCount > 0 && (
-          <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded  font-semibold border border-red-200 dark:border-red-900/50">
+          <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded   border border-red-200 dark:border-red-900/50">
             {unreadCount} new
           </div>
         )}
@@ -92,7 +92,7 @@ const EmployeeAlerts = () => {
       {alerts.length === 0 ? (
         <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded p-12 text-center  transition-all">
           <CheckCircle className="w-12 h-12 mx-auto text-green-600 dark:text-green-400 mb-3" />
-          <p className="text-slate-500 dark:text-slate-400 font-medium">
+          <p className="text-slate-500 dark:text-slate-400 ">
             You're all caught up! No new alerts.
           </p>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -113,7 +113,7 @@ const EmployeeAlerts = () => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h4 className="font-semibold text-slate-900 dark:text-white">{alert.title}</h4>
+                      <h4 className=" text-slate-900 dark:text-white">{alert.title}</h4>
                       <Badge className={getAlertBadgeColor(alert.type)}>
                         {alert.type}
                       </Badge>

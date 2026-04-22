@@ -1,9 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from '../../utils/api';
-import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import DataTable from '../../components/ui/DataTable/DataTable';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
   Download,
   LayoutDashboard,
@@ -21,6 +34,18 @@ import {
   Calendar,
 } from 'lucide-react';
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
+
 const ReportsAnalytics = () => {
   const [selectedReport, setSelectedReport] = useState('overview');
   const [dateRange, setDateRange] = useState({
@@ -33,7 +58,8 @@ const ReportsAnalytics = () => {
       completedProjects: 0,
       onTimeDelivery: 0,
       totalRevenue: 0,
-      activeAlerts: 0
+      activeAlerts: 0,
+      monthlyTrends: []
     },
     projects: [],
     departments: [],
@@ -184,7 +210,7 @@ const ReportsAnalytics = () => {
           <div className="w-8 h-8 bg-blue-100 rounded  flex items-center text-xs justify-center flex-shrink-0">
             <span className="text-xs text-blue-600">{value.charAt(0)}</span>
           </div>
-          <span className="font-medium">{value}</span>
+          <span className="">{value}</span>
         </div>
       ),
     },
@@ -269,7 +295,7 @@ const ReportsAnalytics = () => {
             <span className="text-xs text-blue-600">{value.charAt(0)}</span>
           </div>
           <div>
-            <p className="font-medium">{value}</p>
+            <p className="">{value}</p>
             <p className="text-xs text-slate-500">ID: {row.id}</p>
           </div>
         </div>
@@ -367,7 +393,7 @@ const ReportsAnalytics = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <input
               type="date"
               value={dateRange.start}
@@ -382,7 +408,7 @@ const ReportsAnalytics = () => {
               className="p-2 text-xs bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="relative mt-3">
+          <div className="relative">
             <button 
               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
               className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center text-xs gap-2 transition-colors"
@@ -402,7 +428,7 @@ const ReportsAnalytics = () => {
       </div>
 
       {/* Report Navigation Tabs */}
-      <div className="border-b border-slate-200 flex my-10 gap-8 overflow-x-auto">
+      <div className="border-b border-slate-200 flex my-5 gap-8 overflow-x-auto">
         {reportTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = selectedReport === tab.id;
@@ -424,7 +450,14 @@ const ReportsAnalytics = () => {
       </div>
 
       {/* Report Content */}
-      {selectedReport === 'overview' && (
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-slate-500 text-sm">Loading report data...</p>
+        </div>
+      ) : (
+        <>
+          {selectedReport === 'overview' && (
         <div className="space-y-2">
           {/* Key Metrics */}
           <div>
@@ -442,7 +475,7 @@ const ReportsAnalytics = () => {
                 const colorText = { blue: 'text-blue-600', emerald: 'text-emerald-600', cyan: 'text-cyan-600', amber: 'text-amber-600' }[metric.color];
                 return (
                   <Card key={idx} className=" transition-shadow border border-slate-100">
-                    <CardContent className="p-2">
+                    <div className="p-2">
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <p className="text-xs  text-slate-500   mb-1">{metric.label}</p>
@@ -453,7 +486,7 @@ const ReportsAnalytics = () => {
                           <Icon className={`w-3 h-3 ${colorIcon}`} />
                         </div>
                       </div>
-                    </CardContent>
+                    </div>
                   </Card>
                 );
               })}
@@ -463,153 +496,214 @@ const ReportsAnalytics = () => {
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2  transition-shadow border border-slate-100">
-              <CardHeader className="border-b border-slate-100 pb-4">
-                <CardTitle className="flex items-center text-xs gap-2 text-lg">
+              <div className="border-b border-slate-100 pb-4">
+                <div className="flex items-center text-xs gap-2 text-lg">
                   <div className="p-2 bg-blue-50 rounded">
                     <TrendingUp className="w-3 h-3 text-blue-600" />
                   </div>
                   <span>Project Status Trend</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-2">
-                <div className="flex flex-col items-center justify-center py-12">
-                  <TrendingUp className="w-12 h-12 text-slate-300 mb-3" />
-                  <h6 className="text-slate-500  mb-1">Chart Visualization</h6>
-                  <p className="text-slate-500 text-xs">Interactive charts will be displayed here showing project trends over time</p>
                 </div>
-              </CardContent>
+              </div>
+              <div className="p-2">
+                <div className="h-64 px-4">
+                  {reportData.overview?.monthlyTrends?.length > 0 ? (
+                    <Line
+                      data={{
+                        labels: reportData.overview.monthlyTrends.map(m => m.month),
+                        datasets: [
+                          {
+                            label: "Projects Completed",
+                            data: reportData.overview.monthlyTrends.map(m => m.count),
+                            borderColor: "#3b82f6",
+                            backgroundColor: "rgba(59, 130, 246, 0.05)",
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                          },
+                        ],
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: { display: false },
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            grid: { color: "rgba(0,0,0,0.05)" }
+                          },
+                          x: {
+                            grid: { display: false }
+                          }
+                        },
+                      }}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <TrendingUp className="w-12 h-12 text-slate-300 mb-3" />
+                      <h6 className="text-slate-500  mb-1">No Data Available</h6>
+                      <p className="text-slate-500 text-xs">No project completion data for the selected period</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </Card>
 
             <Card className=" transition-shadow border border-slate-100">
-              <CardHeader className="border-b border-slate-100 pb-4">
-                <CardTitle className="flex items-center text-xs gap-2 text-lg">
+              <div className="border-b border-slate-100 pb-4">
+                <div className="flex items-center text-xs gap-2 text-lg">
                   <div className="p-2 bg-emerald-50 rounded">
                     <Building2 className="w-3 h-3 text-emerald-600" />
                   </div>
                   <span>Department Performance</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-2 space-y-4">
-                {[
-                  { name: 'Engineering', value: 95, color: 'bg-blue-500' },
-                  { name: 'Production', value: 88, color: 'bg-emerald-500' },
-                  { name: 'Quality Control', value: 97, color: 'bg-cyan-500' },
-                  { name: 'Procurement', value: 92, color: 'bg-amber-500' },
-                ].map((dept, idx) => (
-                  <div key={idx}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs  text-slate-700">{dept.name}</span>
-                      <span className="text-xs  ">{dept.value}%</span>
+                </div>
+              </div>
+              <div className="p-2 space-y-4">
+                {(reportData?.departments?.length > 0 ? reportData.departments : [
+                  { name: 'Engineering', avgEfficiency: 95 },
+                  { name: 'Production', avgEfficiency: 88 },
+                  { name: 'Quality', avgEfficiency: 97 },
+                  { name: 'Procurement', avgEfficiency: 92 },
+                ]).map((dept, idx) => {
+                  const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-cyan-500', 'bg-amber-500', 'bg-purple-500', 'bg-indigo-500'];
+                  const color = colors[idx % colors.length];
+                  return (
+                    <div key={idx}>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-xs  text-slate-700">{dept.name}</span>
+                        <span className="text-xs  ">{dept.avgEfficiency}%</span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded  h-2">
+                        <div className={`${color} h-2 rounded `} style={{width: `${dept.avgEfficiency}%`}}></div>
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-200 rounded  h-2">
-                      <div className={`${dept.color} h-2 rounded `} style={{width: `${dept.value}%`}}></div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
+                  );
+                })}
+              </div>
             </Card>
           </div>
         </div>
       )}
 
       {selectedReport === 'projects' && (
-        <Card className=" transition-shadow border border-slate-100">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="flex items-center text-xs gap-2 text-lg">
+        <div className=" transition-shadow border border-slate-100">
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center text-xs gap-2 text-lg">
               <div className="p-2 bg-blue-50 rounded">
                 <Briefcase className="w-3 h-3 text-blue-600" />
               </div>
-              <span>Project Performance Report</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2">
+              <span className='text-lg'>Project Performance Report</span>
+            </div>
+          </div>
+          <div className="p-2">
             <DataTable
               columns={projectColumns}
               data={reportData?.projects || []}
               striped={true}
               hover={true}
             />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {selectedReport === 'departments' && (
-        <Card className=" transition-shadow border border-slate-100">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="flex items-center text-xs gap-2 text-lg">
-              <div className="p-2 bg-blue-50 rounded">
-                <Building2 className="w-3 h-3 text-blue-600" />
-              </div>
-              <span>Department Productivity Report</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(reportData?.departments || []).map((dept, index) => (
-                <div key={index} className="border border-slate-200 rounded p-2  transition-shadow">
-                  <h4 className="  mb-6">{dept.name}</h4>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="w-12 h-12 bg-blue-100 rounded  flex items-center text-xs justify-center mx-auto mb-2">
-                        <Users className="w-6 h-6 text-blue-600" />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-md font-semibold text-slate-800">Department Productivity</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {(reportData?.departments || []).map((dept, index) => (
+              <Card key={index} className="overflow-hidden border border-slate-100 hover:shadow-md transition-shadow">
+                <div className="bg-slate-50/50 border-b border-slate-100 p-3">
+                  <h4 className="text-sm  text-slate-700 capitalize flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-blue-600" />
+                    {dept.name.replace(/_/g, ' ')}
+                  </h4>
+                </div>
+                <div className="p-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Team Size</p>
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-blue-50 rounded-md">
+                          <Users className="w-3.5 h-3.5 text-blue-600" />
+                        </div>
+                        <span className="text-lg  text-slate-800">{dept.totalUsers}</span>
                       </div>
-                      <p className="text-xl  ">{dept.totalUsers}</p>
-                      <p className="text-xs text-slate-500 mt-1">Users</p>
                     </div>
-                    <div>
-                      <div className="w-12 h-12 bg-emerald-100 rounded  flex items-center text-xs justify-center mx-auto mb-2">
-                        <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                    <div className="space-y-1 text-right">
+                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Output</p>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="text-lg  text-slate-800">{dept.completedTasks}</span>
+                        <div className="p-1.5 bg-emerald-50 rounded-md">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        </div>
                       </div>
-                      <p className="text-xl  ">{dept.completedTasks}</p>
-                      <p className="text-xs text-slate-500 mt-1">Tasks Done</p>
                     </div>
-                    <div>
-                      <div className="w-12 h-12 bg-cyan-100 rounded  flex items-center text-xs justify-center mx-auto mb-2">
-                        <Clock className="w-6 h-6 text-cyan-600" />
-                      </div>
-                      <p className="text-xl  ">{dept.avgEfficiency}%</p>
-                      <p className="text-xs text-slate-500 mt-1">Efficiency</p>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Efficiency</p>
+                      <span className={`text-xs  ${
+                        dept.avgEfficiency >= 90 ? 'text-emerald-600' : 
+                        dept.avgEfficiency >= 75 ? 'text-blue-600' : 'text-amber-600'
+                      }`}>
+                        {dept.avgEfficiency}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          dept.avgEfficiency >= 90 ? 'bg-emerald-500' : 
+                          dept.avgEfficiency >= 75 ? 'bg-blue-500' : 'bg-amber-500'
+                        }`}
+                        style={{ width: `${dept.avgEfficiency}%` }}
+                      />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </Card>
+            ))}
+          </div>
+        </div>
       )}
 
       {selectedReport === 'vendors' && (
         <Card className=" transition-shadow border border-slate-100">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="flex items-center text-xs gap-2 text-lg">
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center text-xs gap-2 text-lg">
               <div className="p-2 bg-blue-50 rounded">
                 <Truck className="w-3 h-3 text-blue-600" />
               </div>
               <span>Vendor Performance Report</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2">
+            </div>
+          </div>
+          <div className="p-2">
             <DataTable
               columns={vendorColumns}
               data={reportData?.vendors || []}
               striped={true}
               hover={true}
             />
-          </CardContent>
+          </div>
         </Card>
       )}
 
       {selectedReport === 'inventory' && (
         <Card className=" transition-shadow border border-slate-100">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="flex items-center text-xs gap-2 text-lg">
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center text-xs gap-2 text-lg">
               <div className="p-2 bg-blue-50 rounded">
                 <Package className="w-3 h-3 text-blue-600" />
               </div>
               <span>Inventory Movement Report</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2 space-y-2">
+            </div>
+          </div>
+          <div className="p-2 space-y-2">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Total Items', value: reportData?.inventory?.totalItems || 0, color: 'bg-blue-500', icon: Package },
@@ -634,30 +728,32 @@ const ReportsAnalytics = () => {
               striped={true}
               hover={true}
             />
-          </CardContent>
+          </div>
         </Card>
       )}
 
       {selectedReport === 'employees' && (
         <Card className=" transition-shadow border border-slate-100">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="flex items-center text-xs gap-2 text-lg">
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center text-xs gap-2 text-lg">
               <div className="p-2 bg-blue-50 rounded">
                 <Users className="w-3 h-3 text-blue-600" />
               </div>
               <span>Employee Performance Report</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2">
+            </div>
+          </div>
+          <div className="p-2">
             <DataTable
               columns={employeeColumns}
               data={reportData?.employees || []}
               striped={true}
               hover={true}
             />
-          </CardContent>
+          </div>
         </Card>
       )}
+    </>
+  )}
 
       {/* Employee Working Hours Modal */}
       <Modal
@@ -669,18 +765,18 @@ const ReportsAnalytics = () => {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 p-4 rounded">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-xl font-bold">
+              <div className="w-12 h-12 bg-blue-100 rounded flex items-center justify-center text-blue-600 text-xl ">
                 {selectedEmployeeForReport?.name?.charAt(0)}
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800">{selectedEmployeeForReport?.name}</h3>
+                <h3 className=" text-slate-800">{selectedEmployeeForReport?.name}</h3>
                 <p className="text-xs text-slate-500">Dept: {selectedEmployeeForReport?.department} | ID: {selectedEmployeeForReport?.id}</p>
               </div>
             </div>
 
             <div className="flex gap-2">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-slate-500 font-medium ml-1">START DATE</label>
+                <label className="text-[10px] text-slate-500  ml-1">START DATE</label>
                 <input
                   type="date"
                   value={employeeDateRange.start}
@@ -689,7 +785,7 @@ const ReportsAnalytics = () => {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-slate-500 font-medium ml-1">END DATE</label>
+                <label className="text-[10px] text-slate-500  ml-1">END DATE</label>
                 <input
                   type="date"
                   value={employeeDateRange.end}
@@ -710,24 +806,24 @@ const ReportsAnalytics = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-emerald-50 border border-emerald-100 p-4 rounded text-center">
               <Clock className="w-6 h-6 text-emerald-600 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-emerald-700">{employeeWorkingHours.total_hours || 0}</p>
-              <p className="text-xs text-emerald-600 font-medium">Total Working Hours</p>
+              <p className="text-2xl  text-emerald-700">{employeeWorkingHours.total_hours || 0}</p>
+              <p className="text-xs text-emerald-600 ">Total Working Hours</p>
             </div>
             <div className="bg-blue-50 border border-blue-100 p-4 rounded text-center">
               <CheckCircle2 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-blue-700">
+              <p className="text-2xl  text-blue-700">
                 {employeeWorkingHours.daily?.reduce((sum, day) => sum + (day.production_count || 0), 0)}
               </p>
-              <p className="text-xs text-blue-600 font-medium">Total Productions</p>
+              <p className="text-xs text-blue-600 ">Total Productions</p>
             </div>
             <div className="bg-amber-50 border border-amber-100 p-4 rounded text-center">
               <TrendingUp className="w-6 h-6 text-amber-600 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-amber-700">
+              <p className="text-2xl  text-amber-700">
                 {employeeWorkingHours.daily?.length > 0
                   ? (employeeWorkingHours.total_hours / employeeWorkingHours.daily.length).toFixed(1)
                   : 0}h
               </p>
-              <p className="text-xs text-amber-600 font-medium">Avg. Hours / Day</p>
+              <p className="text-xs text-amber-600 ">Avg. Hours / Day</p>
             </div>
           </div>
 

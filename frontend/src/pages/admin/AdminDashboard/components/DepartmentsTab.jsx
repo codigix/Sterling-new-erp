@@ -57,7 +57,7 @@ const DepartmentsTab = () => {
                   <span className="text-slate-500 dark:text-slate-400">
                     Avg. Time
                   </span>
-                  <span className="font-medium text-slate-900 dark:text-white text-xs">
+                  <span className=" text-slate-900 dark:text-white text-xs">
                     {dept.avgTime}
                   </span>
                 </div>
@@ -65,7 +65,7 @@ const DepartmentsTab = () => {
                   <span className="text-slate-500 dark:text-slate-400">
                     Employees
                   </span>
-                  <span className="font-medium text-slate-900 dark:text-white text-xs">
+                  <span className=" text-slate-900 dark:text-white text-xs">
                     {dept.employees}
                   </span>
                 </div>

@@ -37,7 +37,7 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+        <h3 className="text-lg  text-slate-900 dark:text-white mb-3">
           Select a Vendor for Outsourcing
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
@@ -66,7 +66,7 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
-                <h4 className="font-semibold text-slate-900 dark:text-white">{vendor.name}</h4>
+                <h4 className=" text-slate-900 dark:text-white">{vendor.name}</h4>
                 <div className="mt-2 space-y-1 text-sm text-slate-500 dark:text-slate-400">
                   {vendor.contact && <p>Contact: {vendor.contact}</p>}
                   {vendor.email && <p>Email: {vendor.email}</p>}
@@ -92,7 +92,7 @@ const VendorSelector = ({ task, vendors, onVendorSelected }) => {
         <button
           onClick={() => handleSelectVendor(selectedVendor)}
           disabled={loading}
-          className="w-full mt-4 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full mt-4 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded  transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading && <Loader className="w-4 h-4 animate-spin" />}
           {loading ? 'Confirming...' : 'Confirm Vendor Selection'}

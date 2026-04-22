@@ -146,7 +146,7 @@ const RootCardDashboard = () => {
                   {filteredRootCards.map(rootCard => (
                     <tr key={rootCard.id} className="border-b hover:bg-slate-50 dark:hover:bg-slate-700">
                       <td className="py-3 px-4">
-                        <div className="font-medium">{rootCard.poNumber || rootCard.po_number}</div>
+                        <div className="">{rootCard.poNumber || rootCard.po_number}</div>
                         <div className="text-xs text-slate-500">{rootCard.projectName || rootCard.project_name}</div>
                       </td>
                       <td className="py-3 px-4"><span className={` rounded text-xs ${getStatusColor(rootCard.status)}`}>{rootCard.status}</span></td>

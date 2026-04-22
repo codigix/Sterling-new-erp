@@ -44,7 +44,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-800 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-4xl rounded  shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
           <div>
@@ -67,7 +67,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
               <h3 className="text-xs  text-slate-500  ">Manufacturing Sequence</h3>
               <button 
                 onClick={addOperation}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg text-xs  hover:bg-blue-100 transition-colors "
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded text-xs  hover:bg-blue-100 transition-colors "
               >
                 <Plus size={14} /> Add Operation
               </button>
@@ -80,7 +80,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
                     <div className="cursor-move text-slate-300 group-hover:text-slate-500 transition-colors">
                       <GripVertical size={20} />
                     </div>
-                    <div className="w-8 h-8 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center  text-blue-600 text-sm ">
+                    <div className="w-8 h-8 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 flex items-center justify-center  text-blue-600 text-sm ">
                       {op.sequence}
                     </div>
                   </div>
@@ -94,7 +94,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
                           newOps[index].name = e.target.value;
                           setOperations(newOps);
                         }}
-                        className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none "
+                        className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm  focus:ring-2 focus:ring-blue-500 outline-none "
                       >
                         {operationOptions.map(option => (
                           <option key={option} value={option}>{option}</option>
@@ -148,7 +148,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
             </div>
 
             {operations.length === 0 && (
-              <div className="text-center py-12 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
+              <div className="text-center py-12 bg-slate-50 dark:bg-slate-900/30 rounded  border border-dashed border-slate-300 dark:border-slate-700">
                 <Settings2 className="mx-auto text-slate-300 mb-4" size={48} />
                 <h4 className="text-lg  text-slate-900 dark:text-white">No Operations Defined</h4>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">

@@ -62,18 +62,18 @@ const RoleDashboardLayout = ({
         <div className="flex items-center text-xs justify-between h-full px-6">
           {/* Left side */}
           <div className="flex items-center text-xs">
-            <button
-              className="lg:hidden mr-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            >
-              <Menu size={20} />
-            </button>
             <Link
               to={roleNavigation[0]?.path || "/"}
               className="flex items-center text-xs gap-2"
             >
               <img src="/logo.png" alt="Sterling ERP" className="h-8 w-auto" />
             </Link>
+            <button
+              className="ml-4 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              <Menu size={20} />
+            </button>
           </div>
 
           <div className="flex-1"></div>
@@ -98,7 +98,7 @@ const RoleDashboardLayout = ({
                   <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-xs text-slate-500 dark:text-slate-300  capitalize">
                     {user?.department || user?.role || roleName}
                   </span>
                 </div>
@@ -107,11 +107,11 @@ const RoleDashboardLayout = ({
 
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 py-1 z-50">
-                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
+                  <div className="p-2 border-b border-slate-200 dark:border-slate-700 bg-blue-600 rounded-t-lg">
                     <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-xs font-medium text-blue-100  tracking-wider">
+                    <p className="text-xs  text-blue-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>
@@ -137,22 +137,12 @@ const RoleDashboardLayout = ({
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-            <button
-              className="hidden lg:flex items-center text-xs justify-center w-8 h-8 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            >
-              <Menu size={20} />
-            </button>
-          </div>
-
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-2">
             {/* Role Navigation */}
             <div>
               <h6
-                className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                   sidebarCollapsed ? "text-center" : ""
                 }`}
               >
@@ -170,7 +160,7 @@ const RoleDashboardLayout = ({
                         <>
                           <button
                             onClick={() => toggleSection(item.title)}
-                            className={`w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                            className={`w-full flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                               isExpanded
                                 ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -202,7 +192,7 @@ const RoleDashboardLayout = ({
                                   <li key={subitem.path}>
                                     <Link
                                       to={subitem.path}
-                                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                                         isActive(subitem.path)
                                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -225,7 +215,7 @@ const RoleDashboardLayout = ({
                       ) : (
                         <Link
                           to={item.path}
-                          className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                          className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                             isActive(item.path)
                               ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"

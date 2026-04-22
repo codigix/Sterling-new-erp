@@ -40,7 +40,7 @@ const ProductionReportsTab = () => {
           </div>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
-          <button className="px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-xs  transition-all flex items-center gap-2 shadow-lg shadow-slate-900/20">
+          <button className="px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs  transition-all flex items-center gap-2 shadow-lg shadow-slate-900/20">
             <Zap size={15} /> Export Detailed Analytics
           </button>
         </div>
@@ -88,17 +88,17 @@ const ProductionReportsTab = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 p-5 rounded-2xl ">
+        <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 p-5 rounded  ">
           <p className="text-xs  text-emerald-600 dark:text-emerald-400   mb-1">Efficiency Index</p>
           <h4 className="text-2xl  text-emerald-900 dark:text-emerald-300 leading-none">94.2%</h4>
           <p className="text-xs  text-emerald-700/70 dark:text-emerald-500/70   mt-2">+2.4% from last period</p>
         </div>
-        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 p-5 rounded-2xl ">
+        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 p-5 rounded  ">
           <p className="text-xs  text-blue-600 dark:text-blue-400   mb-1">Total Output (Monthly)</p>
           <h4 className="text-2xl  text-blue-900 dark:text-blue-300 leading-none">1,284</h4>
           <p className="text-xs  text-blue-700/70 dark:text-blue-500/70   mt-2">Verified Units Produced</p>
         </div>
-        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-5 rounded-2xl ">
+        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-5 rounded  ">
           <p className="text-xs  text-amber-600 dark:text-amber-400   mb-1">Active Projects</p>
           <h4 className="text-2xl  text-amber-900 dark:text-amber-300 leading-none">18</h4>
           <p className="text-xs  text-amber-700/70 dark:text-amber-500/70   mt-2">In shop floor pipeline</p>

@@ -765,7 +765,7 @@ const DesignDrawingManagement = () => {
                   type="file"
                   required
                   onChange={handleFileChange}
-                  className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file: file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
               </div>
               <button
@@ -783,7 +783,7 @@ const DesignDrawingManagement = () => {
       {/* History Modal */}
       {showHistoryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl  border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded   border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg  text-slate-900 dark:text-white">Revision History: {selectedDoc?.name}</h3>
               <button onClick={() => setShowHistoryModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={15} /></button>
@@ -830,7 +830,7 @@ const DesignDrawingManagement = () => {
       {/* Review / Feedback Modal */}
       {showReviewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl  border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded   border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg  text-slate-900 dark:text-white">
                 {selectedDoc?.status === 'Rejected' ? "Reviewer Feedback" : "Review Drawing"}
@@ -846,7 +846,7 @@ const DesignDrawingManagement = () => {
                       <span>Status: Rejected (v{selectedDoc.version})</span>
                     </div>
                     <div className="text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/50 p-3 rounded border border-red-100 dark:border-red-900/20">
-                      <p className="font-semibold mb-1 text-xs   text-slate-500">Reviewer Comment:</p>
+                      <p className=" mb-1 text-xs   text-slate-500">Reviewer Comment:</p>
                       {selectedDoc.reviewer_comment || "No comment provided."}
                     </div>
                   </div>
@@ -920,7 +920,7 @@ const DesignDrawingManagement = () => {
           <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-2xl">
             <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Upload Technical Files</h3>
+                <h3 className="text-lg  text-slate-900 dark:text-white">Upload Technical Files</h3>
                 <p className="text-xs text-slate-500">Attach CAD files to {selectedDoc?.name} (v{selectedDoc?.version})</p>
               </div>
               <button 
@@ -935,30 +935,30 @@ const DesignDrawingManagement = () => {
             </div>
             <form onSubmit={handleTechnicalUpload} className="p-6 space-y-6">
               <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                <div className="p-4 rounded bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
                     <FileCode size={16} className="text-blue-600" /> .DWG File
                   </label>
                   <input
                     type="file"
                     accept=".dwg"
                     onChange={(e) => setTechnicalFiles({ ...technicalFiles, dwg_file: e.target.files[0] })}
-                    className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                    className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file: file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
                   />
                   {selectedDoc?.dwg_path && (
                     <p className="mt-2 text-[10px] text-blue-600 italic">Current: {selectedDoc.dwg_path.split('-').slice(2).join('-')}</p>
                   )}
                 </div>
 
-                <div className="p-4 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                <div className="p-4 rounded bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
                     <Box size={16} className="text-orange-600" /> .STEP / .STP File
                   </label>
                   <input
                     type="file"
                     accept=".step,.stp"
                     onChange={(e) => setTechnicalFiles({ ...technicalFiles, step_file: e.target.files[0] })}
-                    className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-700 cursor-pointer"
+                    className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file: file:bg-orange-600 file:text-white hover:file:bg-orange-700 cursor-pointer"
                   />
                   {selectedDoc?.step_path && (
                     <p className="mt-2 text-[10px] text-orange-600 italic">Current: {selectedDoc.step_path.split('-').slice(2).join('-')}</p>
@@ -973,14 +973,14 @@ const DesignDrawingManagement = () => {
                     setShowTechnicalUploadModal(false);
                     setTechnicalFiles({ dwg_file: null, step_file: null });
                   }}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+                  className="flex-1 px-4 py-2 text-sm  text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || (!technicalFiles.dwg_file && !technicalFiles.step_file)}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 text-sm  text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2"
                 >
                   {loading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
                   Upload Files

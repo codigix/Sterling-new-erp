@@ -34,7 +34,7 @@ const UniversalNewRootCardPage = () => {
       <div className="mb-4">
         <button
           onClick={handleBackToList}
-          className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+          className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 "
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Root Cards

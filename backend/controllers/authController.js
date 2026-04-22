@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
+const { logAudit } = require('../utils/auditLogger');
 
 const register = async (req, res) => {
   const { fullName, email, password, department } = req.body;
@@ -67,6 +68,7 @@ const login = async (req, res) => {
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      await logAudit(username, 'Login Attempt', 'auth', `Failed login attempt for ${username}`, req.ip, 'warning');
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
@@ -76,6 +78,8 @@ const login = async (req, res) => {
       process.env.JWT_SECRET || 'sterling_secret',
       { expiresIn: '1d' }
     );
+
+    await logAudit(user.full_name, 'User Login', 'auth', `${user.full_name} logged in successfully`, req.ip, 'success');
 
     res.json({
       token,

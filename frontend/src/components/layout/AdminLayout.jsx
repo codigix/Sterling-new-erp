@@ -108,15 +108,15 @@ const AdminLayout = () => {
         <div className="flex items-center text-xs justify-between h-full px-6">
           {/* Left side - Logo and mobile menu */}
           <div className="flex items-center text-xs">
+            <Link to="/admin/dashboard" className="flex items-center text-xs">
+              <img src="/logo.png" alt="Sterling ERP" className="h-8 w-auto" />
+            </Link>
             <button
-              className="lg:hidden mr-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="ml-4 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
               <Menu size={20} />
             </button>
-            <Link to="/admin/dashboard" className="flex items-center text-xs">
-              <img src="/logo.png" alt="Sterling ERP" className="h-8 w-auto" />
-            </Link>
           </div>
 
           <div className="flex-1"></div>
@@ -141,7 +141,7 @@ const AdminLayout = () => {
                   <span className="text-sm  text-slate-900 dark:text-white">
                     {user?.fullName || user?.username}
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-300 font-semibold capitalize">
+                  <span className="text-xs text-slate-500 dark:text-slate-300  capitalize">
                     {user?.role || "Admin"}
                   </span>
                 </div>
@@ -150,11 +150,11 @@ const AdminLayout = () => {
 
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 py-1 z-50">
-                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-indigo-600 rounded-t-lg">
+                  <div className="p-2 border-b border-slate-200 dark:border-slate-700 bg-indigo-600 rounded-t-lg">
                     <p className="text-sm  text-white">
                       {user?.fullName || user?.username}
                     </p>
-                    <p className="text-xs font-medium text-indigo-100  tracking-wider">
+                    <p className="text-xs  text-indigo-100  tracking-wider">
                       {user?.email}
                     </p>
                   </div>
@@ -194,22 +194,12 @@ const AdminLayout = () => {
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-            <button
-              className="hidden lg:flex items-center text-xs justify-center w-8 h-8 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            >
-              <Menu size={20} />
-            </button>
-          </div>
-
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-2">
             {/* Admin Section */}
             <div>
               <h6
-                className={`text-xs font-semibold text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
+                className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${
                   sidebarCollapsed ? "text-center" : ""
                 }`}
               >
@@ -227,7 +217,7 @@ const AdminLayout = () => {
                         <>
                           <button
                             onClick={() => toggleSection(item.title)}
-                            className={`w-full flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                            className={`w-full flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                               isExpanded
                                 ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -257,7 +247,7 @@ const AdminLayout = () => {
                                   <li key={subitem.path}>
                                     <Link
                                       to={subitem.path}
-                                      className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                                         isActive(subitem.path)
                                           ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -280,7 +270,7 @@ const AdminLayout = () => {
                       ) : (
                         <Link
                           to={item.path}
-                          className={`flex items-center text-xs px-3 py-2 text-xs font-medium rounded transition-colors ${
+                          className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
                             isActive(item.path)
                               ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -311,7 +301,7 @@ const AdminLayout = () => {
                 <li>
                   <Link
                     to="/dashboard"
-                    className="flex items-center text-xs px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    className="flex items-center text-xs px-3 py-2 text-xs  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
                     <Home size={15} className="flex-shrink-0" />
                     {!sidebarCollapsed && (
@@ -342,7 +332,7 @@ const AdminLayout = () => {
                 Home
               </Link>
               <span>/</span>
-              <span className="text-slate-900 dark:text-white font-medium">
+              <span className="text-slate-900 dark:text-white ">
                 {getCurrentPageTitle()}
               </span>
             </nav>

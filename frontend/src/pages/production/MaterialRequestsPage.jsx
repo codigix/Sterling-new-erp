@@ -181,7 +181,7 @@ const MaterialRequestsPage = ({ embed = false }) => {
     {
       key: "bom_number",
       label: "BOM NO",
-      render: (val) => <span className="font-medium">{val}</span>,
+      render: (val) => <span className="">{val}</span>,
     },
     {
       key: "project_name",
@@ -226,7 +226,7 @@ const MaterialRequestsPage = ({ embed = false }) => {
   ];
 
   return (
-    <div className={`${embed ? "p-0 space-y-4" : "p-6 space-y-2 bg-slate-50/50 min-h-screen"}`}>
+    <div className={`${embed ? "p-0 space-y-4" : "p-4 space-y-2 bg-slate-50/50 min-h-screen"}`}>
       {!embed && (
         <div className="flex justify-between items-center">
           <div>
@@ -241,16 +241,7 @@ const MaterialRequestsPage = ({ embed = false }) => {
       )}
 
       <div className={`flex flex-wrap gap-2 items-center ${embed ? "my-3" : ""}`}>
-        <div className="flex-1">
-          <Input
-            placeholder="Search by Request No, BOM or Project..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            leftIcon={<Search size={15} />}
-            className="mb-0"
-            containerClassName="mt-0"
-          />
-        </div>
+       
         <div className="w-full sm:w-auto">
           <select
             value={rootCardFilter}

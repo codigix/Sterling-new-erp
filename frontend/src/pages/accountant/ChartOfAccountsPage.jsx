@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, Filter, Download, Plus, Edit, Trash2 } from "lucide-react";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const ChartOfAccountsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -170,6 +171,42 @@ const ChartOfAccountsPage = () => {
     .filter((a) => a.category === "Equity")
     .reduce((sum, a) => sum + a.balance, 0);
 
+  const columns = [
+    { key: "code", label: "Code", className: "" },
+    { key: "name", label: "Account Name" },
+    {
+      key: "category",
+      label: "Category",
+      render: (val) => (
+        <span className={`px-3 py-1 rounded text-xs  ${getCategoryColor(val)}`}>
+          {val}
+        </span>
+      )
+    },
+    { key: "type", label: "Type" },
+    {
+      key: "balance",
+      label: "Balance",
+      align: "right",
+      render: (val) => `₹${val.toLocaleString("en-IN")}`
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "center",
+      render: () => (
+        <div className="flex justify-center gap-2">
+          <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
+            <Edit size={15} className="text-blue-600 dark:text-blue-400" />
+          </button>
+          <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
+            <Trash2 size={15} className="text-red-600 dark:text-red-400" />
+          </button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -182,11 +219,11 @@ const ChartOfAccountsPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
             <Plus size={15} />
             New Account
           </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors ">
             <Download size={15} />
             Export
           </button>
@@ -195,7 +232,7 @@ const ChartOfAccountsPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Assets
           </p>
           <p className="text-2xl  text-blue-600 mt-2">
@@ -203,7 +240,7 @@ const ChartOfAccountsPage = () => {
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Liabilities
           </p>
           <p className="text-2xl  text-red-600 mt-2">
@@ -211,7 +248,7 @@ const ChartOfAccountsPage = () => {
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Equity
           </p>
           <p className="text-2xl  text-purple-600 mt-2">
@@ -222,7 +259,7 @@ const ChartOfAccountsPage = () => {
 
       <div className="flex gap-4 flex-wrap">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
             Search Accounts
           </label>
           <div className="relative">
@@ -240,13 +277,13 @@ const ChartOfAccountsPage = () => {
           </div>
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
             Category Filter
           </label>
           <select
             value={categoryFilter}
             onChange={(e) => setcategoryFilter(e.target.value)}
-            className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
           >
             <option value="all">All Categories</option>
             <option value="Asset">Assets</option>
@@ -259,74 +296,11 @@ const ChartOfAccountsPage = () => {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 dark:bg-slate-700">
-            <tr>
-              <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                Code
-              </th>
-              <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                Account Name
-              </th>
-              <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                Type
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-semibold text-slate-900 dark:text-white">
-                Balance
-              </th>
-              <th className="px-6 py-3 text-center font-semibold text-slate-900 dark:text-white">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-            {filteredAccounts.map((account) => (
-              <tr
-                key={account.id}
-                className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                <td className="p-1 font-medium text-slate-900 dark:text-white text-xs">
-                  {account.code}
-                </td>
-                <td className="p-1 text-slate-700 dark:text-slate-300">
-                  {account.name}
-                </td>
-                <td className="p-1">
-                  <span
-                    className={`px-3 py-1 rounded  text-xs font-medium ${getCategoryColor(
-                      account.category
-                    )}`}
-                  >
-                    {account.category}
-                  </span>
-                </td>
-                <td className="p-1 text-slate-700 dark:text-slate-300">
-                  {account.type}
-                </td>
-                <td className="p-1 text-right font-medium text-slate-900 dark:text-white text-xs">
-                  ₹{account.balance.toLocaleString("en-IN")}
-                </td>
-                <td className="p-1 flex justify-center gap-2">
-                  <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
-                    <Edit
-                      size={15}
-                      className="text-blue-600 dark:text-blue-400"
-                    />
-                  </button>
-                  <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
-                    <Trash2
-                      size={15}
-                      className="text-red-600 dark:text-red-400"
-                    />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          data={filteredAccounts}
+          showSearch={false}
+        />
       </div>
     </div>
   );

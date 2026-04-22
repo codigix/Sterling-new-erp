@@ -14,12 +14,14 @@ import {
   Filter,
   Send,
   Download,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Card, { CardContent } from '@/components/ui/Card';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import Modal, { ModalBody } from '@/components/ui/Modal';
+import DataTable from '@/components/ui/DataTable/DataTable';
 
 const QualityQAPPage = () => {
   const navigate = useNavigate();
@@ -39,11 +41,8 @@ const QualityQAPPage = () => {
         const response = await axios.get('/root-cards', {
           params: { includeSteps: true }
         });
-        // Filter cards that are pending QAP or have been sent for review
-        const relevant = (response.data.rootCards || []).filter(rc => 
-          rc.status === 'QUALITY_QAP_PENDING' || rc.status === 'DESIGN_QAP_REVIEW'
-        );
-        setRootCards(relevant);
+        // Show all root cards as requested by user
+        setRootCards(response.data.rootCards || []);
       } catch (error) {
         console.error('Error fetching root cards:', error);
         showError("Failed to load pending root cards");
@@ -62,11 +61,6 @@ const QualityQAPPage = () => {
       subLabel: `PO: ${rc.po_number || 'N/A'}`
     }));
   }, [rootCards]);
-
-  const filteredCards = useMemo(() => {
-    if (!selectedRootCardId) return rootCards;
-    return rootCards.filter(rc => String(rc.id) === String(selectedRootCardId));
-  }, [rootCards, selectedRootCardId]);
 
   const onUploadQAPClick = (rc) => {
     setSelectedRow(rc);
@@ -129,303 +123,286 @@ const QualityQAPPage = () => {
     }
   };
 
+  const columns = [
+    {
+      header: "Project / Root Card",
+      accessor: "project_name",
+      render: (val, row) => (
+        <div className="flex flex-col">
+          <span className="text-xs  text-slate-900">{val}</span>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] ">{row.root_card_number}</span>
+            <span className="text-[10px] text-slate-400">{row.project_code}</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: "PO Number",
+      accessor: "po_number",
+      render: (val) => <span className="text-xs text-slate-600 ">{val || 'N/A'}</span>
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      render: (status) => {
+        const statusConfig = {
+          'QUALITY_QAP_PENDING': { label: 'QAP PENDING', classes: 'bg-amber-50 text-amber-600 border-amber-100' },
+          'DESIGN_QAP_REVIEW': { label: 'UNDER REVIEW', classes: 'bg-blue-50 text-blue-600 border-blue-100' },
+          'PRODUCTION_PLANNING': { label: 'PRODUCTION READY', classes: 'bg-emerald-50 text-emerald-600 border-emerald-100' }
+        };
+        const config = statusConfig[status] || { label: status?.replace(/_/g, ' ') || 'UNKNOWN', classes: 'bg-slate-50 text-slate-600 border-slate-100' };
+        
+        return (
+          <span className={`px-2 py-0.5 rounded text-[10px]  border ${config.classes}`}>
+            {config.label}
+          </span>
+        );
+      }
+    },
+    {
+      header: "QAP Files",
+      accessor: "id",
+      className: "text-center",
+      render: (_, rc) => {
+        const qapFiles = rc.steps?.quality?.qap_files || [];
+        const hasLegacy = !!rc.steps?.quality?.qap_path;
+        const total = qapFiles.length + (hasLegacy ? 1 : 0);
+        
+        return (
+          <div className="flex flex-col items-center">
+            <span className={`text-[10px]  ${total > 0 ? 'text-blue-600' : 'text-slate-400'}`}>
+              {total > 0 ? `${total} File(s)` : 'None'}
+            </span>
+            {total > 0 && <FileText size={12} className="text-blue-400 mt-0.5" />}
+          </div>
+        );
+      }
+    },
+    {
+      header: "Actions",
+      accessor: "id",
+      className: "text-right",
+      render: (_, rc) => {
+        const qapFiles = rc.steps?.quality?.qap_files || [];
+        const isPending = rc.status === 'QUALITY_QAP_PENDING';
+        const hasFiles = qapFiles.length > 0 || !!rc.steps?.quality?.qap_path;
+        
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => handleViewClick(rc)}
+              className="text-blue-600 hover:bg-blue-50 p-1.5 h-auto"
+            >
+              <Eye size={16} />
+            </Button>
+
+            {isPending ? (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => onUploadQAPClick(rc)}
+                className="flex items-center gap-1.5 text-xs py-1 h-auto"
+              >
+                <Upload size={14} />
+                {hasFiles ? 'Upload More' : 'Upload QAP'}
+              </Button>
+            ) : (
+              <div className="flex items-center gap-1 text-emerald-600 text-[10px]  bg-emerald-50 px-2 py-1 rounded">
+                <CheckCircle size={12} />
+                READY
+              </div>
+            )}
+
+            {hasFiles && isPending && (
+              <Button 
+                size="sm" 
+                onClick={() => handleSendToDesign(rc)}
+                className="flex items-center gap-1.5 text-xs py-1 h-auto bg-blue-600 hover:bg-blue-700"
+                disabled={uploading}
+              >
+                <Send size={14} />
+                Finalize
+              </Button>
+            )}
+          </div>
+        );
+      }
+    }
+  ];
+
   return (
-    <div className="w-full space-y-6 p-6">
+    <div className="w-full space-y-4 p-6">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">QAP Uploads</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
+          <h1 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
+            QAP Management
+          </h1>
+          <p className="text-slate-500 text-xs mt-0.5">
             Manage Quality Assurance Plans for pending root cards
           </p>
         </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 items-end bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="flex-1 w-full max-w-md">
-          <SearchableSelect
-            label="Select Root Card"
-            placeholder="Search and select root card..."
-            options={rootCardOptions}
-            value={selectedRootCardId}
-            onChange={setSelectedRootCardId}
-            className="w-full"
-          />
-        </div>
-        <div className="flex gap-2 w-full md:w-auto">
-          <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 text-sm whitespace-nowrap">
-            <Filter size={16} />
-            <span>All Projects</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 text-sm whitespace-nowrap">
-            <span>Status: All Active</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Table Section */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                <th className="px-6 py-4">Project / Root Card</th>
-                <th className="px-6 py-4">PO No.</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-              {loading ? (
-                <tr>
-                  <td colSpan="4" className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                      <p className="text-slate-500 font-medium">Loading pending cards...</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : filteredCards.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="px-6 py-12 text-center text-slate-500 italic">
-                    {selectedRootCardId ? "No matching root card found" : "No root cards pending QAP upload"}
-                  </td>
-                </tr>
-              ) : (
-                filteredCards.map((rc) => {
-                  const qapFiles = rc.steps?.quality?.qap_files || [];
-                  const isPending = rc.status === 'QUALITY_QAP_PENDING';
-                  const hasFiles = qapFiles.length > 0 || !!rc.steps?.quality?.qap_path;
-
-                  return (
-                    <tr key={rc.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
-                      <td className="px-6 py-4">
-                        <button 
-                          onClick={() => handleViewClick(rc)}
-                          className="text-blue-600 hover:text-blue-700 font-medium hover:underline text-left group flex flex-col"
-                        >
-                          <span className="text-sm">{rc.project_name}</span>
-                          <span className="text-[10px] text-slate-400 font-normal mt-0.5 group-hover:text-blue-400">{rc.project_code}</span>
-                        </button>
-                        
-                        {/* Show Uploaded QAP Files Summary */}
-                        {qapFiles.length > 0 && (
-                          <div className="mt-2 flex items-center gap-1.5 text-[10px] text-indigo-600 font-medium bg-indigo-50/50 dark:bg-indigo-900/20 px-2 py-0.5 rounded-full w-fit border border-indigo-100/50 dark:border-indigo-800/50">
-                            <FileText size={10} />
-                            <span>{qapFiles.length} QAP files uploaded</span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                        {rc.po_number || '-'}
-                      </td>
-                      <td className="px-6 py-4">
-                        {isPending ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800">
-                            <AlertCircle size={12} />
-                            QAP Pending
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800">
-                            <CheckCircle size={12} />
-                            Sent to Design Engineer
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex flex-wrap items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleViewClick(rc)}
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                            title="View Documents"
-                          >
-                            <Eye size={18} />
-                          </button>
-                          
-                          {isPending && (
-                            <>
-                              <button
-                                onClick={() => onUploadQAPClick(rc)}
-                                disabled={uploading}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg text-xs font-medium transition-all shadow-sm shadow-emerald-200"
-                              >
-                                <Upload size={14} />
-                                {hasFiles ? 'Upload More' : 'Upload QAP'}
-                              </button>
-
-                              {hasFiles && (
-                                <button
-                                  onClick={() => handleSendToDesign(rc)}
-                                  disabled={uploading}
-                                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg text-xs font-medium transition-all shadow-sm shadow-blue-200"
-                                >
-                                  <Send size={14} className="rotate-[-15deg]" />
-                                  Send to Design Engineer
-                                </button>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Documents Modal */}
-      {viewModalData && (
-        <Modal
-          isOpen={!!viewModalData}
-          onClose={() => setViewModalData(null)}
-          title={`Documents for ${viewModalData.rc.project_name}`}
-          size="lg"
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setRefreshTrigger(prev => prev + 1)}
+          className="text-slate-500"
         >
-          <ModalBody className="p-0">
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {/* QAP Files Section */}
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <FileText className="text-indigo-600 dark:text-indigo-400" size={16} />
-                    Quality Assurance Plans (QAP)
-                  </h4>
-                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                    {viewModalData.qapFiles.length + (viewModalData.legacyPath ? 1 : 0)} Files
-                  </span>
-                </div>
-                
-                <div className="space-y-1">
-                  {viewModalData.qapFiles.length > 0 ? (
-                    viewModalData.qapFiles.map((f, idx) => (
-                      <div key={idx} className="group flex items-center justify-between p-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-all">
-                        <div className="flex items-center gap-3">
-                          <FileText size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                          <div className="flex flex-col">
-                            <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[400px]">
-                              {f.original_name || f.path.split('-').slice(2).join('-')}
-                            </span>
-                            <span className="text-[10px] text-slate-400">Uploaded on {new Date(f.uploaded_at || Date.now()).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 transition-all">
-                          <a 
-                            href={getServerUrl(f.path)} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
-                            title="View"
-                          >
-                            <Eye size={16} />
-                          </a>
-                        </div>
-                      </div>
-                    ))
-                  ) : viewModalData.legacyPath ? (
-                    <div className="group flex items-center justify-between p-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-all">
-                      <div className="flex items-center gap-3">
-                        <FileText size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                        <div className="flex flex-col">
-                          <span className="text-sm text-slate-700 dark:text-slate-200">
-                            {viewModalData.legacyPath.split('-').slice(2).join('-')}
-                          </span>
-                          <span className="text-[10px] text-slate-400">Main QAP Document</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 transition-all">
-                        <a 
-                          href={getServerUrl(viewModalData.legacyPath)} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
-                          title="View"
-                        >
-                          <Eye size={16} />
-                        </a>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic py-2 text-center">No QAP files uploaded yet.</p>
-                  )}
-                </div>
-              </div>
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+        </Button>
+      </div>
 
-              {/* Design Drawings Section */}
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <FileText className="text-emerald-600 dark:text-emerald-400" size={16} />
-                    Approved Design Drawings
-                  </h4>
-                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                    {viewModalData.drawings.length} Files
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  {viewModalData.drawings.length > 0 ? (
-                    viewModalData.drawings.map((d, idx) => (
-                      <div key={idx} className="group flex items-center justify-between p-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-all">
-                        <div className="flex items-center gap-3">
-                          <FileText size={16} className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
-                          <div className="flex flex-col">
-                            <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[400px]">
-                              {d.name}
-                            </span>
-                            <span className="text-[10px] text-slate-400">Engineering Approved</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 transition-all">
-                          <a 
-                            href={getServerUrl(d.file_path)} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded transition-all"
-                            title="View"
-                          >
-                            <Eye size={16} />
-                          </a>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-xs text-slate-400 italic py-2 text-center">No approved drawings available.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </ModalBody>
-        </Modal>
-      )}
-
-      {/* Hidden File Input */}
       <input 
         type="file" 
         ref={fileInputRef} 
-        onChange={handleFileChange} 
         className="hidden" 
+        multiple 
+        onChange={handleFileChange}
         accept=".pdf,.doc,.docx,.xls,.xlsx"
-        multiple
       />
 
-      {/* Uploading Overlay */}
-      {uploading && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 max-w-sm w-full">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-blue-100 dark:border-slate-700 rounded-full"></div>
-              <Loader2 className="w-16 h-16 animate-spin text-blue-600 absolute top-0 left-0" />
+      
+
+      <DataTable 
+        columns={columns}
+        data={rootCards.filter(rc => !selectedRootCardId || String(rc.id) === String(selectedRootCardId))}
+        loading={loading}
+        searchPlaceholder="Search project, root card or PO..."
+      />
+
+      {/* View Modal */}
+      {viewModalData && (
+        <Modal 
+          isOpen={!!viewModalData} 
+          onClose={() => setViewModalData(null)}
+          title="QAP & Drawings Overview"
+          size="lg"
+        >
+          <ModalBody>
+            <div className="space-y-6">
+              {/* Project Info */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
+                <h4 className="text-xs  text-slate-900 dark:text-white uppercase tracking-wider mb-2">Project Details</h4>
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <p className="text-slate-500">Project Name</p>
+                    <p className=" text-slate-700 dark:text-slate-300">{viewModalData.rc.project_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-500">Root Card No.</p>
+                    <p className=" text-slate-700 dark:text-slate-300">{viewModalData.rc.root_card_number}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* QAP Files */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs  text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                      <FileText size={14} className="text-blue-600" />
+                      QAP Documents
+                    </h4>
+                    <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full ">
+                      {viewModalData.qapFiles.length + (viewModalData.legacyPath ? 1 : 0)} Files
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                    {viewModalData.legacyPath && (
+                      <div className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText size={14} className="text-slate-400 shrink-0" />
+                          <span className="text-xs text-slate-600 dark:text-slate-400 truncate">Legacy QAP Document</span>
+                        </div>
+                        <a 
+                          href={getServerUrl(viewModalData.legacyPath)} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                        >
+                          <Download size={14} />
+                        </a>
+                      </div>
+                    )}
+                    
+                    {viewModalData.qapFiles.length > 0 ? (
+                      viewModalData.qapFiles.map((file, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <FileText size={14} className="text-slate-400 shrink-0" />
+                            <span className="text-xs text-slate-600 dark:text-slate-400 truncate">{file.name || `QAP File ${idx + 1}`}</span>
+                          </div>
+                          <a 
+                            href={getServerUrl(file.path)} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                          >
+                            <Download size={14} />
+                          </a>
+                        </div>
+                      ))
+                    ) : !viewModalData.legacyPath && (
+                      <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/50 rounded border border-dashed border-slate-200">
+                        <AlertCircle size={20} className="mx-auto text-slate-300 mb-2" />
+                        <p className="text-[10px] text-slate-500">No QAP files uploaded yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Approved Drawings */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs  text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                      <Eye size={14} className="text-emerald-600" />
+                      Approved Drawings
+                    </h4>
+                    <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full ">
+                      {viewModalData.drawings.length} Files
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                    {viewModalData.drawings.length > 0 ? (
+                      viewModalData.drawings.map((file, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <Eye size={14} className="text-slate-400 shrink-0" />
+                            <span className="text-xs text-slate-600 dark:text-slate-400 truncate">{file.name || `Drawing ${idx + 1}`}</span>
+                          </div>
+                          <a 
+                            href={getServerUrl(file.path)} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="p-1 text-emerald-600 hover:bg-emerald-50 rounded"
+                          >
+                            <Download size={14} />
+                          </a>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/50 rounded border border-dashed border-slate-200">
+                        <AlertCircle size={20} className="mx-auto text-slate-300 mb-2" />
+                        <p className="text-[10px] text-slate-500">No approved drawings available</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-lg font-bold text-slate-900 dark:text-white">Uploading QAP</p>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Please wait while we process and secure your document...</p>
+            
+            <div className="mt-8 flex justify-end">
+              <Button onClick={() => setViewModalData(null)} variant="secondary" size="sm">
+                Close Overview
+              </Button>
             </div>
-          </div>
-        </div>
+          </ModalBody>
+        </Modal>
       )}
     </div>
   );

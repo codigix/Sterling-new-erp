@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Warehouse,
   Search,
@@ -21,11 +21,10 @@ import {
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const WarehousesPage = () => {
   const [viewMode, setViewMode] = useState("list");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [locationFilter, setLocationFilter] = useState("All Locations");
   const [showModal, setShowModal] = useState(false);
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +51,60 @@ const WarehousesPage = () => {
       setLoading(false);
     }
   }, []);
+
+  const columns = useMemo(() => [
+    {
+      key: "code",
+      label: "Code",
+      sortable: true,
+      render: (val) => <span className="text-sm font-medium text-slate-900 dark:text-white">{val}</span>
+    },
+    {
+      key: "name",
+      label: "Name",
+      sortable: true,
+      render: (val) => <span className="text-sm text-slate-500 dark:text-slate-400">{val}</span>
+    },
+    {
+      key: "type",
+      label: "Type",
+      sortable: true,
+      render: (val) => <span className="text-sm text-slate-500 dark:text-slate-400">{val}</span>
+    },
+    {
+      key: "location",
+      label: "Location",
+      sortable: true,
+      render: (val) => <span className="text-sm text-slate-500 dark:text-slate-400">{val || "-"}</span>
+    },
+    {
+      key: "storage_capacity",
+      label: "Capacity",
+      sortable: true,
+      render: (val) => <span className="text-sm text-slate-500 dark:text-slate-400">{val || "0"}</span>
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right",
+      render: (_, wh) => (
+        <div className="flex justify-end gap-2">
+          <button 
+            onClick={() => handleOpenModal(wh)}
+            className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
+          >
+            <Edit2 size={15} />
+          </button>
+          <button 
+            onClick={() => handleDelete(wh.id)}
+            className="p-2 text-slate-400 hover:text-red-600 transition-colors"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      )
+    }
+  ], []);
 
   useEffect(() => {
     fetchWarehouses();
@@ -125,18 +178,7 @@ const WarehousesPage = () => {
     }
   };
 
-  const filteredWarehouses = warehouses.filter(wh => {
-    const matchesSearch = 
-      wh.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      wh.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (wh.location && wh.location.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesLocation = locationFilter === "All Locations" || wh.location === locationFilter;
-    
-    return matchesSearch && matchesLocation;
-  });
-
-  const locations = ["All Locations", ...new Set(warehouses.map(wh => wh.location).filter(Boolean))];
+  const locations = [...new Set(warehouses.map(wh => wh.location).filter(Boolean))];
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen dark:bg-slate-900">
@@ -162,7 +204,7 @@ const WarehousesPage = () => {
           </button>
           <button 
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 p-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors  font-medium"
+            className="flex items-center gap-2 p-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors  "
           >
             <Plus size={15} />
             Create Warehouse
@@ -170,110 +212,37 @@ const WarehousesPage = () => {
         </div>
       </div>
 
-      {/* Filters and Search */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-4 mb-6 flex flex-col md:flex-row gap-4 items-center">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-          <input
-            type="text"
-            placeholder="Search by name, code, or location..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-48">
-            <select
-              className="w-full appearance-none pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-500 dark:text-slate-300"
-              value={locationFilter}
-              onChange={(e) => setLocationFilter(e.target.value)}
-            >
-              {locations.map(loc => (
-                <option key={loc} value={loc}>{loc}</option>
-              ))}
-            </select>
-            <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={15} />
-          </div>
-          <div className="flex border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800">
-            <button 
-              onClick={() => setViewMode("list")}
-              className={`p-2 ${viewMode === "list" ? "bg-amber-50 text-amber-600" : "text-slate-400"}`}
-            >
-              <List size={20} />
-            </button>
-            <button 
-              onClick={() => setViewMode("grid")}
-              className={`p-2 ${viewMode === "grid" ? "bg-amber-50 text-amber-600" : "text-slate-400"}`}
-            >
-              <LayoutGrid size={20} />
-            </button>
-          </div>
-          <button className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded text-slate-500 dark:text-slate-300 hover:bg-slate-50">
-            <LayoutGrid size={15} />
-            Columns
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <RefreshCw className="animate-spin text-amber-600" size={32} />
-        </div>
-      ) : (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
-              <tr>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider">Code</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider">Name</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider">Type</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider">Location</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider">Capacity</th>
-                <th className="p-2 text-xs  text-slate-500  tracking-wider text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-              {filteredWarehouses.length > 0 ? (
-                filteredWarehouses.map((wh) => (
-                  <tr key={wh.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                    <td className="p-2 text-sm font-medium text-slate-900 dark:text-white ">{wh.code}</td>
-                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400 font-medium">{wh.name}</td>
-                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">{wh.type}</td>
-                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">{wh.location}</td>
-                    <td className="p-2 text-sm text-slate-500 dark:text-slate-400">{wh.storage_capacity}</td>
-                    <td className="p-2 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button 
-                          onClick={() => handleOpenModal(wh)}
-                          className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
-                        >
-                          <Edit2 size={15} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(wh.id)}
-                          className="p-2 text-slate-400 hover:text-red-600 transition-colors"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="px-6 py-10 text-center text-slate-500">No warehouses found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        title="Warehouse Directory"
+        titleIcon={<Warehouse size={16} />}
+        columns={columns}
+        data={warehouses}
+        loading={loading}
+        emptyMessage="No warehouses found"
+        filters={[
+          {
+            key: "location",
+            label: "Location",
+            options: locations.map(l => ({ label: l, value: l }))
+          },
+          {
+            key: "type",
+            label: "Type",
+            options: [
+              { label: "Raw Material", value: "Raw Material" },
+              { label: "Finished Goods", value: "Finished Goods" },
+              { label: "WIP", value: "WIP" },
+              { label: "Scrap", value: "Scrap" },
+              { label: "Stores", value: "Stores" },
+            ]
+          }
+        ]}
+      />
 
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
+          <div className="bg-white dark:bg-slate-800 rounded  w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded">
@@ -294,7 +263,7 @@ const WarehousesPage = () => {
             <form onSubmit={handleSubmit} className="p-6 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Warehouse Code *
                   </label>
                   <input
@@ -307,7 +276,7 @@ const WarehousesPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Warehouse Name *
                   </label>
                   <input
@@ -320,7 +289,7 @@ const WarehousesPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Warehouse Type *
                   </label>
                   <select
@@ -337,7 +306,7 @@ const WarehousesPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Department *
                   </label>
                   <select
@@ -353,7 +322,7 @@ const WarehousesPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Location
                   </label>
                   <input
@@ -365,7 +334,7 @@ const WarehousesPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Storage Capacity
                   </label>
                   <input
@@ -377,7 +346,7 @@ const WarehousesPage = () => {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                     Parent Warehouse ID
                   </label>
                   <input
@@ -394,13 +363,13 @@ const WarehousesPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-6 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-200 transition-colors font-medium"
+                  className="px-6 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-200 transition-colors "
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors font-medium "
+                  className="px-6 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors  "
                 >
                   {editingId ? "Update Warehouse" : "Create Warehouse"}
                 </button>

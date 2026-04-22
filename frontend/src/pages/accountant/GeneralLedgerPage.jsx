@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, Filter, Download, Calendar } from "lucide-react";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const GeneralLedgerPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,6 +84,41 @@ const GeneralLedgerPage = () => {
     .filter((e) => e.type === "Credit")
     .reduce((sum, e) => sum + e.amount, 0);
 
+  const columns = [
+    { key: "date", label: "Date" },
+    { key: "account", label: "Account", className: "" },
+    { key: "description", label: "Description" },
+    {
+      key: "type",
+      label: "Type",
+      render: (val) => (
+        <span className={`px-2 py-0.5 rounded text-xs  ${
+          val === "Debit"
+            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+        }`}>
+          {val}
+        </span>
+      )
+    },
+    {
+      key: "amount",
+      label: "Amount",
+      align: "right",
+      render: (val, row) => (
+        <span className={row.type === "Debit" ? "text-blue-600" : "text-green-600"}>
+          ₹{val.toLocaleString("en-IN")}
+        </span>
+      )
+    },
+    {
+      key: "balance",
+      label: "Balance",
+      align: "right",
+      render: (val) => `₹${val.toLocaleString("en-IN")}`
+    }
+  ];
+
   return (
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -95,14 +131,14 @@ const GeneralLedgerPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
             <Download size={15} />
             Export
           </button>
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
           >
             <option value="week">This Week</option>
             <option value="month">This Month</option>
@@ -114,7 +150,7 @@ const GeneralLedgerPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Debits
           </p>
           <p className="text-2xl  text-blue-600 mt-2">
@@ -122,7 +158,7 @@ const GeneralLedgerPage = () => {
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Credits
           </p>
           <p className="text-2xl  text-green-600 mt-2">
@@ -130,7 +166,7 @@ const GeneralLedgerPage = () => {
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Balance
           </p>
           <p
@@ -145,7 +181,7 @@ const GeneralLedgerPage = () => {
 
       <div className="flex gap-4 flex-wrap">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
             Search Entries
           </label>
           <div className="relative">
@@ -163,13 +199,13 @@ const GeneralLedgerPage = () => {
           </div>
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
             Account Filter
           </label>
           <select
             value={accountFilter}
             onChange={(e) => setAccountFilter(e.target.value)}
-            className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
           >
             <option value="all">All Accounts</option>
             <option value="Cash in Hand">Cash in Hand</option>
@@ -183,69 +219,11 @@ const GeneralLedgerPage = () => {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 dark:bg-slate-700">
-            <tr>
-              <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                Date
-              </th>
-              <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                Account
-              </th>
-              <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                Description
-              </th>
-              <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                Type
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-semibold text-slate-900 dark:text-white">
-                Amount
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-semibold text-slate-900 dark:text-white">
-                Balance
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-            {filteredEntries.map((entry) => (
-              <tr
-                key={entry.id}
-                className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                <td className="p-1 text-slate-700 dark:text-slate-300">
-                  {entry.date}
-                </td>
-                <td className="p-1 font-medium text-slate-900 dark:text-white text-xs">
-                  {entry.account}
-                </td>
-                <td className="p-1 text-slate-700 dark:text-slate-300">
-                  {entry.description}
-                </td>
-                <td className="p-1">
-                  <span
-                    className={` rounded text-xs font-medium ${
-                      entry.type === "Debit"
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                        : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    }`}
-                  >
-                    {entry.type}
-                  </span>
-                </td>
-                <td
-                  className={`p-1 text-right font-medium ${
-                    entry.type === "Debit" ? "text-blue-600" : "text-green-600"
-                  }`}
-                >
-                  ₹{entry.amount.toLocaleString("en-IN")}
-                </td>
-                <td className="p-1 text-right font-medium text-slate-900 dark:text-white text-xs">
-                  ₹{entry.balance.toLocaleString("en-IN")}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          data={filteredEntries}
+          showSearch={false}
+        />
       </div>
     </div>
   );

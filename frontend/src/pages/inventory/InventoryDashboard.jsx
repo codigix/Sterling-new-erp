@@ -191,7 +191,7 @@ const DashboardContent = React.memo(({
   ];
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 p-4">
       {loadingStats ? (
         <div className="flex justify-center py-20">
           <Loader2 className="animate-spin text-blue-600" size={40} />
@@ -210,7 +210,7 @@ const DashboardContent = React.memo(({
             <div className="flex gap-3 flex-wrap">
               <button
                 onClick={handleExport}
-                className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
+                className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors "
               >
                 <Download size={15} />
                 Export
@@ -218,7 +218,7 @@ const DashboardContent = React.memo(({
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white font-medium"
+                className="p-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white "
               >
                 <option value="7days">Last 7 Days</option>
                 <option value="30days">Last 30 Days</option>
@@ -237,14 +237,14 @@ const DashboardContent = React.memo(({
                 >
                   <div className="flex items-center text-xs justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-500 dark:text-slate-400  tracking-wide">
+                      <p className="text-sm  text-slate-500 dark:text-slate-400  tracking-wide">
                         {stat.title}
                       </p>
                       <p className="text-xl  text-slate-900 dark:text-white text-xs mt-2">
                         {stat.value}
                       </p>
                       <p
-                        className={`text-sm font-medium mt-2 flex items-center text-xs gap-1 ${
+                        className={`text-sm  mt-2 flex items-center text-xs gap-1 ${
                           stat.positive ? "text-green-600" : "text-red-600"
                         }`}
                       >
@@ -276,7 +276,7 @@ const DashboardContent = React.memo(({
               </h3>
               <Link
                 to="/department/tasks"
-                className="text-sm text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700"
+                className="text-sm text-blue-600 dark:text-blue-400  hover:text-blue-700"
               >
                 View All Tasks →
               </Link>
@@ -313,7 +313,7 @@ const DashboardContent = React.memo(({
                       </span>
                     </div>
                     <div className="flex items-center justify-between mt-4">
-                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      <span className="text-xs  text-slate-500 dark:text-slate-400">
                         PO: {task.rootCard?.poNumber || task.salesOrder?.poNumber || "N/A"}
                       </span>
                       <Link
@@ -329,7 +329,7 @@ const DashboardContent = React.memo(({
             ) : (
               <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-700">
                 <Package className="mx-auto text-slate-300 mb-2" size={40} />
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                <p className="text-slate-500 dark:text-slate-400 ">
                   No active material, shipment, or delivery tasks assigned.
                 </p>
               </div>
@@ -350,7 +350,7 @@ const DashboardContent = React.memo(({
                     key={alert.id}
                     className="bg-white dark:bg-slate-800 rounded p-4 border border-red-100 dark:border-red-700"
                   >
-                    <p className="font-semibold text-slate-900 dark:text-white">
+                    <p className=" text-slate-900 dark:text-white">
                       {alert.item}
                     </p>
                     <div className="mt-3 space-y-1 text-sm">
@@ -366,14 +366,14 @@ const DashboardContent = React.memo(({
                     </div>
                     <Link
                       to="/department/inventory/material-requests"
-                      className="mt-3 block text-center px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium transition-colors"
+                      className="mt-3 block text-center px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm  transition-colors"
                     >
                       Raise Material Request
                     </Link>
                   </div>
                 ))
               ) : (
-                <div className="col-span-3 text-center py-4 text-green-600 font-medium">
+                <div className="col-span-3 text-center py-4 text-green-600 ">
                   No critical stock alerts. All items are above reorder level.
                 </div>
               )}
@@ -420,7 +420,7 @@ const DashboardContent = React.memo(({
                 className="flex items-center text-xs justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
               >
                 <div className="flex-1">
-                  <p className="font-semibold text-slate-900 dark:text-white">
+                  <p className=" text-slate-900 dark:text-white">
                     {movement.item}
                   </p>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -429,7 +429,7 @@ const DashboardContent = React.memo(({
                 </div>
                 <div className="text-right">
                   <span
-                    className={`inline-block px-3 py-2 rounded text-sm font-semibold ${
+                    className={`inline-block px-3 py-2 rounded text-sm  ${
                       movement.type === "in"
                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
@@ -454,7 +454,7 @@ const DashboardContent = React.memo(({
             >
               <Package size={20} className="text-blue-600 dark:text-blue-400" />
               <div>
-                <p className="font-medium text-blue-900 dark:text-blue-100">
+                <p className=" text-blue-900 dark:text-blue-100">
                   Stock Balance
                 </p>
                 <p className="text-xs text-blue-700 dark:text-blue-300">
@@ -468,7 +468,7 @@ const DashboardContent = React.memo(({
             >
               <Boxes size={20} className="text-emerald-600 dark:text-emerald-400" />
               <div>
-                <p className="font-medium text-emerald-900 dark:text-emerald-100">
+                <p className=" text-emerald-900 dark:text-emerald-100">
                   Stock Entries
                 </p>
                 <p className="text-xs text-emerald-700 dark:text-emerald-300">
@@ -485,7 +485,7 @@ const DashboardContent = React.memo(({
                 className="text-emerald-600 dark:text-emerald-400"
               />
               <div>
-                <p className="font-medium text-emerald-900 dark:text-emerald-100">
+                <p className=" text-emerald-900 dark:text-emerald-100">
                   Purchase Receipt
                 </p>
                 <p className="text-xs text-emerald-700 dark:text-emerald-300">
@@ -499,7 +499,7 @@ const DashboardContent = React.memo(({
             >
               <CheckCircle size={20} className="text-cyan-600 dark:text-cyan-400" />
               <div>
-                <p className="font-medium text-cyan-900 dark:text-cyan-100">
+                <p className=" text-cyan-900 dark:text-cyan-100">
                   GRN Processing
                 </p>
                 <p className="text-xs text-cyan-700 dark:text-cyan-300">

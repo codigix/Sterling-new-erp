@@ -22,7 +22,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
       case "steelSection":
         return (
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-slate-200">Steel Section Details</h3>
+            <h3 className="text-sm  text-slate-200">Steel Section Details</h3>
             <Input
               label="Size / Dimension"
               value={details.steelSize || ""}
@@ -47,7 +47,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
       case "plateType":
         return (
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-slate-200">Plate Details</h3>
+            <h3 className="text-sm  text-slate-200">Plate Details</h3>
             <Input
               label="Thickness (mm)"
               type="number"
@@ -80,9 +80,9 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
       case "materialGrade":
         return (
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-slate-200">Material Grade Details</h3>
+            <h3 className="text-sm  text-slate-200">Material Grade Details</h3>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1 text-left">
+              <label className="block text-sm  text-slate-300 mb-1 text-left">
                 Certification Required
               </label>
               <select
@@ -112,7 +112,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
       case "fastenerType":
         return (
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-slate-200">Fastener Specifications</h3>
+            <h3 className="text-sm  text-slate-200">Fastener Specifications</h3>
             <Input
               label="Size (mm)"
               type="number"
@@ -144,7 +144,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
     <div className="fixed inset-0 bg-black/60 flex items-center text-xs justify-center z-50 p-4">
       <div className=" rounded border border-slate-700 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center text-xs justify-between bg-slate-800 p-4 border-b border-slate-700">
-          <h2 className="text-lg font-semibold ">Fill Details</h2>
+          <h2 className="text-lg  ">Fill Details</h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-200"

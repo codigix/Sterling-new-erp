@@ -1,13 +1,10 @@
 import { useState, useCallback, useEffect } from "react";
 import {
   Truck,
-  Search,
   Plus,
-  Filter,
   Download,
   Mail,
   Phone,
-  MapPin,
   Edit,
   Trash2,
   X,
@@ -15,15 +12,14 @@ import {
   ChevronUp,
   Building2,
   UserCheck,
-  Loader2,
 } from "lucide-react";
 import axios from "../../utils/api";
 import toastUtils from "../../utils/toastUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const VendorsPage = () => {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [stats, setStats] = useState({});
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -45,7 +41,6 @@ const VendorsPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
-  const [selectedVendor, setSelectedVendor] = useState(null);
   const [categories, setCategories] = useState([]);
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
@@ -69,11 +64,11 @@ const VendorsPage = () => {
     "Service Provider",
   ];
 
-  const fetchVendors = useCallback(async () => {
+  const fetchVendors = useCallback(async (query = "") => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (searchQuery) params.append("search", searchQuery);
+      if (query) params.append("search", query);
 
       const response = await axios.get(
         `department/procurement/vendors?${params}`
@@ -86,7 +81,7 @@ const VendorsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery]);
+  }, []);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -102,8 +97,6 @@ const VendorsPage = () => {
       const response = await axios.get(
         `department/procurement/vendors/categories`
       );
-      // Backend returns [{category: "cat1"}, {category: "cat2"}]
-      // But some might be JSON strings if they were saved as arrays
       let uniqueCategories = new Set();
       response.data.forEach((item) => {
         if (!item.category) return;
@@ -129,10 +122,6 @@ const VendorsPage = () => {
     fetchStats();
     fetchCategories();
   }, [fetchVendors, fetchStats, fetchCategories]);
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
 
   const fetchVendorById = async (id) => {
     try {
@@ -178,7 +167,6 @@ const VendorsPage = () => {
   const handleOpenAddModal = async () => {
     resetForm();
     try {
-      // Auto-generate code on load
       const response = await axios.get("department/procurement/vendors/stats");
       const nextNum = (response.data.totalVendors + 1).toString().padStart(4, "0");
       setFormData(prev => ({ ...prev, vendor_code: `VEN-${nextNum}` }));
@@ -221,21 +209,14 @@ const VendorsPage = () => {
 
   const handleAddVendor = async (e) => {
     e.preventDefault();
-
     if (!formData.name.trim()) {
       toastUtils.warning("Vendor name is required");
       return;
     }
-
     setSubmitting(true);
     try {
-      const payload = {
-        ...formData,
-        category: JSON.stringify(formData.category),
-      };
-
+      const payload = { ...formData, category: JSON.stringify(formData.category) };
       await axios.post(`department/procurement/vendors`, payload);
-
       setShowAddModal(false);
       resetForm();
       fetchVendors();
@@ -251,24 +232,14 @@ const VendorsPage = () => {
 
   const handleUpdateVendor = async (e) => {
     e.preventDefault();
-
     if (!formData.name.trim()) {
       toastUtils.warning("Vendor name is required");
       return;
     }
-
     setSubmitting(true);
     try {
-      const payload = {
-        ...formData,
-        category: JSON.stringify(formData.category),
-      };
-
-      await axios.put(
-        `department/procurement/vendors/${editingVendor.id}`,
-        payload
-      );
-
+      const payload = { ...formData, category: JSON.stringify(formData.category) };
+      await axios.put(`department/procurement/vendors/${editingVendor.id}`, payload);
       setShowEditModal(false);
       setEditingVendor(null);
       resetForm();
@@ -299,486 +270,247 @@ const VendorsPage = () => {
 
   const getStatusColor = (status) => {
     return status === "active"
-      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-      : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return `${date.getDate()}/${date.getMonth() + 1}`;
+      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-200"
+      : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 border-gray-200";
   };
 
   return (
-    <div className="space-y-2 p-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-md  text-slate-900 dark:text-white  flex items-center  gap-2">
-            <Truck size={15} />
-            Vendor Management
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs">
-            Manage and track vendor relationships
-          </p>
-        </div>
-        <div className="flex gap-3 flex-wrap">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center text-xs gap-2 p-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium"
-          >
-            <Plus size={15} />
-            Add Vendor
-          </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
-            <Download size={15} />
-            Export List
-          </button>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative md:col-span-2">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Search vendor or category..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-            />
-          </div>
-
-          <button className="flex items-center text-xs justify-center gap-2 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <Filter size={15} />
-            Advanced Filter
-          </button>
-        </div>
-      </div>
-
-      {/* Vendors Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {loading ? (
-          <div className="col-span-2 flex justify-center items-center p-2">
-            <p className="text-slate-500 dark:text-slate-400">
-              Loading vendors...
-            </p>
-          </div>
-        ) : error ? (
-          <div className="col-span-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-2">
-            <p className="text-red-600 dark:text-red-400">{error}</p>
-          </div>
-        ) : vendors.length === 0 ? (
-          <div className="col-span-2 text-center p-2">
-            <p className="text-slate-500 dark:text-slate-400">
-              No vendors found
-            </p>
-          </div>
-        ) : (
-          vendors.map((vendor) => (
-            <div
-              key={vendor.id}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2  transition-shadow"
+    <div className="space-y-4 p-4">
+      <DataTable
+        title="Vendor Management"
+        titleIcon={<Truck size={16} />}
+        titleExtra={
+          <div className="flex items-center gap-2 ml-4">
+            <button
+              onClick={handleOpenAddModal}
+              className="flex items-center text-xs gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors shadow-sm"
             >
-              <div className="flex justify-between items-start ">
-                <div>
-                  <h3 className="text-md  text-slate-900 dark:text-white">
-                    {vendor.name}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    {(() => {
-                      let categories = [];
-                      try {
-                        if (typeof vendor.category === 'string') {
-                          const parsed = JSON.parse(vendor.category);
-                          categories = Array.isArray(parsed) ? parsed : [vendor.category];
-                        } else if (Array.isArray(vendor.category)) {
-                          categories = vendor.category;
-                        } else if (vendor.category) {
-                          categories = [vendor.category];
-                        }
-                      } catch (e) {
-                        categories = [vendor.category];
-                      }
-
-                      return categories.length > 0 ? (
-                        categories.map((cat, idx) => (
-                          <span key={idx} className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 p-1 rounded">
-                            {cat}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-xs bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 p-1 rounded">
-                          No category
-                        </span>
-                      );
-                    })()}
-                    <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 p-1 rounded capitalize">
-                      {(vendor.vendor_type || "material_supplier").replace(
-                        /_/g,
-                        " "
-                      )}
+              <Plus size={14} /> Add Vendor
+            </button>
+            <button className="flex items-center text-xs gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors shadow-sm">
+              <Download size={14} /> Export List
+            </button>
+          </div>
+        }
+        data={vendors}
+        loading={loading}
+        onSearch={(val) => fetchVendors(val)}
+        filters={[
+          {
+            key: "vendor_type",
+            label: "Type",
+            options: [
+              { label: "Material Supplier", value: "material_supplier" },
+              { label: "Service Provider", value: "service_provider" },
+              { label: "Fabrication", value: "fabrication" },
+            ]
+          },
+          {
+            key: "status",
+            label: "Status",
+            options: [
+              { label: "Active", value: "active" },
+              { label: "Inactive", value: "inactive" },
+            ]
+          }
+        ]}
+        columns={[
+          {
+            key: "name",
+            label: "Vendor Details",
+            sortable: true,
+            render: (val, vendor) => (
+              <div className="flex flex-col">
+                <span className="text-xs font-medium text-slate-900 dark:text-white">{val}</span>
+                <span className="text-[10px] text-slate-500 font-mono">{vendor.vendor_code}</span>
+              </div>
+            )
+          },
+          {
+            key: "category",
+            label: "Categories",
+            render: (val) => {
+              let categoriesList = [];
+              try {
+                if (typeof val === 'string') {
+                  const parsed = JSON.parse(val);
+                  categoriesList = Array.isArray(parsed) ? parsed : [val];
+                } else if (Array.isArray(val)) {
+                  categoriesList = val;
+                } else if (val) {
+                  categoriesList = [val];
+                }
+              } catch (e) {
+                categoriesList = [val];
+              }
+              return (
+                <div className="flex flex-wrap gap-1">
+                  {categoriesList.map((c, i) => (
+                    <span key={i} className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px]">
+                      {c}
                     </span>
-                  </div>
+                  ))}
                 </div>
-                <span
-                  className={`p-1 rounded text-xs  ${getStatusColor(
-                    vendor.status
-                  )}`}
-                >
-                  {(vendor.status || "active").charAt(0).toUpperCase() +
-                    (vendor.status || "active").slice(1)}
-                </span>
+              );
+            }
+          },
+          {
+            key: "contact",
+            label: "Contact",
+            render: (_, vendor) => (
+              <div className="flex flex-col text-[10px]">
+                <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
+                  <Mail size={10} className="text-slate-400" />
+                  {vendor.email || "No Email"}
+                </div>
+                <div className="flex items-center gap-1 text-slate-500">
+                  <Phone size={10} className="text-slate-400" />
+                  {vendor.mobile_number || "No Phone"}
+                </div>
               </div>
-
-              <div className="space-y-2 my-4 text-sm">
-                {vendor.email && (
-                  <div className="flex items-center text-xs gap-2 text-slate-500 dark:text-slate-400">
-                    <Mail size={15} />
-                    <a
-                      href={`mailto:${vendor.email}`}
-                      className="hover:text-blue-600 dark:hover:text-blue-400"
-                    >
-                      {vendor.email}
-                    </a>
-                  </div>
-                )}
-                {vendor.mobile_number && (
-                  <div className="flex items-center text-xs gap-2 text-slate-500 dark:text-slate-400">
-                    <Phone size={15} />
-                    <a
-                      href={`tel:${vendor.mobile_number}`}
-                      className="hover:text-blue-600 dark:hover:text-blue-400"
-                    >
-                      {vendor.mobile_number}
-                    </a>
-                  </div>
-                )}
-                {(vendor.city || vendor.state) && (
-                  <div className="flex items-center text-xs gap-2 text-slate-500 dark:text-slate-400">
-                    <MapPin size={15} />
-                    <span>{[vendor.city, vendor.state].filter(Boolean).join(", ")}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-2">
+            )
+          },
+          {
+            key: "status",
+            label: "Status",
+            render: (val) => (
+              <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusColor(val)}`}>
+                {val.toUpperCase()}
+              </span>
+            )
+          },
+          {
+            key: "actions",
+            label: "Actions",
+            align: "right",
+            render: (_, vendor) => (
+              <div className="flex justify-end gap-1">
                 <button
                   onClick={() => handleEditVendor(vendor)}
-                  className="flex-1 flex items-center text-xs justify-center gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium text-sm"
+                  className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-blue-600"
                 >
-                  <Edit size={15} />
-                  Edit
+                  <Edit size={14} />
                 </button>
                 <button
                   onClick={() => handleDeleteVendor(vendor.id)}
-                  className="p-2 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded transition-colors"
+                  className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-red-600"
                 >
-                  <Trash2 size={15} />
+                  <Trash2 size={14} />
                 </button>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            )
+          }
+        ]}
+      />
 
       {/* Vendor Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-2 border border-blue-200 dark:border-slate-600">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-blue-200 dark:border-slate-600">
           <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Vendors
           </p>
           <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {stats.total || 0}
+            {stats.totalVendors || 0}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-2 border border-green-200 dark:border-slate-600">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-slate-800 dark:to-slate-700 rounded p-4 border border-green-200 dark:border-slate-600">
           <p className="text-sm  text-slate-500 dark:text-slate-400">
             Active Vendors
           </p>
           <p className="text-xl  text-slate-900 dark:text-white text-xs mt-1">
-            {stats.active_count || 0}
+            {stats.activeVendors || 0}
           </p>
         </div>
       </div>
 
       {(showAddModal || showEditModal) && (
-        <div
-          className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => {
-            setShowAddModal(false);
-            setShowEditModal(false);
-            setEditingVendor(null);
-          }}
-        >
-          <div
-            className="bg-white dark:bg-slate-800 rounded w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="sticky top-0  flex justify-between items-center p-2 border-b border-slate-200 dark:border-slate-600">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setShowAddModal(false); setShowEditModal(false); setEditingVendor(null); }}>
+          <div className="bg-white dark:bg-slate-800 rounded w-full max-w-2xl max-h-[95vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0  flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-600">
               <div>
-                <h3 className="text-md  text-slate-900 dark:text-white">
-                  {editingVendor ? "Edit Vendor" : "Add New Vendor"}
-                </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-xs">
-                  {editingVendor ? `Updating: ${editingVendor.vendor_code}` : "Fill in the vendor details below"}
-                </p>
+                <h3 className="text-md  text-slate-900 dark:text-white">{editingVendor ? "Edit Vendor" : "Add New Vendor"}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{editingVendor ? `Updating: ${editingVendor.vendor_code}` : "Fill in the vendor details below"}</p>
               </div>
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setShowEditModal(false);
-                  setEditingVendor(null);
-                }}
-                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
-              >
+              <button onClick={() => { setShowAddModal(false); setShowEditModal(false); setEditingVendor(null); }} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
                 <X size={15} className="text-slate-500 dark:text-slate-400" />
               </button>
             </div>
-
-            {/* Form Content */}
-            <form
-              onSubmit={editingVendor ? handleUpdateVendor : handleAddVendor}
-              className="overflow-y-auto flex-1 p-2"
-            >
-              {/* Section: Basic Information */}
+            <form onSubmit={editingVendor ? handleUpdateVendor : handleAddVendor} className="overflow-y-auto flex-1 p-4 space-y-4">
               <div className="border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleSection("basic")}
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                >
-                  <div className="flex items-center gap-2 text-slate-900 dark:text-white  text-xs  ">
-                    <Building2 size={15} className="text-blue-500" />
-                    Basic Information
-                  </div>
+                <button type="button" onClick={() => toggleSection("basic")} className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                  <div className="flex items-center gap-2 text-slate-900 dark:text-white text-xs"><Building2 size={15} className="text-blue-500" />Basic Information</div>
                   {expandedSections.basic ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                 </button>
-                
                 {expandedSections.basic && (
-                  <div className="p-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
                     <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Vendor Code</label>
-                      <input
-                        type="text"
-                        name="vendor_code"
-                        value={formData.vendor_code}
-                        disabled
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900  text-blue-600"
-                      />
+                      <label className="block text-xs text-slate-500 mb-1">Vendor Code</label>
+                      <input type="text" name="vendor_code" value={formData.vendor_code} disabled className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900 text-blue-600" />
                     </div>
                     <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Vendor Name *</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleFormChange}
-                        required
-                        placeholder="Enter vendor name"
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
+                      <label className="block text-xs text-slate-500 mb-1">Vendor Name *</label>
+                      <input type="text" name="name" value={formData.name} onChange={handleFormChange} required placeholder="Enter vendor name" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Vendor Type *</label>
-                      <select
-                        name="vendor_type"
-                        value={formData.vendor_type}
-                        onChange={handleFormChange}
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      >
+                      <label className="block text-xs text-slate-500 mb-1">Vendor Type *</label>
+                      <select name="vendor_type" value={formData.vendor_type} onChange={handleFormChange} className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none">
                         <option value="material_supplier">Material Supplier</option>
                         <option value="service_vendor">Service Vendor</option>
                         <option value="contractor">Contractor</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Status</label>
-                      <select
-                        name="status"
-                        value={formData.status}
-                        onChange={handleFormChange}
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      >
+                      <label className="block text-xs text-slate-500 mb-1">Status</label>
+                      <select name="status" value={formData.status} onChange={handleFormChange} className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                       </select>
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-xs  text-slate-500  mb-1">Vendor Category (Multi-select)</label>
+                      <label className="block text-xs text-slate-500 mb-1">Vendor Category</label>
                       <div className="flex flex-wrap gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900">
                         {VENDOR_CATEGORIES.map(cat => (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => {
-                              const current = Array.isArray(formData.category) ? formData.category : [];
-                              const updated = current.includes(cat) 
-                                ? current.filter(c => c !== cat)
-                                : [...current, cat];
-                              setFormData(prev => ({ ...prev, category: updated }));
-                            }}
-                            className={`p-1 text-xs  rounded transition-all ${
-                              Array.isArray(formData.category) && formData.category.includes(cat)
-                                ? "bg-blue-600 text-white  shadow-blue-500/20"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200"
-                            }`}
-                          >
-                            {cat}
-                          </button>
+                          <button key={cat} type="button" onClick={() => { const current = Array.isArray(formData.category) ? formData.category : []; const updated = current.includes(cat) ? current.filter(c => c !== cat) : [...current, cat]; setFormData(prev => ({ ...prev, category: updated })); }} className={`p-1.5 text-xs rounded transition-all ${Array.isArray(formData.category) && formData.category.includes(cat) ? "bg-blue-600 text-white shadow-blue-500/20" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200"}`}>{cat}</button>
                         ))}
                       </div>
                     </div>
                   </div>
                 )}
               </div>
-
-              {/* Section: Contact Information */}
               <div className="border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleSection("contact")}
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                >
-                  <div className="flex items-center gap-2 text-slate-900 dark:text-white  text-xs  ">
-                    <UserCheck size={15} className="text-emerald-500" />
-                    Contact Information
-                  </div>
+                <button type="button" onClick={() => toggleSection("contact")} className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                  <div className="flex items-center gap-2 text-slate-900 dark:text-white text-xs"><UserCheck size={15} className="text-emerald-500" />Contact Information</div>
                   {expandedSections.contact ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                 </button>
-                
                 {expandedSections.contact && (
-                  <div className="p-2 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
                     <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Contact Person Name</label>
-                      <input
-                        type="text"
-                        name="contact_person_name"
-                        value={formData.contact_person_name}
-                        onChange={handleFormChange}
-                        placeholder="Full Name"
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
+                      <label className="block text-xs text-slate-500 mb-1">Contact Person</label>
+                      <input type="text" name="contact_person_name" value={formData.contact_person_name} onChange={handleFormChange} placeholder="Full Name" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Designation</label>
-                      <input
-                        type="text"
-                        name="designation"
-                        value={formData.designation}
-                        onChange={handleFormChange}
-                        placeholder="e.g. Sales Manager"
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
+                      <label className="block text-xs text-slate-500 mb-1">Mobile</label>
+                      <input type="text" name="mobile_number" value={formData.mobile_number} onChange={handleFormChange} placeholder="+91 XXXXXXXXXX" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Mobile Number</label>
-                      <input
-                        type="text"
-                        name="mobile_number"
-                        value={formData.mobile_number}
-                        onChange={handleFormChange}
-                        placeholder="+91 XXXXXXXXXX"
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
+                      <label className="block text-xs text-slate-500 mb-1">Email</label>
+                      <input type="email" name="email" value={formData.email} onChange={handleFormChange} placeholder="vendor@example.com" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Email</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleFormChange}
-                        placeholder="vendor@example.com"
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs  text-slate-500  mb-1">Address</label>
-                      <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleFormChange}
-                        placeholder="Plot No, Industrial Area..."
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs  text-slate-500  mb-1">City</label>
-                      <input
-                        type="text"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleFormChange}
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs  text-slate-500  mb-1">State</label>
-                      <input
-                        type="text"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleFormChange}
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs  text-slate-500  mb-1">Pincode</label>
-                      <input
-                        type="text"
-                        name="pincode"
-                        value={formData.pincode}
-                        onChange={handleFormChange}
-                        className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none"
-                      />
+                      <label className="block text-xs text-slate-500 mb-1">City</label>
+                      <input type="text" name="city" value={formData.city} onChange={handleFormChange} className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
                     </div>
                   </div>
                 )}
               </div>
             </form>
-
-            {/* Footer */}
-            <div className="sticky bottom-0 bg-white dark:bg-slate-800 px-8 py-4 border-t border-slate-200 dark:border-slate-600 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddModal(false);
-                  setShowEditModal(false);
-                  setEditingVendor(null);
-                }}
-                className="p-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors  text-xs "
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={editingVendor ? handleUpdateVendor : handleAddVendor}
-                disabled={submitting}
-                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all  text-xs   shadow-blue-500/20 disabled:opacity-50 flex items-center gap-2"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  editingVendor ? "Update Vendor" : "Add Vendor"
-                )}
-              </button>
+            <div className="sticky bottom-0 bg-white dark:bg-slate-800 p-4 border-t border-slate-200 dark:border-slate-600 flex justify-end gap-3">
+              <button type="button" onClick={() => { setShowAddModal(false); setShowEditModal(false); setEditingVendor(null); }} className="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-xs transition-colors">Cancel</button>
+              <button type="submit" disabled={submitting} onClick={editingVendor ? handleUpdateVendor : handleAddVendor} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs transition-colors flex items-center gap-2 disabled:opacity-50">{submitting && <X className="animate-spin" size={12} />}{editingVendor ? "Update Vendor" : "Create Vendor"}</button>
             </div>
           </div>
         </div>
       )}
-
-
     </div>
   );
 };

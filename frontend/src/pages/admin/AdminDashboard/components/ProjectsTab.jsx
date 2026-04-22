@@ -34,7 +34,7 @@ const ProjectsTab = ({ projects }) => (
                 >
                   <div className="flex items-start justify-between gap-2 mb-1.5">
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-semibold text-slate-900 dark:text-white truncate text-left">
+                      <h4 className="text-xs  text-slate-900 dark:text-white truncate text-left">
                         {project.name}
                       </h4>
                       <div className="flex items-center gap-2 mt-0.5">

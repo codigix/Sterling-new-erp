@@ -86,17 +86,17 @@ const LoginPage = () => {
 
       <div className="w-full max-w-md bg-white rounded  border border-slate-200 p-5">
         <div className="flex bg-slate-100 p-1 rounded-md mb-4">
-          <button className="flex-1 py-1.5 text-xs font-medium rounded bg-white text-blue-600 ">
+          <button className="flex-1 py-1.5 text-xs  rounded bg-white text-blue-600 ">
             Sign In
           </button>
-          <Link to="/register" className="flex-1 py-1.5 text-xs font-medium rounded text-slate-500 hover:text-slate-700 text-center">
+          <Link to="/register" className="flex-1 py-1.5 text-xs  rounded text-slate-500 hover:text-slate-700 text-center">
             Register
           </Link>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <div className="flex flex-col">
-            <label htmlFor="username" className="text-xs font-medium text-slate-900 mb-0.5">
+            <label htmlFor="username" className="text-xs  text-slate-900 mb-0.5">
               Email Address
             </label>
             <div className="relative flex items-center">
@@ -116,7 +116,7 @@ const LoginPage = () => {
 
           <div className="flex flex-col">
             <div className="flex justify-between items-center mb-0.5">
-              <label htmlFor="password" title="Password" className="text-xs font-medium text-slate-900">
+              <label htmlFor="password" title="Password" className="text-xs  text-slate-900">
                 Password
               </label>
               <a href="#forgot" className="text-xs text-blue-600 hover:underline">
@@ -155,7 +155,7 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="mt-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="mt-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm  flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? "Signing in..." : (
               <>
@@ -166,7 +166,7 @@ const LoginPage = () => {
         </form>
 
         <div className="mt-4 p-3 bg-slate-50 rounded border border-slate-100">
-          <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold mb-3  tracking-wider">
+          <div className="flex items-center gap-2 text-slate-500 text-xs  mb-3  tracking-wider">
             <Users size={12} className="text-blue-500" />
             <span>Quick Access</span>
           </div>
@@ -178,7 +178,7 @@ const LoginPage = () => {
                 onClick={() => setFormData({ username: item.email, password: item.password })}
                 className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-md hover:border-blue-400 hover: transition-all text-center group"
               >
-                <span className="text-xs font-medium text-slate-700 group-hover:text-blue-600">
+                <span className="text-xs  text-slate-700 group-hover:text-blue-600">
                   {item.label}
                 </span>
               </button>

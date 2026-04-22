@@ -163,7 +163,7 @@ const RootCardBuilderPage = () => {
       label: 'Code',
       sortable: true,
       render: (value, row) => (
-        <span className="font-semibold text-slate-900 dark:text-white">
+        <span className=" text-slate-900 dark:text-white">
           {value || row.steps?.step1_clientPO?.projectCode || row.code || '-'}
         </span>
       ),
@@ -174,7 +174,7 @@ const RootCardBuilderPage = () => {
       sortable: true,
       render: (value, row) => (
         <div className="flex flex-col gap-0.5">
-          <span className="font-semibold text-slate-900 dark:text-white">
+          <span className=" text-slate-900 dark:text-white">
             {value || row.steps?.step1_clientPO?.poNumber || '-'}
           </span>
           <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -223,7 +223,7 @@ const RootCardBuilderPage = () => {
           {error}
           <button
             onClick={() => setError(null)}
-            className="ml-4 font-semibold hover:opacity-75"
+            className="ml-4  hover:opacity-75"
           >
             ×
           </button>
@@ -232,12 +232,12 @@ const RootCardBuilderPage = () => {
 
       {stats && (
         <div>
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Overview</h2>
+          <h2 className="text-lg  text-slate-900 dark:text-white mb-4">Overview</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Total Root Cards</p>
+                  <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">Total Root Cards</p>
                   <p className="text-3xl  text-slate-900 dark:text-white">{stats.totalRootCards || 0}</p>
                 </div>
                 <BarChart3 size={32} className="text-blue-500 opacity-20 flex-shrink-0" />
@@ -246,7 +246,7 @@ const RootCardBuilderPage = () => {
             <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">In Progress</p>
+                  <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">In Progress</p>
                   <p className="text-3xl  text-purple-600 dark:text-purple-400">{stats.inProgressRootCards || 0}</p>
                 </div>
                 <div className="h-10 w-10 rounded bg-purple-100 dark:bg-purple-900/30 flex-shrink-0"></div>
@@ -255,7 +255,7 @@ const RootCardBuilderPage = () => {
             <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Planning</p>
+                  <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">Planning</p>
                   <p className="text-3xl  text-orange-600 dark:text-orange-400">{stats.planningRootCards || 0}</p>
                 </div>
                 <div className="h-10 w-10 rounded bg-orange-100 dark:bg-orange-900/30 flex-shrink-0"></div>
@@ -264,7 +264,7 @@ const RootCardBuilderPage = () => {
             <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Completed</p>
+                  <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">Completed</p>
                   <p className="text-3xl  text-green-600 dark:text-green-400">{stats.completedRootCards || 0}</p>
                 </div>
                 <div className="h-10 w-10 rounded bg-green-100 dark:bg-green-900/30 flex-shrink-0"></div>

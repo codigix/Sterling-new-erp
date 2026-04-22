@@ -1,18 +1,13 @@
 import { useState } from "react";
 import {
-  Search,
-  Filter,
   Download,
   Plus,
   Eye,
   Edit,
-  Trash2,
 } from "lucide-react";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const CustomerInvoicesPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-
   const customerInvoices = [
     {
       id: 1,
@@ -66,13 +61,6 @@ const CustomerInvoicesPage = () => {
     },
   ];
 
-  const filteredInvoices = customerInvoices.filter(
-    (invoice) =>
-      (invoice.invoiceNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        invoice.customer.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter === "all" || invoice.status === statusFilter)
-  );
-
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -117,11 +105,67 @@ const CustomerInvoicesPage = () => {
     .reduce((sum, c) => sum + c.amount, 0);
   const outstandingAmount = totalAmount - paidAmount;
 
+  const columns = [
+    {
+      header: "Invoice",
+      accessorKey: "invoiceNo",
+      cell: (info) => (
+        <span className=" text-slate-900 dark:text-white text-xs">
+          {info.getValue()}
+        </span>
+      ),
+    },
+    {
+      header: "Customer",
+      accessorKey: "customer",
+    },
+    {
+      header: "Amount",
+      accessorKey: "amount",
+      cell: (info) => (
+        <span className=" text-slate-900 dark:text-white text-xs">
+          ₹{info.getValue().toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    {
+      header: "Due Date",
+      accessorKey: "dueDate",
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      cell: (info) => (
+        <span
+          className={`px-3 py-1 rounded text-xs  ${getStatusColor(
+            info.getValue()
+          )}`}
+        >
+          {info.getValue().charAt(0).toUpperCase() + info.getValue().slice(1)}
+        </span>
+      ),
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      cell: () => (
+        <div className="flex justify-center gap-2">
+          <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
+            <Eye size={15} className="text-slate-500 dark:text-slate-400" />
+          </button>
+          <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
+            <Edit size={15} className="text-blue-600 dark:text-blue-400" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl  text-slate-900 dark:text-white text-xs">
+          <h1 className="text-xl  text-slate-900 dark:text-white">
             Customer Invoices
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -129,11 +173,11 @@ const CustomerInvoicesPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
             <Plus size={15} />
             New Invoice
           </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors ">
             <Download size={15} />
             Export
           </button>
@@ -146,7 +190,7 @@ const CustomerInvoicesPage = () => {
             key={stat.label}
             className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4"
           >
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-sm  text-slate-500 dark:text-slate-400">
               {stat.label}
             </p>
             <p className={`text-2xl  mt-2 ${stat.color}`}>
@@ -158,96 +202,29 @@ const CustomerInvoicesPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <div className="relative mb-6">
-            <Search
-              size={15}
-              className="absolute left-3 top-3 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Search invoices..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 dark:bg-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Invoice
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Due Date
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold text-slate-900 dark:text-white">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-center font-semibold text-slate-900 dark:text-white">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filteredInvoices.map((invoice) => (
-                  <tr
-                    key={invoice.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <td className="p-1 font-medium text-slate-900 dark:text-white text-xs">
-                      {invoice.invoiceNo}
-                    </td>
-                    <td className="p-1 text-slate-700 dark:text-slate-300">
-                      {invoice.customer}
-                    </td>
-                    <td className="p-1 font-medium text-slate-900 dark:text-white text-xs">
-                      ₹{invoice.amount.toLocaleString("en-IN")}
-                    </td>
-                    <td className="p-1 text-slate-700 dark:text-slate-300">
-                      {invoice.dueDate}
-                    </td>
-                    <td className="p-1">
-                      <span
-                        className={`px-3 py-1 rounded  text-xs font-medium ${getStatusColor(
-                          invoice.status
-                        )}`}
-                      >
-                        {invoice.status.charAt(0).toUpperCase() +
-                          invoice.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="p-1 flex justify-center gap-2">
-                      <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
-                        <Eye
-                          size={15}
-                          className="text-slate-500 dark:text-slate-400"
-                        />
-                      </button>
-                      <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-600 rounded transition-colors">
-                        <Edit
-                          size={15}
-                          className="text-blue-600 dark:text-blue-400"
-                        />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={columns}
+            data={customerInvoices}
+            searchPlaceholder="Search invoices..."
+            filters={[
+              {
+                key: "status",
+                label: "Status",
+                options: [
+                  { label: "All Invoices", value: "all" },
+                  { label: "Paid", value: "paid" },
+                  { label: "Pending", value: "pending" },
+                  { label: "Partial", value: "partial" },
+                  { label: "Overdue", value: "overdue" },
+                ],
+              },
+            ]}
+          />
         </div>
 
         <div className="space-y-4">
           <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
+            <h3 className="text-lg  text-slate-900 dark:text-white mb-4">
               Revenue Summary
             </h3>
             <div className="space-y-3">
@@ -255,7 +232,7 @@ const CustomerInvoicesPage = () => {
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   Total Invoiced
                 </p>
-                <p className="text-xl  text-slate-900 dark:text-white text-xs">
+                <p className="text-xl  text-slate-900 dark:text-white">
                   ₹{totalAmount.toLocaleString("en-IN")}
                 </p>
               </div>
@@ -276,23 +253,6 @@ const CustomerInvoicesPage = () => {
                 </p>
               </div>
             </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
-            <h3 className="text-lg  text-slate-900 dark:text-white text-xs mb-4">
-              Status Filter
-            </h3>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
-            >
-              <option value="all">All Invoices</option>
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-              <option value="partial">Partial</option>
-              <option value="overdue">Overdue</option>
-            </select>
           </div>
         </div>
       </div>

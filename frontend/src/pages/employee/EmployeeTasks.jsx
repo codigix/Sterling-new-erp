@@ -155,25 +155,25 @@ const EmployeeTasks = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white border-2 border-purple-100 dark:border-purple-900/30 rounded p-4  transition-all hover:border-purple-300 dark:hover:border-purple-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Total Tasks</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">Total Tasks</p>
           <p className="text-3xl  text-slate-900 dark:text-white">{stats.total}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">All assignments</p>
         </div>
 
         <div className="bg-white border-2 border-green-100 dark:border-green-900/30 rounded p-4  transition-all hover:border-green-300 dark:hover:border-green-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Completed</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">Completed</p>
           <p className="text-3xl  text-slate-900 dark:text-white">{stats.completed}</p>
           <p className="text-xs text-green-600 dark:text-green-400 mt-2">{stats.total > 0 ? Math.round((stats.completed/stats.total)*100) : 0}% done</p>
         </div>
 
         <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded p-4  transition-all hover:border-blue-300 dark:hover:border-blue-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">In Progress</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">In Progress</p>
           <p className="text-3xl  text-slate-900 dark:text-white">{stats.inProgress}</p>
           <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">Active work</p>
         </div>
 
         <div className="bg-white border-2 border-yellow-100 dark:border-yellow-900/30 rounded p-4  transition-all hover:border-yellow-300 dark:hover:border-yellow-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">Pending</p>
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">Pending</p>
           <p className="text-3xl  text-slate-900 dark:text-white">{stats.pending}</p>
           <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-2">Not started</p>
         </div>
@@ -183,7 +183,7 @@ const EmployeeTasks = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <CheckSquare className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Task List</h2>
+            <h2 className="text-lg  text-slate-900 dark:text-white">Task List</h2>
           </div>
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-slate-400" />
@@ -216,7 +216,7 @@ const EmployeeTasks = () => {
                   className="flex-1 min-w-0"
                 >
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <h4 className="font-semibold text-slate-900 dark:text-white">{task.title}</h4>
+                    <h4 className=" text-slate-900 dark:text-white">{task.title}</h4>
                     <Badge className={getStatusColor(task.status)}>
                       {task.status === 'completed' ? (
                         <>
@@ -251,7 +251,7 @@ const EmployeeTasks = () => {
                       </span>
                     )}
                     {task.item_name && (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-medium border border-emerald-100 dark:border-emerald-900/30 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20 ">
+                      <span className="text-emerald-600 dark:text-emerald-400  border border-emerald-100 dark:border-emerald-900/30 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20 ">
                         🛠️ Item: {task.item_name}
                       </span>
                     )}

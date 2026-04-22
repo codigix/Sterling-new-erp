@@ -150,7 +150,7 @@ const SwipeButton = ({ onSwipeComplete, isLoading = false, isCompleted = false }
           }`}
         >
           <span
-            className={`font-semibold transition-all duration-200 ${
+            className={` transition-all duration-200 ${
               isCompleted || isLocked
                 ? 'text-green-600 dark:text-green-400 text-sm'
                 : 'text-slate-500 dark:text-slate-400 text-base'

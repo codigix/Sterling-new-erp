@@ -63,14 +63,14 @@ const IncomeStatementPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
             <Download size={15} />
             Export
           </button>
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
           >
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
@@ -81,7 +81,7 @@ const IncomeStatementPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-green-50 dark:bg-green-900 rounded border border-green-200 dark:border-green-700 p-4">
-          <p className="text-sm font-medium text-green-700 dark:text-green-300">
+          <p className="text-sm  text-green-700 dark:text-green-300">
             Gross Profit
           </p>
           <p className="text-2xl  text-green-600 dark:text-green-400 mt-2">
@@ -92,7 +92,7 @@ const IncomeStatementPage = () => {
           </p>
         </div>
         <div className="bg-blue-50 dark:bg-blue-900 rounded border border-blue-200 dark:border-blue-700 p-4">
-          <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+          <p className="text-sm  text-blue-700 dark:text-blue-300">
             Operating Profit
           </p>
           <p className="text-2xl  text-blue-600 dark:text-blue-400 mt-2">
@@ -103,7 +103,7 @@ const IncomeStatementPage = () => {
           </p>
         </div>
         <div className="bg-purple-50 dark:bg-purple-900 rounded border border-purple-200 dark:border-purple-700 p-4">
-          <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
+          <p className="text-sm  text-purple-700 dark:text-purple-300">
             Net Profit
           </p>
           <p className="text-2xl  text-purple-600 dark:text-purple-400 mt-2">
@@ -123,7 +123,7 @@ const IncomeStatementPage = () => {
         <div className="space-y-8">
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 Revenue
               </h3>
               <p className="text-lg  text-green-600">
@@ -160,7 +160,7 @@ const IncomeStatementPage = () => {
 
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 Cost of Goods Sold
               </h3>
               <p className="text-lg  text-red-600">
@@ -203,7 +203,7 @@ const IncomeStatementPage = () => {
 
           <div className="border-t-2 border-slate-200 dark:border-slate-700 pt-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 Gross Profit
               </h3>
               <p className="text-lg  text-green-600">
@@ -214,7 +214,7 @@ const IncomeStatementPage = () => {
 
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 Operating Expenses
               </h3>
               <p className="text-lg  text-red-600">
@@ -284,7 +284,7 @@ const IncomeStatementPage = () => {
 
           <div className="border-t-2 border-slate-200 dark:border-slate-700 pt-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 Operating Profit
               </h3>
               <p className="text-lg  text-blue-600">

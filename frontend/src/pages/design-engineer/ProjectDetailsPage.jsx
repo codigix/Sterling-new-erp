@@ -555,7 +555,7 @@ const ProjectDetailsPage = () => {
                     setFilterStatus("all");
                     setFilterPriority("all");
                   }}
-                  className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition"
+                  className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-sm  transition"
                 >
                   Reset Filters
                 </button>
@@ -621,7 +621,7 @@ const ProjectDetailsPage = () => {
                                 />
                               </div>
                               <div>
-                                <p className="font-semibold text-slate-900 dark:text-white text-xs">
+                                <p className=" text-slate-900 dark:text-white text-xs">
                                   {project.project_name || project.customer}
                                 </p>
                               </div>
@@ -683,10 +683,10 @@ const ProjectDetailsPage = () => {
               <div className="p-1 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Showing{" "}
-                  <span className="font-semibold">
+                  <span className="">
                     {filteredProjects.length}
                   </span>{" "}
-                  of <span className="font-semibold">{projects.length}</span>{" "}
+                  of <span className="">{projects.length}</span>{" "}
                   root cards
                 </p>
               </div>
@@ -736,7 +736,7 @@ const ProjectDetailsPage = () => {
                   <p className="text-xs  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     Customer / Client
                   </p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                  <p className="text-sm  text-slate-900 dark:text-white">
                     {selectedProject?.customer ||
                       selectedProject?.client_name ||
                       "N/A"}
@@ -766,7 +766,7 @@ const ProjectDetailsPage = () => {
                   <p className="text-xs  tracking-wider  text-slate-500 dark:text-slate-400 mb-1">
                     Due Date
                   </p>
-                  <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 ">
                     {selectedProject?.due_date
                       ? new Date(selectedProject.due_date).toLocaleDateString()
                       : "N/A"}
@@ -949,7 +949,7 @@ const ProjectDetailsPage = () => {
                   {projectData.steelSections &&
                     projectData.steelSections.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -979,7 +979,7 @@ const ProjectDetailsPage = () => {
                   />
                   {projectData.plates && projectData.plates.length > 0 && (
                     <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                      <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                         Selected:
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -1010,7 +1010,7 @@ const ProjectDetailsPage = () => {
                   {projectData.fasteners &&
                     projectData.fasteners.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1041,7 +1041,7 @@ const ProjectDetailsPage = () => {
                   {projectData.components &&
                     projectData.components.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1072,7 +1072,7 @@ const ProjectDetailsPage = () => {
                   {projectData.electrical &&
                     projectData.electrical.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1103,7 +1103,7 @@ const ProjectDetailsPage = () => {
                   {projectData.consumables &&
                     projectData.consumables.length > 0 && (
                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mb-2">
+                        <p className="text-xs  text-slate-700 dark:text-slate-400 mb-2">
                           Selected:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1150,7 +1150,7 @@ const ProjectDetailsPage = () => {
                   } block`}
                 >
                   <Upload className="mx-auto mb-3 text-blue-500" size={32} />
-                  <p className="text-slate-900 dark:text-white font-medium">
+                  <p className="text-slate-900 dark:text-white ">
                     {editMode
                       ? "Click to upload reference materials"
                       : "View mode - cannot upload"}
@@ -1162,20 +1162,20 @@ const ProjectDetailsPage = () => {
               </div>
               {uploadedFiles.references.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  <h4 className="text-sm  text-slate-900 dark:text-white">
                     Uploaded Files ({uploadedFiles.references.length})
                   </h4>
                   <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded">
                     <table className="w-full">
                       <thead className="bg-slate-100 dark:bg-slate-800">
                         <tr>
-                          <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
+                          <th className="p-2 text-left text-xs  text-slate-900 dark:text-white">
                             Document Name
                           </th>
-                          <th className="p-2 text-left text-xs font-semibold text-slate-900 dark:text-white">
+                          <th className="p-2 text-left text-xs  text-slate-900 dark:text-white">
                             File Type
                           </th>
-                          <th className="p-2 text-center text-xs font-semibold text-slate-900 dark:text-white">
+                          <th className="p-2 text-center text-xs  text-slate-900 dark:text-white">
                             Action
                           </th>
                         </tr>
@@ -1190,7 +1190,7 @@ const ProjectDetailsPage = () => {
                               key={idx}
                               className="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                             >
-                              <td className="px-4 py-3 text-sm text-slate-900 dark:text-white">
+                              <td className="p-2 text-sm text-slate-900 dark:text-white">
                                 <div className="flex items-center gap-2">
                                   <File
                                     size={15}
@@ -1199,10 +1199,10 @@ const ProjectDetailsPage = () => {
                                   <span className="truncate">{fileName}</span>
                                 </div>
                               </td>
-                              <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                              <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
                                 {fileExtension}
                               </td>
-                              <td className="px-4 py-3 text-center">
+                              <td className="p-2 text-center">
                                 <button
                                   onClick={() => removeFile(idx)}
                                   disabled={!editMode}
@@ -1235,7 +1235,7 @@ const ProjectDetailsPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white text-xs mb-2">
+                <label className="block text-sm  text-slate-900 dark:text-white text-xs mb-2">
                   Design Specifications Summary
                 </label>
                 <textarea
@@ -1255,7 +1255,7 @@ const ProjectDetailsPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white text-xs mb-2">
+                <label className="block text-sm  text-slate-900 dark:text-white text-xs mb-2">
                   Manufacturing Instructions
                 </label>
                 <textarea
@@ -1278,7 +1278,7 @@ const ProjectDetailsPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white text-xs mb-2">
+                <label className="block text-sm  text-slate-900 dark:text-white text-xs mb-2">
                   Quality & Safety Requirements
                 </label>
                 <textarea
@@ -1298,7 +1298,7 @@ const ProjectDetailsPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white text-xs mb-2">
+                <label className="block text-sm  text-slate-900 dark:text-white text-xs mb-2">
                   Additional Notes
                 </label>
                 <textarea

@@ -91,11 +91,11 @@ const BudgetManagementPage = () => {
           </p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors ">
             <Plus size={15} />
             New Budget
           </button>
-          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors font-medium">
+          <button className="flex items-center text-xs gap-2 p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded transition-colors ">
             <Download size={15} />
             Export
           </button>
@@ -104,7 +104,7 @@ const BudgetManagementPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Budgeted
           </p>
           <p className="text-2xl  text-blue-600 dark:text-blue-400 mt-2">
@@ -112,7 +112,7 @@ const BudgetManagementPage = () => {
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Total Spent
           </p>
           <p className="text-2xl  text-orange-600 dark:text-orange-400 mt-2">
@@ -120,7 +120,7 @@ const BudgetManagementPage = () => {
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Remaining
           </p>
           <p className="text-2xl  text-green-600 dark:text-green-400 mt-2">
@@ -128,7 +128,7 @@ const BudgetManagementPage = () => {
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm  text-slate-500 dark:text-slate-400">
             Overall Utilization
           </p>
           <p className="text-2xl  text-purple-600 dark:text-purple-400 mt-2">
@@ -139,13 +139,13 @@ const BudgetManagementPage = () => {
 
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <div className="mb-6">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
             Budget Year
           </label>
           <select
             value={budgetYear}
             onChange={(e) => setBudgetYear(e.target.value)}
-            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium text-xs"
+            className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white  text-xs"
           >
             <option value="2023">2023</option>
             <option value="2024">2024</option>
@@ -172,7 +172,7 @@ const BudgetManagementPage = () => {
                 </div>
                 <div className="text-right">
                   <span
-                    className={`px-3 py-1 rounded  text-xs font-medium ${getStatusColor(
+                    className={`px-3 py-1 rounded  text-xs  ${getStatusColor(
                       budget.status
                     )}`}
                   >
@@ -217,7 +217,7 @@ const BudgetManagementPage = () => {
             ].map((item) => (
               <div key={item.month}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <span className="text-sm  text-slate-700 dark:text-slate-300">
                     {item.month}
                   </span>
                   <span className="text-sm  text-slate-900 dark:text-white text-xs">
@@ -242,7 +242,7 @@ const BudgetManagementPage = () => {
           </h3>
           <div className="space-y-3">
             <div className="p-4 bg-red-50 dark:bg-red-900 rounded border border-red-200 dark:border-red-700">
-              <p className="font-medium text-red-900 dark:text-red-200">
+              <p className=" text-red-900 dark:text-red-200">
                 Critical Alert
               </p>
               <p className="text-sm text-red-800 dark:text-red-300 mt-1">
@@ -250,7 +250,7 @@ const BudgetManagementPage = () => {
               </p>
             </div>
             <div className="p-4 bg-yellow-50 dark:bg-yellow-900 rounded border border-yellow-200 dark:border-yellow-700">
-              <p className="font-medium text-yellow-900 dark:text-yellow-200">
+              <p className=" text-yellow-900 dark:text-yellow-200">
                 Warning
               </p>
               <p className="text-sm text-yellow-800 dark:text-yellow-300 mt-1">
@@ -258,7 +258,7 @@ const BudgetManagementPage = () => {
               </p>
             </div>
             <div className="p-4 bg-green-50 dark:bg-green-900 rounded border border-green-200 dark:border-green-700">
-              <p className="font-medium text-green-900 dark:text-green-200">
+              <p className=" text-green-900 dark:text-green-200">
                 On Track
               </p>
               <p className="text-sm text-green-800 dark:text-green-300 mt-1">

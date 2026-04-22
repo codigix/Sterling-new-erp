@@ -145,7 +145,7 @@ const EmployeeProfile = () => {
       <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded p-6  transition-all hover:border-blue-300 dark:hover:border-blue-700">
         <div className="mb-4 flex items-center gap-2">
           <User className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Personal Information</h2>
+          <h2 className="text-lg  text-slate-900 dark:text-white">Personal Information</h2>
         </div>
         
         <div className="space-y-2">
@@ -166,7 +166,7 @@ const EmployeeProfile = () => {
             ) : (
               <div className="flex-1 space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">First Name</label>
                   <input
                     type="text"
                     name="firstName"
@@ -176,7 +176,7 @@ const EmployeeProfile = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
                   <input
                     type="text"
                     name="lastName"
@@ -193,40 +193,40 @@ const EmployeeProfile = () => {
             {!isEditing ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
                     Email Address
                   </p>
-                  <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
+                  <p className="text-slate-900 dark:text-white flex items-center gap-2 ">
                     <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     {user?.email}
                   </p>
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
                     Designation
                   </p>
-                  <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
+                  <p className="text-slate-900 dark:text-white flex items-center gap-2 ">
                     <Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     {profileData.designation}
                   </p>
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
                     Department
                   </p>
-                  <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
+                  <p className="text-slate-900 dark:text-white flex items-center gap-2 ">
                     <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     {user?.department}
                   </p>
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+                  <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
                     Role
                   </p>
-                  <p className="text-slate-900 dark:text-white font-medium">
+                  <p className="text-slate-900 dark:text-white ">
                     {user?.role}
                   </p>
                 </div>
@@ -234,7 +234,7 @@ const EmployeeProfile = () => {
             ) : (
               <div>
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Designation</label>
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">Designation</label>
                   <input
                     type="text"
                     name="designation"
@@ -245,20 +245,20 @@ const EmployeeProfile = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+                    <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
                       Email Address
                     </p>
-                    <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
+                    <p className="text-slate-900 dark:text-white flex items-center gap-2 ">
                       <Mail className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                       {user?.email}
                     </p>
                   </div>
 
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+                    <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
                       Department
                     </p>
-                    <p className="text-slate-900 dark:text-white flex items-center gap-2 font-medium">
+                    <p className="text-slate-900 dark:text-white flex items-center gap-2 ">
                       <Building2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                       {user?.department}
                     </p>
@@ -303,12 +303,12 @@ const EmployeeProfile = () => {
       <div className="bg-white border-2 border-purple-100 dark:border-purple-900/30 rounded p-6  transition-all hover:border-purple-300 dark:hover:border-purple-700">
         <div className="mb-4 flex items-center gap-2">
           <Lock className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Security</h2>
+          <h2 className="text-lg  text-slate-900 dark:text-white">Security</h2>
         </div>
         
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
               Current Password
             </label>
             <input
@@ -326,7 +326,7 @@ const EmployeeProfile = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
               New Password
             </label>
             <input
@@ -347,7 +347,7 @@ const EmployeeProfile = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
               Confirm Password
             </label>
             <input
@@ -376,7 +376,7 @@ const EmployeeProfile = () => {
       </div>
 
       <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded p-6  transition-all">
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Account Statistics</h2>
+        <h2 className="text-lg  text-slate-900 dark:text-white mb-4">Account Statistics</h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded hover: transition">

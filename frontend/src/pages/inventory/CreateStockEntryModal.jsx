@@ -3,6 +3,7 @@ import { X, Package, Calendar, Trash2, Plus, LayoutGrid, ClipboardList, Info, Za
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
   const [loading, setLoading] = useState(false);
@@ -137,7 +138,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
     
     if (parts.length === 0) return null;
     return (
-      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+      <div className="text-[10px] text-blue-600 dark:text-blue-400  mt-0.5">
         Dim: {parts.join(" \u00d7 ")} mm
       </div>
     );
@@ -309,7 +310,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex justify-center items-start sm:items-center p-4 bg-slate-900/70 backdrop-blur-md animate-in fade-in duration-300 overflow-y-auto">
+    <div className="fixed inset-0 z-[110] flex justify-center items-start sm:items-center p-4 bg-slate-900/70 backdrop-blur-md animate-in fade-in duration-300">
       <div className="bg-white dark:bg-slate-900 rounded  w-full max-w-5xl my-auto border border-white/20 animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col max-h-[95vh]">
         {/* Header */}
         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-indigo-600/5 to-transparent flex-shrink-0">
@@ -492,7 +493,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
               {currentItem.item_group && (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mt-4 p-2 bg-indigo-50/30 dark:bg-indigo-900/10 rounded border border-indigo-100/50 dark:border-indigo-800/30">
                   <div className="col-span-full">
-                    <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">Technical Specifications ({currentItem.item_group})</p>
+                    <p className="text-[10px]  text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">Technical Specifications ({currentItem.item_group})</p>
                   </div>
                   
                   {/* Plate */}
@@ -633,7 +634,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
 
                   <div className="space-y-1">
                     <label className="text-[10px] text-slate-400 ml-1">Density</label>
-                    <input type="number" name="density" value={currentItem.density} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none font-bold text-indigo-600" />
+                    <input type="number" name="density" value={currentItem.density} onChange={handleCurrentItemChange} className="w-full p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none  text-indigo-600" />
                   </div>
                 </div>
               )}
@@ -676,50 +677,63 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
             {/* Added Items List */}
             {formData.items.length > 0 ? (
               <div className="overflow-hidden rounded border border-slate-100 dark:border-slate-700  bg-white dark:bg-slate-900">
-                <table className="w-full text-left">
-                  <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700">
-                    <tr>
-                      <th className="p-2 text-xs  text-slate-400  ">Material Identity</th>
-                      <th className="p-2 text-xs  text-slate-400   text-center">Quantity</th>
-                      <th className="p-2 text-xs  text-slate-400   text-center">Unit Rate</th>
-                      <th className="p-2 text-xs  text-slate-400   text-right">Aggregate</th>
-                      <th className="p-2 text-xs  text-slate-400   text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                    {formData.items.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="p-2">
-                          <div className="space-y-0.5">
-                            <p className="text-xs  text-indigo-600 font-mono  ">{item.item_code}</p>
-                            <p className="text-xs  text-slate-500 dark:text-slate-400   line-clamp-1">{item.item_name}</p>
-                            {renderDimensionsText(item)}
-                          </div>
-                        </td>
-                        <td className="p-2 text-center">
-                          <span className="text-xs  text-slate-900 dark:text-white">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</span>
-                          <span className="text-xs  text-slate-400  ml-1.5">{item.uom}</span>
-                        </td>
-                        <td className="p-2 text-center  text-slate-500 text-xs">₹{parseFloat(item.valuation_rate).toLocaleString()}</td>
-                        <td className="p-2 text-right  text-slate-900 dark:text-white text-xs">₹{(item.quantity * item.valuation_rate).toLocaleString()}</td>
-                        <td className="p-2 text-right">
-                          <button onClick={() => removeItem(item.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all">
-                            <Trash2 size={15} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="bg-indigo-50/30 dark:bg-indigo-900/10 border-t border-slate-100 dark:border-slate-800">
-                    <tr>
-                      <td colSpan="3" className="p-2 text-xs  text-indigo-900 dark:text-indigo-400   text-right">Transaction Grand Total:</td>
-                      <td className="p-2 text-xs  text-indigo-600 text-right">
-                        ₹{formData.items.reduce((sum, item) => sum + (item.quantity * item.valuation_rate), 0).toLocaleString()}
-                      </td>
-                      <td className="p-2"></td>
-                    </tr>
-                  </tfoot>
-                </table>
+                <DataTable
+                  data={formData.items}
+                  showSearch={false}
+                  columns={[
+                    {
+                      key: "item_identity",
+                      label: "Material Identity",
+                      className: "w-1/3",
+                      render: (_, item) => (
+                        <div className="space-y-0.5">
+                          <p className="text-xs  text-indigo-600 font-mono  ">{item.item_code}</p>
+                          <p className="text-xs  text-slate-500 dark:text-slate-400   line-clamp-1">{item.item_name}</p>
+                          {renderDimensionsText(item)}
+                        </div>
+                      )
+                    },
+                    {
+                      key: "quantity",
+                      label: "Quantity",
+                      className: "text-center",
+                      render: (val, item) => (
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span className="text-xs  text-slate-900 dark:text-white">{val ? parseFloat(val).toString() : "0"}</span>
+                          <span className="text-xs  text-slate-400">{item.uom}</span>
+                        </div>
+                      )
+                    },
+                    {
+                      key: "valuation_rate",
+                      label: "Unit Rate",
+                      className: "text-center",
+                      render: (val) => <span className="text-slate-500 text-xs">₹{parseFloat(val).toLocaleString()}</span>
+                    },
+                    {
+                      key: "aggregate",
+                      label: "Aggregate",
+                      className: "text-right",
+                      render: (_, item) => <span className="text-slate-900 dark:text-white text-xs">₹{(item.quantity * item.valuation_rate).toLocaleString()}</span>
+                    },
+                    {
+                      key: "actions",
+                      label: "Actions",
+                      className: "text-right",
+                      render: (_, item) => (
+                        <button onClick={() => removeItem(item.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all">
+                          <Trash2 size={15} />
+                        </button>
+                      )
+                    }
+                  ]}
+                />
+                <div className="bg-indigo-50/30 dark:bg-indigo-900/10 p-3 border-t border-slate-100 dark:border-slate-800 flex justify-end items-center gap-4">
+                  <span className="text-xs  text-indigo-900 dark:text-indigo-400">Transaction Grand Total:</span>
+                  <span className="text-lg  text-indigo-600 font-semibold">
+                    ₹{formData.items.reduce((sum, item) => sum + (item.quantity * item.valuation_rate), 0).toLocaleString()}
+                  </span>
+                </div>
               </div>
             ) : (
               <div className="p-5 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded border-2 border-dashed border-slate-200 dark:border-slate-700">
@@ -739,7 +753,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
               onChange={handleInputChange}
               placeholder="Record any details about this movement..."
               rows="3"
-              className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-xs"
+              className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition-all  text-xs"
             ></textarea>
           </div>
         </div>

@@ -21,11 +21,25 @@ const getOverviewReport = async (req, res) => {
     // Mock on-time delivery for now or calculate if possible
     const onTimeDelivery = 92; 
 
+    // Fetch monthly trends for projects
+    const [monthlyTrends] = await db.query(`
+      SELECT 
+        DATE_FORMAT(updated_at, '%b') as month,
+        COUNT(*) as count,
+        DATE_FORMAT(updated_at, '%Y-%m') as sort_key
+      FROM root_cards
+      WHERE status IN ('READY_FOR_DELIVERY', 'DELIVERED', 'Completed') 
+      AND updated_at BETWEEN ? AND ?
+      GROUP BY sort_key, month
+      ORDER BY sort_key ASC
+    `, [start, end]);
+
     res.json({
       completedProjects: completedProjects[0].count || 0,
       onTimeDelivery,
       totalRevenue: totalRevenue[0].total || 0,
-      activeAlerts: activeAlerts[0].count || 0
+      activeAlerts: activeAlerts[0].count || 0,
+      monthlyTrends: monthlyTrends || []
     });
   } catch (error) {
     console.error('Error fetching overview report:', error);
@@ -257,6 +271,58 @@ const getEmployeeWorkingHours = async (req, res) => {
   }
 };
 
+const getDesignEngineerReport = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Total Designs Created by this user
+    const [totalDesigns] = await db.query(
+      "SELECT COUNT(*) as count FROM design_documents WHERE created_by = ?",
+      [userId]
+    );
+
+    // Active Projects (Root Cards) assigned to this user
+    const [activeProjects] = await db.query(
+      "SELECT COUNT(DISTINCT root_card_id) as count FROM root_card_steps WHERE assigned_to = ? AND status != 'completed'",
+      [userId]
+    );
+
+    // Approval Rate for designs
+    const [approvalStats] = await db.query(
+      "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) as approved FROM design_documents WHERE created_by = ?",
+      [userId]
+    );
+    const approvalRate = approvalStats[0].total > 0 
+      ? Math.round((approvalStats[0].approved / approvalStats[0].total) * 100) 
+      : 100;
+
+    // Avg Review Time (Mocked for now as we don't have review_at column easily, but can be calculated if version > 1)
+    const avgReviewTime = "2.5 days";
+
+    // Recent Activity from audit logs for this user
+    const [recentActivity] = await db.query(
+      "SELECT action, timestamp as time FROM audit_logs WHERE user_name = (SELECT full_name FROM users WHERE id = ?) ORDER BY timestamp DESC LIMIT 5",
+      [userId]
+    );
+
+    res.json({
+      stats: [
+        { label: "Total Designs", value: totalDesigns[0].count.toString(), change: "Overall" },
+        { label: "Avg Review Time", value: avgReviewTime, change: "Current" },
+        { label: "Approval Rate", value: `${approvalRate}%`, change: "Quality" },
+        { label: "Active Projects", value: activeProjects[0].count.toString(), change: "Workload" },
+      ],
+      recentActivity: recentActivity.map(a => ({
+        action: a.action,
+        time: new Date(a.time).toLocaleString()
+      }))
+    });
+  } catch (error) {
+    console.error('Error fetching design engineer report:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   getOverviewReport,
   getProjectsReport,
@@ -266,5 +332,6 @@ module.exports = {
   getEmployeesReport,
   getEmployeePerformance,
   getEmployeeDailyReports,
-  getEmployeeWorkingHours
+  getEmployeeWorkingHours,
+  getDesignEngineerReport
 };

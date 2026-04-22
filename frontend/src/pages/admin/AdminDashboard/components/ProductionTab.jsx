@@ -124,7 +124,7 @@ const ProductionTab = ({ production }) => {
                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
                   On Track
                 </p>
                 <p className="text-xl   text-left">
@@ -142,7 +142,7 @@ const ProductionTab = ({ production }) => {
                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
                   Delayed
                 </p>
                 <p className="text-xl   text-left">
@@ -160,7 +160,7 @@ const ProductionTab = ({ production }) => {
                 <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
                   Critical
                 </p>
                 <p className="text-xl   text-left">
@@ -178,7 +178,7 @@ const ProductionTab = ({ production }) => {
                 <Timer className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
                   Avg Delay
                 </p>
                 <p className="text-xl   text-left">
@@ -206,7 +206,7 @@ const ProductionTab = ({ production }) => {
               >
                 <div className="flex-1">
                   <div className="flex items-center text-xs justify-between mb-2">
-                    <h4 className="font-medium  dark:">
+                    <h4 className="  dark:">
                       {item.project}
                     </h4>
                     <Badge className={getDelayStatusColor(item.status)}>
@@ -239,7 +239,7 @@ const ProductionTab = ({ production }) => {
                         Delay:
                       </span>
                       <span
-                        className={`ml-1 font-medium ${
+                        className={`ml-1  ${
                           item.delayDays === 0
                             ? "text-green-600"
                             : item.delayDays <= 5
@@ -254,7 +254,7 @@ const ProductionTab = ({ production }) => {
                       <span className="text-slate-500 dark:text-slate-400">
                         Employees:
                       </span>
-                      <span className="ml-1 font-medium">
+                      <span className="ml-1 ">
                         {item.assignedEmployees || item.assignedWorkers}
                       </span>
                     </div>
@@ -264,7 +264,7 @@ const ProductionTab = ({ production }) => {
                   <p className="text-sm text-slate-500 dark:text-slate-400">
                     Bottleneck
                   </p>
-                  <p className="font-medium  dark:">
+                  <p className="  dark:">
                     {item.bottleneck}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
@@ -294,7 +294,7 @@ const ProductionTab = ({ production }) => {
                 >
                   <div className="flex-1">
                     <div className="flex items-center text-xs justify-between mb-1">
-                      <h4 className="font-medium  dark:">
+                      <h4 className="  dark:">
                         {bottleneck.type}
                       </h4>
                       <Badge
@@ -392,7 +392,7 @@ const ProductionTab = ({ production }) => {
               <div className="flex items-start">
                 <AlertTriangle className="w-3 h-3 text-red-600 mt-0.5 mr-3" />
                 <div className="flex-1">
-                  <h4 className="font-medium text-red-900 dark:text-red-100">
+                  <h4 className=" text-red-900 dark:text-red-100">
                     Critical: Aerospace Components Project
                   </h4>
                   <p className="text-sm text-red-700 dark:text-red-300 mt-1">
@@ -416,7 +416,7 @@ const ProductionTab = ({ production }) => {
               <div className="flex items-start">
                 <Clock className="w-3 h-3 text-yellow-600 mt-0.5 mr-3" />
                 <div className="flex-1">
-                  <h4 className="font-medium text-yellow-900 dark:text-yellow-100">
+                  <h4 className=" text-yellow-900 dark:text-yellow-100">
                     Delay: DRDO Missile System
                   </h4>
                   <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
@@ -440,7 +440,7 @@ const ProductionTab = ({ production }) => {
               <div className="flex items-start">
                 <AlertCircle className="w-3 h-3 text-blue-600 mt-0.5 mr-3" />
                 <div className="flex-1">
-                  <h4 className="font-medium text-blue-900 dark:text-blue-100">
+                  <h4 className=" text-blue-900 dark:text-blue-100">
                     QC Backlog Alert
                   </h4>
                   <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">

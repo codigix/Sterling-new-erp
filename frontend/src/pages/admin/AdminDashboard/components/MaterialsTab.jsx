@@ -31,7 +31,7 @@ const MaterialsTab = () => {
                     : material.status === "Low Stock"
                     ? "from-amber-600 to-amber-400"
                     : "from-red-600 to-red-400"
-                } rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+                } rounded  opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
               ></div>
               <Card
                 className="h-full  transition-all duration-300 border-l-4"
@@ -99,13 +99,13 @@ const MaterialsTab = () => {
                   <div className="space-y-1 text-xs">
                     <div className="flex justify-between text-slate-500 dark:text-slate-400">
                       <span>Min/Max:</span>
-                      <span className="font-medium  dark:">
+                      <span className="  dark:">
                         {material.minStock}/{material.maxStock}
                       </span>
                     </div>
                     <div className="flex justify-between text-slate-500 dark:text-slate-400">
                       <span>Location:</span>
-                      <span className="font-medium  dark:">
+                      <span className="  dark:">
                         {material.location}
                       </span>
                     </div>
@@ -241,25 +241,25 @@ const MaterialsTab = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700">
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Movement ID
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Material
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Type
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Quantity
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     From → To
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Date
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Status
                   </th>
                 </tr>
@@ -270,7 +270,7 @@ const MaterialsTab = () => {
                     key={index}
                     className="border-b border-slate-100 dark:border-slate-800"
                   >
-                    <td className="py-3 px-4 text-sm font-medium  dark:">
+                    <td className="py-3 px-4 text-sm   dark:">
                       {log.id}
                     </td>
                     <td className="py-3 px-4 text-sm  dark:">
@@ -322,14 +322,14 @@ const MaterialsTab = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h4 className="font-medium  dark:">
+              <h4 className="  dark:">
                 Critical Stock Alerts
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center text-xs p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
                   <AlertTriangle className="w-3 h-3 text-red-600 mr-3" />
                   <div>
-                    <p className="font-medium text-red-900 dark:text-red-100">
+                    <p className=" text-red-900 dark:text-red-100">
                       Titanium Grade 5 - Critical Stock
                     </p>
                     <p className="text-sm text-red-700 dark:text-red-300">
@@ -340,7 +340,7 @@ const MaterialsTab = () => {
                 <div className="flex items-center text-xs p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
                   <AlertTriangle className="w-3 h-3 text-yellow-600 mr-3" />
                   <div>
-                    <p className="font-medium text-yellow-900 dark:text-yellow-100">
+                    <p className=" text-yellow-900 dark:text-yellow-100">
                       Aluminum 6061 - Low Stock
                     </p>
                     <p className="text-sm text-yellow-700 dark:text-yellow-300">
@@ -352,12 +352,12 @@ const MaterialsTab = () => {
             </div>
 
             <div className="space-y-4">
-              <h4 className="font-medium  dark:">
+              <h4 className="  dark:">
                 Recommendations
               </h4>
               <div className="space-y-3">
                 <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-                  <p className="font-medium text-blue-900 dark:text-blue-100">
+                  <p className=" text-blue-900 dark:text-blue-100">
                     Reorder Alert
                   </p>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
@@ -365,7 +365,7 @@ const MaterialsTab = () => {
                   </p>
                 </div>
                 <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
-                  <p className="font-medium text-green-900 dark:text-green-100">
+                  <p className=" text-green-900 dark:text-green-100">
                     Optimization
                   </p>
                   <p className="text-sm text-green-700 dark:text-green-300">

@@ -29,6 +29,107 @@ import { showSuccess, showError } from "../../utils/toastUtils";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getServerUrl } from "../../utils/fileUtils";
+import DataTable from "../../components/ui/DataTable/DataTable";
+
+const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApproveAll, onRejectAll }) => {
+  return (
+    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 space-y-4">
+      <div className="flex items-center justify-between">
+        <h5 className="text-xs  text-slate-500 flex items-center gap-2">
+          <Tag size={12} /> Material Tags (ST Numbers) - {item.serials?.length || 0} Units
+        </h5>
+        {item.serials?.some(s => s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
+          <div className="flex gap-2">
+            <button 
+              onClick={() => onApproveAll(item)}
+              className="flex items-center gap-1 px-2 py-1 bg-emerald-600 text-white rounded text-[10px]  hover:bg-emerald-700 transition-colors"
+            >
+              <CheckCheck size={12} /> Approve All
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-slate-50 dark:bg-slate-800/50">
+            <tr>
+              <th className="p-2 text-[10px] text-slate-400 uppercase text-center w-10">#</th>
+              <th className="p-2 text-[10px] text-slate-400 uppercase">Item Code</th>
+              <th className="p-2 text-[10px] text-slate-400 uppercase font-mono">Dimensions</th>
+              <th className="p-2 text-[10px] text-indigo-400 uppercase">ST Code</th>
+              <th className="p-2 text-[10px] text-slate-400 uppercase">Status</th>
+              <th className="p-2 text-[10px] text-slate-400 uppercase text-center w-24">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
+            {item.serials?.map((s, sIdx) => (
+              <React.Fragment key={sIdx}>
+                <tr className="hover:bg-slate-50/50 transition-colors">
+                  <td className="p-2 text-[10px] text-slate-400 text-center">{sIdx + 1}</td>
+                  <td className="p-2 text-[10px] text-slate-600">{s.item_code || s.serial_number?.replace('ST-', '')}</td>
+                  <td className="p-2 text-[10px] text-slate-400 font-mono">{renderDimensions(s.dimensions)}</td>
+                  <td className="p-2 text-[10px]  text-blue-600">{s.serial_number}</td>
+                  <td className="p-2">
+                    <span className={`px-1.5 py-0.5 rounded text-[9px]  ${
+                      s.inspection_status === 'Accepted' ? 'bg-emerald-50 text-emerald-600' :
+                      s.inspection_status === 'Rejected' ? 'bg-red-50 text-red-600' :
+                      s.inspection_status === 'Sent for Inspection' ? 'bg-blue-50 text-blue-600' :
+                      'bg-amber-50 text-amber-600'
+                    }`}>
+                      {s.inspection_status}
+                    </span>
+                  </td>
+                  <td className="p-2">
+                    <div className="flex items-center justify-center gap-1.5">
+                      {(s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
+                        <>
+                          <button 
+                            onClick={() => onUpdateStatus(item.grn_id, item.po_item_id, s.serial_number, 'Accepted', item.inspection_type)}
+                            className="p-1 bg-emerald-50 text-emerald-600 rounded hover:bg-emerald-600 hover:text-white transition-all"
+                            title="Accept"
+                          >
+                            <CheckCircle size={12} />
+                          </button>
+                          <button 
+                            onClick={() => onUpdateStatus(item.grn_id, item.po_item_id, s.serial_number, 'Rejected', item.inspection_type)}
+                            className="p-1 bg-red-50 text-red-600 rounded hover:bg-red-600 hover:text-white transition-all"
+                            title="Reject"
+                          >
+                            <XCircle size={12} />
+                          </button>
+                        </>
+                      )}
+                      {(s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected') && (
+                        <button 
+                          onClick={() => onRevertStatus(item.grn_id, item.po_item_id, s.serial_number, item.inspection_type)}
+                          className="p-1 bg-slate-50 text-slate-500 rounded hover:bg-slate-500 hover:text-white transition-all"
+                          title="Revert"
+                        >
+                          <RotateCcw size={12} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+                {s.inspection_status === 'Rejected' && s.rejection_reason && (
+                  <tr className="bg-red-50/30">
+                    <td colSpan="6" className="p-2">
+                      <div className="flex items-start gap-2 text-[10px] text-red-600 italic">
+                        <AlertTriangle size={10} className="mt-0.5" />
+                        <span>Rejection Reason: {s.rejection_reason}</span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
 
 const MaterialInspectionPage = () => {
   const navigate = useNavigate();
@@ -287,41 +388,102 @@ const MaterialInspectionPage = () => {
     label: rc.projectName
   }));
 
+  const columns = [
+    {
+      header: "Material Info",
+      accessor: "material_name",
+      render: (val, row) => (
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-slate-100 rounded text-slate-500">
+            <Package size={15} />
+          </div>
+          <div>
+            <h4 className="text-xs  text-slate-900">{val}</h4>
+            <p className="text-[10px] text-slate-500 uppercase">{row.item_group}</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: "Reference",
+      accessor: "grn_number",
+      render: (val, row) => (
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-1.5 text-xs text-slate-700">
+            <FileText size={12} className="text-slate-400" />
+            <span>{val}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+            <Tag size={12} className="text-slate-400" />
+            <span>PO: {row.po_number}</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: "Dimensions",
+      accessor: "id",
+      render: (_, row) => (
+        <span className="text-xs text-blue-600 font-mono">
+          {renderDimensions(row)}
+        </span>
+      )
+    },
+    {
+      header: "Received",
+      accessor: "received_qty",
+      className: "text-center",
+      render: (val) => <span className="text-xs  text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{val}</span>
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      className: "text-right",
+      render: (status) => (
+        <span className={`px-2 py-0.5 rounded text-[10px]  border ${
+          status === 'QC Completed' 
+            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+            : 'bg-purple-50 text-purple-600 border-purple-100'
+        }`}>
+          {(status || 'QC Pending').toUpperCase()}
+        </span>
+      )
+    }
+  ];
+
   return (
-    <div className="space-y-2 p-4">
+    <div className="space-y-4 p-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
-            <ClipboardCheck className="text-blue-600" size={15} />
+          <h1 className="text-lg  text-slate-900 dark:text-white flex items-center gap-2">
+            <ClipboardCheck className="text-blue-600" size={18} />
             Material Inspection
           </h1>
-          <p className="text-slate-500 text-xs dark:text-slate-400 mt-1">
+          <p className="text-slate-500 text-xs mt-0.5">
             Filter materials by project or GRN number to inspect incoming items
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className=" dark:bg-slate-800 rounded dark:border-slate-700 ">
-          <SearchableSelect
-            label="Filter by Root Card (Project)"
-            options={rootCardOptions}
-            value={selectedRootCardId}
-            onChange={handleRootCardChange}
-            placeholder="All Projects"
-            className="w-full"
-            disabled={loadingRC}
-          />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-100 dark:border-slate-700 shadow-sm">
+        <SearchableSelect
+          label="Filter by Root Card (Project)"
+          options={rootCardOptions}
+          value={selectedRootCardId}
+          onChange={handleRootCardChange}
+          placeholder="All Projects"
+          className="w-full"
+          disabled={loadingRC}
+        />
         <div className="flex flex-col">
-          <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="text-xs  text-slate-700 dark:text-slate-300 mb-1.5">
             Filter by GRN Number
           </label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
             <input
               type="text"
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
               placeholder="Enter GRN number (e.g. GRN-2024-001)"
               value={grnNumber}
               onChange={handleGrnFilterChange}
@@ -330,473 +492,63 @@ const MaterialInspectionPage = () => {
         </div>
       </div>
 
-      <div className="w-full pt-2">
-        {/* Materials List */}
-        <div className="w-full">
-          {loading ? (
-            <div className="h-64 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-3">
-                <div className="p-2 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-xs text-slate-500">Loading Materials...</p>
-              </div>
-            </div>
-          ) : materials.length === 0 ? (
-            <div className="h-64 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/30 rounded border-2 border-dashed border-slate-200 dark:border-slate-700 p-6 text-center">
-              <Package size={48} className="text-slate-300 mb-4" />
-              <h3 className="text-sm font-medium text-slate-900 dark:text-white">No Materials Found</h3>
-              <p className="text-slate-500 text-xs mt-1">
-                {selectedRootCardId || grnNumber 
-                  ? "No pending materials match your current filters."
-                  : "There are no pending materials for quality inspection at the moment."}
-              </p>
-            </div>
-          ) : (
-            <div className="">
-              <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 overflow-hidden">
-                <div className="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2">
-                    <Package size={15} className="text-blue-600" />
-                    {selectedRootCard 
-                      ? `Pending Materials for ${selectedRootCard.projectName}` 
-                      : grnNumber 
-                        ? `Materials for GRN: ${grnNumber}` 
-                        : "All Pending Materials"}
-                  </h3>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                    {materials.length} Items
-                  </span>
-                </div>
+      <DataTable 
+        columns={columns}
+        data={materials}
+        loading={loading}
+        searchPlaceholder="Search material, GRN or PO..."
+        expandableRow={(row) => (
+          <SerialInspectionTable 
+            item={row} 
+            onUpdateStatus={handleQuickStatusUpdate}
+            onRevertStatus={handleRevertStatus}
+            onApproveAll={handleApproveAll}
+          />
+        )}
+      />
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50/30 text-xs  text-slate-400   border-b border-slate-100">
-                      <tr>
-                        <th className="p-2">Item Name / Group</th>
-                        <th className="p-2"> Reference</th>
-                        <th className="p-2">Dimensions</th>
-                        <th className="p-2 text-center">Received Quantity</th>
-                        <th className="p-2 text-right">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                      {materials.map((item, idx) => {
-                        const isExpanded = expandedItem === idx;
-                        return (
-                          <React.Fragment key={idx}>
-                            <tr 
-                              className={`hover:bg-slate-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/20' : ''}`}
-                              onClick={() => setExpandedItem(isExpanded ? null : idx)}
-                            >
-                              <td className="p-2">
-                                <div className="flex items-center gap-3">
-                                  <div className={`p-2 rounded flex items-center justify-center transition-colors ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                                    <Package size={15} />
-                                  </div>
-                                  <div>
-                                    <h4 className="text-xs  text-slate-900 dark:text-white  ">{item.material_name}</h4>
-                                    <p className="text-xs  text-slate-400   mt-0.5">{item.item_group}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="p-2">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-1.5">
-                                    <FileText size={12} className="text-slate-400" />
-                                    <span className="text-xs  text-slate-700">{item.grn_number}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1.5">
-                                    <Tag size={12} className="text-slate-400" />
-                                    <span className="text-xs  text-slate-500">PO: {item.po_number}</span>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="p-2">
-                                <div className="text-xs text-blue-600 font-mono">
-                                  {renderDimensions(item)}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center text-xs text-blue-600 font-bold bg-blue-50/50">
-                                {item.received_qty}
-                              </td>
-                              <td className="p-2 text-right">
-                                <div className="flex items-center justify-end gap-2">
-                                  <span className={` rounded text-xs    border ${
-                                    item.status === 'QC Completed' 
-                                      ? 'bg-green-50 text-green-600 border-green-100' 
-                                      : 'bg-purple-50 text-purple-600 border-purple-100'
-                                  }`}>
-                                    {item.status || 'QC Pending'}
-                                  </span>
-                                  {isExpanded ? <ChevronUp size={15} className="text-blue-600" /> : <ChevronDown size={15} className="text-slate-400" />}
-                                </div>
-                              </td>
-                            </tr>
-                            
-                            {isExpanded && (
-                              <tr className="bg-slate-50/50">
-                                <td colSpan="5" className="p-2">
-                                  <div className="bg-white dark:bg-slate-900 border border-slate-200 rounded  overflow-hidden animate-in slide-in-from-top-2 duration-200">
-                                    <div className="p-2 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-                                      <h5 className="text-xs  text-slate-500   flex items-center gap-2">
-                                        <Tag size={12} /> Material Tags (ST Numbers)
-                                      </h5>
-                                      <span className="text-xs  text-blue-600  ">
-                                        {item.serials?.length || 0} Units Tracked
-                                      </span>
-                                    </div>
-                                    
-                                    {item.serials && item.serials.length > 0 ? (
-                                      <div className="overflow-x-auto">
-                                        <table className="w-full text-left">
-                                          <thead className="bg-slate-50/50 text-xs  text-slate-400   border-b border-slate-100">
-                                            <tr>
-                                              <th className="p-2 text-center">#</th>
-                                              <th className="p-2">Item Code</th>
-                                              <th className="p-2">Name</th>
-                                              <th className="p-2">Dimensions</th>
-                                              <th className="p-2">ST Code</th>
-                                              <th className="p-2">Status</th>
-                                              <th className="p-2 text-center">
-                                                <div className="flex items-center justify-center gap-2">
-                                                  Action
-                                                  {item.serials?.some(s => s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
-                                                    <button 
-                                                      onClick={(e) => { e.stopPropagation(); handleApproveAll(item); }}
-                                                      className="flex items-center gap-1 p-1 bg-blue-600 text-white rounded text-xs    hover:bg-blue-700 transition-colors "
-                                                      title="Approve All Pending"
-                                                    >
-                                                      <CheckCheck size={15} /> Approve All
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              </th>
-                                            </tr>
-                                          </thead>
-                                          <tbody className="divide-y divide-slate-50">
-                                            {item.serials.map((s, sIdx) => (
-                                              <React.Fragment key={sIdx}>
-                                                <tr className="hover:bg-slate-50/50 transition-colors">
-                                                  <td className="p-2 text-xs  text-slate-400 text-center">
-                                                    {sIdx + 1}
-                                                  </td>
-                                                  <td className="p-2 text-xs  text-slate-700">
-                                                    {s.item_code || s.serial_number.replace('ST-', '')}
-                                                  </td>
-                                                  <td className="p-2 text-xs text-slate-500">
-                                                    {item.material_name}
-                                                  </td>
-                                                  <td className="p-2 text-xs text-slate-400 font-mono">
-                                                    {renderDimensions(s.dimensions)}
-                                                  </td>
-                                                  <td className="p-2 text-xs  text-blue-600">
-                                                    {s.serial_number}
-                                                  </td>
-                                                  <td className="p-2">
-                                                    <span className={`text-xs px-2 py-0.5 rounded    ${
-                                                      s.inspection_status === 'Accepted' ? 'bg-green-100 text-green-700' :
-                                                      s.inspection_status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                      s.inspection_status === 'Sent for Inspection' ? 'bg-blue-100 text-blue-700' :
-                                                      'bg-yellow-100 text-yellow-700'
-                                                    }`}>
-                                                      {s.inspection_status}
-                                                    </span>
-                                                  </td>
-                                                  <td className="p-2">
-                                                  <div className="flex items-center justify-center gap-2">
-                                                    {/* Unified Document Viewer for Consolidated Reports */}
-                                                    {(() => {
-                                                      let docPath = s.document_path; // Individual doc if exists
-                                                      
-                                                      // If it's outsource, prefer the consolidated reports based on ST status
-                                                      if (item.inspection_type === 'Outsource') {
-                                                        if (s.inspection_status === 'Accepted' && item.common_document_path) {
-                                                          docPath = item.common_document_path;
-                                                        } else if (s.inspection_status === 'Rejected' && item.rejected_document_path) {
-                                                          docPath = item.rejected_document_path;
-                                                        }
-                                                      }
-
-                                                      if (docPath) {
-                                                        return (
-                                                          <button 
-                                                            onClick={(e) => { e.stopPropagation(); window.open(getServerUrl(docPath), '_blank'); }}
-                                                            className="p-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-all "
-                                                            title="View Quality Report"
-                                                          >
-                                                            <Eye size={14} />
-                                                          </button>
-                                                        );
-                                                      }
-                                                      return null;
-                                                    })()}
-
-                                                    {(s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
-                                                      <>
-                                                        <button 
-                                                          onClick={(e) => { e.stopPropagation(); handleQuickStatusUpdate(item.grn_id, item.po_item_id, s.serial_number, 'Accepted', item.inspection_type); }}
-                                                          className="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-600 hover:text-white transition-all  group/btn"
-                                                          title="Accept"
-                                                        >
-                                                          <CheckCircle size={14} className="group-hover/btn:scale-110 transition-transform" />
-                                                        </button>
-                                                        <button 
-                                                          onClick={(e) => { e.stopPropagation(); handleQuickStatusUpdate(item.grn_id, item.po_item_id, s.serial_number, 'Rejected', item.inspection_type); }}
-                                                          className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-600 hover:text-white transition-all  group/btn"
-                                                          title="Reject"
-                                                        >
-                                                          <XCircle size={14} className="group-hover/btn:scale-110 transition-transform" />
-                                                        </button>
-                                                      </>
-                                                    )}
-                                                    {(s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected') && (
-                                                      <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleRevertStatus(item.grn_id, item.po_item_id, s.serial_number, item.inspection_type); }}
-                                                        className="p-1.5 bg-slate-50 text-slate-500 rounded hover:bg-slate-500 hover:text-white transition-all  group/btn"
-                                                        title="Revert to Pending"
-                                                      >
-                                                        <RotateCcw size={14} className="group-hover/btn:rotate-[-180deg] transition-transform duration-500" />
-                                                      </button>
-                                                    )}
-                                                  </div>
-                                                </td>
-                                              </tr>
-                                              {s.inspection_status === 'Rejected' && s.rejection_reason && (
-                                                <tr className="bg-red-50/30">
-                                                  <td colSpan="6" className="p-2">
-                                                    <div className="flex items-start gap-2 text-xs text-red-600 ">
-                                                      <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
-                                                      <div className="flex flex-col gap-0.5">
-                                                        <span className="  text-xs opacity-70">Rejection Reason:</span>
-                                                        <p className="italic ">{s.rejection_reason}</p>
-                                                      </div>
-                                                    </div>
-                                                  </td>
-                                                </tr>
-                                              )}
-                                            </React.Fragment>
-                                          ))}
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                    ) : (
-                                      <div className="p-2 text-center">
-                                        <Hash size={15} className="text-slate-300 mx-auto mb-2" />
-                                        <p className="text-xs text-slate-500 italic">No ST numbers generated for this item</p>
-                                      </div>
-                                    )}
-                                    
-                                    <div className="p-2 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-                                      <div className="flex-1">
-                                        {item.inspection_type === 'Outsource' ? (
-                                          <div className="flex items-center gap-6">
-                                            {(() => {
-                                              const allProcessed = item.serials?.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
-                                              const hasAccepted = item.serials?.some(s => s.inspection_status === 'Accepted');
-                                              const hasRejected = item.serials?.some(s => s.inspection_status === 'Rejected');
-                                              
-                                              if (!allProcessed) {
-                                                return (
-                                                  <div className="flex items-center gap-2 text-amber-500 bg-amber-50 p-2 rounded border border-amber-100">
-                                                    <Clock size={14} className="animate-spin-slow" />
-                                                    <span className="text-xs   ">
-                                                      Processing: {item.serials?.filter(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected').length} / {item.serials?.length} ST Numbers Done
-                                                    </span>
-                                                  </div>
-                                                );
-                                              }
-
-                                              return (
-                                                <div className="flex flex-col gap-2">
-                                                  <p className="text-xs  text-slate-500   flex items-center gap-2">
-                                                    <FileText size={14} className="text-blue-500" /> 
-                                                    Required Quality Reports (Outsource)
-                                                  </p>
-                                                  
-                                                  <div className="flex items-center gap-4">
-                                                    {/* Accepted Items Document */}
-                                                    {hasAccepted && (
-                                                      <div className={`flex items-center h-10 px-4 rounded border transition-all ${item.common_document_path ? 'bg-green-50 border-green-200' : 'bg-white border-blue-200 border-dashed hover:border-blue-400'}`}>
-                                                        {item.common_document_path ? (
-                                                          <button 
-                                                            onClick={() => window.open(getServerUrl(item.common_document_path), '_blank')}
-                                                            className="flex items-center gap-2 text-xs  text-green-700 "
-                                                          >
-                                                            <CheckCircle size={14} /> Accepted Items Report
-                                                            <Eye size={14} className="ml-1 opacity-60" />
-                                                          </button>
-                                                        ) : (
-                                                          <label className="flex items-center gap-2 text-xs  text-blue-600  cursor-pointer">
-                                                            <Upload size={14} /> Upload Accepted Report
-                                                            <input 
-                                                              type="file" 
-                                                              className="hidden" 
-                                                              onChange={(e) => handleConsolidatedUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted')} 
-                                                            />
-                                                          </label>
-                                                        )}
-                                                      </div>
-                                                    )}
-
-                                                    {/* Rejected Items Document */}
-                                                    {hasRejected && (
-                                                      <div className={`flex items-center h-10 px-4 rounded border transition-all ${item.rejected_document_path ? 'bg-red-50 border-red-200' : 'bg-white border-red-200 border-dashed hover:border-red-400'}`}>
-                                                        {item.rejected_document_path ? (
-                                                          <button 
-                                                            onClick={() => window.open(getServerUrl(item.rejected_document_path), '_blank')}
-                                                            className="flex items-center gap-2 text-xs  text-red-700 "
-                                                          >
-                                                            <XCircle size={14} /> Rejected Items Report
-                                                            <Eye size={14} className="ml-1 opacity-60" />
-                                                          </button>
-                                                        ) : (
-                                                          <label className="flex items-center gap-2 text-xs  text-red-600  cursor-pointer">
-                                                            <Upload size={14} /> Upload Rejected Report
-                                                            <input 
-                                                              type="file" 
-                                                              className="hidden" 
-                                                              onChange={(e) => handleConsolidatedUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected')} 
-                                                            />
-                                                          </label>
-                                                        )}
-                                                      </div>
-                                                    )}
-
-                                                    {/* Missing Reports Indicator */}
-                                                    {((hasAccepted && !item.common_document_path) || (hasRejected && !item.rejected_document_path)) && (
-                                                      <div className="flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-700 rounded text-xs   border border-amber-200 animate-pulse">
-                                                        <AlertTriangle size={12} /> Upload Required
-                                                      </div>
-                                                    )}
-                                                  </div>
-                                                </div>
-                                              );
-                                            })()}
-                                          </div>
-                                        ) : (
-                                          <div className="flex items-center gap-2 text-slate-400 italic">
-                                            <CheckCircle size={14} />
-                                            <span className="text-xs   ">Inhouse inspection - No documents required</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                      
-                                      {(() => {
-                                        const allProcessed = item.serials?.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
-                                        const needsAcceptedDoc = item.serials?.some(s => s.inspection_status === 'Accepted') && !item.common_document_path;
-                                        const needsRejectedDoc = item.serials?.some(s => s.inspection_status === 'Rejected') && !item.rejected_document_path;
-                                        const isOutsource = item.inspection_type === 'Outsource';
-                                        
-                                        const isFullyDone = allProcessed && (!isOutsource || (!needsAcceptedDoc && !needsRejectedDoc));
-
-                                        if (isFullyDone) {
-                                          if (item.grn_status === 'qc_completed') {
-                                            return (
-                                              <div className="flex items-center gap-2 p-2 bg-emerald-600 text-white rounded text-xs  shadow-lg shadow-emerald-200">
-                                                <CheckCircle size={14} />
-                                                QC Completed
-                                              </div>
-                                            );
-                                          }
-                                          return (
-                                            <button 
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleFinalizeQC(item.grn_id);
-                                              }}
-                                              className="flex items-center gap-2 p-2 bg-green-600 text-white rounded text-xs  shadow-lg shadow-green-200 hover:bg-green-700 transition-all"
-                                            >
-                                              <CheckCircle size={14} />
-                                              FINALIZE QC
-                                            </button>
-                                          );
-                                        }
-
-                                        return (
-                                          <button 
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              if (isOutsource && (needsAcceptedDoc || needsRejectedDoc)) {
-                                                showError("Please upload all required quality reports first");
-                                                return;
-                                              }
-                                              navigate(`/department/quality/inspection/${item.grn_id}`);
-                                            }}
-                                            className={`p-2 rounded text-xs  shadow-lg transition-all flex items-center gap-2 ${
-                                              (isOutsource && (needsAcceptedDoc || needsRejectedDoc)) ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none' : 'bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'
-                                            }`}
-                                          >
-                                            <ClipboardCheck size={14} />
-                                            {allProcessed ? 'Finalize QC' : 'Record QC Result'}
-                                          </button>
-                                        );
-                                      })()}
-                                    </div>
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Rejection Reason Modal */}
+      {/* Rejection Modal */}
       {rejectionModal.isOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center text-red-600">
-                  <AlertTriangle size={20} />
-                </div>
-                <div>
-                  <h3 className="text-sm  text-slate-900 dark:text-white  ">Rejection Reason</h3>
-                  <p className="text-xs  text-slate-500  ">{rejectionModal.serialNumber}</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setRejectionModal({ ...rejectionModal, isOpen: false })}
-                className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded transition-all  text-slate-400 hover:text-red-500"
-              >
-                <X size={20} />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <h3 className="text-sm  text-slate-900 dark:text-white flex items-center gap-2">
+                <AlertTriangle className="text-red-500" size={16} />
+                Rejection Reason
+              </h3>
+              <button onClick={() => setRejectionModal({ ...rejectionModal, isOpen: false })} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
+                <X size={18} className="text-slate-400" />
               </button>
             </div>
-
-            <div className="p-6 space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs  text-slate-400   flex items-center gap-2">
-                  <MessageSquare size={12} /> Reason for Rejection
-                </label>
+            <div className="p-4 space-y-4">
+              <div className="p-3 bg-red-50 rounded border border-red-100">
+                <p className="text-[10px] text-red-500 uppercase  mb-1">Item Being Rejected</p>
+                <p className="text-xs  text-red-700">{rejectionModal.serialNumber}</p>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs  text-slate-700 dark:text-slate-300">Why is this item being rejected?</label>
                 <textarea
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-red-500/20 outline-none transition-all resize-none"
+                  rows={4}
+                  placeholder="E.g. Dimensional deviation, surface defects, material grade mismatch..."
                   value={rejectionModal.reason}
                   onChange={(e) => setRejectionModal({ ...rejectionModal, reason: e.target.value })}
-                  placeholder="Enter the specific reason why this unit is being rejected..."
-                  className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs  focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all resize-none dark:text-white"
-                  autoFocus
                 />
               </div>
-
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  onClick={() => setRejectionModal({ ...rejectionModal, isOpen: false })}
-                  className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl  text-xs   hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={submitRejection}
-                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-2xl  text-xs   hover:bg-red-700 shadow-lg shadow-red-200 dark:shadow-none transition-all"
-                >
-                  Confirm Rejection
-                </button>
-              </div>
+            </div>
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => setRejectionModal({ ...rejectionModal, isOpen: false })}
+                className="px-4 py-2 text-xs  text-slate-600 hover:text-slate-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitRejection}
+                className="px-6 py-2 bg-red-600 text-white rounded text-xs  hover:bg-red-700 shadow-lg shadow-red-200 dark:shadow-none transition-all"
+              >
+                Confirm Rejection
+              </button>
             </div>
           </div>
         </div>

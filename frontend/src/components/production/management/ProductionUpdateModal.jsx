@@ -75,11 +75,11 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-3xl rounded  shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+            <div className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded">
               <PackageCheck size={20} />
             </div>
             <div>
@@ -103,7 +103,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
             <div className="space-y-2">
               <label className="text-xs  text-slate-500  ">Project</label>
               <select 
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  "
                 value={formData.projectId}
                 onChange={(e) => setFormData({...formData, projectId: e.target.value})}
               >
@@ -115,7 +115,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
             <div className="space-y-2">
               <label className="text-xs  text-slate-500  ">Operation</label>
               <select 
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  "
                 value={formData.operationId}
                 onChange={(e) => setFormData({...formData, operationId: e.target.value})}
               >
@@ -127,7 +127,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
             <div className="space-y-2">
               <label className="text-xs  text-slate-500  ">Operator</label>
               <select 
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium "
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  "
                 value={formData.employeeId}
                 onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
               >
@@ -141,7 +141,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
               <label className="text-xs  text-slate-500  ">Actual Start</label>
               <input 
                 type="time"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none "
                 value={formData.actualStartTime}
                 onChange={(e) => setFormData({...formData, actualStartTime: e.target.value})}
               />
@@ -151,7 +151,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
               <label className="text-xs  text-slate-500  ">Actual End</label>
               <input 
                 type="time"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none "
                 value={formData.actualEndTime}
                 onChange={(e) => setFormData({...formData, actualEndTime: e.target.value})}
               />
@@ -179,7 +179,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
               <input 
                 type="number"
                 placeholder="0"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none "
                 value={formData.pendingQty}
                 onChange={(e) => setFormData({...formData, pendingQty: e.target.value})}
               />
@@ -203,7 +203,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
               <input 
                 type="number"
                 placeholder="0"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium text-amber-600"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  text-amber-600"
                 value={formData.reworkQty}
                 onChange={(e) => setFormData({...formData, reworkQty: e.target.value})}
               />
@@ -216,7 +216,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
               <input 
                 type="number"
                 placeholder="0"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium text-red-600"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none  text-red-600"
                 value={formData.scrapQty}
                 onChange={(e) => setFormData({...formData, scrapQty: e.target.value})}
               />
@@ -227,7 +227,7 @@ const ProductionUpdateModal = ({ isOpen, onClose, date }) => {
               <input 
                 type="number"
                 placeholder="60"
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none "
                 value={formData.breakTime}
                 onChange={(e) => setFormData({...formData, breakTime: e.target.value})}
               />

@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
 import SearchableSelect from "../../components/ui/SearchableSelect";
+import DataTable from "../../components/ui/DataTable/DataTable";
 import { renderDimensions } from "../../utils/dimensionUtils";
 
 const UOMOptions = ["Nos", "Kg", "pcs", "m", "l", "set", "Box", "Packet"];
@@ -674,21 +675,174 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     const formattedText = dimText.replace(/ \u00d7 /g, " * ");
 
     return (
-      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+      <div className="text-xs text-blue-600 dark:text-blue-400  mt-0.5">
         Dim: {formattedText} mm
       </div>
     );
   };
 
+  const columns = useMemo(() => {
+    const cols = [
+      {
+        header: "Item Details",
+        key: "material_name",
+        render: (_, item, __, idx) => (
+          <div className="flex flex-col">
+            {viewMode ? (
+              <span className="text-xs  text-slate-900 dark:text-white">{item.material_name}</span>
+            ) : (
+              <input 
+                type="text"
+                className="w-full bg-transparent border-none p-0 text-xs text-slate-900 dark:text-white focus:ring-0"
+                value={item.material_name}
+                onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
+              />
+            )}
+            <span className="text-[10px] text-slate-500">{item.item_group || "No Group"}</span>
+            {item.remark && <span className="text-[10px] text-emerald-600 dark:text-emerald-400  italic">Rem: {item.remark}</span>}
+          </div>
+        )
+      },
+      {
+        header: "Technical Specs",
+        key: "tech_specs",
+        render: (_, item, __, idx) => (
+          <div className="flex flex-col">
+            {renderDimensionsText(item)}
+            <div className="flex flex-col gap-0.5">
+              {viewMode ? (
+                item.part_detail && <span className="text-[10px] text-blue-500 ">{item.part_detail}</span>
+              ) : (
+                <input 
+                  type="text"
+                  className="w-full bg-transparent border-none p-0 text-[10px] text-blue-500  focus:ring-0"
+                  placeholder="Part detail..."
+                  value={item.part_detail || ""}
+                  onChange={(e) => handleItemChange(idx, 'part_detail', e.target.value)}
+                />
+              )}
+              <span className="text-[10px] text-slate-400 italic">
+                {item.material_grade} {item.make ? `| Make: ${item.make}` : ""}
+              </span>
+            </div>
+          </div>
+        )
+      },
+      {
+        header: "Qty",
+        key: "quantity",
+        align: "center",
+        className: "w-20",
+        render: (value, item, __, idx) => (
+          viewMode ? (
+            <span className="text-xs">{value ? parseFloat(value).toString() : "0"}</span>
+          ) : (
+            <input 
+              type="number"
+              className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
+              value={value !== undefined && value !== null ? parseFloat(value).toString() : ""}
+              onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)}
+            />
+          )
+        )
+      },
+      {
+        header: "UOM",
+        key: "uom",
+        align: "center",
+        className: "w-20 text-slate-500",
+        render: (value, item) => <span>{value || item.unit || "Nos"}</span>
+      }
+    ];
+
+    if (!isInventoryView || !viewMode) {
+      cols.push(
+        {
+          header: "Rate (per Kg/Unit)",
+          key: "rate",
+          align: "center",
+          className: "w-32",
+          render: (value, item, __, idx) => (
+            viewMode ? (
+              <span className="text-xs">₹{Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}/{item.total_weight > 0 ? 'kg' : 'unit'}</span>
+            ) : (
+              <input 
+                type="number"
+                className="w-20 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
+                placeholder="Rate"
+                value={value || ""}
+                onChange={(e) => handleItemChange(idx, 'rate', parseFloat(e.target.value) || 0)}
+              />
+            )
+          )
+        },
+        {
+          header: "Weight (Kg)",
+          key: "total_weight",
+          align: "center",
+          className: "w-32 text-slate-500",
+          render: (value, item) => (
+            value ? (
+              <div className="flex flex-col">
+                <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
+                <span className=" text-slate-700 dark:text-slate-300">Total: {parseFloat(value).toFixed(3)} Kg</span>
+              </div>
+            ) : "-"
+          )
+        },
+        {
+          header: "Total",
+          key: "amount",
+          align: "right",
+          className: "w-40",
+          render: (value) => <span>₹{(value || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}</span>
+        }
+      );
+    } else if (isInventoryView && viewMode) {
+      cols.push({
+        header: "Weight (Kg)",
+        key: "total_weight",
+        align: "center",
+        className: "w-32 text-slate-500",
+        render: (value, item) => (
+          value ? (
+            <div className="flex flex-col">
+              <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
+              <span className=" text-slate-700 dark:text-slate-300">Total: {parseFloat(value).toFixed(3)} Kg</span>
+            </div>
+          ) : "-"
+        )
+      });
+    }
+
+    if (!viewMode) {
+      cols.push({
+        header: "",
+        key: "actions",
+        align: "center",
+        render: (_, __, ___, idx) => (
+          <button 
+            type="button"
+            onClick={() => handleRemoveItem(idx)}
+            className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
+          >
+            <Trash2 size={14} />
+          </button>
+        )
+      });
+    }
+
+    return cols;
+  }, [isInventoryView, viewMode, handleItemChange, handleRemoveItem]);
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-7xl rounded overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-5xl rounded overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className={`p-2 flex items-center justify-between border-b transition-colors duration-300 sticky top-0 z-10 ${viewMode ? 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900' : 'border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-900/10'}`}>
           <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2  ">
-            {viewMode ? <Eye className="text-blue-600" size={15} /> : (editData ? <Edit className="text-emerald-600" size={15} /> : <Plus className="text-blue-600" size={15} />)}
             <span className={!viewMode && editData ? "text-emerald-700 dark:text-emerald-400" : ""}>
               {viewMode ? `View Purchase Order: ${formData.po_number}` : (editData ? `Edit Purchase Order: ${formData.po_number}` : "Create New Purchase Order")}
             </span>
@@ -831,7 +985,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <button 
                   type="button"
                   onClick={() => setShowManualForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-all "
+                  className="flex items-center gap-2 px-4 py-2 text-sm  text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded border border-emerald-200 transition-all "
                 >
                   <Plus size={15} />
                   Add Items Manually
@@ -850,7 +1004,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <X size={15} />
                 </button>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 text-sm font-medium">
+                  <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 text-sm ">
                     <div className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
                       <Plus size={12} />
                     </div>
@@ -1364,7 +1518,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                     <button
                       type="button"
                       onClick={handleAddItem}
-                      className="w-full py-2 bg-emerald-600 text-white rounded text-xs font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1 shadow-md shadow-emerald-500/20"
+                      className="w-full py-2 bg-emerald-600 text-white rounded text-xs  hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1 shadow-md shadow-emerald-500/20"
                     >
                       <Plus size={14} /> Add Item
                     </button>
@@ -1372,7 +1526,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 {newManualItem.calculatedWeight > 0 && (
-                  <div className="mt-3 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-2">
+                  <div className="mt-3 text-[10px] text-emerald-600 dark:text-emerald-400  flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                     Calculated Unit Weight: {newManualItem.calculatedWeight.toFixed(3)} Kg | 
                     Total Weight: {(newManualItem.calculatedWeight * newManualItem.quantity).toFixed(3)} Kg
@@ -1389,143 +1543,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                   <h3 className="text-sm  text-slate-700 dark:text-slate-300  ">Purchase Order Items</h3>
                 </div>
               </div>
-              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl overflow-x-auto ">
-                <table className="w-full text-sm min-w-[800px]">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-xs   text-slate-500 ">
-                      <th className="p-2 text-left">Item Details</th>
-                      <th className="p-2 text-left">Technical Specs</th>
-                      <th className="p-2 text-center w-20">Qty</th>
-                      <th className="p-2 text-center w-20">UOM</th>
-                      {(!isInventoryView || !viewMode) && (
-                        <>
-                          <th className="p-2 text-center w-32">Rate (per Kg/Unit)</th>
-                          <th className="p-2 text-center w-32">Weight (Kg)</th>
-                          <th className="p-2 text-right w-40">Total</th>
-                        </>
-                      )}
-                      {isInventoryView && viewMode && (
-                         <th className="p-2 text-center w-32">Weight (Kg)</th>
-                      )}
-                      {!viewMode && <th className="p-2 text-center "></th>}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-                    {formData.items.length === 0 ? (
-                      <tr>
-                        <td colSpan="8" className="p-4 text-center text-slate-400 italic">
-                          No items added. Use the form above to add raw materials.
-                        </td>
-                      </tr>
-                    ) : (
-                      formData.items.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                          <td className="p-2">
-                            <div className="flex flex-col">
-                              {viewMode ? (
-                                <span className="text-xs font-medium text-slate-900 dark:text-white">{item.material_name}</span>
-                              ) : (
-                                <input 
-                                  type="text"
-                                  className="w-full bg-transparent border-none p-0 text-xs text-slate-900 dark:text-white focus:ring-0"
-                                  value={item.material_name}
-                                  onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
-                                />
-                              )}
-                              <span className="text-[10px] text-slate-500">{item.item_group || "No Group"}</span>
-                              {item.remark && <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium italic">Rem: {item.remark}</span>}
-                            </div>
-                          </td>
-                          <td className="p-2">
-                            <div className="flex flex-col">
-                              {renderDimensionsText(item)}
-                              <div className="flex flex-col gap-0.5">
-                                {viewMode ? (
-                                  item.part_detail && <span className="text-[10px] text-blue-500 font-medium">{item.part_detail}</span>
-                                ) : (
-                                  <input 
-                                    type="text"
-                                    className="w-full bg-transparent border-none p-0 text-[10px] text-blue-500 font-medium focus:ring-0"
-                                    placeholder="Part detail..."
-                                    value={item.part_detail || ""}
-                                    onChange={(e) => handleItemChange(idx, 'part_detail', e.target.value)}
-                                  />
-                                )}
-                                <span className="text-[10px] text-slate-400 italic">
-                                  {item.material_grade} {item.make ? `| Make: ${item.make}` : ""}
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="p-2 text-center">
-                            {viewMode ? (
-                              <span className="text-xs">{item.quantity ? parseFloat(item.quantity).toString() : "0"}</span>
-                            ) : (
-                              <input 
-                                type="number"
-                                className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
-                                value={item.quantity !== undefined && item.quantity !== null ? parseFloat(item.quantity).toString() : ""}
-                                onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)}
-                              />
-                            )}
-                          </td>
-                          <td className="p-2 text-center text-xs text-slate-500">
-                            {item.uom || item.unit || "Nos"}
-                          </td>
-                          {(!isInventoryView || !viewMode) && (
-                            <>
-                              <td className="p-2 text-center">
-                                {viewMode ? (
-                                  <span className="text-xs">₹{Number(item.rate || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}/{item.total_weight > 0 ? 'kg' : 'unit'}</span>
-                                ) : (
-                                  <input 
-                                    type="number"
-                                    className="w-20 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded p-1 text-center text-xs"
-                                    placeholder="Rate"
-                                    value={item.rate || ""}
-                                    onChange={(e) => handleItemChange(idx, 'rate', parseFloat(e.target.value) || 0)}
-                                  />
-                                )}
-                              </td>
-                              <td className="p-2 text-center text-xs text-slate-500">
-                                {item.total_weight ? (
-                                  <div className="flex flex-col">
-                                    <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
-                                    <span className="font-medium text-slate-700 dark:text-slate-300">Total: {parseFloat(item.total_weight).toFixed(3)} Kg</span>
-                                  </div>
-                                ) : "-"}
-                              </td>
-                              <td className="p-2 text-right font-medium text-xs">
-                                ₹{(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}
-                              </td>
-                            </>
-                          )}
-                          {isInventoryView && viewMode && (
-                            <td className="p-2 text-center text-xs text-slate-500">
-                               {item.total_weight ? (
-                                  <div className="flex flex-col">
-                                    <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
-                                    <span className="font-medium text-slate-700 dark:text-slate-300">Total: {parseFloat(item.total_weight).toFixed(3)} Kg</span>
-                                  </div>
-                                ) : "-"}
-                            </td>
-                          )}
-                          {!viewMode && (
-                            <td className="p-2 text-center">
-                              <button 
-                                type="button"
-                                onClick={() => handleRemoveItem(idx)}
-                                className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </td>
-                          )}
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+              <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded  overflow-hidden ">
+                <DataTable
+                  columns={columns}
+                  data={formData.items}
+                  showSearch={false}
+                  emptyMessage="No items added. Use the form above to add raw materials."
+                />
               </div>
             </div>
 
@@ -1600,7 +1624,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
             </div>
           </div>
 
-          <div className="p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 sticky bottom-0 z-10">
+          <div className="p-2 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 sticky bottom-0 z-10">
             <button 
               type="button"
               onClick={onClose}

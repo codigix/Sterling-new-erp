@@ -193,7 +193,7 @@ const UserManagement = () => {
       label: 'Username',
       sortable: true,
       render: (value) => (
-        <span className="font-medium  dark:">
+        <span className="  dark:">
           {value}
         </span>
       ),
@@ -213,7 +213,7 @@ const UserManagement = () => {
       label: 'Role',
       sortable: true,
       render: (value) => (
-        <span className={`inline-block  rounded text-xs font-medium ${getRoleBadgeColor(value)}`}>
+        <span className={`inline-block  rounded text-xs  ${getRoleBadgeColor(value)}`}>
           {value}
         </span>
       ),
@@ -287,7 +287,7 @@ const UserManagement = () => {
         <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded p-4 border border-blue-100 dark:border-blue-800 ">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Total Users
               </p>
               <div className="flex items-baseline gap-2 mt-1">
@@ -303,7 +303,7 @@ const UserManagement = () => {
         <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded p-4 border border-green-100 dark:border-green-800 ">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Active Users
               </p>
               <div className="flex items-baseline gap-2 mt-1">
@@ -319,7 +319,7 @@ const UserManagement = () => {
         <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded p-4 border border-red-100 dark:border-red-800 ">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Admins
               </p>
               <div className="flex items-baseline gap-2 mt-1">
@@ -335,7 +335,7 @@ const UserManagement = () => {
         <div className="bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 rounded p-4 border border-cyan-100 dark:border-cyan-800 ">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400  tracking-wide text-left">
+              <p className="text-xs  text-slate-500 dark:text-slate-400  tracking-wide text-left">
                 Roles Available
               </p>
               <div className="flex items-baseline gap-2 mt-1">
@@ -413,7 +413,7 @@ const UserManagement = () => {
           <div className="fixed inset-0 z-50 flex items-center text-xs justify-center p-4">
             <div className="bg-white dark:bg-slate-800 rounded  max-w-md w-full">
               <div className="flex items-center text-xs justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-                <h3 className="text-md font-semibold  dark:">
+                <h3 className="text-md   dark:">
                   {editingUser ? 'Edit User' : 'Create New User'}
                 </h3>
                 <button 
@@ -426,7 +426,7 @@ const UserManagement = () => {
 
               <form onSubmit={handleSubmit} className="p-4 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium  dark: mb-1.5">
+                  <label className="block text-sm   dark: mb-1.5">
                     Username <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -442,7 +442,7 @@ const UserManagement = () => {
 
                 {!editingUser && (
                   <div>
-                    <label className="block text-sm font-medium  dark: mb-1.5">
+                    <label className="block text-sm   dark: mb-1.5">
                       Password <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -476,7 +476,7 @@ const UserManagement = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium  dark: mb-1.5">
+                  <label className="block text-sm   dark: mb-1.5">
                     Email
                   </label>
                   <input

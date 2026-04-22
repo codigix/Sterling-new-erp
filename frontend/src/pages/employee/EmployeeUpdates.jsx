@@ -64,7 +64,7 @@ const EmployeeUpdates = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-lg  text-slate-900 dark:text-white">
                     {update.title}
                   </h3>
                   <Badge className={getCategoryColor(update.category)}>

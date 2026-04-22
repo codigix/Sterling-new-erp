@@ -114,7 +114,7 @@ const PendingReviewsPage = () => {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-white">
+                  <h3 className=" text-slate-900 dark:text-white">
                     {review.design}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-xs">
@@ -128,7 +128,7 @@ const PendingReviewsPage = () => {
                   <p className="text-sm text-slate-500 dark:text-slate-400">
                     Waiting for review by:
                   </p>
-                  <p className="font-semibold text-slate-900 dark:text-white">
+                  <p className=" text-slate-900 dark:text-white">
                     {review.reviewer}
                   </p>
                 </div>

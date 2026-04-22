@@ -1396,20 +1396,20 @@ const CreateBOMPage = () => {
                       <div className="md:col-span-12 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded border border-blue-100 dark:border-blue-900/20 flex items-center justify-between mb-2">
                         <div className="flex gap-6">
                           <div>
-                            <span className="text-xs text-blue-500  font-semibold block">Unit Weight</span>
+                            <span className="text-xs text-blue-500   block">Unit Weight</span>
                             <span className="text-sm  text-blue-700 dark:text-blue-400">
                               {Number(newMaterial.calculatedWeight.toFixed(3))} Kg
                             </span>
                           </div>
                           <div>
-                            <span className="text-xs text-blue-500  font-semibold block">Total Weight</span>
+                            <span className="text-xs text-blue-500   block">Total Weight</span>
                             <span className="text-sm  text-blue-700 dark:text-blue-400">
                               {Number((newMaterial.calculatedWeight * (parseFloat(newMaterial.quantity) || 0)).toFixed(3))} Kg
                             </span>
                           </div>
                           <div>
-                            <span className="text-xs text-blue-500  font-semibold block">Material</span>
-                            <span className="text-sm font-medium text-blue-700 dark:text-blue-400">{newMaterial.materialType} ({newMaterial.density})</span>
+                            <span className="text-xs text-blue-500   block">Material</span>
+                            <span className="text-sm  text-blue-700 dark:text-blue-400">{newMaterial.materialType} ({newMaterial.density})</span>
                           </div>
                         </div>
                         {newMaterial.uom === "Kg" && (
@@ -1445,14 +1445,14 @@ const CreateBOMPage = () => {
                   <table className="w-full text-xs text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 dark:bg-slate-800/50">
-                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400   w-10">#</th>
-                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400  ">Item Name / Group</th>
-                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400  ">Part Detail / Grade</th>
-                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400  ">Remark / Make</th>
-                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400   text-center">Weight (Kg)</th>
-                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400   text-center">Qty</th>
-                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400  ">UOM</th>
-                        <th className="px-4 py-3  text-slate-500 dark:text-slate-400   text-center">Actions</th>
+                        <th className="p-2  text-slate-500 dark:text-slate-400   w-10">#</th>
+                        <th className="p-2  text-slate-500 dark:text-slate-400  ">Item Name / Group</th>
+                        <th className="p-2  text-slate-500 dark:text-slate-400  ">Part Detail / Grade</th>
+                        <th className="p-2  text-slate-500 dark:text-slate-400  ">Remark / Make</th>
+                        <th className="p-2  text-slate-500 dark:text-slate-400   text-center">Weight (Kg)</th>
+                        <th className="p-2  text-slate-500 dark:text-slate-400   text-center">Qty</th>
+                        <th className="p-2  text-slate-500 dark:text-slate-400  ">UOM</th>
+                        <th className="p-2  text-slate-500 dark:text-slate-400   text-center">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1461,8 +1461,8 @@ const CreateBOMPage = () => {
                         
                         return (
                           <tr key={row.id} className="bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                            <td className="px-4 py-3 text-slate-400 ">{index + 1}</td>
-                            <td className="px-4 py-3">
+                            <td className="p-2 text-slate-400 ">{index + 1}</td>
+                            <td className="p-2">
                               {isEditing ? (
                                 <div className="space-y-2">
                                   <input
@@ -1483,14 +1483,14 @@ const CreateBOMPage = () => {
                               ) : (
                                 <div className="flex flex-col">
                                   <span className=" text-slate-700 dark:text-slate-200">{row.itemName}</span>
-                                  <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                  <span className="text-xs text-blue-600 dark:text-blue-400 ">
                                     Dim: {renderDimensions(row)} mm
                                   </span>
                                   <span className="text-xs  text-slate-500 dark:text-slate-400  ">{row.itemGroup || "NO-GROUP"}</span>
                                 </div>
                               )}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="p-2">
                               {isEditing ? (
                                 <div className="space-y-2">
                                   <input
@@ -1599,7 +1599,7 @@ const CreateBOMPage = () => {
                                 </div>
                               )}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="p-2">
                               {isEditing ? (
                                 <div className="space-y-2">
                                   <input
@@ -1626,9 +1626,9 @@ const CreateBOMPage = () => {
                                 </div>
                               )}
                             </td>
-                            <td className="px-4 py-3 text-center">
+                            <td className="p-2 text-center">
                               <div className="flex flex-col items-center">
-                                <span className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                                <span className="text-xs  text-slate-700 dark:text-slate-200">
                                   {Number((parseFloat(row.totalWeight || row.total || 0) || (parseFloat(row.calculatedWeight || row.unitWeight || 0) * parseFloat(row.quantity || 0))).toFixed(3))} Kg
                                 </span>
                                 {(parseFloat(row.unitWeight) > 0 || parseFloat(row.calculatedWeight) > 0) && (
@@ -1638,7 +1638,7 @@ const CreateBOMPage = () => {
                                 )}
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-center">
+                            <td className="p-2 text-center">
                               {isEditing ? (
                                 <input
                                   type="number"
@@ -1659,7 +1659,7 @@ const CreateBOMPage = () => {
                                 <span className="text-xs text-slate-500 dark:text-slate-400">{Number(parseFloat(row.quantity || 0))}</span>
                               )}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="p-2">
                               {isEditing ? (
                                 <SearchableSelect
                                   name={`mat-uom-${row.id}`}
@@ -1675,7 +1675,7 @@ const CreateBOMPage = () => {
                                 <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-500 dark:text-slate-400">{row.uom}</span>
                               )}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="p-2">
                               <div className="flex items-center justify-center gap-1">
                                 {isEditing ? (
                                   <>

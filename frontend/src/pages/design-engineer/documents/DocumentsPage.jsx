@@ -313,7 +313,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
             Select Root Card
           </label>
           <div className="relative">
@@ -367,7 +367,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               setActiveTab("raw-designs");
               setSearchTerm("");
             }}
-            className={` font-medium text-sm border-b-2 transition-colors ${
+            className={`  text-sm border-b-2 transition-colors ${
               activeTab === "raw-designs"
                 ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300"
@@ -380,7 +380,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               setActiveTab("required-docs");
               setSearchTerm("");
             }}
-            className={` font-medium text-sm border-b-2 transition-colors ${
+            className={`  text-sm border-b-2 transition-colors ${
               activeTab === "required-docs"
                 ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300"
@@ -454,7 +454,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                       key={item.id}
                       className="hover:bg-slate-50 dark:hover:bg-slate-700"
                     >
-                      <td className="p-2 text-sm font-medium text-slate-900 dark:text-white">
+                      <td className="p-2 text-sm  text-slate-900 dark:text-white">
                         {item.name || item.title}
                       </td>
                       <td className="p-2 text-sm text-slate-500 dark:text-slate-400">
@@ -462,7 +462,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                       </td>
                       <td className="p-2">
                         <span
-                          className={`px-3 py-1 text-xs font-medium rounded  ${
+                          className={`px-3 py-1 text-xs  rounded  ${
                             item.status === "Final" || item.status === "Approved"
                               ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                               : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
@@ -527,7 +527,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               {activeTab === "raw-designs" && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                       Design Name *
                     </label>
                     <input
@@ -543,7 +543,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                       Drawing Name
                     </label>
                     <input
@@ -559,7 +559,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                       Drawing Number
                     </label>
                     <input
@@ -575,7 +575,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                       Type
                     </label>
                     <select
@@ -597,7 +597,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
 
               {activeTab === "required-docs" && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                     Document Title *
                   </label>
                   <input
@@ -615,7 +615,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Version
                 </label>
                 <input
@@ -632,7 +632,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   File *
                 </label>
                 <input
@@ -704,7 +704,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               Document: <strong>{selectedItem?.name || selectedItem?.title}</strong>
             </p>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                 Notes (Optional)
               </label>
               <textarea

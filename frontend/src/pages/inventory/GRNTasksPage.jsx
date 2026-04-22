@@ -257,7 +257,7 @@ const GRNTasksPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4">
-          <h3 className="font-semibold text-slate-900 dark:text-white mb-4">
+          <h3 className=" text-slate-900 dark:text-white mb-4">
             GRNs
           </h3>
           <div className="space-y-2">
@@ -276,7 +276,7 @@ const GRNTasksPage = () => {
                       : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
                   }`}
                 >
-                  <p className="font-medium">{getGrnNumber(grn)}</p>
+                  <p className="">{getGrnNumber(grn)}</p>
                   <p className="text-xs text-slate-500 mt-1">
                     PO: {grn.po_number || grn.poNo || "N/A"}
                   </p>
@@ -362,7 +362,7 @@ const GRNTasksPage = () => {
 
                 {tasks.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-slate-900 dark:text-white mb-3">
+                    <h4 className=" text-slate-900 dark:text-white mb-3">
                       Associated Tasks ({tasks.length})
                     </h4>
                     <div className="space-y-3">
@@ -373,11 +373,11 @@ const GRNTasksPage = () => {
                           onClick={() => handleTaskNavigation(task)}
                         >
                           <div className="flex items-start justify-between mb-2">
-                            <h5 className="font-semibold text-slate-900 dark:text-white text-sm">
+                            <h5 className=" text-slate-900 dark:text-white text-sm">
                               {task.title}
                             </h5>
                             <span
-                              className={` text-xs font-semibold rounded  ${getStatusColor(
+                              className={` text-xs  rounded  ${getStatusColor(
                                 task.status
                               )}`}
                             >
@@ -391,7 +391,7 @@ const GRNTasksPage = () => {
                           )}
                           <div className="flex gap-2">
                             <span
-                              className={` text-xs font-medium rounded ${getPriorityBadge(
+                              className={` text-xs  rounded ${getPriorityBadge(
                                 task.priority
                               )}`}
                             >
@@ -434,7 +434,7 @@ const GRNTasksPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded  max-w-md w-full p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              <h2 className="text-xl  text-slate-900 dark:text-white">
                 Create New Task
               </h2>
               <button
@@ -447,7 +447,7 @@ const GRNTasksPage = () => {
 
             <form onSubmit={handleCreateTask} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Task Title *
                 </label>
                 <input
@@ -462,7 +462,7 @@ const GRNTasksPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                   Description
                 </label>
                 <textarea
@@ -477,7 +477,7 @@ const GRNTasksPage = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                     Priority
                   </label>
                   <select
@@ -494,7 +494,7 @@ const GRNTasksPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
                     Status
                   </label>
                   <select

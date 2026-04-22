@@ -184,7 +184,7 @@ const ResourcesTab = () => {
                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
                   Optimal Resources
                 </p>
                 <p className="text-xl   text-left">
@@ -202,7 +202,7 @@ const ResourcesTab = () => {
                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
                   High Utilization
                 </p>
                 <p className="text-xl   text-left">
@@ -220,7 +220,7 @@ const ResourcesTab = () => {
                 <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
                   Bottlenecks
                 </p>
                 <p className="text-xl   text-left">
@@ -238,7 +238,7 @@ const ResourcesTab = () => {
                 <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm  text-slate-500 dark:text-slate-400">
                   Avg Utilization
                 </p>
                 <p className="text-xl   text-left">
@@ -265,7 +265,7 @@ const ResourcesTab = () => {
                 className="p-4 border border-slate-200 dark:border-slate-700 rounded"
               >
                 <div className="flex items-center text-xs justify-between mb-3">
-                  <h4 className="font-medium  dark:">
+                  <h4 className="  dark:">
                     {resource.type}
                   </h4>
                   <div className="flex items-center text-xs space-x-2">
@@ -343,7 +343,7 @@ const ResourcesTab = () => {
                   className="p-4 border border-slate-200 dark:border-slate-700 rounded"
                 >
                   <div className="flex items-center text-xs justify-between mb-2">
-                    <h4 className="font-medium  dark:">
+                    <h4 className="  dark:">
                       {resource.resource}
                     </h4>
                     <Badge
@@ -364,7 +364,7 @@ const ResourcesTab = () => {
                       <p className="text-sm text-slate-500 dark:text-slate-400">
                         Next Available
                       </p>
-                      <p className="font-medium  dark:">
+                      <p className="  dark:">
                         {resource.nextAvailable}
                       </p>
                     </div>
@@ -372,7 +372,7 @@ const ResourcesTab = () => {
                       <p className="text-sm text-slate-500 dark:text-slate-400">
                         Queued Projects
                       </p>
-                      <p className="font-medium  dark:">
+                      <p className="  dark:">
                         {resource.queuedProjects}
                       </p>
                     </div>
@@ -392,7 +392,7 @@ const ResourcesTab = () => {
                   </div>
 
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    <span className="font-medium">Recommendation:</span>{" "}
+                    <span className="">Recommendation:</span>{" "}
                     {resource.recommendation}
                   </p>
                 </div>
@@ -489,7 +489,7 @@ const ResourcesTab = () => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center text-xs justify-between mb-2">
-                      <h4 className="font-medium  dark:">
+                      <h4 className="  dark:">
                         {insight.title}
                       </h4>
                       <Badge className={getImpactColor(insight.impact)}>
@@ -500,7 +500,7 @@ const ResourcesTab = () => {
                       {insight.description}
                     </p>
                     <div className="flex items-center text-xs justify-between">
-                      <span className="text-sm font-medium text-green-600">
+                      <span className="text-sm  text-green-600">
                         Potential Savings: {insight.savings}
                       </span>
                       <Button size="sm" variant="secondary">
@@ -527,22 +527,22 @@ const ResourcesTab = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700">
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Resource Type
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Total Capacity
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Current Allocation
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Available
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Efficiency
                   </th>
-                  <th className="text-left py-3 px-4 font-medium  dark:">
+                  <th className="text-left py-3 px-4   dark:">
                     Status
                   </th>
                 </tr>
@@ -553,7 +553,7 @@ const ResourcesTab = () => {
                     key={index}
                     className="border-b border-slate-100 dark:border-slate-800"
                   >
-                    <td className="py-3 px-4 font-medium  dark:">
+                    <td className="py-3 px-4   dark:">
                       {resource.type}
                     </td>
                     <td className="py-3 px-4  dark:">
@@ -567,7 +567,7 @@ const ResourcesTab = () => {
                     </td>
                     <td className="py-3 px-4">
                       <span
-                        className={`font-medium ${
+                        className={` ${
                           resource.utilization >= 80
                             ? "text-red-600"
                             : resource.utilization >= 70

@@ -103,43 +103,43 @@ const EmployeeAttendance = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white border-2 border-green-100 dark:border-green-900/30 rounded p-4  transition-all hover:border-green-300 dark:hover:border-green-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
             Present Days
           </p>
           <p className="text-3xl  text-slate-900 dark:text-white">{stats.presentDays}</p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-medium">
+          <p className="text-xs text-green-600 dark:text-green-400 mt-2 ">
             Regular attendance
           </p>
         </div>
 
         <div className="bg-white border-2 border-yellow-100 dark:border-yellow-900/30 rounded p-4  transition-all hover:border-yellow-300 dark:hover:border-yellow-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
             Half Days
           </p>
           <p className="text-3xl  text-slate-900 dark:text-white">{stats.halfDays}</p>
-          <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-2 font-medium">
+          <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-2 ">
             Partial attendance
           </p>
         </div>
 
         <div className="bg-white border-2 border-red-100 dark:border-red-900/30 rounded p-4  transition-all hover:border-red-300 dark:hover:border-red-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
             Absences
           </p>
           <p className="text-3xl  text-slate-900 dark:text-white">{stats.absenceDays}</p>
-          <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
+          <p className="text-xs text-red-600 dark:text-red-400 mt-2 ">
             Days absent
           </p>
         </div>
 
         <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded p-4  transition-all hover:border-blue-300 dark:hover:border-blue-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+          <p className="text-xs  text-slate-500 dark:text-slate-400  mb-2">
             Attendance Rate
           </p>
           <p className="text-3xl  text-slate-900 dark:text-white">
             {stats.attendancePercentage}%
           </p>
-          <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
+          <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 ">
             Excellent
           </p>
         </div>
@@ -148,7 +148,7 @@ const EmployeeAttendance = () => {
       <div className="bg-white border-2 border-blue-100 dark:border-blue-900/30 rounded p-6  transition-all hover:border-blue-300 dark:hover:border-blue-700">
         <div className="mb-4 flex items-center gap-2">
           <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Today's Check-In/Out</h2>
+          <h2 className="text-lg  text-slate-900 dark:text-white">Today's Check-In/Out</h2>
         </div>
         
         <div className="space-y-4">
@@ -217,7 +217,7 @@ const EmployeeAttendance = () => {
       <div className="bg-white border-2 border-slate-100 dark:border-slate-700 rounded p-6  transition-all">
         <div className="mb-4 flex items-center gap-2">
           <Calendar className="w-3 h-3 text-slate-500 dark:text-slate-400" />
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Attendance History</h2>
+          <h2 className="text-lg  text-slate-900 dark:text-white">Attendance History</h2>
         </div>
         
         <div className="space-y-2">
@@ -227,7 +227,7 @@ const EmployeeAttendance = () => {
               className="flex items-start justify-between p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800/50 transition"
             >
               <div className="flex-1">
-                <p className="font-medium text-slate-900 dark:text-white">{record.date}</p>
+                <p className=" text-slate-900 dark:text-white">{record.date}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   {record.checkIn === "-"
                     ? "No attendance record"

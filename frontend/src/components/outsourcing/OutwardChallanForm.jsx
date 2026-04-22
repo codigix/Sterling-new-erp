@@ -199,7 +199,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
       )}
 
       <div>
-        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+        <label className="block text-xs  text-slate-500 dark:text-slate-400  mb-2">
           Vendor *
         </label>
         <select
@@ -225,7 +225,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+          <label className="block text-xs  text-slate-500 dark:text-slate-400  mb-2">
             Material Sent Date
           </label>
           <input
@@ -238,7 +238,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+          <label className="block text-xs  text-slate-500 dark:text-slate-400  mb-2">
             Expected Return Date *
           </label>
           <input
@@ -253,7 +253,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400  mb-2">
+        <label className="block text-xs  text-slate-500 dark:text-slate-400  mb-2">
           Notes
         </label>
         <textarea
@@ -267,11 +267,11 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
 
       <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 ">Materials to Send</h4>
+          <h4 className="text-xs  text-slate-500 dark:text-slate-400 ">Materials to Send</h4>
           <button
             type="button"
             onClick={handleAddMaterialRow}
-            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium flex items-center gap-1 transition-colors"
+            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm  flex items-center gap-1 transition-colors"
             disabled={loading}
           >
             <Plus className="w-4 h-4" /> Add Material
@@ -304,7 +304,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                             handleSelectMaterial(index, material);
                           }
                         }}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 font-medium"
+                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 "
                         disabled={loading}
                       >
                         <option value="">Select material...</option>
@@ -339,7 +339,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         type="text"
                         readOnly
                         value={item.unit}
-                        className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm font-medium text-slate-500"
+                        className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm  text-slate-500"
                         disabled={loading}
                       />
                     </div>

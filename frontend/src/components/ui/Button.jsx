@@ -11,7 +11,7 @@ const Button = ({
   icon: Icon,
   ...props
 }) => {
-  const baseClasses = 'inline-flex text-xs items-center text-xs justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95';
+  const baseClasses = 'inline-flex text-xs items-center text-xs justify-center  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95';
 
   const variants = {
     primary: 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500 ',

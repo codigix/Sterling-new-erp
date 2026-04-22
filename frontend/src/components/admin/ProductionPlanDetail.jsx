@@ -161,7 +161,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Production Code
               </p>
-              <p className="text-md font-semibold  dark:">
+              <p className="text-md   dark:">
                 {rootCard.code || "N/A"}
               </p>
             </div>
@@ -169,7 +169,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Total Stages
               </p>
-              <p className="text-md font-semibold  dark:">
+              <p className="text-md   dark:">
                 {rootCard.totalStages}
               </p>
             </div>
@@ -177,7 +177,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Completed Stages
               </p>
-              <p className="text-md font-semibold  dark:">
+              <p className="text-md   dark:">
                 {rootCard.completedStages}
               </p>
             </div>
@@ -192,7 +192,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                     style={{ width: `${rootCard.progress || 0}%` }}
                   ></div>
                 </div>
-                <span className="text-md font-semibold  dark:">
+                <span className="text-md   dark:">
                   {rootCard.progress || 0}%
                 </span>
               </div>
@@ -330,11 +330,11 @@ const ProductionPlanDetail = ({ rootCard }) => {
                     className="w-full p-2 flex items-center text-xs justify-between hover:bg-slate-50 dark:hover:bg-slate-800 text-xs transition-colors"
                   >
                     <div className="flex items-center text-xs space-x-3 flex-1">
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                      <span className="text-sm  text-slate-500 dark:text-slate-400">
                         Stage {index + 1}
                       </span>
                       {getStatusIcon(stage.status)}
-                      <span className="font-medium  dark:">
+                      <span className="  dark:">
                         {stage.stage_name}
                       </span>
                       <Badge className={getStatusColor(stage.status)}>

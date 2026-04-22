@@ -162,7 +162,7 @@ const CheckProjectMaterialRequirementsModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl  w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded   w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
           <div>
@@ -191,7 +191,7 @@ const CheckProjectMaterialRequirementsModal = ({
           ) : materials.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-center">
               <AlertCircle size={40} className="text-blue-600 mb-3" />
-              <p className="text-slate-500 dark:text-slate-400 font-medium">
+              <p className="text-slate-500 dark:text-slate-400 ">
                 No material requirements found yet
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
@@ -203,7 +203,7 @@ const CheckProjectMaterialRequirementsModal = ({
               {/* Project Details Summary */}
               {projectDetails && (
                 <div className="mb-6 p-4 bg-blue-50 dark:bg-slate-700 rounded border border-blue-200 dark:border-slate-600">
-                  <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
+                  <h3 className=" text-slate-900 dark:text-white mb-2">
                     Material Request Details
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -211,7 +211,7 @@ const CheckProjectMaterialRequirementsModal = ({
                       <p className="text-slate-500 dark:text-slate-400">
                         Request ID
                       </p>
-                      <p className="font-medium text-slate-900 dark:text-white">
+                      <p className=" text-slate-900 dark:text-white">
                         {materialRequest?.mr_number || "N/A"}
                       </p>
                     </div>
@@ -219,7 +219,7 @@ const CheckProjectMaterialRequirementsModal = ({
                       <p className="text-slate-500 dark:text-slate-400">
                         Total Materials
                       </p>
-                      <p className="font-medium text-slate-900 dark:text-white">
+                      <p className=" text-slate-900 dark:text-white">
                         {materials.length}
                       </p>
                     </div>
@@ -227,7 +227,7 @@ const CheckProjectMaterialRequirementsModal = ({
                       <p className="text-slate-500 dark:text-slate-400">
                         Selected
                       </p>
-                      <p className="font-medium text-slate-900 dark:text-white">
+                      <p className=" text-slate-900 dark:text-white">
                         {selectedMaterials.size}/{materials.length}
                       </p>
                     </div>
@@ -235,7 +235,7 @@ const CheckProjectMaterialRequirementsModal = ({
                       <p className="text-slate-500 dark:text-slate-400">
                         Total Cost
                       </p>
-                      <p className="font-medium text-slate-900 dark:text-white">
+                      <p className=" text-slate-900 dark:text-white">
                         ₹{(projectDetails.totalMaterialCost || 0).toLocaleString()}
                       </p>
                     </div>
@@ -257,7 +257,7 @@ const CheckProjectMaterialRequirementsModal = ({
                 />
                 <label
                   htmlFor="selectAll"
-                  className="text-sm font-semibold text-slate-900 dark:text-white cursor-pointer flex-1"
+                  className="text-sm  text-slate-900 dark:text-white cursor-pointer flex-1"
                 >
                   Select All Materials
                 </label>
@@ -281,7 +281,7 @@ const CheckProjectMaterialRequirementsModal = ({
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-slate-900 dark:text-white">
+                        <h4 className=" text-slate-900 dark:text-white">
                           {material.itemName || material.description || "N/A"}
                         </h4>
                         {material.itemCode && (
@@ -296,7 +296,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           <p className="text-slate-500 dark:text-slate-400">
                             Quantity
                           </p>
-                          <p className="font-medium text-slate-900 dark:text-white">
+                          <p className=" text-slate-900 dark:text-white">
                             {material.quantity || 0} {material.unit || "Nos"}
                           </p>
                         </div>
@@ -304,7 +304,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           <p className="text-slate-500 dark:text-slate-400">
                             Unit Price
                           </p>
-                          <p className="font-medium text-slate-900 dark:text-white">
+                          <p className=" text-slate-900 dark:text-white">
                             ₹{(material.unitPrice || 0).toLocaleString()}
                           </p>
                         </div>
@@ -312,7 +312,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           <p className="text-slate-500 dark:text-slate-400">
                             Total
                           </p>
-                          <p className="font-medium text-slate-900 dark:text-white">
+                          <p className=" text-slate-900 dark:text-white">
                             ₹
                             {(
                               (material.quantity || 0) *
@@ -324,7 +324,7 @@ const CheckProjectMaterialRequirementsModal = ({
                           <p className="text-slate-500 dark:text-slate-400">
                             Current Stock
                           </p>
-                          <p className="font-medium text-slate-900 dark:text-white">
+                          <p className=" text-slate-900 dark:text-white">
                             {material.currentStock || 0}
                           </p>
                         </div>
@@ -333,7 +333,7 @@ const CheckProjectMaterialRequirementsModal = ({
                             Status
                           </p>
                           <p
-                            className={`font-medium flex items-center gap-1 ${
+                            className={` flex items-center gap-1 ${
                               (material.currentStock || 0) >= (material.quantity || 0)
                                 ? "text-green-600"
                                 : "text-orange-600"
@@ -375,14 +375,14 @@ const CheckProjectMaterialRequirementsModal = ({
           <button
             onClick={onClose}
             disabled={isCreating}
-            className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 font-medium"
+            className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 "
           >
             Cancel
           </button>
           <button
             onClick={handleCreateRFQ}
             disabled={isCreating || selectedMaterials.size === 0 || loading || materials.length === 0}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed  flex items-center gap-2"
             title={materials.length === 0 ? "No materials to select" : selectedMaterials.size === 0 ? "Select at least one material" : "Create RFQ with selected materials"}
           >
             {isCreating ? (

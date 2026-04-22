@@ -70,7 +70,7 @@ const EmployeeSettings = () => {
               className="flex items-center text-xs justify-between p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
             >
               <div>
-                <h3 className="font-medium  dark:">{setting.label}</h3>
+                <h3 className="  dark:">{setting.label}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   {setting.description}
                 </p>
@@ -101,7 +101,7 @@ const EmployeeSettings = () => {
           <div className="p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
             <div className="flex items-center text-xs justify-between mb-2">
               <div>
-                <h3 className="font-medium  dark:">
+                <h3 className="  dark:">
                   Two-Factor Authentication
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -129,10 +129,10 @@ const EmployeeSettings = () => {
           </div>
 
           <div className="p-4 border border-slate-200 dark:border-slate-700 rounded">
-            <h3 className="font-medium  dark: mb-3">Change Password</h3>
+            <h3 className="  dark: mb-3">Change Password</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                   Current Password
                 </label>
                 <input
@@ -141,7 +141,7 @@ const EmployeeSettings = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                   New Password
                 </label>
                 <input
@@ -150,7 +150,7 @@ const EmployeeSettings = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
                   Confirm Password
                 </label>
                 <input
@@ -175,7 +175,7 @@ const EmployeeSettings = () => {
         <CardContent>
           <div className="p-4 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700/50 transition flex items-center text-xs justify-between">
             <div>
-              <h3 className="font-medium  dark:">Dark Mode</h3>
+              <h3 className="  dark:">Dark Mode</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Toggle dark mode for the application
               </p>
