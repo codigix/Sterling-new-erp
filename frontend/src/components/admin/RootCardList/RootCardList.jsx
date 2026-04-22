@@ -374,7 +374,7 @@ const RootCardList = ({
   ];
 
   return (
-    <div className="w-full space-y-4 p-4">
+    <div className="w-full space-y-4 ">
       {/* Header Section */}
       <div className="flex items-center text-xs justify-between mb-2">
         <div>

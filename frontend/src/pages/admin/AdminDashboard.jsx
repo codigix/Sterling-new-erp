@@ -136,7 +136,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="w-full min-h-screen space-y-6 p-6 bg-slate-50/50">
+    <div className="w-full min-h-screen space-y-6  bg-slate-50/50">
       {/* Header */}
       <div className="flex justify-between items-end">
         <div>

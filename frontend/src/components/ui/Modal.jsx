@@ -48,10 +48,10 @@ const Modal = ({
       onClick={handleOverlayClick}
     >
       <div 
-        className={`rounded-2xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 animate-in fade-in scale-95 duration-300`}
+        className={`rounded shadow-2xl w-full ${sizes[size]} max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 animate-in fade-in scale-95 duration-300`}
       >
         {title && (
-          <div className="flex items-center justify-between p-3 border-b border-slate-700/50">
+          <div className="flex items-center justify-between p-2 border-b border-slate-700/50">
             <div className="flex-1">
               <h3 className="text-lg  text-left ">{title}</h3>
             </div>
@@ -81,13 +81,13 @@ const ModalHeader = ({ children, className = '', ...props }) => (
 );
 
 const ModalBody = ({ children, className = '', ...props }) => (
-  <div className={`p-6  ${className}`} {...props}>
+  <div className={`p-2  ${className}`} {...props}>
     {children}
   </div>
 );
 
 const ModalFooter = ({ children, className = '', ...props }) => (
-  <div className={`p-6 border-t border-slate-700 bg-slate-800 ${className}`} {...props}>
+  <div className={`p-2 border-t border-slate-200 bg-slate-800 ${className}`} {...props}>
     {children}
   </div>
 );

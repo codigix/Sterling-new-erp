@@ -169,8 +169,8 @@ const getEmployeePerformance = async (req, res) => {
         u.department,
         u.designation,
         COUNT(dpu.id) as total_updates,
-        SUM(dpu.quantity_produced) as total_produced,
-        AVG(dpu.rejection_quantity) as avg_rejections
+        SUM(dpu.qty_completed) as total_produced,
+        AVG(dpu.scrap_qty) as avg_rejections
       FROM users u
       LEFT JOIN daily_production_updates dpu ON u.id = dpu.operator_id
       WHERE u.id = ?
@@ -180,13 +180,13 @@ const getEmployeePerformance = async (req, res) => {
     // Weekly trend
     const [trend] = await db.query(`
       SELECT 
-        DATE_FORMAT(update_date, '%Y-%m-%d') as date,
-        SUM(quantity_produced) as count
+        DATE_FORMAT(work_date, '%Y-%m-%d') as date,
+        SUM(qty_completed) as count
       FROM daily_production_updates
       WHERE operator_id = ?
-      AND update_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-      GROUP BY update_date
-      ORDER BY update_date ASC
+      AND work_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      GROUP BY work_date
+      ORDER BY work_date ASC
     `, [id]);
 
     res.json({
@@ -205,6 +205,8 @@ const getEmployeeDailyReports = async (req, res) => {
     const [reports] = await db.query(`
       SELECT 
         dpu.*,
+        dpu.qty_completed as quantity_produced,
+        dpu.scrap_qty as rejection_quantity,
         rc.project_name,
         rc.project_code,
         rc.id as root_card_number
@@ -228,15 +230,14 @@ const getEmployeeWorkingHours = async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT 
-        dpu.work_date as date,
-        SUM(dpu.actual_hours) as total_hours,
-        COUNT(pu.id) as production_count
-      FROM daily_production_updates dpu
-      LEFT JOIN production_updates pu ON dpu.id = pu.daily_update_id
-      WHERE dpu.operator_id = ?
-      AND dpu.work_date BETWEEN ? AND ?
-      GROUP BY dpu.work_date
-      ORDER BY dpu.work_date DESC
+        work_date as date,
+        SUM(actual_hours) as total_hours,
+        COUNT(id) as production_count
+      FROM daily_production_updates
+      WHERE operator_id = ?
+      AND work_date BETWEEN ? AND ?
+      GROUP BY work_date
+      ORDER BY work_date DESC
     `, [id, start, end]);
 
     const [total] = await db.query(`

@@ -21,6 +21,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const productionRoutes = require('./routes/productionRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 const reportRoutes = require('./routes/reportRoutes');
+const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
 const path = require('path');
 const app = express();
 

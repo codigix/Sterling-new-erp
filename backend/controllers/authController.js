@@ -24,7 +24,15 @@ const register = async (req, res) => {
       'Procurement': { id: 4, role: 'procurement' },
       'Quality': { id: 5, role: 'quality' },
       'Inventory': { id: 6, role: 'inventory' },
-      'Accountant': { id: 7, role: 'accountant' }
+      'Accountant': { id: 7, role: 'accountant' },
+      // Added lowercase variants for robustness
+      'admin': { id: 1, role: 'admin' },
+      'design_engineer': { id: 2, role: 'design_engineer' },
+      'production': { id: 3, role: 'production' },
+      'procurement': { id: 4, role: 'procurement' },
+      'quality': { id: 5, role: 'quality' },
+      'inventory': { id: 6, role: 'inventory' },
+      'accountant': { id: 7, role: 'accountant' }
     };
 
     const deptInfo = departmentMap[department] || { id: null, role: department.toLowerCase().replace(/\s+/g, '_') };

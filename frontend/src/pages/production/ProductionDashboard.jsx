@@ -9,7 +9,6 @@ const ProductionDashboard = () => {
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [rootCards, setRootCards] = useState([]);
   const [loadingRootCards, setLoadingRootCards] = useState(true);
-  const [selectedRootCard, setSelectedRootCard] = useState(null);
   const [departmentTasks, setDepartmentTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [bomCount, setBomCount] = useState(0);
@@ -47,18 +46,15 @@ const ProductionDashboard = () => {
     }
   }, []);
 
+  // Fetch all root cards to allow searching through any of them
   const fetchRootCards = useCallback(async () => {
     setLoadingRootCards(true);
     try {
       const response = await axios.get('/production/root-cards', {
-        params: { status: 'planning', assignedOnly: true },
         __sessionGuard: true
       });
       const cards = Array.isArray(response.data) ? response.data : response.data.rootCards || [];
       setRootCards(cards);
-      if (cards.length > 0) {
-        setSelectedRootCard(cards[0].id);
-      }
     } catch (error) {
       console.error('Error fetching root cards:', error);
     } finally {
@@ -72,6 +68,13 @@ const ProductionDashboard = () => {
     fetchPlans();
     fetchBOMCount();
   }, [fetchTasks, fetchPlans, fetchRootCards, fetchBOMCount]);
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredRootCards = rootCards.filter(rc => {
+    const searchStr = `${rc.id} ${rc.project_name} ${rc.project_code}`.toLowerCase();
+    return searchStr.includes(searchTerm.toLowerCase());
+  });
 
   const stats = [
     {
@@ -319,33 +322,59 @@ const ProductionDashboard = () => {
         )}
       </div>
 
-      {/* Production Phases by Root Card */}
-      {selectedRootCard && (
-        <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-md  text-slate-900 dark:text-white text-left mb-4">
+      {/* Production Phases */}
+      <div className="bg-white dark:bg-slate-800 rounded p-2 border border-slate-200 dark:border-slate-700">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 p-2">
+          <h2 className="text-md  text-slate-900 dark:text-white flex items-center gap-2">
+            <Factory size={15} className="text-blue-600" />
             Production Phases
           </h2>
-          {rootCards.length > 0 && (
-            <div className="mb-4">
-              <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
-                Select Root Card
-              </label>
-              <select
-                value={selectedRootCard || ''}
-                onChange={(e) => setSelectedRootCard(parseInt(e.target.value))}
-                className="w-full p-2 border border-slate-300 dark:border-slate-600 text-xs rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {rootCards.map((rc) => (
-                  <option key={rc.id} value={rc.id}>
-                    {(rc.title || rc.project_name || '').replace(/^RC-\d{4}\s*[-:]\s*/i, '') || rc.title || rc.project_name || rc.id} ({rc.code || 'No Code'})
-                  </option>
-                ))}
-              </select>
+          <div className="w-full sm:w-96">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search root cards..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900 text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+              />
+              <FileText className="absolute left-3 top-2.5 text-slate-400" size={14} />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {loadingRootCards ? (
+            <div className="col-span-full flex justify-center p-8">
+              <Loader2 className="animate-spin text-blue-600" size={24} />
+            </div>
+          ) : filteredRootCards.length > 0 ? (
+            filteredRootCards.slice(0, 6).map(rc => (
+              <div key={rc.id} className="border border-slate-100 dark:border-slate-700 rounded p-3 bg-slate-50/50 dark:bg-slate-900/30">
+                <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+                  <div className="truncate pr-2">
+                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{rc.project_name || 'No Name'}</p>
+                    <p className="text-[10px] text-slate-500 font-medium">#{rc.id} | {rc.project_code || 'No Code'}</p>
+                  </div>
+                  <Link to={`/department/production/root-cards/${rc.id}`} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-blue-600">
+                    <ChevronRight size={14} />
+                  </Link>
+                </div>
+                <ProductionPhasesDisplay rootCardId={rc.id} editable={false} />
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-10 bg-slate-50 dark:bg-slate-900/30 rounded border border-dashed border-slate-300 dark:border-slate-800">
+               <p className="text-slate-500 dark:text-slate-400 text-xs">No root cards found matching your search.</p>
             </div>
           )}
-          <ProductionPhasesDisplay rootCardId={selectedRootCard} editable={false} />
+          {filteredRootCards.length > 6 && (
+             <div className="col-span-full text-center pt-2">
+                <p className="text-[10px] text-slate-400 italic">Showing top results. Use search to find specific root cards.</p>
+             </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Manufacturing Stages Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">

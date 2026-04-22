@@ -14,7 +14,19 @@ const UPLOADS_DIR_POS = path.join(__dirname, '..', 'uploads', 'purchase_orders')
     }
 });
 
+let lastErrorLogged = 0;
+const ERROR_LOG_INTERVAL = 30 * 60 * 1000; // Log error at most once every 30 minutes
+
 const monitorReplies = async () => {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        const now = Date.now();
+        if (now - lastErrorLogged > ERROR_LOG_INTERVAL) {
+            console.warn('Email Monitor: EMAIL_USER or EMAIL_PASS not set in environment.');
+            lastErrorLogged = now;
+        }
+        return;
+    }
+
     const client = new ImapFlow({
         host: 'imap.gmail.com',
         port: 993,
@@ -148,8 +160,12 @@ const monitorReplies = async () => {
         
         await client.logout();
     } catch (err) {
-        // Log the error but don't crash the server
-        console.error('Email Monitor Connection Error:', err.message);
+        // Log the error but don't crash the server. Rate limit to 30 mins
+        const now = Date.now();
+        if (now - lastErrorLogged > ERROR_LOG_INTERVAL) {
+            console.error('Email Monitor Connection Error:', err.message);
+            lastErrorLogged = now;
+        }
     }
 };
 

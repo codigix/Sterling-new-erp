@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
   Filter,
@@ -13,97 +13,38 @@ import {
   Lock,
   Edit,
   Activity,
+  Loader2,
 } from 'lucide-react';
 import Card, { CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import Select from '../../components/ui/Select';
+import api from '../../utils/api';
+import { format } from 'date-fns';
 
 const AuditLogs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const auditLogs = [
-    {
-      id: 1,
-      user: 'John Doe',
-      action: 'Login',
-      type: 'auth',
-      details: 'User logged in successfully',
-      timestamp: '2025-12-13 10:30:45',
-      ipAddress: '192.168.1.100',
-      status: 'success',
-    },
-    {
-      id: 2,
-      user: 'Jane Smith',
-      action: 'Data Export',
-      type: 'export',
-      details: 'Exported employee data to CSV',
-      timestamp: '2025-12-13 10:25:30',
-      ipAddress: '192.168.1.105',
-      status: 'success',
-    },
-    {
-      id: 3,
-      user: 'Bob Wilson',
-      action: 'Failed Login',
-      type: 'auth',
-      details: 'Invalid credentials - 3 attempts',
-      timestamp: '2025-12-13 10:20:15',
-      ipAddress: '192.168.1.110',
-      status: 'warning',
-    },
-    {
-      id: 4,
-      user: 'Alice Johnson',
-      action: 'Role Updated',
-      type: 'admin',
-      details: 'Updated user role from Editor to Admin',
-      timestamp: '2025-12-13 10:15:00',
-      ipAddress: '192.168.1.115',
-      status: 'success',
-    },
-    {
-      id: 5,
-      user: 'Charlie Brown',
-      action: 'Logout',
-      type: 'auth',
-      details: 'User logged out',
-      timestamp: '2025-12-13 10:10:20',
-      ipAddress: '192.168.1.120',
-      status: 'success',
-    },
-    {
-      id: 6,
-      user: 'Diana Prince',
-      action: 'Permission Denied',
-      type: 'security',
-      details: 'Attempted unauthorized access to admin panel',
-      timestamp: '2025-12-13 10:05:45',
-      ipAddress: '192.168.1.125',
-      status: 'error',
-    },
-    {
-      id: 7,
-      user: 'Eve Taylor',
-      action: 'Password Changed',
-      type: 'account',
-      details: 'User password was successfully updated',
-      timestamp: '2025-12-13 09:55:30',
-      ipAddress: '192.168.1.130',
-      status: 'success',
-    },
-    {
-      id: 8,
-      user: 'Frank Miller',
-      action: 'API Key Generated',
-      type: 'account',
-      details: 'New API key created for third-party integration',
-      timestamp: '2025-12-13 09:45:15',
-      ipAddress: '192.168.1.135',
-      status: 'success',
-    },
-  ];
+  useEffect(() => {
+    fetchAuditLogs();
+  }, []);
+
+  const fetchAuditLogs = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/admin/audit-logs');
+      setAuditLogs(response.data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching audit logs:', err);
+      setError('Failed to fetch audit logs. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const stats = [
     { label: 'Total Logs', value: auditLogs.length, icon: Activity, color: 'blue' },
@@ -283,7 +224,31 @@ const AuditLogs = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredLogs.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="7" className="px-4 py-12 text-center">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                        <p className="text-slate-500">Loading audit logs...</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : error ? (
+                  <tr>
+                    <td colSpan="7" className="px-4 py-12 text-center">
+                      <div className="flex flex-col items-center justify-center gap-2 text-red-500">
+                        <AlertTriangle className="w-8 h-8" />
+                        <p>{error}</p>
+                        <button 
+                          onClick={fetchAuditLogs}
+                          className="mt-2 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredLogs.length > 0 ? (
                   filteredLogs.map((log) => (
                     <tr key={log.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                       <td className="p-2 font-medium ">{log.user}</td>
@@ -299,7 +264,9 @@ const AuditLogs = () => {
                         </div>
                       </td>
                       <td className="p-2 text-slate-700 max-w-xs truncate" title={log.details}>{log.details}</td>
-                      <td className="p-2 text-slate-700">{log.timestamp}</td>
+                      <td className="p-2 text-slate-700">
+                        {log.timestamp ? format(new Date(log.timestamp), 'yyyy-MM-dd HH:mm:ss') : 'N/A'}
+                      </td>
                       <td className="p-2 text-slate-700 font-mono text-xs">{log.ipAddress}</td>
                       <td className="p-2">
                         <span className={`px-3 py-1 rounded  text-xs font-semibold ${getStatusColor(log.status)}`}>

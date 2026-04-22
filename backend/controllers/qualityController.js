@@ -319,7 +319,7 @@ exports.createFinalQCReport = async (req, res) => {
                 if (item.st_numbers && item.st_numbers.length > 0) {
                     for (const st of item.st_numbers) {
                         await connection.query(
-                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density, item_group, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                             [
                                 reportItemId, 
                                 st.st_code, 
@@ -332,7 +332,6 @@ exports.createFinalQCReport = async (req, res) => {
                                 st.outer_diameter || null,
                                 st.height || null,
                                 st.density || 0,
-                                st.item_group || null,
                                 st.web_thickness || st.tw || null,
                                 st.flange_thickness || st.tf || null,
                                 st.side1 || st.s1 || null,

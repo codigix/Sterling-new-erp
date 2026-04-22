@@ -91,11 +91,8 @@ exports.getDailyPlans = async (req, res) => {
             'projectRef', r.id,
             'operation_id', a.operation_id,
             'operation_name', a.operation_name,
-            'assignment_type', a.assignment_type,
             'operator_id', a.operator_id,
             'operator_name', a.operator_name,
-            'vendor_id', a.vendor_id,
-            'vendor_name', a.vendor_name,
             'start_time', a.start_time,
             'end_time', a.end_time,
             'break_time', a.break_time,
@@ -136,14 +133,13 @@ exports.createDailyPlan = async (req, res) => {
     if (assignments && assignments.length > 0) {
       const assignmentValues = assignments.map(a => [
         planId, a.root_card_id, a.operation_id, a.operation_name, 
-        a.assignment_type || 'inhouse', a.operator_name, a.operator_id,
-        a.vendor_name, a.vendor_id,
+        a.operator_name, a.operator_id,
         a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
       ]);
 
       await connection.query(
         `INSERT INTO daily_operator_assignments 
-        (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
+        (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
         VALUES ?`,
         [assignmentValues]
       );
@@ -205,14 +201,13 @@ exports.updateDailyPlan = async (req, res) => {
     if (assignments && assignments.length > 0) {
       const assignmentValues = assignments.map(a => [
         id, a.root_card_id, a.operation_id, a.operation_name, 
-        a.assignment_type || 'inhouse', a.operator_name, a.operator_id,
-        a.vendor_name, a.vendor_id,
+        a.operator_name, a.operator_id,
         a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
       ]);
 
       await connection.query(
         `INSERT INTO daily_operator_assignments 
-        (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
+        (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
         VALUES ?`,
         [assignmentValues]
       );
@@ -241,14 +236,14 @@ exports.deleteDailyPlan = async (req, res) => {
 };
 
 exports.addAssignment = async (req, res) => {
-  const { plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks } = req.body;
+  const { plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks } = req.body;
 
   try {
     const [result] = await db.query(
       `INSERT INTO daily_operator_assignments 
-      (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [plan_id, root_card_id, operation_id, operation_name, assignment_type || 'inhouse', operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time || 0, total_hours, remarks || '']
+      (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time || 0, total_hours, remarks || '']
     );
     res.json({ success: true, id: result.insertId, message: 'Assignment added successfully' });
   } catch (error) {
@@ -862,6 +857,51 @@ exports.getEmployeeLaborLogs = async (req, res) => {
     res.json({ success: true, logs: rows });
   } catch (error) {
     console.error('Error fetching employee labor logs:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getRootCardById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.query('SELECT * FROM root_cards WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Root Card not found' });
+    }
+
+    const [stages] = await db.query('SELECT * FROM production_stages WHERE root_card_id = ? ORDER BY id ASC', [id]);
+    
+    res.json({ success: true, rootCard: rows[0], stages });
+  } catch (error) {
+    console.error('Error fetching root card by id:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.addProductionStage = async (req, res) => {
+  const { id } = req.params;
+  const { stageName, stageType, plannedStart, plannedEnd, notes } = req.body;
+  
+  try {
+    const [result] = await db.query(
+      'INSERT INTO production_stages (root_card_id, stage_name, stage_type, planned_start, planned_end, notes) VALUES (?, ?, ?, ?, ?, ?)',
+      [id, stageName, stageType || 'in_house', plannedStart || null, plannedEnd || null, notes || '']
+    );
+    
+    res.json({ success: true, id: result.insertId, message: 'Stage added successfully' });
+  } catch (error) {
+    console.error('Error adding production stage:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.deleteProductionStage = async (req, res) => {
+  const { stageId } = req.params;
+  try {
+    await db.query('DELETE FROM production_stages WHERE id = ?', [stageId]);
+    res.json({ success: true, message: 'Stage deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting production stage:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };

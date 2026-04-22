@@ -380,6 +380,25 @@ const getDepartments = async (req, res) => {
   res.json(departments);
 };
 
+const getAuditLogs = async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM audit_logs ORDER BY timestamp DESC');
+    res.json(rows.map(log => ({
+      id: log.id,
+      user: log.user_name,
+      action: log.action,
+      type: log.type,
+      details: log.details,
+      timestamp: log.timestamp,
+      ipAddress: log.ip_address,
+      status: log.status
+    })));
+  } catch (error) {
+    console.error('Error fetching audit logs:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getEmployeeList,
@@ -394,5 +413,6 @@ module.exports = {
   getPermissions,
   getDesignations,
   getDepartments,
-  sendCredentials
+  sendCredentials,
+  getAuditLogs
 };

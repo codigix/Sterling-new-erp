@@ -256,11 +256,10 @@ const DepartmentTasksPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className=" space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <ClipboardList className="text-blue-600" />
+          <h1 className="text-xl  text-slate-900 flex items-center gap-2">
             Assign Department Task
           </h1>
           <p className="text-slate-500 text-sm">Assign and track tasks for different departments</p>
@@ -280,23 +279,23 @@ const DepartmentTasksPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-white">
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
+            <div className="p-3 bg-blue-100 rounded">
               <ClipboardList className="text-blue-600" size={24} />
             </div>
             <div>
               <p className="text-sm text-slate-500 font-medium">Total Tasks</p>
-              <h3 className="text-2xl font-bold text-slate-900">{tasks.length}</h3>
+              <h3 className="text-2xl  text-slate-900">{tasks.length}</h3>
             </div>
           </CardContent>
         </Card>
         <Card className="bg-white">
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-amber-100 rounded-lg">
+            <div className="p-3 bg-amber-100 rounded">
               <Clock className="text-amber-600" size={24} />
             </div>
             <div>
               <p className="text-sm text-slate-500 font-medium">Pending Tasks</p>
-              <h3 className="text-2xl font-bold text-slate-900">
+              <h3 className="text-2xl  text-slate-900">
                 {tasks.filter(t => t.status !== 'Completed').length}
               </h3>
             </div>
@@ -304,12 +303,12 @@ const DepartmentTasksPage = () => {
         </Card>
         <Card className="bg-white">
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-green-100 rounded-lg">
+            <div className="p-3 bg-green-100 rounded">
               <CheckCircle2 className="text-green-600" size={24} />
             </div>
             <div>
               <p className="text-sm text-slate-500 font-medium">Completed</p>
-              <h3 className="text-2xl font-bold text-slate-900">
+              <h3 className="text-2xl  text-slate-900">
                 {tasks.filter(t => t.status === 'Completed').length}
               </h3>
             </div>
@@ -325,7 +324,7 @@ const DepartmentTasksPage = () => {
               <input
                 type="text"
                 placeholder="Search tasks..."
-                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -333,7 +332,7 @@ const DepartmentTasksPage = () => {
             <div className="flex items-center gap-2">
               <Filter size={18} className="text-slate-400" />
               <select
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 value={filterDepartment}
                 onChange={(e) => setFilterDepartment(e.target.value)}
               >
@@ -367,18 +366,18 @@ const DepartmentTasksPage = () => {
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="lg">
         <form onSubmit={handleSubmit}>
           <ModalBody>
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-slate-900">
+            <div className="space-y-2">
+              <h2 className="text-xl  text-slate-900">
                 {editingTask ? "Edit Task" : "Assign New Departmental Task"}
               </h2>
               
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Task Title</label>
+                <label className="text-xs  text-slate-700">Task Title</label>
                 <input
                   type="text"
                   name="title"
                   required
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-2 border border-slate-200 rounded focus:ring-2 focus:ring-blue-500 outline-none text-xs"
                   placeholder="Enter task title"
                   value={formData.title}
                   onChange={handleInputChange}
@@ -386,11 +385,11 @@ const DepartmentTasksPage = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-slate-700">Description</label>
+                <label className="text-xs  text-slate-700">Description</label>
                 <textarea
                   name="description"
                   rows={3}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-2 border border-slate-200 rounded focus:ring-2 focus:ring-blue-500 outline-none text-xs"
                   placeholder="Enter task details..."
                   value={formData.description}
                   onChange={handleInputChange}
@@ -399,11 +398,11 @@ const DepartmentTasksPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-sm font-semibold text-slate-700">Department</label>
+                  <label className="text-xs  text-slate-700">Department</label>
                   <select
                     name="departmentId"
                     required
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                    className="w-full p-2 border border-slate-200 rounded focus:ring-2 focus:ring-blue-500 outline-none text-xs bg-white"
                     value={formData.departmentId}
                     onChange={handleInputChange}
                   >
@@ -417,10 +416,10 @@ const DepartmentTasksPage = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-semibold text-slate-700">Priority</label>
+                  <label className="text-xs  text-slate-700">Priority</label>
                   <select
                     name="priority"
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                    className="w-full p-2 border border-slate-200 rounded focus:ring-2 focus:ring-blue-500 outline-none text-xs bg-white"
                     value={formData.priority}
                     onChange={handleInputChange}
                   >
@@ -433,14 +432,14 @@ const DepartmentTasksPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-sm font-semibold text-slate-700">Assignment Date</label>
+                  <label className="text-xs  text-slate-700">Assignment Date</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
                       type="date"
                       name="assignmentDate"
                       required
-                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full pl-10 pr-4 py-2 text-xs border border-slate-200 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                       value={formData.assignmentDate}
                       onChange={handleInputChange}
                     />
@@ -448,14 +447,14 @@ const DepartmentTasksPage = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-semibold text-slate-700">Due Date</label>
+                  <label className="text-xs  text-slate-700">Due Date</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
                       type="date"
                       name="dueDate"
                       required
-                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full pl-10 text-xs pr-4 py-2 border border-slate-200 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                       value={formData.dueDate}
                       onChange={handleInputChange}
                     />
