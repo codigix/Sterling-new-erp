@@ -4,13 +4,19 @@ const db = require('../config/db');
 const fs = require('fs');
 const path = require('path');
 
-const UPLOADS_DIR_QUOTES = path.join(__dirname, '..', 'uploads', 'quotations');
-const UPLOADS_DIR_POS = path.join(__dirname, '..', 'uploads', 'purchase_orders');
+const UPLOAD_BASE = process.env.UPLOAD_PATH || 'uploads';
+const UPLOADS_DIR_QUOTES = path.resolve(__dirname, '..', UPLOAD_BASE, 'quotations');
+const UPLOADS_DIR_POS = path.resolve(__dirname, '..', UPLOAD_BASE, 'purchase_orders');
 
 // Ensure uploads directories exist
 [UPLOADS_DIR_QUOTES, UPLOADS_DIR_POS].forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+    try {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+            console.log(`Email Monitor: Created directory ${dir}`);
+        }
+    } catch (err) {
+        console.error(`Email Monitor: Failed to create directory ${dir}:`, err.message);
     }
 });
 
@@ -133,17 +139,22 @@ const monitorReplies = async () => {
                                         const fileName = attachment.filename || `attachment_${Date.now()}`;
                                         const safeFileName = `${communicationId}_${Date.now()}_${fileName.replace(/[^a-z0-9.]/gi, '_')}`;
                                         const filePath = path.join(uploadDir, safeFileName);
-                                        const relativePath = `${uploadPath}${safeFileName}`;
+                                        const relativePath = path.join(UPLOAD_BASE, isPO ? 'purchase_orders' : 'quotations', safeFileName).replace(/\\/g, '/');
 
-                                        fs.writeFileSync(filePath, attachment.content);
-                                        
-                                        await db.query(
-                                            `INSERT INTO ${attachTableName} 
-                                            (communication_id, file_name, file_path, file_size, mime_type) 
-                                            VALUES (?, ?, ?, ?, ?)`,
-                                            [communicationId, fileName, relativePath, attachment.size, attachment.contentType]
-                                        );
-                                        console.log(`Saved attachment: ${fileName}`);
+                                        try {
+                                            fs.writeFileSync(filePath, attachment.content);
+                                            console.log(`Email Monitor: Saved attachment to ${filePath}`);
+                                            
+                                            await db.query(
+                                                `INSERT INTO ${attachTableName} 
+                                                (communication_id, file_name, file_path, file_size, mime_type) 
+                                                VALUES (?, ?, ?, ?, ?)`,
+                                                [communicationId, fileName, relativePath, attachment.size, attachment.contentType]
+                                            );
+                                            console.log(`Email Monitor: Recorded attachment ${fileName} in database`);
+                                        } catch (fsError) {
+                                            console.error(`Email Monitor: Failed to save attachment ${fileName} to ${filePath}:`, fsError.message);
+                                        }
                                     }
                                 }
                             }

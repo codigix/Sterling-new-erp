@@ -798,7 +798,16 @@ const CreateQuotationModal = ({
         className: "w-1/4",
         render: (value, item, _, index) => (
           <div className="flex flex-col">
-           
+            <input
+              type="text"
+              value={item.item_name}
+              onChange={(e) =>
+                handleItemChange(index, "item_name", e.target.value)
+              }
+              placeholder="Item name"
+              disabled
+              className="w-full text-xs p-1 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-slate-50 dark:bg-slate-900 transition-all disabled:opacity-80"
+            />
             <input
               type="text"
               value={item.item_group}
@@ -808,16 +817,6 @@ const CreateQuotationModal = ({
               placeholder="Group"
               disabled
               className="w-full p-1 text-xs text-slate-500 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
-            />
-             <input
-              type="text"
-              value={item.item_name}
-              onChange={(e) =>
-                handleItemChange(index, "item_name", e.target.value)
-              }
-              placeholder="Item name"
-              disabled
-              className="w-full text-xs p-1 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-slate-50 dark:bg-slate-900 transition-all disabled:opacity-80"
             />
             {(formData.type === "outbound" || formData.type === "inbound") &&
               renderDimensionsText(item)}
