@@ -422,6 +422,16 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     if (projFilter) {
       setProjectFilter(projFilter);
     }
+
+    const poId = params.get('poId');
+    if (poId) {
+      axios.get(`/department/procurement/purchase-orders/${poId}`).then(res => {
+        setEditPO(res.data);
+        setModalViewMode(true);
+        setShowCreateModal(true);
+        navigate(location.pathname, { replace: true });
+      }).catch(err => console.error("Error fetching PO for auto-view:", err));
+    }
   }, [location.state, location.search, location.pathname, navigate]);
 
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -439,9 +449,28 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedPOForUpload, setSelectedPOForUpload] = useState(null);
+  const [existingAttachments, setExistingAttachments] = useState([]);
   const [filesToUpload, setFilesToUpload] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
   const [isFullReceipt, setIsFullReceipt] = useState(false);
+
+  const fetchPOAttachments = async (poId) => {
+    try {
+      const response = await axios.get(`/department/procurement/purchase-orders/${poId}`);
+      setExistingAttachments(response.data.attachments || []);
+    } catch (error) {
+      console.error("Error fetching PO attachments:", error);
+    }
+  };
+
+  const handleOpenUploadModal = (po) => {
+    setSelectedPOForUpload(po);
+    setFilesToUpload([]);
+    setExistingAttachments([]);
+    setIsFullReceipt(false);
+    setShowUploadModal(true);
+    fetchPOAttachments(po.id);
+  };
 
   useEffect(() => {
     fetchPurchaseOrders();
@@ -536,12 +565,13 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     const tableRows = (po.items || []).map((item, index) => {
       const dimText = renderDimensions(item);
       const dimDisplay = dimText ? `\nDim: ${dimText} mm` : "";
+      const rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
       return [
         index + 1,
         { content: `${item.material_name || "N/A"}\n${item.item_group || "-"}${dimDisplay}`, styles: { fontStyle: "bold" } },
         item.quantity ? parseFloat(item.quantity).toString() : "0",
         item.unit || item.uom || "Nos",
-        `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
+        `INR ${Number(rate).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
         item.total_weight ? parseFloat(item.total_weight).toFixed(3) : "0.000",
         `INR ${Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
       ];
@@ -664,8 +694,10 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       const response = await axios.get(`/department/procurement/purchase-orders/attachments/${attachmentId}/download`, {
         responseType: "blob",
       });
-      const file = new Blob([response.data], { type: response.headers['content-type'] || 'application/pdf' });
-      window.open(URL.createObjectURL(file), '_blank');
+      const contentType = response.headers['content-type'] || 'application/pdf';
+      const file = new Blob([response.data], { type: contentType });
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL, '_blank');
     } catch (error) {
       console.error("Error viewing attachment:", error);
       toastUtils.error("Failed to view attachment");
@@ -680,13 +712,52 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", fileName);
+      link.setAttribute("download", fileName || "download");
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error downloading attachment:", error);
       toastUtils.error("Failed to download attachment");
+    }
+  };
+
+  const handleExportToExcel = async (po) => {
+    try {
+      const response = await axios.get(`/department/procurement/purchase-orders/${po.id}`);
+      const fullPO = response.data;
+      const items = fullPO.items || [];
+
+      const exportData = items.map((item) => {
+        const rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
+        return {
+          "Item Name / Group": `${item.material_name || "N/A"}\n(${item.item_group || "-"})`,
+          "Dimensions": renderDimensions(item),
+          "Ordered Qty": `${item.quantity} ${item.unit || item.uom}`,
+          "Rate": rate,
+          "Weight (Kg)": item.total_weight ? parseFloat(item.total_weight).toFixed(3) : "0.000",
+          "Total Amount": item.amount || 0,
+        };
+      });
+
+      const headerData = [
+        { A: "SUPPLIER", B: fullPO.vendor_name || "N/A" },
+        { A: "PO NUMBER", B: fullPO.po_number || "N/A" },
+        { A: "PROJECT", B: fullPO.root_card_project_name || "N/A" },
+        { A: "ORDER DATE", B: new Date(fullPO.order_date || fullPO.created_at).toLocaleDateString() },
+        { A: "TOTAL AMOUNT", B: `INR ${Number(fullPO.total_amount || 0).toLocaleString()}` },
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(exportData, { origin: "A8" });
+      XLSX.utils.sheet_add_json(ws, headerData, { skipHeader: true, origin: "A1" });
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Purchase Order");
+      XLSX.writeFile(wb, `PurchaseOrder-${fullPO.po_number}.xlsx`);
+    } catch (error) {
+      console.error("Error exporting to excel:", error);
+      toastUtils.error("Failed to export Purchase Order to Excel");
     }
   };
 
@@ -711,7 +782,11 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     try {
       const doc = await generatePOPDF(emailData.po);
       const pdfBase64 = doc.output("datauristring");
-      await axios.post(`/department/procurement/purchase-orders/${emailData.poId}/email`, { ...emailData, pdfBase64 });
+      await axios.post(`/department/procurement/purchase-orders/${emailData.poId}/email`, { 
+        ...emailData, 
+        pdfBase64,
+        poNumber: emailData.po.po_number 
+      });
       if (emailData.po.status === "draft") {
         await axios.patch(`/department/procurement/purchase-orders/${emailData.poId}/status`, { status: "submitted" });
       }
@@ -730,7 +805,15 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
     return new Intl.NumberFormat("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 3 }).format(amount || 0);
   };
 
-  const projects = Array.from(new Set(purchaseOrders.map(po => po.root_card_project_name).filter(Boolean))).sort();
+  const displayedOrders = isInventoryView 
+    ? purchaseOrders.filter(po => 
+        po.status === "sent to inventory" || 
+        (po.inventory_status && po.inventory_status !== "pending") ||
+        ["material received", "delivered", "fulfilled"].includes(po.status)
+      )
+    : purchaseOrders;
+
+  const projects = Array.from(new Set(displayedOrders.map(po => po.root_card_project_name).filter(Boolean))).sort();
 
   const handleViewPO = (po) => {
     setEditPO(po);
@@ -794,7 +877,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             options: projects.map(p => ({ label: p, value: p }))
           }
         ]}
-        data={purchaseOrders}
+        data={displayedOrders}
         columns={[
           {
             key: "po_number",
@@ -898,13 +981,46 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             align: "center",
             render: (_, po) => (
               <div className="flex items-center justify-center gap-1">
-                <button onClick={() => handleViewPO(po)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all"><Eye size={14} /></button>
+                <button onClick={() => handleViewPO(po)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all" title="View"><Eye size={14} /></button>
                 {po.status === "draft" && !isInventoryView && (
-                  <button onClick={() => handleEditPO(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all"><Edit size={14} /></button>
+                  <button onClick={() => handleEditPO(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Edit"><Edit size={14} /></button>
                 )}
-                <button onClick={() => handleDownloadPO(po)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"><Download size={14} /></button>
+                {!isInventoryView && (
+                  <>
+                    <button onClick={() => handleMonitorReplies(po)} className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-all relative" title="Monitor Communication">
+                      <MessageSquare size={14} className={po.unread_communication_count > 0 ? "text-purple-600 animate-pulse" : ""} />
+                      {po.unread_communication_count > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border border-white font-bold">
+                          {po.unread_communication_count}
+                        </span>
+                      )}
+                    </button>
+                    <button 
+                      onClick={() => handleSendEmail(po)} 
+                      disabled={po.status !== "draft"}
+                      className={`p-1.5 rounded transition-all ${po.status === "draft" ? "text-slate-400 hover:text-blue-600 hover:bg-blue-50" : "text-slate-200 cursor-not-allowed"}`} 
+                      title={po.status === "draft" ? "Send Email" : "Already Sent"}
+                    >
+                      <Mail size={14} />
+                    </button>
+                    <button onClick={() => handleExportToExcel(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Export to Excel"><FileSpreadsheet size={14} /></button>
+                    {(po.status === "approved" || po.status === "submitted") && po.status !== "sent to inventory" && (
+                      <button onClick={() => handleSendToInventory(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Send to Inventory"><Send size={14} /></button>
+                    )}
+                  </>
+                )}
+                <button onClick={() => handleDownloadPO(po)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all" title="Download PDF"><Download size={14} /></button>
+                {isInventoryView && !["fulfilled", "delivered"].includes(po.inventory_status) && (
+                  <button 
+                    onClick={() => handleOpenUploadModal(po)} 
+                    className="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-all" 
+                    title="Upload Delivery Challan"
+                  >
+                    <Paperclip size={14} />
+                  </button>
+                )}
                 {isInventoryView && ["material received", "partially received"].includes(po.inventory_status) && po.dc_approved === 1 && (
-                  <button onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-all"><FileText size={14} /></button>
+                  <button onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-all" title="Create GRN"><FileText size={14} /></button>
                 )}
               </div>
             )
@@ -912,34 +1028,6 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         ]}
         renderRowDetail={(po) => <PurchaseOrderDetailTable po={po} />}
         searchPlaceholder="Search by PO #, supplier, or project..."
-        filters={[
-          {
-            key: "status",
-            label: "Status",
-            options: isInventoryView ? [
-              { label: "All Received", value: "all" },
-              { label: "Pending Receipt", value: "pending receipt" },
-              { label: "Awaiting DC Approval", value: "dc uploaded" },
-              { label: "Awaiting GRN", value: "material received" },
-              { label: "Partially Received", value: "partially received" },
-              { label: "Fulfilled", value: "fulfilled" }
-            ] : [
-              { label: "All Orders", value: "all" },
-              { label: "Draft", value: "draft" },
-              { label: "Submitted", value: "submitted" },
-              { label: "Approved", value: "approved" },
-              { label: "Sent to Inventory", value: "sent to inventory" },
-              { label: "Material Received", value: "material received" },
-              { label: "Delivered", value: "delivered" },
-              { label: "Fulfilled", value: "fulfilled" }
-            ]
-          },
-          {
-            key: "root_card_project_name",
-            label: "Project",
-            options: [ { label: "All Projects", value: "all" }, ...projects.map(p => ({ label: p, value: p })) ]
-          }
-        ]}
       />
 
       <CreatePurchaseOrderModal
@@ -951,6 +1039,279 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         preFilledFromQuotation={preFilledFromQuotation}
         onPOCreated={() => { fetchPurchaseOrders(); fetchStats(); }}
       />
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Send Purchase Order</h3>
+                <p className="text-xs text-slate-500">PO: {emailData.poNumber}</p>
+              </div>
+              <button onClick={() => setShowEmailModal(false)} className="text-slate-400 hover:text-slate-500">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={submitEmail} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Vendor Email</label>
+                <input
+                  type="email"
+                  value={emailData.email}
+                  onChange={(e) => setEmailData({ ...emailData, email: e.target.value })}
+                  className="w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                  placeholder="vendor@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Subject</label>
+                <input
+                  type="text"
+                  value={emailData.subject}
+                  onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })}
+                  className="w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Message</label>
+                <textarea
+                  value={emailData.message}
+                  onChange={(e) => setEmailData({ ...emailData, message: e.target.value })}
+                  className="w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none min-h-[120px] resize-none"
+                  required
+                />
+              </div>
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800 flex items-center gap-3">
+                <FileText size={20} className="text-blue-500" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-blue-900 dark:text-blue-200 truncate">PurchaseOrder-{emailData.poNumber}.pdf</p>
+                  <p className="text-[10px] text-blue-600 dark:text-blue-400">Attached automatically</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <button type="button" onClick={() => setShowEmailModal(false)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-colors">Cancel</button>
+                <button type="submit" disabled={sendingEmail} className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all disabled:bg-blue-400">
+                  {sendingEmail ? <RefreshCw size={16} className="animate-spin" /> : <Send size={16} />}
+                  Send PO
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Monitor Modal */}
+      {showMonitorModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                  <MessageSquare size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Vendor Communication</h3>
+                  <p className="text-xs text-slate-500">PO: {selectedPOForMonitor?.po_number}</p>
+                </div>
+              </div>
+              <button onClick={closeMonitorModal} className="text-slate-400 hover:text-slate-500">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30 dark:bg-slate-900/30">
+              {fetchingCommunications ? (
+                <div className="flex flex-col items-center justify-center h-full gap-3 text-slate-400">
+                  <RefreshCw size={24} className="animate-spin" />
+                  <p className="text-sm">Fetching communications...</p>
+                </div>
+              ) : communications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-400">
+                  <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <Clock size={32} />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-medium text-slate-600 dark:text-slate-400">No communication found</p>
+                    <p className="text-xs">Replies from vendor via email will appear here</p>
+                  </div>
+                </div>
+              ) : (
+                communications.map((comm) => (
+                  <div 
+                    key={comm.id} 
+                    className={`flex flex-col ${comm.is_outgoing ? "items-end" : "items-start"} space-y-1`}
+                  >
+                    <div className={`max-w-[85%] rounded-lg p-4 shadow-sm space-y-3 ${
+                      comm.is_outgoing 
+                        ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800" 
+                        : "bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
+                    }`}>
+                      <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-800/50 pb-2 gap-4">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            comm.is_outgoing ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-600"
+                          }`}>
+                            <User size={14} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-900 dark:text-white">
+                              {comm.is_outgoing ? "Me (Sterling)" : (comm.sender_name || comm.sender_email)}
+                              {comm.is_outgoing && <span className="ml-2 font-normal text-slate-500">(Sent)</span>}
+                            </p>
+                            <p className="text-[10px] text-slate-500">{new Date(comm.received_at).toLocaleString()}</p>
+                          </div>
+                        </div>
+                        {comm.has_attachments && (
+                          <div className="flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-100/50 dark:bg-blue-900/40 px-2 py-0.5 rounded-full">
+                            <Paperclip size={10} />
+                            Attachments
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                        {comm.content_text}
+                      </div>
+                      {comm.attachments && comm.attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-50 dark:border-slate-800/50">
+                          {comm.attachments.map((att) => (
+                            <div key={att.id} className="flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded overflow-hidden shadow-sm">
+                              <button
+                                onClick={() => viewAttachment(att.id, att.file_name)}
+                                className="flex items-center gap-2 px-2 py-1 text-[10px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-r border-slate-100 dark:border-slate-700"
+                                title="View file"
+                              >
+                                <FileText size={12} className="text-red-500" />
+                                <span className="max-w-[120px] truncate">{att.file_name}</span>
+                                <span className="text-slate-400 text-[8px]">({Math.round(att.file_size / 1024)} KB)</span>
+                              </button>
+                              <button
+                                onClick={() => downloadAttachment(att.id, att.file_name)}
+                                className="p-1 text-slate-500 hover:text-blue-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                title="Download"
+                              >
+                                <Download size={12} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+              <div className="flex items-center gap-3">
+                <button onClick={() => fetchCommunications(selectedPOForMonitor?.id)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-all" title="Refresh">
+                  <RefreshCw size={18} />
+                </button>
+                <div className="flex-1 text-xs text-slate-500 italic">
+                  Monitoring vendor replies for PO #{selectedPOForMonitor?.po_number}...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Delivery Challan Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Upload Delivery Challan</h3>
+              <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-500">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-200 dark:border-slate-700 space-y-1">
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-500">Vendor:</span>
+                  <span className="text-slate-900 dark:text-white font-medium">{selectedPOForUpload?.vendor_name}</span>
+                </div>
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-500">PO Number:</span>
+                  <span className="text-slate-900 dark:text-white font-mono font-medium">{selectedPOForUpload?.po_number}</span>
+                </div>
+              </div>
+
+              {existingAttachments.length > 0 && (
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Previously Uploaded Documents</label>
+                  <div className="space-y-1">
+                    {existingAttachments.map((att, i) => (
+                      <div key={i} className="flex items-center justify-between p-2 bg-emerald-50/50 dark:bg-emerald-900/10 rounded border border-emerald-100/50 dark:border-emerald-800/30">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText size={14} className="text-emerald-500" />
+                          <span className="text-xs truncate text-emerald-900 dark:text-emerald-200">{att.file_name}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => viewAttachment(att.id, att.file_name)} className="p-1 text-slate-400 hover:text-blue-500 transition-colors" title="View"><Eye size={12} /></button>
+                          <button onClick={() => downloadAttachment(att.id, att.file_name)} className="p-1 text-slate-400 hover:text-emerald-500 transition-colors" title="Download"><Download size={12} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Select Files (PDF, Images)</label>
+                <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-8 text-center hover:border-blue-500 transition-all group relative">
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <Upload className="mx-auto text-slate-300 group-hover:text-blue-500 transition-colors mb-2" size={32} />
+                  <p className="text-xs text-slate-500">Click or drag files to upload</p>
+                </div>
+                
+                {filesToUpload.length > 0 && (
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {filesToUpload.map((file, i) => (
+                      <div key={i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText size={14} className="text-blue-500" />
+                          <span className="text-xs truncate">{file.name}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400">{Math.round(file.size / 1024)} KB</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={isFullReceipt}
+                  onChange={(e) => setIsFullReceipt(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-900">Mark order as fully fulfilled</span>
+              </label>
+              
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <button onClick={() => setShowUploadModal(false)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400">Cancel</button>
+                <button
+                  onClick={handleFileUpload}
+                  disabled={uploadingFiles || filesToUpload.length === 0}
+                  className="px-6 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all disabled:bg-slate-300"
+                >
+                  {uploadingFiles ? <RefreshCw size={16} className="animate-spin" /> : "Upload Files"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

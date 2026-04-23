@@ -68,7 +68,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                 columns={[
                   {
                     header: "#",
-                    accessorKey: "itemName",
+                    key: "itemName",
                     className: "w-12 text-center",
                     render: (_, __, ___, idx) => (
                       <span className="text-[10px] text-slate-400">{idx + 1}</span>
@@ -76,25 +76,25 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                   },
                   {
                     header: "Item Name / Group",
-                    accessorKey: "itemName",
+                    key: "itemName",
                     className: "p-2",
                     render: (val, item) => (
                       <div className="flex flex-col">
                         <span className=" text-slate-700 dark:text-slate-200 text-xs group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {val}
                         </span>
-                        <span className="text-xs text-blue-600 dark:text-blue-400 ">
-                          Dim: {renderDimensions(item)} mm
-                        </span>
                         <span className="text-xs  text-slate-400 dark:text-slate-500  ">
                           {item.itemGroup || "NO-GROUP"}
+                        </span>
+                        <span className="text-xs text-blue-600 dark:text-blue-400 ">
+                          Dim: {renderDimensions(item)} mm
                         </span>
                       </div>
                     ),
                   },
                   {
                     header: "Part Detail / Grade",
-                    accessorKey: "partDetail",
+                    key: "partDetail",
                     className: "p-2",
                     render: (val, item) => (
                       <div className="flex flex-col">
@@ -109,7 +109,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                   },
                   {
                     header: "Remark / Make",
-                    accessorKey: "remark",
+                    key: "remark",
                     className: "p-2",
                     render: (val, item) => (
                       <div className="flex flex-col">
@@ -122,7 +122,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                   },
                   {
                     header: "Weight (Kg)",
-                    accessorKey: "totalWeight",
+                    key: "totalWeight",
                     className: "p-2",
                     render: (_, item) => (
                       <div className="flex flex-col">
@@ -148,7 +148,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                   },
                   {
                     header: "Qty",
-                    accessorKey: "quantity",
+                    key: "quantity",
                     className: "p-2 text-center",
                     render: (val) => (
                       <span className=" text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-800">
@@ -158,7 +158,7 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                   },
                   {
                     header: "UOM",
-                    accessorKey: "uom",
+                    key: "uom",
                     className: "p-2",
                     render: (val) => (
                       <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs  text-slate-500 dark:text-slate-400">

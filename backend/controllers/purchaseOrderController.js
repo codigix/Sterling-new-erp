@@ -314,18 +314,36 @@ const updatePurchaseOrderStatus = async (req, res) => {
             await db.query('UPDATE purchase_orders SET inventory_status = ? WHERE id = ?', [inventory_status, id]);
         }
 
-        // If PO is sent to inventory, update root card status
+        // If PO is sent to inventory, update root card status and notify inventory
         if (status === 'sent to inventory') {
             const [rows] = await db.query(`
-                SELECT po.po_number, COALESCE(q.root_card_id, mr.root_card_id) as root_card_id
+                SELECT po.po_number, v.name as vendor_name, COALESCE(q.root_card_id, mr.root_card_id) as root_card_id,
+                rc.project_name
                 FROM purchase_orders po
+                LEFT JOIN vendors v ON po.vendor_id = v.id
                 LEFT JOIN quotations q ON po.quotation_id = q.id
                 LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+                LEFT JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
                 WHERE po.id = ?
             `, [id]);
 
-            if (rows.length > 0 && rows[0].root_card_id) {
-                await db.query('UPDATE root_cards SET status = "PURCHASE_ORDER_RELEASED" WHERE id = ?', [rows[0].root_card_id]);
+            if (rows.length > 0) {
+                const poData = rows[0];
+                if (poData.root_card_id) {
+                    await db.query('UPDATE root_cards SET status = "PURCHASE_ORDER_RELEASED" WHERE id = ?', [poData.root_card_id]);
+                }
+
+                // Create notification for Inventory department
+                await db.query(
+                    'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+                    [
+                        'Inventory',
+                        'New Purchase Order for Receipt',
+                        `PO ${poData.po_number} from ${poData.vendor_name || 'Vendor'} has been sent for receipt.${poData.project_name ? ` Project: ${poData.project_name}` : ''}`,
+                        'info',
+                        `/department/inventory/purchase-orders?poId=${id}`
+                    ]
+                );
             }
         }
 
@@ -369,17 +387,21 @@ const getPurchaseOrderStats = async (req, res) => {
 
 const sendPurchaseOrderEmail = async (req, res) => {
     const { id } = req.params;
-    const { email, subject, message, pdfBase64 } = req.body;
+    const { email, subject, message, pdfBase64, poNumber } = req.body;
 
     try {
         console.log(`Sending PO email to: ${email}`);
         
         const attachments = [];
+        let pdfBuffer = null;
+        const filename = poNumber ? `PurchaseOrder-${poNumber}.pdf` : `PurchaseOrder-${id}.pdf`;
+
         if (pdfBase64) {
             const base64Data = pdfBase64.split(',')[1] || pdfBase64;
+            pdfBuffer = Buffer.from(base64Data, 'base64');
             attachments.push({
-                filename: `PurchaseOrder-${id}.pdf`,
-                content: Buffer.from(base64Data, 'base64'),
+                filename: filename,
+                content: pdfBuffer,
                 contentType: 'application/pdf'
             });
         }
@@ -392,20 +414,44 @@ const sendPurchaseOrderEmail = async (req, res) => {
         });
 
         // Record the communication
-        await db.query(
+        const [commResult] = await db.query(
             `INSERT INTO purchase_order_communications 
-            (purchase_order_id, sender_id, message, subject, sender_email, is_outgoing, content_text) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            (purchase_order_id, sender_id, message, subject, sender_email, is_outgoing, content_text, has_attachments) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 id, 
                 req.user?.id || null, 
                 message, 
                 subject, 
-                process.env.EMAIL_FROM, 
+                process.env.EMAIL_FROM || 'erp@sterling.com', 
                 true, 
-                message
+                message,
+                pdfBuffer ? true : false
             ]
         );
+
+        const communicationId = commResult.insertId;
+
+        // Save PDF to disk if provided
+        if (pdfBuffer) {
+            const uploadDir = path.join(__dirname, '..', 'uploads', 'purchase_orders');
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+
+            const safeFileName = `outgoing_${communicationId}_${Date.now()}_${filename.replace(/[^a-z0-9.]/gi, '_')}`;
+            const filePath = path.join(uploadDir, safeFileName);
+            const relativePath = `uploads/purchase_orders/${safeFileName}`;
+
+            fs.writeFileSync(filePath, pdfBuffer);
+
+            await db.query(
+                `INSERT INTO purchase_order_communication_attachments 
+                (communication_id, file_name, file_path, file_size, mime_type) 
+                VALUES (?, ?, ?, ?, ?)`,
+                [communicationId, filename, relativePath, pdfBuffer.length, 'application/pdf']
+            );
+        }
 
         res.status(200).json({ success: true, message: 'Email sent successfully' });
     } catch (error) {
@@ -470,27 +516,49 @@ const downloadAttachment = async (req, res) => {
         }
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Attachment not found' });
+            return res.status(404).json({ message: 'Attachment not found in database' });
         }
 
         const attachment = rows[0];
-        let filePath = attachment.file_path;
-
-        // If it's a relative path, join it with the backend directory
-        if (!path.isAbsolute(filePath)) {
-            filePath = path.join(__dirname, '..', filePath);
-        }
-
-        if (!fs.existsSync(filePath)) {
-            console.error(`File not found at: ${filePath}`);
-            return res.status(404).json({ message: 'File not found on server' });
-        }
-
-        res.setHeader('Content-Type', attachment.mime_type || 'application/octet-stream');
-        res.setHeader('Content-Disposition', `attachment; filename="${attachment.file_name}"`);
+        let originalPath = attachment.file_path;
         
-        const fileStream = fs.createReadStream(filePath);
-        fileStream.pipe(res);
+        // Normalize path slashes for the current OS
+        const normalizedPath = originalPath.replace(/[\\/]/g, path.sep);
+        
+        // Try multiple possible locations
+        const projectRoot = path.resolve(__dirname, '..');
+        const possiblePaths = [
+            path.isAbsolute(normalizedPath) ? normalizedPath : path.join(projectRoot, normalizedPath),
+            path.resolve(projectRoot, '..', normalizedPath), // Try one level up just in case
+            path.join(projectRoot, 'uploads', path.basename(normalizedPath)), // Try directly in uploads
+            path.join(projectRoot, 'uploads', 'purchase_orders', path.basename(normalizedPath)), // Try in PO subfolder
+            path.join(projectRoot, 'uploads', 'quotations', path.basename(normalizedPath)) // Try in Quotation subfolder
+        ];
+
+        let finalPath = null;
+        for (const p of possiblePaths) {
+            if (fs.existsSync(p)) {
+                finalPath = p;
+                break;
+            }
+        }
+
+        if (!finalPath) {
+            console.error(`File not found. Tried paths:`, possiblePaths);
+            return res.status(404).json({ 
+                message: 'File not found on server', 
+                details: 'The file record exists in the database but the physical file is missing from the expected storage locations.' 
+            });
+        }
+
+        res.download(finalPath, attachment.file_name, (err) => {
+            if (err) {
+                console.error('Error during file download:', err);
+                if (!res.headersSent) {
+                    res.status(500).json({ message: 'Error downloading file' });
+                }
+            }
+        });
     } catch (error) {
         console.error('Error downloading attachment:', error);
         res.status(500).json({ message: 'Server error' });
