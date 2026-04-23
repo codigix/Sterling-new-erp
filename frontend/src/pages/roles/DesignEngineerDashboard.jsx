@@ -228,7 +228,7 @@ const DesignEngineerDashboard = () => {
   }
 
   return (
-    <div className="space-y-2 p-6">
+    <div className="space-y-2 p-4">
       <div className="">
         <div className="max-w-2xl">
           <h1 className="text-xl  mb-1">Design Engineering Hub</h1>

@@ -164,7 +164,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 space-y-2 max-h-[70vh] overflow-y-auto text-slate-900 dark:text-slate-100">
+        <div className="p-4 space-y-2 max-h-[70vh] overflow-y-auto text-slate-900 dark:text-slate-100">
           {/* Metadata Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-700/50">

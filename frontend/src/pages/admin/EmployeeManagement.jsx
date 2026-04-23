@@ -405,7 +405,7 @@ const EmployeeManagement = () => {
   ];
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 p-4">
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>

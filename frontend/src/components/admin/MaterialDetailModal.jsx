@@ -153,7 +153,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
           </button>
         </div>
 
-        <div className="p-6 space-y-2">
+        <div className="p-4 space-y-2">
           {renderForm()}
 
           <div className="flex gap-3 pt-4">

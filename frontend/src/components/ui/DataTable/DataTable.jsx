@@ -1,5 +1,5 @@
-import React, { useState, useMemo, Fragment } from 'react';
-import { ChevronUp, ChevronDown, Loader, Search, X, ChevronRight } from 'lucide-react';
+import React, { useState, useMemo, Fragment, useEffect } from 'react';
+import { ChevronUp, ChevronDown, Loader, Search, X, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const DataTable = ({
   columns,
@@ -25,14 +25,24 @@ const DataTable = ({
   onFilterChange = null,
   externalFilterValues = null,
   className = '',
+  pagination = true,
+  pageSize = 10,
+  pageSizeOptions = [5, 10, 25, 50, 100],
 }) => {
   const effectiveRenderRowDetail = renderRowDetail || expandableRow;
   const [sortConfig, setSortConfig] = useState(null);
   const [searchQuery, setSearchQuery] = useState(initialSearchValue);
   const [internalFilterValues, setInternalFilterValues] = useState({});
   const [expandedRows, setExpandedRows] = useState(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [internalPageSize, setInternalPageSize] = useState(pageSize);
 
   const filterValues = externalFilterValues || internalFilterValues;
+
+  // Reset to page 1 when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterValues]);
 
   const handleSearchChange = (val) => {
     setSearchQuery(val);
@@ -108,6 +118,14 @@ const DataTable = ({
       return 0;
     });
   }, [filteredData, sortConfig]);
+
+  const totalPages = Math.ceil(sortedData.length / internalPageSize);
+
+  const paginatedData = useMemo(() => {
+    if (!pagination) return sortedData;
+    const startIndex = (currentPage - 1) * internalPageSize;
+    return sortedData.slice(startIndex, startIndex + internalPageSize);
+  }, [sortedData, currentPage, internalPageSize, pagination]);
 
   const handleSort = (key) => {
     if (!sortable) return;
@@ -251,22 +269,24 @@ const DataTable = ({
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {loading ? (
-                <tr>
-                  <td colSpan={columns.length + (effectiveRenderRowDetail ? 1 : 0)} className="p-12 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                      <span className="text-xs text-slate-500">Loading data...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : sortedData.length === 0 ? (
+                Array.from({ length: internalPageSize || 5 }).map((_, i) => (
+                  <tr key={`skeleton-${i}`} className="animate-pulse">
+                    {effectiveRenderRowDetail && <td className="p-3 w-10"></td>}
+                    {columns.map((_, j) => (
+                      <td key={`skeleton-cell-${j}`} className="p-4">
+                        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : paginatedData.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length + (effectiveRenderRowDetail ? 1 : 0)} className="p-12 text-center text-xs text-slate-400 italic">
                     {emptyMessage}
                   </td>
                 </tr>
               ) : (
-                sortedData.map((row, rowIndex) => {
+                paginatedData.map((row, rowIndex) => {
                   const rowId = row.id ?? row._id ?? `row-${rowIndex}`;
                   const isExpanded = expandedRows.has(rowId);
                   return (
@@ -331,8 +351,82 @@ const DataTable = ({
           </table>
         </div>
       </div>
+      {pagination && sortedData.length > 0 && (
+        <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border border-t-0 border-slate-100 dark:border-slate-800 rounded-b">
+          <div className="flex flex-1 justify-between sm:hidden">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+            >
+              Next
+            </button>
+          </div>
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <p className="text-xs text-slate-700 dark:text-slate-400">
+                Showing <span className="font-medium">{(currentPage - 1) * internalPageSize + 1}</span> to{' '}
+                <span className="font-medium">
+                  {Math.min(currentPage * internalPageSize, sortedData.length)}
+                </span>{' '}
+                of <span className="font-medium">{sortedData.length}</span> results
+              </p>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500">Rows per page:</span>
+                <select
+                  value={internalPageSize}
+                  onChange={(e) => {
+                    setInternalPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 outline-none"
+                >
+                  {pageSizeOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 dark:ring-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 focus:z-20 focus:outline-offset-0 disabled:opacity-50 transition-colors"
+                >
+                  <span className="sr-only">Previous</span>
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                </button>
+                
+                <div className="flex items-center px-4 py-2 text-[10px] font-semibold text-slate-700 dark:text-slate-200 ring-1 ring-inset ring-slate-300 dark:ring-slate-700">
+                  Page {currentPage} of {totalPages}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 dark:ring-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 focus:z-20 focus:outline-offset-0 disabled:opacity-50 transition-colors"
+                >
+                  <span className="sr-only">Next</span>
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default DataTable;
+// test  

@@ -156,7 +156,7 @@ const SystemSettings = () => {
   }
 
   return (
-    <div className="w-full min-h-screen  space-y-2">
+    <div className="w-full min-h-screen p-4 space-y-2">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -440,7 +440,7 @@ const SystemSettings = () => {
                 <span>Workflow Configuration</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-2">
+            <CardContent className="p-4 space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <SettingInput
                   label="Small Order Threshold (₹)"

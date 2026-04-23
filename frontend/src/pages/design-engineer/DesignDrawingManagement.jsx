@@ -25,6 +25,7 @@ import axios from "../../utils/api";
 import { getServerUrl, downloadFile } from "../../utils/fileUtils";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const DesignDrawingManagement = () => {
   const [searchParams] = useSearchParams();
@@ -33,7 +34,6 @@ const DesignDrawingManagement = () => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showTechnicalUploadModal, setShowTechnicalUploadModal] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -41,8 +41,6 @@ const DesignDrawingManagement = () => {
     dwg_file: null,
     step_file: null
   });
-  const [history, setHistory] = useState([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
   const [isRevision, setIsRevision] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -94,7 +92,8 @@ const DesignDrawingManagement = () => {
   const handleDownload = async (doc) => {
     try {
       await downloadFile(doc.file_path, doc.name);
-    } catch (error) {
+    } catch (err) {
+      console.error("Download error:", err);
       toast.error("Failed to download file");
     }
   };
@@ -109,20 +108,7 @@ const DesignDrawingManagement = () => {
     setDocHistories({});
   }, [rootCardId]);
 
-  const toggleRow = async (doc) => {
-    const docKey = doc.parent_id || doc.id;
-    const newExpanded = new Set(expandedDocs);
-    
-    if (newExpanded.has(docKey)) {
-      newExpanded.delete(docKey);
-    } else {
-      newExpanded.add(docKey);
-      if (!docHistories[docKey]) {
-        await fetchDocHistory(doc);
-      }
-    }
-    setExpandedDocs(newExpanded);
-  };
+
 
   const fetchDocHistory = async (doc) => {
     const docKey = doc.parent_id || doc.id;
@@ -381,8 +367,231 @@ const DesignDrawingManagement = () => {
     }
   };
 
+  const columns = [
+    {
+      key: "name",
+      label: "Drawing Name",
+      sortable: true,
+      render: (value, doc) => (
+        <div>
+          <div className="text-xs text-slate-900 dark:text-white">{value}</div>
+          <div className="text-xs text-slate-500 truncate max-w-xs">{doc.description}</div>
+        </div>
+      )
+    },
+    {
+      key: "project_name",
+      label: "Project / Root Card",
+      sortable: true,
+      render: (value, doc) => (
+        <div>
+          <div className="text-xs text-blue-600 dark:text-blue-400 truncate max-w-[150px]" title={value}>{value || 'N/A'}</div>
+          <div className="text-xs text-slate-500">{doc.po_number || doc.root_card_id}</div>
+        </div>
+      )
+    },
+    {
+      key: "type",
+      label: "Type",
+      sortable: true,
+      render: (value) => (
+        <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-md">{value}</span>
+      )
+    },
+    {
+      key: "status",
+      label: "Latest Status",
+      sortable: true,
+      render: (value) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs ${getStatusColor(value)}`}>
+          {value}
+        </span>
+      )
+    },
+    {
+      key: "updated_at",
+      label: "Last Updated",
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString()
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right",
+      render: (_, doc) => (
+        <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+          {doc.type !== 'Final Approved Drawing' && doc.status !== 'Approved' && (
+            <button 
+              onClick={() => {
+                setSelectedDoc(doc); 
+                setFormData({ ...formData, name: doc.name, type: doc.type }); 
+                setIsRevision(true);
+                setShowUploadModal(true);
+              }}
+              className="bg-white dark:bg-slate-800 text-orange-500 hover:text-orange-600 border border-slate-200 dark:border-slate-700 p-2 rounded transition-colors "
+              title="Upload Revision"
+            >
+              <RefreshCw size={15} />
+            </button>
+          )}
+          <button 
+            onClick={() => handleDelete(doc.id, true)}
+            className="p-2 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 "
+            title="Delete whole drawing (all versions)"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      )
+    }
+  ];
+
+  const RevisionHistory = ({ doc }) => {
+    const docKey = doc.parent_id || doc.id;
+    
+    useEffect(() => {
+      if (!docHistories[docKey] && !fetchingHistory[docKey]) {
+        fetchDocHistory(doc);
+      }
+    }, [docKey]);
+
+    if (fetchingHistory[docKey]) {
+      return (
+        <div className="flex items-center gap-2 text-sm text-slate-500 py-6 justify-center">
+          <Loader2 size={15} className="animate-spin text-blue-500" /> Loading revisions...
+        </div>
+      );
+    }
+
+    const historyData = docHistories[docKey] || [];
+
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm  text-slate-700 dark:text-slate-300 flex items-center gap-2  ">
+            <History size={15} className="text-blue-500" /> Revision History
+          </h4>
+        </div>
+        
+        <div className="space-y-3">
+          {historyData.map((rev, index) => (
+            <div 
+              key={rev.id} 
+              className={`flex items-start justify-between p-4 rounded border transition-all ${
+                index === 0 
+                  ? "bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-900/40  ring-1 ring-blue-50 dark:ring-blue-900/10" 
+                  : "bg-slate-50/50 dark:bg-slate-900/10 border-slate-100 dark:border-slate-800"
+              }`}
+            >
+              <div className="flex items-start  gap-2">
+                <div className="flex flex-col items-center ">
+                  <span className="text-sm  text-blue-600">v{rev.version}</span>
+                  <span className="text-xs text-slate-400   er">{new Date(rev.created_at).toLocaleDateString()}</span>
+                </div>
+                <div className="h-12 w-px bg-slate-200 dark:bg-slate-700"></div>
+                <div>
+                  <div className="flex gap-3 mb-1.5">
+                    <span className="text-xs text-slate-500 dark:text-slate-300">
+                      {rev.description || "No description"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-slate-400 ">
+                    <span className="flex items-center gap-1"><FileText size={12} /> {rev.file_path.split('/').pop()}</span>
+                    {rev.reviewer_name && <span className="flex items-center gap-1 text-slate-500">Reviewer: <b className="text-slate-700 dark:text-slate-300">{rev.reviewer_name}</b></span>}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-start  gap-2">
+                {rev.reviewer_comment && (
+                  <div className={`text-xs flex items-start gap-2 p-2 w-fit rounded border ${
+                    rev.status === 'Approved' 
+                      ? "text-green-600 bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-900/30" 
+                      : "text-red-600 bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30"
+                  }`}>
+                    <MessageSquare size={10} className="mt-0.5 shrink-0" /> 
+                    <div>
+                      <span className="  text-xs block mb-0.5">Feedback</span>
+                      {rev.reviewer_comment}
+                    </div>
+                  </div>
+                )}
+                <button 
+                  onClick={() => window.open(getServerUrl(rev.file_path), '_blank')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs  rounded transition-colors border border-slate-200 dark:border-slate-600"
+                >
+                  <Eye size={14} /> View
+                </button>
+                
+                <button 
+                  onClick={() => handleDownload(rev)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs  rounded transition-colors border border-slate-200 dark:border-slate-600"
+                >
+                  <Download size={14} /> Download
+                </button>
+                
+                {rev.dwg_path && (
+                  <button 
+                    onClick={() => downloadFile(rev.dwg_path, `${rev.name}.dwg`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs rounded transition-colors border border-blue-200"
+                    title="Download DWG File"
+                  >
+                    <Eye size={14} /> DWG File
+                  </button>
+                )}
+
+                {rev.step_path && (
+                  <button 
+                    onClick={() => downloadFile(rev.step_path, `${rev.name}.step`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs rounded transition-colors border border-orange-200"
+                    title="Download STEP File"
+                  >
+                    <Eye size={14} /> STEP File
+                  </button>
+                )}
+
+                {index === 0 && rev.type !== 'Final Approved Drawing' && (
+                  <div className="flex items-center gap-2">
+                    {rev.status === 'Approved' && !rev.dwg_path && !rev.step_path && (
+                      <button 
+                        onClick={() => {
+                          setSelectedDoc(rev);
+                          setShowTechnicalUploadModal(true);
+                        }}
+                        className="flex items-center gap-1.5 p-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded transition-colors"
+                        title="Upload .dwg / .step files"
+                      >
+                        <Upload size={14} /> Upload CAD/STEP
+                      </button>
+                    )}
+                    {rev.status === 'Draft' && (
+                      <button 
+                        onClick={() => submitDraft(rev.id)}
+                        className="flex items-center gap-1.5 p-2 bg-blue-600 hover:bg-blue-700 text-white text-xs  rounded transition-colors "
+                      >
+                        <Upload size={14} /> Submit
+                      </button>
+                    )}
+                    {rev.status === 'Pending Review' && (
+                      <button 
+                        onClick={() => handleApprove(rev)}
+                        className="flex items-center gap-1.5 p-2 bg-green-600 hover:bg-green-700 text-white text-xs  rounded transition-colors "
+                      >
+                        <CheckCircle2 size={14} /> Approve
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="p-6 space-y-2">
+    <div className="p-4 space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-xl  text-slate-900 dark:text-white">Design Drawing Management</h1>
@@ -398,303 +607,64 @@ const DesignDrawingManagement = () => {
         </button>
       </div>
 
-      <div className="border-slate-200 my-5 dark:border-slate-700  flex flex-col md:flex-row md:items-center justify-between">
-        <div className="flex-1 max-w-md">
-          <label className="block text-xs  text-slate-700 dark:text-slate-300 ">Filter by Root Card</label>
-          <select
-            value={rootCardId}
-            onChange={(e) => setRootCardId(e.target.value)}
-            className="w-full text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <option value="">All Root Cards</option>
-            {rootCards.map(rc => {
-              const baseName = rc.project_name || rc.po_number || "";
-              // Remove RC-XXXX pattern from the start of the string if it exists
-              const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
-              return (
-                <option key={rc.id} value={rc.id}>{displayName || baseName || rc.id}</option>
-              );
-            })}
-          </select>
-        </div>
 
-        <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded">
-          <button
-            onClick={() => setActiveTab("active")}
-            className={`p-2 rounded-md text-xs  transition-all ${
-              activeTab === "active"
-                ? "bg-white dark:bg-slate-800 text-blue-600 "
-                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-            }`}
-          >
-            Active Drawings ({activeDocuments.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("rejected")}
-            className={`p-2 rounded-md text-xs  transition-all ${
-              activeTab === "rejected"
-                ? "bg-white dark:bg-slate-800 text-red-600 "
-                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-            }`}
-          >
-            Rejected Drawings ({rejectedDocuments.length})
-          </button>
-        </div>
-      </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-              <tr>
-                <th className="p-2 text-xs  text-slate-500">Drawing Name</th>
-                <th className="p-2 text-xs  text-slate-500">Project / Root Card</th>
-                <th className="p-2 text-xs  text-slate-500">Type</th>
-                <th className="p-2 text-xs  text-slate-500">Latest Status</th>
-                <th className="p-2 text-xs  text-slate-500">Last Updated</th>
-                <th className="p-2 text-xs  text-slate-500 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="px-6 py-10 text-center text-slate-500">
-                    <Loader2 className="animate-spin inline-block mr-2" /> Loading drawings...
-                  </td>
-                </tr>
-              ) : (activeTab === "active" ? activeDocuments : rejectedDocuments).length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="px-6 py-10 text-center text-slate-500">
-                    No {activeTab} drawings found
-                  </td>
-                </tr>
-              ) : (
-                (activeTab === "active" ? activeDocuments : rejectedDocuments).map((doc) => (
-                  <React.Fragment key={doc.parent_id || doc.id}>
-                    <tr 
-                      onClick={() => toggleRow(doc)}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors cursor-pointer group"
-                    >
-                      <td className="p-2">
-                        <div className="flex items-center gap-3">
-                          <div className={`transition-transform duration-200 ${expandedDocs.has(doc.parent_id || doc.id) ? 'rotate-180' : ''}`}>
-                            <ChevronDown size={15} className="text-slate-400 group-hover:text-blue-500" />
-                          </div>
-                          <div>
-                            <div className=" text-xs text-slate-900 dark:text-white">{doc.name}</div>
-                            <div className="text-xs text-slate-500 truncate max-w-xs">{doc.description}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-2">
-                        <div className="text-xs  text-blue-600 dark:text-blue-400 truncate max-w-[150px]" title={doc.project_name}>{doc.project_name || 'N/A'}</div>
-                        <div className="text-xs text-slate-500">{doc.po_number || doc.root_card_id}</div>
-                      </td>
-                      <td className="p-2">
-                        <span className="text-xs  text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-md">{doc.type}</span>
-                      </td>
-                      <td className="p-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs    ${getStatusColor(doc.status)}`}>
-                          {doc.status}
-                        </span>
-                      </td>
-                      <td className="p-2 text-xs text-slate-500 ">
-                        {new Date(doc.updated_at).toLocaleDateString()}
-                      </td>
-                      <td className="p-2 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-2">
-                          {doc.type !== 'Final Approved Drawing' && doc.status !== 'Approved' && (
-                            <button 
-                              onClick={() => {
-                                setSelectedDoc(doc); 
-                                setFormData({ ...formData, name: doc.name, type: doc.type }); 
-                                setIsRevision(true);
-                                setShowUploadModal(true);
-                              }}
-                              className="bg-white dark:bg-slate-800 text-orange-500 hover:text-orange-600 border border-slate-200 dark:border-slate-700 p-2 rounded transition-colors "
-                              title="Upload Revision"
-                            >
-                              <RefreshCw size={15} />
-                            </button>
-                          )}
-                          <button 
-                            onClick={() => handleDelete(doc.id, true)}
-                            className="p-2 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 "
-                            title="Delete whole drawing (all versions)"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    {/* Expanded Revision History */}
-                    {expandedDocs.has(doc.parent_id || doc.id) && (
-                      <tr>
-                        <td colSpan="6" className="p-2 bg-slate-50/50 dark:bg-slate-900/20 border-y border-slate-100 dark:border-slate-800">
-                          <div className=" space-y-4">
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-sm  text-slate-700 dark:text-slate-300 flex items-center gap-2  ">
-                                <History size={15} className="text-blue-500" /> Revision History
-                              </h4>
-                            </div>
-                            
-                            {fetchingHistory[doc.parent_id || doc.id] ? (
-                              <div className="flex items-center gap-2 text-sm text-slate-500 py-6 justify-center">
-                                <Loader2 size={15} className="animate-spin text-blue-500" /> Loading revisions...
-                              </div>
-                            ) : (
-                              <div className="space-y-3">
-                                {(docHistories[doc.parent_id || doc.id] || []).map((rev, index) => (
-                                  <div 
-                                    key={rev.id} 
-                                    className={`flex items-start justify-between p-4 rounded border transition-all ${
-                                      index === 0 
-                                        ? "bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-900/40  ring-1 ring-blue-50 dark:ring-blue-900/10" 
-                                        : "bg-slate-50/50 dark:bg-slate-900/10 border-slate-100 dark:border-slate-800"
-                                    }`}
-                                  >
-                                    <div className="flex items-start  gap-2">
-                                      <div className="flex flex-col items-center ">
-                                        <span className="text-sm  text-blue-600">v{rev.version}</span>
-                                        <span className="text-xs text-slate-400   er">{new Date(rev.created_at).toLocaleDateString()}</span>
-                                      </div>
-                                      <div className="h-12 w-px bg-slate-200 dark:bg-slate-700"></div>
-                                      <div>
-                                        <div className="flex gap-3 mb-1.5">
-                                          
-                                          <span className="text-xs text-slate-500 dark:text-slate-300">
-                                            {rev.description || "No description"}
-                                          </span>
-                                        </div>
-                                        <div className="flex items-center gap-4 text-xs text-slate-400 ">
-                                          <span className="flex items-center gap-1"><FileText size={12} /> {rev.file_path.split('/').pop()}</span>
-                                          {rev.reviewer_name && <span className="flex items-center gap-1 text-slate-500">Reviewer: <b className="text-slate-700 dark:text-slate-300">{rev.reviewer_name}</b></span>}
-                                        </div>
-                                        
-                                      </div>
-                                    </div>
-                                    
-                                    <div className="flex items-start  gap-2">
-                                      {rev.reviewer_comment && (
-                                          <div className={`text-xs flex items-start gap-2 p-2 w-fit rounded border ${
-                                            rev.status === 'Approved' 
-                                              ? "text-green-600 bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-900/30" 
-                                              : "text-red-600 bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30"
-                                          }`}>
-                                            <MessageSquare size={10} className="mt-0.5 shrink-0" /> 
-                                            <div>
-                                              <span className="  text-xs block mb-0.5">Feedback</span>
-                                              {rev.reviewer_comment}
-                                            </div>
-                                          </div>
-                                        )}
-                                      <button 
-                                        onClick={() => window.open(getServerUrl(rev.file_path), '_blank')}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs  rounded transition-colors border border-slate-200 dark:border-slate-600"
-                                      >
-                                        <Eye size={14} /> View
-                                      </button>
-                                      
-                                      <button 
-                                        onClick={() => handleDownload(rev)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs  rounded transition-colors border border-slate-200 dark:border-slate-600"
-                                      >
-                                        <Download size={14} /> Download
-                                      </button>
-                                      
-                                      {rev.dwg_path && (
-                                        <button 
-                                          onClick={() => downloadFile(rev.dwg_path, `${rev.name}.dwg`)}
-                                          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs rounded transition-colors border border-blue-200"
-                                          title="Download DWG File"
-                                        >
-                                          <Eye size={14} /> DWG File
-                                        </button>
-                                      )}
+      <DataTable
+        title={`${activeTab === "active" ? "Active" : "Rejected"} Drawings`}
+        titleIcon={FileCode}
+        columns={columns}
+        data={activeTab === "active" ? activeDocuments : rejectedDocuments}
+        loading={loading}
+        emptyMessage={`No ${activeTab} drawings found`}
+        expandableRow={(row) => <RevisionHistory doc={row} />}
+        titleExtra={
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+             <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded">
+              <button
+                onClick={() => setActiveTab("active")}
+                className={`px-3 py-1.5 rounded text-xs transition-all ${
+                  activeTab === "active"
+                    ? "bg-white dark:bg-slate-800 text-blue-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                Active ({activeDocuments.length})
+              </button>
+              <button
+                onClick={() => setActiveTab("rejected")}
+                className={`px-3 py-1.5 rounded text-xs transition-all ${
+                  activeTab === "rejected"
+                    ? "bg-white dark:bg-slate-800 text-red-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                Rejected ({rejectedDocuments.length})
+              </button>
+            </div>
+            <div className="flex items-center gap-2 min-w-[200px]">
+              <select
+                value={rootCardId}
+                onChange={(e) => setRootCardId(e.target.value)}
+                className="text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none w-full"
+              >
+                <option value="">All Root Cards</option>
+                {rootCards.map(rc => {
+                  const baseName = rc.project_name || rc.po_number || "";
+                  const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
+                  return (
+                    <option key={rc.id} value={rc.id}>{displayName || baseName || rc.id}</option>
+                  );
+                })}
+              </select>
+            </div>
+          </div>
+        }
+      />
 
-                                      {rev.step_path && (
-                                        <button 
-                                          onClick={() => downloadFile(rev.step_path, `${rev.name}.step`)}
-                                          className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs rounded transition-colors border border-orange-200"
-                                          title="Download STEP File"
-                                        >
-                                          <Eye size={14} /> STEP File
-                                        </button>
-                                      )}
 
-                                      {index === 0 && rev.type !== 'Final Approved Drawing' && (
-                                        <div className="flex items-center gap-2">
-                                          {rev.status === 'Approved' && !rev.dwg_path && !rev.step_path && (
-                                            <button 
-                                              onClick={() => {
-                                                setSelectedDoc(rev);
-                                                setShowTechnicalUploadModal(true);
-                                              }}
-                                              className="flex items-center gap-1.5 p-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded transition-colors"
-                                              title="Upload .dwg / .step files"
-                                            >
-                                              <Upload size={14} /> Upload CAD/STEP
-                                            </button>
-                                          )}
-                                          {rev.status === 'Draft' && (
-                                            <button 
-                                              onClick={() => submitDraft(rev.id)}
-                                              className="flex items-center gap-1.5 p-2 bg-blue-600 hovexsbg-blue-700 text-white text-xs  rounded transition-colors "
-                                            >
-                                              <Upload size={14} /> Submit
-                                            </button>
-                                          )}
-                                          
-                                          {rev.status === 'Rejected' && (
-                                            <button 
-                                              onClick={() => {
-                                                setSelectedDoc(rev); 
-                                                setFormData({ ...formData, name: rev.name, type: rev.type, root_card_id: rev.root_card_id }); 
-                                                setIsRevision(true);
-                                                setShowUploadModal(true);
-                                              }}
-                                              className="flex items-center gap-1.5 p-2 bg-orange-600 hoxsr:bg-orange-700 text-white text-xs  rounded transition-colors "
-                                            >
-                                              <RefreshCw size={14} /> Create Revision
-                                            </button>
-                                          )}
-                                          
-                                          {rev.status === 'Pending Review' && (
-                                            <>
-                                              <button 
-                                                onClick={() => handleApprove(rev)}
-                                                className="flex items-center gap-1.5 p-2 bg-green-600 hovxs:bg-green-700 text-white text-xs  rounded transition-colors "
-                                              >
-                                                <CheckCircle2 size={14} /> Approve
-                                              </button>
-                                            </>
-                                          )}
-                                        </div>
-                                      )}
 
-                                      <button 
-                                        onClick={() => handleDelete(rev.id, false)}
-                                        className="p-1.5 text-slate-400 hover:text-red-600 transition-colors bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 "
-                                        title="Delete this version only"
-                                      >
-                                        <Trash2 size={15} />
-                                      </button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+
+
 
       {/* Upload Modal */}
       {showUploadModal && (
@@ -780,52 +750,7 @@ const DesignDrawingManagement = () => {
         </div>
       )}
 
-      {/* History Modal */}
-      {showHistoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded   border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-              <h3 className="text-lg  text-slate-900 dark:text-white">Revision History: {selectedDoc?.name}</h3>
-              <button onClick={() => setShowHistoryModal(false)} className="text-slate-400 hover:text-slate-500"><XCircle size={15} /></button>
-            </div>
-            <div className="p-6 max-h-[60vh] overflow-y-auto space-y-4">
-              {historyLoading ? (
-                <div className="text-center py-10 text-slate-500"><Loader2 className="animate-spin inline mr-2" /> Loading history...</div>
-              ) : history.map((item) => (
-                <div key={item.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-200 dark:border-slate-700 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className=" text-blue-600 dark:text-blue-400">Version v{item.version}</span>
-                    <span className={`px-2 py-0.5 rounded text-xs    ${getStatusColor(item.status)}`}>
-                      {item.status}
-                    </span>
-                  </div>
-                  <div className="text-sm text-slate-500 dark:text-slate-400 italic">"{item.description}"</div>
-                  {item.reviewer_comment && (
-                    <div className="flex gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
-                      <MessageSquare size={15} />
-                      <span>{item.reviewer_comment}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>Uploaded by: {item.created_by_name}</span>
-                    <span>{new Date(item.created_at).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-end">
-                    <a 
-                      href={getServerUrl(item.file_path)} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline text-sm flex items-center gap-1"
-                    >
-                      <Download size={14} /> Download File
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Review / Feedback Modal */}
       {showReviewModal && (

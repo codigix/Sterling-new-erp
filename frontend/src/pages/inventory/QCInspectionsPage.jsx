@@ -860,7 +860,7 @@ const QCInspectionsPage = () => {
               </button>
             </div>
 
-            <div className="p-6 space-y-2">
+            <div className="p-4 space-y-2">
               <div className="grid grid-cols-2 gap-4 text-xs bg-slate-50 dark:bg-slate-700/30 p-4 rounded border border-slate-100 dark:border-slate-700">
                 <div>
                   <p className="text-xs text-slate-500 dark:text-slate-400  tracking-wide  mb-1">

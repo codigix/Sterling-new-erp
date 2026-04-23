@@ -320,7 +320,7 @@ const RoleManagement = () => {
   ];
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-2 p-4">
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>

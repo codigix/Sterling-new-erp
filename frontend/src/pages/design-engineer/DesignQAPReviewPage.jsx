@@ -224,7 +224,7 @@ const DesignQAPReviewPage = () => {
       </div>
 
       {/* Table Section */}
-      <Card className="border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="">
         <DataTable
           columns={columns}
           data={filteredCards}
@@ -232,7 +232,7 @@ const DesignQAPReviewPage = () => {
           striped={true}
           hover={true}
         />
-      </Card>
+      </div>
 
       {/* Documents Modal */}
       {viewModalData && (

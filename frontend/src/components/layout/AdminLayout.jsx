@@ -321,9 +321,9 @@ const AdminLayout = () => {
           sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
         } pt-16`}
       >
-        <div className="p-4">
+        <div className="">
           {/* Breadcrumbs */}
-          <div className="">
+          <div className="p-4 pb-0">
             <nav className="  flex items-center text-xs space-x-2 text-xs text-slate-500 dark:text-slate-400">
               <Link
                 to="/admin/dashboard"

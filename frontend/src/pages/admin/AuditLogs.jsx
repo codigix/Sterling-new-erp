@@ -153,7 +153,7 @@ const AuditLogs = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen  space-y-2">
+    <div className="w-full min-h-screen p-4 space-y-2">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>

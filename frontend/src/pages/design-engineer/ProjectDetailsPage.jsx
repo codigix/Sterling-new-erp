@@ -721,7 +721,7 @@ const ProjectDetailsPage = () => {
         </div>
 
         {/* Form Content */}
-        <div className="p-6 space-y-2">
+        <div className="p-4 space-y-2">
           {/* Root Card Reference (Read-Only) */}
           <Card className="bg-slate-50 dark:bg-slate-900/50 border-blue-200 dark:border-blue-900">
             <CardHeader className="pb-2">
