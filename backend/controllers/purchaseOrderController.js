@@ -5,7 +5,7 @@ const path = require('path');
 
 const getPurchaseOrders = async (req, res) => {
     try {
-        const { search, status, root_card_id } = req.query;
+        const { search, status, inventory_status, root_card_id } = req.query;
         let query = `
             SELECT po.*, v.name as vendor_name, v.email as vendor_email, q.quotation_number,
             rc.id as root_card_id, rc.project_name as root_card_project_name,
@@ -24,6 +24,14 @@ const getPurchaseOrders = async (req, res) => {
         if (status && status !== 'all') {
             query += " AND po.status = ?";
             params.push(status);
+        }
+        if (inventory_status && inventory_status !== 'all') {
+            if (inventory_status === '!fulfilled') {
+                query += " AND (po.inventory_status IS NULL OR po.inventory_status != 'fulfilled')";
+            } else {
+                query += " AND po.inventory_status = ?";
+                params.push(inventory_status);
+            }
         }
         if (root_card_id) {
             query += " AND (q.root_card_id = ? OR mr.root_card_id = ?)";
@@ -682,6 +690,23 @@ const createPurchaseReceipt = async (req, res) => {
             const { po_item_id, material_name, received_qty, unit, generate_st } = item;
             
             if (parseFloat(received_qty) <= 0) continue;
+
+            // 3a. Server-side validation for partial delivery
+            const [poItemRows] = await connection.query(
+                'SELECT quantity, COALESCE(received, 0) as received FROM purchase_order_items WHERE id = ?',
+                [po_item_id]
+            );
+
+            if (poItemRows.length > 0) {
+                const { quantity, received } = poItemRows[0];
+                const remaining = parseFloat(quantity) - parseFloat(received);
+                if (parseFloat(received_qty) > remaining + 0.001) { // 0.001 for decimal precision
+                    await connection.rollback();
+                    return res.status(400).json({ 
+                        message: `Received quantity (${received_qty}) for ${material_name} exceeds remaining balance (${remaining.toFixed(3)}).` 
+                    });
+                }
+            }
 
             // Internal helper to generate item code if missing
             const generateItemCode = (name) => {

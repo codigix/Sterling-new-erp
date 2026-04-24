@@ -142,7 +142,8 @@ const GRNDetailTable = ({ grnId }) => {
           <thead className="bg-slate-50 dark:bg-slate-800/50">
             <tr>
               <th className="p-2 text-xs text-slate-400 uppercase">Item Name / Group</th>
-              <th className="p-2 text-xs text-slate-400 uppercase text-center">Ordered</th>
+              <th className="p-2 text-xs text-slate-400 uppercase text-center">PO Qty</th>
+              <th className="p-2 text-xs text-slate-400 uppercase text-center font-semibold text-blue-600">Received</th>
               <th className="p-2 text-xs text-slate-400 uppercase text-center">Accepted</th>
               <th className="p-2 text-xs text-slate-400 uppercase text-center">Rejected</th>
             </tr>
@@ -169,15 +170,16 @@ const GRNDetailTable = ({ grnId }) => {
                           <Package size={14} />
                         </div>
                         <div>
-                          <p className="text-xs ">{item.material_name}</p>
+                          <p className="text-xs font-medium">{item.material_name}</p>
                           <p className="text-xs text-blue-600">{renderDimensions(item)}</p>
                           <p className="text-[9px] text-slate-400">{item.item_code} • {item.item_group}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="p-2 text-center text-xs text-slate-600">{parseFloat(item.quantity || 0)}</td>
-                    <td className="p-2 text-center text-xs p-2 text-emerald-600">{finalAccepted}</td>
-                    <td className="p-2 text-center text-xs p-2 text-red-600">{finalRejected}</td>
+                    <td className="p-2 text-center text-xs text-slate-400">{parseFloat(item.ordered_qty || 0)}</td>
+                    <td className="p-2 text-center text-xs font-semibold text-blue-600">{parseFloat(item.received_qty || 0)}</td>
+                    <td className="p-2 text-center text-xs text-emerald-600">{finalAccepted}</td>
+                    <td className="p-2 text-center text-xs text-red-600">{finalRejected}</td>
                   </tr>
                   {isExpanded && item.serials && item.serials.length > 0 && (
                     <tr>
@@ -346,52 +348,59 @@ const GRNProcessingPage = () => {
       const response = await axios.get(`/department/inventory/purchase-orders/${id}`);
       setPoData(response.data);
       
-      const initialItems = (response.data.items || []).map(item => {
-        const matName = item.material_name || item.vendor_material_name || item.itemName || item.item_name || item.name || item.description;
-        return {
-          po_item_id: item.id,
-          material_name: '', // Initially empty as requested
-          material_name_original: matName,
-          item_code: generateItemCode(matName),
-          item_code_original: generateItemCode(matName),
-          item_group: item.item_group || "",
-          ordered_qty: parseFloat(item.quantity) || 0,
-          received_qty: parseFloat(item.quantity) || 0, // Default to full receipt
-          unit: item.unit || item.uom || "Units",
-          rate_per_kg: parseFloat(item.rate_per_kg || item.rate || item.unit_price) || 0,
-          total_weight: parseFloat(item.total_weight) || 0,
-          unit_weight: parseFloat(item.unit_weight) || (item.quantity > 0 ? (parseFloat(item.total_weight) || 0) / parseFloat(item.quantity) : 0),
-          received_weight: parseFloat(item.total_weight) || 0,
-          rate: parseFloat(item.rate || item.unit_price || item.rate_per_kg) || 0,
-          amount: parseFloat(item.amount) || 0,
-          // Store original dimensions for display
-          length_original: item.length || null,
-          width_original: item.width || null,
-          thickness_original: item.thickness || null,
-          diameter_original: item.diameter || null,
-          outer_diameter_original: item.outer_diameter || null,
-          height_original: item.height || null,
-          side1_original: item.side1 || null,
-          side2_original: item.side2 || null,
-          web_thickness_original: item.web_thickness || item.tw || null,
-          flange_thickness_original: item.flange_thickness || item.tf || null,
-          // New editable dimensions start empty
-          length: '',
-          width: '',
-          thickness: '',
-          diameter: '',
-          outer_diameter: '',
-          height: '',
-          side1: '',
-          side2: '',
-          web_thickness: '',
-          flange_thickness: '',
-          material_type: item.material_type || null,
-          density: item.density || null,
-          material_grade: item.material_grade || null,
-          generate_st: true
-        };
-      });
+      const initialItems = (response.data.items || [])
+        .filter(item => (parseFloat(item.quantity) - parseFloat(item.received || 0)) > 0)
+        .map(item => {
+          const matName = item.material_name || item.vendor_material_name || item.itemName || item.item_name || item.name || item.description;
+          const remaining = parseFloat(item.quantity) - parseFloat(item.received || 0);
+          const initialUnitWeight = parseFloat(item.unit_weight) || (item.quantity > 0 ? (parseFloat(item.total_weight) || 0) / parseFloat(item.quantity) : 0);
+          
+          return {
+            po_item_id: item.id,
+            material_name: '', // Initially empty as requested
+            material_name_original: matName,
+            item_code: generateItemCode(matName),
+            item_code_original: generateItemCode(matName),
+            item_group: item.item_group || "",
+            ordered_qty: parseFloat(item.quantity) || 0,
+            previously_received: parseFloat(item.received || 0),
+            remaining_qty: remaining,
+            received_qty: remaining, // Default to remaining balance
+            unit: item.unit || item.uom || "Units",
+            rate_per_kg: parseFloat(item.rate_per_kg || item.rate || item.unit_price) || 0,
+            total_weight: parseFloat(item.total_weight) || 0,
+            unit_weight: initialUnitWeight,
+            received_weight: parseFloat((remaining * initialUnitWeight).toFixed(4)),
+            rate: parseFloat(item.rate || item.unit_price || item.rate_per_kg) || 0,
+            amount: parseFloat(item.amount) || 0,
+            // Store original dimensions for display
+            length_original: item.length || null,
+            width_original: item.width || null,
+            thickness_original: item.thickness || null,
+            diameter_original: item.diameter || null,
+            outer_diameter_original: item.outer_diameter || null,
+            height_original: item.height || null,
+            side1_original: item.side1 || null,
+            side2_original: item.side2 || null,
+            web_thickness_original: item.web_thickness || item.tw || null,
+            flange_thickness_original: item.flange_thickness || item.tf || null,
+            // New editable dimensions start empty
+            length: '',
+            width: '',
+            thickness: '',
+            diameter: '',
+            outer_diameter: '',
+            height: '',
+            side1: '',
+            side2: '',
+            web_thickness: '',
+            flange_thickness: '',
+            material_type: item.material_type || null,
+            density: item.density || null,
+            material_grade: item.material_grade || null,
+            generate_st: true
+          };
+        });
 
       setGrnForm(prev => ({ ...prev, items: initialItems }));
     } catch (error) {
@@ -435,6 +444,15 @@ const GRNProcessingPage = () => {
       const hasQuantities = grnForm.items.some(item => Number(item.received_qty) > 0);
       if (!hasQuantities) {
         return showError("Please enter received quantities for at least one item.");
+      }
+
+      // Validate quantities against remaining balance
+      for (const item of grnForm.items) {
+        const received = parseFloat(item.received_qty || 0);
+        const remaining = parseFloat(item.remaining_qty || 0);
+        if (received > remaining + 0.001) {
+          return showError(`Received quantity for ${item.material_name_original} cannot exceed remaining quantity (${remaining.toFixed(3)}).`);
+        }
       }
 
       setLoading(true);
@@ -745,10 +763,12 @@ const GRNProcessingPage = () => {
                   <th className="px-4 py-4 text-xs text-slate-400 text-center w-12">#</th>
                   <th className="px-4 py-4 text-xs text-slate-400 text-left w-1/4">Ordered Item / Group</th>
                   <th className="px-4 py-4 text-xs text-slate-400 text-left w-1/3">Received Material Name / Dimensions</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-24">Ordered</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-20">Ordered</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-20">Prev Rec.</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-20 text-blue-500">Balance</th>
                   <th className="p-2 text-xs text-slate-400 text-center w-20">UOM</th>
                   <th className="p-2 text-xs text-slate-400 text-center w-32">Weight (Kg)</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-32">Received Qty</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-32">Receiving</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -851,6 +871,12 @@ const GRNProcessingPage = () => {
                     </td>
                     <td className="px-4 py-6 text-center text-xs text-slate-400">
                       {item.ordered_qty}
+                    </td>
+                    <td className="px-4 py-6 text-center text-xs text-slate-400">
+                      {item.previously_received}
+                    </td>
+                    <td className="px-4 py-6 text-center text-xs font-medium text-blue-600">
+                      {item.remaining_qty.toFixed(3)}
                     </td>
                     <td className="px-4 py-6 text-center text-xs text-slate-400">
                       {item.unit}

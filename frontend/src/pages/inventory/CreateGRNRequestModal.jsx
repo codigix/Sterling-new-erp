@@ -23,7 +23,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     const fetchData = async () => {
       try {
         const [poRes, matRes] = await Promise.all([
-          axios.get("/department/inventory/purchase-orders?status=approved"),
+          axios.get("/department/inventory/purchase-orders?status=approved&inventory_status=!fulfilled"),
           axios.get("/department/inventory/materials")
         ]);
         setAllPOs(poRes.data.purchaseOrders || poRes.data || []);
@@ -39,15 +39,21 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     if (isOpen) {
       if (po) {
         // Initialize from provided PO
-        const initialItems = (po.items || []).map(item => ({
-          ...item,
-          received_quantity: item.quantity,
-          material_name: item.material_name || item.itemName || item.item_name || item.name || item.description,
-          material_code: item.material_code || item.itemCode || item.item_code || item.code,
-          rate: item.rate || item.unit_price || item.unitCost || 0,
-          unit: item.unit || "Units",
-          is_po_item: true
-        }));
+        const initialItems = (po.items || [])
+          .filter(item => (parseFloat(item.quantity) - parseFloat(item.received || 0)) > 0)
+          .map(item => ({
+            ...item,
+            po_item_id: item.id,
+            ordered_quantity: parseFloat(item.quantity),
+            previously_received: parseFloat(item.received || 0),
+            remaining_quantity: parseFloat(item.quantity) - parseFloat(item.received || 0),
+            received_quantity: parseFloat(item.quantity) - parseFloat(item.received || 0),
+            material_name: item.material_name || item.itemName || item.item_name || item.name || item.description,
+            material_code: item.material_code || item.itemCode || item.item_code || item.code,
+            rate: item.rate || item.unit_price || item.unitCost || 0,
+            unit: item.unit || "Units",
+            is_po_item: true
+          }));
         
         setFormData({
           po_id: po.id,
@@ -87,15 +93,21 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
         const response = await axios.get(`/department/inventory/purchase-orders/${selectedPO.id}`);
         const poDetails = response.data;
         
-        const initialItems = (poDetails.items || []).map(item => ({
-          ...item,
-          received_quantity: item.quantity,
-          material_name: item.material_name || item.itemName || item.item_name || item.name || item.description,
-          material_code: item.material_code || item.itemCode || item.item_code || item.code,
-          rate: item.rate || item.unit_price || item.unitCost || 0,
-          unit: item.unit || "Units",
-          is_po_item: true
-        }));
+        const initialItems = (poDetails.items || [])
+          .filter(item => (parseFloat(item.quantity) - parseFloat(item.received || 0)) > 0)
+          .map(item => ({
+            ...item,
+            po_item_id: item.id,
+            ordered_quantity: parseFloat(item.quantity),
+            previously_received: parseFloat(item.received || 0),
+            remaining_quantity: parseFloat(item.quantity) - parseFloat(item.received || 0),
+            received_quantity: parseFloat(item.quantity) - parseFloat(item.received || 0),
+            material_name: item.material_name || item.itemName || item.item_name || item.name || item.description,
+            material_code: item.material_code || item.itemCode || item.item_code || item.code,
+            rate: item.rate || item.unit_price || item.unitCost || 0,
+            unit: item.unit || "Units",
+            is_po_item: true
+          }));
 
         setFormData(prev => ({
           ...prev,
@@ -165,6 +177,25 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
     }
 
     setLoading(true);
+
+    // Validate received quantities
+    for (const item of formData.items) {
+      if (item.is_po_item) {
+        const received = parseFloat(item.received_quantity || 0);
+        const remaining = parseFloat(item.remaining_quantity || 0);
+        if (received > remaining) {
+          toastUtils.warning(`Received quantity for ${item.material_name} cannot exceed remaining quantity (${remaining} ${item.unit})`);
+          setLoading(false);
+          return;
+        }
+      }
+      if (parseFloat(item.received_quantity || 0) <= 0) {
+        toastUtils.warning(`Please enter a valid quantity for ${item.material_name}`);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       // Map frontend keys to backend expected keys
       const mappedItems = formData.items.map(item => ({
@@ -472,21 +503,38 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                       }
                     },
                     {
-                      key: "quantity",
+                      key: "ordered_quantity",
                       label: "PO Qty",
-                      className: "text-center w-24",
-                      render: (val) => <span className="text-xs  text-slate-500">{val ? parseFloat(val).toString() : "0"}</span>
+                      className: "text-center w-20",
+                      render: (val, item) => <span className="text-xs  text-slate-500">{item.ordered_quantity || val || "0"}</span>
+                    },
+                    {
+                      key: "previously_received",
+                      label: "Prev Rec.",
+                      className: "text-center w-20",
+                      render: (val, item) => <span className="text-xs  text-slate-500">{item.previously_received || "0"}</span>
+                    },
+                    {
+                      key: "remaining_quantity",
+                      label: "Balance",
+                      className: "text-center w-20",
+                      render: (val, item) => (
+                        <span className={`text-xs  ${item.remaining_quantity > 0 ? 'text-blue-600' : 'text-slate-400'}`}>
+                          {item.remaining_quantity || "0"}
+                        </span>
+                      )
                     },
                     {
                       key: "received_quantity",
-                      label: "Received",
+                      label: "Receiving",
                       className: "text-center w-24",
-                      render: (val, _, __, idx) => (
+                      render: (val, item, idx) => (
                         <input 
                           type="number"
                           step="any"
+                          max={item.remaining_quantity}
                           className="w-20 px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-blue-600 text-center outline-none focus:ring-2 focus:ring-blue-500"
-                          value={val !== undefined && val !== null ? parseFloat(val) : ""}
+                          value={val !== undefined && val !== null ? val : ""}
                           onChange={(e) => handleItemChange(idx, "received_quantity", e.target.value)}
                         />
                       )

@@ -1010,11 +1010,11 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                   </>
                 )}
                 <button onClick={() => handleDownloadPO(po)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all" title="Download PDF"><Download size={14} /></button>
-                {isInventoryView && !["fulfilled", "delivered"].includes(po.inventory_status) && (
+                {isInventoryView && (
                   <button 
                     onClick={() => handleOpenUploadModal(po)} 
-                    className="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-all" 
-                    title="Upload Delivery Challan"
+                    className={`p-1.5 rounded transition-all ${po.dc_approved === 1 ? 'text-emerald-600 hover:bg-emerald-50' : 'text-blue-600 hover:bg-blue-50'}`}
+                    title={["fulfilled", "delivered"].includes(po.inventory_status) ? "View Delivery Challan" : "Upload Delivery Challan"}
                   >
                     <Paperclip size={14} />
                   </button>
@@ -1223,7 +1223,9 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Upload Delivery Challan</h3>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                {["fulfilled", "delivered"].includes(selectedPOForUpload?.inventory_status) ? "Delivery Challan Documents" : "Upload Delivery Challan"}
+              </h3>
               <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-500">
                 <X size={20} />
               </button>
@@ -1260,54 +1262,62 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                 </div>
               )}
               
-              <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Select Files (PDF, Images)</label>
-                <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-8 text-center hover:border-blue-500 transition-all group relative">
-                  <input
-                    type="file"
-                    multiple
-                    onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <Upload className="mx-auto text-slate-300 group-hover:text-blue-500 transition-colors mb-2" size={32} />
-                  <p className="text-xs text-slate-500">Click or drag files to upload</p>
-                </div>
-                
-                {filesToUpload.length > 0 && (
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {filesToUpload.map((file, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <FileText size={14} className="text-blue-500" />
-                          <span className="text-xs truncate">{file.name}</span>
-                        </div>
-                        <span className="text-[10px] text-slate-400">{Math.round(file.size / 1024)} KB</span>
+              {!["fulfilled", "delivered"].includes(selectedPOForUpload?.inventory_status) ? (
+                <>
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Select Files (PDF, Images)</label>
+                    <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-8 text-center hover:border-blue-500 transition-all group relative">
+                      <input
+                        type="file"
+                        multiple
+                        onChange={(e) => setFilesToUpload(Array.from(e.target.files))}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <Upload className="mx-auto text-slate-300 group-hover:text-blue-500 transition-colors mb-2" size={32} />
+                      <p className="text-xs text-slate-500">Click or drag files to upload</p>
+                    </div>
+                    
+                    {filesToUpload.length > 0 && (
+                      <div className="space-y-1 max-h-32 overflow-y-auto">
+                        {filesToUpload.map((file, i) => (
+                          <div key={i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              <FileText size={14} className="text-blue-500" />
+                              <span className="text-xs truncate">{file.name}</span>
+                            </div>
+                            <span className="text-[10px] text-slate-400">{Math.round(file.size / 1024)} KB</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-              </div>
-              
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={isFullReceipt}
-                  onChange={(e) => setIsFullReceipt(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-900">Mark order as fully fulfilled</span>
-              </label>
-              
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
-                <button onClick={() => setShowUploadModal(false)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400">Cancel</button>
-                <button
-                  onClick={handleFileUpload}
-                  disabled={uploadingFiles || filesToUpload.length === 0}
-                  className="px-6 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all disabled:bg-slate-300"
-                >
-                  {uploadingFiles ? <RefreshCw size={16} className="animate-spin" /> : "Upload Files"}
-                </button>
-              </div>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={isFullReceipt}
+                      onChange={(e) => setIsFullReceipt(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-900">Mark order as fully fulfilled</span>
+                  </label>
+                  
+                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <button onClick={() => setShowUploadModal(false)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 transition-colors">Cancel</button>
+                    <button
+                      onClick={handleFileUpload}
+                      disabled={uploadingFiles || filesToUpload.length === 0}
+                      className="px-6 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all disabled:bg-slate-300"
+                    >
+                      {uploadingFiles ? <RefreshCw size={16} className="animate-spin" /> : "Upload Files"}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
+                  <button onClick={() => setShowUploadModal(false)} className="px-6 py-2 bg-slate-900 text-white rounded text-sm hover:bg-slate-800 transition-all">Close</button>
+                </div>
+              )}
             </div>
           </div>
         </div>

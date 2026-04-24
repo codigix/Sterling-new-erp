@@ -181,7 +181,7 @@ const PurchaseReceiptPage = () => {
   const handleNewGRNClickFromState = async (poNumber) => {
     try {
       const response = await axios.get(
-        "/inventory/purchase-orders?status=approved"
+        "/department/inventory/purchase-orders?status=approved&inventory_status=!fulfilled"
       );
       const pos = response.data.purchaseOrders || response.data || [];
       setApprovedPOs(pos);
@@ -189,9 +189,14 @@ const PurchaseReceiptPage = () => {
       const targetPO = pos.find(p => p.po_number === poNumber);
       if (targetPO) {
         setSelectedPO(targetPO);
-        const itemsResponse = await axios.get(`/inventory/purchase-orders/${targetPO.id}`);
+        const itemsResponse = await axios.get(`/department/inventory/purchase-orders/${targetPO.id}`);
         const items = itemsResponse.data.items || [];
-        setPoItems(items.map(item => ({ ...item, received_quantity: item.quantity })));
+        setPoItems(items
+          .filter(item => (parseFloat(item.quantity) - parseFloat(item.received || 0)) > 0)
+          .map(item => ({ 
+            ...item, 
+            received_quantity: parseFloat(item.quantity) - parseFloat(item.received || 0) 
+          })));
         setShowNewGRNModal(true);
       }
     } catch (error) {
@@ -214,7 +219,7 @@ const PurchaseReceiptPage = () => {
   const handleNewGRNClick = async () => {
     try {
       const response = await axios.get(
-        "/inventory/purchase-orders?status=approved"
+        "/department/inventory/purchase-orders?status=approved&inventory_status=!fulfilled"
       );
       const pos = response.data.purchaseOrders || response.data || [];
       setApprovedPOs(pos);
@@ -705,8 +710,8 @@ const PurchaseReceiptPage = () => {
                             </div>
                           </td>
                           <td className="px-4 py-4 text-center">
-                            <span className="text-xs  text-slate-900 dark:text-white">
-                              {Number(item.received_quantity !== undefined ? item.received_quantity : item.quantity).toFixed(4)}
+                            <span className="text-xs font-semibold text-blue-600">
+                              {Number(item.received_qty || item.received_quantity || item.quantity).toFixed(4)}
                             </span>
                           </td>
                           <td className="px-4 py-4 text-center">
