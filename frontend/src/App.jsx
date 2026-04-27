@@ -79,6 +79,7 @@ import ProductionPlanFormPage from "./pages/production/ProductionPlanFormPage";
 import MaterialRequestsPage from "./pages/production/MaterialRequestsPage";
 import ReleasedMaterialsPage from "./pages/production/ReleasedMaterialsPage";
 import ProductionUpdatePage from "./pages/production/ProductionUpdatePage";
+import QualityHandoverPage from "./pages/production/QualityHandoverPage";
 import DailyProductionUpdatesPage from "./pages/production/DailyProductionUpdatesPage";
 import EmployeeWorkLogsPage from "./pages/production/EmployeeWorkLogsPage";
 
@@ -194,6 +195,7 @@ function App() {
 
                 <Route path="production/plans" element={<DailyProductionPlanningPage />} />
                 <Route path="production/updates" element={<ProductionUpdatePage />} />
+                <Route path="production/quality-handover" element={<QualityHandoverPage />} />
                 <Route path="production/daily-updates" element={<DailyProductionUpdatesPage />} />
                 <Route path="production/employee-work-logs" element={<EmployeeWorkLogsPage />} />
                 <Route path="production/operations" element={<OperationsPage />} />

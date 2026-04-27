@@ -28,6 +28,7 @@ router.delete('/assignments/:id', productionController.deleteAssignment);
 router.get('/updates', productionController.getProductionUpdates);
 router.post('/updates', productionController.createProductionUpdate);
 router.post('/send-to-qc', productionController.sendToQC);
+router.post('/send-fabrication-to-qc', productionController.sendFabricationToQC);
 
 // MCR Routes
 router.get('/mcr/materials', productionController.getReleasedMaterialsForMCR);
@@ -43,5 +44,6 @@ router.get('/labor/employee/:id/logs', productionController.getEmployeeLaborLogs
 // Outward Challan Routes
 router.post('/outward-challans', productionController.createOutwardChallan);
 router.get('/outward-challans', productionController.getOutwardChallans);
+router.get('/outward-challans/:id', productionController.getOutwardChallanDetails);
 
 module.exports = router;

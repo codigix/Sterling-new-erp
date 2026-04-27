@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Trash2, Play, Calendar, User, Package, Tag, AlertCircle, Plus, X } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Play, Calendar, User, Package, Tag, AlertCircle, Plus, X, Lock, CheckCircle2, Paintbrush, Hammer, Clock } from 'lucide-react';
 import axios from '../../utils/api';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
@@ -14,10 +14,12 @@ const RootCardDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [stages, setStages] = useState([]);
+  const [phaseStatus, setPhaseStatus] = useState({ phase1Completed: false, phase2Unlocked: false });
   const [isAddingStage, setIsAddingStage] = useState(false);
   const [newStage, setNewStage] = useState({
     stageName: '',
     stageType: 'in_house',
+    phase: 1,
     plannedStart: '',
     plannedEnd: '',
     notes: ''
@@ -37,6 +39,7 @@ const RootCardDetailPage = () => {
       setCard(cardData);
       setFormData(cardData);
       setStages(response.data.stages || cardData.stages || []);
+      setPhaseStatus(response.data.phaseStatus || { phase1Completed: false, phase2Unlocked: false });
       setError(null);
     } catch (err) {
       setError('Failed to fetch root card details');
@@ -69,6 +72,7 @@ const RootCardDetailPage = () => {
       setNewStage({
         stageName: '',
         stageType: 'in_house',
+        phase: 1,
         plannedStart: '',
         plannedEnd: '',
         notes: ''
@@ -442,6 +446,19 @@ const RootCardDetailPage = () => {
                       <option value="outsource">Outsource</option>
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                      Production Phase
+                    </label>
+                    <select
+                      value={newStage.phase}
+                      onChange={(e) => setNewStage({ ...newStage, phase: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                    >
+                      <option value={1}>Phase 1: Fabrication</option>
+                      <option value={2}>Phase 2: Finishing & Painting</option>
+                    </select>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -511,43 +528,112 @@ const RootCardDetailPage = () => {
                 <p className="text-sm text-slate-500 dark:text-slate-500 mt-1">Create phases to plan your production workflow</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {stages.map((stage, index) => (
-                  <div key={stage.id || index} className="flex items-start justify-between p-4 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-700/30 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm  text-slate-500 dark:text-slate-400">Phase {index + 1}</span>
-                        <Badge className={`text-xs   rounded ${getStageTypeColor(stage.stage_type || stage.stageType)}`}>
-                          {(stage.stage_type || stage.stageType) === 'in_house' ? 'In-House' : 'Outsource'}
-                        </Badge>
+              <div className="space-y-8">
+                {/* Phase 1: Fabrication */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-blue-600 text-white rounded">
+                        <Hammer size={16} />
                       </div>
-                      <h4 className=" text-slate-900 dark:text-white mb-2">{stage.stage_name || stage.stageName}</h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        {(stage.planned_start || stage.plannedStart) && (
-                          <div>
-                            <span className="text-slate-500 dark:text-slate-400">Start:</span>
-                            <p className="text-slate-900 dark:text-white">{new Date(stage.planned_start || stage.plannedStart).toLocaleDateString()}</p>
-                          </div>
-                        )}
-                        {(stage.planned_end || stage.plannedEnd) && (
-                          <div>
-                            <span className="text-slate-500 dark:text-slate-400">End:</span>
-                            <p className="text-slate-900 dark:text-white">{new Date(stage.planned_end || stage.plannedEnd).toLocaleDateString()}</p>
-                          </div>
-                        )}
-                      </div>
-                      {(stage.notes || stage.notes) && (
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{stage.notes}</p>
-                      )}
+                      <h3 className="font-medium text-slate-900 dark:text-white">Phase 1: Fabrication</h3>
                     </div>
-                    <button
-                      onClick={() => handleDeleteStage(stage.id)}
-                      className="ml-4 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex-shrink-0"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {rootCard?.status === 'DIMENSIONAL_QC_PENDING' ? (
+                      <span className="text-xs text-indigo-600 font-medium flex items-center gap-1 bg-indigo-50 px-2 py-1 rounded border border-indigo-100 animate-pulse">
+                        <Clock size={14} /> Under Quality Inspection
+                      </span>
+                    ) : rootCard?.status === 'DIMENSIONAL_QC_APPROVED' || phaseStatus.phase2Unlocked ? (
+                      <span className="text-xs text-emerald-600 font-medium flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
+                        <CheckCircle2 size={14} /> Fabrication QC Approved
+                      </span>
+                    ) : phaseStatus.phase1Completed ? (
+                      <span className="text-xs text-blue-600 font-medium flex items-center gap-1 bg-blue-50 px-2 py-1 rounded border border-blue-100">
+                        <CheckCircle2 size={14} /> Phase 1 Completed
+                      </span>
+                    ) : (
+                      <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded border border-amber-100">
+                        Fabrication In Progress
+                      </span>
+                    )}
                   </div>
-                ))}
+                  <div className="space-y-3">
+                    {stages.filter(s => s.phase === 1 || !s.phase).map((stage, index) => (
+                      <div key={stage.id || index} className="flex items-start justify-between p-4 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-700/30 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-600 px-2 py-0.5 rounded">Task {index + 1}</span>
+                            <Badge className={`text-xs   rounded ${getStageTypeColor(stage.stage_type || stage.stageType)}`}>
+                              {(stage.stage_type || stage.stageType) === 'in_house' ? 'In-House' : 'Outsource'}
+                            </Badge>
+                            {stage.status === 'Completed' && (
+                              <span className="text-emerald-500"><CheckCircle2 size={14} /></span>
+                            )}
+                          </div>
+                          <h4 className=" text-slate-900 dark:text-white mb-2">{stage.stage_name || stage.stageName || stage.operation_name}</h4>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            {(stage.planned_start || stage.plannedStart) && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400">Start:</span>
+                                <p className="text-slate-900 dark:text-white">{new Date(stage.planned_start || stage.plannedStart).toLocaleDateString()}</p>
+                              </div>
+                            )}
+                            {(stage.planned_end || stage.plannedEnd) && (
+                              <div>
+                                <span className="text-slate-500 dark:text-slate-400">End:</span>
+                                <p className="text-slate-900 dark:text-white">{new Date(stage.planned_end || stage.plannedEnd).toLocaleDateString()}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteStage(stage.id)}
+                          className="ml-4 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors flex-shrink-0"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Phase 2: Finishing */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded ${phaseStatus.phase2Unlocked ? 'bg-indigo-600' : 'bg-slate-400'} text-white`}>
+                        <Paintbrush size={16} />
+                      </div>
+                      <h3 className={`font-medium ${phaseStatus.phase2Unlocked ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Phase 2: Finishing & Painting</h3>
+                    </div>
+                    {!phaseStatus.phase2Unlocked && (
+                      <span className="text-xs text-slate-500 font-medium flex items-center gap-1 bg-slate-100 px-2 py-1 rounded">
+                        <Lock size={14} /> Locked by Quality
+                      </span>
+                    )}
+                  </div>
+                  <div className={`space-y-3 ${!phaseStatus.phase2Unlocked ? 'opacity-60' : ''}`}>
+                    {stages.filter(s => s.phase === 2).map((stage, index) => (
+                      <div key={stage.id || index} className="flex items-start justify-between p-4 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-700/30">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded">Task {index + 1}</span>
+                            {!phaseStatus.phase2Unlocked && <Lock size={12} className="text-slate-400" />}
+                          </div>
+                          <h4 className=" text-slate-900 dark:text-white mb-2">{stage.stage_name || stage.stageName || stage.operation_name}</h4>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteStage(stage.id)}
+                          className="ml-4 p-2 rounded hover:bg-red-50 text-red-600 transition-colors flex-shrink-0"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    ))}
+                    {stages.filter(s => s.phase === 2).length === 0 && (
+                      <p className="text-xs text-slate-400 italic text-center py-4">No finishing operations added yet.</p>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </Card>

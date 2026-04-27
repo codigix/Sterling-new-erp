@@ -1,0 +1,1 @@
+\"CREATE TABLE project_inspections (id INT AUTO_INCREMENT PRIMARY KEY, root_card_id VARCHAR(50) NOT NULL, inspection_name VARCHAR(100) NOT NULL, status ENUM('Pending', 'Approved') DEFAULT 'Pending', document_path VARCHAR(255), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);\"  

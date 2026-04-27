@@ -19,12 +19,11 @@ import {
   Settings2,
   X,
   GripVertical,
-  ShieldCheck,
-  Package,
-  ArrowRight
+  Package
 } from "lucide-react";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import DataTable from "../../components/ui/DataTable/DataTable";
+import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
 // Modal Component for Managing Operations
@@ -34,7 +33,8 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
   const [newOperation, setNewOperation] = useState({
-    operation_name: ""
+    operation_name: "",
+    phase: 1
   });
 
   const fetchOperations = useCallback(async (id) => {
@@ -84,12 +84,13 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
       setAdding(true);
       const response = await axios.post(`/production/root-cards/${selectedProject.id}/stages`, {
         stageName: newOperation.operation_name,
-        stageType: 'in_house'
+        stageType: 'in_house',
+        phase: newOperation.phase
       });
 
       if (response.data.success) {
         toast.success("Operation added successfully");
-        setNewOperation({ operation_name: "" });
+        setNewOperation({ operation_name: "", phase: 1 });
         fetchOperations(selectedProject.id);
         if (onRefresh) onRefresh();
       }
@@ -102,7 +103,19 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
   };
 
   const handleDeleteOperation = async (operationId) => {
-    if (!window.confirm("Are you sure you want to remove this operation?")) return;
+    const result = await Swal.fire({
+      title: 'Remove Operation?',
+      text: "Are you sure you want to remove this operation?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!',
+      background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
+      color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const response = await axios.delete(`/production/root-cards/${selectedProject.id}/stages/${operationId}`);
@@ -175,6 +188,17 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
                         ))}
                       </select>
                     </div>
+                    <div className="w-32">
+                      <label className="block text-[10px] font-medium text-slate-500 mb-1">Phase</label>
+                      <select 
+                        className="w-full p-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded outline-none focus:ring-2 focus:ring-blue-500"
+                        value={newOperation.phase}
+                        onChange={(e) => setNewOperation({ ...newOperation, phase: parseInt(e.target.value) })}
+                      >
+                        <option value={1}>Phase 1</option>
+                        <option value={2}>Phase 2</option>
+                      </select>
+                    </div>
                     <div className="flex items-end pb-0.5">
                       <button 
                         onClick={handleAddOperation}
@@ -195,6 +219,7 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
                       <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                         <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider w-16">Seq</th>
                         <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Operation</th>
+                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center w-24">Phase</th>
                         <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-right w-20">Actions</th>
                       </tr>
                     </thead>
@@ -216,6 +241,11 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
                             </td>
                             <td className="py-3 px-4">
                               <p className="text-xs font-medium text-slate-900 dark:text-white uppercase">{op.operation_name || op.stage_name}</p>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${op.phase === 2 ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'}`}>
+                                Phase {op.phase || 1}
+                              </span>
                             </td>
                             <td className="py-3 px-4 text-right">
                               <button 
@@ -341,13 +371,23 @@ const ProductionUpdatePage = () => {
     const list = [];
     filteredProjects.forEach(project => {
       if (project.stages && project.stages.length > 0) {
+        // Check if all Phase 1 operations are completed AND Phase 1 QC is approved
+        const phase1Ops = project.stages.filter(s => (s.phase || 1) === 1);
+        const allPhase1Completed = phase1Ops.length > 0 && phase1Ops.every(s => s.status === 'Completed');
+        const phase1QCApproved = ['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(project.status);
+
         project.stages.forEach((stage, index) => {
+          // Hide Phase 2 operations until Phase 1 is fully complete and approved by Quality
+          if ((stage.phase || 1) === 2 && (!allPhase1Completed || !phase1QCApproved)) {
+            return;
+          }
+
           list.push({
             ...stage,
             projectName: project.project_name || project.title,
             projectId: project.id,
             sequenceIndex: index + 1,
-            projectData: project // Keep reference for actions
+            projectData: project
           });
         });
       }
@@ -366,6 +406,8 @@ const ProductionUpdatePage = () => {
       case 'In Progress': return 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-900/30';
       case 'Partially Completed': return 'text-amber-600 bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-900/30';
       case 'Delayed': return 'text-rose-600 bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-900/30';
+      case 'DIMENSIONAL_QC_PENDING': return 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-900/30';
+      case 'DIMENSIONAL_QC_APPROVED': return 'text-emerald-700 bg-emerald-100 dark:bg-emerald-900/40 border-emerald-200 dark:border-emerald-800';
       default: return 'text-slate-600 bg-slate-50 dark:bg-slate-900/20 border-slate-100 dark:border-slate-800';
     }
   };
@@ -445,7 +487,19 @@ const ProductionUpdatePage = () => {
                     <span className="text-xs font-bold text-slate-900 dark:text-white uppercase" title={value}>
                       {value || "N/A"}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">{row.projectId}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-slate-400 font-mono">{row.projectId}</span>
+                      {row.projectData?.status === 'DIMENSIONAL_QC_PENDING' && (
+                        <span className="text-[9px] bg-indigo-50 text-indigo-600 px-1 rounded font-bold border border-indigo-100 flex items-center gap-0.5">
+                          <Clock size={8} /> UNDER INSPECTION
+                        </span>
+                      )}
+                      {row.projectData?.status === 'DIMENSIONAL_QC_APPROVED' && (
+                        <span className="text-[9px] bg-emerald-50 text-emerald-600 px-1 rounded font-bold border border-emerald-100 flex items-center gap-0.5">
+                          <CheckCircle2 size={8} /> QC APPROVED
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )
               },
@@ -457,9 +511,14 @@ const ProductionUpdatePage = () => {
                     <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-400 border border-slate-200 dark:border-slate-700">
                       {row.sequenceIndex}
                     </span>
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-tight">
-                      {value || row.stage_name}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-tight">
+                        {value || row.stage_name}
+                      </span>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded w-fit mt-0.5 ${row.phase === 2 ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
+                        PHASE {row.phase || 1}
+                      </span>
+                    </div>
                   </div>
                 )
               },
@@ -477,7 +536,7 @@ const ProductionUpdatePage = () => {
                 key: "id",
                 align: "right",
                 render: (value, row) => (
-                  <div className="flex justify-end gap-1">
+                  <div className="flex justify-end items-center gap-2">
                     <button
                       onClick={() => {
                         setActiveProject(row.projectData);

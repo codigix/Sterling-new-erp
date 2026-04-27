@@ -12,29 +12,44 @@ import {
   Eye,
   Truck,
   RotateCcw,
-  Loader2
+  Loader2,
+  Calendar,
+  Download
 } from "lucide-react";
 import Card from "../../components/ui/Card";
 import DataTable from "../../components/ui/DataTable/DataTable";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import axios from "../../utils/api";
 import { toast } from "react-toastify";
+import { exportChallanToPDF } from "../../utils/challanPdfExport";
+import ViewOutwardChallanModal from "../../components/production/ViewOutwardChallanModal";
 
 const OutsourcingChallansPage = () => {
   const [activeTab, setActiveTab] = useState("outward");
   const [selectedProject, setSelectedProject] = useState("all");
-  const [selectedOperation, setSelectedOperation] = useState("all");
   const [loading, setLoading] = useState(false);
   const [outwardChallans, setOutwardChallans] = useState([]);
   const [inwardChallans, setInwardChallans] = useState([]);
+  const [projects, setProjects] = useState([]);
+
+  // View Detail Modal State
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedChallanId, setSelectedChallanId] = useState(null);
+  const [downloading, setDownloading] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/production/outward-challans");
-      if (response.data.success) {
-        // For now, only outward challans are implemented in the backend
-        setOutwardChallans(response.data.challans || []);
+      const [challansRes, projectsRes] = await Promise.all([
+        axios.get("/production/outward-challans"),
+        axios.get("/production/root-cards")
+      ]);
+
+      if (challansRes.data.success) {
+        setOutwardChallans(challansRes.data.challans || []);
+      }
+      if (projectsRes.data.success) {
+        setProjects(projectsRes.data.rootCards || []);
       }
     } catch (error) {
       console.error("Error fetching challans:", error);
@@ -48,16 +63,41 @@ const OutsourcingChallansPage = () => {
     fetchData();
   }, [fetchData]);
 
+  const handleDownload = async (row) => {
+    try {
+      setDownloading(true);
+      const response = await axios.get(`/production/outward-challans/${row.id}`);
+      if (response.data.success) {
+        exportChallanToPDF(response.data.challan, response.data.items || []);
+        toast.success("Downloading challan...");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to generate PDF");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const outwardColumns = [
     {
       key: "challan_no",
       label: "Challan Info",
       render: (val, row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-slate-900 dark:text-white">{row.challan_no}</span>
-          <span className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-            <RotateCcw size={12} /> {new Date(row.challan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+          <span className="font-bold text-slate-900 dark:text-white">{row.challan_no}</span>
+          <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-1">
+            <Calendar size={10} /> {new Date(row.challan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
+        </div>
+      )
+    },
+    {
+      key: "project_name",
+      label: "Project / Ref",
+      render: (val, row) => (
+        <div className="flex flex-col">
+          <span className="text-sm font-bold text-slate-900 dark:text-white">{val || "N/A"}</span>
         </div>
       )
     },
@@ -65,7 +105,12 @@ const OutsourcingChallansPage = () => {
       key: "operation_name",
       label: "Operation",
       render: (val, row) => (
-        <span className="text-slate-700 dark:text-slate-300 font-medium">{val}</span>
+        <div className="flex flex-col">
+          <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded w-fit">{val}</span>
+          {row.supply_order_no && (
+            <span className="text-[10px] text-slate-500 mt-1">SO: {row.supply_order_no}</span>
+          )}
+        </div>
       )
     },
     {
@@ -73,8 +118,8 @@ const OutsourcingChallansPage = () => {
       label: "Vendor",
       render: (val, row) => (
         <div className="flex flex-col">
-          <span className="text-slate-700 dark:text-slate-300">{row.vendor_name}</span>
-          <span className="text-xs text-slate-500">ID: {row.vendor_id || "N/A"}</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{row.vendor_name}</span>
+          <span className="text-[10px] text-slate-400 truncate max-w-[150px]">{row.vendor_address || "No address"}</span>
         </div>
       )
     },
@@ -82,10 +127,10 @@ const OutsourcingChallansPage = () => {
       key: "status",
       label: "Status",
       render: (val, row) => (
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded w-fit ${
-          val === "SUBMITTED" ? "bg-blue-50 text-blue-600" : 
-          val === "DRAFT" ? "bg-slate-100 text-slate-600" :
-          "bg-emerald-50 text-emerald-600"
+        <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${
+          val === "SUBMITTED" ? "bg-blue-50 text-blue-600 border-blue-100" : 
+          val === "DRAFT" ? "bg-slate-50 text-slate-600 border-slate-100" :
+          "bg-emerald-50 text-emerald-600 border-emerald-100"
         }`}>{val}</span>
       )
     },
@@ -94,12 +139,27 @@ const OutsourcingChallansPage = () => {
       label: "Actions",
       align: "right",
       render: (val, row) => (
-        <div className="flex items-center justify-end gap-2">
-          <button className="p-1 text-indigo-600 hover:bg-indigo-50 rounded" title="View Details">
-            <Eye size={18} />
+        <div className="flex items-center justify-end gap-1">
+          <button 
+            onClick={() => {
+              setSelectedChallanId(row.id);
+              setIsViewModalOpen(true);
+            }}
+            className="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" 
+            title="View Details"
+          >
+            <Eye size={16} />
           </button>
-          <button className="p-1 text-slate-400 hover:bg-slate-50 rounded" title="Print/Download">
-            <Maximize2 size={16} />
+          <button 
+            onClick={() => handleDownload(row)}
+            disabled={downloading}
+            className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors disabled:opacity-50" 
+            title="Download PDF"
+          >
+            {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+          </button>
+          <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Delete">
+            <Trash2 size={16} />
           </button>
         </div>
       )
@@ -122,6 +182,10 @@ const OutsourcingChallansPage = () => {
     // ... rest of columns can remain as placeholders for now
   ];
 
+  const filteredChallans = (activeTab === "outward" ? outwardChallans : inwardChallans).filter(challan => {
+    return selectedProject === "all" || challan.root_card_id === selectedProject;
+  });
+
   return (
     <div className="p-6 bg-slate-50 dark:bg-slate-950 min-h-screen">
       <div className="flex justify-between items-center mb-6">
@@ -141,22 +205,26 @@ const OutsourcingChallansPage = () => {
 
       <Card className="mb-6">
         <div className="p-4 flex gap-4 items-end">
-          <div className="flex-1">
-            <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Operation</label>
+          <div className="flex-[2]">
+            <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Project</label>
             <SearchableSelect
-              options={[{ value: "all", label: "All Operations" }]}
-              value={selectedOperation}
-              onChange={(val) => setSelectedOperation(val)}
-              placeholder="All Operations"
+              options={[
+                { value: "all", label: "All Projects" },
+                ...projects.map(p => ({ value: p.id, label: p.project_name, subLabel: p.id }))
+              ]}
+              value={selectedProject}
+              onChange={(val) => setSelectedProject(val)}
+              placeholder="All Projects"
             />
           </div>
           <div className="flex gap-2">
-            <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20">
-              <Search size={18} />
-              Apply
-            </button>
-            <button className="text-slate-500 px-4 py-2 hover:bg-slate-100 rounded-lg transition-colors">
-              Reset
+            <button 
+              onClick={() => {
+                setSelectedProject("all");
+              }}
+              className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-6 py-2.5 rounded-xl font-bold hover:bg-slate-200 transition-all border border-slate-200 dark:border-slate-700"
+            >
+              Reset Filters
             </button>
           </div>
         </div>
@@ -177,7 +245,7 @@ const OutsourcingChallansPage = () => {
             <span className={`px-2 py-0.5 rounded text-[10px] ${
               activeTab === "outward" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"
             }`}>
-              {outwardChallans.length}
+              {outwardChallans.filter(c => selectedProject === "all" || c.root_card_id === selectedProject).length}
             </span>
             {activeTab === "outward" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t-full"></div>
@@ -196,7 +264,7 @@ const OutsourcingChallansPage = () => {
             <span className={`px-2 py-0.5 rounded text-[10px] ${
               activeTab === "inward" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
             }`}>
-              {inwardChallans.length}
+              {inwardChallans.filter(c => selectedProject === "all" || c.root_card_id === selectedProject).length}
             </span>
             {activeTab === "inward" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600 rounded-t-full"></div>
@@ -214,11 +282,20 @@ const OutsourcingChallansPage = () => {
         ) : (
           <DataTable
             columns={activeTab === "outward" ? outwardColumns : inwardColumns}
-            data={activeTab === "outward" ? outwardChallans : inwardChallans}
+            data={filteredChallans}
             emptyMessage={`No ${activeTab} challans found`}
           />
         )}
       </Card>
+
+      <ViewOutwardChallanModal 
+        isOpen={isViewModalOpen}
+        onClose={() => {
+           setIsViewModalOpen(false);
+           setSelectedChallanId(null);
+        }}
+        challanId={selectedChallanId}
+      />
     </div>
   );
 };

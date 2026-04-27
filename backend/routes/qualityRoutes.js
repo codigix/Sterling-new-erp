@@ -29,6 +29,11 @@ const upload = multer({
 });
 
 router.get('/tasks', qualityController.getQualityTasks);
+router.post('/production/approve-dimensional', qualityController.approveDimensionalInspection);
+router.get('/production/inspections/:root_card_id', qualityController.getProjectInspections);
+router.post('/production/inspections', qualityController.addProjectInspection);
+router.put('/production/inspections/:id', upload.single('document'), qualityController.updateProjectInspection);
+router.delete('/production/inspections/:id', qualityController.deleteProjectInspection);
 router.get('/portal/grn-inspections', qualityController.getGRNInspections);
 router.get('/portal/ready-root-cards', qualityController.getQCReadyRootCards);
 router.get('/portal/materials-for-inspection', qualityController.getGRNMaterialsForInspection);

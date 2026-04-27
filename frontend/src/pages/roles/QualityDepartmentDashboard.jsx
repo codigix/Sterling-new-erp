@@ -7,6 +7,7 @@ import MaterialInspectionPage from "../qc/MaterialInspectionPage";
 import QualityInspectionDetail from "../qc/QualityInspectionDetail";
 import QCTasksPage from "../qc/QCTasksPage";
 import QualityQAPPage from "../qc/QualityQAPPage";
+import ProductionQCPage from "../qc/ProductionQCPage";
 import UniversalRootCardsPage from "../shared/UniversalRootCardsPage";
 import UniversalRootCardDetailPage from "../shared/UniversalRootCardDetailPage";
 import DepartmentPortalTasksPage from "../department/DepartmentPortalTasksPage";
@@ -26,6 +27,7 @@ import {
   FileCheck,
   Zap,
   Upload,
+  ShieldCheck,
 } from "lucide-react";
 
 const DashboardHome = () => {
@@ -312,6 +314,11 @@ const QualityDepartmentDashboard = () => {
       path: "/department/quality/reports",
       icon: FileText,
     },
+    {
+      title: "Production QC",
+      path: "/department/quality/production-qc",
+      icon: ShieldCheck,
+    },
   ];
 
   return (
@@ -330,6 +337,7 @@ const QualityDepartmentDashboard = () => {
         <Route path="tasks" element={<DepartmentPortalTasksPage />} />
         <Route path="root-cards" element={<UniversalRootCardsPage />} />
         <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
+        <Route path="production-qc" element={<ProductionQCPage />} />
       </Routes>
     </RoleDashboardLayout>
   );

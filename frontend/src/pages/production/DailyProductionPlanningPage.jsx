@@ -120,7 +120,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     endPeriod: "PM",
     breakTime: "60",
     mcr_scrap: "",
-    remarks: ""
+    remarks: "",
+    status: "Pending"
   });
 
   const [dailyPlan, setDailyPlan] = useState([]);
@@ -137,7 +138,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     endPeriod: "PM",
     remarks: "",
     mcr_scrap: "",
-    breakTime: "60"
+    breakTime: "60",
+    status: "Pending"
   });
 
   const assignmentColumns = useMemo(() => [
@@ -187,6 +189,26 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           {entry.assignment_type === "inhouse" ? `${entry.total_hours?.toFixed(1) || "0.0"}h` : "-"}
         </span>
       )
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (value, entry) => {
+        const getStatusStyle = (status) => {
+          switch (status) {
+            case 'Completed': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+            case 'In Progress': return 'bg-blue-50 text-blue-600 border-blue-100';
+            case 'Partially Completed': return 'bg-amber-50 text-amber-600 border-amber-100';
+            case 'Delayed': return 'bg-rose-50 text-rose-600 border-rose-100';
+            default: return 'bg-slate-50 text-slate-600 border-slate-100';
+          }
+        };
+        return (
+          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${getStatusStyle(entry.status)}`}>
+            {entry.status || "Pending"}
+          </span>
+        );
+      }
     },
     ...(mode !== "view" ? [{
       key: "actions",
@@ -294,7 +316,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           end_time: endTime24,
           break_time: breakTime,
           mcr_scrap: a.mcr_scrap || "",
-          total_hours: totalHours
+          total_hours: totalHours,
+          status: a.status || "Pending"
         };
       });
       setDailyPlan(assignments);
@@ -326,9 +349,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     setSelectedReleaseEntry(null);
   }, [mode, initialData, isOpen, projects, planDate, calculateHours, isSingleAssignmentEdit]);
 
+  const [phaseStatus, setPhaseStatus] = useState({ phase1Completed: false, phase2Unlocked: false });
+
   const fetchProjectOperations = async (projectId) => {
     if (!projectId) {
       setProjectOperations([]);
+      setPhaseStatus({ phase1Completed: false, phase2Unlocked: false });
       return;
     }
     try {
@@ -336,10 +362,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       const response = await axios.get(`/production/root-cards/${projectId}`);
       if (response.data.success) {
         const ops = response.data.stages || [];
+        setPhaseStatus(response.data.phaseStatus || { phase1Completed: false, phase2Unlocked: false });
         setProjectOperations(ops.map(op => ({
           value: op.operation_name || op.stage_name,
           label: op.operation_name || op.stage_name,
-          id: op.id
+          id: op.id,
+          phase: op.phase || 1
         })));
       }
     } catch (error) {
@@ -429,7 +457,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       end_time: e24,
       break_time: parseInt(newAssignment.breakTime || 0),
       total_hours: totalHours,
-      remarks: newAssignment.remarks
+      remarks: newAssignment.remarks,
+      status: newAssignment.status
     };
 
     setDailyPlan([...dailyPlan, entry]);
@@ -446,7 +475,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       endPeriod: "PM",
       breakTime: "60",
       mcr_scrap: "",
-      remarks: ""
+      remarks: "",
+      status: "Pending"
     });
   };
 
@@ -466,7 +496,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       endPeriod: endObj.period,
       remarks: assignment.remarks || "",
       mcr_scrap: assignment.mcr_scrap || "",
-      breakTime: assignment.break_time || "60"
+      break_time: assignment.break_time || "60",
+      status: assignment.status || "Pending"
     });
     setIsEditModalOpen(true);
   };
@@ -501,7 +532,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           end_time: e24,
           break_time: editForm.type === "inhouse" ? parseInt(editForm.breakTime || 0) : 0,
           total_hours: totalHours,
-          remarks: editForm.remarks
+          remarks: editForm.remarks,
+          status: editForm.status
         };
       }
       return a;
@@ -654,11 +686,32 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                       <div className="bg-slate-50 dark:bg-slate-800/50  rounded border border-slate-100 dark:border-slate-800 space-y-4">
                         <div className="grid grid-cols-1 items-end md:grid-cols-12 gap-4 p-4">
                           <div className={`${newAssignment.type === "inhouse" ? "md:col-span-3" : "md:col-span-5"} space-y-1.5`}>
-                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operation</label>
+                            <label className="text-xs  text-slate-900 dark:text-slate-200  flex justify-between">
+                              <span>Operation</span>
+                              {phaseStatus.phase1Completed ? (
+                                <span className="text-[10px] text-emerald-500 font-medium flex items-center gap-0.5">
+                                  <CheckCircle2 size={10} /> Phase 1 Done
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-amber-500 font-medium">Phase 1 In-Progress</span>
+                              )}
+                            </label>
                             <SearchableSelect
-                              options={projectOperations}
+                              options={projectOperations
+                                .filter(op => op.phase === 1 || phaseStatus.phase2Unlocked)
+                                .map(op => ({
+                                  ...op,
+                                  label: `${op.phase === 2 ? "🎨 " : "⚙️ "}${op.label}`
+                                }))}
                               value={newAssignment.operation}
-                              onChange={(val) => setNewAssignment({ ...newAssignment, operation: val })}
+                              onChange={(val) => {
+                                const selectedOp = projectOperations.find(o => o.value === val);
+                                if (selectedOp?.phase === 2 && !phaseStatus.phase2Unlocked) {
+                                  toast.warning("Phase 2 operations are hidden until Phase 1 is completed.");
+                                  return;
+                                }
+                                setNewAssignment({ ...newAssignment, operation: val });
+                              }}
                               placeholder={fetchingOps ? "FETCHING..." : "Select Operation..."}
                               className="text-xs  text-slate-900"
                               allowCustom={true}
@@ -743,15 +796,31 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                             </>
                           )}
 
-                          <div className={`${newAssignment.type === "inhouse" ? "md:col-span-5" : "md:col-span-10"} space-y-1.5`}>
-                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Remarks / Special Instructions</label>
+                          <div className={`${newAssignment.type === "inhouse" ? "md:col-span-3" : "md:col-span-6"} space-y-1.5`}>
+                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Remarks</label>
                             <input
                               type="text"
-                              placeholder="Add instructions or remarks..."
+                              placeholder="Instructions..."
                               className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  outline-none placeholder:text-slate-300"
                               value={newAssignment.remarks}
                               onChange={(e) => setNewAssignment({ ...newAssignment, remarks: e.target.value })}
                             />
+                          </div>
+
+                          <div className="md:col-span-2 space-y-1.5">
+                            <label className="text-xs  text-slate-900 dark:text-slate-200  ">Status</label>
+                            <select
+                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                              value={newAssignment.status}
+                              onChange={(e) => setNewAssignment({ ...newAssignment, status: e.target.value })}
+                            >
+                              <option value="Pending">Pending</option>
+                              <option value="In Progress">In Progress</option>
+                              <option value="Partially Completed">Partially Completed</option>
+                              <option value="Completed">Completed</option>
+                              <option value="Delayed">Delayed</option>
+                              <option value="On Hold">On Hold</option>
+                            </select>
                           </div>
 
                           <div className="md:col-span-2">
@@ -903,11 +972,30 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             
             <div className="p-4 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs  text-slate-400  ">Operation</label>
+                <label className="text-xs  text-slate-400  flex justify-between">
+                  <span>Operation</span>
+                  {phaseStatus.phase1Completed ? (
+                    <span className="text-[10px] text-emerald-500 font-medium">Phase 1 Done</span>
+                  ) : (
+                    <span className="text-[10px] text-amber-500 font-medium">Phase 1 In-Progress</span>
+                  )}
+                </label>
                 <SearchableSelect
-                  options={projectOperations}
+                  options={projectOperations
+                    .filter(op => op.phase === 1 || phaseStatus.phase2Unlocked)
+                    .map(op => ({
+                      ...op,
+                      label: `${op.phase === 2 ? "🎨 " : "⚙️ "}${op.label}`
+                    }))}
                   value={editForm.operation}
-                  onChange={(val) => setEditForm({ ...editForm, operation: val })}
+                  onChange={(val) => {
+                    const selectedOp = projectOperations.find(o => o.value === val);
+                    if (selectedOp?.phase === 2 && !phaseStatus.phase2Unlocked) {
+                      toast.warning("Phase 2 operations are hidden until Phase 1 is completed.");
+                      return;
+                    }
+                    setEditForm({ ...editForm, operation: val });
+                  }}
                   placeholder={fetchingOps ? "FETCHING..." : "Select Operation..."}
                   allowCustom={true}
                   disabled={!selectedProject}
@@ -993,6 +1081,22 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                   value={editForm.remarks}
                   onChange={(e) => setEditForm({ ...editForm, remarks: e.target.value })}
                 />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs  text-slate-400  ">Status</label>
+                <select
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Partially Completed">Partially Completed</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Delayed">Delayed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
               </div>
             </div>
 
@@ -3161,6 +3265,7 @@ const DailyProductionPlanningPage = () => {
         if (assignment) {
           planRes = await axios.put(`/production/assignments/${targetAssignmentId}`, {
             ...assignment,
+            plan_id: selectedPlanData.plan.id,
             plan_date: planData.plan_date
           });
         }
@@ -3271,6 +3376,7 @@ const DailyProductionPlanningPage = () => {
           ...assignment,
           plan_id: plan.id,
           plan_date: plan.plan_date,
+          projectName: assignment.project_name || plan.project_names?.split(',')[0],
           // Carry over plan-level data if needed for actions
           plan_mcr_id: plan.mcr_id,
           plan_total_scrap_weight: plan.total_scrap_weight,

@@ -9,7 +9,13 @@ exports.getRootCards = async (req, res) => {
     let query = `
       SELECT rc.* 
       FROM root_cards rc
-      WHERE rc.status IN ('RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 'Released', 'Production', 'Partially Completed', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED')
+      WHERE rc.status IN (
+        'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 
+        'Released', 'Production', 'Partially Completed', 'MATERIAL_PLANNING', 
+        'PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 
+        'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED',
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'
+      )
     `;
 
     if (assignedOnly === 'true') {
@@ -36,13 +42,13 @@ exports.getOperations = async (req, res) => {
 };
 
 exports.createOperation = async (req, res) => {
-  const { name, type, description } = req.body;
+  const { name, type, description, phase } = req.body;
   if (!name) return res.status(400).json({ success: false, message: 'Name is required' });
 
   try {
     const [result] = await db.query(
-      'INSERT INTO operations (name, type, description) VALUES (?, ?, ?)',
-      [name, type || 'In-house', description || '']
+      'INSERT INTO operations (name, type, description, phase) VALUES (?, ?, ?, ?)',
+      [name, type || 'In-house', description || '', phase || 1]
     );
     res.json({ success: true, id: result.insertId, message: 'Operation created successfully' });
   } catch (error) {
@@ -100,7 +106,8 @@ exports.getDailyPlans = async (req, res) => {
             'end_time', a.end_time,
             'break_time', a.break_time,
             'total_hours', a.total_hours,
-            'remarks', a.remarks
+            'remarks', a.remarks,
+            'status', a.status
           )
         ) FROM daily_operator_assignments a 
           LEFT JOIN root_cards r ON a.root_card_id = r.id 
@@ -132,22 +139,43 @@ exports.createDailyPlan = async (req, res) => {
 
     const planId = planResult.insertId;
 
-    // 2. Insert Assignments if provided
+    // 2. Insert Assignments and Sync Updates if provided
     if (assignments && assignments.length > 0) {
-      const assignmentValues = assignments.map(a => [
-        planId, a.root_card_id, a.operation_id, a.operation_name, 
-        a.assignment_type || 'inhouse',
-        a.operator_name, a.operator_id,
-        a.vendor_name, a.vendor_id,
-        a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
-      ]);
+      for (const a of assignments) {
+        const [assignResult] = await connection.query(
+          `INSERT INTO daily_operator_assignments 
+          (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks, status) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [planId, a.root_card_id, a.operation_id, a.operation_name, 
+           a.assignment_type || 'inhouse',
+           a.operator_name, a.operator_id,
+           a.vendor_name, a.vendor_id,
+           a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || '',
+           a.status || 'Pending']
+        );
 
-      await connection.query(
-        `INSERT INTO daily_operator_assignments 
-        (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
-        VALUES ?`,
-        [assignmentValues]
-      );
+        const newAssignmentId = assignResult.insertId;
+
+        // Create initial update record
+        await connection.query(
+          `INSERT INTO daily_production_updates 
+          (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
+           operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
+           actual_start, actual_end, break_time, actual_hours, status, remarks) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [plan_date, planId, newAssignmentId, a.root_card_id, a.operation_id, a.operation_name,
+           a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
+           a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.status || 'Pending', a.remarks || '']
+        );
+
+        // Sync with root_card_operations
+        await connection.query(
+          `UPDATE root_card_operations 
+           SET status = ?, updated_at = CURRENT_TIMESTAMP 
+           WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
+          [a.status || 'Pending', a.root_card_id, a.operation_name]
+        );
+      }
     }
 
     await connection.commit();
@@ -202,22 +230,61 @@ exports.updateDailyPlan = async (req, res) => {
     // 2. Delete existing assignments
     await connection.query('DELETE FROM daily_operator_assignments WHERE plan_id = ?', [id]);
 
-    // 3. Insert New Assignments
+    // 3. Insert New Assignments and Sync Updates
     if (assignments && assignments.length > 0) {
-      const assignmentValues = assignments.map(a => [
-        id, a.root_card_id, a.operation_id, a.operation_name, 
-        a.assignment_type || 'inhouse',
-        a.operator_name, a.operator_id,
-        a.vendor_name, a.vendor_id,
-        a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
-      ]);
+      for (const a of assignments) {
+        const [assignResult] = await connection.query(
+          `INSERT INTO daily_operator_assignments 
+          (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks, status) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [id, a.root_card_id, a.operation_id, a.operation_name, 
+           a.assignment_type || 'inhouse',
+           a.operator_name, a.operator_id,
+           a.vendor_name, a.vendor_id,
+           a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || '',
+           a.status || 'Pending']
+        );
 
-      await connection.query(
-        `INSERT INTO daily_operator_assignments 
-        (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
-        VALUES ?`,
-        [assignmentValues]
-      );
+        const newAssignmentId = assignResult.insertId;
+
+        // Sync with daily_production_updates
+        // For batch updates, we check if an update exists for this plan_id, root_card_id and operation_name
+        const [existingUpdate] = await connection.query(
+          'SELECT id FROM daily_production_updates WHERE plan_id = ? AND root_card_id = ? AND operation_name = ?',
+          [id, a.root_card_id, a.operation_name]
+        );
+
+        if (existingUpdate.length > 0) {
+          await connection.query(
+            `UPDATE daily_production_updates 
+             SET assignment_id = ?, status = ?, remarks = ?, work_date = ?, actual_start = ?, actual_end = ?, actual_hours = ?, 
+                 operator_name = ?, operator_id = ?, vendor_name = ?, vendor_id = ?, assignment_type = ?
+             WHERE id = ?`,
+            [newAssignmentId, a.status || 'Pending', a.remarks || '', plan_date, a.start_time, a.end_time, a.total_hours,
+             a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
+             existingUpdate[0].id]
+          );
+        } else {
+          await connection.query(
+            `INSERT INTO daily_production_updates 
+            (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
+             operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
+             actual_start, actual_end, break_time, actual_hours, status, remarks) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [plan_date, id, newAssignmentId, a.root_card_id, a.operation_id, a.operation_name,
+             a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
+             a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.status || 'Pending', a.remarks || '']
+          );
+        }
+
+        // Sync with root_card_operations
+        await connection.query(
+          `UPDATE root_card_operations 
+           SET status = ?, updated_at = CURRENT_TIMESTAMP 
+           WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
+          [a.status || 'Pending', a.root_card_id, a.operation_name]
+        );
+      }
     }
 
     await connection.commit();
@@ -243,52 +310,152 @@ exports.deleteDailyPlan = async (req, res) => {
 };
 
 exports.addAssignment = async (req, res) => {
-  const { plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, vendor_id, vendor_name, assignment_type, start_time, end_time, break_time, total_hours, remarks } = req.body;
+  const { plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, vendor_id, vendor_name, assignment_type, start_time, end_time, break_time, total_hours, remarks, status } = req.body;
 
+  const connection = await db.getConnection();
   try {
-    const [result] = await db.query(
+    await connection.beginTransaction();
+
+    // 1. Get plan date
+    const [plans] = await connection.query('SELECT plan_date FROM daily_production_plans WHERE id = ?', [plan_id]);
+    const plan_date = plans.length > 0 ? plans[0].plan_date : new Date();
+
+    // 2. Insert assignment
+    const [result] = await connection.query(
       `INSERT INTO daily_operator_assignments 
-      (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [plan_id, root_card_id, operation_id, operation_name, assignment_type || 'inhouse', operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time || 0, total_hours, remarks || '']
+      (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [plan_id, root_card_id, operation_id, operation_name, assignment_type || 'inhouse', operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time || 0, total_hours, remarks || '', status || 'Pending']
     );
-    res.json({ success: true, id: result.insertId, message: 'Assignment added successfully' });
+
+    const newAssignmentId = result.insertId;
+
+    // 3. Sync with daily_production_updates
+    await connection.query(
+      `INSERT INTO daily_production_updates 
+      (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
+       operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
+       actual_start, actual_end, break_time, actual_hours, status, remarks) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [plan_date, plan_id, newAssignmentId, root_card_id, operation_id, operation_name,
+       operator_name, operator_id, vendor_name, vendor_id, assignment_type || 'inhouse',
+       start_time, end_time, break_time || 0, total_hours, status || 'Pending', remarks || '']
+    );
+
+    // 4. Sync with root_card_operations
+    await connection.query(
+      `UPDATE root_card_operations 
+       SET status = ?, updated_at = CURRENT_TIMESTAMP 
+       WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
+      [status || 'Pending', root_card_id, operation_name]
+    );
+
+    await connection.commit();
+    res.json({ success: true, id: newAssignmentId, message: 'Assignment added and synced successfully' });
   } catch (error) {
+    if (connection) await connection.rollback();
     console.error('Error adding assignment:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 exports.deleteAssignment = async (req, res) => {
   const { id } = req.params;
+  const connection = await db.getConnection();
   try {
-    await db.query('DELETE FROM daily_operator_assignments WHERE id = ?', [id]);
-    res.json({ success: true, message: 'Assignment deleted successfully' });
+    await connection.beginTransaction();
+
+    // 1. Delete assignment
+    await connection.query('DELETE FROM daily_operator_assignments WHERE id = ?', [id]);
+
+    // 2. Delete linked production updates
+    await connection.query('DELETE FROM daily_production_updates WHERE assignment_id = ?', [id]);
+
+    await connection.commit();
+    res.json({ success: true, message: 'Assignment and linked updates deleted successfully' });
   } catch (error) {
+    if (connection) await connection.rollback();
     console.error('Error deleting assignment:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 exports.updateAssignment = async (req, res) => {
   const { id } = req.params;
-  const { root_card_id, operation_id, operation_name, operator_name, operator_id, vendor_id, vendor_name, assignment_type, start_time, end_time, break_time, total_hours, remarks } = req.body;
+  const { plan_id, plan_date, root_card_id, operation_id, operation_name, operator_name, operator_id, vendor_id, vendor_name, assignment_type, start_time, end_time, break_time, total_hours, remarks, status } = req.body;
 
+  console.log(`UpdateAssignment called for ID: ${id}, Status: ${status}, Project: ${root_card_id}, Operation: ${operation_name}`);
+
+  const connection = await db.getConnection();
   try {
-    await db.query(
+    await connection.beginTransaction();
+
+    // 1. Update assignment
+    await connection.query(
       `UPDATE daily_operator_assignments 
        SET root_card_id = ?, operation_id = ?, operation_name = ?, operator_name = ?, operator_id = ?, 
            vendor_id = ?, vendor_name = ?, assignment_type = ?,
-           start_time = ?, end_time = ?, break_time = ?, total_hours = ?, remarks = ?
+           start_time = ?, end_time = ?, break_time = ?, total_hours = ?, remarks = ?, status = ?
        WHERE id = ?`,
       [root_card_id, operation_id, operation_name, operator_name, operator_id, 
        vendor_id || null, vendor_name || null, assignment_type || 'inhouse',
-       start_time, end_time, break_time || 0, total_hours, remarks || '', id]
+       start_time, end_time, break_time || 0, total_hours, remarks || '', status || 'Pending', id]
     );
-    res.json({ success: true, message: 'Assignment updated successfully' });
+
+    // 2. Sync with daily_production_updates
+    if (status) {
+      // 2a. Update daily_production_updates
+      // Check if update already exists for this assignment
+      const [existingUpdates] = await connection.query(
+        'SELECT id FROM daily_production_updates WHERE assignment_id = ?',
+        [id]
+      );
+
+      if (existingUpdates.length > 0) {
+        // Update existing record
+        await connection.query(
+          `UPDATE daily_production_updates 
+           SET status = ?, remarks = ?, work_date = ?, actual_start = ?, actual_end = ?, actual_hours = ?
+           WHERE assignment_id = ?`,
+          [status, remarks || '', plan_date || new Date(), start_time, end_time, total_hours, id]
+        );
+      } else {
+        // Create new record
+        await connection.query(
+          `INSERT INTO daily_production_updates 
+          (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
+           operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
+           actual_start, actual_end, break_time, actual_hours, status, remarks) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [plan_date || new Date(), plan_id, id, root_card_id, operation_id, operation_name,
+           operator_name, operator_id, vendor_name, vendor_id, assignment_type || 'inhouse',
+           start_time, end_time, break_time || 0, total_hours, status, remarks || '']
+        );
+      }
+
+      // 2b. Sync with root_card_operations (Project Stages)
+      console.log(`Syncing stage status: ${status} for Project: ${root_card_id}, Operation: ${operation_name}`);
+      const [stageSync] = await connection.query(
+        `UPDATE root_card_operations 
+         SET status = ?, updated_at = CURRENT_TIMESTAMP 
+         WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
+        [status, root_card_id, operation_name]
+      );
+      console.log(`Stage sync result: ${stageSync.affectedRows} row(s) updated`);
+    }
+
+    await connection.commit();
+    res.json({ success: true, message: 'Assignment updated and synced successfully' });
   } catch (error) {
+    if (connection) await connection.rollback();
     console.error('Error updating assignment:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -427,6 +594,55 @@ exports.sendToQC = async (req, res) => {
   } catch (error) {
     if (connection) await connection.rollback();
     console.error('Error sending to QC:', error);
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+exports.sendFabricationToQC = async (req, res) => {
+  const { root_card_id, phase } = req.body;
+  if (!root_card_id) return res.status(400).json({ success: false, message: 'Root Card ID is required' });
+
+  const currentPhase = phase || 1;
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. Get Root Card info
+    const [rcs] = await connection.query('SELECT project_name FROM root_cards WHERE id = ?', [root_card_id]);
+    const projectName = rcs.length > 0 ? rcs[0].project_name : root_card_id;
+
+    // 2. Update Root Card status based on phase
+    const newStatus = currentPhase === 1 ? 'DIMENSIONAL_QC_PENDING' : 'PHASE_2_QC_PENDING';
+    await connection.query(
+      "UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      [newStatus, root_card_id]
+    );
+
+    // 3. Notify Quality
+    const notificationTitle = currentPhase === 1 ? 'Fabrication Ready for QC' : 'Painting & Finishing Ready for QC';
+    const notificationMsg = currentPhase === 1
+      ? `Fabrication operations are complete for Project ${projectName} (${root_card_id}). The project is now ready for quality testing before Painting and Finishing.`
+      : `Painting and Finishing operations are complete for Project ${projectName} (${root_card_id}). The project is now ready for final quality inspection.`;
+
+    await connection.query(
+      `INSERT INTO notifications (department, title, message, type, link) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        'Quality',
+        notificationTitle,
+        notificationMsg,
+        'QC_REQUEST',
+        `/department/quality/production-qc`
+      ]
+    );
+
+    await connection.commit();
+    res.json({ success: true, message: `Project phase ${currentPhase} successfully sent to Quality for inspection` });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error('Error sending fabrication to QC:', error);
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   } finally {
     if (connection) connection.release();
@@ -984,9 +1200,28 @@ exports.getRootCardById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Root Card not found' });
     }
 
-    const [operations] = await db.query('SELECT * FROM root_card_operations WHERE root_card_id = ? ORDER BY id ASC', [id]);
+    // Fetch operations with phase info
+    const [operations] = await db.query('SELECT * FROM root_card_operations WHERE root_card_id = ? ORDER BY phase ASC, id ASC', [id]);
     
-    res.json({ success: true, rootCard: rows[0], stages: operations });
+    // Check if Phase 1 is fully completed and approved by Quality
+    const phase1Ops = operations.filter(op => op.phase === 1);
+    const phase1Completed = phase1Ops.length > 0 && phase1Ops.every(op => op.status === 'Completed');
+    
+    // Phase 2 is unlocked ONLY if root card status is DIMENSIONAL_QC_APPROVED 
+    // or if the project has already moved past this stage (e.g. status is 'Production' or similar)
+    const phase2Unlocked = rows[0].status === 'DIMENSIONAL_QC_APPROVED' || 
+                           rows[0].status === 'Production' || 
+                           rows[0].status === 'Partially Completed';
+
+    res.json({ 
+      success: true, 
+      rootCard: rows[0], 
+      stages: operations,
+      phaseStatus: {
+        phase1Completed,
+        phase2Unlocked
+      }
+    });
   } catch (error) {
     console.error('Error fetching root card by id:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
@@ -995,12 +1230,12 @@ exports.getRootCardById = async (req, res) => {
 
 exports.addProductionOperation = async (req, res) => {
   const { id } = req.params;
-  const { stageName, stageType, plannedStart, plannedEnd, notes } = req.body;
+  const { stageName, stageType, plannedStart, plannedEnd, notes, phase } = req.body;
   
   try {
     const [result] = await db.query(
-      'INSERT INTO root_card_operations (root_card_id, operation_name, operation_type, planned_start, planned_end, notes) VALUES (?, ?, ?, ?, ?, ?)',
-      [id, stageName, stageType || 'in_house', plannedStart || null, plannedEnd || null, notes || '']
+      'INSERT INTO root_card_operations (root_card_id, operation_name, operation_type, phase, planned_start, planned_end, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [id, stageName, stageType || 'in_house', phase || 1, plannedStart || null, plannedEnd || null, notes || '']
     );
     
     res.json({ success: true, id: result.insertId, message: 'Operation added successfully' });
@@ -1042,18 +1277,24 @@ exports.createOutwardChallan = async (req, res) => {
     try {
         await connection.beginTransaction();
         const {
-            challan_no, challan_date, status, vendor_id, vendor_name,
-            operation_name, remarks, assignment_id, plan_id, items
+            challan_no, challan_date, status, vendor_id, vendor_name, vendor_address,
+            operation_name, supply_order_no, supply_order_date,
+            despatched_through, against_lr_rr_no, freight_type,
+            remarks, assignment_id, plan_id, root_card_id, items
         } = req.body;
 
         const [challanResult] = await connection.query(
             `INSERT INTO outward_challans (
-                challan_no, challan_date, status, vendor_id, vendor_name,
-                operation_name, remarks, assignment_id, plan_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                challan_no, challan_date, status, vendor_id, vendor_name, vendor_address,
+                operation_name, supply_order_no, supply_order_date,
+                despatched_through, against_lr_rr_no, freight_type,
+                remarks, assignment_id, plan_id, root_card_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                challan_no, challan_date, status, vendor_id || null, vendor_name,
-                operation_name, remarks, assignment_id, plan_id
+                challan_no, challan_date, status, vendor_id || null, vendor_name, vendor_address,
+                operation_name, supply_order_no || null, supply_order_date || null,
+                despatched_through || null, against_lr_rr_no || null, freight_type || null,
+                remarks, assignment_id, plan_id, root_card_id
             ]
         );
 
@@ -1087,8 +1328,37 @@ exports.createOutwardChallan = async (req, res) => {
 
 exports.getOutwardChallans = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM outward_challans ORDER BY created_at DESC');
+        const query = `
+            SELECT oc.*, rc.project_name, rc.id as project_ref
+            FROM outward_challans oc
+            LEFT JOIN root_cards rc ON oc.root_card_id = rc.id
+            ORDER BY oc.created_at DESC
+        `;
+        const [rows] = await db.query(query);
         res.json({ success: true, challans: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getOutwardChallanDetails = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT oc.*, rc.project_name, rc.id as project_ref
+            FROM outward_challans oc
+            LEFT JOIN root_cards rc ON oc.root_card_id = rc.id
+            WHERE oc.id = ?
+        `;
+        const [challan] = await db.query(query, [id]);
+        
+        if (challan.length === 0) {
+            return res.status(404).json({ success: false, message: 'Challan not found' });
+        }
+
+        const [items] = await db.query('SELECT * FROM outward_challan_items WHERE challan_id = ?', [id]);
+        
+        res.json({ success: true, challan: challan[0], items });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

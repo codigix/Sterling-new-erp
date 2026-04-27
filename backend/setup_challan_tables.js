@@ -17,10 +17,17 @@ async function setupChallanTables() {
                 status ENUM('DRAFT', 'SUBMITTED', 'RECEIVED', 'CANCELLED') DEFAULT 'DRAFT',
                 vendor_id INT,
                 vendor_name VARCHAR(255),
+                vendor_address TEXT,
                 operation_name VARCHAR(100),
+                supply_order_no VARCHAR(100),
+                supply_order_date DATE,
+                despatched_through VARCHAR(255),
+                against_lr_rr_no VARCHAR(100),
+                freight_type VARCHAR(50),
                 remarks TEXT,
                 assignment_id INT,
                 plan_id INT,
+                root_card_id VARCHAR(50),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )

@@ -2,12 +2,182 @@ const db = require('../config/db');
 
 exports.getQualityTasks = async (req, res) => {
   try {
-    const { salesOrderId } = req.query;
-    // For now, return some dummy data or fetch from database
-    const [rows] = await db.query('SELECT * FROM root_cards WHERE status = "QC_PENDING"');
+    // AUTO-CREATE project_inspections table if it doesn't exist
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS project_inspections (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        root_card_id VARCHAR(255) NOT NULL,
+        inspection_name VARCHAR(255) NOT NULL,
+        phase INT DEFAULT 1,
+        status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+        document_path VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX (root_card_id),
+        INDEX (phase)
+      )
+    `);
+
+    // Ensure phase column exists (for backward compatibility)
+    try {
+      const [cols] = await db.query("SHOW COLUMNS FROM project_inspections LIKE 'phase'");
+      if (cols.length === 0) {
+        await db.query("ALTER TABLE project_inspections ADD COLUMN phase INT DEFAULT 1 AFTER inspection_name");
+        await db.query("CREATE INDEX idx_phase ON project_inspections(phase)");
+      }
+    } catch (e) {
+      console.log("Migration error (non-critical):", e.message);
+    }
+
+    // Fetch root cards for both phases separately
+    const query = `
+      SELECT * FROM (
+        -- Phase 1 Tasks: Show if P1 is pending OR if it's approved (so it remains visible)
+        SELECT rc.*, 1 as current_phase, CONCAT(rc.id, '-1') as task_id,
+          (SELECT COUNT(*) FROM project_inspections WHERE root_card_id = rc.id AND phase = 1) as total_tests,
+          (SELECT COUNT(*) FROM project_inspections WHERE root_card_id = rc.id AND phase = 1 AND status = 'Approved') as approved_tests
+        FROM root_cards rc 
+        WHERE rc.status IN ("QC_PENDING", "DIMENSIONAL_QC_PENDING", "DIMENSIONAL_QC_APPROVED", "PHASE_2_QC_PENDING", "PHASE_2_QC_APPROVED")
+
+        UNION ALL
+
+        -- Phase 2 Tasks: Show only if Phase 2 is actually pending or approved
+        SELECT rc.*, 2 as current_phase, CONCAT(rc.id, '-2') as task_id,
+          (SELECT COUNT(*) FROM project_inspections WHERE root_card_id = rc.id AND phase = 2) as total_tests,
+          (SELECT COUNT(*) FROM project_inspections WHERE root_card_id = rc.id AND phase = 2 AND status = 'Approved') as approved_tests
+        FROM root_cards rc 
+        WHERE rc.status IN ("PHASE_2_QC_PENDING", "PHASE_2_QC_APPROVED")
+      ) as combined_tasks
+      ORDER BY updated_at DESC
+    `;
+
+    const [rows] = await db.query(query);
     res.json({ tasks: rows || [] });
   } catch (error) {
+    console.error("Critical error in getQualityTasks:", error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.approveDimensionalInspection = async (req, res) => {
+  const { root_card_id, current_phase, notes } = req.body;
+  if (!root_card_id) return res.status(400).json({ success: false, message: 'Root Card ID is required' });
+
+  const phase = current_phase || 1;
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. Get Root Card info
+    const [rcs] = await connection.query('SELECT project_name FROM root_cards WHERE id = ?', [root_card_id]);
+    const projectName = rcs.length > 0 ? rcs[0].project_name : root_card_id;
+
+    // 2. Update Root Card status based on phase
+    const newStatus = phase === 1 ? 'DIMENSIONAL_QC_APPROVED' : 'PHASE_2_QC_APPROVED';
+    await connection.query(
+      "UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      [newStatus, root_card_id]
+    );
+
+    // 3. Notify Production
+    const notificationTitle = phase === 1 ? 'Fabrication QC Approved' : 'Painting & Finishing QC Approved';
+    const notificationMsg = phase === 1 
+      ? `The first phase (Fabrication) quality check for Project ${projectName} is complete. You can now proceed to Painting and Finishing.`
+      : `The Painting and Finishing quality check for Project ${projectName} is complete. The project is now fully approved and ready for dispatch.`;
+
+    await connection.query(
+      `INSERT INTO notifications (department, title, message, type, link) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        'Production',
+        notificationTitle,
+        notificationMsg,
+        'success',
+        `/department/production/updates`
+      ]
+    );
+
+    await connection.commit();
+    res.json({ success: true, message: `${notificationTitle} successfully.` });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error('Error approving dimensional inspection:', error);
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+exports.getProjectInspections = async (req, res) => {
+  const { root_card_id } = req.params;
+  const { phase } = req.query;
+  try {
+    let query = 'SELECT * FROM project_inspections WHERE root_card_id = ?';
+    const params = [root_card_id];
+    
+    if (phase) {
+      query += ' AND phase = ?';
+      params.push(phase);
+    }
+    
+    query += ' ORDER BY created_at ASC';
+    const [rows] = await db.query(query, params);
+    res.json({ success: true, inspections: rows });
+  } catch (error) {
+    console.error('Error fetching project inspections:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.addProjectInspection = async (req, res) => {
+  const { root_card_id, inspection_name, phase } = req.body;
+  try {
+    const [result] = await db.query(
+      'INSERT INTO project_inspections (root_card_id, inspection_name, phase, status) VALUES (?, ?, ?, ?)',
+      [root_card_id, inspection_name, phase || 1, 'Pending']
+    );
+    res.json({ success: true, id: result.insertId, message: 'Inspection added successfully' });
+  } catch (error) {
+    console.error('Error adding project inspection:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.updateProjectInspection = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const document_path = req.file ? req.file.path.split('uploads')[1] : req.body.document_path;
+  
+  try {
+    let query = 'UPDATE project_inspections SET updated_at = CURRENT_TIMESTAMP';
+    const params = [];
+    if (status) {
+      query += ', status = ?';
+      params.push(status);
+    }
+    if (document_path) {
+      query += ', document_path = ?';
+      params.push(document_path);
+    }
+    query += ' WHERE id = ?';
+    params.push(id);
+
+    await db.query(query, params);
+    res.json({ success: true, message: 'Inspection updated successfully', document_path });
+  } catch (error) {
+    console.error('Error updating project inspection:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.deleteProjectInspection = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM project_inspections WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Inspection deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting project inspection:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
