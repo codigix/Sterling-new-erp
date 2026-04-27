@@ -20,6 +20,7 @@ const InventoryDepartmentDashboard = lazy(() => import("./pages/roles/InventoryD
 const ProcurementDashboard = lazy(() => import("./pages/roles/ProcurementDashboard"));
 const QualityDepartmentDashboard = lazy(() => import("./pages/roles/QualityDepartmentDashboard"));
 const AccountantDashboard = lazy(() => import("./pages/roles/AccountantDashboard"));
+const OutsourcingChallansPage = lazy(() => import("./pages/production/OutsourcingChallansPage"));
 
 // BOM Pages (Production)
 const CreateBOMPage = lazy(() => import("./pages/production/bom/CreateBOMPage"));
@@ -72,10 +73,12 @@ import RootCardBuilderPage from "./pages/production/RootCardBuilderPage";
 import ProductionRootCardDetailPage from "./pages/production/RootCardDetailPage";
 import DailyProductionPlanningPage from "./pages/production/DailyProductionPlanningPage";
 import OperationsPage from "./pages/production/OperationsPage";
+import MCRReportPage from "./pages/production/MCRReportPage";
 import ProductionPlanDetailPage from "./pages/production/ProductionPlanDetailPage";
 import ProductionPlanFormPage from "./pages/production/ProductionPlanFormPage";
 import MaterialRequestsPage from "./pages/production/MaterialRequestsPage";
 import ReleasedMaterialsPage from "./pages/production/ReleasedMaterialsPage";
+import ProductionUpdatePage from "./pages/production/ProductionUpdatePage";
 import DailyProductionUpdatesPage from "./pages/production/DailyProductionUpdatesPage";
 import EmployeeWorkLogsPage from "./pages/production/EmployeeWorkLogsPage";
 
@@ -190,9 +193,12 @@ function App() {
                 <Route path="production/bom/view/:id" element={<BOMDetailsPage />} />
 
                 <Route path="production/plans" element={<DailyProductionPlanningPage />} />
-                <Route path="production/updates" element={<DailyProductionUpdatesPage />} />
+                <Route path="production/updates" element={<ProductionUpdatePage />} />
+                <Route path="production/daily-updates" element={<DailyProductionUpdatesPage />} />
                 <Route path="production/employee-work-logs" element={<EmployeeWorkLogsPage />} />
                 <Route path="production/operations" element={<OperationsPage />} />
+                <Route path="production/mcr-reports" element={<MCRReportPage />} />
+                <Route path="production/outsourcing-challans" element={<OutsourcingChallansPage />} />
               </Route>
               
               <Route path="/department/quality/*" element={<QualityDepartmentDashboard />} />

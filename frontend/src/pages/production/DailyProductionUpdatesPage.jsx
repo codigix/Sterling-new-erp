@@ -14,22 +14,26 @@ import {
   Filter,
   X,
   Target,
-  Trash2
+  Trash2,
+  Briefcase
 } from "lucide-react";
 import { toast } from "react-toastify";
 import DataTable from "../../components/ui/DataTable/DataTable";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const DailyProductionUpdatesPage = () => {
   const [updates, setUpdates] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchingProjects, setFetchingProjects] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [projectFilter, setProjectFilter] = useState("");
 
   const fetchUpdates = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get("/production/updates");
-      console.log("Production Updates Data:", response.data);
       if (response.data.success) {
         setUpdates(response.data.updates);
       }
@@ -40,9 +44,28 @@ const DailyProductionUpdatesPage = () => {
     }
   }, []);
 
+  const fetchProjects = useCallback(async () => {
+    try {
+      setFetchingProjects(true);
+      const response = await axios.get("/production/root-cards?assignedOnly=true");
+      // Format projects for SearchableSelect
+      const formattedProjects = (response.data.rootCards || response.data).map(rc => ({
+        value: rc.id,
+        label: `${rc.project_name || rc.title} (${rc.id})`,
+        name: rc.project_name || rc.title
+      }));
+      setProjects(formattedProjects);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    } finally {
+      setFetchingProjects(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchUpdates();
-  }, [fetchUpdates]);
+    fetchProjects();
+  }, [fetchUpdates, fetchProjects]);
 
   const filteredUpdates = updates.filter(update => {
     const updateDate = update.work_date ? update.work_date.split('T')[0] : "";
@@ -53,8 +76,9 @@ const DailyProductionUpdatesPage = () => {
       update.operation_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesDate = dateFilter === "" || updateDate === dateFilter;
+    const matchesProject = projectFilter === "" || update.root_card_id === projectFilter;
     
-    return matchesSearch && matchesDate;
+    return matchesSearch && matchesDate && matchesProject;
   });
 
   const getStatusColor = (status) => {

@@ -1,18 +1,19 @@
-const db = require('./config/db');
+const mysql = require('mysql2/promise');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const checkTables = async () => {
+(async () => {
   try {
-    const [tables] = await db.query('SHOW TABLES');
-    console.log('Tables in database:', tables.map(t => Object.values(t)[0]));
-    
-    const [columnsPO] = await db.query('SHOW COLUMNS FROM purchase_order_items');
-    console.log('Columns in purchase_order_items:', columnsPO.map(c => c.Field));
-    
-    process.exit(0);
-  } catch (error) {
-    console.error('Error checking tables:', error.message);
-    process.exit(1);
+    const db = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME
+    });
+    const [rows] = await db.query('SHOW TABLES');
+    console.log(JSON.stringify(rows, null, 2));
+    await db.end();
+  } catch (err) {
+    console.error(err);
   }
-};
-
-checkTables();
+})();

@@ -91,8 +91,11 @@ exports.getDailyPlans = async (req, res) => {
             'projectRef', r.id,
             'operation_id', a.operation_id,
             'operation_name', a.operation_name,
+            'assignment_type', a.assignment_type,
             'operator_id', a.operator_id,
             'operator_name', a.operator_name,
+            'vendor_id', a.vendor_id,
+            'vendor_name', a.vendor_name,
             'start_time', a.start_time,
             'end_time', a.end_time,
             'break_time', a.break_time,
@@ -133,13 +136,15 @@ exports.createDailyPlan = async (req, res) => {
     if (assignments && assignments.length > 0) {
       const assignmentValues = assignments.map(a => [
         planId, a.root_card_id, a.operation_id, a.operation_name, 
+        a.assignment_type || 'inhouse',
         a.operator_name, a.operator_id,
+        a.vendor_name, a.vendor_id,
         a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
       ]);
 
       await connection.query(
         `INSERT INTO daily_operator_assignments 
-        (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
+        (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
         VALUES ?`,
         [assignmentValues]
       );
@@ -201,13 +206,15 @@ exports.updateDailyPlan = async (req, res) => {
     if (assignments && assignments.length > 0) {
       const assignmentValues = assignments.map(a => [
         id, a.root_card_id, a.operation_id, a.operation_name, 
+        a.assignment_type || 'inhouse',
         a.operator_name, a.operator_id,
+        a.vendor_name, a.vendor_id,
         a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || ''
       ]);
 
       await connection.query(
         `INSERT INTO daily_operator_assignments 
-        (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
+        (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
         VALUES ?`,
         [assignmentValues]
       );
@@ -236,18 +243,51 @@ exports.deleteDailyPlan = async (req, res) => {
 };
 
 exports.addAssignment = async (req, res) => {
-  const { plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks } = req.body;
+  const { plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, vendor_id, vendor_name, assignment_type, start_time, end_time, break_time, total_hours, remarks } = req.body;
 
   try {
     const [result] = await db.query(
       `INSERT INTO daily_operator_assignments 
-      (plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time, total_hours, remarks) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [plan_id, root_card_id, operation_id, operation_name, operator_name, operator_id, start_time, end_time, break_time || 0, total_hours, remarks || '']
+      (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [plan_id, root_card_id, operation_id, operation_name, assignment_type || 'inhouse', operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time || 0, total_hours, remarks || '']
     );
     res.json({ success: true, id: result.insertId, message: 'Assignment added successfully' });
   } catch (error) {
     console.error('Error adding assignment:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.deleteAssignment = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM daily_operator_assignments WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Assignment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting assignment:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.updateAssignment = async (req, res) => {
+  const { id } = req.params;
+  const { root_card_id, operation_id, operation_name, operator_name, operator_id, vendor_id, vendor_name, assignment_type, start_time, end_time, break_time, total_hours, remarks } = req.body;
+
+  try {
+    await db.query(
+      `UPDATE daily_operator_assignments 
+       SET root_card_id = ?, operation_id = ?, operation_name = ?, operator_name = ?, operator_id = ?, 
+           vendor_id = ?, vendor_name = ?, assignment_type = ?,
+           start_time = ?, end_time = ?, break_time = ?, total_hours = ?, remarks = ?
+       WHERE id = ?`,
+      [root_card_id, operation_id, operation_name, operator_name, operator_id, 
+       vendor_id || null, vendor_name || null, assignment_type || 'inhouse',
+       start_time, end_time, break_time || 0, total_hours, remarks || '', id]
+    );
+    res.json({ success: true, message: 'Assignment updated successfully' });
+  } catch (error) {
+    console.error('Error updating assignment:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
@@ -404,8 +444,9 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
 
     // 1. Get Stock Entries of type 'Material Issue' for these project names
     const [entries] = await db.query(`
-      SELECT se.* 
+      SELECT se.*, rc.id as root_card_id
       FROM stock_entries se 
+      LEFT JOIN root_cards rc ON se.project_name = rc.project_name
       WHERE se.entry_type = 'Material Issue' 
       AND se.project_name IN (?)
       ORDER BY se.created_at DESC
@@ -674,8 +715,8 @@ exports.saveMCR = async (req, res) => {
          weight_consumed, unit_weight_consumed, scrap_weight, is_finished, 
          return_to_stock, return_l, return_w, return_t, return_diameter, return_outer_diameter, return_height,
          return_web_thickness, return_flange_thickness, return_side1, return_side2, return_side_s, return_side_s1, return_side_s2,
-         remarks) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         remarks, root_card_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           mcrId, piece.serial_number, piece.item_code, piece.item_name, piece.item_group, piece.material_grade, piece.design || 'Rectangular',
           piece.produced_qty, piece.cutting_axis || 'L',
@@ -703,7 +744,8 @@ exports.saveMCR = async (req, res) => {
           piece.return_dims?.side_s || 0,
           piece.return_dims?.side_s1 || 0,
           piece.return_dims?.side_s2 || 0,
-          piece.remarks || ''
+          piece.remarks || '',
+          piece.root_card_id || null
         ]
       );
 
@@ -807,6 +849,79 @@ exports.getMCRDetails = async (req, res) => {
   }
 };
 
+exports.getCombinedMCRSummary = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        data.root_card_id,
+        rc.project_name,
+        MIN(data.work_date) as start_date,
+        MAX(data.work_date) as last_date,
+        COUNT(data.id) as total_items,
+        SUM(data.weight_consumed) as total_weight,
+        SUM(data.scrap_weight) as total_scrap,
+        SUM(data.produced_qty) as total_produced
+      FROM (
+        SELECT 
+          mcri.id,
+          mcr.work_date,
+          mcri.weight_consumed,
+          mcri.scrap_weight,
+          mcri.produced_qty,
+          COALESCE(mcri.root_card_id, (
+            SELECT doa.root_card_id 
+            FROM daily_operator_assignments doa 
+            WHERE doa.plan_id = mcr.plan_id AND (doa.operation_name LIKE '%Cutting%' OR doa.operation_name LIKE '%MCR%')
+            LIMIT 1
+          )) as root_card_id
+        FROM material_cutting_report_items mcri
+        JOIN material_cutting_reports mcr ON mcri.mcr_id = mcr.id
+      ) data
+      JOIN root_cards rc ON rc.id = data.root_card_id
+      GROUP BY data.root_card_id, rc.project_name
+      ORDER BY last_date DESC
+    `;
+    const [rows] = await db.query(query);
+    res.json({ success: true, summary: rows });
+  } catch (error) {
+    console.error('Error fetching combined MCR summary:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getCombinedMCRReport = async (req, res) => {
+  const { root_card_id } = req.query;
+  try {
+    const query = `
+      SELECT 
+        data.*, 
+        rc.project_name as rc_project_name
+      FROM (
+        SELECT 
+          mcri.*, 
+          mcr.work_date,
+          COALESCE(mcri.root_card_id, (
+            SELECT doa.root_card_id 
+            FROM daily_operator_assignments doa 
+            WHERE doa.plan_id = mcr.plan_id AND (doa.operation_name LIKE '%Cutting%' OR doa.operation_name LIKE '%MCR%')
+            LIMIT 1
+          )) as effective_root_card_id
+        FROM material_cutting_report_items mcri
+        JOIN material_cutting_reports mcr ON mcri.mcr_id = mcr.id
+      ) data
+      LEFT JOIN root_cards rc ON rc.id = data.effective_root_card_id
+      WHERE data.effective_root_card_id = ?
+      ORDER BY data.work_date DESC, data.id DESC
+    `;
+
+    const [rows] = await db.query(query, [root_card_id]);
+    res.json({ success: true, report: rows });
+  } catch (error) {
+    console.error('Error fetching combined MCR report:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 exports.getLaborEmployeesSummary = async (req, res) => {
   try {
     const query = `
@@ -869,39 +984,112 @@ exports.getRootCardById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Root Card not found' });
     }
 
-    const [stages] = await db.query('SELECT * FROM production_stages WHERE root_card_id = ? ORDER BY id ASC', [id]);
+    const [operations] = await db.query('SELECT * FROM root_card_operations WHERE root_card_id = ? ORDER BY id ASC', [id]);
     
-    res.json({ success: true, rootCard: rows[0], stages });
+    res.json({ success: true, rootCard: rows[0], stages: operations });
   } catch (error) {
     console.error('Error fetching root card by id:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
-exports.addProductionStage = async (req, res) => {
+exports.addProductionOperation = async (req, res) => {
   const { id } = req.params;
   const { stageName, stageType, plannedStart, plannedEnd, notes } = req.body;
   
   try {
     const [result] = await db.query(
-      'INSERT INTO production_stages (root_card_id, stage_name, stage_type, planned_start, planned_end, notes) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO root_card_operations (root_card_id, operation_name, operation_type, planned_start, planned_end, notes) VALUES (?, ?, ?, ?, ?, ?)',
       [id, stageName, stageType || 'in_house', plannedStart || null, plannedEnd || null, notes || '']
     );
     
-    res.json({ success: true, id: result.insertId, message: 'Stage added successfully' });
+    res.json({ success: true, id: result.insertId, message: 'Operation added successfully' });
   } catch (error) {
-    console.error('Error adding production stage:', error);
+    console.error('Error adding production operation:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
-exports.deleteProductionStage = async (req, res) => {
-  const { stageId } = req.params;
+exports.updateProductionOperation = async (req, res) => {
+  const { id, operationId } = req.params;
+  const { status, notes } = req.body;
+
   try {
-    await db.query('DELETE FROM production_stages WHERE id = ?', [stageId]);
-    res.json({ success: true, message: 'Stage deleted successfully' });
+    await db.query(
+      'UPDATE root_card_operations SET status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND root_card_id = ?',
+      [status, notes, operationId, id]
+    );
+    res.json({ success: true, message: 'Operation updated successfully' });
   } catch (error) {
-    console.error('Error deleting production stage:', error);
+    console.error('Error updating production operation:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
+};
+
+exports.deleteProductionOperation = async (req, res) => {
+  const { operationId } = req.params;
+  try {
+    await db.query('DELETE FROM root_card_operations WHERE id = ?', [operationId]);
+    res.json({ success: true, message: 'Operation deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting production operation:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.createOutwardChallan = async (req, res) => {
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+        const {
+            challan_no, challan_date, status, vendor_id, vendor_name,
+            operation_name, remarks, assignment_id, plan_id, items
+        } = req.body;
+
+        const [challanResult] = await connection.query(
+            `INSERT INTO outward_challans (
+                challan_no, challan_date, status, vendor_id, vendor_name,
+                operation_name, remarks, assignment_id, plan_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                challan_no, challan_date, status, vendor_id || null, vendor_name,
+                operation_name, remarks, assignment_id, plan_id
+            ]
+        );
+
+        const challanId = challanResult.insertId;
+
+        if (items && items.length > 0) {
+            const itemValues = items.map(item => [
+                challanId, item.item_code, item.item_name, item.batch_no,
+                item.available_qty, item.dispatch_qty, item.uom
+            ]);
+
+            await connection.query(
+                `INSERT INTO outward_challan_items (
+                    challan_id, item_code, item_name, batch_no, 
+                    available_qty, dispatch_qty, uom
+                ) VALUES ?`,
+                [itemValues]
+            );
+        }
+
+        await connection.commit();
+        res.json({ success: true, message: 'Outward challan created successfully', challanId });
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error creating outward challan:', error);
+        res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
+    }
+};
+
+exports.getOutwardChallans = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM outward_challans ORDER BY created_at DESC');
+        res.json({ success: true, challans: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };

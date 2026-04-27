@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, memo, useEffect } from "react";
 import axios from "../../utils/api";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import {
   Plus,
   Trash2,
@@ -38,8 +39,7 @@ import {
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import DataTable from "../../components/ui/DataTable/DataTable";
-
-// Reuse Accordion component for the Modal structure
+import CreateOutwardChallanModal from "../../components/production/CreateOutwardChallanModal";
 const AccordionSection = memo(({ title, children, itemCount = 0 }) => (
   <div className="">
     <div className="p-2 flex items-center justify-between select-none bg-slate-50/80 dark:bg-slate-800/50">
@@ -99,7 +99,7 @@ const format12h = (timeStr) => {
   return `${time} ${period}`;
 };
 
-const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operators, operations, vendors, loading, mode = "create", initialData }) => {
+const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operators, operations, vendors, loading, mode = "create", initialData, isSingleAssignmentEdit = false }) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [showReleasedMaterials, setShowReleasedMaterials] = useState(false);
   const [releasedMaterials, setReleasedMaterials] = useState([]);
@@ -107,6 +107,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   const [entryOptions, setEntryOptions] = useState([]);
   const [selectedReleaseEntry, setSelectedReleaseEntry] = useState(null);
   const [localPlanDate, setLocalPlanDate] = useState(planDate);
+  const [projectOperations, setProjectOperations] = useState([]);
+  const [fetchingOps, setFetchingOps] = useState(false);
   const [newAssignment, setNewAssignment] = useState({
     operation: "",
     type: "inhouse", // inhouse or outsource
@@ -297,6 +299,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       });
       setDailyPlan(assignments);
 
+      // Auto-open edit modal if it's a single assignment edit
+      if (isSingleAssignmentEdit && mode === "edit" && assignments.length === 1) {
+        setTimeout(() => {
+          editAssignment(assignments[0]);
+        }, 100);
+      }
+
       // Auto-select first project from assignments if available
       if (assignments.length > 0) {
         const firstAssignment = assignments[0];
@@ -304,16 +313,42 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
         if (proj) {
           setSelectedProject(proj);
           fetchReleasedMaterials(proj.name);
+          fetchProjectOperations(proj.value);
         }
       }
     } else {
       setLocalPlanDate(planDate);
       setDailyPlan([]);
       setSelectedProject(null);
+      setProjectOperations([]);
     }
     setEditingAssignmentId(null);
     setSelectedReleaseEntry(null);
-  }, [mode, initialData, isOpen, projects, planDate, calculateHours]);
+  }, [mode, initialData, isOpen, projects, planDate, calculateHours, isSingleAssignmentEdit]);
+
+  const fetchProjectOperations = async (projectId) => {
+    if (!projectId) {
+      setProjectOperations([]);
+      return;
+    }
+    try {
+      setFetchingOps(true);
+      const response = await axios.get(`/production/root-cards/${projectId}`);
+      if (response.data.success) {
+        const ops = response.data.stages || [];
+        setProjectOperations(ops.map(op => ({
+          value: op.operation_name || op.stage_name,
+          label: op.operation_name || op.stage_name,
+          id: op.id
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching project operations:", error);
+      toast.error("Failed to load project-specific operations");
+    } finally {
+      setFetchingOps(false);
+    }
+  };
 
   const fetchReleasedMaterials = async (projectName) => {
     if (!projectName) return;
@@ -355,17 +390,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
   const handleAddAssignment = () => {
     if (!selectedProject || !newAssignment.operation) {
-      toast.error("Please select project and operation");
+      toast.error("Please select both a project and an operation before adding.");
       return;
     }
 
     if (newAssignment.type === "inhouse" && !newAssignment.operator) {
-      toast.error("Please select an operator");
-      return;
-    }
-
-    if (newAssignment.type === "outsource" && !newAssignment.vendor) {
-      toast.error("Please select a vendor");
+      toast.error("Please select an operator for this in-house task.");
       return;
     }
 
@@ -376,8 +406,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     const e24 = newAssignment.type === "inhouse" ? to24h(newAssignment.endTime, newAssignment.endPeriod) : null;
 
     const operator = operators.find(o => o.value === newAssignment.operator);
-    const operation = operations.find(o => o.value === newAssignment.operation || o.name === newAssignment.operation);
-    const vendor = vendors.find(v => v.value === newAssignment.vendor);
+    // Try to find in project-specific operations first, then fallback to global operations
+    const projectOp = projectOperations.find(o => o.value === newAssignment.operation || o.label === newAssignment.operation);
+    const globalOp = operations.find(o => o.value === newAssignment.operation || o.name === newAssignment.operation);
+    const operation = projectOp || globalOp;
+    
+    const vendor = newAssignment.type === "outsource" ? null : vendors.find(v => v.value === newAssignment.vendor);
 
     const entry = {
       id: editingAssignmentId || Date.now(),
@@ -390,7 +424,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       operator_id: operator?.id,
       operator_name: operator?.label || newAssignment.operator,
       vendor_id: vendor?.id,
-      vendor_name: vendor?.label || newAssignment.vendor,
+      vendor_name: vendor?.label || newAssignment.vendor || "",
       start_time: s24,
       end_time: e24,
       break_time: parseInt(newAssignment.breakTime || 0),
@@ -447,8 +481,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
         const e24 = editForm.type === "inhouse" ? to24h(editForm.endTime, editForm.endPeriod) : null;
 
         const operator = operators.find(o => o.value === editForm.operator || o.label === editForm.operator);
-        const operation = operations.find(o => o.value === editForm.operation || o.name === editForm.operation);
-        const vendor = vendors.find(v => v.value === editForm.vendor || v.label === editForm.vendor);
+        // Try to find in project-specific operations first, then fallback to global operations
+        const projectOp = projectOperations.find(o => o.value === editForm.operation || o.label === editForm.operation);
+        const globalOp = operations.find(o => o.value === editForm.operation || o.name === editForm.operation);
+        const operation = projectOp || globalOp;
+
+        const vendor = editForm.type === "outsource" ? null : vendors.find(v => v.value === editForm.vendor || v.label === editForm.vendor);
 
         return {
           ...a,
@@ -456,7 +494,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           operator_id: operator?.id,
           operator_name: editForm.operator,
           vendor_id: vendor?.id,
-          vendor_name: editForm.vendor,
+          vendor_name: editForm.type === "outsource" ? "" : editForm.vendor,
           operation_id: operation?.id,
           operation_name: editForm.operation,
           start_time: s24,
@@ -474,12 +512,26 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   };
 
   const removeAssignment = (id) => {
-    setDailyPlan(dailyPlan.filter(a => a.id !== id));
+    Swal.fire({
+      title: "Remove Assignment?",
+      text: "Are you sure you want to remove this assignment from the plan?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Yes, remove it!",
+      cancelButtonText: "Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setDailyPlan(dailyPlan.filter(a => a.id !== id));
+        toast.success("Assignment removed successfully");
+      }
+    });
   };
 
   const handleFinalize = () => {
     if (dailyPlan.length === 0) {
-      toast.error("Add at least one assignment to the plan");
+      toast.error("Please add at least one work assignment to the plan before saving.");
       return;
     }
 
@@ -498,7 +550,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             
             <div>
               <h2 className="text-lg  text-slate-900 dark:text-white  ">
-                {mode === "view" ? "View Production Plan" : mode === "edit" ? "Edit Production Plan" : "Daily Production Planning"}
+                {isSingleAssignmentEdit ? "Edit Assignment" : mode === "view" ? "View Production Plan" : mode === "edit" ? "Edit Production Plan" : "Daily Production Planning"}
               </h2>
               {mode === "view" ? (
                 <p className="text-xs  text-slate-500   mt-0.5">
@@ -532,80 +584,89 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
             {/* Main Area */}
             <div className="lg:col-span-12 space-y-4">
               {/* 1. Project Context */}
-              <AccordionSection
-                title="1. Project Context"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                  <div className="md:col-span-4 space-y-1.5">
-                    <label className="text-xs  text-slate-400  ">Select Project</label>
-                    <SearchableSelect
-                      options={projects}
-                      value={selectedProject?.value}
-                      onChange={(val) => {
-                        const proj = projects.find(p => p.value === val);
-                        setSelectedProject(proj);
-                        setSelectedReleaseEntry(null);
-                        setEntryOptions([]);
-                        if (proj) fetchReleasedMaterials(proj.name);
-                      }}
-                      placeholder="Search Project..."
-                      disabled={mode === "view"}
-                    />
-                  </div>
-                  <div className="md:col-span-4 space-y-1.5">
-                    <label className="text-xs  text-slate-400  ">Inventory Release (ST#)</label>
-                    <SearchableSelect
-                      options={entryOptions}
-                      value={selectedReleaseEntry}
-                      onChange={(val) => {
-                        setSelectedReleaseEntry(val);
-                      }}
-                      placeholder={selectedProject ? (fetchingMaterials ? "FETCHING..." : "Select Material Piece...") : "..."}
-                      disabled={!selectedProject || mode === "view"}
-                    />
-                  </div>
-                  {selectedProject && (
-                    <div className="md:col-span-4 flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded border border-indigo-100 dark:border-indigo-900/30">
-                      <div className="flex-1">
-                        <p className="text-xs  text-indigo-600   mb-1">Project Reference</p>
-                        <p className="text-xs  text-indigo-900 dark:text-indigo-300 truncate ">REF: {selectedProject.ref}</p>
-                      </div>
-                      <div className="border-l border-indigo-100 dark:border-indigo-900/30 pl-3 flex items-center">
-                        <button
-                          onClick={() => setShowReleasedMaterials(true)}
-                          className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded border border-indigo-200 dark:border-indigo-800  hover:bg-indigo-50 transition-colors group relative"
-                          title="View Released History"
-                        >
-                          <Eye size={15} />
-                        </button>
-                      </div>
+              {!isSingleAssignmentEdit && (
+                <AccordionSection
+                  title="1. Project Context"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                    <div className="md:col-span-4 space-y-1.5">
+                      <label className="text-xs  text-slate-400  ">Select Project</label>
+                      <SearchableSelect
+                        options={projects}
+                        value={selectedProject?.value}
+                        onChange={(val) => {
+                          const proj = projects.find(p => p.value === val);
+                          setSelectedProject(proj);
+                          setSelectedReleaseEntry(null);
+                          setEntryOptions([]);
+                          if (proj) {
+                            fetchReleasedMaterials(proj.name);
+                            fetchProjectOperations(proj.value);
+                          } else {
+                            setProjectOperations([]);
+                          }
+                          setNewAssignment(prev => ({ ...prev, operation: "" }));
+                        }}
+                        placeholder="Search Project..."
+                        disabled={mode === "view"}
+                      />
                     </div>
-                  )}
-                </div>
-              </AccordionSection>
+                    <div className="md:col-span-4 space-y-1.5">
+                      <label className="text-xs  text-slate-400  ">Inventory Release (ST#)</label>
+                      <SearchableSelect
+                        options={entryOptions}
+                        value={selectedReleaseEntry}
+                        onChange={(val) => {
+                          setSelectedReleaseEntry(val);
+                        }}
+                        placeholder={selectedProject ? (fetchingMaterials ? "FETCHING..." : "Select Material Piece...") : "..."}
+                        disabled={!selectedProject || mode === "view"}
+                      />
+                    </div>
+                    {selectedProject && (
+                      <div className="md:col-span-4 flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded border border-indigo-100 dark:border-indigo-900/30">
+                        <div className="flex-1">
+                          <p className="text-xs  text-indigo-600   mb-1">Project Reference</p>
+                          <p className="text-xs  text-indigo-900 dark:text-indigo-300 truncate ">REF: {selectedProject.ref}</p>
+                        </div>
+                        <div className="border-l border-indigo-100 dark:border-indigo-900/30 pl-3 flex items-center">
+                          <button
+                            onClick={() => setShowReleasedMaterials(true)}
+                            className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded border border-indigo-200 dark:border-indigo-800  hover:bg-indigo-50 transition-colors group relative"
+                            title="View Released History"
+                          >
+                            <Eye size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </AccordionSection>
+              )}
 
               {/* 2. Work Allocation Form */}
-              {(selectedProject || mode === "view") ? (
+              {(isSingleAssignmentEdit || selectedProject || mode === "view" || dailyPlan.length > 0) ? (
                 <AccordionSection
-                  title={mode === "view" ? "Production Assignments" : "2. Daily Assignment Allocation"}
+                  title={isSingleAssignmentEdit ? "Assignment Details" : mode === "view" ? "Production Assignments" : "2. Daily Assignment Allocation"}
                 >
                   <div className="space-y-6">
-                    {mode !== "view" && (
+                    {!isSingleAssignmentEdit && mode !== "view" && selectedProject && (
                       <div className="bg-slate-50 dark:bg-slate-800/50  rounded border border-slate-100 dark:border-slate-800 space-y-4">
                         <div className="grid grid-cols-1 items-end md:grid-cols-12 gap-4 p-4">
-                          <div className="md:col-span-3 space-y-1.5">
+                          <div className={`${newAssignment.type === "inhouse" ? "md:col-span-3" : "md:col-span-5"} space-y-1.5`}>
                             <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operation</label>
                             <SearchableSelect
-                              options={operations}
+                              options={projectOperations}
                               value={newAssignment.operation}
                               onChange={(val) => setNewAssignment({ ...newAssignment, operation: val })}
-                              placeholder="Search Operation..."
+                              placeholder={fetchingOps ? "FETCHING..." : "Select Operation..."}
                               className="text-xs  text-slate-900"
                               allowCustom={true}
+                              disabled={!selectedProject}
                             />
                           </div>
 
-                          <div className="md:col-span-3 space-y-1.5">
+                          <div className={`${newAssignment.type === "inhouse" ? "md:col-span-3" : "md:col-span-5"} space-y-1.5`}>
                             <label className="text-xs  text-slate-900 dark:text-slate-200  ">Type</label>
                             <select
                               className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
@@ -617,9 +678,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                             </select>
                           </div>
 
-                          <div className="md:col-span-3 space-y-1.5">
-                            {newAssignment.type === "inhouse" ? (
-                              <>
+                          {newAssignment.type === "inhouse" && (
+                            <div className="md:col-span-3 space-y-1.5">
                                 <label className="text-xs  text-slate-900 dark:text-slate-200  ">Operator</label>
                                 <SearchableSelect
                                   options={operators}
@@ -629,21 +689,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                                   className="text-xs  text-slate-900"
                                   allowCustom={true}
                                 />
-                              </>
-                            ) : (
-                              <>
-                                <label className="text-xs  text-slate-900 dark:text-slate-200  ">Vendor</label>
-                                <SearchableSelect
-                                  options={vendors}
-                                  value={newAssignment.vendor}
-                                  onChange={(val) => setNewAssignment({ ...newAssignment, vendor: val })}
-                                  placeholder="Select Vendor..."
-                                  className="text-xs  text-slate-900"
-                                  allowCustom={true}
-                                />
-                              </>
-                            )}
-                          </div>
+                            </div>
+                          )}
 
                           {newAssignment.type === "inhouse" && (
                             <>
@@ -696,7 +743,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                             </>
                           )}
 
-                          <div className={`${newAssignment.type === "inhouse" ? "md:col-span-5" : "md:col-span-4"} space-y-1.5`}>
+                          <div className={`${newAssignment.type === "inhouse" ? "md:col-span-5" : "md:col-span-10"} space-y-1.5`}>
                             <label className="text-xs  text-slate-900 dark:text-slate-200  ">Remarks / Special Instructions</label>
                             <input
                               type="text"
@@ -722,6 +769,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                       </div>
                     )}
 
+                    {mode !== "view" && !selectedProject && dailyPlan.length > 0 && (
+                      <div className="p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded flex items-center gap-2 text-amber-600">
+                        <AlertCircle size={14} />
+                        <p className="text-xs">Select a project above to add more assignments to this plan.</p>
+                      </div>
+                    )}
+
                     {/* Assignments List in this section */}
                     {dailyPlan.length > 0 && (
                       <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden ">
@@ -734,7 +788,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                     )}
                   </div>
                 </AccordionSection>
-              ) : mode !== "view" ? (
+              ) : (mode !== "view" && dailyPlan.length === 0) ? (
                 <div className="py-12 flex flex-col items-center justify-center bg-white dark:bg-slate-900 rounded border border-dashed border-slate-200 dark:border-slate-800">
                   <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-full mb-4">
                     <Target size={32} className="text-slate-300" />
@@ -851,11 +905,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               <div className="space-y-1.5">
                 <label className="text-xs  text-slate-400  ">Operation</label>
                 <SearchableSelect
-                  options={operations}
+                  options={projectOperations}
                   value={editForm.operation}
                   onChange={(val) => setEditForm({ ...editForm, operation: val })}
-                  placeholder="Select Operation..."
+                  placeholder={fetchingOps ? "FETCHING..." : "Select Operation..."}
                   allowCustom={true}
+                  disabled={!selectedProject}
                 />
               </div>
 
@@ -872,7 +927,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               </div>
 
               <div className="space-y-1.5">
-                {editForm.type === "inhouse" ? (
+                {editForm.type === "inhouse" && (
                   <>
                     <label className="text-xs  text-slate-400  ">Operator</label>
                     <SearchableSelect
@@ -880,17 +935,6 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                       value={editForm.operator}
                       onChange={(val) => setEditForm({ ...editForm, operator: val })}
                       placeholder="Select Operator..."
-                      allowCustom={true}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <label className="text-xs  text-slate-400  ">Vendor</label>
-                    <SearchableSelect
-                      options={vendors}
-                      value={editForm.vendor}
-                      onChange={(val) => setEditForm({ ...editForm, vendor: val })}
-                      placeholder="Select Vendor..."
                       allowCustom={true}
                     />
                   </>
@@ -1409,7 +1453,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       }
     } catch (error) {
       console.error("Error fetching materials for MCR:", error);
-      toast.error("Failed to load materials");
+      toast.error("We couldn't load the materials list. Please check your connection.");
     } finally {
       setLoading(false);
     }
@@ -1778,7 +1822,8 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             },
             density: serial.density || item.density || 0,
             unit_weight: currentWeight || serial.unit_weight || item.unit_weight || 0,
-            absoluteOriginalWeight: absoluteOriginalWeight
+            absoluteOriginalWeight: absoluteOriginalWeight,
+            root_card_id: entry.root_card_id
           });
         });
       }
@@ -2023,6 +2068,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       scrap_weight: remainingInfo.scrapWeight,
       scrap_percent: remainingInfo.scrapPercent,
       is_new: true,
+      root_card_id: selectedItem.root_card_id,
       full_data: {
         ...cuttingForm,
         selectedItem,
@@ -2149,6 +2195,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             weight_consumed: entry.weight || 0,
             total_weight_consumed: entry.weight || 0,
             is_new: false,
+            root_card_id: entry.root_card_id,
             remarks: entry.remarks || "MCR Entry"
           });
 
@@ -2291,6 +2338,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
           weight_consumed: entry.weight || 0,
           total_weight_consumed: entry.weight || 0,
           is_new: entry.is_new, // Crucial for backend update logic
+          root_card_id: entry.root_card_id,
           remarks: `MCR Entry`
         });
 
@@ -2992,6 +3040,7 @@ const DailyProductionPlanningPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMCRModalOpen, setIsMCRModalOpen] = useState(false);
   const [selectedPlanForMCR, setSelectedPlanForMCR] = useState(null);
+  const [targetAssignmentId, setTargetAssignmentId] = useState(null);
   const [modalMode, setModalMode] = useState("create"); // "create", "edit", "view"
   const [selectedPlanData, setSelectedPlanData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -3006,6 +3055,10 @@ const DailyProductionPlanningPage = () => {
   const [operators, setOperators] = useState([]);
   const [operations, setOperations] = useState([]);
   const [vendors, setVendors] = useState([]);
+
+  // Outward Challan Modal State
+  const [isOutwardModalOpen, setIsOutwardModalOpen] = useState(false);
+  const [selectedAssignmentForChallan, setSelectedAssignmentForChallan] = useState(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -3058,7 +3111,7 @@ const DailyProductionPlanningPage = () => {
 
     } catch (error) {
       console.error("Error fetching production data:", error);
-      toast.error("Failed to load dashboard data");
+      toast.error("We couldn't load the production data. Please refresh the page.");
     } finally {
       setLoading(false);
     }
@@ -3068,18 +3121,31 @@ const DailyProductionPlanningPage = () => {
     fetchData();
   }, [fetchData]);
 
-  const handleOpenPlan = async (planId, mode = "view") => {
+  const handleOpenPlan = async (planId, mode = "view", assignmentId = null) => {
     setLoading(true);
     try {
       const response = await axios.get(`/production/plans/${planId}`);
       if (response.data.success) {
-        setSelectedPlanData(response.data);
+        let planData = response.data;
+        
+        // If editing a specific assignment, filter the assignments list
+        if (assignmentId && mode === "edit") {
+          planData = {
+            ...planData,
+            assignments: planData.assignments.filter(a => a.id === assignmentId)
+          };
+          setTargetAssignmentId(assignmentId);
+        } else {
+          setTargetAssignmentId(null);
+        }
+
+        setSelectedPlanData(planData);
         setModalMode(mode);
         setIsModalOpen(true);
       }
     } catch (error) {
       console.error("Error fetching plan details:", error);
-      toast.error("Failed to load plan details");
+      toast.error("We couldn't open the plan details. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -3089,7 +3155,16 @@ const DailyProductionPlanningPage = () => {
     setModalLoading(true);
     try {
       let planRes;
-      if (modalMode === "edit" && selectedPlanData?.plan?.id) {
+      if (modalMode === "edit" && targetAssignmentId) {
+        // Handle individual assignment update
+        const assignment = planData.assignments.find(a => a.id === targetAssignmentId);
+        if (assignment) {
+          planRes = await axios.put(`/production/assignments/${targetAssignmentId}`, {
+            ...assignment,
+            plan_date: planData.plan_date
+          });
+        }
+      } else if (modalMode === "edit" && selectedPlanData?.plan?.id) {
         planRes = await axios.put(`/production/plans/${selectedPlanData.plan.id}`, {
           plan_date: planData.plan_date,
           assignments: planData.assignments,
@@ -3103,36 +3178,49 @@ const DailyProductionPlanningPage = () => {
         });
       }
 
-      if (planRes.data.success) {
-        toast.success(modalMode === "edit" ? "Daily plan updated successfully" : "Daily plan finalized successfully");
+      if (planRes && planRes.data.success) {
+        toast.success(modalMode === "edit" ? "Plan updated successfully!" : "Daily production plan has been saved.");
         setIsModalOpen(false);
         setSelectedPlanData(null);
+        setTargetAssignmentId(null);
         fetchData();
       }
     } catch (error) {
       console.error("Error saving plan:", error);
-      toast.error(error.response?.data?.message || "Failed to save plan");
+      const errorMessage = error.response?.data?.message || "Something went wrong while saving the plan. Please check your connection and try again.";
+      toast.error(errorMessage);
     } finally {
       setModalLoading(false);
     }
   };
 
-  const handleDeletePlan = async (planId) => {
-    if (!window.confirm("Are you sure you want to delete this production plan? This action cannot be undone.")) return;
-
-    setLoading(true);
-    try {
-      const response = await axios.delete(`/production/plans/${planId}`);
-      if (response.data.success) {
-        toast.success("Production plan deleted successfully");
-        fetchData();
+  const handleDeleteAssignment = async (assignmentId) => {
+    Swal.fire({
+      title: "Delete Assignment?",
+      text: "This will permanently delete this specific work assignment. This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setLoading(true);
+        try {
+          const response = await axios.delete(`/production/assignments/${assignmentId}`);
+          if (response.data.success) {
+            toast.success("Assignment deleted successfully");
+            fetchData();
+          }
+        } catch (error) {
+          console.error("Error deleting assignment:", error);
+          toast.error(error.response?.data?.message || "We couldn't delete the assignment. Please try again later.");
+        } finally {
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.error("Error deleting plan:", error);
-      toast.error(error.response?.data?.message || "Failed to delete production plan");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const selectedProjectForFilter = useMemo(() =>
@@ -3287,9 +3375,9 @@ const DailyProductionPlanningPage = () => {
             <Eye size={15} />
           </button>
           <button
-            onClick={() => handleOpenPlan(assignment.plan_id, "edit")}
+            onClick={() => handleOpenPlan(assignment.plan_id, "edit", assignment.id)}
             className="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-            title="Edit Plan"
+            title="Edit Assignment"
           >
             <Pencil size={15} />
           </button>
@@ -3327,7 +3415,10 @@ const DailyProductionPlanningPage = () => {
           {assignment.assignment_type === "outsource" && (
             <>
               <button
-                onClick={() => toast.info(`Creating Outward Challan for ${assignment.operation_name}...`)}
+                onClick={() => {
+                  setSelectedAssignmentForChallan(assignment);
+                  setIsOutwardModalOpen(true);
+                }}
                 className="p-2 text-orange-400 hover:text-orange-600 transition-colors"
                 title="Create Outward Challan"
               >
@@ -3343,9 +3434,9 @@ const DailyProductionPlanningPage = () => {
             </>
           )}
           <button
-            onClick={() => handleDeletePlan(assignment.plan_id)}
+            onClick={() => handleDeleteAssignment(assignment.id)}
             className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-            title="Delete Plan"
+            title="Delete Assignment"
           >
             <Trash2 size={15} />
           </button>
@@ -3472,6 +3563,7 @@ const DailyProductionPlanningPage = () => {
         onClose={() => {
           setIsModalOpen(false);
           setSelectedPlanData(null);
+          setTargetAssignmentId(null);
         }}
         planDate={new Date().toISOString().split('T')[0]}
         projects={projects}
@@ -3482,6 +3574,7 @@ const DailyProductionPlanningPage = () => {
         loading={modalLoading}
         mode={modalMode}
         initialData={selectedPlanData}
+        isSingleAssignmentEdit={!!targetAssignmentId}
       />
 
       <MCRReportModal
@@ -3489,6 +3582,13 @@ const DailyProductionPlanningPage = () => {
         onClose={() => setIsMCRModalOpen(false)}
         plan={selectedPlanForMCR}
         onRefresh={fetchData}
+      />
+
+      <CreateOutwardChallanModal
+        isOpen={isOutwardModalOpen}
+        onClose={() => setIsOutwardModalOpen(false)}
+        assignment={selectedAssignmentForChallan}
+        vendors={vendors}
       />
     </div>
   );
