@@ -105,7 +105,7 @@ const getAllRootCards = async (req, res) => {
       `;
       queryParams.push(req.user.id);
     } else if (isProduction) {
-      // Production can only see root cards that have been sent to production
+      // Production can see all root cards to track progress and plan ahead
       const productionAllowedStatuses = [
         'pending',
         'RC_CREATED',
@@ -128,7 +128,11 @@ const getAllRootCards = async (req, res) => {
         'PAINTING_IN_PROGRESS', 
         'FINAL_QC_PENDING', 
         'FINAL_QC_APPROVED', 
-        'READY_FOR_DELIVERY'
+        'READY_FOR_DELIVERY',
+        'Production completed and send to Quality fot QC',
+        'send to production for complete final produciton',
+        'final Prodcution completed and send to quality for final qc',
+        'Redy for Dispatch'
       ];
       query = `SELECT * FROM root_cards WHERE status IN ('${productionAllowedStatuses.join("', '")}')`;
     }
@@ -309,15 +313,30 @@ const updateRootCard = async (req, res) => {
 
 const deleteRootCard = async (req, res) => {
   const { id } = req.params;
+  const connection = await db.getConnection();
   try {
-    const [result] = await db.query('DELETE FROM root_cards WHERE id = ?', [id]);
+    await connection.beginTransaction();
+
+    // 1. Delete associated inspections
+    await connection.query('DELETE FROM project_inspections WHERE root_card_id = ?', [id]);
+
+    // 2. Delete the root card (cascading deletes for root_card_operations should happen if FK is set, 
+    // but we can be explicit if needed. Based on create_root_card_operations_table.js, it has ON DELETE CASCADE)
+    const [result] = await connection.query('DELETE FROM root_cards WHERE id = ?', [id]);
+    
     if (result.affectedRows === 0) {
+      await connection.rollback();
       return res.status(404).json({ message: 'Root Card not found' });
     }
+
+    await connection.commit();
     res.json({ message: 'Root Card deleted successfully' });
   } catch (error) {
+    if (connection) await connection.rollback();
     console.error('Error deleting root card:', error);
     res.status(500).json({ message: 'Server error' });
+  } finally {
+    if (connection) connection.release();
   }
 };
 

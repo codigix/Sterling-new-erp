@@ -28,7 +28,7 @@ const DimensionInput = ({ label, field, placeholder, item, index, handleItemChan
       type="number"
       value={
         item[field] !== null && item[field] !== undefined
-          ? Number(item[field])
+          ? item[field]
           : ""
       }
       onChange={(e) => handleItemChange(index, field, e.target.value)}
@@ -397,9 +397,7 @@ const CreateQuotationModal = ({
             [field]: stringFields.includes(field)
               ? value
               : numberFields.includes(field)
-                ? value === ""
-                  ? ""
-                  : parseFloat(value) || 0
+                ? value
                 : value,
           };
         }
@@ -856,7 +854,7 @@ const CreateQuotationModal = ({
               type="number"
               value={
                 item.quantity !== undefined && item.quantity !== null
-                  ? parseFloat(item.quantity).toString()
+                  ? item.quantity
                   : ""
               }
               onChange={(e) =>
@@ -917,7 +915,7 @@ const CreateQuotationModal = ({
               type="number"
               value={
                 item.total_weight !== null && item.total_weight !== undefined
-                  ? Number(parseFloat(item.total_weight)).toFixed(3)
+                  ? item.total_weight
                   : ""
               }
               onChange={(e) =>
@@ -1028,7 +1026,7 @@ const CreateQuotationModal = ({
               type="number"
               value={
                 item.quantity !== undefined && item.quantity !== null
-                  ? parseFloat(item.quantity).toString()
+                  ? item.quantity
                   : ""
               }
               onChange={(e) =>

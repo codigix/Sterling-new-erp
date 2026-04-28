@@ -28,6 +28,7 @@ const DataTable = ({
   pagination = true,
   pageSize = 10,
   pageSizeOptions = [5, 10, 25, 50, 100],
+  rowKey = null,
 }) => {
   const effectiveRenderRowDetail = renderRowDetail || expandableRow;
   const [sortConfig, setSortConfig] = useState(null);
@@ -287,7 +288,7 @@ const DataTable = ({
                 </tr>
               ) : (
                 paginatedData.map((row, rowIndex) => {
-                  const rowId = row.id ?? row._id ?? `row-${rowIndex}`;
+                  const rowId = rowKey ? row[rowKey] : (row.id ?? row._id ?? `row-${rowIndex}`);
                   const isExpanded = expandedRows.has(rowId);
                   return (
                     <Fragment key={rowId}>

@@ -13,8 +13,13 @@ exports.getRootCards = async (req, res) => {
         'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 
         'Released', 'Production', 'Partially Completed', 'MATERIAL_PLANNING', 
         'PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 
-        'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED',
-        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'
+        'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED',
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'UNDER INSPECTION',
+        'DESIGN_RELEASED', 'READY_FOR_PRODUCTION', 'READY_FOR_PHASE_2', 'QC_APPROVED',
+        'Production completed and send to Quality fot QC',
+        'send to production for complete final produciton',
+        'final Prodcution completed and send to quality for final qc',
+        'Redy for Dispatch'
       )
     `;
 
@@ -300,12 +305,72 @@ exports.updateDailyPlan = async (req, res) => {
 
 exports.deleteDailyPlan = async (req, res) => {
   const { id } = req.params;
+  const connection = await db.getConnection();
   try {
-    await db.query('DELETE FROM daily_production_plans WHERE id = ?', [id]);
-    res.json({ success: true, message: 'Daily plan deleted successfully' });
+    await connection.beginTransaction();
+
+    // 1. Get all root cards, operations and PHASES affected by this plan
+    const [assignments] = await connection.query(
+      `SELECT DISTINCT a.root_card_id, a.operation_name, rco.phase 
+       FROM daily_operator_assignments a
+       LEFT JOIN root_card_operations rco ON LOWER(TRIM(a.root_card_id)) = LOWER(TRIM(rco.root_card_id)) 
+          AND LOWER(TRIM(a.operation_name)) = LOWER(TRIM(rco.operation_name))
+       WHERE a.plan_id = ?`,
+      [id]
+    );
+
+    // 2. Delete the plan (cascades to assignments)
+    await connection.query('DELETE FROM daily_production_plans WHERE id = ?', [id]);
+
+    // 3. For each affected project/operation, reset status in root_card_operations
+    for (const a of assignments) {
+      if (a.root_card_id && a.operation_name) {
+        await connection.query(
+          `UPDATE root_card_operations 
+           SET status = 'Pending', updated_at = CURRENT_TIMESTAMP 
+           WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
+          [a.root_card_id, a.operation_name]
+        );
+      }
+    }
+
+    // 4. Check if we need to cleanup inspections for affected projects and phases
+    // If a phase now has ANY non-completed operation, we clear inspections for THAT phase
+    const affectedProjects = [...new Set(assignments.map(a => a.root_card_id).filter(Boolean))];
+    for (const rcId of affectedProjects) {
+      const projPhases = [...new Set(assignments.filter(a => a.root_card_id === rcId).map(a => a.phase).filter(Boolean))];
+      
+      for (const phase of projPhases) {
+        const [incompleteOps] = await connection.query(
+          "SELECT COUNT(*) as count FROM root_card_operations WHERE root_card_id = ? AND phase = ? AND status != 'Completed'",
+          [rcId, phase]
+        );
+        
+        if (incompleteOps[0].count > 0) {
+          // If any operation in this phase is not completed, clear inspections for this phase
+          await connection.query('DELETE FROM project_inspections WHERE root_card_id = ? AND phase = ?', [rcId, phase]);
+          
+          // Reset root card status if it was in a QC status for this phase
+          const qcStatusToReset = phase === 1 
+            ? ['DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'Production completed and send to Quality fot QC', 'send to production for complete final produciton'] 
+            : ['PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'final Prodcution completed and send to quality for final qc', 'Redy for Dispatch'];
+          await connection.query(
+            `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
+             WHERE id = ? AND status IN (?)`,
+            [rcId, qcStatusToReset]
+          );
+        }
+      }
+    }
+
+    await connection.commit();
+    res.json({ success: true, message: 'Daily plan deleted and related statuses reset successfully' });
   } catch (error) {
+    if (connection) await connection.rollback();
     console.error('Error deleting daily plan:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -367,14 +432,68 @@ exports.deleteAssignment = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    // 1. Delete assignment
+    // 1. Get info before deletion (including phase)
+    const [assignments] = await connection.query(
+      `SELECT a.root_card_id, a.operation_name, rco.phase 
+       FROM daily_operator_assignments a
+       LEFT JOIN root_card_operations rco ON LOWER(TRIM(a.root_card_id)) = LOWER(TRIM(rco.root_card_id)) 
+          AND LOWER(TRIM(a.operation_name)) = LOWER(TRIM(rco.operation_name))
+       WHERE a.id = ?`,
+      [id]
+    );
+
+    if (assignments.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ success: false, message: 'Assignment not found' });
+    }
+    const { root_card_id, operation_name, phase } = assignments[0];
+
+    // 2. Delete assignment
     await connection.query('DELETE FROM daily_operator_assignments WHERE id = ?', [id]);
 
-    // 2. Delete linked production updates
+    // 3. Delete linked production updates
     await connection.query('DELETE FROM daily_production_updates WHERE assignment_id = ?', [id]);
 
+    // 4. Reset operation status if no other assignments exist for it
+    if (root_card_id && operation_name) {
+      const [otherAssignments] = await connection.query(
+        'SELECT id FROM daily_operator_assignments WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))',
+        [root_card_id, operation_name]
+      );
+
+      if (otherAssignments.length === 0) {
+        await connection.query(
+          `UPDATE root_card_operations 
+           SET status = 'Pending', updated_at = CURRENT_TIMESTAMP 
+           WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
+          [root_card_id, operation_name]
+        );
+      }
+    }
+
+    // 5. Cleanup inspections if project phase has any incomplete operations now
+    if (root_card_id && phase) {
+      const [incompleteOps] = await connection.query(
+        "SELECT COUNT(*) as count FROM root_card_operations WHERE root_card_id = ? AND phase = ? AND status != 'Completed'",
+        [root_card_id, phase]
+      );
+      
+      if (incompleteOps[0].count > 0) {
+        // If phase is now incomplete, clear inspections for this phase
+        await connection.query('DELETE FROM project_inspections WHERE root_card_id = ? AND phase = ?', [root_card_id, phase]);
+        
+        // Reset root card status if it was in a QC status for this phase
+        const qcStatusToReset = phase === 1 ? ['DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED'] : ['PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'];
+        await connection.query(
+          `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
+           WHERE id = ? AND status IN (?)`,
+          [root_card_id, qcStatusToReset]
+        );
+      }
+    }
+
     await connection.commit();
-    res.json({ success: true, message: 'Assignment and linked updates deleted successfully' });
+    res.json({ success: true, message: 'Assignment and linked updates deleted, status reset successfully' });
   } catch (error) {
     if (connection) await connection.rollback();
     console.error('Error deleting assignment:', error);
@@ -614,7 +733,9 @@ exports.sendFabricationToQC = async (req, res) => {
     const projectName = rcs.length > 0 ? rcs[0].project_name : root_card_id;
 
     // 2. Update Root Card status based on phase
-    const newStatus = currentPhase === 1 ? 'DIMENSIONAL_QC_PENDING' : 'PHASE_2_QC_PENDING';
+    const newStatus = currentPhase === 1 
+      ? 'Production completed and send to Quality fot QC' 
+      : 'final Prodcution completed and send to quality for final qc';
     await connection.query(
       "UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
       [newStatus, root_card_id]
@@ -1205,13 +1326,19 @@ exports.getRootCardById = async (req, res) => {
     
     // Check if Phase 1 is fully completed and approved by Quality
     const phase1Ops = operations.filter(op => op.phase === 1);
-    const phase1Completed = phase1Ops.length > 0 && phase1Ops.every(op => op.status === 'Completed');
     
     // Phase 2 is unlocked ONLY if root card status is DIMENSIONAL_QC_APPROVED 
     // or if the project has already moved past this stage (e.g. status is 'Production' or similar)
     const phase2Unlocked = rows[0].status === 'DIMENSIONAL_QC_APPROVED' || 
                            rows[0].status === 'Production' || 
-                           rows[0].status === 'Partially Completed';
+                           rows[0].status === 'Partially Completed' ||
+                           rows[0].status === 'send to production for complete final produciton' ||
+                           rows[0].status === 'PHASE_2_QC_PENDING' ||
+                           rows[0].status === 'PHASE_2_QC_APPROVED' ||
+                           rows[0].status === 'final Prodcution completed and send to quality for final qc' ||
+                           rows[0].status === 'Redy for Dispatch';
+
+    const phase1Completed = (phase1Ops.length > 0 && phase1Ops.every(op => op.status === 'Completed')) || phase2Unlocked;
 
     res.json({ 
       success: true, 
@@ -1263,12 +1390,57 @@ exports.updateProductionOperation = async (req, res) => {
 
 exports.deleteProductionOperation = async (req, res) => {
   const { operationId } = req.params;
+  const connection = await db.getConnection();
   try {
-    await db.query('DELETE FROM root_card_operations WHERE id = ?', [operationId]);
-    res.json({ success: true, message: 'Operation deleted successfully' });
+    await connection.beginTransaction();
+
+    // 1. Get the root_card_id and phase for this operation before deleting
+    const [ops] = await connection.query('SELECT root_card_id, phase FROM root_card_operations WHERE id = ?', [operationId]);
+    if (ops.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ success: false, message: 'Operation not found' });
+    }
+    const { root_card_id, phase } = ops[0];
+
+    // 2. Delete the operation
+    await connection.query('DELETE FROM root_card_operations WHERE id = ?', [operationId]);
+
+    // 3. Check if there are any operations left for this project and phase
+    const [remainingOps] = await connection.query(
+      'SELECT COUNT(*) as count FROM root_card_operations WHERE root_card_id = ? AND phase = ?',
+      [root_card_id, phase]
+    );
+
+    const [allRemainingOps] = await connection.query(
+      'SELECT COUNT(*) as count FROM root_card_operations WHERE root_card_id = ?',
+      [root_card_id]
+    );
+
+    // If ALL operations for the project are deleted, or all operations for this phase are deleted
+    // we should clean up the inspections for that phase/project
+    if (remainingOps[0].count === 0 || allRemainingOps[0].count === 0) {
+      await connection.query('DELETE FROM project_inspections WHERE root_card_id = ? AND phase = ?', [root_card_id, phase]);
+      
+      // Also reset root card status if it was in a QC status
+      const qcStatusToReset = phase === 1 
+        ? ['DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'Production completed and send to Quality fot QC', 'send to production for complete final produciton'] 
+        : ['PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'final Prodcution completed and send to quality for final qc', 'Redy for Dispatch'];
+      
+      await connection.query(
+        `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
+         WHERE id = ? AND status IN (?)`,
+        [root_card_id, qcStatusToReset]
+      );
+    }
+
+    await connection.commit();
+    res.json({ success: true, message: 'Operation deleted successfully and QC data cleaned up if necessary' });
   } catch (error) {
+    if (connection) await connection.rollback();
     console.error('Error deleting production operation:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -1357,6 +1529,104 @@ exports.getOutwardChallanDetails = async (req, res) => {
         }
 
         const [items] = await db.query('SELECT * FROM outward_challan_items WHERE challan_id = ?', [id]);
+        
+        res.json({ success: true, challan: challan[0], items });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.createInwardChallan = async (req, res) => {
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+        const {
+            challan_no, challan_date, status, outward_challan_id, vendor_id, vendor_name, vendor_address,
+            received_date, vehicle_no, remarks, root_card_id, items
+        } = req.body;
+
+        const [challanResult] = await connection.query(
+            `INSERT INTO inward_challans (
+                challan_no, challan_date, status, outward_challan_id, vendor_id, vendor_name, vendor_address,
+                received_date, vehicle_no, remarks, root_card_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                challan_no, challan_date, status, outward_challan_id, vendor_id || null, vendor_name, vendor_address,
+                received_date, vehicle_no || null, remarks, root_card_id
+            ]
+        );
+
+        const challanId = challanResult.insertId;
+
+        if (items && items.length > 0) {
+            const itemValues = items.map(item => [
+                challanId, item.item_code, item.item_name, item.batch_no,
+                item.sent_qty, item.received_qty, item.accepted_qty, item.rejected_qty,
+                item.uom, item.remarks
+            ]);
+
+            await connection.query(
+                `INSERT INTO inward_challan_items (
+                    inward_challan_id, item_code, item_name, batch_no, 
+                    sent_qty, received_qty, accepted_qty, rejected_qty,
+                    uom, remarks
+                ) VALUES ?`,
+                [itemValues]
+            );
+        }
+
+        // Optional: Update outward challan status to RECEIVED if all items are received
+        if (outward_challan_id) {
+            await connection.query(
+                "UPDATE outward_challans SET status = 'RECEIVED' WHERE id = ?",
+                [outward_challan_id]
+            );
+        }
+
+        await connection.commit();
+        res.json({ success: true, message: 'Inward challan created successfully', challanId });
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error creating inward challan:', error);
+        res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
+    }
+};
+
+exports.getInwardChallans = async (req, res) => {
+    try {
+        const query = `
+            SELECT ic.*, rc.project_name, rc.id as project_ref, oc.challan_no as outward_challan_no
+            FROM inward_challans ic
+            LEFT JOIN root_cards rc ON ic.root_card_id = rc.id
+            LEFT JOIN outward_challans oc ON ic.outward_challan_id = oc.id
+            ORDER BY ic.created_at DESC
+        `;
+        const [rows] = await db.query(query);
+        res.json({ success: true, challans: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getInwardChallanDetails = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT ic.*, rc.project_name, rc.id as project_ref, oc.challan_no as outward_challan_no
+            FROM inward_challans ic
+            LEFT JOIN root_cards rc ON ic.root_card_id = rc.id
+            LEFT JOIN outward_challans oc ON ic.outward_challan_id = oc.id
+            WHERE ic.id = ?
+        `;
+        const [challan] = await db.query(query, [id]);
+        
+        if (challan.length === 0) {
+            return res.status(404).json({ success: false, message: 'Challan not found' });
+        }
+
+        const [items] = await db.query('SELECT * FROM inward_challan_items WHERE inward_challan_id = ?', [id]);
         
         res.json({ success: true, challan: challan[0], items });
     } catch (error) {

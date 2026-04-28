@@ -39,8 +39,8 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
     if (!project) return false;
     const isPhase1 = project.current_phase === 1;
     return isPhase1 
-      ? ['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(project.status)
-      : project.status === 'PHASE_2_QC_APPROVED';
+      ? ['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'send to production for complete final produciton', 'final Prodcution completed and send to quality for final qc', 'Redy for Dispatch'].includes(project.status)
+      : ['PHASE_2_QC_APPROVED', 'Redy for Dispatch'].includes(project.status);
   }, [project]);
 
   const fetchInspections = useCallback(async () => {
@@ -286,8 +286,8 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
             Close
           </button>
           {allApproved && (
-            (project?.current_phase === 1 && project?.status === 'DIMENSIONAL_QC_PENDING') ||
-            (project?.current_phase === 2 && project?.status === 'PHASE_2_QC_PENDING')
+            (project?.current_phase === 1 && (project?.status === 'DIMENSIONAL_QC_PENDING' || project?.status === 'Production completed and send to Quality fot QC')) ||
+            (project?.current_phase === 2 && (project?.status === 'PHASE_2_QC_PENDING' || project?.status === 'final Prodcution completed and send to quality for final qc'))
           ) && (
             <button
               onClick={async () => {
@@ -413,8 +413,8 @@ const ProductionQCPage = () => {
       render: (val, row) => {
         const isPhase1 = row.current_phase === 1;
         const isApproved = isPhase1 
-          ? ['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(val)
-          : val === 'PHASE_2_QC_APPROVED';
+          ? ['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'send to production for complete final produciton', 'final Prodcution completed and send to quality for final qc', 'Redy for Dispatch'].includes(val)
+          : ['PHASE_2_QC_APPROVED', 'Redy for Dispatch'].includes(val);
 
         return (
           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${isApproved ? 'text-emerald-600 bg-emerald-50 border-emerald-100' : 'text-indigo-600 bg-indigo-50 border-indigo-100'}`}>
@@ -430,8 +430,8 @@ const ProductionQCPage = () => {
       render: (val, row) => {
         const isPhase1 = row.current_phase === 1;
         const isApproved = isPhase1 
-          ? ['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(row.status)
-          : row.status === 'PHASE_2_QC_APPROVED';
+          ? ['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'send to production for complete final produciton', 'final Prodcution completed and send to quality for final qc', 'Redy for Dispatch'].includes(row.status)
+          : ['PHASE_2_QC_APPROVED', 'Redy for Dispatch'].includes(row.status);
 
         return (
           <div className="flex justify-end gap-2">
@@ -526,6 +526,7 @@ const ProductionQCPage = () => {
           loading={loading}
           data={filteredTasks}
           columns={columns}
+          rowKey="task_id"
           searchPlaceholder="Search operation..."
         />
         {!loading && filteredTasks.length === 0 && (

@@ -24,10 +24,10 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
   const [loading, setLoading] = useState(false);
 
   const fetchInspections = useCallback(async () => {
-    if (!project?.id) return;
+    if (!project?.projectId) return;
     try {
       setLoading(true);
-      const response = await axios.get(`/qc/production/inspections/${project.id}?phase=${project.handoverPhase || 1}`);
+      const response = await axios.get(`/qc/production/inspections/${project.projectId}?phase=${project.handoverPhase || 1}`);
       if (response.data.success) {
         setInspections(response.data.inspections || []);
       }
@@ -36,7 +36,7 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
     } finally {
       setLoading(false);
     }
-  }, [project?.id, project?.handoverPhase]);
+  }, [project?.projectId, project?.handoverPhase]);
 
   useEffect(() => {
     if (isOpen && project) {
@@ -55,7 +55,7 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
               Quality Testing & Reports
             </h2>
             <p className="text-[10px] text-slate-500 mt-0.5">
-              {project?.project_name || project?.title} ({project?.id})
+              {project?.project_name || project?.title} ({project?.projectId})
             </p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
@@ -181,28 +181,79 @@ const QualityHandoverPage = () => {
       const phase2Completed = phase2Ops.length > 0 && phase2Ops.every(s => s.status === 'Completed');
 
       // Phase 1 entry
-      const phase1InQC = ['DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(project.status);
+      const phase1InQC = [
+        'DIMENSIONAL_QC_PENDING', 
+        'DIMENSIONAL_QC_APPROVED', 
+        'PHASE_2_QC_PENDING', 
+        'PHASE_2_QC_APPROVED',
+        'Production completed and send to Quality fot QC',
+        'send to production for complete final produciton',
+        'final Prodcution completed and send to quality for final qc',
+        'Redy for Dispatch'
+      ].includes(project.status);
       
       if (phase1Completed || phase1InQC) {
+        let handoverStatus = 'READY';
+        const isCurrentlyInQC = ['Production completed and send to Quality fot QC', 'DIMENSIONAL_QC_PENDING'].includes(project.status);
+        const isApprovedQC = [
+          'send to production for complete final produciton', 
+          'DIMENSIONAL_QC_APPROVED', 
+          'final Prodcution completed and send to quality for final qc', 
+          'PHASE_2_QC_PENDING', 
+          'PHASE_2_QC_APPROVED',
+          'Redy for Dispatch'
+        ].includes(project.status);
+
+        if (isCurrentlyInQC) {
+          handoverStatus = 'PENDING';
+        } else if (isApprovedQC) {
+          handoverStatus = 'APPROVED';
+        }
+
         list.push({
           ...project,
+          id: `${project.id}-P1`,
+          projectId: project.id,
           handoverPhase: 1,
           handoverType: "Phase 1",
-          isReady: phase1Completed && !phase1InQC,
-          status: project.status === 'DIMENSIONAL_QC_PENDING' ? 'DIMENSIONAL_QC_PENDING' : 
-                  (['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(project.status)) ? 'DIMENSIONAL_QC_APPROVED' : 'READY'
+          isReady: phase1Completed && !isCurrentlyInQC && !isApprovedQC,
+          status: handoverStatus
         });
       }
 
       // Phase 2 entry
-      if (phase2Completed || ['PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(project.status)) {
+      const phase2InQC = [
+        'PHASE_2_QC_PENDING', 
+        'PHASE_2_QC_APPROVED',
+        'final Prodcution completed and send to quality for final qc',
+        'Redy for Dispatch'
+      ].includes(project.status);
+
+      if (phase2Completed || phase2InQC) {
+        let handoverStatus = 'READY';
+        const isCurrentlyInQC2 = [
+          'final Prodcution completed and send to quality for final qc', 
+          'PHASE_2_QC_PENDING'
+        ].includes(project.status);
+        const isApprovedQC2 = [
+          'Redy for Dispatch', 
+          'PHASE_2_QC_APPROVED'
+        ].includes(project.status);
+
+        if (isCurrentlyInQC2) {
+          handoverStatus = 'PENDING';
+        } else if (isApprovedQC2) {
+          handoverStatus = 'APPROVED';
+        }
+
         list.push({
           ...project,
+          id: `${project.id}-P2`,
+          projectId: project.id,
           handoverPhase: 2,
           handoverType: "Phase 2",
-          isReady: phase2Completed && !['PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(project.status),
-          status: project.status === 'PHASE_2_QC_PENDING' ? 'PHASE_2_QC_PENDING' : 
-                  project.status === 'PHASE_2_QC_APPROVED' ? 'PHASE_2_QC_APPROVED' : 'READY'
+          isReady: phase2Completed && !isCurrentlyInQC2 && !isApprovedQC2,
+          status: handoverStatus
         });
       }
     });
@@ -210,9 +261,9 @@ const QualityHandoverPage = () => {
     return list.filter(p => {
       const matchesSearch = searchTerm === "" || 
         p.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.id?.toLowerCase().includes(searchTerm.toLowerCase());
+        p.projectId?.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesProject = projectFilter === "" || p.id === projectFilter;
+      const matchesProject = projectFilter === "" || p.projectId === projectFilter;
       
       return matchesSearch && matchesProject;
     });
@@ -313,7 +364,7 @@ const QualityHandoverPage = () => {
                     <span className="text-xs font-bold text-slate-900 dark:text-white uppercase">
                       {value || row.title || "N/A"}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">{row.id}</span>
+                    <span className="text-[10px] text-slate-400 font-mono">{row.projectId}</span>
                   </div>
                 )
               },
@@ -335,11 +386,11 @@ const QualityHandoverPage = () => {
                 key: "status",
                 render: (value, row) => (
                   <div className="flex items-center gap-2">
-                    {value.includes('PENDING') ? (
+                    {value === 'PENDING' ? (
                       <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded font-bold border border-amber-100 flex items-center gap-1">
                         <Clock size={10} /> UNDER INSPECTION
                       </span>
-                    ) : value.includes('APPROVED') ? (
+                    ) : value === 'APPROVED' ? (
                       <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded font-bold border border-emerald-100 flex items-center gap-1">
                         <CheckCircle2 size={10} /> QC APPROVED
                       </span>
@@ -357,26 +408,22 @@ const QualityHandoverPage = () => {
                 align: "right",
                 render: (value, row) => (
                   <div className="flex justify-end gap-2">
-                    {(row.status.includes('APPROVED') || row.status.includes('PENDING')) && (
+                    {row.status === 'APPROVED' && (
                       <button
                         onClick={() => {
                           setActiveProject(row);
                           setIsModalOpen(true);
                         }}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold transition-all shadow-sm ${
-                          row.status.includes('APPROVED') 
-                            ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                        }`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold transition-all shadow-sm bg-emerald-600 text-white hover:bg-emerald-700"
                       >
-                        {row.status.includes('APPROVED') ? <FileText size={14} /> : <ClipboardList size={14} />}
+                        <FileText size={14} />
                         View Tests
                       </button>
                     )}
 
                     {row.isReady && (
                       <button
-                        onClick={() => handleSendToQuality(row.id, row.handoverPhase)}
+                        onClick={() => handleSendToQuality(row.projectId, row.handoverPhase)}
                         className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded text-xs font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
                       >
                         <ShieldCheck size={14} /> Send to Quality

@@ -126,21 +126,6 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
   const [dailyPlan, setDailyPlan] = useState([]);
   const [editingAssignmentId, setEditingAssignmentId] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState({
-    operator: "",
-    vendor: "",
-    operation: "",
-    type: "inhouse",
-    startTime: "",
-    startPeriod: "AM",
-    endTime: "",
-    endPeriod: "PM",
-    remarks: "",
-    mcr_scrap: "",
-    breakTime: "60",
-    status: "Pending"
-  });
 
   const assignmentColumns = useMemo(() => [
     {
@@ -324,9 +309,26 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
       // Auto-open edit modal if it's a single assignment edit
       if (isSingleAssignmentEdit && mode === "edit" && assignments.length === 1) {
-        setTimeout(() => {
-          editAssignment(assignments[0]);
-        }, 100);
+        // Instead of opening another modal, we populate the edit form directly
+        const assignment = assignments[0];
+        setEditingAssignmentId(assignment.id);
+        const startObj = from24h(assignment.start_time);
+        const endObj = from24h(assignment.end_time);
+
+        setNewAssignment({
+          operator: assignment.operator_name || "",
+          vendor: assignment.vendor_name || "",
+          operation: assignment.operation_name,
+          type: assignment.assignment_type || "inhouse",
+          startTime: startObj.time,
+          startPeriod: startObj.period,
+          endTime: endObj.time,
+          endPeriod: endObj.period,
+          remarks: assignment.remarks || "",
+          mcr_scrap: assignment.mcr_scrap || "",
+          breakTime: assignment.break_time || "60",
+          status: assignment.status || "Pending"
+        });
       }
 
       // Auto-select first project from assignments if available
@@ -345,7 +347,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       setSelectedProject(null);
       setProjectOperations([]);
     }
-    setEditingAssignmentId(null);
+    // setEditingAssignmentId(null); // Remove this as it resets what we just set above
     setSelectedReleaseEntry(null);
   }, [mode, initialData, isOpen, projects, planDate, calculateHours, isSingleAssignmentEdit]);
 
@@ -461,8 +463,18 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       status: newAssignment.status
     };
 
-    setDailyPlan([...dailyPlan, entry]);
-    toast.success("Assignment added to plan");
+    if (editingAssignmentId) {
+      const updatedPlan = dailyPlan.map(a => a.id === editingAssignmentId ? entry : a);
+      setDailyPlan(updatedPlan);
+      setEditingAssignmentId(null);
+      toast.success("Assignment updated in plan");
+      if (isSingleAssignmentEdit) {
+        onSave({ plan_date: localPlanDate, assignments: updatedPlan });
+      }
+    } else {
+      setDailyPlan([...dailyPlan, entry]);
+      toast.success("Assignment added to plan");
+    }
 
     setNewAssignment({
       operation: "",
@@ -485,7 +497,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     const startObj = from24h(assignment.start_time);
     const endObj = from24h(assignment.end_time);
 
-    setEditForm({
+    const formData = {
       operator: assignment.operator_name || "",
       vendor: assignment.vendor_name || "",
       operation: assignment.operation_name,
@@ -496,51 +508,19 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       endPeriod: endObj.period,
       remarks: assignment.remarks || "",
       mcr_scrap: assignment.mcr_scrap || "",
-      break_time: assignment.break_time || "60",
+      breakTime: assignment.break_time || "60",
       status: assignment.status || "Pending"
-    });
-    setIsEditModalOpen(true);
-  };
+    };
 
-  const handleUpdateAssignment = () => {
-    setDailyPlan(prev => prev.map(a => {
-      if (a.id === editingAssignmentId) {
-        const totalHours = editForm.type === "inhouse"
-          ? calculateHours(editForm.startTime, editForm.startPeriod, editForm.endTime, editForm.endPeriod, editForm.breakTime)
-          : 0;
-        const s24 = editForm.type === "inhouse" ? to24h(editForm.startTime, editForm.startPeriod) : null;
-        const e24 = editForm.type === "inhouse" ? to24h(editForm.endTime, editForm.endPeriod) : null;
-
-        const operator = operators.find(o => o.value === editForm.operator || o.label === editForm.operator);
-        // Try to find in project-specific operations first, then fallback to global operations
-        const projectOp = projectOperations.find(o => o.value === editForm.operation || o.label === editForm.operation);
-        const globalOp = operations.find(o => o.value === editForm.operation || o.name === editForm.operation);
-        const operation = projectOp || globalOp;
-
-        const vendor = editForm.type === "outsource" ? null : vendors.find(v => v.value === editForm.vendor || v.label === editForm.vendor);
-
-        return {
-          ...a,
-          assignment_type: editForm.type,
-          operator_id: operator?.id,
-          operator_name: editForm.operator,
-          vendor_id: vendor?.id,
-          vendor_name: editForm.type === "outsource" ? "" : editForm.vendor,
-          operation_id: operation?.id,
-          operation_name: editForm.operation,
-          start_time: s24,
-          end_time: e24,
-          break_time: editForm.type === "inhouse" ? parseInt(editForm.breakTime || 0) : 0,
-          total_hours: totalHours,
-          remarks: editForm.remarks,
-          status: editForm.status
-        };
+    setNewAssignment(formData);
+    // Auto-select the project if it's different
+    if (assignment.root_card_id && (!selectedProject || selectedProject.id !== assignment.root_card_id)) {
+      const proj = projects.find(p => p.id === assignment.root_card_id);
+      if (proj) {
+        setSelectedProject(proj);
+        fetchProjectOperations(proj.value);
       }
-      return a;
-    }));
-    setIsEditModalOpen(false);
-    setEditingAssignmentId(null);
-    toast.success("Assignment updated");
+    }
   };
 
   const removeAssignment = (id) => {
@@ -575,7 +555,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
   return (
     <>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 bg-slate-900/70 backdrop-blur-md">
-        <div className="bg-slate-50 dark:bg-slate-950 w-full max-w-5xl rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[98vh]">
+        <div className={`bg-slate-50 dark:bg-slate-950 w-full ${isSingleAssignmentEdit ? 'max-w-md' : 'max-w-5xl'} rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[98vh]`}>
           {/* Modal Header - BOM Style */}
         <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
           <div className="flex items-center gap-4">
@@ -612,6 +592,149 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
 
         {/* Modal Content */}
         <div className=" overflow-y-auto flex-1 p-2">
+          {isSingleAssignmentEdit ? (
+            /* Direct Edit Form for Single Assignment Mode */
+            <div className="p-2 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 flex justify-between">
+                  <span>Operation</span>
+                  {phaseStatus.phase1Completed ? (
+                    <span className="text-[10px] text-emerald-500 font-medium">Phase 1 Done</span>
+                  ) : (
+                    <span className="text-[10px] text-amber-500 font-medium">Phase 1 In-Progress</span>
+                  )}
+                </label>
+                <SearchableSelect
+                  options={projectOperations
+                    .filter(op => op.phase === 1 || phaseStatus.phase2Unlocked)
+                    .map(op => ({
+                      ...op,
+                      label: `${op.phase === 2 ? "🎨 " : "⚙️ "}${op.label}`
+                    }))}
+                  value={newAssignment.operation}
+                  onChange={(val) => {
+                    const selectedOp = projectOperations.find(o => o.value === val);
+                    if (selectedOp?.phase === 2 && !phaseStatus.phase2Unlocked) {
+                      toast.warning("Phase 2 operations are hidden until Phase 1 is completed.");
+                      return;
+                    }
+                    setNewAssignment({ ...newAssignment, operation: val });
+                  }}
+                  placeholder={fetchingOps ? "FETCHING..." : "Select Operation..."}
+                  allowCustom={true}
+                  disabled={!selectedProject}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400">Type</label>
+                <select
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                  value={newAssignment.type}
+                  onChange={(e) => setNewAssignment({ ...newAssignment, type: e.target.value, operator: "", vendor: "" })}
+                >
+                  <option value="inhouse">In-house</option>
+                  <option value="outsource">Outsource</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                {newAssignment.type === "inhouse" ? (
+                  <>
+                    <label className="text-xs text-slate-400">Operator</label>
+                    <SearchableSelect
+                      options={operators}
+                      value={newAssignment.operator}
+                      onChange={(val) => setNewAssignment({ ...newAssignment, operator: val })}
+                      placeholder="Select Operator..."
+                      allowCustom={true}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <label className="text-xs text-slate-400">Vendor</label>
+                    <SearchableSelect
+                      options={vendors}
+                      value={newAssignment.vendor}
+                      onChange={(val) => setNewAssignment({ ...newAssignment, vendor: val })}
+                      placeholder="Select Vendor..."
+                      allowCustom={true}
+                    />
+                  </>
+                )}
+              </div>
+
+              {newAssignment.type === "inhouse" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-slate-400">Start Time</label>
+                    <div className="flex gap-1">
+                      <input
+                        type="time"
+                        className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                        value={newAssignment.startTime}
+                        onChange={(e) => setNewAssignment({ ...newAssignment, startTime: e.target.value })}
+                      />
+                      <select
+                        className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                        value={newAssignment.startPeriod}
+                        onChange={(e) => setNewAssignment({ ...newAssignment, startPeriod: e.target.value })}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs text-slate-400">End Time</label>
+                    <div className="flex gap-1">
+                      <input
+                        type="time"
+                        className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                        value={newAssignment.endTime}
+                        onChange={(e) => setNewAssignment({ ...newAssignment, endTime: e.target.value })}
+                      />
+                      <select
+                        className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                        value={newAssignment.endPeriod}
+                        onChange={(e) => setNewAssignment({ ...newAssignment, endPeriod: e.target.value })}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400">Remarks</label>
+                <input
+                  type="text"
+                  placeholder="Instructions or remarks..."
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                  value={newAssignment.remarks}
+                  onChange={(e) => setNewAssignment({ ...newAssignment, remarks: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400">Status</label>
+                <select
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
+                  value={newAssignment.status}
+                  onChange={(e) => setNewAssignment({ ...newAssignment, status: e.target.value })}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Partially Completed">Partially Completed</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Delayed">Delayed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+              </div>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Main Area */}
             <div className="lg:col-span-12 space-y-4">
@@ -828,8 +951,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                               onClick={handleAddAssignment}
                               className="w-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded  text-xs transition-all flex items-center justify-center gap-2"
                             >
-                              <Plus size={14} />
-                              Add
+                              {editingAssignmentId ? <Check size={14} /> : <Plus size={14} />}
+                              {editingAssignmentId ? "Update" : "Add"}
                             </button>
                           </div>
                         </div>
@@ -868,6 +991,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               ) : null}
             </div>
           </div>
+        )}
         </div>
 
         {/* Modal Footer */}
@@ -877,12 +1001,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           </button>
           {mode !== "view" && (
             <button
-              onClick={handleFinalize}
+              onClick={isSingleAssignmentEdit ? handleAddAssignment : handleFinalize}
               disabled={loading}
               className="p-2 bg-indigo-600 text-white rounded text-xs    hover:bg-indigo-700 transition-all  shadow-indigo-600/30 flex items-center gap-2 disabled:opacity-50"
             >
-              {loading ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-              {mode === "edit" ? "Update Today's Plan" : "Finalize Today's Plan"}
+              {loading ? <Loader2 size={15} className="animate-spin" /> : isSingleAssignmentEdit ? <Check size={15} /> : <Save size={15} />}
+              {isSingleAssignmentEdit ? "Update Assignment" : mode === "edit" ? "Update Today's Plan" : "Finalize Today's Plan"}
             </button>
           )}
         </div>
@@ -954,169 +1078,6 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           </div>
         )}
       </div>
-      {/* Assignment Edit Popup Modal */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-amber-500 text-white rounded">
-                  <Edit2 size={15} />
-                </div>
-                <h3 className="text-sm  text-slate-900 dark:text-white">Edit Assignment</h3>
-              </div>
-              <button onClick={() => { setIsEditModalOpen(false); setEditingAssignmentId(null); }} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
-                <X size={15} className="text-slate-500" />
-              </button>
-            </div>
-            
-            <div className="p-4 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs  text-slate-400  flex justify-between">
-                  <span>Operation</span>
-                  {phaseStatus.phase1Completed ? (
-                    <span className="text-[10px] text-emerald-500 font-medium">Phase 1 Done</span>
-                  ) : (
-                    <span className="text-[10px] text-amber-500 font-medium">Phase 1 In-Progress</span>
-                  )}
-                </label>
-                <SearchableSelect
-                  options={projectOperations
-                    .filter(op => op.phase === 1 || phaseStatus.phase2Unlocked)
-                    .map(op => ({
-                      ...op,
-                      label: `${op.phase === 2 ? "🎨 " : "⚙️ "}${op.label}`
-                    }))}
-                  value={editForm.operation}
-                  onChange={(val) => {
-                    const selectedOp = projectOperations.find(o => o.value === val);
-                    if (selectedOp?.phase === 2 && !phaseStatus.phase2Unlocked) {
-                      toast.warning("Phase 2 operations are hidden until Phase 1 is completed.");
-                      return;
-                    }
-                    setEditForm({ ...editForm, operation: val });
-                  }}
-                  placeholder={fetchingOps ? "FETCHING..." : "Select Operation..."}
-                  allowCustom={true}
-                  disabled={!selectedProject}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs  text-slate-400  ">Type</label>
-                <select
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                  value={editForm.type}
-                  onChange={(e) => setEditForm({ ...editForm, type: e.target.value, operator: "", vendor: "" })}
-                >
-                  <option value="inhouse">In-house</option>
-                  <option value="outsource">Outsource</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                {editForm.type === "inhouse" && (
-                  <>
-                    <label className="text-xs  text-slate-400  ">Operator</label>
-                    <SearchableSelect
-                      options={operators}
-                      value={editForm.operator}
-                      onChange={(val) => setEditForm({ ...editForm, operator: val })}
-                      placeholder="Select Operator..."
-                      allowCustom={true}
-                    />
-                  </>
-                )}
-              </div>
-
-              {editForm.type === "inhouse" && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs  text-slate-400  ">Start Time</label>
-                    <div className="flex gap-1">
-                      <input
-                        type="time"
-                        className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                        value={editForm.startTime}
-                        onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
-                      />
-                      <select
-                        className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                        value={editForm.startPeriod}
-                        onChange={(e) => setEditForm({ ...editForm, startPeriod: e.target.value })}
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs  text-slate-400  ">End Time</label>
-                    <div className="flex gap-1">
-                      <input
-                        type="time"
-                        className="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                        value={editForm.endTime}
-                        onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
-                      />
-                      <select
-                        className="p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                        value={editForm.endPeriod}
-                        onChange={(e) => setEditForm({ ...editForm, endPeriod: e.target.value })}
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <label className="text-xs  text-slate-400  ">Remarks</label>
-                <input
-                  type="text"
-                  placeholder="Instructions or remarks..."
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                  value={editForm.remarks}
-                  onChange={(e) => setEditForm({ ...editForm, remarks: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs  text-slate-400  ">Status</label>
-                <select
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs outline-none focus:border-indigo-500"
-                  value={editForm.status}
-                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Partially Completed">Partially Completed</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Delayed">Delayed</option>
-                  <option value="On Hold">On Hold</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
-              <button 
-                onClick={() => { setIsEditModalOpen(false); setEditingAssignmentId(null); }}
-                className="px-4 py-2 text-xs  text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleUpdateAssignment}
-                className="px-6 py-2 bg-indigo-600 text-white rounded text-xs  hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2"
-              >
-                <Check size={14} /> Update Assignment
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   </>
 );
@@ -3465,6 +3426,27 @@ const DailyProductionPlanningPage = () => {
           {assignment.assignment_type === "inhouse" ? format12h(value) : "-"}
         </span>
       )
+    },
+    {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (value, assignment) => {
+        const getStatusStyle = (status) => {
+          switch (status) {
+            case 'Completed': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+            case 'In Progress': return 'bg-blue-50 text-blue-600 border-blue-100';
+            case 'Partially Completed': return 'bg-amber-50 text-amber-600 border-amber-100';
+            case 'Delayed': return 'bg-rose-50 text-rose-600 border-rose-100';
+            default: return 'bg-slate-50 text-slate-600 border-slate-100';
+          }
+        };
+        return (
+          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${getStatusStyle(value || assignment.status)}`}>
+            {value || assignment.status || "Pending"}
+          </span>
+        );
+      }
     },
     {
       key: "actions",

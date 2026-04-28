@@ -275,6 +275,7 @@ const getStockBalance = async (req, res) => {
                    MD5(CONCAT(l1.item_code, l1.material_name, IFNULL(l1.project_name, ''), IFNULL(l1.vendor_name, ''))) as id
             FROM stock_ledger l1
             GROUP BY l1.item_code, l1.material_name, l1.uom, l1.project_name, l1.vendor_name
+            ORDER BY updatedAt DESC
         `;
         
         if (onlyWithStock === 'true') {

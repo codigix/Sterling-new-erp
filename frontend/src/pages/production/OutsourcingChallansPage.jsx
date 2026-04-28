@@ -23,6 +23,8 @@ import axios from "../../utils/api";
 import { toast } from "react-toastify";
 import { exportChallanToPDF } from "../../utils/challanPdfExport";
 import ViewOutwardChallanModal from "../../components/production/ViewOutwardChallanModal";
+import ViewInwardChallanModal from "../../components/production/ViewInwardChallanModal";
+import CreateInwardChallanModal from "../../components/production/CreateInwardChallanModal";
 
 const OutsourcingChallansPage = () => {
   const [activeTab, setActiveTab] = useState("outward");
@@ -32,21 +34,28 @@ const OutsourcingChallansPage = () => {
   const [inwardChallans, setInwardChallans] = useState([]);
   const [projects, setProjects] = useState([]);
 
-  // View Detail Modal State
+  // Modal State
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isInwardViewModalOpen, setIsInwardViewModalOpen] = useState(false);
+  const [isCreateInwardModalOpen, setIsCreateInwardModalOpen] = useState(false);
   const [selectedChallanId, setSelectedChallanId] = useState(null);
+  const [selectedOutwardChallan, setSelectedOutwardChallan] = useState(null);
   const [downloading, setDownloading] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [challansRes, projectsRes] = await Promise.all([
+      const [outwardRes, inwardRes, projectsRes] = await Promise.all([
         axios.get("/production/outward-challans"),
+        axios.get("/production/inward-challans"),
         axios.get("/production/root-cards")
       ]);
 
-      if (challansRes.data.success) {
-        setOutwardChallans(challansRes.data.challans || []);
+      if (outwardRes.data.success) {
+        setOutwardChallans(outwardRes.data.challans || []);
+      }
+      if (inwardRes.data.success) {
+        setInwardChallans(inwardRes.data.challans || []);
       }
       if (projectsRes.data.success) {
         setProjects(projectsRes.data.rootCards || []);
@@ -158,6 +167,18 @@ const OutsourcingChallansPage = () => {
           >
             {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           </button>
+          {row.status !== "RECEIVED" && (
+            <button 
+              onClick={() => {
+                setSelectedOutwardChallan(row);
+                setIsCreateInwardModalOpen(true);
+              }}
+              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" 
+              title="Create Inward Challan"
+            >
+              <Truck size={16} />
+            </button>
+          )}
           <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Delete">
             <Trash2 size={16} />
           </button>
@@ -168,18 +189,67 @@ const OutsourcingChallansPage = () => {
 
   const inwardColumns = [
     {
-      key: "id",
+      key: "challan_no",
       label: "Challan Info",
       render: (val, row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-slate-900 dark:text-white">{row.id}</span>
-          <span className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-            <RotateCcw size={12} /> {row.date}
+          <span className="font-bold text-slate-900 dark:text-white">{row.challan_no}</span>
+          <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-1">
+            <Calendar size={10} /> {new Date(row.challan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
         </div>
       )
     },
-    // ... rest of columns can remain as placeholders for now
+    {
+      key: "outward_challan_no",
+      label: "Ref Outward",
+      render: (val) => (
+        <span className="text-xs font-semibold text-indigo-600">{val || "N/A"}</span>
+      )
+    },
+    {
+      key: "project_name",
+      label: "Project",
+      render: (val) => (
+        <span className="text-sm font-bold text-slate-900 dark:text-white">{val || "N/A"}</span>
+      )
+    },
+    {
+      key: "vendor_name",
+      label: "Vendor",
+      render: (val) => (
+        <span className="text-xs text-slate-700 dark:text-slate-300">{val}</span>
+      )
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (val) => (
+        <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${
+          val === "SUBMITTED" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
+          "bg-slate-50 text-slate-600 border-slate-100"
+        }`}>{val}</span>
+      )
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right",
+      render: (val, row) => (
+        <div className="flex items-center justify-end gap-1">
+          <button 
+            onClick={() => {
+              setSelectedChallanId(row.id);
+              setIsInwardViewModalOpen(true);
+            }}
+            className="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" 
+            title="View Details"
+          >
+            <Eye size={16} />
+          </button>
+        </div>
+      )
+    }
   ];
 
   const filteredChallans = (activeTab === "outward" ? outwardChallans : inwardChallans).filter(challan => {
@@ -295,6 +365,25 @@ const OutsourcingChallansPage = () => {
            setSelectedChallanId(null);
         }}
         challanId={selectedChallanId}
+      />
+
+      <ViewInwardChallanModal
+        isOpen={isInwardViewModalOpen}
+        onClose={() => {
+           setIsInwardViewModalOpen(false);
+           setSelectedChallanId(null);
+        }}
+        challanId={selectedChallanId}
+      />
+
+      <CreateInwardChallanModal
+        isOpen={isCreateInwardModalOpen}
+        onClose={() => {
+          setIsCreateInwardModalOpen(false);
+          setSelectedOutwardChallan(null);
+        }}
+        outwardChallan={selectedOutwardChallan}
+        onSuccess={fetchData}
       />
     </div>
   );

@@ -46,4 +46,9 @@ router.post('/outward-challans', productionController.createOutwardChallan);
 router.get('/outward-challans', productionController.getOutwardChallans);
 router.get('/outward-challans/:id', productionController.getOutwardChallanDetails);
 
+// Inward Challan Routes
+router.post('/inward-challans', productionController.createInwardChallan);
+router.get('/inward-challans', productionController.getInwardChallans);
+router.get('/inward-challans/:id', productionController.getInwardChallanDetails);
+
 module.exports = router;

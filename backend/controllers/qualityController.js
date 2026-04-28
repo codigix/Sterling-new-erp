@@ -33,20 +33,31 @@ exports.getQualityTasks = async (req, res) => {
     const query = `
       SELECT * FROM (
         -- Phase 1 Tasks: Show if P1 is pending OR if it's approved (so it remains visible)
-        SELECT rc.*, 1 as current_phase, CONCAT(rc.id, '-1') as task_id,
+        SELECT DISTINCT rc.*, 1 as current_phase, CONCAT(rc.id, '-1') as task_id,
           (SELECT COUNT(*) FROM project_inspections WHERE root_card_id = rc.id AND phase = 1) as total_tests,
           (SELECT COUNT(*) FROM project_inspections WHERE root_card_id = rc.id AND phase = 1 AND status = 'Approved') as approved_tests
         FROM root_cards rc 
-        WHERE rc.status IN ("QC_PENDING", "DIMENSIONAL_QC_PENDING", "DIMENSIONAL_QC_APPROVED", "PHASE_2_QC_PENDING", "PHASE_2_QC_APPROVED")
+        WHERE rc.status IN (
+          "QC_PENDING", "DIMENSIONAL_QC_PENDING", "DIMENSIONAL_QC_APPROVED", 
+          "PHASE_2_QC_PENDING", "PHASE_2_QC_APPROVED",
+          "Production completed and send to Quality fot QC",
+          "send to production for complete final produciton",
+          "final Prodcution completed and send to quality for final qc",
+          "Redy for Dispatch"
+        )
 
         UNION ALL
 
         -- Phase 2 Tasks: Show only if Phase 2 is actually pending or approved
-        SELECT rc.*, 2 as current_phase, CONCAT(rc.id, '-2') as task_id,
+        SELECT DISTINCT rc.*, 2 as current_phase, CONCAT(rc.id, '-2') as task_id,
           (SELECT COUNT(*) FROM project_inspections WHERE root_card_id = rc.id AND phase = 2) as total_tests,
           (SELECT COUNT(*) FROM project_inspections WHERE root_card_id = rc.id AND phase = 2 AND status = 'Approved') as approved_tests
         FROM root_cards rc 
-        WHERE rc.status IN ("PHASE_2_QC_PENDING", "PHASE_2_QC_APPROVED")
+        WHERE rc.status IN (
+          "PHASE_2_QC_PENDING", "PHASE_2_QC_APPROVED",
+          "final Prodcution completed and send to quality for final qc",
+          "Redy for Dispatch"
+        )
       ) as combined_tasks
       ORDER BY updated_at DESC
     `;
@@ -73,7 +84,9 @@ exports.approveDimensionalInspection = async (req, res) => {
     const projectName = rcs.length > 0 ? rcs[0].project_name : root_card_id;
 
     // 2. Update Root Card status based on phase
-    const newStatus = phase === 1 ? 'DIMENSIONAL_QC_APPROVED' : 'PHASE_2_QC_APPROVED';
+    const newStatus = phase === 1 
+      ? 'send to production for complete final produciton' 
+      : 'Redy for Dispatch';
     await connection.query(
       "UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
       [newStatus, root_card_id]
@@ -489,7 +502,7 @@ exports.createFinalQCReport = async (req, res) => {
                 if (item.st_numbers && item.st_numbers.length > 0) {
                     for (const st of item.st_numbers) {
                         await connection.query(
-                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            `INSERT INTO quality_final_report_st_numbers (report_item_id, st_code, item_code, status, length, width, thickness, diameter, outer_diameter, height, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                             [
                                 reportItemId, 
                                 st.st_code, 

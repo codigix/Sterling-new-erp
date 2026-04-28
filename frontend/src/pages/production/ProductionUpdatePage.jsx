@@ -371,17 +371,7 @@ const ProductionUpdatePage = () => {
     const list = [];
     filteredProjects.forEach(project => {
       if (project.stages && project.stages.length > 0) {
-        // Check if all Phase 1 operations are completed AND Phase 1 QC is approved
-        const phase1Ops = project.stages.filter(s => (s.phase || 1) === 1);
-        const allPhase1Completed = phase1Ops.length > 0 && phase1Ops.every(s => s.status === 'Completed');
-        const phase1QCApproved = ['DIMENSIONAL_QC_APPROVED', 'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'].includes(project.status);
-
         project.stages.forEach((stage, index) => {
-          // Hide Phase 2 operations until Phase 1 is fully complete and approved by Quality
-          if ((stage.phase || 1) === 2 && (!allPhase1Completed || !phase1QCApproved)) {
-            return;
-          }
-
           list.push({
             ...stage,
             projectName: project.project_name || project.title,
@@ -489,16 +479,12 @@ const ProductionUpdatePage = () => {
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] text-slate-400 font-mono">{row.projectId}</span>
-                      {row.projectData?.status === 'DIMENSIONAL_QC_PENDING' && (
+                      {(row.projectData?.status === 'DIMENSIONAL_QC_PENDING' || row.projectData?.status === 'Production completed and send to Quality fot QC' || row.projectData?.status === 'final Prodcution completed and send to quality for final qc') && (
                         <span className="text-[9px] bg-indigo-50 text-indigo-600 px-1 rounded font-bold border border-indigo-100 flex items-center gap-0.5">
                           <Clock size={8} /> UNDER INSPECTION
                         </span>
                       )}
-                      {row.projectData?.status === 'DIMENSIONAL_QC_APPROVED' && (
-                        <span className="text-[9px] bg-emerald-50 text-emerald-600 px-1 rounded font-bold border border-emerald-100 flex items-center gap-0.5">
-                          <CheckCircle2 size={8} /> QC APPROVED
-                        </span>
-                      )}
+
                     </div>
                   </div>
                 )

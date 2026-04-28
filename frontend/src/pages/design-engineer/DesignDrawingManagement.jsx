@@ -57,7 +57,6 @@ const DesignDrawingManagement = () => {
   });
 
   const [activeTab, setActiveTab] = useState("active");
-  const [expandedDocs, setExpandedDocs] = useState(new Set());
   const [docHistories, setDocHistories] = useState({});
   const [fetchingHistory, setFetchingHistory] = useState({});
 
@@ -104,7 +103,6 @@ const DesignDrawingManagement = () => {
 
   useEffect(() => {
     fetchDocuments();
-    setExpandedDocs(new Set());
     setDocHistories({});
   }, [rootCardId]);
 
@@ -179,7 +177,7 @@ const DesignDrawingManagement = () => {
         // If it was a revision, refresh the expanded history
         if (isRevision && selectedDoc) {
           const docKey = selectedDoc.parent_id || selectedDoc.id;
-          if (expandedDocs.has(docKey)) {
+          if (docHistories[docKey]) {
             await fetchDocHistory(selectedDoc);
           }
         }
@@ -219,7 +217,7 @@ const DesignDrawingManagement = () => {
         
         // Refresh expanded history
         const docKey = selectedDoc.parent_id || selectedDoc.id;
-        if (expandedDocs.has(docKey)) {
+        if (docHistories[docKey]) {
           await fetchDocHistory(selectedDoc);
         }
       }
@@ -247,7 +245,7 @@ const DesignDrawingManagement = () => {
         fetchDocuments(true);
         // Refresh expanded history if needed
         const docKey = selectedDoc.parent_id || selectedDoc.id;
-        if (expandedDocs.has(docKey)) {
+        if (docHistories[docKey]) {
           await fetchDocHistory(selectedDoc);
         }
       }
@@ -298,7 +296,7 @@ const DesignDrawingManagement = () => {
           fetchDocuments(true);
           // Refresh expanded history if needed
           const docKey = doc.parent_id || doc.id;
-          if (expandedDocs.has(docKey)) {
+          if (docHistories[docKey]) {
              await fetchDocHistory(doc);
           }
         }
@@ -332,11 +330,6 @@ const DesignDrawingManagement = () => {
           toast.success(response.data.message || "Drawing has been deleted.");
           fetchDocuments(true);
           if (deleteAll) {
-            setExpandedDocs(prev => {
-              const newState = new Set(prev);
-              newState.delete(docId);
-              return newState;
-            });
             setDocHistories(prev => {
               const newState = { ...prev };
               delete newState[docId];

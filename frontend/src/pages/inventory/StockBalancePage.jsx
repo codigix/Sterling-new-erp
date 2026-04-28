@@ -90,7 +90,6 @@ const SerialDetailTable = ({ item }) => {
 
 const StockBalancePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedItem, setExpandedItem] = useState(null);
@@ -170,14 +169,6 @@ const StockBalancePage = () => {
     }
   };
 
-  const filteredData = stockData.filter((item) => {
-    const matchesSearch =
-      (item.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.code || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.project_name || "").toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -223,11 +214,21 @@ const StockBalancePage = () => {
                     <p className="text-xs  text-slate-900 dark:text-white   line-clamp-2 leading-tight">
                       {item.name}
                     </p>
-                    <div className="text-xs text-blue-600 font-mono">
-                      {renderDimensions(item)}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="p-1 bg-slate-100 dark:bg-slate-800 text-[10px] text-slate-500 rounded font-mono border border-slate-200 dark:border-slate-700">
+                        {item.code}
+                      </span>
+                      <div className="text-[10px] text-blue-600 font-mono">
+                        {renderDimensions(item)}
+                      </div>
                     </div>
                   </div>
                 )
+              },
+              {
+                key: "code",
+                label: "Item Code",
+                render: (val) => <span className="font-mono text-slate-500">{val}</span>
               },
               {
                 key: "quantity",
