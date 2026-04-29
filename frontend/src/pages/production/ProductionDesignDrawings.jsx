@@ -39,8 +39,29 @@ const ProductionDesignDrawings = () => {
     try {
       const response = await axios.get("/root-cards");
       const cards = Array.isArray(response.data) ? response.data : response.data.rootCards || [];
-      // Only show root cards that have been sent to Design Engineering (not in RC_CREATED status)
-      const filteredCards = cards.filter(card => card.status !== 'RC_CREATED');
+      
+      // Only show root cards that have been sent to Production (starting from BOM_PREPARATION)
+      const productionStatuses = [
+        'BOM_PREPARATION', 'Released', 'Production', 'Partially Completed', 'MATERIAL_PLANNING', 
+        'PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 
+        'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED',
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'UNDER INSPECTION',
+        'READY_FOR_PRODUCTION', 'READY_FOR_PHASE_2', 'QC_APPROVED',
+        'Production completed and send to Quality fot QC',
+        'send to production for complete final produciton',
+        'final Prodcution completed and send to quality for final qc',
+        'Redy for Dispatch',
+        'PROCUREMENT_IN_PROGRESS', 
+        'MATERIAL_RECEIVED', 
+        'MATERIAL_QC_PENDING', 
+        'MATERIAL_QC_APPROVED', 
+        'PAINTING_IN_PROGRESS', 
+        'FINAL_QC_PENDING', 
+        'FINAL_QC_APPROVED', 
+        'READY_FOR_DELIVERY'
+      ];
+      
+      const filteredCards = cards.filter(card => productionStatuses.includes(card.status));
       setRootCards(filteredCards);
     } catch (error) {
       console.error("Failed to fetch root cards:", error);

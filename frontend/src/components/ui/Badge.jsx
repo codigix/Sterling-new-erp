@@ -27,7 +27,7 @@ const Badge = ({
     lg: 'p-1 text-xs rounded '
   };
 
-  const variantClasses = !className ? variants[variant] : '';
+  const variantClasses = variant !== 'default' ? (variants[variant] || '') : (className ? '' : variants.default);
   const classes = `${baseClasses} ${variantClasses} ${sizes[size]} ${className}`;
 
   return (

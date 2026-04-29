@@ -197,19 +197,30 @@ const ViewBOMsPage = () => {
     {
       key: "status",
       label: "STATUS",
-      render: (val) => (
-        <Badge 
-          variant={
-            val === 'active' ? 'success' : 
-            val === 'approved' ? 'primary' : 
-            val === 'request_sent' ? 'info' : 
-            'warning'
+      render: (val) => {
+        const getStatusStyles = (status) => {
+          switch (status?.toLowerCase()) {
+            case 'approved':
+              return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            case 'request_sent':
+              return 'bg-blue-100 text-blue-800 border-blue-300';
+            case 'active':
+              return 'bg-green-100 text-green-800 border-green-300';
+            case 'draft':
+              return 'bg-slate-200 text-slate-800 border-slate-300';
+            default:
+              return 'bg-amber-100 text-amber-800 border-amber-300';
           }
-          className="capitalize text-xs"
-        >
-          {val === 'request_sent' ? 'Material Request Sent' : val?.replace('_', ' ')}
-        </Badge>
-      )
+        };
+
+        return (
+          <Badge 
+            className={`capitalize text-[10px] px-2 py-0.5 border ${getStatusStyles(val)}`}
+          >
+            {val === 'request_sent' ? 'Material Request Sent' : val?.replace('_', ' ')}
+          </Badge>
+        );
+      }
     },
     {
       key: "isActive",
