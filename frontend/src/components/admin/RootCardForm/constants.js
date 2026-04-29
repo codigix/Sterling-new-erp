@@ -106,6 +106,10 @@ export const STATUS_LEVELS = [
   { value: "FINAL_QC_PENDING", label: "Final QC Pending" },
   { value: "FINAL_QC_APPROVED", label: "Final QC Approved" },
   { value: "READY_FOR_DELIVERY", label: "Ready for Delivery" },
+  { value: "Production completed and send to Quality fot QC", label: "Production Completed - QC Pending" },
+  { value: "send to production for complete final produciton", label: "Sent for Final Production" },
+  { value: "final Prodcution completed and send to quality for final qc", label: "Final Production Completed" },
+  { value: "Redy for Dispatch", label: "Ready for Dispatch" },
 ];
 
 export const DELIVERY_MODES = [

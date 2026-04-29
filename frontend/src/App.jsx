@@ -160,6 +160,7 @@ function App() {
                 <Route path="reports" element={<ReportsAnalytics />} />
                 <Route path="audit-logs" element={<AuditLogs />} />
                 <Route path="settings" element={<SystemSettings />} />
+                <Route path="notifications" element={<NotificationsPage />} />
               </Route>
               
               {/* Department Routes - Task-Oriented Pages */}
@@ -180,6 +181,7 @@ function App() {
                 <Route path="production/tasks" element={<DepartmentPortalTasksPage />} />
                 <Route path="tasks" element={<DepartmentPortalTasksPage />} />
                 <Route path="root-cards/tasks" element={<DepartmentPortalTasksPage />} />
+                <Route path="notifications" element={<NotificationsPage />} />
                 
                 {/* Production Flow Routes */}
                 <Route path="production/root-cards" element={<UniversalRootCardsPage />} />
@@ -215,6 +217,7 @@ function App() {
                 <Route path="alerts" element={<EmployeeAlerts />} />
                 <Route path="updates" element={<EmployeeUpdates />} />
                 <Route path="settings" element={<EmployeeSettings />} />
+                <Route path="notifications" element={<NotificationsPage />} />
               </Route>
               
               {/* Legacy Employee Portal */}
@@ -235,7 +238,6 @@ function App() {
               </Route>
               
               {/* Shared Pages */}
-              <Route path="/notifications" element={<NotificationsPage />} />
               
               {/* Role-Based Dashboards */}
               <Route path="/design-engineer/*" element={<DesignEngineerLayout />} />

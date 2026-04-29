@@ -90,6 +90,12 @@ const AdminLayout = () => {
       icon: Settings,
       badge: null,
     },
+    {
+      title: "Notifications",
+      path: "/admin/notifications",
+      icon: Bell,
+      badge: null,
+    },
   ];
 
   const isActive = (path) => {

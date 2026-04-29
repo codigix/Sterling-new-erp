@@ -207,7 +207,7 @@ const ViewBOMsPage = () => {
           }
           className="capitalize text-xs"
         >
-          {val?.replace('_', ' ')}
+          {val === 'request_sent' ? 'Material Request Sent' : val?.replace('_', ' ')}
         </Badge>
       )
     },
@@ -248,13 +248,15 @@ const ViewBOMsPage = () => {
           >
             <Eye size={15} />
           </button>
-          <button 
-            onClick={() => handleMaterialRequest(row.id)}
-            className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
-            title="Send Material Request"
-          >
-            <Send size={15} />
-          </button>
+          {row.status !== 'request_sent' && (
+            <button 
+              onClick={() => handleMaterialRequest(row.id)}
+              className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
+              title="Send Material Request"
+            >
+              <Send size={15} />
+            </button>
+          )}
           <button 
             onClick={() => navigate(`/department/production/bom/create?bomId=${row.id}`)}
             className="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 transition-colors"

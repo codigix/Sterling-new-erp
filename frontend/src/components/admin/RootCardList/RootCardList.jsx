@@ -192,46 +192,54 @@ const RootCardList = ({
       sortable: true,
       render: (value, row) => {
         const statusColors = {
-          pending: ' text-slate-900 border-slate-300',
-          RC_CREATED: ' text-slate-900 border-slate-300',
-          DESIGN_IN_PROGRESS: ' text-blue-700 border-blue-200',
-          QUALITY_QAP_PENDING: ' text-amber-700 border-amber-200',
-          DESIGN_QAP_REVIEW: ' text-indigo-700 border-indigo-200',
-          DESIGN_APPROVED: ' text-green-700 border-green-200',
-          BOM_PREPARATION: ' text-purple-700 border-purple-200',
-          MATERIAL_PLANNING: ' text-amber-700 border-amber-200',
-          PURCHASE_ORDER_RELEASED: ' text-green-700 border-green-200',
-          PROCUREMENT_IN_PROGRESS: ' text-orange-700 border-orange-200',
-          MATERIAL_RECEIVED: ' text-cyan-700 border-cyan-200',
-          MATERIAL_QC_PENDING: ' text-yellow-700 border-yellow-200',
-          MATERIAL_QC_APPROVED: ' text-emerald-700 border-emerald-200',
-          PRODUCTION_IN_PROGRESS: ' text-indigo-700 border-indigo-200',
-          DIMENSIONAL_QC_PENDING: ' text-yellow-700 border-yellow-200',
-          DIMENSIONAL_QC_APPROVED: ' text-emerald-700 border-emerald-200',
-          PAINTING_IN_PROGRESS: ' text-pink-700 border-pink-200',
-          FINAL_QC_PENDING: ' text-yellow-700 border-yellow-200',
-          FINAL_QC_APPROVED: ' text-green-700 border-green-200',
-          READY_FOR_DELIVERY: ' text-teal-700 border-teal-200',
+          pending: 'bg-slate-50 text-slate-700 border-slate-200',
+          RC_CREATED: 'bg-slate-50 text-slate-700 border-slate-200',
+          DESIGN_IN_PROGRESS: 'bg-blue-50 text-blue-700 border-blue-100',
+          QUALITY_QAP_PENDING: 'bg-amber-50 text-amber-700 border-amber-100',
+          DESIGN_QAP_REVIEW: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+          DESIGN_APPROVED: 'bg-green-50 text-green-700 border-green-100',
+          BOM_PREPARATION: 'bg-purple-50 text-purple-700 border-purple-100',
+          MATERIAL_PLANNING: 'bg-amber-50 text-amber-700 border-amber-100',
+          PURCHASE_ORDER_RELEASED: 'bg-green-50 text-green-700 border-green-100',
+          PROCUREMENT_IN_PROGRESS: 'bg-orange-50 text-orange-700 border-orange-100',
+          MATERIAL_RECEIVED: 'bg-cyan-50 text-cyan-700 border-cyan-100',
+          MATERIAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-100',
+          MATERIAL_QC_APPROVED: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+          PRODUCTION_IN_PROGRESS: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+          DIMENSIONAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-100',
+          DIMENSIONAL_QC_APPROVED: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+          PAINTING_IN_PROGRESS: 'bg-pink-50 text-pink-700 border-pink-100',
+          FINAL_QC_PENDING: 'bg-yellow-50 text-yellow-700 border-yellow-100',
+          FINAL_QC_APPROVED: 'bg-green-50 text-green-700 border-green-100',
+          READY_FOR_DELIVERY: 'bg-teal-50 text-teal-700 border-teal-100',
+          'Production completed and send to Quality fot QC': 'bg-blue-50 text-blue-700 border-blue-100',
+          'send to production for complete final produciton': 'bg-indigo-50 text-indigo-700 border-indigo-100',
+          'final Prodcution completed and send to quality for final qc': 'bg-emerald-50 text-emerald-700 border-emerald-100',
+          'Redy for Dispatch': 'bg-green-50 text-green-700 border-green-100',
         };
 
         const colorClass = statusColors[value] || statusColors.RC_CREATED;
+        const level = STATUS_LEVELS.find(l => l.value === (value || 'RC_CREATED'));
+        const statusLabel = level ? level.label : (value || 'Created');
+
+        const statusBadge = (
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${colorClass}`}>
+            {statusLabel}
+          </span>
+        );
 
         if (!isAdmin) {
-          const level = STATUS_LEVELS.find(l => l.value === (value || 'RC_CREATED'));
-          return (
-            <span className={` rounded text-xxs ${colorClass}`}>
-              {level ? level.label : (value || 'Created')}
-            </span>
-          );
+          return statusBadge;
         }
 
         return (
-          <div className={`min-w-[150px] -mt-3 ${colorClass}`}>
+          <div className="min-w-[150px] -mt-1">
             <Select
               value={value || 'RC_CREATED'}
               onChange={(e) => handleStatusChange(row.id, e.target.value)}
               disabled={updatingStatus === row.id}
-              className="text-xxs !py-1"
+              className="text-[10px] !py-0"
+              containerClassName="!space-y-0"
             >
               {STATUS_LEVELS.map((level) => (
                 <option key={level.value} value={level.value}>

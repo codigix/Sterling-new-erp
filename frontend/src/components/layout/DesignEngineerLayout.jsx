@@ -23,6 +23,9 @@ import DesignQAPReviewPage from '../../pages/design-engineer/DesignQAPReviewPage
 // Reports
 import DesignEngineerReportsPage from '../../pages/design-engineer/DesignEngineerReportsPage';
 
+// Notifications
+import NotificationsPage from '../../pages/notifications/NotificationsPage';
+
 // Project Details
 import UniversalRootCardsPage from '../../pages/shared/UniversalRootCardsPage';
 import UniversalRootCardDetailPage from '../../pages/shared/UniversalRootCardDetailPage';
@@ -59,6 +62,11 @@ const navigationItems = [
     title: 'Reports',
     path: '/design-engineer/reports',
     icon: BarChart3,
+  },
+  {
+    title: 'Notifications',
+    path: '/design-engineer/notifications',
+    icon: AlertCircle,
   },
 ];
 
@@ -115,6 +123,9 @@ const DesignEngineerLayout = () => {
         
         {/* Reports Route */}
         <Route path="reports" element={<DesignEngineerReportsPage />} />
+        
+        {/* Notifications Route */}
+        <Route path="notifications" element={<NotificationsPage />} />
         
         <Route path="*" element={<Navigate to="/design-engineer/dashboard" replace />} />
       </Routes>

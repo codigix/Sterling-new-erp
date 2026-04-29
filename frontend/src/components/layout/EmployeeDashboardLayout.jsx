@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import NotificationBell from "../common/NotificationBell";
+import NotificationsPage from "../../pages/notifications/NotificationsPage";
 import {
   LayoutDashboard,
   Users,
@@ -68,6 +69,11 @@ const EmployeeDashboardLayout = () => {
       title: "Updates",
       path: "/employee/updates",
       icon: TrendingUp,
+    },
+    {
+      title: "Notifications",
+      path: "/employee/notifications",
+      icon: AlertCircle,
     },
   ];
 

@@ -790,8 +790,12 @@ const DepartmentLayout = () => {
               <ul className="space-y-1">
                 <li>
                   <Link
-                    to="/notifications"
-                    className="flex items-center text-xs px-3 py-2 text-sm  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    to="/department/notifications"
+                    className={`flex items-center text-xs px-3 py-2 text-sm rounded transition-colors ${
+                      isActive("/department/notifications")
+                        ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    }`}
                   >
                     <AlertCircle size={15} className="flex-shrink-0" />
                     {!sidebarCollapsed && (

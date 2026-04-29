@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { 
-  Bell, Trash2, Eye, CheckCheck, Inbox, 
+import { Bell, Trash2, Eye, CheckCheck, Inbox, 
   Settings, User, Info, AlertTriangle, 
   CheckCircle2, Clock, ArrowRight, X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from '../../utils/api';
 
 const NotificationBell = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -310,7 +310,19 @@ const NotificationBell = () => {
             <button
               onClick={() => {
                 setShowDropdown(false);
-                navigate('/notifications');
+                let prefix = '/department';
+                if (location.pathname.startsWith('/admin')) {
+                  prefix = '/admin';
+                } else if (location.pathname.startsWith('/design-engineer')) {
+                  prefix = '/design-engineer';
+                } else if (location.pathname.startsWith('/employee')) {
+                  prefix = '/employee';
+                } else if (location.pathname.startsWith('/accountant')) {
+                  prefix = '/accountant';
+                } else if (location.pathname.startsWith('/department/quality')) {
+                  prefix = '/department/quality';
+                }
+                navigate(`${prefix}/notifications`);
               }}
               className="w-full py-2 text-xs  text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800 rounded transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >

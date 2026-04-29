@@ -11,6 +11,7 @@ import ProductionQCPage from "../qc/ProductionQCPage";
 import UniversalRootCardsPage from "../shared/UniversalRootCardsPage";
 import UniversalRootCardDetailPage from "../shared/UniversalRootCardDetailPage";
 import DepartmentPortalTasksPage from "../department/DepartmentPortalTasksPage";
+import NotificationsPage from "../notifications/NotificationsPage";
 import {
   CheckCircle,
   AlertCircle,
@@ -319,6 +320,11 @@ const QualityDepartmentDashboard = () => {
       path: "/department/quality/production-qc",
       icon: ShieldCheck,
     },
+    {
+      title: "Notifications",
+      path: "/department/quality/notifications",
+      icon: AlertCircle,
+    },
   ];
 
   return (
@@ -338,6 +344,7 @@ const QualityDepartmentDashboard = () => {
         <Route path="root-cards" element={<UniversalRootCardsPage />} />
         <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
         <Route path="production-qc" element={<ProductionQCPage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
       </Routes>
     </RoleDashboardLayout>
   );

@@ -14,6 +14,7 @@ import BalanceSheetPage from "../accountant/BalanceSheetPage";
 import BankReconciliationPage from "../accountant/BankReconciliationPage";
 import BudgetManagementPage from "../accountant/BudgetManagementPage";
 import ExpenseTrackingPage from "../accountant/ExpenseTrackingPage";
+import NotificationsPage from "../notifications/NotificationsPage";
 import {
   BarChart3,
   Coins,
@@ -284,6 +285,11 @@ const AccountantDashboard = () => {
       path: "/accountant/expense/tracking",
       icon: Coins,
     },
+    {
+      title: "Notifications",
+      path: "/accountant/notifications",
+      icon: AlertTriangle,
+    },
   ];
 
   const stats = [
@@ -372,6 +378,7 @@ const AccountantDashboard = () => {
         />
         <Route path="/budget/management" element={<BudgetManagementPage />} />
         <Route path="/expense/tracking" element={<ExpenseTrackingPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route
           path="/"
           element={<Navigate to="/accountant/dashboard" replace />}

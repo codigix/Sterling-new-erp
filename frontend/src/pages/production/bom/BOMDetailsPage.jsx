@@ -233,10 +233,10 @@ const BOMDetailsPage = () => {
             <div className="">
               <h2 className="text-lg  text-slate-900 break-words max-w-2xl">{bom.productName} <span className="text-slate-500 font-normal">({bom.productCode})</span></h2>
               <Badge
-                variant={bom.status === 'active' ? 'success' : bom.status === 'approved' ? 'primary' : 'warning'}
+                variant={bom.status === 'active' ? 'success' : bom.status === 'approved' ? 'primary' : bom.status === 'request_sent' ? 'info' : 'warning'}
                 className="capitalize p-1 text-xs"
               >
-                {bom.status}
+                {bom.status === 'request_sent' ? 'Material Request Sent' : bom.status?.replace('_', ' ')}
               </Badge>
             </div>
             <p className="text-slate-500 text-xs ">
@@ -246,13 +246,15 @@ const BOMDetailsPage = () => {
         </div>
         <div className="flex items-start gap-1">
           <Button variant="secondary" icon={Download} onClick={handleExportPDF}>Export PDF</Button>
-          <Button
-            variant="secondary"
-            icon={Send}
-            onClick={() => setIsRequestModalOpen(true)}
-          >
-            Send Material Request
-          </Button>
+          {bom.status !== 'request_sent' && (
+            <Button
+              variant="secondary"
+              icon={Send}
+              onClick={() => setIsRequestModalOpen(true)}
+            >
+              Send Material Request
+            </Button>
+          )}
           <Button
             variant="primary"
             icon={Edit2}

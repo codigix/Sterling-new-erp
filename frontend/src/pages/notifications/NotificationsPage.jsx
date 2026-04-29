@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Clock,
   CheckCheck,
+  Calendar,
   ChevronRight,
   Loader2,
 } from "lucide-react";
@@ -29,14 +30,17 @@ const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
 
   const fetchNotifications = async () => {
     if (!user?.id) return;
     try {
       setLoading(true);
-      const response = await axios.get(`/alerts/user/${user.id}`);
-      setNotifications(response.data || []);
+      const response = await axios.get(`/notifications?userId=${user.id}&department=${user.department}&role=${user.role}`);
+      setNotifications(response.data.notifications || []);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     } finally {
@@ -105,12 +109,12 @@ const NotificationsPage = () => {
   };
 
   const handleNotificationClick = async (notif) => {
-    if (!notif.is_read) {
+    if (!notif.read_status) {
       try {
-        await axios.patch(`/alerts/${notif.id}/read`);
+        await axios.put(`/notifications/${notif.id}/read`);
         setNotifications(
           notifications.map((n) =>
-            n.id === notif.id ? { ...n, is_read: true } : n,
+            n.id === notif.id ? { ...n, read_status: true } : n,
           ),
         );
       } catch (err) {
@@ -125,8 +129,12 @@ const NotificationsPage = () => {
 
   const markAllAsRead = async () => {
     try {
-      await axios.patch(`/alerts/user/${user.id}/read-all`);
-      setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
+      await axios.put("/notifications/mark-all-read", {
+        userId: user.id,
+        department: user.department,
+        role: user.role
+      });
+      setNotifications(notifications.map((n) => ({ ...n, read_status: true })));
     } catch (error) {
       console.error("Error marking all as read:", error);
     }
@@ -135,7 +143,7 @@ const NotificationsPage = () => {
   const deleteNotification = async (e, id) => {
     e.stopPropagation();
     try {
-      await axios.delete(`/alerts/${id}`);
+      await axios.delete(`/notifications/${id}`);
       setNotifications(notifications.filter((n) => n.id !== id));
     } catch (error) {
       console.error("Error deleting notification:", error);
@@ -143,19 +151,62 @@ const NotificationsPage = () => {
   };
 
   const filteredNotifications = useMemo(() => {
+    // Debug log to see current filters
+    console.log("Applying filters:", { filterType, dateFilter, customStartDate, customEndDate, showUnreadOnly });
+    
     return notifications.filter((notif) => {
-      if (showUnreadOnly && notif.is_read) return false;
-      if (filterType !== "all" && notif.alert_type !== filterType) return false;
+      // 1. Unread filter
+      if (showUnreadOnly && notif.read_status) return false;
+      
+      // 2. Type filter
+      if (filterType !== "all") {
+        const typeMatch = String(notif.alert_type || "").toLowerCase() === String(filterType || "").toLowerCase();
+        if (!typeMatch) return false;
+      }
+      
+      // 3. Date filter
+      if (dateFilter !== "all") {
+        const notifDate = new Date(notif.created_at);
+        const now = new Date();
+        
+        if (dateFilter === "today") {
+          if (notifDate.toDateString() !== now.toDateString()) return false;
+        } else if (dateFilter === "last_7_days") {
+          const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (notifDate < sevenDaysAgo) return false;
+        } else if (dateFilter === "last_30_days") {
+          const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          if (notifDate < thirtyDaysAgo) return false;
+        } else if (dateFilter === "custom") {
+          if (customStartDate) {
+            const start = new Date(customStartDate);
+            start.setHours(0, 0, 0, 0);
+            if (notifDate < start) return false;
+          }
+          if (customEndDate) {
+            const end = new Date(customEndDate);
+            end.setHours(23, 59, 59, 999);
+            if (notifDate > end) return false;
+          }
+        }
+      }
+      
       return true;
     });
-  }, [notifications, showUnreadOnly, filterType]);
+  }, [notifications, showUnreadOnly, filterType, dateFilter, customStartDate, customEndDate]);
+
+  // Clean up types to remove nulls/undefineds and handle string conversion
+  const types = useMemo(() => {
+    const rawTypes = notifications.map((n) => n.alert_type).filter(Boolean);
+    return ["all", ...new Set(rawTypes)];
+  }, [notifications]);
 
   const groupedNotifs = useMemo(
     () => groupNotifications(filteredNotifications),
     [filteredNotifications],
   );
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
-  const types = ["all", ...new Set(notifications.map((n) => n.alert_type))];
+  
+  const unreadCount = notifications.filter((n) => !n.read_status).length;
 
   if (loading && notifications.length === 0) {
     return (
@@ -213,20 +264,61 @@ const NotificationsPage = () => {
       </div>
 
       {/* Filter Chips */}
-      <div className="flex gap-2 overflow-x-auto pb-4 mb-8 custom-scrollbar">
-        {types.map((type) => (
-          <button
-            key={type}
-            onClick={() => setFilterType(type)}
-            className={`px-5 py-2 rounded  text-xs   tracking-wider transition-all whitespace-nowrap border ${
-              filterType === type
-                ? "bg-slate-900 text-white border-slate-900 "
-                : "bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-700"
-            }`}
-          >
-            {type.replace("_", " ")}
-          </button>
-        ))}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 custom-scrollbar flex-1">
+          {types.map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilterType(type)}
+              className={`px-5 py-2 rounded  text-xs   tracking-wider transition-all whitespace-nowrap border ${
+                filterType === type
+                  ? "bg-slate-900 text-white border-slate-900 "
+                  : "bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-700"
+              }`}
+            >
+              {type.replace("_", " ")}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-2">
+          {dateFilter === "custom" && (
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-800 p-1 rounded border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-right-2">
+              <input
+                type="date"
+                value={customStartDate}
+                onChange={(e) => setCustomStartDate(e.target.value)}
+                className="bg-transparent text-xs text-slate-600 dark:text-slate-300 outline-none px-2 py-1 cursor-pointer"
+                title="Start Date"
+              />
+              <span className="text-slate-400 text-xs">to</span>
+              <input
+                type="date"
+                value={customEndDate}
+                onChange={(e) => setCustomEndDate(e.target.value)}
+                className="bg-transparent text-xs text-slate-600 dark:text-slate-300 outline-none px-2 py-1 cursor-pointer"
+                title="End Date"
+              />
+            </div>
+          )}
+          
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 p-1 rounded border border-slate-200 dark:border-slate-700">
+            <div className="px-2 text-slate-400">
+              <Calendar size={14} />
+            </div>
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="bg-transparent text-xs text-slate-600 dark:text-slate-300 outline-none pr-4 py-1.5 cursor-pointer"
+            >
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="last_7_days">Last 7 Days</option>
+              <option value="last_30_days">Last 30 Days</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Notifications List */}
@@ -249,12 +341,12 @@ const NotificationsPage = () => {
                       key={notif.id}
                       onClick={() => handleNotificationClick(notif)}
                       className={`group relative bg-white dark:bg-slate-900 rounded  border transition-all cursor-pointer overflow-hidden ${
-                        !notif.is_read
+                        !notif.read_status
                           ? "border-blue-100 dark:border-blue-900/30 "
                           : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 "
                       }`}
                     >
-                      {!notif.is_read && (
+                      {!notif.read_status && (
                         <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600" />
                       )}
 
@@ -283,7 +375,7 @@ const NotificationsPage = () => {
                               </div>
                               <h3
                                 className={`text-base  leading-tight ${
-                                  !notif.is_read
+                                  !notif.read_status
                                     ? "text-slate-900 dark:text-white"
                                     : "text-slate-500 dark:text-slate-400"
                                 }`}
@@ -336,6 +428,9 @@ const NotificationsPage = () => {
             <button
               onClick={() => {
                 setFilterType("all");
+                setDateFilter("all");
+                setCustomStartDate("");
+                setCustomEndDate("");
                 setShowUnreadOnly(false);
               }}
               className="mt-6 text-sm  text-blue-600 hover:underline"
