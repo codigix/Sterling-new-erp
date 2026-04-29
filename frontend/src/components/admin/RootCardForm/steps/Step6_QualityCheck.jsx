@@ -141,7 +141,7 @@ export default function Step6_QualityCheck() {
             </div>
             <div>
               <h3 className="text-lg  text-slate-900 dark:text-white">Project QAP / ATP</h3>
-              <p className="text-sm text-slate-500">Quality Assurance Plan for this root card</p>
+              <p className="text-sm text-slate-500">Quality Assurance Plan for this route card</p>
             </div>
           </div>
         </div>
@@ -233,7 +233,7 @@ export default function Step6_QualityCheck() {
             Quality Inspection Reports
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1 text-xs   ">
-            History of all finalized quality inspections for this root card
+            History of all finalized quality inspections for this route card
           </p>
         </div>
 

@@ -41,7 +41,7 @@ const UniversalRootCardDetailPage = () => {
         setRootCard(response.data.rootCard || response.data);
       } catch (err) {
         console.error('Error fetching root card:', err);
-        setError(err.response?.data?.message || 'Failed to load root card');
+        setError(err.response?.data?.message || 'Failed to load route card');
       } finally {
         setLoading(false);
       }
@@ -65,7 +65,7 @@ const UniversalRootCardDetailPage = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-          <p className="text-slate-500 dark:text-slate-400">Loading root card...</p>
+          <p className="text-slate-500 dark:text-slate-400">Loading route card...</p>
         </div>
       </div>
     );
@@ -80,7 +80,7 @@ const UniversalRootCardDetailPage = () => {
             onClick={() => navigate(basePath)}
             className="mt-4 p-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            Back to Root Cards
+            Back to Route Cards
           </button>
         </div>
       </div>
@@ -91,12 +91,12 @@ const UniversalRootCardDetailPage = () => {
     return (
       <div className="p-6">
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:yellow-700 rounded p-4">
-          <p className="text-yellow-700 dark:text-yellow-300">Root card not found</p>
+          <p className="text-yellow-700 dark:text-yellow-300">Route card not found</p>
           <button
             onClick={() => navigate(basePath)}
             className="mt-4 p-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
           >
-            Back to Root Cards
+            Back to Route Cards
           </button>
         </div>
       </div>

@@ -218,7 +218,7 @@ const EmployeeWorkLogsPage = () => {
       ),
     },
     {
-      header: "Project / Root Card",
+      header: "Project / Route Card",
       accessor: "project_name",
       render: (_, log) => (
         <div className="flex items-center gap-2">
@@ -327,7 +327,7 @@ const EmployeeWorkLogsPage = () => {
           columns={workLogColumns}
           data={filteredWorkLogs}
           loading={loadingDetails}
-          searchPlaceholder="Search Project / Root Card..."
+          searchPlaceholder="Search Project / Route Card..."
         />
       </div>
     </div>

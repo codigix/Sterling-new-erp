@@ -413,6 +413,16 @@ const GRNProcessingPage = () => {
 
   const handleItemChange = (idx, field, value) => {
     const newItems = [...grnForm.items];
+    
+    if (field === 'received_qty') {
+      const numericValue = parseFloat(value);
+      const remaining = parseFloat(newItems[idx].remaining_qty || 0);
+      if (!isNaN(numericValue) && numericValue > remaining) {
+        value = remaining;
+        showError(`Received quantity cannot exceed balance quantity (${remaining})`);
+      }
+    }
+
     newItems[idx][field] = value;
     
     // Recalculate weight if dimensions or quantity changed
@@ -764,7 +774,7 @@ const GRNProcessingPage = () => {
                   <th className="px-4 py-4 text-xs text-slate-400 text-left w-1/4">Ordered Item / Group</th>
                   <th className="px-4 py-4 text-xs text-slate-400 text-left w-1/3">Received Material Name / Dimensions</th>
                   <th className="p-2 text-xs text-slate-400 text-center w-20">Ordered</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-20">Prev Rec.</th>
+                  <th className="p-2 text-xs text-slate-400 text-center w-20">Prev Received</th>
                   <th className="p-2 text-xs text-slate-400 text-center w-20 text-blue-500">Balance</th>
                   <th className="p-2 text-xs text-slate-400 text-center w-20">UOM</th>
                   <th className="p-2 text-xs text-slate-400 text-center w-32">Weight (Kg)</th>
@@ -876,7 +886,7 @@ const GRNProcessingPage = () => {
                       {item.previously_received}
                     </td>
                     <td className="px-4 py-6 text-center text-xs font-medium text-blue-600">
-                      {item.remaining_qty.toFixed(3)}
+                      {parseFloat(item.remaining_qty.toFixed(3))}
                     </td>
                     <td className="px-4 py-6 text-center text-xs text-slate-400">
                       {item.unit}

@@ -50,8 +50,8 @@ const RootCardBuilderPage = () => {
       setStats(response.data?.stats || null);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch root cards');
-      console.error('Error fetching root cards:', err);
+      setError('Failed to fetch route cards');
+      console.error('Error fetching route cards:', err);
     } finally {
       setLoading(false);
     }
@@ -140,13 +140,13 @@ const RootCardBuilderPage = () => {
 
   const handleDeleteCard = async (e, cardId) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this root card?')) {
+    if (window.confirm('Are you sure you want to delete this route card?')) {
       setActionLoading(cardId);
       try {
         await axios.delete(`/production/root-cards/${cardId}`, { __sessionGuard: true });
         fetchRootCards();
       } catch {
-        setError('Failed to delete root card');
+        setError('Failed to delete route card');
       } finally {
         setActionLoading(null);
       }
@@ -237,7 +237,7 @@ const RootCardBuilderPage = () => {
             <Card shadow="sm" className="p-6 hover: transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">Total Root Cards</p>
+                  <p className="text-sm  text-slate-500 dark:text-slate-400 mb-1">Total Route Cards</p>
                   <p className="text-3xl  text-slate-900 dark:text-white">{stats.totalRootCards || 0}</p>
                 </div>
                 <BarChart3 size={32} className="text-blue-500 opacity-20 flex-shrink-0" />
@@ -277,8 +277,8 @@ const RootCardBuilderPage = () => {
       <Card shadow="md" padding="none" className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
         <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl  text-slate-900 dark:text-white">Root Cards</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage and track all production root cards</p>
+            <h2 className="text-xl  text-slate-900 dark:text-white">Route Cards</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage and track all production route cards</p>
           </div>
         </div>
 
@@ -316,7 +316,7 @@ const RootCardBuilderPage = () => {
             columns={columns}
             data={rootCards}
             loading={loading}
-            emptyMessage="No root cards found"
+            emptyMessage="No route cards found"
             sortable={true}
             striped={true}
             hover={true}

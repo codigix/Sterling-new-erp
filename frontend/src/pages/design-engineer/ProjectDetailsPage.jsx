@@ -236,14 +236,14 @@ const ProjectDetailsPage = () => {
         const response = await axios.get(`/root-cards/${projectId}`);
         rootCard = response.data.order || response.data;
       } catch (err) {
-        console.error("Root card not found:", err);
-        alert("Root Card not found");
+        console.error("Route card not found:", err);
+        alert("Route card not found");
         setView("list");
         return;
       }
 
       if (!rootCard) {
-        alert("Root Card not found");
+        alert("Route card not found");
         setView("list");
         return;
       }
@@ -403,7 +403,7 @@ const ProjectDetailsPage = () => {
       const rootCardId = selectedProject?.id;
       if (!rootCardId) {
         alert(
-          "No root card selected. Please ensure the task is properly linked to a root card. If the issue persists, please contact your administrator.",
+          "No route card selected. Please ensure the task is properly linked to a route card. If the issue persists, please contact your administrator.",
         );
         console.error("Selected project has no ID:", selectedProject);
         return;
@@ -458,7 +458,7 @@ const ProjectDetailsPage = () => {
           }
         }
       } else {
-        alert("No root card linked to this task. Cannot save details.");
+        alert("No route card linked to this task. Cannot save details.");
         return;
       }
 
@@ -498,10 +498,10 @@ const ProjectDetailsPage = () => {
                   </div>
                   <div>
                     <h1 className="text-3xl  text-slate-900 dark:text-white text-xs">
-                      Root Cards
+                      Route Cards
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                      View all root cards and design details
+                      View all route cards and design details
                     </p>
                   </div>
                 </div>
@@ -601,7 +601,7 @@ const ProjectDetailsPage = () => {
                       >
                         <div className="flex flex-col items-center gap-2">
                           <FileText className="w-12 h-12 text-slate-300" />
-                          <span className="text-sm">No root cards found</span>
+                          <span className="text-sm">No route cards found</span>
                         </div>
                       </td>
                     </tr>
@@ -687,7 +687,7 @@ const ProjectDetailsPage = () => {
                     {filteredProjects.length}
                   </span>{" "}
                   of <span className="">{projects.length}</span>{" "}
-                  root cards
+                  route cards
                 </p>
               </div>
             )}
@@ -709,11 +709,11 @@ const ProjectDetailsPage = () => {
               </div>
               <div>
                 <h1 className="text-md  text-slate-900 dark:text-white text-xs">
-                  {selectedProject ? (editMode ? "Edit" : "View") : "View"} Root
+                  {selectedProject ? (editMode ? "Edit" : "View") : "View"} Route
                   Card Details
                 </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {selectedProject?.title || "Root Card"}
+                  {selectedProject?.title || "Route Card"}
                 </p>
               </div>
             </div>
@@ -722,12 +722,12 @@ const ProjectDetailsPage = () => {
 
         {/* Form Content */}
         <div className="p-4 space-y-2">
-          {/* Root Card Reference (Read-Only) */}
+          {/* Route Card Reference (Read-Only) */}
           <Card className="bg-slate-50 dark:bg-slate-900/50 border-blue-200 dark:border-blue-900">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <FileText size={15} className="text-blue-600" />
-                <CardTitle className="text-md">Root Card Reference</CardTitle>
+                <CardTitle className="text-md">Route Card Reference</CardTitle>
               </div>
             </CardHeader>
             <CardContent>

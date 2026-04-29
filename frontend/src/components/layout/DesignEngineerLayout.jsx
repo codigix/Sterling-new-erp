@@ -36,7 +36,7 @@ const navigationItems = [
     icon: Wrench,
   },
   {
-    title: 'Root Cards',
+    title: 'Route Cards',
     path: '/design-engineer/root-cards',
     icon: FileText,
   },

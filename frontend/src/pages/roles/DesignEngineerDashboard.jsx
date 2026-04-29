@@ -351,7 +351,7 @@ const DesignEngineerDashboard = () => {
         <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700  p-2">
           <div className="flex items-center justify-between pb-2">
             <h3 className="text-xl  text-slate-900 dark:text-white">
-              Assigned Root Cards
+              Assigned Route Cards
             </h3>
             <Link
               to="/design-engineer/root-cards"

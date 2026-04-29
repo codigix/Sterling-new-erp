@@ -186,7 +186,7 @@ const RootCardWizard = ({ rootCardId, onComplete, onCancel }) => {
         <div className="border-b border-slate-200 pb-8">
           <div className="flex items-center text-xs justify-between mb-4">
             <div>
-              <h1 className="text-4xl  text-slate-900 mb-2">Root Card Workflow</h1>
+              <h1 className="text-4xl  text-slate-900 mb-2">Route Card Workflow</h1>
               <p className="text-slate-500">
                 Managing order: <span className=" text-slate-900">Step {currentStep} of {WORKFLOW_STEPS.length}</span>
               </p>

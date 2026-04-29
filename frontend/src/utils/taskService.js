@@ -87,7 +87,7 @@ export const taskService = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error completing root card inventory task:", error);
+      console.error("Error completing route card inventory task:", error);
       throw error;
     }
   },
@@ -106,7 +106,7 @@ export const taskService = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error updating root card inventory task status:", error);
+      console.error("Error updating route card inventory task status:", error);
       throw error;
     }
   },
@@ -135,11 +135,11 @@ export const taskService = {
         if (finalRootCardId) {
           return await taskService.completeRootCardInventoryTask(taskId, finalRootCardId, notes);
         } else {
-          // Fallback to generic task completion if no root card is linked
+          // Fallback to generic task completion if no route card is linked
           return await taskService.completeTask(taskId);
         }
       } catch (error) {
-        console.error("Error completing root card task:", error);
+        console.error("Error completing route card task:", error);
         return null;
       }
     }
@@ -248,7 +248,7 @@ export const taskService = {
   deleteRootCard: async (rootCardId) => {
     try {
       if (!rootCardId) {
-        throw new Error("Root Card ID is required");
+        throw new Error("Route Card ID is required");
       }
       const response = await axios.delete(`/production/root-cards/${rootCardId}`);
       return response.data;
@@ -256,8 +256,8 @@ export const taskService = {
       const message =
         error.response?.data?.message ||
         error.message ||
-        "Failed to delete root card";
-      console.error("Error deleting root card:", message);
+        "Failed to delete route card";
+      console.error("Error deleting route card:", message);
       throw new Error(message);
     }
   },

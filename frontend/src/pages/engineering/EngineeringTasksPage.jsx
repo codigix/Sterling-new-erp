@@ -36,7 +36,7 @@ const EngineeringTasksPage = () => {
         setSelectedRootCard(response.data.rootCards[0].id);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load root cards');
+      setError(err.response?.data?.message || 'Failed to load route cards');
     } finally {
       setLoading(false);
     }
@@ -176,7 +176,7 @@ const EngineeringTasksPage = () => {
 
       <div className="mb-6">
         <label className="block text-sm   dark: mb-2">
-          Select Root Card
+          Select Route Card
         </label>
         <select
           value={selectedRootCard || ''}
@@ -189,7 +189,7 @@ const EngineeringTasksPage = () => {
             const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
             return (
               <option key={order.id} value={order.id}>
-                {displayName || baseName || `Root Card ${order.id}`}
+                {displayName || baseName || `Route Card ${order.id}`}
               </option>
             );
           })}
@@ -329,7 +329,7 @@ const EngineeringTasksPage = () => {
                 }
               ]}
               data={documents}
-              emptyMessage="No documents uploaded for this root card"
+              emptyMessage="No documents uploaded for this route card"
             />
           </Card>
         </div>
@@ -379,7 +379,7 @@ const EngineeringTasksPage = () => {
                 }
               ]}
               data={boms}
-              emptyMessage="No BOMs found for this root card"
+              emptyMessage="No BOMs found for this route card"
             />
           </Card>
         </div>

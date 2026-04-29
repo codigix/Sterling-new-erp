@@ -238,7 +238,7 @@ const ProductionDesignDrawings = () => {
             onChange={(e) => setRootCardId(e.target.value)}
             className="w-full pl-10 pr-4 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-green-500 outline-none appearance-none cursor-pointer transition-all"
           >
-            <option value="">All Projects (Root Cards)</option>
+            <option value="">All Projects (Route Cards)</option>
             {rootCards.map(rc => {
               const baseName = rc.project_name || rc.po_number || "";
               const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');

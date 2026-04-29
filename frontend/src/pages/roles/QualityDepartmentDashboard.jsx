@@ -290,7 +290,7 @@ const QualityDepartmentDashboard = () => {
       icon: Clock,
     },
     {
-      title: "Root Cards",
+      title: "Route Cards",
       path: "/department/quality/root-cards",
       icon: Layers,
     },

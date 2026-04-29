@@ -136,7 +136,7 @@ const DesignEngineerReportsPage = () => {
           <div className="space-y-4">
             <DataTable
               columns={[
-                { key: "rootCard", label: "Root Card", sortable: true },
+                { key: "rootCard", label: "Route Card", sortable: true },
                 { key: "items", label: "Items Count", sortable: true },
                 { key: "cost", label: "Estimated Cost", sortable: true },
                 { key: "status", label: "Status", render: (val) => (

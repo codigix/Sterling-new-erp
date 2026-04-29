@@ -9,13 +9,13 @@ export default function WizardHeader({ mode = 'create' }) {
   const getTitleForMode = () => {
     switch (mode) {
       case 'view':
-        return 'View Root Card';
+        return 'View Route Card';
       case 'edit':
-        return 'Edit Root Card';
+        return 'Edit Route Card';
       case 'assign':
-        return 'Assign Root Card';
+        return 'Assign Route Card';
       default:
-        return 'Root Card Wizard';
+        return 'Route Card Wizard';
     }
   };
 

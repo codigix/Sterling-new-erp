@@ -151,7 +151,7 @@ const ProductionProjectCard = ({
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs  text-slate-500 dark:text-slate-400  tracking-wide">
-                Root Card / Project
+                Route Card / Project
               </p>
               <h3 className=" text-lg text-slate-900 dark:text-white">
                 {project.project_name || project.customer}

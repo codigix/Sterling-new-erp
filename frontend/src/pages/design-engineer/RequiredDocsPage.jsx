@@ -8,7 +8,7 @@ const RequiredDocsPage = () => {
         <DocumentSelector 
           documentType="required-documents"
           title="Required Documents"
-          description="Access all required technical documents and specifications uploaded for your assigned root cards"
+          description="Access all required technical documents and specifications uploaded for your assigned route cards"
         />
       </div>
     </div>

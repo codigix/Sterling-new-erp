@@ -1248,13 +1248,13 @@ const ProductionPlanFormPage = () => {
 
     let selectedSO = salesOrders.find(so => so.id == salesOrderId);
     
-    // Fallback: try matching by root_card_id if salesOrderId might be a root card ID
+    // Fallback: try matching by root_card_id if salesOrderId might be a route card ID
     if (!selectedSO) {
       selectedSO = salesOrders.find(so => so.root_card_id == salesOrderId);
     }
 
     if (!selectedSO) {
-      console.warn(`[handleSalesOrderSelect] Could not find Sales Order with ID or Root Card ID: ${salesOrderId}`);
+      console.warn(`[handleSalesOrderSelect] Could not find Sales Order with ID or Route Card ID: ${salesOrderId}`);
       return;
     }
 
@@ -1262,11 +1262,11 @@ const ProductionPlanFormPage = () => {
       setLoading(true);
       const rootCardId = selectedSO.root_card_id;
       
-      // Fetch Root Card Details (to get steps data etc.)
+      // Fetch Route Card Details (to get steps data etc.)
       const response = await axios.get(`/production/portal/root-cards/${rootCardId}?all=true`, { __sessionGuard: true });
       const rootCard = response.data;
       
-      console.log('Fetched root card for SO:', rootCard);
+      console.log('Fetched route card for SO:', rootCard);
       
       // Try to get the planId from the rootCard or fetch it
       try {
@@ -1491,7 +1491,7 @@ const ProductionPlanFormPage = () => {
     try {
       setLoading(true);
       
-      // Try to find if there's a sales order for this root card
+      // Try to find if there's a sales order for this route card
       const linkedSO = salesOrders.find(so => so.root_card_id == rootCardId);
       if (linkedSO) {
         handleSalesOrderSelect(linkedSO.id.toString());
@@ -1649,7 +1649,7 @@ const ProductionPlanFormPage = () => {
         stages: autoCreatedStages
       }));
     } catch (err) {
-      console.error('Failed to load root card details:', err);
+      console.error('Failed to load route card details:', err);
     } finally {
       setLoading(false);
     }
@@ -1689,7 +1689,7 @@ const ProductionPlanFormPage = () => {
       } else if (location.state?.order?.id) {
         handleSalesOrderSelect(location.state.order.id.toString());
       } else if (location.state?.rootCardId) {
-        // Find SO for this root card if possible
+        // Find SO for this route card if possible
         const so = salesOrders.find(s => s.root_card_id == location.state.rootCardId);
         if (so) {
           handleSalesOrderSelect(so.id.toString());
@@ -1806,8 +1806,8 @@ const ProductionPlanFormPage = () => {
 
     // Validation
     if (!formData.rootCardId) {
-      console.warn('[handleSubmit] Root Card ID is missing');
-      setError('Please select a root card/project');
+      console.warn('[handleSubmit] Route Card ID is missing');
+      setError('Please select a route card/project');
       setLoading(false);
       return null;
     }

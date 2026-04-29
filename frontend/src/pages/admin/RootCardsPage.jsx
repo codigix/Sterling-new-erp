@@ -21,44 +21,44 @@ const RootCardsPage = () => {
   const handleSendToDesignEngineering = async (order) => {
     try {
       const response = await axios.post(`/root-cards/${order.id}/send-to-design-engineering`);
-      showSuccess(`Root card sent to Design Engineering Department. Notifications sent to ${response.data.notificationsSent || 0} design engineers.`);
+      showSuccess(`Route card sent to Design Engineering Department. Notifications sent to ${response.data.notificationsSent || 0} design engineers.`);
       triggerRefresh();
     } catch (error) {
       console.error('Error sending to Design Engineering:', error);
-      showError(error.response?.data?.message || 'Failed to send root card to Design Engineering');
+      showError(error.response?.data?.message || 'Failed to send route card to Design Engineering');
     }
   };
 
   const handleSendToQuality = async (order) => {
     try {
       const response = await axios.post(`/root-cards/${order.id}/send-to-quality`);
-      showSuccess(`Root card sent to Quality Department for QAP. Notification sent.`);
+      showSuccess(`Route card sent to Quality Department for QAP. Notification sent.`);
       triggerRefresh();
     } catch (error) {
       console.error('Error sending to Quality:', error);
-      showError(error.response?.data?.message || 'Failed to send root card to Quality');
+      showError(error.response?.data?.message || 'Failed to send route card to Quality');
     }
   };
 
   const handleReturnToDesignEngineering = async (order) => {
     try {
       const response = await axios.post(`/root-cards/${order.id}/return-to-design-engineering`);
-      showSuccess(`Root card returned to Design Engineering for QAP Review. Notification sent.`);
+      showSuccess(`Route card returned to Design Engineering for QAP Review. Notification sent.`);
       triggerRefresh();
     } catch (error) {
       console.error('Error returning to Design Engineering:', error);
-      showError(error.response?.data?.message || 'Failed to return root card to Design Engineering');
+      showError(error.response?.data?.message || 'Failed to return route card to Design Engineering');
     }
   };
 
   const handleSendToProduction = async (order) => {
     try {
       const response = await axios.post(`/root-cards/${order.id}/send-to-production`);
-      showSuccess(`Root card sent to Production for BOM Preparation. Notification sent.`);
+      showSuccess(`Route card sent to Production for BOM Preparation. Notification sent.`);
       triggerRefresh();
     } catch (error) {
       console.error('Error sending to Production:', error);
-      showError(error.response?.data?.message || 'Failed to send root card to Production');
+      showError(error.response?.data?.message || 'Failed to send route card to Production');
     }
   };
 

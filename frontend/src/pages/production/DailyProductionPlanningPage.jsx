@@ -986,7 +986,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                     <Target size={32} className="text-slate-300" />
                   </div>
                   <h4 className="text-xs  text-slate-900 dark:text-white   mb-1">Project Selection Required</h4>
-                  <p className="text-xs  text-slate-400  ">Please select a root card above to begin operator allocation</p>
+                  <p className="text-xs  text-slate-400  ">Please select a route card above to begin operator allocation</p>
                 </div>
               ) : null}
             </div>

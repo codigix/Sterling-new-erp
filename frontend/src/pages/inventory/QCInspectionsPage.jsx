@@ -361,7 +361,7 @@ const QCInspectionsPage = () => {
     },
     {
       key: "projectName",
-      label: "Project / Root Card",
+      label: "Project / Route Card",
       sortable: true,
       render: (value, row) => (
         value ? (
@@ -670,7 +670,7 @@ const QCInspectionsPage = () => {
         filters={[
           {
             key: "rootCardId",
-            label: "All Projects / Root Cards",
+            label: "All Projects / Route Cards",
             options: uniqueRootCards.map((rc) => ({ label: rc.name, value: rc.id }))
           },
           {

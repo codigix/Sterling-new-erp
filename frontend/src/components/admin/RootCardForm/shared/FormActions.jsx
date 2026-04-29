@@ -124,7 +124,7 @@ export default function FormActions({ mode = 'create', onNext, onPrev, onSubmit,
         </Button>
 
         <span className="text-xs text-slate-500 self-center">
-          Assigning Root Card
+          Assigning Route Card
         </span>
 
         <Button
@@ -174,7 +174,7 @@ export default function FormActions({ mode = 'create', onNext, onPrev, onSubmit,
             className="flex items-center text-xs gap-1 text-xs bg-purple-600 hover:bg-purple-700"
           >
             <Save size={14} />
-            {loading ? "Submitting..." : "Submit Root Card"}
+            {loading ? "Submitting..." : "Submit Route Card"}
           </Button>
         ) : (
           <Button

@@ -1324,7 +1324,7 @@ const MaterialRequestsPage = () => {
     }
 
     if (!newRequest.rootCardId) {
-      showError("Please select a Sales Order / Root Card");
+      showError("Please select a Sales Order / Route Card");
       return;
     }
 
@@ -1693,7 +1693,7 @@ const MaterialRequestsPage = () => {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-xs  text-slate-500  tracking-wider mb-2">
-                          Sales Order / Root Card{" "}
+                          Sales Order / Route Card{" "}
                           <span className="text-red-500">*</span>
                         </label>
                         <select

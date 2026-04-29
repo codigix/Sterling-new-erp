@@ -71,7 +71,7 @@ const CheckProjectMaterialRequirementsModal = ({
       console.error("Error fetching material requirements:", error);
       Swal.fire(
         "Warning",
-        "No material requirements found for this root card yet. You can create them from the root card details.",
+        "No material requirements found for this route card yet. You can create them from the route card details.",
         "info"
       );
       setMaterials([]);

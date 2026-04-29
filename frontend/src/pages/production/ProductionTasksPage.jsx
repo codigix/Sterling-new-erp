@@ -77,7 +77,7 @@ const ProductionTasksPage = () => {
       accessor: "id",
     },
     {
-      header: "Root Card",
+      header: "Route Card",
       accessor: "rootCard",
     },
     {
@@ -165,7 +165,7 @@ const ProductionTasksPage = () => {
         <Card>
           <div className="p-4">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Total Root Cards
+              Total Route Cards
             </p>
             <p className="text-2xl  text-slate-900 dark:text-white mt-1">
               {stats.totalRC}
@@ -225,7 +225,7 @@ const ProductionTasksPage = () => {
                 : "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600"
             }`}
           >
-            Root Cards
+            Route Cards
           </button>
           <button
             onClick={() => setActiveTab("stages")}
@@ -254,18 +254,18 @@ const ProductionTasksPage = () => {
             className="flex items-center text-xs gap-2 p-2 rounded text-xs bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
             <Plus size={15} />
-            New {activeTab === "rootcards" ? "Root Card" : "Plan"}
+            New {activeTab === "rootcards" ? "Route Card" : "Plan"}
           </button>
         </div>
       </div>
 
-      {/* Root Card Builder Modal */}
+      {/* Route Card Builder Modal */}
       {showRootCardBuilder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card className="max-w-2xl w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg  text-slate-900 dark:text-white">Root Card Builder</h3>
+                <h3 className="text-lg  text-slate-900 dark:text-white">Route Card Builder</h3>
                 <button onClick={() => setShowRootCardBuilder(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors">
                   <X size={20} className="text-slate-500 dark:text-slate-400" />
                 </button>
@@ -319,7 +319,7 @@ const ProductionTasksPage = () => {
 
               <div className="flex gap-2 pt-6 border-t border-slate-200 dark:border-slate-700">
                 <button className="flex-1 p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors ">
-                  Create Root Card
+                  Create Route Card
                 </button>
                 <button
                   onClick={() => setShowRootCardBuilder(false)}
@@ -336,7 +336,7 @@ const ProductionTasksPage = () => {
       {/* Production Plans */}
       {activeTab === "plans" && <ProductionPlanFormPage />}
 
-      {/* Root Cards */}
+      {/* Route Cards */}
       {activeTab === "rootcards" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rootCards.map((rc) => {

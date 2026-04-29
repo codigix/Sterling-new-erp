@@ -94,14 +94,14 @@ const TaskDetailModal = ({ task, isOpen, onClose, onTaskComplete, isUpdating }) 
 
             {task.root_card_code && (
               <div className="bg-violet-50 dark:bg-violet-900/20 p-3 rounded border border-violet-100 dark:border-violet-900/30">
-                <p className="text-xs  text-violet-500 dark:text-violet-400  mb-1">Root Card #</p>
+                <p className="text-xs  text-violet-500 dark:text-violet-400  mb-1">Route Card #</p>
                 <p className="text-sm  text-violet-700 dark:text-violet-300  ">{task.root_card_code}</p>
               </div>
             )}
 
             {task.root_card_name && (
               <div className="col-span-2 bg-violet-50/50 dark:bg-violet-900/10 p-3 rounded border border-violet-100/50 dark:border-violet-900/20">
-                <p className="text-xs  text-violet-500 dark:text-violet-400  mb-1">Root Card Name</p>
+                <p className="text-xs  text-violet-500 dark:text-violet-400  mb-1">Route Card Name</p>
                 <p className="text-sm  text-violet-700 dark:text-violet-300 ">{task.root_card_name}</p>
               </div>
             )}

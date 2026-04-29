@@ -40,7 +40,7 @@ const ProcurementDashboard = () => {
       icon: LayoutDashboard,
     },
     {
-      title: "Root Cards",
+      title: "Route Cards",
       path: "/department/procurement/root-cards",
       icon: Layers,
     },

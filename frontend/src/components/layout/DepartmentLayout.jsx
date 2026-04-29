@@ -60,7 +60,7 @@ const DepartmentLayout = () => {
 
   const departmentModules = {
     sales: {
-      title: "Root Cards",
+      title: "Route Cards",
       icon: Layers,
       path: "/department/root-cards",
     },
@@ -134,7 +134,7 @@ const DepartmentLayout = () => {
     
     // Check for "management" or "admin" roles
     if (rawRole.includes("admin") || rawRole.includes("management")) {
-      // Admins see Sales/Root Cards by default in DepartmentLayout
+      // Admins see Sales/Route Cards by default in DepartmentLayout
       return departmentModules.sales;
     }
     
@@ -336,7 +336,7 @@ const DepartmentLayout = () => {
                         }`}
                       >
                         <Layers size={15} className="flex-shrink-0" />
-                        {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
+                        {!sidebarCollapsed && <span className="ml-3">Route Cards</span>}
                       </Link>
                     </li>
                   )}
@@ -406,7 +406,7 @@ const DepartmentLayout = () => {
                       }`}
                     >
                       <Zap size={15} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
+                      {!sidebarCollapsed && <span className="ml-3">Route Cards</span>}
                     </Link>
                   </li>
                   <li>
@@ -596,7 +596,7 @@ const DepartmentLayout = () => {
                       }`}
                     >
                       <Layers size={15} className="flex-shrink-0" />
-                      {!sidebarCollapsed && <span className="ml-3">Root Cards</span>}
+                      {!sidebarCollapsed && <span className="ml-3">Route Cards</span>}
                     </Link>
                   </li>
                   <li>

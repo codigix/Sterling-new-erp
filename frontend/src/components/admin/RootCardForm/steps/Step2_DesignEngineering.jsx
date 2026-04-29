@@ -56,7 +56,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
       setSending(true);
       await axios.post(`/root-cards/${rootCardId}/send-to-quality`);
       updateField("status", "QUALITY_QAP_PENDING");
-      showSuccess("Root card sent to Quality for QAP upload");
+      showSuccess("Route card sent to Quality for QAP upload");
     } catch (error) {
       console.error("Error sending to Quality:", error);
       showError(error.response?.data?.message || "Failed to send to Quality");
@@ -70,7 +70,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
       setSending(true);
       await axios.post(`/root-cards/${rootCardId}/send-to-production`);
       updateField("status", "BOM_PREPARATION");
-      showSuccess("Root card sent to Production for BOM Preparation");
+      showSuccess("Route card sent to Production for BOM Preparation");
     } catch (error) {
       console.error("Error sending to Production:", error);
       showError(error.response?.data?.message || "Failed to send to Production");
@@ -263,14 +263,14 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
 
       <FormSection
         title="Approved Design Drawings"
-        subtitle="View and access approved design revisions for this root card"
+        subtitle="View and access approved design revisions for this route card"
         icon={FileText}
       >
         <DataTable
           columns={drawingColumns}
           data={drawings}
           loading={loading}
-          emptyMessage={rootCardId ? "No approved drawings found for this root card" : "Root card ID not found"}
+          emptyMessage={rootCardId ? "No approved drawings found for this route card" : "Route card ID not found"}
         />
         
         {drawings.length > 0 && (

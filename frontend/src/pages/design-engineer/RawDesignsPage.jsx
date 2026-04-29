@@ -8,7 +8,7 @@ const RawDesignsPage = () => {
         <DocumentSelector 
           documentType="raw-designs"
           title="Raw Design Drawings"
-          description="Access all raw design drawings (CAD files, technical drawings) uploaded for your assigned root cards"
+          description="Access all raw design drawings (CAD files, technical drawings) uploaded for your assigned route cards"
         />
       </div>
     </div>

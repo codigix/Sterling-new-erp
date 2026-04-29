@@ -596,11 +596,11 @@ const QuotationsPage = ({ defaultTab }) => {
       );
     }
 
-    // Add Notes if present, filtering out Root Card references as requested
+    // Add Notes if present, filtering out Route Card references as requested
     if (quotation.notes) {
       const filteredNotes = quotation.notes
         .split('\n')
-        .filter(line => !line.toLowerCase().includes('root card'))
+        .filter(line => !line.toLowerCase().includes('route card'))
         .join('\n')
         .trim();
 

@@ -115,7 +115,7 @@ const MaterialRequestPage = () => {
       !formData.materialName ||
       !formData.quantity
     ) {
-      setError("Root Card ID, material name, and quantity are required");
+      setError("Route Card ID, material name, and quantity are required");
       return;
     }
 
@@ -320,14 +320,14 @@ const MaterialRequestPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-1">
-                  Root Card ID
+                  Route Card ID
                 </label>
                 <input
                   type="number"
                   name="rootCardId"
                   value={formData.rootCardId}
                   onChange={handleFormChange}
-                  placeholder="Enter root card ID"
+                  placeholder="Enter route card ID"
                   className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
                   required
                 />

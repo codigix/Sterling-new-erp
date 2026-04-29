@@ -45,7 +45,7 @@ const QualityQAPPage = () => {
         setRootCards(response.data.rootCards || []);
       } catch (error) {
         console.error('Error fetching root cards:', error);
-        showError("Failed to load pending root cards");
+        showError("Failed to load pending route cards");
       } finally {
         setLoading(false);
       }
@@ -113,7 +113,7 @@ const QualityQAPPage = () => {
     try {
       setUploading(true);
       await axios.post(`/root-cards/${rc.id}/return-to-design-engineering`);
-      showSuccess("Root card sent to Design Engineer for Production hand-off");
+      showSuccess("Route card sent to Design Engineer for Production hand-off");
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Error sending to design:", error);
@@ -125,7 +125,7 @@ const QualityQAPPage = () => {
 
   const columns = [
     {
-      header: "Project / Root Card",
+      header: "Project / Route Card",
       accessor: "project_name",
       render: (val, row) => (
         <div className="flex flex-col">
@@ -242,7 +242,7 @@ const QualityQAPPage = () => {
             QAP Management
           </h1>
           <p className="text-slate-500 text-xs mt-0.5">
-            Manage Quality Assurance Plans for pending root cards
+            Manage Quality Assurance Plans for pending route cards
           </p>
         </div>
         <Button 
@@ -270,7 +270,7 @@ const QualityQAPPage = () => {
         columns={columns}
         data={rootCards.filter(rc => !selectedRootCardId || String(rc.id) === String(selectedRootCardId))}
         loading={loading}
-        searchPlaceholder="Search project, root card or PO..."
+        searchPlaceholder="Search project, route card or PO..."
       />
 
       {/* View Modal */}
@@ -292,7 +292,7 @@ const QualityQAPPage = () => {
                     <p className=" text-slate-700 dark:text-slate-300">{viewModalData.rc.project_name}</p>
                   </div>
                   <div>
-                    <p className="text-slate-500">Root Card No.</p>
+                    <p className="text-slate-500">Route Card No.</p>
                     <p className=" text-slate-700 dark:text-slate-300">{viewModalData.rc.root_card_number}</p>
                   </div>
                 </div>

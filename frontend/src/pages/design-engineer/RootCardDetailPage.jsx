@@ -33,7 +33,7 @@ const RootCardDetailPage = () => {
       setDocuments(docsResponse.data.data.documents || []);
     } catch (err) {
       console.error('Error fetching root card details:', err);
-      setError('Failed to load root card details');
+      setError('Failed to load route card details');
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ const RootCardDetailPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-50 p-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded  h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-500">Loading root card details...</p>
+          <p className="text-slate-500">Loading route card details...</p>
         </div>
       </div>
     );
@@ -84,10 +84,10 @@ const RootCardDetailPage = () => {
           className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
         >
           <ArrowLeft size={20} />
-          Back to Root Cards
+          Back to Route Cards
         </button>
         <div className="bg-red-50 border border-red-200 rounded p-6">
-          <p className="text-red-800">{error || 'Root card not found'}</p>
+          <p className="text-red-800">{error || 'Route card not found'}</p>
         </div>
       </div>
     );
@@ -101,12 +101,12 @@ const RootCardDetailPage = () => {
           className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6 "
         >
           <ArrowLeft size={20} />
-          Back to Root Cards
+          Back to Route Cards
         </button>
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Root Card Details</CardTitle>
+            <CardTitle>Route Card Details</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

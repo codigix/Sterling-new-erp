@@ -51,7 +51,7 @@ export const sendAssignmentNotifications = async (rootCardData, formData) => {
           recipientId: assignee,
           type: 'root-card-assigned',
           title: `New ${deptInfo.manager} Task Assigned`,
-          message: `Root Card RC-${rootCardData.id} for ${formData.projectName || formData.clientName} has been assigned to you for ${stepType.replace(/_/g, ' ')}`,
+          message: `Route Card RC-${rootCardData.id} for ${formData.projectName || formData.clientName} has been assigned to you for ${stepType.replace(/_/g, ' ')}`,
           stepType,
           department: deptInfo.department,
           priority: 'high',
@@ -90,8 +90,8 @@ export const sendOrderCreatedNotification = async (rootCardData, formData) => {
     const notification = {
       recipientId: formData.internalProjectOwner || 'admin',
       type: 'root-card-created',
-      title: 'New Root Card Created',
-      message: `Root Card RC-${rootCardData.id} has been successfully created for ${formData.projectName || formData.clientName}. All assigned departments have been notified.`,
+      title: 'New Route Card Created',
+      message: `Route Card RC-${rootCardData.id} has been successfully created for ${formData.projectName || formData.clientName}. All assigned departments have been notified.`,
       priority: 'high',
       metadata: {
         rootCardId: rootCardData.id,

@@ -88,8 +88,8 @@ export const PRIORITY_LEVELS = [
 ];
 
 export const STATUS_LEVELS = [
-  { value: "pending", label: "Root Card Created" },
-  { value: "RC_CREATED", label: "Root Card Created" },
+  { value: "pending", label: "Route Card Created" },
+  { value: "RC_CREATED", label: "Route Card Created" },
   { value: "DESIGN_IN_PROGRESS", label: "Design In Progress" },
   { value: "QUALITY_QAP_PENDING", label: "Quality QAP Upload Pending" },
   { value: "BOM_PREPARATION", label: "BOM Preparation" },

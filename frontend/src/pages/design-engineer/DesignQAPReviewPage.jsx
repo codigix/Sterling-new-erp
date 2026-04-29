@@ -45,7 +45,7 @@ const DesignQAPReviewPage = () => {
         setRootCards(relevant);
       } catch (error) {
         console.error('Error fetching root cards:', error);
-        showError("Failed to load root cards for QAP review");
+        showError("Failed to load route cards for QAP review");
       } finally {
         setLoading(false);
       }
@@ -96,7 +96,7 @@ const DesignQAPReviewPage = () => {
       if (result.isConfirmed) {
         setActionLoading(true);
         await axios.post(`/root-cards/${rc.id}/send-to-production`);
-        showSuccess("Root card sent to Production successfully");
+        showSuccess("Route card sent to Production successfully");
         setRefreshTrigger(prev => prev + 1);
       }
     } catch (error) {
@@ -110,7 +110,7 @@ const DesignQAPReviewPage = () => {
   const columns = [
     {
       key: 'project_name',
-      label: 'Project / Root Card',
+      label: 'Project / Route Card',
       sortable: true,
       render: (value, rc) => {
         const qapFiles = rc.steps?.quality?.qap_files || [];
@@ -195,7 +195,7 @@ const DesignQAPReviewPage = () => {
         <div>
           <h1 className="text-xl  text-slate-900 dark:text-white">QAP Review & Hand-off</h1>
           <p className="text-slate-500 text-xs dark:text-slate-400">
-            Review uploaded QAPs and send root cards to Production
+            Review uploaded QAPs and send route cards to Production
           </p>
         </div>
       </div>
@@ -204,8 +204,8 @@ const DesignQAPReviewPage = () => {
       <div className="flex flex-col md:flex-row gap-4 items-end">
         <div className="flex-1 w-full max-w-md">
           <SearchableSelect
-            label="Select Root Card"
-            placeholder="Search and select root card..."
+            label="Select Route Card"
+            placeholder="Search and select route card..."
             options={rootCardOptions}
             value={selectedRootCardId}
             onChange={setSelectedRootCardId}

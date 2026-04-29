@@ -22,7 +22,7 @@ const NewRootCardPage = () => {
           className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 "
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Root Cards
+          Back to Route Cards
         </button>
       </div>
       <RootCardForm

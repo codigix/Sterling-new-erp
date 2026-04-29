@@ -185,7 +185,7 @@ const DashboardContent = React.memo(({
       item: "Aluminum Sheet",
       qty: "-25 kg",
       type: "out",
-      vendor: "Root Card X",
+      vendor: "Route Card X",
       time: "4 hrs ago",
     },
   ];
@@ -272,7 +272,7 @@ const DashboardContent = React.memo(({
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg  text-slate-900 dark:text-white text-xs flex items-center gap-2">
                 <Clock size={20} className="text-blue-600" />
-                Assigned Root Cards (Logistics & Inventory)
+                Assigned Route Cards (Logistics & Inventory)
               </h3>
               <Link
                 to="/department/tasks"

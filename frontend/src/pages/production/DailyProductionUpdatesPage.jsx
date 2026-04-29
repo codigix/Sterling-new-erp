@@ -118,7 +118,7 @@ const DailyProductionUpdatesPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
             <input 
               type="text" 
-              placeholder="Search project, root card, operator......" 
+              placeholder="Search project, route card, operator......" 
               className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs    outline-none focus:ring-1 focus:ring-blue-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -150,7 +150,7 @@ const DailyProductionUpdatesPage = () => {
             loading={loading}
             columns={[
               {
-                header: "Project / Root Card",
+                header: "Project / Route Card",
                 accessorKey: "project_name",
                 cell: (info) => (
                   <div className="flex items-start gap-3">

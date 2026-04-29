@@ -54,7 +54,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
       setRootCards(response.data.data || []);
     } catch (err) {
       console.error('Error fetching root cards:', err);
-      setError('Failed to load root cards');
+      setError('Failed to load route cards');
     } finally {
       setLoading(false);
     }
@@ -262,7 +262,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
 
       <div className="bg-white rounded  p-6 mb-8">
         <label className="block text-sm  text-gray-700 mb-3">
-          Select Root Card *
+          Select Route Card *
         </label>
         <select
           value={selectedRootCard?.id || ''}
@@ -270,14 +270,14 @@ const DocumentSelector = ({ documentType, title, description }) => {
           disabled={loading}
           className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
         >
-          <option value="">-- Choose a Root Card --</option>
+          <option value="">-- Choose a Route Card --</option>
           {rootCards.map((card) => {
             const baseName = card.project_name || card.po_number || "";
             // Remove RC-XXXX pattern from the start of the string if it exists
             const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
             return (
               <option key={card.id} value={card.id}>
-                {displayName || baseName || `Root Card ${card.id}`} {card.customer ? `(${card.customer})` : ''}
+                {displayName || baseName || `Route Card ${card.id}`} {card.customer ? `(${card.customer})` : ''}
               </option>
             );
           })}
@@ -294,7 +294,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
       {selectedRootCard && (
         <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
           <p className="text-sm text-blue-900">
-            <strong>Selected Root Card:</strong> {selectedRootCard.poNumber} - {selectedRootCard.projectName}
+            <strong>Selected Route Card:</strong> {selectedRootCard.poNumber} - {selectedRootCard.projectName}
           </p>
         </div>
       )}
@@ -382,19 +382,19 @@ const DocumentSelector = ({ documentType, title, description }) => {
         <div className="bg-gray-50 border border-gray-200 rounded p-8 text-center">
           <FileCode className="w-12 h-12 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-700">
-            No {documentType === 'raw-designs' ? 'design drawings' : 'documents'} found for this root card.
+            No {documentType === 'raw-designs' ? 'design drawings' : 'documents'} found for this route card.
           </p>
         </div>
       ) : !selectedRootCard && rootCards.length > 0 ? (
         <div className="bg-gray-50 border border-gray-200 rounded p-8 text-center">
           <p className="text-gray-700">
-            Select a root card to view {documentType === 'raw-designs' ? 'design drawings' : 'documents'}.
+            Select a route card to view {documentType === 'raw-designs' ? 'design drawings' : 'documents'}.
           </p>
         </div>
       ) : !loading && rootCards.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded p-8 text-center">
           <p className="text-yellow-800">
-            No root cards assigned to you yet.
+            No route cards assigned to you yet.
           </p>
         </div>
       ) : null}

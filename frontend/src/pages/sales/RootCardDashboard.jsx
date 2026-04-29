@@ -38,7 +38,7 @@ const RootCardDashboard = () => {
       };
       setStats(stats);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load root cards');
+      setError(err.response?.data?.message || 'Failed to load route cards');
       console.error('Fetch error:', err);
     } finally {
       setLoading(false);
@@ -77,7 +77,7 @@ const RootCardDashboard = () => {
   return (
     <div className="space-y-2">
       <div>
-        <h2 className="text-xl   text-lefttext-white">Root Cards</h2>
+        <h2 className="text-xl   text-lefttext-white">Route Cards</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -125,14 +125,14 @@ const RootCardDashboard = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Your Root Cards</CardTitle>
+          <CardTitle>Your Route Cards</CardTitle>
         </CardHeader>
 
         <CardContent>
           {error && <div className="text-red-600 p-4">{error}</div>}
 
           {filteredRootCards.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">No rootCards</div>
+            <div className="text-center py-8 text-slate-500">No route cards</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

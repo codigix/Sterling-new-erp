@@ -49,7 +49,7 @@ const AdminLayout = () => {
       badge: null,
     },
     {
-      title: "Root Cards",
+      title: "Route Cards",
       path: "/admin/root-cards",
       icon: ShoppingCart,
       badge: null,

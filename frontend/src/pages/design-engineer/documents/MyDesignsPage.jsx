@@ -278,7 +278,7 @@ const MyDesignsPage = () => {
 
   const handleCreateDesign = async () => {
     if (!formData.designName.trim() || !formData.rootCardId) {
-      alert("Please fill in all required fields and select a Root Card");
+      alert("Please fill in all required fields and select a Route Card");
       return;
     }
 
@@ -322,7 +322,7 @@ const MyDesignsPage = () => {
 
       await fetchDesigns();
       alert(
-        `Design "${formData.designName}" created successfully for Root Card ${formData.selectedRootCardId}!\nDesign ID: ${finalDesignId}`
+        `Design "${formData.designName}" created successfully for Route Card ${formData.selectedRootCardId}!\nDesign ID: ${finalDesignId}`
       );
       setShowCreateForm(false);
       setUploadedFiles([]);
@@ -563,11 +563,11 @@ const MyDesignsPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <SearchableSelect
-                    label="Select Root Card *"
+                    label="Select Route Card *"
                     options={projects}
                     value={String(formData.selectedRootCardId || "")}
                     onChange={handleRootCardChange}
-                    placeholder="Select Root Card..."
+                    placeholder="Select Route Card..."
                   />
                 </div>
                 <div>

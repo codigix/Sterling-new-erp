@@ -128,7 +128,7 @@ export const deleteDraft = async (draftId) => {
 export const uploadWizardAttachments = async (rootCardId, formData) => {
   try {
     if (!rootCardId) {
-      throw new Error('Root Card ID is required for uploading attachments');
+      throw new Error('Route Card ID is required for uploading attachments');
     }
 
     const designEng = formData.designEngineering || {};
@@ -224,7 +224,7 @@ export const uploadWizardAttachments = async (rootCardId, formData) => {
 export const saveAllStepsToRootCard = async (rootCardId, formData, poDocuments = []) => {
   try {
     if (!rootCardId) {
-      throw new Error('Root Card ID is required');
+      throw new Error('Route Card ID is required');
     }
 
     const getStepKeyFromNumber = (num) => {

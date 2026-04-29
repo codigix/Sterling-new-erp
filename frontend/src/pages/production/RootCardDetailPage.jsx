@@ -42,8 +42,8 @@ const RootCardDetailPage = () => {
       setPhaseStatus(response.data.phaseStatus || { phase1Completed: false, phase2Unlocked: false });
       setError(null);
     } catch (err) {
-      setError('Failed to fetch root card details');
-      console.error('Error fetching root card:', err);
+      setError('Failed to fetch route card details');
+      console.error('Error fetching route card:', err);
     } finally {
       setLoading(false);
     }
@@ -56,7 +56,7 @@ const RootCardDetailPage = () => {
       setIsEditing(false);
       setError(null);
     } catch (err) {
-      setError('Failed to update root card');
+      setError('Failed to update route card');
     }
   };
 
@@ -107,12 +107,12 @@ const RootCardDetailPage = () => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this root card?')) {
+    if (window.confirm('Are you sure you want to delete this route card?')) {
       try {
         await axios.delete(`/production/root-cards/${id}`, { __sessionGuard: true });
         navigate('/department/production/root-cards');
       } catch (err) {
-        setError('Failed to delete root card');
+        setError('Failed to delete route card');
       }
     }
   };
@@ -171,7 +171,7 @@ const RootCardDetailPage = () => {
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="inline-block animate-spin rounded  h-10 w-10 border-3 border-blue-200 border-b-blue-600 mb-4"></div>
-          <p className="text-slate-500 dark:text-slate-400">Loading root card details...</p>
+          <p className="text-slate-500 dark:text-slate-400">Loading route card details...</p>
         </div>
       </div>
     );
@@ -180,7 +180,7 @@ const RootCardDetailPage = () => {
   if (!card) {
     return (
       <div className="text-center py-16">
-        <p className="text-lg text-slate-500 dark:text-slate-400">Root card not found</p>
+        <p className="text-lg text-slate-500 dark:text-slate-400">Route card not found</p>
       </div>
     );
   }
@@ -196,7 +196,7 @@ const RootCardDetailPage = () => {
         </button>
         <div>
           <h1 className="text-3xl  text-slate-900 dark:text-white">{card.project_name || card.title}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Root Card #{card.id}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Route Card #{card.id}</p>
           {card.project_code && (
             <p className="text-xs text-slate-400">Project Code: {card.project_code}</p>
           )}
@@ -270,7 +270,7 @@ const RootCardDetailPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
-                    Root Card ID
+                    Route Card ID
                   </label>
                   <p className="text-slate-900 dark:text-white ">{card.id || '-'}</p>
                 </div>
@@ -725,7 +725,7 @@ const RootCardDetailPage = () => {
 
           {card.rootCardDetails && (
             <Card className="p-6">
-              <h3 className="text-lg  text-slate-900 dark:text-white mb-4">Root Card Details</h3>
+              <h3 className="text-lg  text-slate-900 dark:text-white mb-4">Route Card Details</h3>
               <div className="space-y-4 text-sm">
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 mb-1">PO Number</p>

@@ -46,7 +46,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
     <div className="space-y-2">
       <FormSection
         title="Sales Order Details"
-        subtitle="Enter SO details for this root card"
+        subtitle="Enter SO details for this route card"
         icon={FileText}
       >
         <div className="space-y-2">

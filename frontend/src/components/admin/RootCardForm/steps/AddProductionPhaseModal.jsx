@@ -27,7 +27,7 @@ const AddProductionPhaseModal = ({ isOpen, onClose, onSuccess }) => {
       is_default: false
     };
 
-    toast.success("Phase added to this root card");
+    toast.success("Phase added to this route card");
     onSuccess(newLocalPhase);
     setName("");
     setDescription("");

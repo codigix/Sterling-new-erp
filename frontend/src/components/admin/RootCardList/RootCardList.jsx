@@ -80,10 +80,10 @@ const RootCardList = ({
       try {
         await axios.delete(`/root-cards/${rootCardId}`);
         setRootCards(rootCards.filter(rootCard => rootCard.id !== rootCardId));
-        showSuccess('Root card deleted successfully');
+        showSuccess('Route card deleted successfully');
       } catch (error) {
         console.error('Error deleting root card:', error);
-        const errorMessage = error.response?.data?.message || 'Failed to delete root card';
+        const errorMessage = error.response?.data?.message || 'Failed to delete route card';
         showError(`Error: ${errorMessage}`);
       }
     }
@@ -379,10 +379,10 @@ const RootCardList = ({
       <div className="flex items-center text-xs justify-between mb-2">
         <div>
           <h1 className="text-xl  text-slate-900 dark:text-white text-left ">
-            Root Cards
+            Route Cards
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-left">
-            Manage and track all root cards
+            Manage and track all route cards
           </p>
         </div>
         {isAdmin && (
@@ -391,7 +391,7 @@ const RootCardList = ({
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white  transition-all p-2"
           >
             <Plus className="w-4 h-4" />
-            <span className="">New Root Card</span>
+            <span className="">New Route Card</span>
           </Button>
         )}
       </div>
@@ -444,14 +444,14 @@ const RootCardList = ({
             <div className="flex-1 flex flex-col items-center justify-center py-20 space-y-4">
               <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
               <p className="text-sm  text-slate-500 animate-pulse">
-                Loading root cards...
+                Loading route cards...
               </p>
             </div>
           ) : (
             <DataTable
               columns={columns}
               data={filteredRootCards}
-              emptyMessage="No root cards found"
+              emptyMessage="No route cards found"
               sortable={true}
               striped={true}
               hover={true}

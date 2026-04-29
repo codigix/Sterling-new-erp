@@ -374,7 +374,7 @@ const DesignDrawingManagement = () => {
     },
     {
       key: "project_name",
-      label: "Project / Root Card",
+      label: "Project / Route Card",
       sortable: true,
       render: (value, doc) => (
         <div>
@@ -588,7 +588,7 @@ const DesignDrawingManagement = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-xl  text-slate-900 dark:text-white">Design Drawing Management</h1>
-          <p className="text-slate-500 text-xs">Upload and manage design revisions for root cards</p>
+          <p className="text-slate-500 text-xs">Upload and manage design revisions for route cards</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowUploadModal(true); }}
@@ -640,7 +640,7 @@ const DesignDrawingManagement = () => {
                 onChange={(e) => setRootCardId(e.target.value)}
                 className="text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none w-full"
               >
-                <option value="">All Root Cards</option>
+                <option value="">All Route Cards</option>
                 {rootCards.map(rc => {
                   const baseName = rc.project_name || rc.po_number || "";
                   const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
@@ -672,14 +672,14 @@ const DesignDrawingManagement = () => {
             <form onSubmit={handleUpload} className="p-2 space-y-4">
               {!isRevision && (
                 <div>
-                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Root Card (Project)</label>
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Route Card (Project)</label>
                   <select
                     required
                     value={formData.root_card_id || rootCardId}
                     onChange={(e) => setFormData({ ...formData, root_card_id: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select Root Card...</option>
+                    <option value="">Select Route Card...</option>
                     {rootCards.map(rc => {
                       const baseName = rc.project_name || rc.po_number || "";
                       const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');

@@ -176,7 +176,7 @@ const MaterialInspectionPage = () => {
       setRootCards(response.data);
     } catch (error) {
       console.error("Error fetching root cards:", error);
-      showError("Failed to load root cards");
+      showError("Failed to load route cards");
     } finally {
       setLoadingRC(false);
     }
@@ -467,7 +467,7 @@ const MaterialInspectionPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-100 dark:border-slate-700 shadow-sm">
         <SearchableSelect
-          label="Filter by Root Card (Project)"
+          label="Filter by Route Card (Project)"
           options={rootCardOptions}
           value={selectedRootCardId}
           onChange={handleRootCardChange}

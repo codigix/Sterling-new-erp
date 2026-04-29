@@ -453,7 +453,7 @@ const CreateBOMPage = () => {
       ]);
 
       const rootCard = rcRes.data.rootCard || rcRes.data;
-      if (!rootCard) throw new Error("Root card not found");
+      if (!rootCard) throw new Error("Route card not found");
 
       // Map database step keys to frontend wizard step keys if they differ
       if (rootCard.steps) {
@@ -581,7 +581,7 @@ const CreateBOMPage = () => {
       });
     } catch (error) {
       console.error("Error fetching root card details:", error);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to fetch root card details' });
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to fetch route card details' });
     } finally {
       setLoadingMaterials(false);
     }
@@ -641,7 +641,7 @@ const CreateBOMPage = () => {
       Swal.fire({
         icon: "warning",
         title: "Required Field",
-        text: "Please select a Root Card",
+        text: "Please select a Route Card",
       });
       return;
     }
@@ -740,13 +740,13 @@ const CreateBOMPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-3  gap-3">
               <div className="">
                 <SearchableSelect
-                  label="Fetch from Root Card"
+                  label="Fetch from Route Card"
                   name="rootCardSelect"
                   id="rootCardSelect"
                   options={rootCardOptions}
                   value={bomData.productInfo.rootCardId}
                   onChange={handleRootCardSelect}
-                  placeholder="Select a root card to auto-fill details"
+                  placeholder="Select a route card to auto-fill details"
                   disabled={loadingMaterials}
                 />
                 
@@ -781,7 +781,7 @@ const CreateBOMPage = () => {
             </div>
             <p className="text-xs  text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5">
                   <span className="w-1 h-1 rounded  bg-blue-500"></span>
-                  Selecting a root card will automatically populate product information and link this BOM to its project.
+                  Selecting a route card will automatically populate product information and link this BOM to its project.
                 </p>
           </AccordionSection>
 
@@ -798,8 +798,8 @@ const CreateBOMPage = () => {
                 <div className="mx-auto w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded  flex items-center justify-center mb-3">
                   <Plus size={15} className="text-slate-400" />
                 </div>
-                <h4 className="text-sm  text-slate-900 dark:text-white mb-1">No Root Card Selected</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Please select a Root Card in Product Information to start adding materials.</p>
+                <h4 className="text-sm  text-slate-900 dark:text-white mb-1">No Route Card Selected</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Please select a Route Card in Product Information to start adding materials.</p>
               </div>
             ) : (
               <div className="space-y-2">

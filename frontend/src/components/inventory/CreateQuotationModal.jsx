@@ -468,7 +468,7 @@ const CreateQuotationModal = ({
       }
     } catch (error) {
       console.error("Error fetching root card data:", error);
-      toast.error("Failed to load root card details");
+      toast.error("Failed to load route card details");
     } finally {
       setLoadingMaterials(false);
     }
@@ -1097,7 +1097,7 @@ const CreateQuotationModal = ({
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 ">
                 {analysisMode
-                  ? "Review root card stock availability"
+                  ? "Review route card stock availability"
                   : formData.type === "inbound"
                     ? "Record details from vendor response"
                     : "Create a new vendor quotation request"}
@@ -1121,7 +1121,7 @@ const CreateQuotationModal = ({
                 </div>
               ) : rootCardMaterials.length === 0 ? (
                 <p className="text-center py-8 text-slate-500">
-                  No materials found for this root card.
+                  No materials found for this route card.
                 </p>
               ) : (
                 <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded">
@@ -1359,7 +1359,7 @@ const CreateQuotationModal = ({
                           ) : (
                             <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded">
                               <p className="text-sm text-amber-800 dark:text-amber-200">
-                                ℹ️ No RFQs found for this root card. Create an
+                                ℹ️ No RFQs found for this route card. Create an
                                 RFQ from the "Sent Requests" tab first.
                               </p>
                             </div>
@@ -1378,7 +1378,7 @@ const CreateQuotationModal = ({
                   <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-900/20 p-3 rounded border border-blue-100 dark:border-blue-800">
                     <span className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
                       <Check size={15} />
-                      Materials loaded from root card analysis
+                      Materials loaded from route card analysis
                     </span>
                     <button
                       type="button"

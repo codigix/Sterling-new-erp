@@ -149,7 +149,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
     }
 
     if (!rootCardId) {
-      toast.error("Please select a root card first");
+      toast.error("Please select a route card first");
       return;
     }
 
@@ -314,7 +314,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
 
         <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
           <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
-            Select Root Card
+            Select Route Card
           </label>
           <div className="relative">
             <button
@@ -323,9 +323,9 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
             >
               <span>
                 {selectedRootCard ? (
-                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Root Card ${selectedRootCard.id}`).replace(/^RC-\d{4}\s*[-:]\s*/i, '') || 
-                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Root Card ${selectedRootCard.id}`)
-                ) : "Select a root card"}
+                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Route Card ${selectedRootCard.id}`).replace(/^RC-\d{4}\s*[-:]\s*/i, '') || 
+                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Route Card ${selectedRootCard.id}`)
+                ) : "Select a route card"}
               </span>
               <ChevronDown size={15} />
             </button>
@@ -334,7 +334,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
               <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded shadow-lg z-10">
                 {rootCards.length === 0 ? (
                   <div className="p-2 text-slate-500 dark:text-slate-400">
-                    No root cards available
+                    No route cards available
                   </div>
                 ) : (
                   rootCards.map((rc) => {
@@ -349,7 +349,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                         }}
                         className="w-full text-left p-2 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-600 first:border-t-0"
                       >
-                        {displayName || baseName || `Root Card ${rc.id}`}
+                        {displayName || baseName || `Route Card ${rc.id}`}
                       </button>
                     );
                   })
@@ -419,11 +419,11 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
           ) : getTabContent().length === 0 ? (
             <div className="text-center py-12">
               <p className="text-slate-500 dark:text-slate-400 mb-3">
-                No documents found for the selected root card
+                No documents found for the selected route card
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 {activeTab === "raw-designs" ? "No raw design drawings have been uploaded yet." : "No required documents have been uploaded yet."}
-                {rootCards.length > 1 && " Try selecting a different root card above."}
+                {rootCards.length > 1 && " Try selecting a different route card above."}
               </p>
             </div>
           ) : (

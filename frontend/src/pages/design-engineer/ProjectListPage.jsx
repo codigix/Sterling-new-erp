@@ -128,7 +128,7 @@ const ProjectListPage = () => {
                 className="flex items-center gap-2 whitespace-nowrap"
               >
                 <Plus size={20} />
-                New Root Card
+                New Route Card
               </Button>
               <Button
                 onClick={() => navigate("/design-engineer/project-details/new")}

@@ -25,7 +25,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
       const contentWidth = pageWidth - 2 * margin;
 
       doc.setFontSize(16);
-      doc.text('Root Card Details', margin, yPosition);
+      doc.text('Route Card Details', margin, yPosition);
       yPosition += 15;
 
       doc.setFontSize(10);
@@ -199,10 +199,10 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                 <ArrowLeft size={20} className="text-slate-500" />
               </button>
               <div>
-                <h1 className="text-xl  text-slate-900">Root Card Details
+                <h1 className="text-xl  text-slate-900">Route Card Details
 </h1>
                 <p className="text-xs text-slate-500">
-                  {initialData?.po_number || formData?.poNumber || 'New Root Card'}
+                  {initialData?.po_number || formData?.poNumber || 'New Route Card'}
                 </p>
               </div>
             </div>
@@ -223,7 +223,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
       <div className=" mx-auto  p-2 space-y-2">
         {!formData?.poNumber && !initialData?.po_number && (
           <div className="text-center py-12">
-            <p className="text-slate-500">No data filled in this root card yet.</p>
+            <p className="text-slate-500">No data filled in this route card yet.</p>
           </div>
         )}
 

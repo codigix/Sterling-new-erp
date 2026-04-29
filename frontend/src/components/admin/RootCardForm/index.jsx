@@ -244,14 +244,14 @@ function RootCardFormContent({
 
         Swal.fire({
           title: "Assigned!",
-          text: "Root Card has been assigned successfully.",
+          text: "Route Card has been assigned successfully.",
           icon: "success",
           confirmButtonColor: "#3085d6",
         }).then(() => {
           if (onSubmit) onSubmit();
         });
       } catch (err) {
-        showError(err.response?.data?.message || "Failed to assign root card");
+        showError(err.response?.data?.message || "Failed to assign route card");
       } finally {
         setLoading(false);
       }
@@ -287,7 +287,7 @@ function RootCardFormContent({
       const rootCardId = response.data.rootCard?.id || response.data.id || initialData?.id;
 
       if (!rootCardId) {
-        throw new Error("Failed to process root card - no ID returned");
+        throw new Error("Failed to process route card - no ID returned");
       }
 
       const mergedFormData = {
@@ -304,7 +304,7 @@ function RootCardFormContent({
 
       Swal.fire({
         title: "Success!",
-        text: `Root Card ${mode === "edit" ? "updated" : "created"} successfully.`,
+        text: `Route Card ${mode === "edit" ? "updated" : "created"} successfully.`,
         icon: "success",
         confirmButtonColor: "#3085d6",
       }).then(() => {

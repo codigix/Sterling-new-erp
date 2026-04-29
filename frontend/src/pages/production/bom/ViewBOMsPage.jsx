@@ -64,7 +64,7 @@ const ViewBOMsPage = () => {
       setRootCards(rcRes.data.rootCards || rcRes.data || []);
     } catch (err) {
       console.error("Failed to fetch data:", err);
-      setError("Failed to load BOMs or Root Cards");
+      setError("Failed to load BOMs or Route Cards");
     } finally {
       setLoading(false);
     }
@@ -128,7 +128,7 @@ const ViewBOMsPage = () => {
       label: rc.project_name || rc.title || 'N/A',
       value: String(rc.id)
     }));
-    return [{ label: "All Projects / Root Cards", value: "" }, ...options];
+    return [{ label: "All Projects / Route Cards", value: "" }, ...options];
   }, [rootCards]);
 
   const stats = useMemo(() => {
@@ -154,7 +154,7 @@ const ViewBOMsPage = () => {
   const columns = [
     {
       key: "rootCardId",
-      label: "PROJECT / ROOT CARD",
+      label: "PROJECT / ROUTE CARD",
       render: (val) => {
         const rc = rootCardMap[String(val)];
         return (
@@ -333,11 +333,11 @@ const ViewBOMsPage = () => {
           <CardContent className=" flex items-center gap-4">
             <div className="flex-1 max-w-md">
               <SearchableSelect
-                label="Filter by Root Card"
+                label="Filter by Route Card"
                 options={rootCardOptions}
                 value={rootCardFilter}
                 onChange={(val) => setRootCardFilter(val)}
-                placeholder="Select Root Card..."
+                placeholder="Select Route Card..."
                 containerClassName="mt-0"
                 icon={<ClipboardList size={15} />}
               />

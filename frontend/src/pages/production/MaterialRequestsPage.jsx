@@ -248,7 +248,7 @@ const MaterialRequestsPage = ({ embed = false }) => {
             onChange={(e) => setRootCardFilter(e.target.value)}
             className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
           >
-            <option value="all">All Root Cards</option>
+            <option value="all">All Route Cards</option>
             {rootCards.map((rc) => (
               <option key={rc.id} value={rc.id.toString()}>
                 {rc.project_name}
