@@ -3,11 +3,13 @@ const router = express.Router();
 const { 
     addGRNToStock,
     approveGRN,
+    getPurchaseReceipts,
     getPurchaseReceiptById,
     releaseGRNMaterial
 } = require('../controllers/purchaseOrderController');
 const auth = require('../middleware/authMiddleware');
 
+router.get('/', auth, getPurchaseReceipts);
 router.get('/:id', auth, getPurchaseReceiptById);
 router.post('/:id/approve', auth, approveGRN);
 router.post('/:id/add-to-stock', auth, addGRNToStock);

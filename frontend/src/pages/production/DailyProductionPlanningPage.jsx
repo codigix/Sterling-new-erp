@@ -766,35 +766,29 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                         disabled={mode === "view"}
                       />
                     </div>
-                    <div className="md:col-span-4 space-y-1.5">
-                      <label className="text-xs  text-slate-400  ">Inventory Release (ST#)</label>
-                      <SearchableSelect
-                        options={entryOptions}
-                        value={selectedReleaseEntry}
-                        onChange={(val) => {
-                          setSelectedReleaseEntry(val);
-                        }}
-                        placeholder={selectedProject ? (fetchingMaterials ? "FETCHING..." : "Select Material Piece...") : "..."}
-                        disabled={!selectedProject || mode === "view"}
-                      />
-                    </div>
-                    {selectedProject && (
-                      <div className="md:col-span-4 flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded border border-indigo-100 dark:border-indigo-900/30">
-                        <div className="flex-1">
-                          <p className="text-xs  text-indigo-600   mb-1">Project Reference</p>
-                          <p className="text-xs  text-indigo-900 dark:text-indigo-300 truncate ">REF: {selectedProject.ref}</p>
-                        </div>
-                        <div className="border-l border-indigo-100 dark:border-indigo-900/30 pl-3 flex items-center">
-                          <button
-                            onClick={() => setShowReleasedMaterials(true)}
-                            className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded border border-indigo-200 dark:border-indigo-800  hover:bg-indigo-50 transition-colors group relative"
-                            title="View Released History"
-                          >
-                            <Eye size={15} />
-                          </button>
-                        </div>
+                    <div className="md:col-span-8 flex items-end gap-2">
+                      <div className="flex-1 space-y-1.5">
+                        <label className="text-xs text-slate-400">Inventory Release</label>
+                        <SearchableSelect
+                          options={entryOptions}
+                          value={selectedReleaseEntry}
+                          onChange={(val) => {
+                            setSelectedReleaseEntry(val);
+                          }}
+                          placeholder={selectedProject ? (fetchingMaterials ? "FETCHING..." : "Select Material Piece...") : "..."}
+                          disabled={!selectedProject || mode === "view"}
+                        />
                       </div>
-                    )}
+                      {selectedProject && (
+                        <button
+                          onClick={() => setShowReleasedMaterials(true)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 text-indigo-600 rounded border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 transition-colors group text-xs font-medium h-9 whitespace-nowrap"
+                        >
+                          <Eye size={14} />
+                          view material
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </AccordionSection>
               )}
