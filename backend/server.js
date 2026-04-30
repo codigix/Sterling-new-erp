@@ -22,6 +22,7 @@ const productionRoutes = require('./routes/productionRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 const reportRoutes = require('./routes/reportRoutes');
 const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
+const accountingRoutes = require('./routes/accountingRoutes');
 const path = require('path');
 const app = express();
 
@@ -102,6 +103,9 @@ app.use('/api/reports', reportRoutes);
 
 // Departmental Task Routes
 app.use('/api/departmental-tasks', departmentTaskRoutes);
+
+// Accounting Routes
+app.use('/api/accounting', accountingRoutes);
 
 // Test Route
 app.get('/api/test', async (req, res) => {

@@ -95,27 +95,6 @@ const DepartmentLayout = () => {
       path: "/accountant/dashboard",
       navigation: [
         { title: "Dashboard", path: "/accountant/dashboard", icon: BarChart3 },
-        { 
-          title: "Accounts Payable", 
-          icon: ShoppingCart,
-          submenu: [
-            { title: "Vendor Invoices", path: "/accountant/payable/vendor-invoices", icon: FileText },
-            { title: "Bill Payments", path: "/accountant/payable/bill-payments", icon: Activity }
-          ]
-        },
-        { 
-          title: "Accounts Receivable", 
-          icon: BarChart3,
-          submenu: [
-            { title: "Customer Invoices", path: "/accountant/receivable/customer-invoices", icon: FileText },
-            { title: "Payment Tracking", path: "/accountant/receivable/payment-tracking", icon: Activity }
-          ]
-        },
-        { title: "General Ledger", path: "/accountant/ledger/entries", icon: FileText },
-        { title: "Financial Reports", path: "/accountant/reports/income-statement", icon: BarChart3 },
-        { title: "Bank Reconciliation", path: "/accountant/bank/reconciliation", icon: Home },
-        { title: "Budget Management", path: "/accountant/budget/management", icon: Activity },
-        { title: "Expense Tracking", path: "/accountant/expense/tracking", icon: ShoppingCart },
       ]
     },
   };

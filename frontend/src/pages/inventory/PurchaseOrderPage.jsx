@@ -386,7 +386,7 @@ const KanbanView = ({
   );
 };
 
-const PurchaseOrderPage = ({ isInventoryView = false }) => {
+const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -811,7 +811,9 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
         (po.inventory_status && po.inventory_status !== "pending") ||
         ["material received", "delivered", "fulfilled"].includes(po.status)
       )
-    : purchaseOrders;
+    : isAccountantView 
+      ? purchaseOrders.filter(po => po.status === "sent to inventory")
+      : purchaseOrders;
 
   const projects = Array.from(new Set(displayedOrders.map(po => po.root_card_project_name).filter(Boolean))).sort();
 
@@ -849,7 +851,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
             <button onClick={fetchPurchaseOrders} className="p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:bg-slate-50 transition-all">
               <RefreshCw size={14} />
             </button>
-            {!isInventoryView && (
+            {!isInventoryView && !isAccountantView && (
               <button onClick={() => { setEditPO(null); setShowCreateModal(true); }} className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 shadow-sm transition-all">
                 <Plus size={14} /> Create Order
               </button>
@@ -945,7 +947,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
               </div>
             )
           }] : []),
-          {
+          ...(!isAccountantView ? [{
             key: isInventoryView ? "inventory_status" : "status",
             label: "Status",
             className: "text-center",
@@ -974,56 +976,75 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                 </span>
               );
             }
-          },
+          }] : []),
           {
             key: "actions",
             label: "Actions",
             align: "center",
-            render: (_, po) => (
-              <div className="flex items-center justify-center gap-1">
-                <button onClick={() => handleViewPO(po)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all" title="View"><Eye size={14} /></button>
-                {po.status === "draft" && !isInventoryView && (
-                  <button onClick={() => handleEditPO(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Edit"><Edit size={14} /></button>
-                )}
-                {!isInventoryView && (
-                  <>
-                    <button onClick={() => handleMonitorReplies(po)} className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-all relative" title="Monitor Communication">
-                      <MessageSquare size={14} className={po.unread_communication_count > 0 ? "text-purple-600 animate-pulse" : ""} />
-                      {po.unread_communication_count > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border border-white font-bold">
-                          {po.unread_communication_count}
-                        </span>
-                      )}
-                    </button>
-                    <button 
-                      onClick={() => handleSendEmail(po)} 
-                      disabled={po.status !== "draft"}
-                      className={`p-1.5 rounded transition-all ${po.status === "draft" ? "text-slate-400 hover:text-blue-600 hover:bg-blue-50" : "text-slate-200 cursor-not-allowed"}`} 
-                      title={po.status === "draft" ? "Send Email" : "Already Sent"}
-                    >
-                      <Mail size={14} />
-                    </button>
+            render: (_, po) => {
+              if (isAccountantView) {
+                return (
+                  <div className="flex items-center justify-center gap-1">
+                    <button onClick={() => handleViewPO(po)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all" title="View"><Eye size={14} /></button>
                     <button onClick={() => handleExportToExcel(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Export to Excel"><FileSpreadsheet size={14} /></button>
-                    {(po.status === "approved" || po.status === "submitted") && po.status !== "sent to inventory" && (
-                      <button onClick={() => handleSendToInventory(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Send to Inventory"><Send size={14} /></button>
-                    )}
-                  </>
-                )}
-                <button onClick={() => handleDownloadPO(po)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all" title="Download PDF"><Download size={14} /></button>
-                {isInventoryView && (
-                  <button 
-                    onClick={() => handleOpenUploadModal(po)} 
-                    className={`p-1.5 rounded transition-all ${po.dc_approved === 1 ? 'text-emerald-600 hover:bg-emerald-50' : 'text-blue-600 hover:bg-blue-50'}`}
-                    title={["fulfilled", "delivered"].includes(po.inventory_status) ? "View Delivery Challan" : "Upload Delivery Challan"}
-                  >
-                    <Paperclip size={14} />
-                  </button>
-                )}
-                {isInventoryView && ["material received", "partially received"].includes(po.inventory_status) && po.dc_approved === 1 && (
-                  <button onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-all" title="Create GRN"><FileText size={14} /></button>
-                )}
-              </div>
-            )
+                    <button onClick={() => handleDownloadPO(po)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all" title="Download PDF"><Download size={14} /></button>
+                    <button 
+                      onClick={() => handleOpenUploadModal(po)} 
+                      className={`p-1.5 rounded transition-all ${po.dc_approved === 1 ? 'text-emerald-600 hover:bg-emerald-50' : 'text-blue-600 hover:bg-blue-50'}`}
+                      title="View Delivery Challan"
+                    >
+                      <Paperclip size={14} />
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="flex items-center justify-center gap-1">
+                  <button onClick={() => handleViewPO(po)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all" title="View"><Eye size={14} /></button>
+                  {po.status === "draft" && !isInventoryView && (
+                    <button onClick={() => handleEditPO(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Edit"><Edit size={14} /></button>
+                  )}
+                  {!isInventoryView && (
+                    <>
+                      <button onClick={() => handleMonitorReplies(po)} className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-all relative" title="Monitor Communication">
+                        <MessageSquare size={14} className={po.unread_communication_count > 0 ? "text-purple-600 animate-pulse" : ""} />
+                        {po.unread_communication_count > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border border-white font-bold">
+                            {po.unread_communication_count}
+                          </span>
+                        )}
+                      </button>
+                      <button 
+                        onClick={() => handleSendEmail(po)} 
+                        disabled={po.status !== "draft"}
+                        className={`p-1.5 rounded transition-all ${po.status === "draft" ? "text-slate-400 hover:text-blue-600 hover:bg-blue-50" : "text-slate-200 cursor-not-allowed"}`} 
+                        title={po.status === "draft" ? "Send Email" : "Already Sent"}
+                      >
+                        <Mail size={14} />
+                      </button>
+                      <button onClick={() => handleExportToExcel(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Export to Excel"><FileSpreadsheet size={14} /></button>
+                      {(po.status === "approved" || po.status === "submitted") && po.status !== "sent to inventory" && (
+                        <button onClick={() => handleSendToInventory(po)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Send to Inventory"><Send size={14} /></button>
+                      )}
+                    </>
+                  )}
+                  <button onClick={() => handleDownloadPO(po)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all" title="Download PDF"><Download size={14} /></button>
+                  {isInventoryView && (
+                    <button 
+                      onClick={() => handleOpenUploadModal(po)} 
+                      className={`p-1.5 rounded transition-all ${po.dc_approved === 1 ? 'text-emerald-600 hover:bg-emerald-50' : 'text-blue-600 hover:bg-blue-50'}`}
+                      title={["fulfilled", "delivered"].includes(po.inventory_status) ? "View Delivery Challan" : "Upload Delivery Challan"}
+                    >
+                      <Paperclip size={14} />
+                    </button>
+                  )}
+                  {isInventoryView && ["material received", "partially received"].includes(po.inventory_status) && po.dc_approved === 1 && (
+                    <button onClick={() => navigate(`/department/inventory/grn?poId=${po.id}`)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-all" title="Create GRN"><FileText size={14} /></button>
+                  )}
+                </div>
+              );
+            }
           }
         ]}
         renderRowDetail={(po) => <PurchaseOrderDetailTable po={po} />}
@@ -1224,7 +1245,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
           <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                {["fulfilled", "delivered"].includes(selectedPOForUpload?.inventory_status) ? "Delivery Challan Documents" : "Upload Delivery Challan"}
+                {["fulfilled", "delivered"].includes(selectedPOForUpload?.inventory_status) || isAccountantView ? "Delivery Challan Documents" : "Upload Delivery Challan"}
               </h3>
               <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-500">
                 <X size={20} />
@@ -1262,7 +1283,7 @@ const PurchaseOrderPage = ({ isInventoryView = false }) => {
                 </div>
               )}
               
-              {!["fulfilled", "delivered"].includes(selectedPOForUpload?.inventory_status) ? (
+              {!["fulfilled", "delivered"].includes(selectedPOForUpload?.inventory_status) && !isAccountantView ? (
                 <>
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Select Files (PDF, Images)</label>

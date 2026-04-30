@@ -1,30 +1,35 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import RoleDashboardLayout from "../../components/layout/RoleDashboardLayout";
-import FinancialOverviewPage from "../accountant/FinancialOverviewPage";
-import DepartmentPortalTasksPage from "../department/DepartmentPortalTasksPage";
-import VendorInvoicesPage from "../accountant/VendorInvoicesPage";
-import BillPaymentsPage from "../accountant/BillPaymentsPage";
-import CustomerInvoicesPage from "../accountant/CustomerInvoicesPage";
-import PaymentTrackingPage from "../accountant/PaymentTrackingPage";
-import GeneralLedgerPage from "../accountant/GeneralLedgerPage";
-import ChartOfAccountsPage from "../accountant/ChartOfAccountsPage";
-import IncomeStatementPage from "../accountant/IncomeStatementPage";
-import BalanceSheetPage from "../accountant/BalanceSheetPage";
-import BankReconciliationPage from "../accountant/BankReconciliationPage";
-import BudgetManagementPage from "../accountant/BudgetManagementPage";
-import ExpenseTrackingPage from "../accountant/ExpenseTrackingPage";
-import NotificationsPage from "../notifications/NotificationsPage";
 import {
   BarChart3,
-  Coins,
   TrendingUp,
-  FileText,
+  ShoppingCart,
+  Loader2,
+  Layers,
+  Truck,
   CreditCard,
-  Banknote,
-  PieChart,
-  AlertTriangle,
+  Wallet,
+  FileText,
+  Activity,
+  List,
+  LayoutDashboard,
+  ClipboardList,
 } from "lucide-react";
+
+const PurchaseOrderPage = lazy(() => import("../inventory/PurchaseOrderPage"));
+const UniversalRootCardsPage = lazy(() => import("../shared/UniversalRootCardsPage"));
+const UniversalRootCardDetailPage = lazy(() => import("../shared/UniversalRootCardDetailPage"));
+const OutsourcingChallansPage = lazy(() => import("../production/OutsourcingChallansPage"));
+const DepartmentPortalTasksPage = lazy(() => import("../department/DepartmentPortalTasksPage"));
+
+// Accounting Module Pages
+const VendorInvoicesPage = lazy(() => import("../accounting/VendorInvoicesPage"));
+const BillPaymentsPage = lazy(() => import("../accounting/BillPaymentsPage"));
+const CustomerInvoicesPage = lazy(() => import("../accounting/CustomerInvoicesPage"));
+const PaymentTrackingPage = lazy(() => import("../accounting/PaymentTrackingPage"));
+const LedgerEntriesPage = lazy(() => import("../accounting/LedgerEntriesPage"));
+const ChartOfAccountsPage = lazy(() => import("../accounting/ChartOfAccountsPage"));
 
 const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
   <div className="space-y-2 p-4">
@@ -95,57 +100,16 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-2">
-        <h2 className="text-lg  text-slate-900 dark:text-white mb-4">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-2 gap-3">
-          <Link
-            to="/accountant/payable/vendor-invoices"
-            className="p-4 bg-blue-50 dark:bg-slate-700 rounded hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors"
-          >
-            <Coins size={15} className="text-blue-600 mb-2" />
-            <p className=" text-slate-900 dark:text-white text-xs">
-              Vendor Invoices
-            </p>
-          </Link>
-          <Link
-            to="/accountant/receivable/customer-invoices"
-            className="p-4 bg-green-50 dark:bg-slate-700 rounded hover:bg-green-100 dark:hover:bg-slate-600 transition-colors"
-          >
-            <Coins size={15} className="text-green-600 mb-2" />
-            <p className=" text-slate-900 dark:text-white text-xs">
-              Customer Invoices
-            </p>
-          </Link>
-          <Link
-            to="/accountant/reports/income-statement"
-            className="p-4 bg-purple-50 dark:bg-slate-700 rounded hover:bg-purple-100 dark:hover:bg-slate-600 transition-colors"
-          >
-            <FileText size={15} className="text-purple-600 mb-2" />
-            <p className=" text-slate-900 dark:text-white text-xs">
-              Income Statement
-            </p>
-          </Link>
-          <Link
-            to="/accountant/budget/management"
-            className="p-4 bg-orange-50 dark:bg-slate-700 rounded hover:bg-orange-100 dark:hover:bg-slate-600 transition-colors"
-          >
-            <PieChart size={15} className="text-orange-600 mb-2" />
-            <p className=" text-slate-900 dark:text-white text-xs">
-              Budget
-            </p>
-          </Link>
-        </div>
-      </div>
-
+      {/* Quick Actions removed as they point to deleted routes */}
+      
+      {/* Keep Alerts for now as they are part of Dashboard view */}
       <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-2">
         <h2 className="text-lg  text-slate-900 dark:text-white mb-4">
           Alerts
         </h2>
         <div className="space-y-3">
           <div className="flex gap-3 p-3 bg-red-50 dark:bg-red-900 rounded">
-            <AlertTriangle
+            <TrendingUp
               size={20}
               className="text-red-600 flex-shrink-0 mt-0.5"
             />
@@ -159,7 +123,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             </div>
           </div>
           <div className="flex gap-3 p-3 bg-yellow-50 dark:bg-yellow-900 rounded">
-            <AlertTriangle
+            <TrendingUp
               size={20}
               className="text-yellow-600 flex-shrink-0 mt-0.5"
             />
@@ -173,7 +137,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
             </div>
           </div>
           <div className="flex gap-3 p-3 bg-blue-50 dark:bg-blue-900 rounded">
-            <AlertTriangle
+            <TrendingUp
               size={20}
               className="text-blue-600 flex-shrink-0 mt-0.5"
             />
@@ -199,12 +163,22 @@ const AccountantDashboard = () => {
     {
       title: "Dashboard",
       path: "/accountant/dashboard",
-      icon: BarChart3,
+      icon: LayoutDashboard,
     },
     {
-      title: "Departmental Tasks",
-      path: "/accountant/tasks",
-      icon: FileText,
+      title: "Route Cards",
+      path: "/accountant/root-cards",
+      icon: Layers,
+    },
+    {
+      title: "Purchase Orders",
+      path: "/accountant/purchase-orders",
+      icon: ShoppingCart,
+    },
+    {
+      title: "Outsourcing Challans",
+      path: "/accountant/challans",
+      icon: Truck,
     },
     {
       title: "Accounts Payable",
@@ -218,13 +192,13 @@ const AccountantDashboard = () => {
         {
           title: "Bill Payments",
           path: "/accountant/payable/bill-payments",
-          icon: CreditCard,
+          icon: Wallet,
         },
       ],
     },
     {
       title: "Accounts Receivable",
-      icon: Coins,
+      icon: Activity,
       submenu: [
         {
           title: "Customer Invoices",
@@ -240,7 +214,7 @@ const AccountantDashboard = () => {
     },
     {
       title: "General Ledger",
-      icon: FileText,
+      icon: List,
       submenu: [
         {
           title: "Ledger Entries",
@@ -255,40 +229,9 @@ const AccountantDashboard = () => {
       ],
     },
     {
-      title: "Financial Reports",
-      icon: BarChart3,
-      submenu: [
-        {
-          title: "Income Statement",
-          path: "/accountant/reports/income-statement",
-          icon: TrendingUp,
-        },
-        {
-          title: "Balance Sheet",
-          path: "/accountant/reports/balance-sheet",
-          icon: BarChart3,
-        },
-      ],
-    },
-    {
-      title: "Bank Reconciliation",
-      path: "/accountant/bank/reconciliation",
-      icon: Banknote,
-    },
-    {
-      title: "Budget Management",
-      path: "/accountant/budget/management",
-      icon: PieChart,
-    },
-    {
-      title: "Expense Tracking",
-      path: "/accountant/expense/tracking",
-      icon: Coins,
-    },
-    {
-      title: "Notifications",
-      path: "/accountant/notifications",
-      icon: AlertTriangle,
+      title: "Departmental Tasks",
+      path: "/accountant/tasks",
+      icon: ClipboardList,
     },
   ];
 
@@ -298,21 +241,21 @@ const AccountantDashboard = () => {
       value: "₹45,32,500",
       change: "+5.2%",
       positive: true,
-      icon: Coins,
+      icon: TrendingUp,
     },
     {
       title: "Total Payable",
       value: "₹22,15,000",
       change: "+2.1%",
       positive: false,
-      icon: CreditCard,
+      icon: TrendingUp,
     },
     {
       title: "Current Cash",
       value: "₹18,50,000",
       change: "+8.5%",
       positive: true,
-      icon: Coins,
+      icon: TrendingUp,
     },
     {
       title: "Monthly Revenue",
@@ -333,57 +276,80 @@ const AccountantDashboard = () => {
       roleName="Accountant"
       roleIcon={BarChart3}
     >
-      <Routes>
-        <Route
-          path="/dashboard"
-          element={
-            <DashboardContent
-              stats={stats}
-              dateRange={dateRange}
-              setDateRange={setDateRange}
-              handleExport={handleExport}
-            />
-          }
-        />
-        <Route
-          path="/tasks"
-          element={<DepartmentPortalTasksPage />}
-        />
-        <Route
-          path="/payable/vendor-invoices"
-          element={<VendorInvoicesPage />}
-        />
-        <Route path="/payable/bill-payments" element={<BillPaymentsPage />} />
-        <Route
-          path="/receivable/customer-invoices"
-          element={<CustomerInvoicesPage />}
-        />
-        <Route
-          path="/receivable/payment-tracking"
-          element={<PaymentTrackingPage />}
-        />
-        <Route path="/ledger/entries" element={<GeneralLedgerPage />} />
-        <Route
-          path="/ledger/chart-of-accounts"
-          element={<ChartOfAccountsPage />}
-        />
-        <Route
-          path="/reports/income-statement"
-          element={<IncomeStatementPage />}
-        />
-        <Route path="/reports/balance-sheet" element={<BalanceSheetPage />} />
-        <Route
-          path="/bank/reconciliation"
-          element={<BankReconciliationPage />}
-        />
-        <Route path="/budget/management" element={<BudgetManagementPage />} />
-        <Route path="/expense/tracking" element={<ExpenseTrackingPage />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
-        <Route
-          path="/"
-          element={<Navigate to="/accountant/dashboard" replace />}
-        />
-      </Routes>
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+        </div>
+      }>
+        <Routes>
+          <Route
+            path="/dashboard"
+            element={
+              <DashboardContent
+                stats={stats}
+                dateRange={dateRange}
+                setDateRange={setDateRange}
+                handleExport={handleExport}
+              />
+            }
+          />
+          <Route
+            path="/tasks"
+            element={<DepartmentPortalTasksPage />}
+          />
+          
+          {/* Accounts Payable */}
+          <Route
+            path="/payable/vendor-invoices"
+            element={<VendorInvoicesPage />}
+          />
+          <Route
+            path="/payable/bill-payments"
+            element={<BillPaymentsPage />}
+          />
+
+          {/* Accounts Receivable */}
+          <Route
+            path="/receivable/customer-invoices"
+            element={<CustomerInvoicesPage />}
+          />
+          <Route
+            path="/receivable/payment-tracking"
+            element={<PaymentTrackingPage />}
+          />
+
+          {/* General Ledger */}
+          <Route
+            path="/ledger/entries"
+            element={<LedgerEntriesPage />}
+          />
+          <Route
+            path="/ledger/chart-of-accounts"
+            element={<ChartOfAccountsPage />}
+          />
+
+          <Route
+            path="/purchase-orders"
+            element={<PurchaseOrderPage isAccountantView={true} />}
+          />
+          <Route
+            path="/root-cards"
+            element={<UniversalRootCardsPage isAccountantView={true} />}
+          />
+          <Route
+            path="/root-cards/:id"
+            element={<UniversalRootCardDetailPage />}
+          />
+          <Route
+            path="/challans"
+            element={<OutsourcingChallansPage isAccountantView={true} />}
+          />
+          <Route
+            path="/"
+            element={<Navigate to="/accountant/dashboard" replace />}
+          />
+        </Routes>
+      </Suspense>
     </RoleDashboardLayout>
   );
 };

@@ -33,7 +33,8 @@ const RootCardList = ({
   onReturnToDesignEngineering,
   onUploadQAP,
   initialFilter = 'all',
-  refreshTrigger = 0 
+  refreshTrigger = 0,
+  isAccountantView = false
 }) => {
   const [rootCards, setRootCards] = useState([]);
   const [filter, setFilter] = useState(initialFilter);
@@ -186,6 +187,16 @@ const RootCardList = ({
       label: 'QTY',
       sortable: true,
     },
+    ...(!isAccountantView ? [{
+      key: 'total',
+      label: 'Total Value',
+      sortable: true,
+      render: (value, row) => (
+        <span className="text-slate-900 dark:text-white">
+          {row.currency || 'INR'} {value || 0}
+        </span>
+      ),
+    }] : []),
     {
       key: 'status',
       label: 'Status',
@@ -267,16 +278,18 @@ const RootCardList = ({
           >
             <Eye className="w-3 h-3 text-blue-600" />
           </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditRootCard(row);
-            }}
-            title="Edit"
-            className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition"
-          >
-            <Edit2 className="w-3 h-3 text-green-600" />
-          </button>
+          {!isAccountantView && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditRootCard(row);
+              }}
+              title="Edit"
+              className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition"
+            >
+              <Edit2 className="w-3 h-3 text-green-600" />
+            </button>
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -287,7 +300,7 @@ const RootCardList = ({
           >
             <Download className="w-3 h-3 text-purple-600" />
           </button>
-          {onSendToProduction && (row.status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_APPROVED') && (
+          {!isAccountantView && onSendToProduction && (row.status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_APPROVED') && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -299,7 +312,7 @@ const RootCardList = ({
               <Send className="w-3 h-3 text-green-600" />
             </button>
           )}
-          {onSendToQuality && row.status === 'DESIGN_IN_PROGRESS' && (
+          {!isAccountantView && onSendToQuality && row.status === 'DESIGN_IN_PROGRESS' && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -311,7 +324,7 @@ const RootCardList = ({
               <Send className="w-3 h-3 text-amber-600" />
             </button>
           )}
-          {onReturnToDesignEngineering && row.status === 'QUALITY_QAP_PENDING' && (
+          {!isAccountantView && onReturnToDesignEngineering && row.status === 'QUALITY_QAP_PENDING' && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -323,7 +336,7 @@ const RootCardList = ({
               <Send className="w-3 h-3 text-blue-600" />
             </button>
           )}
-          {onUploadQAP && row.status === 'QUALITY_QAP_PENDING' && (
+          {!isAccountantView && onUploadQAP && row.status === 'QUALITY_QAP_PENDING' && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -335,7 +348,7 @@ const RootCardList = ({
               <Plus className="w-3 h-3 text-emerald-600" />
             </button>
           )}
-          {isAdmin && (
+          {!isAccountantView && isAdmin && (
             <>
               {onSendToDesignEngineering && row.status === 'RC_CREATED' && (
                 <button
@@ -393,7 +406,7 @@ const RootCardList = ({
             Manage and track all route cards
           </p>
         </div>
-        {isAdmin && (
+        {isAdmin && !isAccountantView && (
           <Button
             onClick={onCreateNew}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white  transition-all p-2"

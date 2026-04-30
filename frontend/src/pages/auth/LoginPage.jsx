@@ -14,7 +14,7 @@ const ROLE_MAP = {
   inventory_management: "/department/inventory",
   accountant: "/accountant/dashboard",
 };
-
+ 
 const QUICK_ACCESS = [
   { label: "Admin", email: "admin@gmail.com", password: "12345678" },
   { label: "Design Engineer", email: "design@gmail.com", password: "12345678" },
@@ -22,7 +22,7 @@ const QUICK_ACCESS = [
   { label: "Procurement", email: "procurement@gmail.com", password: "12345678" },
   { label: "Inventory", email: "inventory@gmail.com", password: "12345678" },
   { label: "Quality", email: "quality@gmail.com", password: "12345678" },
-  { label: "Accountant", email: "accountant@gmail.com", password: "12345678" },
+  { label: "Accountant", email: "account@gmail.com", password: "12345678" },
 ];
 
 const LoginPage = () => {

@@ -4,13 +4,14 @@ import axios from '@/utils/api';
 import { showSuccess, showError } from '@/utils/toastUtils';
 import RootCardList from '@/components/admin/RootCardList/RootCardList';
 
-const UniversalRootCardsPage = () => {
+const UniversalRootCardsPage = ({ isAccountantView = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
   
   // Determine base path based on current location (admin, department, design-engineer)
   const getBasePath = () => {
+    if (isAccountantView) return '/accountant/root-cards';
     if (location.pathname.startsWith('/admin')) return '/admin/root-cards';
     if (location.pathname.startsWith('/department/quality')) return '/department/quality/root-cards';
     if (location.pathname.startsWith('/department/procurement')) return '/department/procurement/root-cards';
@@ -86,6 +87,7 @@ const UniversalRootCardsPage = () => {
         onSendToQuality={location.pathname.startsWith('/design-engineer') ? handleSendToQuality : undefined}
         onReturnToDesignEngineering={location.pathname.startsWith('/department/quality') ? handleReturnToDesignEngineering : undefined}
         refreshTrigger={refreshTrigger}
+        isAccountantView={isAccountantView}
       />
     </div>
   );

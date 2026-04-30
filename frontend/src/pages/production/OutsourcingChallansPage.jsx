@@ -26,7 +26,7 @@ import ViewOutwardChallanModal from "../../components/production/ViewOutwardChal
 import ViewInwardChallanModal from "../../components/production/ViewInwardChallanModal";
 import CreateInwardChallanModal from "../../components/production/CreateInwardChallanModal";
 
-const OutsourcingChallansPage = () => {
+const OutsourcingChallansPage = ({ isAccountantView = false }) => {
   const [activeTab, setActiveTab] = useState("outward");
   const [selectedProject, setSelectedProject] = useState("all");
   const [loading, setLoading] = useState(false);
@@ -167,7 +167,7 @@ const OutsourcingChallansPage = () => {
           >
             {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           </button>
-          {row.status !== "RECEIVED" && (
+          {!isAccountantView && row.status !== "RECEIVED" && (
             <button 
               onClick={() => {
                 setSelectedOutwardChallan(row);
@@ -179,9 +179,11 @@ const OutsourcingChallansPage = () => {
               <Truck size={16} />
             </button>
           )}
-          <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Delete">
-            <Trash2 size={16} />
-          </button>
+          {!isAccountantView && (
+            <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Delete">
+              <Trash2 size={16} />
+            </button>
+          )}
         </div>
       )
     }
