@@ -14,18 +14,13 @@ const {
   getPermissions,
   getDesignations,
   getDepartments,
-  sendCredentials,
-  getAuditLogs
+  sendCredentials
 } = require('../controllers/adminController');
 const auth = require('../middleware/authMiddleware');
 
 // @route   GET api/admin/stats
 // @desc    Get dashboard stats
 router.get('/stats', auth, getDashboardStats);
-
-// @route   GET api/admin/audit-logs
-// @desc    Get all audit logs
-router.get('/audit-logs', auth, getAuditLogs);
 
 // @route   GET api/admin/employee-list
 // @desc    Get all employees

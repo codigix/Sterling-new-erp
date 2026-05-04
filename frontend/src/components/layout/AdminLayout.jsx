@@ -79,12 +79,6 @@ const AdminLayout = () => {
       badge: null,
     },
     {
-      title: "Audit Logs",
-      path: "/admin/audit-logs",
-      icon: Activity,
-      badge: null,
-    },
-    {
       title: "System Settings",
       path: "/admin/settings",
       icon: Settings,

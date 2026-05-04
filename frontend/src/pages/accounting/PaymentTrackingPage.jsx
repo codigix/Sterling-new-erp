@@ -1,64 +1,179 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DataTable from "../../components/ui/DataTable/DataTable";
 import { 
   TrendingUp, 
   Plus, 
   Download, 
   Eye, 
-  Calendar,
-  CheckCircle2,
-  DollarSign
+  Filter,
+  CheckCircle2
 } from "lucide-react";
+import RecordCustomerPaymentModal from "./RecordCustomerPaymentModal";
+import axios from "../../utils/api";
+import toastUtils from "../../utils/toastUtils";
+import jsPDF from "jspdf";
 
 const PaymentTrackingPage = () => {
-  const mockIncomingPayments = [
-    {
-      id: "RCPT-2026-001",
-      invoiceId: "CINV-2026-002",
-      customer: "Global Infrastructures",
-      date: "2026-04-15",
-      amount: 85000,
-      method: "NEFT",
-      status: "verified",
-    },
-    {
-      id: "RCPT-2026-002",
-      invoiceId: "CINV-2026-001",
-      customer: "TechnoWorld Systems",
-      date: "2026-04-20",
-      amount: 75000,
-      method: "Cheque",
-      status: "verified",
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [isViewMode, setIsViewMode] = useState(false);
+  const [projects, setProjects] = useState([]);
+  const [filters, setFilter] = useState({
+    search: "",
+    projectId: ""
+  });
+
+  const [stats, setStats] = useState({
+    total_received: 0,
+    count: 0
+  });
+
+  useEffect(() => {
+    fetchPayments();
+    fetchProjects();
+  }, [filters.projectId]);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get("/accounting/projects");
+      setProjects(response.data.projects || []);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
     }
-  ];
+  };
+
+  const fetchPayments = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get("/accounting/customer-payments", {
+        params: {
+          search: filters.search,
+          projectId: filters.projectId
+        }
+      });
+      const data = response.data.payments || [];
+      setPayments(data);
+      
+      const total = data.reduce((sum, p) => sum + parseFloat(p.amount_received), 0);
+      setStats({
+        total_received: total,
+        count: data.length
+      });
+    } catch (error) {
+      console.error("Error fetching customer payments:", error);
+      toastUtils.error("Failed to load customer payments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewPayment = (payment) => {
+    setSelectedPayment(payment);
+    setIsViewMode(true);
+    setIsRecordModalOpen(true);
+  };
+
+  const handleRecordPayment = () => {
+    setSelectedPayment(null);
+    setIsViewMode(false);
+    setIsRecordModalOpen(true);
+  };
+
+  const loadImage = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+    });
+  };
+
+  const generateReceiptPDF = async (payment) => {
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 10;
+      const contentWidth = pageWidth - (margin * 2);
+
+      // Header
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.5);
+      doc.rect(margin, margin, contentWidth, 25);
+      
+      try {
+        const logo = await loadImage("/logo.png");
+        doc.addImage(logo, "PNG", margin + 2, margin + 2, 20, 20);
+      } catch (e) {}
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", margin + 25, margin + 8);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", margin + 25, margin + 13);
+      
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("PAYMENT RECEIPT", pageWidth / 2, margin + 35, { align: "center" });
+
+      doc.setLineWidth(0.2);
+      doc.rect(margin, margin + 40, contentWidth, 60);
+      
+      doc.setFontSize(10);
+      doc.text(`Receipt No: ${payment.receipt_number}`, margin + 5, margin + 50);
+      doc.text(`Date: ${new Date(payment.received_date).toLocaleDateString()}`, margin + 140, margin + 50);
+      
+      doc.text(`Received from: ${payment.customer_name}`, margin + 5, margin + 60);
+      doc.text(`Project: ${payment.project_name || "N/A"}`, margin + 5, margin + 70);
+      doc.text(`Ref Invoice: ${payment.ref_invoice_no || "N/A"}`, margin + 5, margin + 80);
+      
+      doc.setFontSize(12);
+      doc.rect(margin + 5, margin + 85, 100, 10);
+      doc.text(`Amount: INR ${parseFloat(payment.amount_received).toLocaleString()}`, margin + 8, margin + 92);
+
+      doc.setFontSize(10);
+      doc.text(`Method: ${payment.payment_method}`, margin + 5, margin + 110);
+      if (payment.transaction_ref) {
+        doc.text(`Transaction Ref: ${payment.transaction_ref}`, margin + 5, margin + 120);
+      }
+
+      doc.save(`Receipt-${payment.receipt_number}.pdf`);
+    } catch (error) {
+      console.error("PDF Error:", error);
+      toastUtils.error("Failed to generate PDF");
+    }
+  };
 
   const columns = [
     {
-      key: "id",
+      key: "receipt_number",
       label: "Receipt #",
       render: (val) => <span className="font-mono text-blue-600 font-bold">{val}</span>
     },
     {
-      key: "invoiceId",
+      key: "ref_invoice_no",
       label: "Ref Invoice",
+      render: (val) => val || <span className="text-slate-400 italic">N/A</span>
     },
     {
-      key: "customer",
+      key: "customer_name",
       label: "Customer",
     },
     {
-      key: "date",
+      key: "received_date",
       label: "Received Date",
       render: (val) => new Date(val).toLocaleDateString()
     },
     {
-      key: "amount",
+      key: "amount_received",
       label: "Amount Received",
       align: "right",
-      render: (val) => <span className="text-emerald-600 font-bold">₹${val.toLocaleString()}</span>
+      render: (val) => <span className="text-emerald-600 font-bold">₹{parseFloat(val).toLocaleString()}</span>
     },
     {
-      key: "method",
+      key: "payment_method",
       label: "Method",
     },
     {
@@ -74,12 +189,12 @@ const PaymentTrackingPage = () => {
       key: "actions",
       label: "Actions",
       align: "right",
-      render: () => (
+      render: (_, payment) => (
         <div className="flex justify-end gap-2">
-          <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all">
+          <button onClick={() => handleViewPayment(payment)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all">
             <Eye size={14} />
           </button>
-          <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all">
+          <button onClick={() => generateReceiptPDF(payment)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all">
             <Download size={14} />
           </button>
         </div>
@@ -94,7 +209,10 @@ const PaymentTrackingPage = () => {
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">Payment Tracking</h1>
           <p className="text-xs text-slate-500">Track incoming payments from customers</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all">
+        <button 
+          onClick={handleRecordPayment}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all"
+        >
           <Plus size={16} /> Record Receipt
         </button>
       </div>
@@ -105,8 +223,8 @@ const PaymentTrackingPage = () => {
             <TrendingUp size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Collections (This Month)</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">₹160,000</p>
+            <p className="text-xs text-slate-500 uppercase font-bold">Collections (Total)</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">₹{stats.total_received.toLocaleString()}</p>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
@@ -114,18 +232,49 @@ const PaymentTrackingPage = () => {
             <CheckCircle2 size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Payments Verified</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">2 Receipts</p>
+            <p className="text-xs text-slate-500 uppercase font-bold">Payments Recorded</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.count} Receipts</p>
           </div>
         </div>
+      </div>
+
+      <div className="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-700">
+        <Filter size={16} className="text-slate-400" />
+        <select 
+          className="bg-transparent text-sm outline-none border-r border-slate-200 dark:border-slate-700 pr-3"
+          value={filters.projectId}
+          onChange={(e) => setFilter(prev => ({ ...prev, projectId: e.target.value }))}
+        >
+          <option value="">All Projects</option>
+          {projects.map(p => (
+            <option key={p.id} value={p.id}>{p.project_name}</option>
+          ))}
+        </select>
+        <input 
+          type="text" 
+          placeholder="Search by receipt # or customer..."
+          className="flex-1 bg-transparent text-sm outline-none"
+          value={filters.search}
+          onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
+          onKeyDown={(e) => e.key === 'Enter' && fetchPayments()}
+        />
       </div>
 
       <DataTable
         title="Incoming Payments"
         titleIcon={<TrendingUp size={18} />}
         columns={columns}
-        data={mockIncomingPayments}
-        searchPlaceholder="Search by receipt # or customer..."
+        data={payments}
+        isLoading={loading}
+        onRefresh={fetchPayments}
+      />
+
+      <RecordCustomerPaymentModal 
+        isOpen={isRecordModalOpen}
+        onClose={() => setIsRecordModalOpen(false)}
+        onPaymentRecorded={fetchPayments}
+        editData={selectedPayment}
+        initialViewMode={isViewMode}
       />
     </div>
   );

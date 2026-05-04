@@ -17,4 +17,19 @@ router.get("/vendor-payments/next-number", accountingController.getNextPaymentNu
 router.get("/vendor-payments/:id", accountingController.getVendorPaymentById);
 router.post("/vendor-payments", accountingController.createVendorPayment);
 
+// Customer Routes
+router.get("/customer-invoices", accountingController.getCustomerInvoices);
+router.get("/customer-invoices/next-number", accountingController.getNextCustomerInvoiceNumber);
+router.get("/customer-invoices/selection", accountingController.getInvoicesForSelection);
+router.get("/customer-invoices/:id", accountingController.getCustomerInvoiceById);
+router.post("/customer-invoices", accountingController.createCustomerInvoice);
+
+router.get("/customer-payments", accountingController.getCustomerPayments);
+router.get("/customer-payments/next-number", accountingController.getNextReceiptNumber);
+router.post("/customer-payments", accountingController.createCustomerPayment);
+
+router.get("/ledger-entries", accountingController.getLedgerEntries);
+
+router.get("/projects", accountingController.getProjects);
+
 module.exports = router;

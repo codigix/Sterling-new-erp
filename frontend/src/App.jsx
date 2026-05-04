@@ -40,7 +40,6 @@ import RootCardsPage from "./pages/admin/RootCardsPage";
 import NewRootCardPage from "./pages/admin/NewRootCardPage";
 import AdminRootCardDetailPage from "./pages/admin/RootCardDetailPage";
 import ReportsAnalytics from "./pages/admin/ReportsAnalytics";
-import AuditLogs from "./pages/admin/AuditLogs";
 import SystemSettings from "./pages/admin/SystemSettings";
 import RoleManagement from "./pages/admin/RoleManagement";
 import EmployeeManagement from "./pages/admin/EmployeeManagement";
@@ -158,7 +157,6 @@ function App() {
                 <Route path="employee-management" element={<EmployeeManagement />} />
                 <Route path="department-tasks" element={<DepartmentTasksPage />} />
                 <Route path="reports" element={<ReportsAnalytics />} />
-                <Route path="audit-logs" element={<AuditLogs />} />
                 <Route path="settings" element={<SystemSettings />} />
                 <Route path="notifications" element={<NotificationsPage />} />
               </Route>

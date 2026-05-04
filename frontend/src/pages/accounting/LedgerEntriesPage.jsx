@@ -1,51 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DataTable from "../../components/ui/DataTable/DataTable";
 import { 
   BookOpen, 
   Plus, 
   Download, 
   Eye, 
-  Filter,
   ArrowUpRight,
-  ArrowDownLeft,
-  Calendar
+  ArrowDownLeft
 } from "lucide-react";
+import axios from "../../utils/api";
+import toastUtils from "../../utils/toastUtils";
 
 const LedgerEntriesPage = () => {
-  const mockLedgerEntries = [
-    {
-      id: "GL-001",
-      date: "2026-04-20",
-      description: "Payment received from TechnoWorld Systems",
-      account: "Accounts Receivable",
-      type: "credit",
-      amount: 75000,
-    },
-    {
-      id: "GL-002",
-      date: "2026-04-20",
-      description: "Payment received from TechnoWorld Systems",
-      account: "Bank Account (HDFC)",
-      type: "debit",
-      amount: 75000,
-    },
-    {
-      id: "GL-003",
-      date: "2026-04-18",
-      description: "Office Supplies Purchase",
-      account: "Petty Cash",
-      type: "credit",
-      amount: 2500,
-    },
-    {
-      id: "GL-004",
-      date: "2026-04-18",
-      description: "Office Supplies Purchase",
-      account: "Office Expense",
-      type: "debit",
-      amount: 2500,
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({
+    totalDebits: 0,
+    totalCredits: 0
+  });
+
+  useEffect(() => {
+    fetchEntries();
+  }, []);
+
+  const fetchEntries = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get("/accounting/ledger-entries");
+      const fetchedEntries = response.data.entries || [];
+      setEntries(fetchedEntries);
+      
+      const debits = fetchedEntries.reduce((sum, e) => sum + parseFloat(e.debit || 0), 0);
+      const credits = fetchedEntries.reduce((sum, e) => sum + parseFloat(e.credit || 0), 0);
+      setStats({
+        totalDebits: debits,
+        totalCredits: credits
+      });
+    } catch (error) {
+      console.error("Error fetching ledger entries:", error);
+      toastUtils.error("Failed to load ledger entries");
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const columns = [
     {
@@ -54,7 +51,7 @@ const LedgerEntriesPage = () => {
       render: (val) => new Date(val).toLocaleDateString()
     },
     {
-      key: "id",
+      key: "reference_no",
       label: "Ref #",
       render: (val) => <span className="font-mono text-slate-600 font-bold">{val}</span>
     },
@@ -63,20 +60,20 @@ const LedgerEntriesPage = () => {
       label: "Description",
     },
     {
-      key: "account",
+      key: "account_name",
       label: "Account Name",
     },
     {
       key: "debit",
       label: "Debit (Dr)",
       align: "right",
-      render: (_, row) => row.type === 'debit' ? <span className="text-emerald-600 font-bold">₹${row.amount.toLocaleString()}</span> : '-'
+      render: (val) => parseFloat(val) > 0 ? <span className="text-emerald-600 font-bold">₹{parseFloat(val).toLocaleString()}</span> : '-'
     },
     {
       key: "credit",
       label: "Credit (Cr)",
       align: "right",
-      render: (_, row) => row.type === 'credit' ? <span className="text-red-600 font-bold">₹${row.amount.toLocaleString()}</span> : '-'
+      render: (val) => parseFloat(val) > 0 ? <span className="text-red-600 font-bold">₹{parseFloat(val).toLocaleString()}</span> : '-'
     },
     {
       key: "actions",
@@ -91,6 +88,8 @@ const LedgerEntriesPage = () => {
       )
     }
   ];
+
+  const isBalanced = Math.abs(stats.totalDebits - stats.totalCredits) < 0.01;
 
   return (
     <div className="p-4 space-y-4">
@@ -116,7 +115,7 @@ const LedgerEntriesPage = () => {
           </div>
           <div>
             <p className="text-xs text-slate-500 uppercase font-bold">Total Debits</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">₹77,500</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">₹{stats.totalDebits.toLocaleString()}</p>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
@@ -125,7 +124,7 @@ const LedgerEntriesPage = () => {
           </div>
           <div>
             <p className="text-xs text-slate-500 uppercase font-bold">Total Credits</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">₹77,500</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">₹{stats.totalCredits.toLocaleString()}</p>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
@@ -134,7 +133,9 @@ const LedgerEntriesPage = () => {
           </div>
           <div>
             <p className="text-xs text-slate-500 uppercase font-bold">Trial Balance</p>
-            <p className="text-xl font-bold text-emerald-600">Balanced</p>
+            <p className={`text-xl font-bold ${isBalanced ? 'text-emerald-600' : 'text-red-600'}`}>
+              {isBalanced ? 'Balanced' : 'Unbalanced'}
+            </p>
           </div>
         </div>
       </div>
@@ -143,7 +144,9 @@ const LedgerEntriesPage = () => {
         title="Ledger Entries"
         titleIcon={<BookOpen size={18} />}
         columns={columns}
-        data={mockLedgerEntries}
+        data={entries}
+        isLoading={loading}
+        onRefresh={fetchEntries}
         searchPlaceholder="Search by description or account..."
       />
     </div>

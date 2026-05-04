@@ -29,7 +29,6 @@ const BillPaymentsPage = lazy(() => import("../accounting/BillPaymentsPage"));
 const CustomerInvoicesPage = lazy(() => import("../accounting/CustomerInvoicesPage"));
 const PaymentTrackingPage = lazy(() => import("../accounting/PaymentTrackingPage"));
 const LedgerEntriesPage = lazy(() => import("../accounting/LedgerEntriesPage"));
-const ChartOfAccountsPage = lazy(() => import("../accounting/ChartOfAccountsPage"));
 
 const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
   <div className="space-y-2 p-4">
@@ -221,11 +220,6 @@ const AccountantDashboard = () => {
           path: "/accountant/ledger/entries",
           icon: FileText,
         },
-        {
-          title: "Chart of Accounts",
-          path: "/accountant/ledger/chart-of-accounts",
-          icon: BarChart3,
-        },
       ],
     },
     {
@@ -322,10 +316,6 @@ const AccountantDashboard = () => {
           <Route
             path="/ledger/entries"
             element={<LedgerEntriesPage />}
-          />
-          <Route
-            path="/ledger/chart-of-accounts"
-            element={<ChartOfAccountsPage />}
           />
 
           <Route

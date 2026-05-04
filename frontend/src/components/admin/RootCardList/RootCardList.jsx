@@ -187,16 +187,7 @@ const RootCardList = ({
       label: 'QTY',
       sortable: true,
     },
-    ...(!isAccountantView ? [{
-      key: 'total',
-      label: 'Total Value',
-      sortable: true,
-      render: (value, row) => (
-        <span className="text-slate-900 dark:text-white">
-          {row.currency || 'INR'} {value || 0}
-        </span>
-      ),
-    }] : []),
+
     {
       key: 'status',
       label: 'Status',

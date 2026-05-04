@@ -38,12 +38,8 @@ const VendorInvoicesPage = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get("/department/procurement/purchase-orders");
-      const orders = response.data.purchaseOrders || response.data;
-      const uniqueProjects = Array.from(new Set(orders.map(o => JSON.stringify({id: o.project_id, name: o.root_card_project_name})).filter(p => JSON.parse(p).id)))
-        .map(p => JSON.parse(p))
-        .sort((a, b) => a.name.localeCompare(b.name));
-      setProjects(uniqueProjects);
+      const response = await axios.get("/accounting/projects");
+      setProjects(response.data.projects.map(p => ({ id: p.id, name: p.project_name })));
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
