@@ -37,6 +37,7 @@ async function createProductionPlanningTables() {
         break_time INT DEFAULT 0,
         total_hours DECIMAL(5,2),
         remarks TEXT,
+        status ENUM('Pending', 'In Progress', 'Completed', 'Delayed', 'Cancelled') DEFAULT 'Pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (plan_id) REFERENCES daily_production_plans(id) ON DELETE CASCADE
       )

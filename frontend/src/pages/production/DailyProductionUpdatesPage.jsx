@@ -98,7 +98,7 @@ const DailyProductionUpdatesPage = () => {
         <div className="flex items-center gap-4">
          
           <div>
-            <h1 className="text-2xl  text-slate-900 dark:text-white  ">Production Updates</h1>
+            <h1 className="text-xl  text-slate-900 dark:text-white  ">Production Updates</h1>
             <p className="text-xs  text-slate-500   mt-1">Real-time floor execution tracking</p>
           </div>
         </div>

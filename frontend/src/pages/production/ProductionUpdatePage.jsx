@@ -168,7 +168,7 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
               <>
                 {/* Add Operation Section - NOW IMMEDIATELY AFTER PROJECT SELECTION */}
                 <div className="bg-blue-50/30 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-100/50 dark:border-blue-900/30">
-                  <h4 className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-4">Add New Operation</h4>
+                  <h4 className="text-[10px]  text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-4">Add New Operation</h4>
                   <div className="flex gap-4">
                     <div className="flex-1">
                       <label className="block text-[10px] font-medium text-slate-500 mb-1">Select Operation</label>
@@ -203,7 +203,7 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
                       <button 
                         onClick={handleAddOperation}
                         disabled={adding || !newOperation.operation_name}
-                        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 text-xs font-bold"
+                        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 text-xs "
                       >
                         {adding ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
                         Add to List
@@ -235,7 +235,7 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
                         operations.map((op, index) => (
                           <tr key={op.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                             <td className="py-3 px-4">
-                              <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                              <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px]  text-slate-500">
                                 {index + 1}
                               </span>
                             </td>
@@ -243,7 +243,7 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
                               <p className="text-xs font-medium text-slate-900 dark:text-white uppercase">{op.operation_name || op.stage_name}</p>
                             </td>
                             <td className="py-3 px-4 text-center">
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${op.phase === 2 ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'}`}>
+                              <span className={`text-[10px]  px-2 py-0.5 rounded-full ${op.phase === 2 ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'}`}>
                                 Phase {op.phase || 1}
                               </span>
                             </td>
@@ -408,7 +408,7 @@ const ProductionUpdatePage = () => {
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Production Update</h1>
+            <h1 className="text-xl  text-slate-900 dark:text-white">Production Update</h1>
             <p className="text-xs text-slate-500 mt-1">Assign and track manufacturing operations for each project</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -417,7 +417,7 @@ const ProductionUpdatePage = () => {
                 setActiveProject(null);
                 setIsManageModalOpen(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded text-xs  hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
             >
               <Plus size={14} /> Define Project Operations
             </button>
@@ -432,9 +432,9 @@ const ProductionUpdatePage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-4">
+      <div className="">
         {/* Top Filters */}
-        <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-4">
+        <div className="dark:bg-slate-900 dark:border-slate-800 mb-2 flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <SearchableSelect
               placeholder="Filter by Project Name or ID..."
@@ -464,7 +464,7 @@ const ProductionUpdatePage = () => {
         </div>
 
         {/* Operation List Table */}
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="">
           <DataTable
             loading={loading}
             data={flattenedOperations}
@@ -474,13 +474,13 @@ const ProductionUpdatePage = () => {
                 key: "projectName",
                 render: (value, row) => (
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white uppercase" title={value}>
+                    <span className="text-xs  text-slate-900 dark:text-white uppercase" title={value}>
                       {value || "N/A"}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] text-slate-400 font-mono">{row.projectId}</span>
                       {(row.projectData?.status === 'DIMENSIONAL_QC_PENDING' || row.projectData?.status === 'Production completed and send to Quality fot QC' || row.projectData?.status === 'final Prodcution completed and send to quality for final qc') && (
-                        <span className="text-[9px] bg-indigo-50 text-indigo-600 px-1 rounded font-bold border border-indigo-100 flex items-center gap-0.5">
+                        <span className="text-[9px] bg-indigo-50 text-indigo-600 px-1 rounded  border border-indigo-100 flex items-center gap-0.5">
                           <Clock size={8} /> UNDER INSPECTION
                         </span>
                       )}
@@ -494,14 +494,14 @@ const ProductionUpdatePage = () => {
                 key: "operation_name",
                 render: (value, row) => (
                   <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-400 border border-slate-200 dark:border-slate-700">
+                    <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px]  text-slate-400 border border-slate-200 dark:border-slate-700">
                       {row.sequenceIndex}
                     </span>
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-tight">
+                      <span className="text-xs  text-slate-700 dark:text-slate-200 uppercase tracking-tight">
                         {value || row.stage_name}
                       </span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded w-fit mt-0.5 ${row.phase === 2 ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
+                      <span className={`text-[9px]  px-1.5 py-0.5 rounded w-fit mt-0.5 ${row.phase === 2 ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
                         PHASE {row.phase || 1}
                       </span>
                     </div>
@@ -512,7 +512,7 @@ const ProductionUpdatePage = () => {
                 header: "Status",
                 key: "status",
                 render: (value) => (
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${getStatusColor(value)}`}>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full border  ${getStatusColor(value)}`}>
                     {value || "Pending"}
                   </span>
                 )
@@ -552,7 +552,7 @@ const ProductionUpdatePage = () => {
               {!projectFilter && !searchTerm && (
                 <button 
                   onClick={() => setIsManageModalOpen(true)}
-                  className="mt-6 text-blue-600 text-xs font-bold hover:underline"
+                  className="mt-6 text-blue-600 text-xs  hover:underline"
                 >
                   Define your first project operation
                 </button>

@@ -409,7 +409,7 @@ const RootCardList = ({
       </div>
 
       {/* Modern Redesigned Tabs */}
-      <div className="border-b border-slate-200 dark:border-slate-700 mb-6">
+      <div className="border-b border-slate-200 dark:border-slate-700 mb-2">
         <div className="flex gap-8 overflow-x-auto no-scrollbar">
           {tabs.map((tab) => {
             const isActive = filter === tab.value;

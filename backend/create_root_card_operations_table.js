@@ -11,6 +11,7 @@ async function createRootCardOperationsTable() {
         root_card_id VARCHAR(50) NOT NULL,
         operation_name VARCHAR(255) NOT NULL,
         operation_type ENUM('in_house', 'outsourced') DEFAULT 'in_house',
+        phase INT DEFAULT 1,
         status ENUM('Pending', 'In Progress', 'Partially Completed', 'Completed', 'Delayed', 'On Hold') DEFAULT 'Pending',
         planned_start DATE,
         planned_end DATE,
