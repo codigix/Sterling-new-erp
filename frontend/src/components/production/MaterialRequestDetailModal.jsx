@@ -360,7 +360,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 <button 
                   onClick={() => handleUpdateStatus('cancelled')}
                   disabled={submitting}
-                  className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 rounded  text-sm hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all  flex items-center justify-center gap-2"
+                  className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 rounded  text-xs hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all  flex items-center justify-center gap-2"
                 >
                   <XCircle size={15} />
                   Cancel Request
@@ -368,7 +368,7 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                 <button 
                   onClick={() => handleUpdateStatus('approved')}
                   disabled={submitting}
-                  className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded  text-sm transition-all  shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
+                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded  text-xs transition-all  shadow-blue-500/25 active:scale-95 flex items-center justify-center gap-2"
                 >
                   <CheckCircle size={15} />
                   Approve Request

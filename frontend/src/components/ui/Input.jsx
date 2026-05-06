@@ -28,7 +28,7 @@ const Input = ({
   `;
 
   return (
-    <div className={`space-y-1  ${containerClassName}`}>
+    <div className={`space-y-1 mb-3  ${containerClassName}`}>
       {label && (
         <label className="block text-xs  text-slate-700 mb-0.5 text-left">
           {label}

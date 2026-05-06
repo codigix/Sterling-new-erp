@@ -1637,7 +1637,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <button 
                   type="button"
                   onClick={() => setViewMode(false)}
-                  className="px-8 py-2.5 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
+                  className="p-2 bg-blue-600 text-white rounded  text-xs   hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2"
                 >
                   <Edit size={15} />
                   Edit PO
@@ -1647,7 +1647,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
               <button 
                 type="submit"
                 disabled={submitting}
-                className={`px-8 py-2.5 ${editData ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/25' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/25'} text-white rounded  text-xs   shadow-lg transition-all flex items-center gap-2`}
+                className={`p-2 ${editData ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/25' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/25'} text-white rounded  text-xs   shadow-lg transition-all flex items-center gap-2`}
               >
                 {submitting ? <RefreshCw size={15} className="animate-spin" /> : (editData ? <Save size={15} /> : <CheckCircle size={15} />)}
                 {submitting ? "Saving..." : (editData ? "Update PO" : "Create Purchase Order")}

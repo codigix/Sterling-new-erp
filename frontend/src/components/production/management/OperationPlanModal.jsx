@@ -174,7 +174,7 @@ const OperationPlanModal = ({ isOpen, onClose, project }) => {
             Cancel
           </button>
           <button 
-            className="px-8 py-2.5 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2  "
+            className="p-2 bg-blue-600 text-white rounded text-sm  hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2  "
           >
             <Save size={15} /> Save Sequence
           </button>

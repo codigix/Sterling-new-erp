@@ -600,14 +600,14 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
               <button 
                 type="button"
                 onClick={onClose}
-                className="flex-1 md:flex-none px-8 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 rounded  text-xs  tracking-wider transition-colors"
+                className="flex-1 md:flex-none p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 rounded  text-xs  tracking-wider transition-colors"
               >
                 Cancel
               </button>
               <button 
                 type="submit"
                 disabled={loading || formData.items.length === 0}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded  text-xs  tracking-wider shadow-lg shadow-blue-200 dark:shadow-none transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded  text-xs  tracking-wider shadow-lg shadow-blue-200 dark:shadow-none transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
                 {loading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded  animate-spin" /> : <Plus size={15} />}
                 Create GRN Request

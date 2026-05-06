@@ -238,7 +238,7 @@ exports.getRootCardDrawings = async (req, res) => {
       query += ` AND d.status = 'Approved' AND rc.status IN ('${productionAllowedStatuses.join("', '")}')`;
     }
 
-    const [documents] = await db.query(query, [rootCardId]);
+    const [documents] = await db.query(query + " ORDER BY d.created_at DESC", [rootCardId]);
     res.json({ success: true, drawings: documents });
   } catch (error) {
     console.error('Error fetching root card drawings:', error);

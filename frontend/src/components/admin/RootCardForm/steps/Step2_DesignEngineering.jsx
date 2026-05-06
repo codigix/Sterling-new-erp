@@ -274,9 +274,9 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
         />
         
         {drawings.length > 0 && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded flex items-start gap-3">
+          <div className="mt-4 p-2 bg-blue-50 border border-blue-200 rounded flex items-start gap-3">
             <AlertCircle className="text-blue-500 shrink-0 mt-0.5" size={15} />
-            <p className="text-sm text-blue-900">
+            <p className="text-xs text-blue-900">
               Only approved drawings are shown here. These are the final revisions that should be used for production.
             </p>
           </div>

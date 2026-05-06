@@ -88,7 +88,9 @@ const ProductionDesignDrawings = () => {
           latestDocs[key] = doc;
         }
       });
-      setDrawings(Object.values(latestDocs));
+      setDrawings(Object.values(latestDocs).sort((a, b) => 
+        new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at)
+      ));
     } catch (error) {
       console.error("Failed to fetch drawings:", error);
     } finally {

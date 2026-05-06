@@ -436,7 +436,7 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
           <button
             onClick={() => handleSubmit("SUBMITTED")}
             disabled={loading}
-            className="px-8 py-2.5 bg-indigo-600 text-white font-bold text-sm rounded-xl shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 flex items-center gap-3 transition-all active:scale-95"
+            className="p-2 bg-indigo-600 text-white font-bold text-sm rounded-xl shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 flex items-center gap-3 transition-all active:scale-95"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

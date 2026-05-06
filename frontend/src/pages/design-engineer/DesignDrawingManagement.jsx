@@ -130,7 +130,9 @@ const DesignDrawingManagement = () => {
     return acc;
   }, {});
 
-  const groupedDocsList = Object.values(groupedDocuments);
+  const groupedDocsList = Object.values(groupedDocuments).sort((a, b) => 
+    new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at)
+  );
 
   const activeDocuments = groupedDocsList.filter(doc => doc.status !== 'Rejected');
   const rejectedDocuments = groupedDocsList.filter(doc => doc.status === 'Rejected');

@@ -56,7 +56,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
               <ClipboardList size={15} className="text-blue-600" />
               Project & PO Information
             </h5>
-            <FormRow cols={3}>
+            <FormRow cols={3} className="mb-3">
               <Input
                 label="Project Name"
                 value={formData.projectName || ""}
@@ -84,7 +84,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
               />
             </FormRow>
             
-            <FormRow cols={3} className="mt-4">
+            <FormRow cols={3} className="my-4">
               <Input
                 label="PO Number"
                 value={formData.poNumber || ""}
