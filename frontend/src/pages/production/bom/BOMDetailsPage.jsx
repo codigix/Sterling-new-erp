@@ -28,6 +28,7 @@ import { useReactToPrint } from "react-to-print";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import MaterialRequestModal from "./MaterialRequestModal";
+import { renderDimensions } from "../../../utils/dimensionUtils";
 
 const BOMDetailsPage = () => {
   const { id } = useParams();
@@ -90,7 +91,7 @@ const BOMDetailsPage = () => {
         body: bom.materials.map(m => [
           m.itemName,
           m.itemGroup || "N/A",
-          `${m.materialGrade || "-"}\n${m.partDetail || "-"}`,
+          `${m.materialGrade || "-"}\n${renderDimensions(m)}`,
           `${m.remark || "-"}\n${m.make || "-"}`,
           m.quantity,
           m.uom
@@ -149,26 +150,24 @@ const BOMDetailsPage = () => {
     { key: "itemGroup", label: "Group", render: (val) => <Badge variant="gray">{val || "NO-GROUP"}</Badge> },
     {
       key: "partDetail", label: "Dimensions / Grade", render: (val, row) => {
-        const dims = [];
-        if (parseFloat(row.length) > 0) dims.push(`L: ${parseFloat(row.length)}`);
-        if (parseFloat(row.width) > 0) dims.push(`W: ${parseFloat(row.width)}`);
-        if (parseFloat(row.thickness) > 0) dims.push(`T: ${parseFloat(row.thickness)}`);
-        if (parseFloat(row.height) > 0) dims.push(`H: ${parseFloat(row.height)}`);
-        if (parseFloat(row.diameter) > 0) dims.push(`D: ${parseFloat(row.diameter)}`);
-        if (parseFloat(row.outerDiameter) > 0) dims.push(`OD: ${parseFloat(row.outerDiameter)}`);
-        if (parseFloat(row.side1) > 0) dims.push(`S1: ${parseFloat(row.side1)}`);
-        if (parseFloat(row.side2) > 0) dims.push(`S2: ${parseFloat(row.side2)}`);
-        if (parseFloat(row.webThickness) > 0) dims.push(`WT: ${parseFloat(row.webThickness)}`);
-        if (parseFloat(row.flangeThickness) > 0) dims.push(`FT: ${parseFloat(row.flangeThickness)}`);
+        const dimensionString = renderDimensions(row);
+        const dimensionParts = dimensionString !== "-" ? dimensionString.split(" x ") : [];
 
         return (
-          <div className="flex flex-col">
-            {dims.length > 0 && (
-              <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-1 rounded border border-blue-100 mb-1 w-fit">
-                {dims.join(" x ")}
-              </span>
+          <div className="flex flex-col gap-1.5">
+            {dimensionParts.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {dimensionParts.map((part, index) => (
+                  <span 
+                    key={index} 
+                    className="text-[10px] font-mono font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 whitespace-nowrap"
+                  >
+                    {part}
+                  </span>
+                ))}
+              </div>
             )}
-            <span className="text-xs text-slate-500 ">{row.materialGrade || (val || "-")}</span>
+            <span className="text-xs text-slate-500 font-medium">{row.materialGrade || (val || "-")}</span>
           </div>
         );
       }
@@ -331,8 +330,9 @@ const BOMDetailsPage = () => {
                     <tr key={i} className="border-b border-slate-100">
                       <td className="py-2">
                         <div className="flex flex-col">
-                          <span>{m.itemName}</span>
-                          <span className="text-xs text-slate-500">{m.itemGroup}</span>
+                          <span className="font-medium">{m.itemName}</span>
+                          <span className="text-xs text-slate-500">{m.itemGroup} • {m.materialGrade || "-"}</span>
+                          <span className="text-[10px] text-blue-700 font-mono">{renderDimensions(m)}</span>
                         </div>
                       </td>
                       <td className="py-2 text-right">{m.quantity} {m.uom}</td>
