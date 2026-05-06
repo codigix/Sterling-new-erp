@@ -431,7 +431,7 @@ const EmployeeManagement = () => {
               actions: [],
             });
           }}
-          className="flex items-center text-xs gap-1 text-sm px-3 py-2 h-auto"
+          className="flex items-center text-xs gap-1 text-sm p-2 h-auto"
         >
           <Plus className="w-4 h-4" />
           Add Employee
@@ -495,7 +495,7 @@ const EmployeeManagement = () => {
                         onChange={handleInputChange}
                         required
                         placeholder="e.g. John"
-                        className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                        className="w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                       />
                     </div>
                     <div>
@@ -509,7 +509,7 @@ const EmployeeManagement = () => {
                         onChange={handleInputChange}
                         required
                         placeholder="e.g. Doe"
-                        className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                        className="w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                       />
                     </div>
                   </div>
@@ -557,7 +557,7 @@ const EmployeeManagement = () => {
                         }
                         onChange={handleInputChange}
                         readOnly={editingEmployee}
-                        className={`w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded transition-all ${
+                        className={`w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded transition-all ${
                           editingEmployee
                             ? "bg-slate-50 dark:bg-slate-800/50 text-slate-500 italic"
                             : "bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"

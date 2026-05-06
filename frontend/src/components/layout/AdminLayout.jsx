@@ -217,7 +217,7 @@ const AdminLayout = () => {
                         <>
                           <button
                             onClick={() => toggleSection(item.title)}
-                            className={`w-full flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                            className={`w-full flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                               isExpanded
                                 ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -247,7 +247,7 @@ const AdminLayout = () => {
                                   <li key={subitem.path}>
                                     <Link
                                       to={subitem.path}
-                                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                                         isActive(subitem.path)
                                           ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -270,7 +270,7 @@ const AdminLayout = () => {
                       ) : (
                         <Link
                           to={item.path}
-                          className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                          className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                             isActive(item.path)
                               ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -301,7 +301,7 @@ const AdminLayout = () => {
                 <li>
                   <Link
                     to="/dashboard"
-                    className="flex items-center text-xs px-3 py-2 text-xs  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    className="flex items-center text-xs p-2 text-xs  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
                     <Home size={15} className="flex-shrink-0" />
                     {!sidebarCollapsed && (

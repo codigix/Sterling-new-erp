@@ -343,7 +343,7 @@ const KanbanView = ({
                             <p className="text-xs  text-slate-900 dark:text-white ">
                               ₹{formatCurrency(po.total_amount)}
                             </p>
-                            <p className="text-[8px]  text-slate-400 uppercase mt-0.5">
+                            <p className="text-[8px]  text-slate-400  mt-0.5">
                               Total Value
                             </p>
                           </div>
@@ -352,7 +352,7 @@ const KanbanView = ({
                             <p className="text-xs  text-slate-900 dark:text-white ">
                               {po.total_qty || 0} {po.uom || "Units"}
                             </p>
-                            <p className="text-[8px]  text-slate-400 uppercase mt-0.5">
+                            <p className="text-[8px]  text-slate-400  mt-0.5">
                               Total Quantity
                             </p>
                           </div>
@@ -363,7 +363,7 @@ const KanbanView = ({
                           >
                             {fulfillmentPercent}%
                           </p>
-                          <p className="text-[8px]  text-slate-400 uppercase mt-0.5">
+                          <p className="text-[8px]  text-slate-400  mt-0.5">
                             Received
                           </p>
                         </div>
@@ -1010,7 +1010,7 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
                       <button onClick={() => handleMonitorReplies(po)} className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-all relative" title="Monitor Communication">
                         <MessageSquare size={14} className={po.unread_communication_count > 0 ? "text-purple-600 animate-pulse" : ""} />
                         {po.unread_communication_count > 0 && (
-                          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border border-white font-bold">
+                          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border border-white ">
                             {po.unread_communication_count}
                           </span>
                         )}
@@ -1065,57 +1065,57 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
       {showEmailModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Send Purchase Order</h3>
+                <h3 className="text-md  text-slate-900 dark:text-white">Send Purchase Order</h3>
                 <p className="text-xs text-slate-500">PO: {emailData.poNumber}</p>
               </div>
               <button onClick={() => setShowEmailModal(false)} className="text-slate-400 hover:text-slate-500">
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={submitEmail} className="p-6 space-y-4">
+            <form onSubmit={submitEmail} className="p-2 space-y-2">
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Vendor Email</label>
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Vendor Email</label>
                 <input
                   type="email"
                   value={emailData.email}
                   onChange={(e) => setEmailData({ ...emailData, email: e.target.value })}
-                  className="w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                  className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none"
                   placeholder="vendor@example.com"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Subject</label>
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Subject</label>
                 <input
                   type="text"
                   value={emailData.subject}
                   onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })}
-                  className="w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                  className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Message</label>
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Message</label>
                 <textarea
                   value={emailData.message}
                   onChange={(e) => setEmailData({ ...emailData, message: e.target.value })}
-                  className="w-full p-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none min-h-[120px] resize-none"
+                  className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 outline-none min-h-[120px] resize-none"
                   required
                 />
               </div>
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800 flex items-center gap-3">
-                <FileText size={20} className="text-blue-500" />
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800 flex items-center gap-3">
+                <FileText size={15} className="text-blue-500" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-blue-900 dark:text-blue-200 truncate">PurchaseOrder-{emailData.poNumber}.pdf</p>
-                  <p className="text-[10px] text-blue-600 dark:text-blue-400">Attached automatically</p>
+                  <p className="text-xs  text-blue-900 dark:text-blue-200 truncate">PurchaseOrder-{emailData.poNumber}.pdf</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">Attached automatically</p>
                 </div>
               </div>
-              <div className="flex justify-end gap-3 pt-4">
-                <button type="button" onClick={() => setShowEmailModal(false)} className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-colors">Cancel</button>
-                <button type="submit" disabled={sendingEmail} className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all disabled:bg-blue-400">
-                  {sendingEmail ? <RefreshCw size={16} className="animate-spin" /> : <Send size={16} />}
+              <div className="flex justify-end gap-3 ">
+                <button type="button" onClick={() => setShowEmailModal(false)} className="p-2 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-colors">Cancel</button>
+                <button type="submit" disabled={sendingEmail} className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-all disabled:bg-blue-400">
+                  {sendingEmail ? <RefreshCw size={15} className="animate-spin" /> : <Send size={15} />}
                   Send PO
                 </button>
               </div>
@@ -1134,7 +1134,7 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
                   <MessageSquare size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Vendor Communication</h3>
+                  <h3 className="text-lg  text-slate-900 dark:text-white">Vendor Communication</h3>
                   <p className="text-xs text-slate-500">PO: {selectedPOForMonitor?.po_number}</p>
                 </div>
               </div>
@@ -1155,7 +1155,7 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
                     <Clock size={32} />
                   </div>
                   <div className="text-center">
-                    <p className="font-medium text-slate-600 dark:text-slate-400">No communication found</p>
+                    <p className=" text-slate-600 dark:text-slate-400">No communication found</p>
                     <p className="text-xs">Replies from vendor via email will appear here</p>
                   </div>
                 </div>
@@ -1178,7 +1178,7 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
                             <User size={14} />
                           </div>
                           <div>
-                            <p className="text-[10px] font-bold text-slate-900 dark:text-white">
+                            <p className="text-[10px]  text-slate-900 dark:text-white">
                               {comm.is_outgoing ? "Me (Sterling)" : (comm.sender_name || comm.sender_email)}
                               {comm.is_outgoing && <span className="ml-2 font-normal text-slate-500">(Sent)</span>}
                             </p>
@@ -1186,7 +1186,7 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
                           </div>
                         </div>
                         {comm.has_attachments && (
-                          <div className="flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-100/50 dark:bg-blue-900/40 px-2 py-0.5 rounded-full">
+                          <div className="flex items-center gap-1 text-[9px]  text-blue-600 bg-blue-100/50 dark:bg-blue-900/40 px-2 py-0.5 rounded-full">
                             <Paperclip size={10} />
                             Attachments
                           </div>
@@ -1244,7 +1244,7 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg  text-slate-900 dark:text-white">
                 {["fulfilled", "delivered"].includes(selectedPOForUpload?.inventory_status) || isAccountantView ? "Delivery Challan Documents" : "Upload Delivery Challan"}
               </h3>
               <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-500">
@@ -1255,17 +1255,17 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
               <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-200 dark:border-slate-700 space-y-1">
                 <div className="flex justify-between text-[10px]">
                   <span className="text-slate-500">Vendor:</span>
-                  <span className="text-slate-900 dark:text-white font-medium">{selectedPOForUpload?.vendor_name}</span>
+                  <span className="text-slate-900 dark:text-white ">{selectedPOForUpload?.vendor_name}</span>
                 </div>
                 <div className="flex justify-between text-[10px]">
                   <span className="text-slate-500">PO Number:</span>
-                  <span className="text-slate-900 dark:text-white font-mono font-medium">{selectedPOForUpload?.po_number}</span>
+                  <span className="text-slate-900 dark:text-white font-mono ">{selectedPOForUpload?.po_number}</span>
                 </div>
               </div>
 
               {existingAttachments.length > 0 && (
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Previously Uploaded Documents</label>
+                  <label className="block text-xs  text-slate-700 dark:text-slate-300">Previously Uploaded Documents</label>
                   <div className="space-y-1">
                     {existingAttachments.map((att, i) => (
                       <div key={i} className="flex items-center justify-between p-2 bg-emerald-50/50 dark:bg-emerald-900/10 rounded border border-emerald-100/50 dark:border-emerald-800/30">
@@ -1286,7 +1286,7 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
               {!["fulfilled", "delivered"].includes(selectedPOForUpload?.inventory_status) && !isAccountantView ? (
                 <>
                   <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Select Files (PDF, Images)</label>
+                    <label className="block text-xs  text-slate-700 dark:text-slate-300">Select Files (PDF, Images)</label>
                     <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-8 text-center hover:border-blue-500 transition-all group relative">
                       <input
                         type="file"

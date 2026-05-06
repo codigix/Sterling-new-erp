@@ -1322,7 +1322,7 @@ exports.getRootCardById = async (req, res) => {
     }
 
     // Fetch operations with phase info
-    const [operations] = await db.query('SELECT * FROM root_card_operations WHERE root_card_id = ? ORDER BY phase ASC, id ASC', [id]);
+    const [operations] = await db.query('SELECT * FROM root_card_operations WHERE root_card_id = ? ORDER BY id DESC', [id]);
     
     // Check if Phase 1 is fully completed and approved by Quality
     const phase1Ops = operations.filter(op => op.phase === 1);

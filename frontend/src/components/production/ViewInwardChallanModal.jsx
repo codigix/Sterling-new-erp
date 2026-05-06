@@ -52,14 +52,14 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
         
         {/* Modal Header - Hidden in Print */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 print:hidden">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-lg  text-slate-900 dark:text-white flex items-center gap-2">
             <Truck size={20} className="text-emerald-600" />
             Inward Challan Details
           </h2>
           <div className="flex items-center gap-3">
              <button 
                 onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs  hover:bg-emerald-700 transition-colors"
              >
                 <Printer size={14} /> Print / Save PDF
              </button>
@@ -85,11 +85,11 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
                   <div className="w-16 h-16 bg-slate-100 rounded flex items-center justify-center mb-2 print:bg-transparent">
                      <Building2 size={32} className="text-slate-900" />
                   </div>
-                  <h3 className="text-sm font-black text-center leading-tight uppercase text-slate-900">STERLING TECHNO-SYSTEMS PVT. LTD.</h3>
+                  <h3 className="text-sm font-black text-center leading-tight  text-slate-900">STERLING TECHNO-SYSTEMS PVT. LTD.</h3>
                 </div>
                 <div className="col-span-8 p-3 text-[10px] text-slate-900">
                   <div className="flex flex-col items-end text-right space-y-0.5">
-                    <p className="font-black text-slate-950 uppercase text-xs">Engineers Consultants and Manufacturers</p>
+                    <p className="font-black text-slate-950  text-xs">Engineers Consultants and Manufacturers</p>
                     <p className="font-medium">Gat No. 70, Sonawanewasti, Talawade, Pune - 411062, Maharashtra (India)</p>
                     <p className="font-medium">Telefax: +91-20-27353051</p>
                     <p className="font-medium">GST No. 27AARCS2886C1ZX</p>
@@ -100,7 +100,7 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
 
               {/* Title Bar */}
               <div className="bg-slate-100 border-b-2 border-slate-950 py-1 text-center print:bg-slate-100">
-                 <h2 className="text-[11px] font-black tracking-widest text-slate-950 uppercase italic underline">INWARD / RECEIPT CHALLAN</h2>
+                 <h2 className="text-[11px] font-black tracking-widest text-slate-950  italic underline">INWARD / RECEIPT CHALLAN</h2>
               </div>
 
               {/* Top Fields */}
@@ -108,9 +108,9 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
                 {/* Left Side: From Vendor */}
                 <div className="border-r-2 border-slate-950 p-4 space-y-2">
                   <div className="flex items-start gap-2">
-                    <span className="font-black text-slate-900 uppercase">From:</span>
+                    <span className="font-black text-slate-900 ">From:</span>
                     <div className="flex-1">
-                      <p className="font-black uppercase text-[12px] text-slate-950">{challanData.vendor_name}</p>
+                      <p className="font-black  text-[12px] text-slate-950">{challanData.vendor_name}</p>
                       <p className="mt-1 whitespace-pre-wrap leading-tight font-medium">{challanData.vendor_address || "No address provided"}</p>
                     </div>
                   </div>
@@ -119,19 +119,19 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
                 {/* Right Side: Challan Info */}
                 <div className="divide-y-2 divide-slate-950">
                   <div className="p-2 grid grid-cols-12 items-center">
-                    <span className="col-span-5 font-black uppercase text-slate-900">Inward No:</span>
+                    <span className="col-span-5 font-black  text-slate-900">Inward No:</span>
                     <span className="col-span-7 font-black text-[12px] text-emerald-700">{challanData.challan_no}</span>
                   </div>
                   <div className="p-2 grid grid-cols-12 items-center">
-                    <span className="col-span-5 font-black uppercase text-slate-900">Challan Date:</span>
+                    <span className="col-span-5 font-black  text-slate-900">Challan Date:</span>
                     <span className="col-span-7 font-black text-slate-950">{new Date(challanData.challan_date).toLocaleDateString('en-GB')}</span>
                   </div>
                   <div className="p-2 grid grid-cols-12 items-center">
-                    <span className="col-span-5 font-black uppercase text-slate-900">Received On:</span>
+                    <span className="col-span-5 font-black  text-slate-900">Received On:</span>
                     <span className="col-span-7 font-black text-slate-950">{new Date(challanData.received_date).toLocaleDateString('en-GB')}</span>
                   </div>
                   <div className="p-2 grid grid-cols-12 items-center">
-                    <span className="col-span-5 font-black uppercase text-slate-900">Outward Ref:</span>
+                    <span className="col-span-5 font-black  text-slate-900">Outward Ref:</span>
                     <span className="col-span-7 font-black text-indigo-700">{challanData.outward_challan_no || "-"}</span>
                   </div>
                 </div>
@@ -143,23 +143,23 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
                   <thead>
                     <tr className="border-b-2 border-slate-950 bg-slate-50 text-[10px] font-black text-slate-900">
                       <th className="border-r-2 border-slate-950 p-2 w-[40px]">Sr.</th>
-                      <th className="border-r-2 border-slate-950 p-2 text-left uppercase">ITEM DESCRIPTION</th>
+                      <th className="border-r-2 border-slate-950 p-2 text-left ">ITEM DESCRIPTION</th>
                       <th className="border-r-2 border-slate-950 p-2 w-[60px]">SENT</th>
                       <th className="border-r-2 border-slate-950 p-2 w-[60px]">RECV.</th>
                       <th className="border-r-2 border-slate-950 p-2 w-[60px]">ACCPT.</th>
                       <th className="border-r-2 border-slate-950 p-2 w-[60px]">REJT.</th>
-                      <th className="p-2 text-left uppercase text-[9px]">REMARKS / REASON</th>
+                      <th className="p-2 text-left  text-[9px]">REMARKS / REASON</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((item, idx) => (
                       <tr key={idx} className="text-slate-950 border-b border-slate-100">
-                        <td className="border-r-2 border-slate-950 p-2 text-center text-[10px] font-bold">{idx + 1}</td>
+                        <td className="border-r-2 border-slate-950 p-2 text-center text-[10px] ">{idx + 1}</td>
                         <td className="border-r-2 border-slate-950 p-2 text-[10px]">
                            <div className="flex flex-col">
-                              <span className="font-black uppercase text-slate-950">{item.item_name}</span>
-                              <span className="text-[9px] font-bold text-slate-600">{item.item_code}</span>
-                              {item.batch_no && <span className="text-[9px] font-bold italic text-indigo-700">ST#: {item.batch_no}</span>}
+                              <span className="font-black  text-slate-950">{item.item_name}</span>
+                              <span className="text-[9px]  text-slate-600">{item.item_code}</span>
+                              {item.batch_no && <span className="text-[9px]  italic text-indigo-700">ST#: {item.batch_no}</span>}
                            </div>
                         </td>
                         <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black">{parseFloat(item.sent_qty).toString()}</td>
@@ -188,21 +188,21 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
               <div className="grid grid-cols-12 text-[11px] text-slate-950 border-b-2 border-slate-950">
                 <div className="col-span-7 border-r-2 border-slate-950 p-3 space-y-2">
                   <div className="flex items-start gap-2">
-                    <span className="font-black uppercase text-slate-900">General Remarks:</span>
+                    <span className="font-black  text-slate-900">General Remarks:</span>
                     <p className="flex-1 font-medium italic">{challanData.remarks || "No additional remarks"}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-black uppercase text-slate-900">Vehicle No:</span>
-                    <span className="font-black text-slate-950 uppercase">{challanData.vehicle_no || "N/A"}</span>
+                    <span className="font-black  text-slate-900">Vehicle No:</span>
+                    <span className="font-black text-slate-950 ">{challanData.vehicle_no || "N/A"}</span>
                   </div>
                 </div>
                 <div className="col-span-5 grid grid-cols-2 divide-x-2 divide-slate-950">
                   <div className="flex flex-col items-center justify-center bg-slate-50 p-2">
-                    <span className="text-[9px] font-black uppercase text-slate-600">Total Received</span>
+                    <span className="text-[9px] font-black  text-slate-600">Total Received</span>
                     <span className="text-xl font-black text-slate-950">{parseFloat(totalReceived).toString()}</span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-emerald-50 p-2">
-                    <span className="text-[9px] font-black uppercase text-emerald-600">Total Accepted</span>
+                    <span className="text-[9px] font-black  text-emerald-600">Total Accepted</span>
                     <span className="text-xl font-black text-emerald-700">{parseFloat(totalAccepted).toString()}</span>
                   </div>
                 </div>
@@ -211,11 +211,11 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
               {/* Signature Area */}
               <div className="grid grid-cols-2 text-[10px] text-slate-950">
                 <div className="p-6 border-r-2 border-slate-950 flex flex-col justify-between h-32">
-                  <span className="font-black uppercase text-slate-900">Checked By / Store Keeper</span>
+                  <span className="font-black  text-slate-900">Checked By / Store Keeper</span>
                   <div className="w-32 border-t-2 border-dotted border-slate-950"></div>
                 </div>
                 <div className="p-6 flex flex-col justify-between items-center text-center h-32">
-                  <span className="font-black uppercase text-slate-900">Authorised Signatory</span>
+                  <span className="font-black  text-slate-900">Authorised Signatory</span>
                   <div className="mt-8 flex flex-col items-center w-full">
                     <div className="w-48 border-t-2 border-dotted border-slate-950 mb-1"></div>
                   </div>

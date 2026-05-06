@@ -493,7 +493,7 @@ const CreateStockEntryModal = ({ isOpen, onClose, onEntryCreated }) => {
               {currentItem.item_group && (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mt-4 p-2 bg-indigo-50/30 dark:bg-indigo-900/10 rounded border border-indigo-100/50 dark:border-indigo-800/30">
                   <div className="col-span-full">
-                    <p className="text-[10px]  text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">Technical Specifications ({currentItem.item_group})</p>
+                    <p className="text-[10px]  text-indigo-600 dark:text-indigo-400  tracking-wider mb-1">Technical Specifications ({currentItem.item_group})</p>
                   </div>
                   
                   {/* Plate */}

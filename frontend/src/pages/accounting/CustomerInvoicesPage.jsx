@@ -214,7 +214,7 @@ const CustomerInvoicesPage = () => {
     {
       key: "invoice_number",
       label: "Invoice #",
-      render: (val) => <span className="font-mono text-blue-600 font-bold">{val}</span>
+      render: (val) => <span className="font-mono text-blue-600 ">{val}</span>
     },
     {
       key: "customer_name",
@@ -252,11 +252,11 @@ const CustomerInvoicesPage = () => {
       key: "status",
       label: "Status",
       render: (val) => (
-        <span className={`px-2 py-1 rounded-full text-[10px] font-bold border ${
+        <span className={`px-2 py-1 rounded-full text-[10px]  border ${
           val === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
           val === 'PARTIAL' ? 'bg-blue-50 text-blue-600 border-blue-100' :
           'bg-amber-50 text-amber-600 border-amber-100'
-        } uppercase`}>
+        } `}>
           {val}
         </span>
       )
@@ -282,7 +282,7 @@ const CustomerInvoicesPage = () => {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Customer Invoices</h1>
+          <h1 className="text-xl  text-slate-900 dark:text-white">Customer Invoices</h1>
           <p className="text-xs text-slate-500">Manage sales invoices and receivables</p>
         </div>
         <button 
@@ -295,16 +295,16 @@ const CustomerInvoicesPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
-          <p className="text-xs text-slate-500 uppercase font-bold mb-1">Total Receivable</p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">₹{stats.total_receivable.toLocaleString()}</p>
+          <p className="text-xs text-slate-500   mb-1">Total Receivable</p>
+          <p className="text-2xl  text-slate-900 dark:text-white">₹{stats.total_receivable.toLocaleString()}</p>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
-          <p className="text-xs text-slate-500 uppercase font-bold mb-1">Total Received</p>
-          <p className="text-2xl font-bold text-emerald-600">₹{stats.total_received.toLocaleString()}</p>
+          <p className="text-xs text-slate-500   mb-1">Total Received</p>
+          <p className="text-2xl  text-emerald-600">₹{stats.total_received.toLocaleString()}</p>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
-          <p className="text-xs text-slate-500 uppercase font-bold mb-1">Outstanding</p>
-          <p className="text-2xl font-bold text-amber-600">₹{stats.outstanding.toLocaleString()}</p>
+          <p className="text-xs text-slate-500   mb-1">Outstanding</p>
+          <p className="text-2xl  text-amber-600">₹{stats.outstanding.toLocaleString()}</p>
         </div>
       </div>
 

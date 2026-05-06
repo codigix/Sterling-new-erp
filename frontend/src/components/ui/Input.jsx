@@ -14,7 +14,7 @@ const Input = ({
   const sizeClasses = {
     sm: "p-2 text-xs",
     default: "p-2 text-sm",
-    lg: "px-3 py-2 text-sm",
+    lg: "p-2 text-sm",
   };
 
   const inputClasses = `

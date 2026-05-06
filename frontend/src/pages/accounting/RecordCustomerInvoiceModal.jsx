@@ -178,15 +178,15 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-left">
+      <div className="bg-white dark:bg-slate-900 rounded shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-left">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+        <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
               <Calculator size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h2 className="text-lg  text-slate-900 dark:text-white">
                 {viewMode ? 'View Customer Invoice' : (editData ? 'Edit Customer Invoice' : 'Create Customer Invoice')}
               </h2>
               <p className="text-xs text-slate-500 text-left">Generate tax invoice for sales and services</p>
@@ -207,45 +207,45 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
               {/* Top Section: Header Info */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] uppercase font-bold text-slate-400">Invoice Number</label>
+                  <label className="text-[10px]   text-slate-400">Invoice Number</label>
                   <input
                     type="text"
                     name="invoice_number"
                     value={formData.invoice_number}
                     onChange={handleInputChange}
                     readOnly={viewMode}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500/20 outline-none"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono focus:ring-2 focus:ring-blue-500/20 outline-none"
                     required
                   />
                 </div>
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] uppercase font-bold text-slate-400">Invoice Date</label>
+                  <label className="text-[10px]   text-slate-400">Invoice Date</label>
                   <input
                     type="date"
                     name="invoice_date"
                     value={formData.invoice_date}
                     onChange={handleInputChange}
                     readOnly={viewMode}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none"
                     required
                   />
                 </div>
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] uppercase font-bold text-slate-400">Place of Supply</label>
+                  <label className="text-[10px]   text-slate-400">Place of Supply</label>
                   <input
                     type="text"
                     name="place_of_supply"
                     value={formData.place_of_supply}
                     onChange={handleInputChange}
                     readOnly={viewMode}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] uppercase font-bold text-slate-400">Customer Name</label>
+                  <label className="text-[10px]   text-slate-400">Customer Name</label>
                   <input
                     type="text"
                     name="customer_name"
@@ -253,12 +253,12 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
                     onChange={handleInputChange}
                     readOnly={viewMode}
                     placeholder="Enter customer name"
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                    className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none"
                     required
                   />
                 </div>
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] uppercase font-bold text-slate-400">Select Project</label>
+                  <label className="text-[10px]   text-slate-400">Select Project</label>
                   <SearchableSelect
                     options={projects.map(p => ({
                       value: p.id,
@@ -275,30 +275,30 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
               {/* Items Table */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Invoice Items</label>
+                  <label className="text-[10px]   text-slate-400 tracking-wider">Invoice Items</label>
                   {!viewMode && (
                     <button
                       type="button"
                       onClick={addItem}
-                      className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1 text-xs  text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     >
                       <Plus size={14} /> Add Item
                     </button>
                   )}
                 </div>
                 
-                <div className="border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden">
+                <div className="border border-slate-100 dark:border-slate-800 rounded overflow-hidden">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                        <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase w-12 text-center">Sr.</th>
-                        <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase">Description</th>
-                        <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase w-24">HSN</th>
-                        <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase w-24 text-center">Qty</th>
-                        <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase w-20">Unit</th>
-                        <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase w-32 text-right">Rate (₹)</th>
-                        <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase w-32 text-right">Amount (₹)</th>
-                        {!viewMode && <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase w-12"></th>}
+                        <th className="px-4 py-2 text-[10px]  text-slate-400  w-12 text-center">Sr.</th>
+                        <th className="px-4 py-2 text-[10px]  text-slate-400 ">Description</th>
+                        <th className="px-4 py-2 text-[10px]  text-slate-400  w-24">HSN</th>
+                        <th className="px-4 py-2 text-[10px]  text-slate-400  w-24 text-center">Qty</th>
+                        <th className="px-4 py-2 text-[10px]  text-slate-400  w-20">Unit</th>
+                        <th className="px-4 py-2 text-[10px]  text-slate-400  w-32 text-right">Rate (₹)</th>
+                        <th className="px-4 py-2 text-[10px]  text-slate-400  w-32 text-right">Amount (₹)</th>
+                        {!viewMode && <th className="px-4 py-2 text-[10px]  text-slate-400  w-12"></th>}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
@@ -340,7 +340,7 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
                               value={item.unit}
                               onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
                               readOnly={viewMode}
-                              className="w-full bg-transparent border-none text-xs focus:ring-0 outline-none p-0 text-slate-700 dark:text-slate-200 uppercase"
+                              className="w-full bg-transparent border-none text-xs focus:ring-0 outline-none p-0 text-slate-700 dark:text-slate-200 "
                             />
                           </td>
                           <td className="px-4 py-2">
@@ -352,7 +352,7 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
                               className="w-full bg-transparent border-none text-xs focus:ring-0 outline-none p-0 text-right text-slate-700 dark:text-slate-200"
                             />
                           </td>
-                          <td className="px-4 py-2 text-right text-xs font-bold text-slate-700 dark:text-slate-200">
+                          <td className="px-4 py-2 text-right text-xs  text-slate-700 dark:text-slate-200">
                             ₹{(parseFloat(item.amount) || 0).toLocaleString()}
                           </td>
                           {!viewMode && (
@@ -377,37 +377,37 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                 <div className="space-y-4">
                   <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] uppercase font-bold text-slate-400">Additional Notes</label>
+                    <label className="text-[10px]   text-slate-400">Additional Notes</label>
                     <textarea
                       name="notes"
                       value={formData.notes}
                       onChange={handleInputChange}
                       readOnly={viewMode}
                       placeholder="Terms, bank details or internal remarks..."
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm h-32 resize-none outline-none focus:ring-2 focus:ring-blue-500/20"
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs h-32 resize-none outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 space-y-3">
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded p-6 space-y-3">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">Sub Total</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">₹{formData.sub_total.toLocaleString()}</span>
+                    <span className=" text-slate-700 dark:text-slate-200">₹{formData.sub_total.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">Taxable Value</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">₹{formData.taxable_value.toLocaleString()}</span>
+                    <span className=" text-slate-700 dark:text-slate-200">₹{formData.taxable_value.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">CGST @ 9%</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">₹{formData.cgst_amount.toLocaleString()}</span>
+                    <span className=" text-slate-700 dark:text-slate-200">₹{formData.cgst_amount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">SGST @ 9%</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">₹{formData.sgst_amount.toLocaleString()}</span>
+                    <span className=" text-slate-700 dark:text-slate-200">₹{formData.sgst_amount.toLocaleString()}</span>
                   </div>
                   <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">Grand Total</span>
+                    <span className="text-sm  text-slate-900 dark:text-white">Grand Total</span>
                     <span className="text-lg font-black text-blue-600">₹{formData.grand_total.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-[10px] text-slate-400 italic">
@@ -420,11 +420,11 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/50">
+        <div className="p-2 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/50">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm  text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
           >
             {viewMode ? 'Close' : 'Cancel'}
           </button>
@@ -432,7 +432,7 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
             <button
               onClick={handleSubmit}
               disabled={submitting || loading}
-              className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm  rounded-lg transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50"
             >
               <Save size={16} />
               {submitting ? 'Saving...' : (editData ? 'Update Invoice' : 'Create Invoice')}

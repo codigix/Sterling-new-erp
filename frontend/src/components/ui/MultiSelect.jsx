@@ -37,7 +37,7 @@ const MultiSelect = ({
       <div className="relative">
         <div
           className={`
-            w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2
+            w-full border border-slate-200 dark:border-slate-700 rounded p-2
             focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent
             disabled:opacity-50 disabled:cursor-not-allowed
             transition-all duration-200 min-h-[40px] flex items-center text-xs justify-between cursor-pointer
@@ -99,7 +99,7 @@ const MultiSelect = ({
                 <div
                   key={option}
                   onClick={() => handleSelect(option)}
-                  className={`px-3 py-2 cursor-pointer text-sm flex items-center gap-2 transition-colors ${
+                  className={`p-2 cursor-pointer text-sm flex items-center gap-2 transition-colors ${
                     safeValue.includes(option)
                       ? "bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-200 "
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"

@@ -626,7 +626,7 @@ const ReportsAnalytics = () => {
                 <div className="p-4 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Team Size</p>
+                      <p className="text-[10px]  tracking-wider text-slate-500 font-semibold">Team Size</p>
                       <div className="flex items-center gap-2">
                         <div className="p-1.5 bg-blue-50 rounded-md">
                           <Users className="w-3.5 h-3.5 text-blue-600" />
@@ -635,7 +635,7 @@ const ReportsAnalytics = () => {
                       </div>
                     </div>
                     <div className="space-y-1 text-right">
-                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Output</p>
+                      <p className="text-[10px]  tracking-wider text-slate-500 font-semibold">Output</p>
                       <div className="flex items-center justify-end gap-2">
                         <span className="text-lg  text-slate-800">{dept.completedTasks}</span>
                         <div className="p-1.5 bg-emerald-50 rounded-md">
@@ -647,7 +647,7 @@ const ReportsAnalytics = () => {
                   
                   <div className="pt-2">
                     <div className="flex justify-between items-center mb-2">
-                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Efficiency</p>
+                      <p className="text-[10px]  tracking-wider text-slate-500 font-semibold">Efficiency</p>
                       <span className={`text-xs  ${
                         dept.avgEfficiency >= 90 ? 'text-emerald-600' : 
                         dept.avgEfficiency >= 75 ? 'text-blue-600' : 'text-amber-600'

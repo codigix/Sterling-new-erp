@@ -88,7 +88,7 @@ const MaterialDetailModal = ({ isOpen, materialType, onClose, onSubmit, currentD
               <select
                 value={details.gradeCertificationRequired || ""}
                 onChange={(e) => handleChange("gradeCertificationRequired", e.target.value)}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded "
+                className="w-full p-2 bg-slate-700 border border-slate-600 rounded "
               >
                 <option value="">Select Option</option>
                 <option value="Yes">Yes</option>

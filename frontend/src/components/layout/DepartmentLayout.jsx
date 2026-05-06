@@ -227,7 +227,7 @@ const DepartmentLayout = () => {
                               onClick={() => {
                                 setExpandedSections(prev => ({...prev, [item.title]: !prev[item.title]}))
                               }}
-                              className="w-full flex items-center text-xs px-3 py-2 text-xs  rounded text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                              className="w-full flex items-center text-xs p-2 text-xs  rounded text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                             >
                               <IconComponent size={15} className="flex-shrink-0" />
                               {!sidebarCollapsed && (
@@ -253,7 +253,7 @@ const DepartmentLayout = () => {
                         ) : (
                           <Link
                             to={item.path}
-                            className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                            className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                               isActive(item.path)
                                 ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -288,7 +288,7 @@ const DepartmentLayout = () => {
                       <li>
                         <Link
                           to={dept.path}
-                          className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                          className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                             isActive(dept.path)
                               ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -308,7 +308,7 @@ const DepartmentLayout = () => {
                     <li>
                       <Link
                         to="/department/inventory/root-cards"
-                        className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                        className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                           isActive("/department/inventory/root-cards")
                             ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -337,7 +337,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/engineering/drawings"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/engineering/drawings")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -365,7 +365,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -378,7 +378,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/root-cards"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/root-cards")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -391,7 +391,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/design-drawings"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/design-drawings")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -404,7 +404,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/bom/view"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/bom/view") || location.pathname.includes("/production/bom")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -418,7 +418,7 @@ const DepartmentLayout = () => {
                     <div className="group flex items-center">
                       <Link
                         to="/department/production/released-materials"
-                        className={`flex-1 flex items-center text-xs px-3 py-2 text-xs  rounded-l transition-colors ${
+                        className={`flex-1 flex items-center text-xs p-2 text-xs  rounded-l transition-colors ${
                           isActive("/department/production/released-materials")
                             ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -441,7 +441,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/plans"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/plans")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -454,7 +454,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/updates"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/updates")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -467,7 +467,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/quality-handover"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/quality-handover")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -480,7 +480,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/mcr-reports"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/mcr-reports")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -493,7 +493,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/employee-work-logs"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/employee-work-logs")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -506,7 +506,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/operations"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/operations")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -519,7 +519,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/production/outsourcing-challans"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/outsourcing-challans")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -555,7 +555,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement") || isActive("/department/procurement/dashboard")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -568,7 +568,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/root-cards"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/root-cards")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -581,7 +581,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/material-requests"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/material-requests")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -594,7 +594,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/quotations"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/quotations")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -607,7 +607,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/purchase-orders"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/purchase-orders")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -620,7 +620,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/procurement/vendors"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/procurement/vendors")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -648,7 +648,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/purchase-orders"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/purchase-orders")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -661,7 +661,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/grn"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/grn")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -689,7 +689,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/stock/entries"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/stock/entries")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -702,7 +702,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/stock/balance"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/stock/balance")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -715,7 +715,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/department/inventory/stock/movements"
-                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/inventory/stock/movements")
                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -744,7 +744,7 @@ const DepartmentLayout = () => {
                 <li>
                   <Link
                     to={`${getDepartmentRole().path}/tasks`}
-                    className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                    className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                       isActive(`${getDepartmentRole().path}/tasks`)
                         ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -770,7 +770,7 @@ const DepartmentLayout = () => {
                 <li>
                   <Link
                     to="/department/notifications"
-                    className={`flex items-center text-xs px-3 py-2 text-sm rounded transition-colors ${
+                    className={`flex items-center text-xs p-2 text-sm rounded transition-colors ${
                       isActive("/department/notifications")
                         ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -792,7 +792,7 @@ const DepartmentLayout = () => {
                   <li>
                     <Link
                       to="/admin/dashboard"
-                      className="flex items-center text-xs px-3 py-2 text-sm  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                      className="flex items-center text-xs p-2 text-sm  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                     >
                       <Home size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && (

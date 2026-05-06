@@ -181,7 +181,7 @@ const EngineeringTasksPage = () => {
         <select
           value={selectedRootCard || ''}
           onChange={(e) => setSelectedRootCard(Number(e.target.value))}
-          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+          className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
         >
           {rootCards.map(order => {
             const baseName = order.project_name || order.po_number || order.customer || "";
@@ -244,7 +244,7 @@ const EngineeringTasksPage = () => {
                       name="documentType"
                       value={uploadForm.documentType}
                       onChange={handleUploadChange}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                     >
                       <option value="qap">QAP/ATP</option>
                       <option value="pd">PD Document</option>
@@ -263,7 +263,7 @@ const EngineeringTasksPage = () => {
                       value={uploadForm.documentName}
                       onChange={handleUploadChange}
                       placeholder="Optional - defaults to filename"
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                     />
                   </div>
                 </div>
@@ -275,7 +275,7 @@ const EngineeringTasksPage = () => {
                     type="file"
                     onChange={handleUploadChange}
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                   />
                 </div>
                 <div className="flex gap-2">

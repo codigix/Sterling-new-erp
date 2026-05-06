@@ -53,7 +53,7 @@ const LedgerEntriesPage = () => {
     {
       key: "reference_no",
       label: "Ref #",
-      render: (val) => <span className="font-mono text-slate-600 font-bold">{val}</span>
+      render: (val) => <span className="font-mono text-slate-600 ">{val}</span>
     },
     {
       key: "description",
@@ -67,13 +67,13 @@ const LedgerEntriesPage = () => {
       key: "debit",
       label: "Debit (Dr)",
       align: "right",
-      render: (val) => parseFloat(val) > 0 ? <span className="text-emerald-600 font-bold">₹{parseFloat(val).toLocaleString()}</span> : '-'
+      render: (val) => parseFloat(val) > 0 ? <span className="text-emerald-600 ">₹{parseFloat(val).toLocaleString()}</span> : '-'
     },
     {
       key: "credit",
       label: "Credit (Cr)",
       align: "right",
-      render: (val) => parseFloat(val) > 0 ? <span className="text-red-600 font-bold">₹{parseFloat(val).toLocaleString()}</span> : '-'
+      render: (val) => parseFloat(val) > 0 ? <span className="text-red-600 ">₹{parseFloat(val).toLocaleString()}</span> : '-'
     },
     {
       key: "actions",
@@ -95,11 +95,11 @@ const LedgerEntriesPage = () => {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">General Ledger Entries</h1>
+          <h1 className="text-xl  text-slate-900 dark:text-white">General Ledger Entries</h1>
           <p className="text-xs text-slate-500">View all accounting journal entries</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded text-sm hover:bg-slate-50 transition-all font-medium">
+          <button className="flex items-center gap-2 p-2 bg-white border border-slate-200 text-slate-600 rounded text-sm hover:bg-slate-50 transition-all font-medium">
             <Download size={16} /> Export
           </button>
           <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-all">
@@ -114,8 +114,8 @@ const LedgerEntriesPage = () => {
             <BookOpen size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Total Debits</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">₹{stats.totalDebits.toLocaleString()}</p>
+            <p className="text-xs text-slate-500  ">Total Debits</p>
+            <p className="text-xl  text-slate-900 dark:text-white">₹{stats.totalDebits.toLocaleString()}</p>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
@@ -123,8 +123,8 @@ const LedgerEntriesPage = () => {
             <ArrowUpRight size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Total Credits</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">₹{stats.totalCredits.toLocaleString()}</p>
+            <p className="text-xs text-slate-500  ">Total Credits</p>
+            <p className="text-xl  text-slate-900 dark:text-white">₹{stats.totalCredits.toLocaleString()}</p>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
@@ -132,8 +132,8 @@ const LedgerEntriesPage = () => {
             <ArrowDownLeft size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Trial Balance</p>
-            <p className={`text-xl font-bold ${isBalanced ? 'text-emerald-600' : 'text-red-600'}`}>
+            <p className="text-xs text-slate-500  ">Trial Balance</p>
+            <p className={`text-xl  ${isBalanced ? 'text-emerald-600' : 'text-red-600'}`}>
               {isBalanced ? 'Balanced' : 'Unbalanced'}
             </p>
           </div>

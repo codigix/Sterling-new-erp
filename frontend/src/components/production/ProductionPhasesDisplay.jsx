@@ -211,7 +211,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               value={newPhase.stageName}
               onChange={(e) => setNewPhase({ ...newPhase, stageName: e.target.value })}
               placeholder="e.g., Cutting, Assembly, Testing"
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -224,7 +224,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               <select
                 value={newPhase.stageType}
                 onChange={(e) => setNewPhase({ ...newPhase, stageType: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="in_house">In-House</option>
                 <option value="outsource">Outsource</option>
@@ -238,7 +238,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               <select
                 disabled
                 value="pending"
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white cursor-not-allowed"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white cursor-not-allowed"
               >
                 <option value="pending">Pending</option>
               </select>
@@ -254,7 +254,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                 type="date"
                 value={newPhase.plannedStart}
                 onChange={(e) => setNewPhase({ ...newPhase, plannedStart: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -266,7 +266,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
                 type="date"
                 value={newPhase.plannedEnd}
                 onChange={(e) => setNewPhase({ ...newPhase, plannedEnd: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -280,7 +280,7 @@ const ProductionPhasesDisplay = ({ rootCardId, editable = false }) => {
               onChange={(e) => setNewPhase({ ...newPhase, notes: e.target.value })}
               placeholder="Add notes about this phase..."
               rows="3"
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 

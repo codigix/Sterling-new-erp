@@ -576,7 +576,7 @@ const QCInspectionsPage = () => {
       render: (value, row, _, idx) => (
         <input
           type="number"
-          className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center transition-all"
+          className="w-24 p-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center transition-all"
           value={value}
           onChange={(e) => handleQuantityChange(idx, "invoice_quantity", e.target.value)}
         />
@@ -589,7 +589,7 @@ const QCInspectionsPage = () => {
       render: (value, row, _, idx) => (
         <input
           type="number"
-          className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center transition-all"
+          className="w-24 p-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-center transition-all"
           value={value}
           onChange={(e) => handleQuantityChange(idx, "total_received", e.target.value)}
         />
@@ -600,7 +600,7 @@ const QCInspectionsPage = () => {
       label: "Shortage",
       align: "center",
       render: (value) => (
-        <span className={`text-xs ${Number(value) > 0 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
+        <span className={`text-xs ${Number(value) > 0 ? 'text-red-500 ' : 'text-slate-400'}`}>
           {value}
         </span>
       ),
@@ -610,7 +610,7 @@ const QCInspectionsPage = () => {
       label: "Overage",
       align: "center",
       render: (value) => (
-        <span className={`text-xs ${Number(value) > 0 ? 'text-orange-500 font-bold' : 'text-slate-400'}`}>
+        <span className={`text-xs ${Number(value) > 0 ? 'text-orange-500 ' : 'text-slate-400'}`}>
           {value}
         </span>
       ),
@@ -692,9 +692,9 @@ const QCInspectionsPage = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded  bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+                <div className="p-2 rounded  bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
                   <FileText size={15} />
                 </div>
                 <div>
@@ -721,11 +721,11 @@ const QCInspectionsPage = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-8 overflow-y-auto space-y-8">
+            <div className="p-2 overflow-y-auto space-y-8">
               {/* Materials Summary Table */}
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h3 className="text-xs  text-slate-500  tracking-[0.2em] flex items-center gap-2">
+                  <h3 className="text-xs  text-slate-500   flex items-center gap-2">
                     <Layers size={14} /> Inspected Materials Detail Tracking
                   </h3>
                   
@@ -751,7 +751,7 @@ const QCInspectionsPage = () => {
                     )}
                     showSearch={false}
                     expandableRow={(item) => (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 bg-slate-50/50 dark:bg-slate-800/20 rounded-xl">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 bg-slate-50/50 dark:bg-slate-800/20 rounded">
                         {item.serials?.map((s, sIdx) => (
                           <div 
                             key={sIdx}
@@ -788,11 +788,11 @@ const QCInspectionsPage = () => {
 
               {/* General Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded  border border-slate-100 dark:border-slate-700 space-y-4">
-                  <h4 className="text-xs  text-slate-400  tracking-[0.2em] flex items-center gap-2">
+                <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded  border border-slate-100 dark:border-slate-700 space-y-4">
+                  <h4 className="text-xs  text-slate-400   flex items-center gap-2">
                     <Search size={14} /> Inspection Details
                   </h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-xs  text-slate-400  mb-1">Inspection Type</p>
                       <p className="text-xs  text-slate-700 dark:text-slate-200 ">{reportData.inspectionType}</p>
@@ -803,11 +803,11 @@ const QCInspectionsPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded  border border-slate-100 dark:border-slate-700 space-y-2">
-                  <h4 className="text-xs  text-slate-400  tracking-[0.2em]">Summary Status</h4>
+                <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded  border border-slate-100 dark:border-slate-700 space-y-2">
+                  <h4 className="text-xs  text-slate-400  ">Summary Status</h4>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-emerald-600">
-                      <CheckCircle size={20} />
+                      <CheckCircle size={15} />
                     </div>
                     <div>
                       <p className="text-xs  text-slate-900 dark:text-white  ">Quality Passed</p>
@@ -819,23 +819,23 @@ const QCInspectionsPage = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end gap-4">
+            <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end gap-4">
               <button 
                 onClick={() => setShowReportModal(false)}
-                className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 rounded text-xs    hover:bg-slate-50 transition-all "
+                className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 rounded text-xs    hover:bg-slate-50 transition-all "
               >
                 Close Report
               </button>
               <button 
                 onClick={handleCreateReport}
                 disabled={loading}
-                className="px-8 py-3 bg-emerald-600 text-white rounded text-xs    hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2"
+                className="p-2 bg-emerald-600 text-white rounded text-xs    hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2"
               >
                 <Plus size={14} /> Create Final Report
               </button>
               <button 
                 onClick={() => window.print()}
-                className="px-8 py-3 bg-blue-600 text-white rounded text-xs    hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+                className="p-2 bg-blue-600 text-white rounded text-xs    hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
               >
                 <Download size={14} /> Export PDF
               </button>

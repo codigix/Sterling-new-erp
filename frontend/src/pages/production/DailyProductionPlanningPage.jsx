@@ -1587,7 +1587,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       key: "item_group",
       label: "Item Group",
       align: "center",
-      render: (value) => <span className="text-[10px] text-slate-500 uppercase">{value}</span>
+      render: (value) => <span className="text-[10px] text-slate-500 ">{value}</span>
     },
     {
       key: "material_grade",
@@ -1613,7 +1613,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
         return (
           <div className="flex flex-col">
             <span className="text-[9px] text-slate-400">Unit: {unitWeight.toFixed(3)}</span>
-            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">{totalWeight.toFixed(3)} KG</span>
+            <span className="text-[10px]  text-indigo-600 dark:text-indigo-400">{totalWeight.toFixed(3)} KG</span>
           </div>
         );
       }
@@ -1623,7 +1623,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       label: "Produced Qty",
       align: "center",
       render: (value, entry) => (
-        <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-100 dark:border-emerald-900/50">
+        <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px]  border border-emerald-100 dark:border-emerald-900/50">
           {entry.full_data?.produced_qty || entry.produced_qty || 0} NOS
         </span>
       )
@@ -1634,7 +1634,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       align: "center",
       render: (value, entry) => (
         <div className="flex flex-col">
-          <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">{parseFloat(entry.scrap_weight || 0).toFixed(3)} KG</span>
+          <span className="text-[10px]  text-rose-600 dark:text-rose-400">{parseFloat(entry.scrap_weight || 0).toFixed(3)} KG</span>
           <span className="text-[9px] text-slate-400">({parseFloat(entry.scrap_percent || 0).toFixed(1)}%)</span>
         </div>
       )
@@ -2468,15 +2468,15 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={15} className="text-slate-400" /></button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 bg-slate-50/50">
+        <div className="flex-1 overflow-y-auto p-2 bg-slate-50/50">
           <div className="space-y-4">
 
             {/* 1. CONFIGURATION FORM (BOM Style) */}
             <div className="bg-white dark:bg-slate-900">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
                 
                 {/* Left Side: All Form Inputs (Inputs Column) */}
-                <div className="md:col-span-8 space-y-6">
+                <div className="md:col-span-8 space-y-2">
                   
                   {/* Row 1: Item Identification */}
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -2489,7 +2489,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                           setSelectedItemCode(val);
                           setSelectedItem(null);
                         }}
-                        placeholder="SEARCH MATERIALS..."
+                        placeholder="Search Materials..."
                       />
                     </div>
 
@@ -2498,9 +2498,9 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       <input
                         type="text"
                         readOnly
-                        className="w-full h-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs  text-slate-500"
+                        className="w-full  bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs  text-slate-500"
                         value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.item_group : ""}
-                        placeholder="GROUP..."
+                        placeholder="Group..."
                       />
                     </div>
 
@@ -2509,9 +2509,9 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                       <input
                         type="text"
                         readOnly
-                        className="w-full h-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs  text-slate-500"
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs  text-slate-500"
                         value={selectedItemCode ? uniqueItemOptions.find(o => o.value === selectedItemCode)?.material_grade : ""}
-                        placeholder="GRADE..."
+                        placeholder="Grade..."
                       />
                     </div>
                   </div>
@@ -2555,7 +2555,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                             }));
                           }
                         }}
-                        placeholder="SELECT ST#"
+                        placeholder="Select ST#"
                         disabled={!selectedItemCode}
                       />
                     </div>
@@ -2568,7 +2568,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                         type="number"
                         placeholder="PCS"
                         min="1"
-                        className={`w-full h-9 bg-indigo-50/50 border rounded px-3 py-1.5 text-xs  text-indigo-700 focus:border-indigo-500 outline-none ${remainingInfo && parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces ? 'border-red-500' : 'border-indigo-100'}`}
+                        className={`w-full bg-indigo-50/50 border rounded p-2 text-xs  text-indigo-700 focus:border-indigo-500 outline-none ${remainingInfo && parseFloat(cuttingForm.produced_qty) > remainingInfo.totalMaxPieces ? 'border-red-500' : 'border-indigo-100'}`}
                         value={cuttingForm.produced_qty}
                         onChange={(e) => setCuttingForm({ ...cuttingForm, produced_qty: e.target.value })}
                       />
@@ -2576,10 +2576,10 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                   </div>
 
                   {/* Row 3: Dimensions & Actions */}
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end pt-5 border-t border-slate-100">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end pt-5 border-t border-slate-100">
                     
                     {/* Dimension Group */}
-                    <div className="md:col-span-6 grid grid-cols-3 gap-3">
+                    <div className="md:col-span-6 grid grid-cols-3 gap-2">
 
                       {/* ── PLATE / SHEET ── L editable, W editable, T locked */}
                       {(selectedItemGroup.includes("PLATE") || selectedItemGroup.includes("SHEET")) && (
@@ -3050,7 +3050,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
             {/* 2. SUMMARY TABLE (The List) */}
             <div className="bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden">
               <div className="p-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                <h4 className="text-sm  text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Clipboard size={16} className="text-indigo-500" /> 
                   Reported Items Summary
                 </h4>
@@ -3061,7 +3061,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                   {reportEntries.length > 0 && (
                     <div className="flex items-center gap-2 px-2 py-0.5 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 rounded">
                       <span className="text-[10px] text-slate-500 dark:text-slate-400">Total Scrap:</span>
-                      <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                      <span className="text-[10px]  text-rose-600 dark:text-rose-400">
                         {reportEntries.reduce((acc, curr) => acc + (parseFloat(curr.scrap_weight) || 0), 0).toFixed(3)} KG
                       </span>
                     </div>
@@ -3351,7 +3351,7 @@ const DailyProductionPlanningPage = () => {
             <Target size={15} />
           </div>
           <div>
-            <span className="text-sm text-slate-900 dark:text-white  block" title={value}>
+            <span className="text-xs text-slate-900 dark:text-white  block" title={value}>
               {value || assignment.project_name || "General Plan"}
             </span>
             <span className="text-[10px] text-slate-400">{assignment.projectRef || assignment.root_card_id}</span>

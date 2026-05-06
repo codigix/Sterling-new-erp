@@ -255,7 +255,7 @@ const ChallanTasksPage = () => {
         <Card className="mb-6 p-6">
           <h3 className="text-lg   dark: mb-4">Create New Challan</h3>
           <div className="task-form mb-4">
-            <select className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:">
+            <select className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:">
               <option>Select Challan Type...</option>
               <option>Outward (Material sent out)</option>
               <option>Inward (Material received)</option>
@@ -263,25 +263,25 @@ const ChallanTasksPage = () => {
             <input
               type="text"
               placeholder="Stage/Process"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+              className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
             />
             <input
               type="text"
               placeholder="Vendor Name"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+              className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
             />
             <input
               type="date"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+              className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
             />
             <input
               type="number"
               placeholder="Number of Items"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+              className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
             />
             <textarea
               placeholder="Items Description"
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+              className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
               rows="3"
             />
           </div>

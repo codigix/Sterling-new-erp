@@ -220,7 +220,7 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
       render: (value, item) => (
         <input
           type="number"
-          className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right font-bold bg-white dark:bg-slate-900"
+          className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right  bg-white dark:bg-slate-900"
           value={value}
           onChange={(e) => handleItemChange(item.id, "dispatch_qty", e.target.value)}
         />
@@ -246,7 +246,7 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
         {/* Header */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+            <h2 className="text-xl  text-slate-900 dark:text-white flex items-center gap-3">
               <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-lg">
                 <FileText size={20} />
               </div>
@@ -267,23 +267,23 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
             <div className="space-y-6 md:col-span-2">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
                       <Hash size={12} /> Challan No.
                     </label>
                     <input 
                       type="text" 
-                      className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-indigo-600"
+                      className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm  text-indigo-600"
                       value={formData.challan_no}
                       readOnly
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
                       <Calendar size={12} /> Challan Date
                     </label>
                     <input 
                       type="date" 
-                      className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                      className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm"
                       value={formData.challan_date}
                       onChange={(e) => setFormData({...formData, challan_date: e.target.value})}
                     />
@@ -291,7 +291,7 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
                </div>
 
                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
                     <Building2 size={12} /> Vendor / Sub-contractor
                   </label>
                   <SearchableSelect 
@@ -304,7 +304,7 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
                     placeholder="Select Vendor..."
                   />
                   <textarea 
-                    className="w-full p-3 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs h-20 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                    className="w-full p-3 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-xs h-20 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
                     placeholder="Vendor Address details..."
                     value={formData.vendor_address}
                     onChange={(e) => setFormData({...formData, vendor_address: e.target.value})}
@@ -313,25 +313,25 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
             </div>
 
             <div className="bg-indigo-50/50 dark:bg-indigo-900/10 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-900/20 space-y-6">
-                <h3 className="text-xs font-bold text-indigo-600 uppercase flex items-center gap-2">
+                <h3 className="text-xs  text-indigo-600  flex items-center gap-2">
                   <Info size={14} /> Supply Order Info
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Supply Order No.</label>
+                    <label className="text-[10px]  text-slate-500 ">Supply Order No.</label>
                     <input 
                       type="text" 
-                      className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                      className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs"
                       value={formData.supply_order_no}
                       onChange={(e) => setFormData({...formData, supply_order_no: e.target.value})}
                       placeholder="Enter order no..."
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Order Date</label>
+                    <label className="text-[10px]  text-slate-500 ">Order Date</label>
                     <input 
                       type="date" 
-                      className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                      className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs"
                       value={formData.supply_order_date}
                       onChange={(e) => setFormData({...formData, supply_order_date: e.target.value})}
                     />
@@ -343,35 +343,35 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
           {/* Section 2: Logistics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
                   <Truck size={12} /> Despatched Through
                 </label>
                 <input 
                   type="text" 
-                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm"
                   value={formData.despatched_through}
                   onChange={(e) => setFormData({...formData, despatched_through: e.target.value})}
                   placeholder="Vehicle / Courier..."
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
                   Against L.R. / R.R. No.
                 </label>
                 <input 
                   type="text" 
-                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm"
                   value={formData.against_lr_rr_no}
                   onChange={(e) => setFormData({...formData, against_lr_rr_no: e.target.value})}
                   placeholder="Enter LR/RR no..."
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
                   Freight Type
                 </label>
                 <select 
-                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none"
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none"
                   value={formData.freight_type}
                   onChange={(e) => setFormData({...formData, freight_type: e.target.value})}
                 >
@@ -384,13 +384,13 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
           {/* Section 3: Items */}
           <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+              <h3 className="text-sm  text-slate-800 dark:text-white flex items-center gap-2">
                 Items to Dispatch
                 <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500">{formData.items.length} Lines</span>
               </h3>
               <button 
                 onClick={handleAddItem}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded text-xs  hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
               >
                 <Plus size={16} /> Add Item
               </button>
@@ -412,11 +412,11 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
 
           {/* Section 4: Remarks */}
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
               Remarks / Instructions
             </label>
             <textarea 
-              className="w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm h-24 outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm h-24 outline-none focus:ring-2 focus:ring-indigo-500/20"
               value={formData.remarks}
               onChange={(e) => setFormData({...formData, remarks: e.target.value})}
               placeholder="Any additional instructions for the vendor..."
@@ -429,14 +429,14 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
           <button
             onClick={() => handleSubmit("DRAFT")}
             disabled={loading}
-            className="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-100 rounded-xl transition-colors"
+            className="px-6 py-2.5 text-slate-600  text-sm hover:bg-slate-100 rounded transition-colors"
           >
             Save as Draft
           </button>
           <button
             onClick={() => handleSubmit("SUBMITTED")}
             disabled={loading}
-            className="p-2 bg-indigo-600 text-white font-bold text-sm rounded-xl shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 flex items-center gap-3 transition-all active:scale-95"
+            className="p-2 bg-indigo-600 text-white  text-sm rounded shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 flex items-center gap-3 transition-all active:scale-95"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

@@ -137,7 +137,7 @@ const EmployeeSettings = () => {
                 </label>
                 <input
                   type="password"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                 />
               </div>
               <div>
@@ -146,7 +146,7 @@ const EmployeeSettings = () => {
                 </label>
                 <input
                   type="password"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                 />
               </div>
               <div>
@@ -155,7 +155,7 @@ const EmployeeSettings = () => {
                 </label>
                 <input
                   type="password"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700  dark:"
                 />
               </div>
               <Button className="w-full">Update Password</Button>

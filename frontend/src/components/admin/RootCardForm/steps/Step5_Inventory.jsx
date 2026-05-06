@@ -29,7 +29,7 @@ const GRNDetailTable = ({ grnId }) => {
 
   return (
     <div className="p-4 bg-slate-50 border-t border-slate-100">
-      <h4 className="text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wider flex items-center gap-2">
+      <h4 className="text-xs font-semibold text-slate-700 mb-2  tracking-wider flex items-center gap-2">
         <FileText size={14} />
         GRN Items
       </h4>
@@ -37,10 +37,10 @@ const GRNDetailTable = ({ grnId }) => {
         <table className="w-full text-left">
           <thead className="bg-slate-50">
             <tr>
-              <th className="p-2 text-[10px] text-slate-400 uppercase">Material Name</th>
-              <th className="p-2 text-[10px] text-slate-400 uppercase text-center">Ordered</th>
-              <th className="p-2 text-[10px] text-slate-400 uppercase text-center">Received</th>
-              <th className="p-2 text-[10px] text-slate-400 uppercase">Unit</th>
+              <th className="p-2 text-[10px] text-slate-400 ">Material Name</th>
+              <th className="p-2 text-[10px] text-slate-400  text-center">Ordered</th>
+              <th className="p-2 text-[10px] text-slate-400  text-center">Received</th>
+              <th className="p-2 text-[10px] text-slate-400 ">Unit</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

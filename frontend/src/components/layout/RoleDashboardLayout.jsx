@@ -160,7 +160,7 @@ const RoleDashboardLayout = ({
                         <>
                           <button
                             onClick={() => toggleSection(item.title)}
-                            className={`w-full flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                            className={`w-full flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                               isExpanded
                                 ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -192,7 +192,7 @@ const RoleDashboardLayout = ({
                                   <li key={subitem.path}>
                                     <Link
                                       to={subitem.path}
-                                      className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                                         isActive(subitem.path)
                                           ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
@@ -215,7 +215,7 @@ const RoleDashboardLayout = ({
                       ) : (
                         <Link
                           to={item.path}
-                          className={`flex items-center text-xs px-3 py-2 text-xs  rounded transition-colors ${
+                          className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                             isActive(item.path)
                               ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"

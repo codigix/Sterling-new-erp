@@ -430,7 +430,7 @@ const RootCardDetailPage = () => {
                       value={newStage.stageName}
                       onChange={(e) => setNewStage({ ...newStage, stageName: e.target.value })}
                       placeholder="e.g., Cutting, Welding, Assembly..."
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     />
                   </div>
                   <div>
@@ -440,7 +440,7 @@ const RootCardDetailPage = () => {
                     <select
                       value={newStage.stageType}
                       onChange={(e) => setNewStage({ ...newStage, stageType: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     >
                       <option value="in_house">In-House</option>
                       <option value="outsource">Outsource</option>
@@ -453,7 +453,7 @@ const RootCardDetailPage = () => {
                     <select
                       value={newStage.phase}
                       onChange={(e) => setNewStage({ ...newStage, phase: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     >
                       <option value={1}>Phase 1: Fabrication</option>
                       <option value={2}>Phase 2: Finishing & Painting</option>
@@ -469,7 +469,7 @@ const RootCardDetailPage = () => {
                       type="date"
                       value={newStage.plannedStart}
                       onChange={(e) => setNewStage({ ...newStage, plannedStart: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     />
                   </div>
                   <div>
@@ -480,7 +480,7 @@ const RootCardDetailPage = () => {
                       type="date"
                       value={newStage.plannedEnd}
                       onChange={(e) => setNewStage({ ...newStage, plannedEnd: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                      className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                     />
                   </div>
                 </div>
@@ -493,7 +493,7 @@ const RootCardDetailPage = () => {
                     onChange={(e) => setNewStage({ ...newStage, notes: e.target.value })}
                     placeholder="Add any notes about this phase..."
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
                   />
                 </div>
                 <div className="flex gap-3">
@@ -778,7 +778,7 @@ const RootCardDetailPage = () => {
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm  text-slate-700 dark:text-slate-300">Current Status</span>
                 </div>
-                <Badge className={`inline-block text-xs  px-3 py-2 rounded  ${getStatusColor(card.status)}`}>
+                <Badge className={`inline-block text-xs  p-2 rounded  ${getStatusColor(card.status)}`}>
                   {getStatusLabel(card.status)}
                 </Badge>
               </div>

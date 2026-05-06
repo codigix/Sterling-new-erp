@@ -540,10 +540,10 @@ const MaterialRequestDetailModal = ({
                       className: "text-center",
                       render: (val, item) => (
                         <div className="flex flex-col items-center">
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          <span className="text-xs  text-slate-900 dark:text-white">
                             {val}
                           </span>
-                          <span className="text-[10px] text-slate-400 uppercase">{item.unit}</span>
+                          <span className="text-[10px] text-slate-400 ">{item.unit}</span>
                         </div>
                       )
                     },
@@ -562,7 +562,7 @@ const MaterialRequestDetailModal = ({
                         return (
                           <div className="flex flex-col items-center">
                             <span
-                              className={`text-xs font-bold ${isAvailable ? "text-emerald-600" : Number(stockQty || 0) > 0 ? "text-amber-600" : "text-red-600"}`}
+                              className={`text-xs  ${isAvailable ? "text-emerald-600" : Number(stockQty || 0) > 0 ? "text-amber-600" : "text-red-600"}`}
                             >
                               {Number(stockQty || 0).toFixed(3)}
                             </span>
@@ -597,7 +597,7 @@ const MaterialRequestDetailModal = ({
                         
                         return (
                           <div className="flex flex-col items-center gap-1">
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${isAvailable ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"}`}>
+                            <span className={`px-2 py-0.5 rounded text-[9px]   tracking-wider ${isAvailable ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"}`}>
                               {isAvailable ? "Ready" : "Order Req"}
                             </span>
                             <span className="text-[10px] text-slate-400">{val}</span>
@@ -1496,10 +1496,10 @@ const MaterialRequestsPage = () => {
           >
             <div className="flex justify-between items-start">
               <div>
-                <p className={`text-[10px] uppercase tracking-wider font-medium mb-1 ${activeTab === stat.label.toLowerCase() ? "text-indigo-100" : "text-slate-400"}`}>
+                <p className={`text-[10px]  tracking-wider font-medium mb-1 ${activeTab === stat.label.toLowerCase() ? "text-indigo-100" : "text-slate-400"}`}>
                   {stat.label}
                 </p>
-                <p className={`text-xl font-bold leading-tight ${activeTab === stat.label.toLowerCase() ? "text-white" : "text-slate-900 dark:text-white"}`}>
+                <p className={`text-xl  leading-tight ${activeTab === stat.label.toLowerCase() ? "text-white" : "text-slate-900 dark:text-white"}`}>
                   {stat.value}
                 </p>
               </div>

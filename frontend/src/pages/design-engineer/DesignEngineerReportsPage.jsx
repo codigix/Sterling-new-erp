@@ -118,13 +118,13 @@ const DesignEngineerReportsPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <Card className="bg-blue-50 border-blue-100">
                 <CardContent className="p-4">
-                  <p className="text-xs text-blue-600  uppercase">Total Drawings</p>
+                  <p className="text-xs text-blue-600  ">Total Drawings</p>
                   <p className="text-2xl  text-blue-900 mt-1">112</p>
                 </CardContent>
               </Card>
               <Card className="bg-emerald-50 border-emerald-100">
                 <CardContent className="p-4">
-                  <p className="text-xs text-emerald-600  uppercase">Approved</p>
+                  <p className="text-xs text-emerald-600  ">Approved</p>
                   <p className="text-2xl  text-emerald-900 mt-1">98</p>
                 </CardContent>
               </Card>
@@ -274,7 +274,7 @@ const DesignEngineerReportsPage = () => {
             key={stat.label}
             className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700 shadow-sm"
           >
-            <p className="text-xs  text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <p className="text-xs  text-slate-500 dark:text-slate-400  tracking-wider">
               {stat.label}
             </p>
             <p className="text-xl  text-slate-900 dark:text-white mt-2">

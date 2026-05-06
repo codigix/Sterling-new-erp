@@ -385,19 +385,19 @@ const DrawingsPage = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleViewDrawing(drawing)}
-                  className="flex-1 px-3 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded text-sm hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
+                  className="flex-1 p-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded text-sm hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
                 >
                   View
                 </button>
                 <button
                   onClick={() => handleDownloadDrawing(drawing)}
-                  className="flex-1 px-3 py-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded text-sm hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
+                  className="flex-1 p-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded text-sm hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
                 >
                   Download
                 </button>
                 <button
                   onClick={() => handleDeleteClick(drawing)}
-                  className="px-3 py-2 bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-400 rounded text-sm hover:bg-red-100 dark:hover:bg-red-800 transition-colors"
+                  className="p-2 bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-400 rounded text-sm hover:bg-red-100 dark:hover:bg-red-800 transition-colors"
                   title="Delete"
                 >
                   <Trash2 size={15} />
@@ -451,7 +451,7 @@ const DrawingsPage = () => {
                         setDesignSearch("");
                       }
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   {showDesignDropdown && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded shadow-lg z-20 max-h-48 overflow-y-auto">
@@ -477,7 +477,7 @@ const DrawingsPage = () => {
                               setDesignSearch("");
                               setShowDesignDropdown(false);
                             }}
-                            className={`w-full text-left px-3 py-2.5 text-sm border-b border-slate-100 dark:border-slate-600 hover:bg-blue-50 dark:hover:bg-slate-600 transition-colors ${
+                            className={`w-full text-left p-2.5 text-sm border-b border-slate-100 dark:border-slate-600 hover:bg-blue-50 dark:hover:bg-slate-600 transition-colors ${
                               uploadFormData.designName === design.title
                                 ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 "
                                 : "text-slate-900 dark:text-white"
@@ -519,7 +519,7 @@ const DrawingsPage = () => {
                     })
                   }
                   placeholder="e.g., Gearbox Housing – GA Drawing"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -538,7 +538,7 @@ const DrawingsPage = () => {
                     })
                   }
                   placeholder="e.g., DRG-GX120-001"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -556,7 +556,7 @@ const DrawingsPage = () => {
                         drawingType: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="2D">2D</option>
                     <option value="3D">3D</option>
@@ -577,7 +577,7 @@ const DrawingsPage = () => {
                       })
                     }
                     placeholder="e.g., V1.0 or R0"
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -595,7 +595,7 @@ const DrawingsPage = () => {
                       drawingStatus: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Draft">Draft</option>
                   <option value="Approved">Approved</option>
@@ -617,7 +617,7 @@ const DrawingsPage = () => {
                   }
                   placeholder="Optional notes or additional details..."
                   rows="2"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
@@ -630,7 +630,7 @@ const DrawingsPage = () => {
                   type="file"
                   onChange={handleFileChange}
                   accept=".pdf,.dwg,.dxf,.step,.stp,.iges,.igs"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {uploadFormData.file && (
                   <p className="text-xs text-green-600 dark:text-green-400 mt-2">

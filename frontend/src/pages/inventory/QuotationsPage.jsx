@@ -1109,7 +1109,7 @@ const QuotationsPage = ({ defaultTab }) => {
       {isFromDepartmentTasks() && (
         <div className="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded p-3 flex items-start gap-3 shadow-sm">
           <div className="flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300">
+            <p className="text-[10px]   tracking-wider text-indigo-900 dark:text-indigo-300">
               📋 Inventory Task Context
             </p>
             <p className="text-xs text-indigo-800 dark:text-indigo-400 mt-1">
@@ -1124,10 +1124,10 @@ const QuotationsPage = ({ defaultTab }) => {
         title={activeTab === "outbound" ? "Sent Requests (RFQ)" : "Received Quotes"}
         titleIcon={<FileText size={16} />}
         titleExtra={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ">
             <div className="flex border border-slate-200 dark:border-slate-700 rounded overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
               <button
-                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                className={`px-3 py-1.5 text-[10px]   tracking-wider transition-all ${
                   activeTab === "outbound"
                     ? "bg-indigo-600 text-white"
                     : "text-slate-500 hover:bg-slate-50"
@@ -1137,7 +1137,7 @@ const QuotationsPage = ({ defaultTab }) => {
                 Sent (RFQ)
               </button>
               <button
-                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                className={`px-3 py-1.5 text-[10px]   tracking-wider transition-all ${
                   activeTab === "inbound"
                     ? "bg-indigo-600 text-white"
                     : "text-slate-500 hover:bg-slate-50"
@@ -1241,12 +1241,12 @@ const QuotationsPage = ({ defaultTab }) => {
             className="bg-white dark:bg-slate-800 rounded  shadow-2xl w-full max-w-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-800 flex justify-between items-center px-8 py-6 border-b border-slate-200 dark:border-slate-600">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-800 flex justify-between items-center p-2 border-b border-slate-200 dark:border-slate-600">
               <div>
-                <h3 className="text-2xl  text-slate-900 dark:text-white text-sm">
+                <h3 className="text-md  text-slate-900 dark:text-white">
                   Send Quotation
                 </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 text-xs">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 ">
                   Email quotation {emailData.quotationNumber} to vendor
                 </p>
               </div>
@@ -1258,9 +1258,9 @@ const QuotationsPage = ({ defaultTab }) => {
               </button>
             </div>
 
-            <form onSubmit={submitEmail} className="px-8 py-6 space-y-4">
+            <form onSubmit={submitEmail} className="p-2 space-y-2">
               <div>
-                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300 ">
                   Vendor Email <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -1270,12 +1270,12 @@ const QuotationsPage = ({ defaultTab }) => {
                     setEmailData({ ...emailData, email: e.target.value })
                   }
                   placeholder="vendor@example.com"
-                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300">
                   Subject <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -1285,12 +1285,12 @@ const QuotationsPage = ({ defaultTab }) => {
                     setEmailData({ ...emailData, subject: e.target.value })
                   }
                   placeholder="Email subject"
-                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs  text-slate-700 dark:text-slate-300">
                   Message <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -1300,22 +1300,22 @@ const QuotationsPage = ({ defaultTab }) => {
                   }
                   placeholder="Email message"
                   rows="5"
-                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full p-2 border text-xs border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
-              <div className="flex gap-3 justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="flex gap-3 justify-end p-2 ">
                 <button
                   type="button"
                   onClick={() => setShowEmailModal(false)}
-                  className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors "
+                  className="p-2 text-xs border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors "
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={sendingEmail}
-                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded transition-colors "
+                  className="flex items-center gap-2 p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs rounded transition-colors "
                 >
                   {sendingEmail ? (
                     <>

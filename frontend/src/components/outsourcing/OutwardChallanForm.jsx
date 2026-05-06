@@ -205,7 +205,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
         <select
           value={formData.vendorId}
           onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
-          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+          className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           disabled={loading}
           required
         >
@@ -232,7 +232,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
             type="date"
             value={formData.materialSentDate}
             onChange={(e) => setFormData({ ...formData, materialSentDate: e.target.value })}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             disabled={loading}
           />
         </div>
@@ -246,7 +246,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
             required
             value={formData.expectedReturnDate}
             onChange={(e) => setFormData({ ...formData, expectedReturnDate: e.target.value })}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             disabled={loading}
           />
         </div>
@@ -259,7 +259,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
         <textarea
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+          className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
           rows="2"
           disabled={loading}
         />
@@ -304,7 +304,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                             handleSelectMaterial(index, material);
                           }
                         }}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 "
+                        className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 "
                         disabled={loading}
                       >
                         <option value="">Select material...</option>
@@ -326,7 +326,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         step="any"
                         value={item.quantity}
                         onChange={(e) => handleUpdateItem(index, 'quantity', parseFloat(e.target.value))}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm "
+                        className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded text-sm "
                         disabled={loading}
                       />
                     </div>
@@ -339,7 +339,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         type="text"
                         readOnly
                         value={item.unit}
-                        className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm  text-slate-500"
+                        className="w-full p-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm  text-slate-500"
                         disabled={loading}
                       />
                     </div>
@@ -353,7 +353,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         placeholder="Optional remarks"
                         value={item.remarks}
                         onChange={(e) => handleUpdateItem(index, 'remarks', e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm"
+                        className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded text-sm"
                         disabled={loading}
                       />
                     </div>
@@ -397,7 +397,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         value={item.quantity}
                         placeholder="0.00"
                         onChange={(e) => handleUpdateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm  text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
+                        className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded text-sm  text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
                         disabled={loading}
                       />
                     </div>
@@ -411,7 +411,7 @@ const OutwardChallanForm = ({ task, materials, vendors = [], onChallanCreated, t
                         placeholder="Add internal notes..."
                         value={item.remarks}
                         onChange={(e) => handleUpdateItem(index, 'remarks', e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                        className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
                         disabled={loading}
                       />
                     </div>

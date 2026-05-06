@@ -172,7 +172,7 @@ const SearchableSelect = ({
           onKeyDown={handleInputKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full px-3 py-2 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none placeholder:text-slate-400"
+          className="w-full p-2 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none placeholder:text-slate-400"
         />
         
         <div className="flex items-center gap-1 pr-2">

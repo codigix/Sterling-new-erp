@@ -366,7 +366,7 @@ const DashboardContent = React.memo(({
                     </div>
                     <Link
                       to="/department/inventory/material-requests"
-                      className="mt-3 block text-center px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm  transition-colors"
+                      className="mt-3 block text-center p-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm  transition-colors"
                     >
                       Raise Material Request
                     </Link>
@@ -429,7 +429,7 @@ const DashboardContent = React.memo(({
                 </div>
                 <div className="text-right">
                   <span
-                    className={`inline-block px-3 py-2 rounded text-sm  ${
+                    className={`inline-block p-2 rounded text-sm  ${
                       movement.type === "in"
                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"

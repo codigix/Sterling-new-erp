@@ -94,7 +94,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       label: "Challan Info",
       render: (val, row) => (
         <div className="flex flex-col">
-          <span className="font-bold text-slate-900 dark:text-white">{row.challan_no}</span>
+          <span className=" text-slate-900 dark:text-white">{row.challan_no}</span>
           <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-1">
             <Calendar size={10} /> {new Date(row.challan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
@@ -106,7 +106,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       label: "Project / Ref",
       render: (val, row) => (
         <div className="flex flex-col">
-          <span className="text-sm font-bold text-slate-900 dark:text-white">{val || "N/A"}</span>
+          <span className="text-sm  text-slate-900 dark:text-white">{val || "N/A"}</span>
         </div>
       )
     },
@@ -115,7 +115,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       label: "Operation",
       render: (val, row) => (
         <div className="flex flex-col">
-          <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded w-fit">{val}</span>
+          <span className="text-xs  text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded w-fit">{val}</span>
           {row.supply_order_no && (
             <span className="text-[10px] text-slate-500 mt-1">SO: {row.supply_order_no}</span>
           )}
@@ -136,7 +136,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       key: "status",
       label: "Status",
       render: (val, row) => (
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${
+        <span className={`text-[10px]  px-2 py-1 rounded-full border ${
           val === "SUBMITTED" ? "bg-blue-50 text-blue-600 border-blue-100" : 
           val === "DRAFT" ? "bg-slate-50 text-slate-600 border-slate-100" :
           "bg-emerald-50 text-emerald-600 border-emerald-100"
@@ -195,7 +195,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       label: "Challan Info",
       render: (val, row) => (
         <div className="flex flex-col">
-          <span className="font-bold text-slate-900 dark:text-white">{row.challan_no}</span>
+          <span className=" text-slate-900 dark:text-white">{row.challan_no}</span>
           <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-1">
             <Calendar size={10} /> {new Date(row.challan_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
@@ -213,7 +213,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       key: "project_name",
       label: "Project",
       render: (val) => (
-        <span className="text-sm font-bold text-slate-900 dark:text-white">{val || "N/A"}</span>
+        <span className="text-sm  text-slate-900 dark:text-white">{val || "N/A"}</span>
       )
     },
     {
@@ -227,7 +227,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       key: "status",
       label: "Status",
       render: (val) => (
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${
+        <span className={`text-[10px]  px-2 py-1 rounded-full border ${
           val === "SUBMITTED" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
           "bg-slate-50 text-slate-600 border-slate-100"
         }`}>{val}</span>
@@ -262,7 +262,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
     <div className="p-6 bg-slate-50 dark:bg-slate-950 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-2xl  text-slate-900 dark:text-white">
             Outsourcing Challans
           </h1>
           <p className="text-sm text-slate-500 mt-1">Manage material movement for external processing</p>
@@ -278,7 +278,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       <Card className="mb-6">
         <div className="p-4 flex gap-4 items-end">
           <div className="flex-[2]">
-            <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">Project</label>
+            <label className="block text-[10px]   text-slate-400 mb-1.5">Project</label>
             <SearchableSelect
               options={[
                 { value: "all", label: "All Projects" },
@@ -294,7 +294,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
               onClick={() => {
                 setSelectedProject("all");
               }}
-              className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-6 py-2.5 rounded-xl font-bold hover:bg-slate-200 transition-all border border-slate-200 dark:border-slate-700"
+              className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-6 py-2.5 rounded  hover:bg-slate-200 transition-all border border-slate-200 dark:border-slate-700"
             >
               Reset Filters
             </button>

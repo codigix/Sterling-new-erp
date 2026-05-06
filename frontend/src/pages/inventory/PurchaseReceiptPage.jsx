@@ -323,7 +323,7 @@ const PurchaseReceiptPage = () => {
       align: "center",
       render: (value) => (
         <span
-          className={`px-3 py-1 rounded text-[10px] font-medium uppercase tracking-wider ${
+          className={`px-3 py-1 rounded text-[10px] font-medium  tracking-wider ${
             value === "completed" ? "bg-green-100 text-green-700" :
             value === "pending" ? "bg-slate-100 text-slate-700" :
             value === "qc_pending" ? "bg-purple-100 text-purple-700" :

@@ -163,7 +163,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
             <button
               onClick={handleSendToQuality}
               disabled={sending}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white hover:bg-amber-700 rounded-xl text-sm  transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white hover:bg-amber-700 rounded text-sm  transition-all disabled:opacity-50"
             >
               {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
               Send to Quality (QAP)
@@ -173,7 +173,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
             <button
               onClick={handleSendToProduction}
               disabled={sending}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl text-sm  transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded text-sm  transition-all disabled:opacity-50"
             >
               {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
               Approve & Send to Production
@@ -192,7 +192,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
           <div className="space-y-3">
             {state.formData.qualityCheck.qap_files && state.formData.qualityCheck.qap_files.length > 0 ? (
               state.formData.qualityCheck.qap_files.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                <div key={index} className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded border border-indigo-100 dark:border-indigo-800">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
                       <FileText className="text-indigo-500" size={16} />
@@ -225,7 +225,7 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
                 </div>
               ))
             ) : (
-              <div className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+              <div className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded border border-indigo-100 dark:border-indigo-800">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
                     <FileText className="text-indigo-500" size={16} />

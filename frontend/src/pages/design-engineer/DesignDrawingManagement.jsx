@@ -837,7 +837,7 @@ const DesignDrawingManagement = () => {
       {/* Technical Files Upload Modal */}
       {showTechnicalUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-2xl">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded border border-slate-200 dark:border-slate-700 overflow-hidden shadow-2xl">
             <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <div>
                 <h3 className="text-lg  text-slate-900 dark:text-white">Upload Technical Files</h3>

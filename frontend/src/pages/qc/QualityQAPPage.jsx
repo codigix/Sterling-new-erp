@@ -285,7 +285,7 @@ const QualityQAPPage = () => {
             <div className="space-y-6">
               {/* Project Info */}
               <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
-                <h4 className="text-xs  text-slate-900 dark:text-white uppercase tracking-wider mb-2">Project Details</h4>
+                <h4 className="text-xs  text-slate-900 dark:text-white  tracking-wider mb-2">Project Details</h4>
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>
                     <p className="text-slate-500">Project Name</p>
@@ -302,7 +302,7 @@ const QualityQAPPage = () => {
                 {/* QAP Files */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs  text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <h4 className="text-xs  text-slate-900 dark:text-white  tracking-wider flex items-center gap-2">
                       <FileText size={14} className="text-blue-600" />
                       QAP Documents
                     </h4>
@@ -358,7 +358,7 @@ const QualityQAPPage = () => {
                 {/* Approved Drawings */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs  text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <h4 className="text-xs  text-slate-900 dark:text-white  tracking-wider flex items-center gap-2">
                       <Eye size={14} className="text-emerald-600" />
                       Approved Drawings
                     </h4>

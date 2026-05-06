@@ -51,7 +51,7 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
       <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+            <h2 className="text-sm  text-slate-900 dark:text-white  tracking-tight">
               Quality Testing & Reports
             </h2>
             <p className="text-[10px] text-slate-500 mt-0.5">
@@ -72,9 +72,9 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
                 {inspections.map((insp) => (
                   <div key={insp.id} className="p-3 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900/50 flex items-center justify-between gap-4">
                     <div className="flex-1">
-                      <p className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">{insp.inspection_name}</p>
+                      <p className="text-xs  text-slate-700 dark:text-slate-200 ">{insp.inspection_name}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                        <span className={`text-[9px]  px-1.5 py-0.5 rounded ${
                           insp.status === 'Approved' ? 'bg-emerald-50 text-emerald-600' : 
                           insp.status === 'Rejected' ? 'bg-rose-50 text-rose-600' : 
                           'bg-amber-50 text-amber-600'
@@ -89,7 +89,7 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
                         href={getServerUrl(insp.document_path)} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold hover:bg-blue-600 hover:text-white transition-all border border-blue-100"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-[10px]  hover:bg-blue-600 hover:text-white transition-all border border-blue-100"
                       >
                         <FileText size={12} /> Download Report
                       </a>
@@ -108,7 +108,7 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
         <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 flex justify-end items-center">
           <button 
             onClick={onClose}
-            className="px-6 py-2 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded text-xs font-bold hover:bg-slate-50 transition-colors"
+            className="px-6 py-2 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded text-xs  hover:bg-slate-50 transition-colors"
           >
             Close
           </button>
@@ -304,10 +304,10 @@ const QualityHandoverPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
-      <div className="max-w-7xl mx-auto mb-6">
+      <div className=" mx-auto mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Quality Handover</h1>
+            <h1 className="text-xl  text-slate-900 dark:text-white">Quality Handover</h1>
             <p className="text-xs text-slate-500 mt-1">Send completed production phases to Quality department for inspection</p>
           </div>
           <button 
@@ -319,9 +319,9 @@ const QualityHandoverPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-4">
+      <div className="">
         {/* Filters */}
-        <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col mb-3 md:flex-row gap-2">
           <div className="flex-1">
             <SearchableSelect
               placeholder="Filter by Project Name or ID..."
@@ -330,28 +330,11 @@ const QualityHandoverPage = () => {
               onChange={setProjectFilter}
             />
           </div>
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-            <input 
-              type="text" 
-              placeholder="Search operation..." 
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          {(searchTerm || projectFilter) && (
-            <button 
-              onClick={() => {setSearchTerm(""); setProjectFilter("");}}
-              className="px-4 py-2 text-rose-500 text-xs font-medium hover:bg-rose-50 rounded transition-colors flex items-center gap-1"
-            >
-              <X size={14} /> Clear
-            </button>
-          )}
+         
         </div>
 
         {/* Handover Table */}
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="">
           <DataTable
             loading={loading}
             data={handoverProjects}
@@ -361,7 +344,7 @@ const QualityHandoverPage = () => {
                 key: "project_name",
                 render: (value, row) => (
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white uppercase">
+                    <span className="text-xs  text-slate-900 dark:text-white ">
                       {value || row.title || "N/A"}
                     </span>
                     <span className="text-[10px] text-slate-400 font-mono">{row.projectId}</span>
@@ -372,7 +355,7 @@ const QualityHandoverPage = () => {
                 header: "Handover Phase",
                 key: "handoverType",
                 render: (value) => (
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded border ${
+                  <span className={`text-[10px]  px-2 py-1 rounded border ${
                     value === "Phase 1" 
                       ? "bg-blue-50 text-blue-600 border-blue-100" 
                       : "bg-indigo-50 text-indigo-600 border-indigo-100"
@@ -387,15 +370,15 @@ const QualityHandoverPage = () => {
                 render: (value, row) => (
                   <div className="flex items-center gap-2">
                     {value === 'PENDING' ? (
-                      <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded font-bold border border-amber-100 flex items-center gap-1">
+                      <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded  border border-amber-100 flex items-center gap-1">
                         <Clock size={10} /> UNDER INSPECTION
                       </span>
                     ) : value === 'APPROVED' ? (
-                      <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded font-bold border border-emerald-100 flex items-center gap-1">
+                      <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded  border border-emerald-100 flex items-center gap-1">
                         <CheckCircle2 size={10} /> QC APPROVED
                       </span>
                     ) : (
-                      <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded font-bold border border-blue-100 flex items-center gap-1">
+                      <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded  border border-blue-100 flex items-center gap-1">
                         <Package size={10} /> READY FOR QC
                       </span>
                     )}
@@ -414,7 +397,7 @@ const QualityHandoverPage = () => {
                           setActiveProject(row);
                           setIsModalOpen(true);
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold transition-all shadow-sm bg-emerald-600 text-white hover:bg-emerald-700"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px]  transition-all shadow-sm bg-emerald-600 text-white hover:bg-emerald-700"
                       >
                         <FileText size={14} />
                         View Tests
@@ -424,7 +407,7 @@ const QualityHandoverPage = () => {
                     {row.isReady && (
                       <button
                         onClick={() => handleSendToQuality(row.projectId, row.handoverPhase)}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded text-xs font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded text-xs  hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
                       >
                         <ShieldCheck size={14} /> Send to Quality
                       </button>

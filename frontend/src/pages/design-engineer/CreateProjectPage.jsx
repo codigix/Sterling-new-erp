@@ -354,7 +354,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Project Name
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
+                    <div className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
                       {projectData.projectName || "N/A"}
                     </div>
                   </div>
@@ -362,7 +362,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Project Code
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
+                    <div className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
                       {projectData.projectCode || "N/A"}
                     </div>
                   </div>
@@ -370,7 +370,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       PO Number
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
+                    <div className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-mono">
                       {projectData.poNumber || "N/A"}
                     </div>
                   </div>
@@ -378,7 +378,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Client Name
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
+                    <div className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
                       {projectData.clientName || "N/A"}
                     </div>
                   </div>
@@ -386,7 +386,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Priority
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
+                    <div className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
                       <span
                         className={`inline-block  rounded text-xs  ${
                           projectData.priority === "critical"
@@ -406,7 +406,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Status
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
+                    <div className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-xs capitalize">
                       <span
                         className={`inline-block  rounded text-xs  ${
                           projectData.status === "completed"
@@ -431,7 +431,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Start Date
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
+                    <div className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
                       {projectData.startDate
                         ? new Date(projectData.startDate).toLocaleDateString()
                         : "N/A"}
@@ -441,7 +441,7 @@ const CreateProjectPage = () => {
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
                       Delivery Date
                     </label>
-                    <div className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
+                    <div className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
                       {projectData.deliveryDate
                         ? new Date(
                             projectData.deliveryDate

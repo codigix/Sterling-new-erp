@@ -718,11 +718,11 @@ const ProductionPlanFormPage = () => {
                               <table className="w-full text-xs">
                                 <thead>
                                   <tr className="text-slate-400  tracking-wider ">
-                                    <th className="px-3 py-2 text-left w-12">No.</th>
-                                    <th className="px-3 py-2 text-left">Item</th>
-                                    <th className="px-3 py-2 text-center">Qty Per Unit</th>
-                                    <th className="px-3 py-2 text-right">Total Required Qty</th>
-                                    <th className="px-3 py-2 text-left pl-6">Uom</th>
+                                    <th className="p-2 text-left w-12">No.</th>
+                                    <th className="p-2 text-left">Item</th>
+                                    <th className="p-2 text-center">Qty Per Unit</th>
+                                    <th className="p-2 text-right">Total Required Qty</th>
+                                    <th className="p-2 text-left pl-6">Uom</th>
                                   </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
@@ -963,7 +963,7 @@ const ProductionPlanFormPage = () => {
                       </div>
                       <div>
                         <div className="font-medium text-slate-900 dark:text-white">{info.getValue()}</div>
-                        <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
+                        <div className="text-[10px] text-slate-400  tracking-wider mt-0.5">
                           {info.row.original.stageType === 'outsource' ? 'External Processing' : 'In-House Operation'}
                         </div>
                       </div>

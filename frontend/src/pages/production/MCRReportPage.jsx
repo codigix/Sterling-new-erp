@@ -308,8 +308,8 @@ const MCRReportPage = () => {
       key: "project_name",
       render: (val, row) => (
         <div className="flex flex-col py-1">
-          <span className="font-bold text-slate-900 text-base">{val || "Unnamed Project"}</span>
-          <span className="text-[11px] text-indigo-500 font-bold tracking-tight uppercase mt-0.5">{row.root_card_id}</span>
+          <span className=" text-slate-900 text-base">{val || "Unnamed Project"}</span>
+          <span className="text-xs text-indigo-500  tracking-tight  mt-0.5">{row.root_card_id}</span>
         </div>
       )
     },
@@ -320,7 +320,7 @@ const MCRReportPage = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => openMCRDetail(row)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all text-xs font-bold shadow-sm"
+            className="flex items-center gap-2 p-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-all text-xs  shadow-sm"
           >
             <Eye size={16} />
             View MCR Report
@@ -328,7 +328,7 @@ const MCRReportPage = () => {
           
           <button
             onClick={() => handleDirectExport(row, 'excel')}
-            className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all text-xs font-bold shadow-sm"
+            className="flex items-center gap-2 p-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-all text-xs  shadow-sm"
             title="Export to Excel"
           >
             <Download size={16} />
@@ -337,7 +337,7 @@ const MCRReportPage = () => {
 
           <button
             onClick={() => handleDirectExport(row, 'pdf')}
-            className="flex items-center gap-2 px-3 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-all text-xs font-bold shadow-sm"
+            className="flex items-center gap-2 p-2 bg-rose-600 text-white rounded hover:bg-rose-700 transition-all text-xs  shadow-sm"
             title="Export to PDF"
           >
             <FileDown size={16} />
@@ -367,7 +367,7 @@ const MCRReportPage = () => {
       key: "item_name",
       render: (val, row) => (
         <div>
-          <p className="text-[11px] font-bold text-slate-900 leading-tight">{val}</p>
+          <p className="text-xs  text-slate-900 leading-tight">{val}</p>
           <p className="text-[10px] text-slate-500 font-mono mt-0.5">{row.item_code}</p>
         </div>
       )
@@ -376,7 +376,7 @@ const MCRReportPage = () => {
       header: "ST Code",
       key: "serial_number",
       render: (val) => (
-        <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold border border-indigo-100">
+        <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[10px]  border border-indigo-100">
           {val || '-'}
         </span>
       )
@@ -384,12 +384,12 @@ const MCRReportPage = () => {
     {
       header: "Item Group",
       key: "item_group",
-      render: (val) => <span className="text-[10px] font-bold text-slate-500 uppercase">{val || '-'}</span>
+      render: (val) => <span className="text-[10px]  text-slate-500 ">{val || '-'}</span>
     },
     {
       header: "Material Grade",
       key: "material_grade",
-      render: (val) => <span className="text-[10px] font-bold text-slate-500 uppercase">{val || '-'}</span>
+      render: (val) => <span className="text-[10px]  text-slate-500 ">{val || '-'}</span>
     },
     {
       header: "Cutting Dims (mm)",
@@ -397,7 +397,7 @@ const MCRReportPage = () => {
         const display = formatMCRDimensions(row);
 
         return (
-          <span className="text-[11px] font-bold text-slate-700">
+          <span className="text-xs  text-slate-700">
             {display}
           </span>
         );
@@ -408,8 +408,8 @@ const MCRReportPage = () => {
       key: "weight_consumed",
       render: (val, row) => (
         <div className="flex flex-col">
-          <span className="text-[9px] text-slate-400">Unit: {parseFloat(row.unit_weight_consumed || 0).toFixed(3)}</span>
-          <span className="text-[11px] font-bold text-blue-700">{parseFloat(val || 0).toFixed(3)} KG</span>
+          <span className="text-xs text-slate-400">Unit: {parseFloat(row.unit_weight_consumed || 0).toFixed(3)}</span>
+          <span className="text-xs  text-blue-700">{parseFloat(val || 0).toFixed(3)} KG</span>
         </div>
       )
     },
@@ -417,7 +417,7 @@ const MCRReportPage = () => {
       header: "Produced Qty",
       key: "produced_qty",
       align: "center",
-      render: (val) => <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100">{val || 0} NOS</span>
+      render: (val) => <span className="text-[10px]  bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100">{val || 0} NOS</span>
     },
     {
       header: "Scrap (KG)",
@@ -428,8 +428,8 @@ const MCRReportPage = () => {
         const percent = consumed > 0 ? ((weight / consumed) * 100).toFixed(1) : "0.0";
         return (
           <div className="flex flex-col">
-            <span className="text-[11px] font-bold text-rose-700">{weight.toFixed(3)} KG</span>
-            <span className="text-[9px] text-rose-400">({percent}%)</span>
+            <span className="text-xs  text-rose-700">{weight.toFixed(3)} KG</span>
+            <span className="text-xs text-rose-400">({percent}%)</span>
           </div>
         );
       }
@@ -437,18 +437,18 @@ const MCRReportPage = () => {
   ];
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
-      <div className="mb-8 flex items-center gap-4">
-        <div className="p-3 bg-indigo-600 text-white rounded-xl shadow-xl shadow-indigo-600/20">
-          <FileText size={28} />
+    <div className="p-4 bg-slate-50 min-h-screen">
+      <div className="mb-4 flex items-center gap-2">
+        <div className="p-2 bg-indigo-600 text-white rounded shadow-indigo-600/20">
+          <FileText size={15} />
         </div>
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">MCR Reports</h1>
-          <p className="text-slate-500 font-medium">Project-wise combined Material Cutting Reports</p>
+          <h1 className="text-xl  text-slate-900 tracking-tight">MCR Reports</h1>
+          <p className="text-slate-500 text-xs">Project-wise combined Material Cutting Reports</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+      <div className="">
         <DataTable
           data={summaryData}
           columns={summaryColumns}
@@ -463,12 +463,12 @@ const MCRReportPage = () => {
         onClose={() => setIsModalOpen(false)} 
         title={
           <div className="flex items-center gap-4">
-            <div className="p-2 bg-indigo-600 text-white rounded-lg">
-              <Scissors size={20} />
+            <div className="p-2 bg-indigo-600 text-white rounded">
+              <Scissors size={15} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Material Cutting Report (MCR)</h2>
-              <p className="text-sm text-slate-500 font-medium">{activeProject?.project_name}</p>
+              <h2 className="text-xl  text-slate-900">Material Cutting Report (MCR)</h2>
+              <p className="text-xs text-slate-500 font-medium">{activeProject?.project_name}</p>
             </div>
           </div>
         }
@@ -477,50 +477,50 @@ const MCRReportPage = () => {
         <ModalBody>
           {modalLoading ? (
             <div className="flex flex-col items-center justify-center py-32 gap-4">
-              <Loader2 size={48} className="text-indigo-600 animate-spin" />
-              <p className="text-slate-500 font-bold animate-pulse text-lg tracking-wide">Processing Report Data...</p>
+              <Loader2 size={15} className="text-indigo-600 animate-spin" />
+              <p className="text-slate-500  animate-pulse text-lg tracking-wide">Processing Report Data...</p>
             </div>
           ) : (
-            <div className="space-y-6 p-6">
+            <div className="space-y-2 p-2">
               {/* Top Stats Bar */}
-              <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg border border-rose-100">
+              <div className="flex flex-wrap items-center gap-2 ">
+                <div className="flex items-center gap-2 p-1 bg-rose-50 text-rose-600 rounded border border-rose-100">
                   <Activity size={16} />
-                  <span className="text-xs font-bold uppercase tracking-wider">Total Scrap: {stats.totalScrap} KG</span>
+                  <span className="text-xs   tracking-wider">Total Scrap: {stats.totalScrap} KG</span>
                 </div>
                 
                 <div className="h-8 w-px bg-slate-200 mx-2 hidden md:block"></div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
-                  <div className="px-3 py-1">
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Weight Consumed</p>
-                    <p className="text-sm font-bold text-slate-700">{stats.totalWeight} KG</p>
+                  <div className="p-1">
+                    <p className="text-[10px] text-slate-400   ">Weight Consumed</p>
+                    <p className="text-sm  text-slate-700">{stats.totalWeight} KG</p>
                   </div>
-                  <div className="px-3 py-1">
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Average Scrap</p>
-                    <p className="text-sm font-bold text-amber-600">{stats.avgScrap}%</p>
+                  <div className="p-1">
+                    <p className="text-[10px] text-slate-400   ">Average Scrap</p>
+                    <p className="text-sm  text-amber-600">{stats.avgScrap}%</p>
                   </div>
-                  <div className="px-3 py-1">
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Parts Produced</p>
-                    <p className="text-sm font-bold text-emerald-600">{stats.totalQty} NOS</p>
+                  <div className="p-1">
+                    <p className="text-[10px] text-slate-400   ">Parts Produced</p>
+                    <p className="text-sm  text-emerald-600">{stats.totalQty} NOS</p>
                   </div>
-                  <div className="px-3 py-1">
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Records</p>
-                    <p className="text-sm font-bold text-indigo-600">{detailData.length} Items</p>
+                  <div className="p-1">
+                    <p className="text-[10px] text-slate-400   ">Records</p>
+                    <p className="text-sm  text-indigo-600">{detailData.length} Items</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={exportToExcel}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all text-xs font-bold"
+                    className="flex items-center gap-2 p-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-all text-xs "
                   >
                     <Download size={14} />
                     Excel
                   </button>
                   <button 
                     onClick={exportToPDF}
-                    className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-all text-xs font-bold"
+                    className="flex items-center gap-2 p-2 bg-rose-600 text-white rounded hover:bg-rose-700 transition-all text-xs "
                   >
                     <FileDown size={14} />
                     PDF
@@ -529,10 +529,10 @@ const MCRReportPage = () => {
               </div>
 
               {/* Data Table */}
-              <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+              <div className="">
+                <div className="p-2 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
                   <FileText size={16} className="text-indigo-500" />
-                  <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Reported Items Summary</h3>
+                  <h3 className="text-xs  text-slate-700  tracking-wider">Reported Items Summary</h3>
                 </div>
                 <DataTable
                   data={detailData}

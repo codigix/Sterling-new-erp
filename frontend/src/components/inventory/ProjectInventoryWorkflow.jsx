@@ -238,7 +238,7 @@ const ProjectInventoryWorkflow = ({ projectId, rootCardId, projectTitle }) => {
                           value={completionNotes}
                           onChange={(e) => setCompletionNotes(e.target.value)}
                           placeholder="Add any notes about completing this step..."
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           rows="3"
                         />
                       </div>

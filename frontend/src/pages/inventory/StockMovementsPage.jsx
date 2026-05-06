@@ -284,7 +284,7 @@ const StockMovementsPage = () => {
                 <span className={`text-xs  ${m.type === 'IN' ? 'text-emerald-600' : 'text-red-600'}`}>
                   {m.type === 'IN' ? '+' : '-'}{Number(val).toLocaleString(undefined, { minimumFractionDigits: 3 })}
                 </span>
-                <span className="text-[10px] text-slate-400 uppercase">{m.uom}</span>
+                <span className="text-[10px] text-slate-400 ">{m.uom}</span>
               </div>
             )
           },

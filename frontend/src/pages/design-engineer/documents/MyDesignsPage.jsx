@@ -555,7 +555,7 @@ const MyDesignsPage = () => {
                   value={formData.designName}
                   onChange={handleDesignNameChange}
                   placeholder="e.g., Component Assembly Drawing"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -578,7 +578,7 @@ const MyDesignsPage = () => {
                     type="text"
                     value={formData.customerName}
                     disabled
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm opacity-60 cursor-not-allowed"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm opacity-60 cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -598,7 +598,7 @@ const MyDesignsPage = () => {
                     })
                   }
                   placeholder="e.g., Heavy Duty Conveyor Assembly"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -613,7 +613,7 @@ const MyDesignsPage = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, designType: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="New Design">New Design</option>
                     <option value="Modification">Modification</option>
@@ -634,7 +634,7 @@ const MyDesignsPage = () => {
                         designCategory: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Part">Part</option>
                     <option value="Sub-Assembly">Sub-Assembly</option>
@@ -653,7 +653,7 @@ const MyDesignsPage = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, priority: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Normal">Normal</option>
                   <option value="High">High</option>
@@ -711,7 +711,7 @@ const MyDesignsPage = () => {
                   }
                   placeholder="Add design details..."
                   rows="3"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
             </div>

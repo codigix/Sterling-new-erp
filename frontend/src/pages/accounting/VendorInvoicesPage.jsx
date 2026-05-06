@@ -313,7 +313,7 @@ const VendorInvoicesPage = () => {
     {
       key: "invoice_number",
       label: "Invoice #",
-      render: (val) => <span className="font-mono text-blue-600 font-bold">{val}</span>
+      render: (val) => <span className="font-mono text-blue-600 ">{val}</span>
     },
     {
       key: "vendor_name",
@@ -345,17 +345,17 @@ const VendorInvoicesPage = () => {
       key: "balance_amount",
       label: "Remaining",
       align: "right",
-      render: (val) => <span className="font-bold text-red-600">₹{parseFloat(val || 0).toLocaleString()}</span>
+      render: (val) => <span className=" text-red-600">₹{parseFloat(val || 0).toLocaleString()}</span>
     },
     {
       key: "status",
       label: "Status",
       render: (val) => (
-        <span className={`px-2 py-1 rounded-full text-[10px] font-bold border ${
+        <span className={`px-2 py-1 rounded-full text-[10px]  border ${
           val === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
           val === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' :
           'bg-red-50 text-red-600 border-red-100'
-        } uppercase`}>
+        } `}>
           {val}
         </span>
       )
@@ -391,7 +391,7 @@ const VendorInvoicesPage = () => {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Vendor Invoices</h1>
+          <h1 className="text-xl  text-slate-900 dark:text-white">Vendor Invoices</h1>
           <p className="text-xs text-slate-500">Manage and track incoming bills from suppliers</p>
         </div>
         <button 
@@ -404,16 +404,16 @@ const VendorInvoicesPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
-          <p className="text-xs text-slate-500 uppercase font-bold mb-1">Total Payable</p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">₹{summary.totalPayable.toLocaleString()}</p>
+          <p className="text-xs text-slate-500   mb-1">Total Payable</p>
+          <p className="text-2xl  text-slate-900 dark:text-white">₹{summary.totalPayable.toLocaleString()}</p>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
-          <p className="text-xs text-slate-500 uppercase font-bold mb-1">Paid this month</p>
-          <p className="text-2xl font-bold text-emerald-600">₹{summary.paidThisMonth.toLocaleString()}</p>
+          <p className="text-xs text-slate-500   mb-1">Paid this month</p>
+          <p className="text-2xl  text-emerald-600">₹{summary.paidThisMonth.toLocaleString()}</p>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700">
-          <p className="text-xs text-slate-500 uppercase font-bold mb-1">Overdue</p>
-          <p className="text-2xl font-bold text-red-600">₹{summary.overdue.toLocaleString()}</p>
+          <p className="text-xs text-slate-500   mb-1">Overdue</p>
+          <p className="text-2xl  text-red-600">₹{summary.overdue.toLocaleString()}</p>
         </div>
       </div>
 

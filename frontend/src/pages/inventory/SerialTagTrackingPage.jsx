@@ -75,7 +75,7 @@ const SerialTagTrackingPage = () => {
       label: "ST Number",
       sortable: true,
       render: (val) => (
-        <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-bold">
+        <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] ">
           {val}
         </span>
       )
@@ -99,7 +99,7 @@ const SerialTagTrackingPage = () => {
               </>
             ) : null}
           </div>
-          <p className="text-[9px] text-slate-400 uppercase tracking-tighter">ID: {item.id}</p>
+          <p className="text-[9px] text-slate-400  tracking-tighter">ID: {item.id}</p>
         </div>
       )
     },
@@ -139,7 +139,7 @@ const SerialTagTrackingPage = () => {
       sortable: true,
       align: "center",
       render: (val) => (
-        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getStatusColor(val)}`}>
+        <span className={`px-2 py-0.5 rounded text-[10px]  border ${getStatusColor(val)}`}>
           {val}
         </span>
       )

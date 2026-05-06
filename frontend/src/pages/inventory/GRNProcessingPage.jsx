@@ -84,11 +84,102 @@ const GRNDetailTable = ({ grnId }) => {
   if (loading) return <div className="p-4 text-center text-xs text-slate-500">Loading details...</div>;
   if (!details) return <div className="p-4 text-center text-xs text-red-500">Failed to load details.</div>;
 
+  const columns = [
+    {
+      key: "material_name",
+      label: "Item Name / Group",
+      render: (val, item) => (
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded bg-blue-50 text-blue-600">
+            <Package size={14} />
+          </div>
+          <div>
+            <p className="text-xs font-medium">{val}</p>
+            <p className="text-xs text-blue-600">{renderDimensions(item)}</p>
+            <p className="text-[9px] text-slate-400">{item.item_code} • {item.item_group}</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: "ordered_qty",
+      label: "PO Qty",
+      align: "center",
+      render: (val) => <span className="text-xs text-slate-400">{parseFloat(val || 0)}</span>
+    },
+    {
+      key: "received_qty",
+      label: "Received",
+      align: "center",
+      render: (val) => <span className="text-xs font-semibold text-blue-600">{parseFloat(val || 0)}</span>
+    },
+    {
+      key: "accepted",
+      label: "Accepted",
+      align: "center",
+      render: (_, item) => {
+        const isQCCompleted = ['qc_completed', 'qc_finalized', 'material_released', 'partially_released'].includes(details.grn?.status);
+        const acceptedQty = (item.serials || []).filter(st => st.inspection_status === 'Accepted').length;
+        const finalAccepted = (item.serials && item.serials.length > 0) ? acceptedQty : (isQCCompleted ? Number(item.received_qty || 0) : 0);
+        return <span className="text-xs text-emerald-600">{finalAccepted}</span>;
+      }
+    },
+    {
+      key: "rejected",
+      label: "Rejected",
+      align: "center",
+      render: (_, item) => {
+        const rejectedQty = (item.serials || []).filter(st => st.inspection_status === 'Rejected').length;
+        const finalRejected = (item.serials && item.serials.length > 0) ? rejectedQty : 0;
+        return <span className="text-xs text-red-600">{finalRejected}</span>;
+      }
+    }
+  ];
+
+  const renderSerialTable = (item) => {
+    if (!item.serials || item.serials.length === 0) return null;
+    
+    const serialColumns = [
+      { key: "index", label: "#", align: "center", render: (_, __, ___, idx) => <span className="text-xs text-slate-400">{idx + 1}</span> },
+      { key: "item_code", label: "Item Code", render: (val) => <span className="text-xs text-slate-600">{val || item.item_code}</span> },
+      { key: "serial_number", label: "ST Code", render: (val) => <span className="text-xs text-indigo-600">{val}</span> },
+      { 
+        key: "inspection_status", 
+        label: "Status", 
+        align: "right",
+        render: (val) => (
+          <span className={`px-1.5 py-0.5 rounded text-[9px] ${
+            val === 'Accepted' ? 'bg-emerald-50 text-emerald-600' :
+            val === 'Rejected' ? 'bg-red-50 text-red-600' :
+            'bg-amber-50 text-amber-600'
+          }`}>
+            {val || 'Pending'}
+          </span>
+        )
+      }
+    ];
+
+    return (
+      <div className="p-4 bg-slate-50/50">
+        <div className="border border-slate-100 rounded overflow-hidden">
+          <DataTable
+            columns={serialColumns}
+            data={item.serials}
+            pagination={false}
+            showSearch={false}
+            striped={false}
+            className="bg-white"
+          />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="p-4 bg-slate-50 dark:bg-slate-900/50 space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-3 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
-          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Logistics Context</p>
+        <div className="p-2 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
+          <p className="text-xs text-slate-400  tracking-wider mb-1">Logistics Context</p>
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
               <span className="text-slate-500">PO Reference:</span>
@@ -109,7 +200,7 @@ const GRNDetailTable = ({ grnId }) => {
         
         {details.inspection && (
           <div className="p-3 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
-            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Inspection Record</p>
+            <p className="text-xs text-slate-400  tracking-wider mb-1">Inspection Record</p>
             <div className="space-y-1">
               <div className="flex justify-between text-xs">
                 <span className="text-slate-500">Decision:</span>
@@ -123,7 +214,7 @@ const GRNDetailTable = ({ grnId }) => {
         )}
 
         <div className="p-3 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
-          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Summary</p>
+          <p className="text-xs text-slate-400  tracking-wider mb-1">Summary</p>
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
               <span className="text-slate-500">Net Received:</span>
@@ -137,92 +228,14 @@ const GRNDetailTable = ({ grnId }) => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 dark:bg-slate-800/50">
-            <tr>
-              <th className="p-2 text-xs text-slate-400 uppercase">Item Name / Group</th>
-              <th className="p-2 text-xs text-slate-400 uppercase text-center">PO Qty</th>
-              <th className="p-2 text-xs text-slate-400 uppercase text-center font-semibold text-blue-600">Received</th>
-              <th className="p-2 text-xs text-slate-400 uppercase text-center">Accepted</th>
-              <th className="p-2 text-xs text-slate-400 uppercase text-center">Rejected</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-            {(details.items || []).map((item, idx) => {
-              const isQCCompleted = ['qc_completed', 'qc_finalized', 'material_released', 'partially_released'].includes(details.grn?.status);
-              const acceptedQty = (item.serials || []).filter(st => st.inspection_status === 'Accepted').length;
-              const rejectedQty = (item.serials || []).filter(st => st.inspection_status === 'Rejected').length;
-              
-              const finalAccepted = (item.serials && item.serials.length > 0) ? acceptedQty : (isQCCompleted ? Number(item.received_qty || 0) : 0);
-              const finalRejected = (item.serials && item.serials.length > 0) ? rejectedQty : 0;
-              const isExpanded = expandedItem === idx;
-
-              return (
-                <React.Fragment key={idx}>
-                  <tr 
-                    className={`hover:bg-slate-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-blue-50/20' : ''}`}
-                    onClick={() => setExpandedItem(isExpanded ? null : idx)}
-                  >
-                    <td className="p-2">
-                      <div className="flex items-center gap-2">
-                        <div className={`p-1.5 rounded ${isExpanded ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`}>
-                          <Package size={14} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium">{item.material_name}</p>
-                          <p className="text-xs text-blue-600">{renderDimensions(item)}</p>
-                          <p className="text-[9px] text-slate-400">{item.item_code} • {item.item_group}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-2 text-center text-xs text-slate-400">{parseFloat(item.ordered_qty || 0)}</td>
-                    <td className="p-2 text-center text-xs font-semibold text-blue-600">{parseFloat(item.received_qty || 0)}</td>
-                    <td className="p-2 text-center text-xs text-emerald-600">{finalAccepted}</td>
-                    <td className="p-2 text-center text-xs text-red-600">{finalRejected}</td>
-                  </tr>
-                  {isExpanded && item.serials && item.serials.length > 0 && (
-                    <tr>
-                      <td colSpan="4" className="p-2 bg-slate-50/50">
-                        <div className="border border-slate-100 rounded overflow-hidden">
-                          <table className="w-full text-left bg-white">
-                            <thead className="bg-slate-50">
-                              <tr>
-                                <th className="p-2 text-[9px] text-slate-400 uppercase text-center w-10">#</th>
-                                <th className="p-2 text-[9px] text-slate-400 uppercase">Item Code</th>
-                                <th className="p-2 text-[9px] text-indigo-400 uppercase">ST Code</th>
-                                <th className="p-2 text-[9px] text-slate-400 uppercase text-right">Status</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                              {item.serials.map((st, sIdx) => (
-                                <tr key={sIdx} className="hover:bg-slate-50/50 transition-colors">
-                                  <td className="p-2 text-xs text-slate-400 text-center">{sIdx + 1}</td>
-                                  <td className="p-2 text-xs text-slate-600">{st.item_code || item.item_code}</td>
-                                  <td className="p-2 text-xs  text-indigo-600">{st.serial_number}</td>
-                                  <td className="p-2 text-right">
-                                    <span className={`px-1.5 py-0.5 rounded text-[9px]  ${
-                                      st.inspection_status === 'Accepted' ? 'bg-emerald-50 text-emerald-600' :
-                                      st.inspection_status === 'Rejected' ? 'bg-red-50 text-red-600' :
-                                      'bg-amber-50 text-amber-600'
-                                    }`}>
-                                      {st.inspection_status || 'Pending'}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={details.items || []}
+        pagination={false}
+        showSearch={false}
+        expandableRow={renderSerialTable}
+        className="border border-slate-100 dark:border-slate-700 rounded overflow-hidden"
+      />
     </div>
   );
 };
@@ -713,13 +726,157 @@ const GRNProcessingPage = () => {
 
   const renderGRNCreationUI = () => {
     if (loadingPO) return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div className="flex items-center justify-center py-20 gap-4">
         <RefreshCw className="animate-spin text-blue-600" size={40} />
         <p className="text-sm  text-slate-400  ">Loading PO Details...</p>
       </div>
     );
 
     if (!poData) return null;
+
+    const creationColumns = [
+      { key: "index", label: "#", align: "center", render: (_, __, ___, idx) => <span className="text-xs text-slate-400">{idx + 1}</span> },
+      {
+        key: "material_name_original",
+        label: "Ordered Item / Group",
+        className: "w-1/4",
+        render: (val, item) => (
+          <div className="space-y-1">
+            <p className="text-xs text-slate-900 dark:text-white line-clamp-2">{val || item.material_name}</p>
+            <p className="text-xs text-slate-400">{item.item_group || 'No Group'}</p>
+            <p className="text-xs text-blue-600">{renderOriginalDimensions(item)}</p>
+          </div>
+        )
+      },
+      {
+        key: "material_name",
+        label: "Received Material Name / Dimensions",
+        className: "w-1/3",
+        render: (val, item, _, idx) => (
+          <div className="space-y-3">
+            <input 
+              type="text"
+              value={val}
+              onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
+              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              placeholder="Received Material Name (if different)"
+            />
+            
+            <div className="grid grid-cols-4 gap-2">
+              {(item.item_group?.toLowerCase()?.includes('plate')) && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">W</label>
+                    <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">T</label>
+                    <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="T" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('round bar')) && (
+                <>
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-[9px] text-slate-500 ml-1">Dia</label>
+                    <input type="number" value={item.diameter || ''} onChange={(e) => handleItemChange(idx, 'diameter', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="Dia" />
+                  </div>
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('pipe')) && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">OD</label>
+                    <input type="number" value={item.outer_diameter || ''} onChange={(e) => handleItemChange(idx, 'outer_diameter', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="OD" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">T</label>
+                    <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="T" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('square bar') || item.item_group?.toLowerCase() === 'sq bar') && (
+                <>
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-[9px] text-slate-500 ml-1">Side (S)</label>
+                    <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="S" />
+                  </div>
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('rectangular bar') || item.item_group?.toLowerCase() === 'rec bar') && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">W</label>
+                    <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">H</label>
+                    <input type="number" value={item.side2 || ''} onChange={(e) => handleItemChange(idx, 'side2', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="H" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )
+      },
+      { key: "ordered_qty", label: "Ordered", align: "center", className: "w-20", render: (val) => <span className="text-xs text-slate-400">{val}</span> },
+      { key: "previously_received", label: "Prev Received", align: "center", className: "w-20", render: (val) => <span className="text-xs text-slate-400">{val}</span> },
+      { key: "remaining_qty", label: "Balance", align: "center", className: "w-20", render: (val) => <span className="text-xs font-medium text-blue-600">{parseFloat(val.toFixed(3))}</span> },
+      { key: "unit", label: "UOM", align: "center", className: "w-20", render: (val) => <span className="text-xs text-slate-400">{val}</span> },
+      {
+        key: "received_weight",
+        label: "Weight (Kg)",
+        align: "center",
+        className: "w-32",
+        render: (val, _, __, idx) => (
+          <div className="flex gap-2 items-center">
+            <input 
+              type="number"
+              step="any"
+              value={val}
+              onChange={(e) => handleItemChange(idx, 'received_weight', e.target.value)}
+              className="w-[50px] p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-center focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            <span className="text-xs text-slate-400">Kg</span>
+          </div>
+        )
+      },
+      {
+        key: "received_qty",
+        label: "Receiving",
+        align: "center",
+        className: "w-32",
+        render: (val, _, __, idx) => (
+          <input 
+            type="number"
+            step="any"
+            value={val}
+            onChange={(e) => handleItemChange(idx, 'received_qty', e.target.value)}
+            className="w-full p-1 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded text-xs text-center text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+          />
+        )
+      }
+    ];
 
     return (
       <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -737,12 +894,12 @@ const GRNProcessingPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800  overflow-hidden">
-          <div className="p-8 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800  overflow-hidden">
+          <div className="p-2 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div className="space-y-1">
-                <p className="text-xs  text-slate-400  tracking-[0.2em]">Purchase Order</p>
-                <h2 className="text-xl  text-blue-600  ">{poData.po_number}</h2>
+                <p className="text-xs  text-slate-400  ">Purchase Order</p>
+                <h2 className="text-md  text-blue-600  ">{poData.po_number}</h2>
                 <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs  text-slate-500 ">Project:</span>
                     <span className="text-xs  text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100  ">
@@ -751,191 +908,48 @@ const GRNProcessingPage = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-xs  text-slate-400  tracking-[0.2em]">Supplier / Vendor</p>
-                <h2 className="text-xl  text-slate-900 dark:text-white  ">{poData.vendor_name}</h2>
+                <p className="text-xs  text-slate-400  ">Supplier / Vendor</p>
+                <h2 className="text-md  text-slate-900 dark:text-white  ">{poData.vendor_name}</h2>
               </div>
               <div className="space-y-1">
-                <p className="text-xs  text-slate-400  tracking-[0.2em]">Posting Date</p>
+                <p className="text-xs  text-slate-400  ">Posting Date</p>
                 <input 
                   type="date"
                   value={grnForm.posting_date}
                   onChange={(e) => setGrnForm({...grnForm, posting_date: e.target.value})}
-                  className="bg-transparent border-none p-0 text-xl  text-slate-900 dark:text-white outline-none focus:ring-0 w-full"
+                  className="bg-transparent border-none p-0 text-md  text-slate-900 dark:text-white outline-none focus:ring-0 w-full"
                 />
               </div>
             </div>
           </div>
 
-          <div className="p-0">
-            <table className="w-full text-left border-collapse bg-white">
-              <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                  <th className="px-4 py-4 text-xs text-slate-400 text-center w-12">#</th>
-                  <th className="px-4 py-4 text-xs text-slate-400 text-left w-1/4">Ordered Item / Group</th>
-                  <th className="px-4 py-4 text-xs text-slate-400 text-left w-1/3">Received Material Name / Dimensions</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-20">Ordered</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-20">Prev Received</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-20 text-blue-500">Balance</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-20">UOM</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-32">Weight (Kg)</th>
-                  <th className="p-2 text-xs text-slate-400 text-center w-32">Receiving</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                {grnForm.items.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="px-4 py-6 text-center text-xs text-slate-400">{idx + 1}</td>
-                    <td className="px-4 py-6">
-                      <div className="space-y-1">
-                        <p className="text-sm  text-slate-900 dark:text-white line-clamp-2">{item.material_name_original || item.material_name}</p>
-                        <p className="text-xs text-slate-400 uppercase tracking-widest">{item.item_group || 'No Group'}</p>
-                        <p className="text-xs text-blue-600 ">{renderOriginalDimensions(item)}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-6">
-                      <div className="space-y-3">
-                        <input 
-                          type="text"
-                          value={item.material_name}
-                          onChange={(e) => handleItemChange(idx, 'material_name', e.target.value)}
-                          className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                          placeholder="Received Material Name (if different)"
-                        />
-                        
-                        {/* Inline Dimension Fields */}
-                        <div className="grid grid-cols-4 gap-2">
-                          {(item.item_group?.toLowerCase()?.includes('plate')) && (
-                            <>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">L</label>
-                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">W</label>
-                                <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">T</label>
-                                <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="T" />
-                              </div>
-                            </>
-                          )}
-                          {(item.item_group?.toLowerCase()?.includes('round bar')) && (
-                            <>
-                              <div className="space-y-1 col-span-2">
-                                <label className="text-[9px] text-slate-500 ml-1">Dia</label>
-                                <input type="number" value={item.diameter || ''} onChange={(e) => handleItemChange(idx, 'diameter', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="Dia" />
-                              </div>
-                              <div className="space-y-1 col-span-2">
-                                <label className="text-[9px] text-slate-500 ml-1">L</label>
-                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
-                              </div>
-                            </>
-                          )}
-                          {(item.item_group?.toLowerCase()?.includes('pipe')) && (
-                            <>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">OD</label>
-                                <input type="number" value={item.outer_diameter || ''} onChange={(e) => handleItemChange(idx, 'outer_diameter', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="OD" />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">T</label>
-                                <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="T" />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">L</label>
-                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
-                              </div>
-                            </>
-                          )}
-                          {(item.item_group?.toLowerCase()?.includes('square bar') || item.item_group?.toLowerCase() === 'sq bar') && (
-                            <>
-                              <div className="space-y-1 col-span-2">
-                                <label className="text-[9px] text-slate-500 ml-1">Side (S)</label>
-                                <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="S" />
-                              </div>
-                              <div className="space-y-1 col-span-2">
-                                <label className="text-[9px] text-slate-500 ml-1">L</label>
-                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
-                              </div>
-                            </>
-                          )}
-                          {(item.item_group?.toLowerCase()?.includes('rectangular bar') || item.item_group?.toLowerCase() === 'rec bar') && (
-                            <>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">W</label>
-                                <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">H</label>
-                                <input type="number" value={item.side2 || ''} onChange={(e) => handleItemChange(idx, 'side2', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="H" />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[9px] text-slate-500 ml-1">L</label>
-                                <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-6 text-center text-xs text-slate-400">
-                      {item.ordered_qty}
-                    </td>
-                    <td className="px-4 py-6 text-center text-xs text-slate-400">
-                      {item.previously_received}
-                    </td>
-                    <td className="px-4 py-6 text-center text-xs font-medium text-blue-600">
-                      {parseFloat(item.remaining_qty.toFixed(3))}
-                    </td>
-                    <td className="px-4 py-6 text-center text-xs text-slate-400">
-                      {item.unit}
-                    </td>
-                    <td className="px-4 py-6 text-center">
-                      <div className="flex flex-col items-center">
-                        <input 
-                          type="number"
-                          step="any"
-                          value={item.received_weight}
-                          onChange={(e) => handleItemChange(idx, 'received_weight', e.target.value)}
-                          className="w-24 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-center focus:ring-2 focus:ring-blue-500 outline-none"
-                        />
-                        <span className="text-xs text-slate-400">Kg</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-6">
-                      <input 
-                        type="number"
-                        step="any"
-                        value={item.received_qty}
-                        onChange={(e) => handleItemChange(idx, 'received_qty', e.target.value)}
-                        className="w-full p-2 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded text-sm text-center text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={creationColumns}
+            data={grnForm.items}
+            pagination={false}
+            showSearch={false}
+            className="border-collapse"
+          />
 
-          <div className="p-8 bg-slate-50/30 dark:bg-slate-800/30 border-t border-slate-50 dark:border-slate-800">
-            <div className="flex flex-col md:flex-row items-end gap-6">
-              <div className="flex-1 space-y-2 w-full">
-                <label className="text-xs  text-slate-400   flex items-center gap-2">
+          <div className="p-2 bg-slate-50/30 dark:bg-slate-800/30 border-t border-slate-50 dark:border-slate-800">
+            <label className="text-xs  text-slate-400   flex items-center gap-2">
                   <FileText size={12} /> Remarks / Receiving Notes
                 </label>
+            <div className=" md:flex-row  gap-2">
+              <div className=" w-full">
+                
                 <textarea 
                   value={grnForm.notes}
                   onChange={(e) => setGrnForm({...grnForm, notes: e.target.value})}
                   rows={2}
                   placeholder="Any discrepancies or damage reports..."
-                  className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm  focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+                  className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
                 />
               </div>
               <button 
                 onClick={handleSubmitGRN}
                 disabled={loading}
-                className="px-10 py-4 bg-emerald-500 text-white rounded  text-xs  tracking-[0.2em] hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all  shadow-emerald-500/20 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 bg-emerald-500 text-white rounded ml-auto text-xs   hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all  shadow-emerald-500/20 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? <RefreshCw className="animate-spin" size={15} /> : <CheckCircle size={15} />}
                 {loading ? "Submitting..." : "Submit Goods Receipt"}

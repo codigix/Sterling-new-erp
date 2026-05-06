@@ -105,15 +105,15 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-left">
+      <div className="bg-white dark:bg-slate-900 rounded shadow-2xl w-full max-w-lg overflow-auto max-h-[90vh] flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-left">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+        <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg">
               <DollarSign size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h2 className="text-lg  text-slate-900 dark:text-white">
                 {viewMode ? 'View Receipt' : (editData ? 'Edit Receipt' : 'Record Customer Payment')}
               </h2>
               <p className="text-xs text-slate-500">Log incoming payment from a customer</p>
@@ -128,33 +128,33 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5 text-left">
-                <label className="text-[10px] uppercase font-bold text-slate-400">Receipt #</label>
+                <label className="text-[10px]   text-slate-400">Receipt #</label>
                 <input
                   type="text"
                   name="receipt_number"
                   value={formData.receipt_number}
                   onChange={handleInputChange}
                   readOnly={viewMode}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-mono focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono focus:ring-2 focus:ring-emerald-500/20 outline-none"
                   required
                 />
               </div>
               <div className="space-y-1.5 text-left">
-                <label className="text-[10px] uppercase font-bold text-slate-400">Received Date</label>
+                <label className="text-[10px]   text-slate-400">Received Date</label>
                 <input
                   type="date"
                   name="received_date"
                   value={formData.received_date}
                   onChange={handleInputChange}
                   readOnly={viewMode}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-1.5 text-left">
-              <label className="text-[10px] uppercase font-bold text-slate-400">Select Invoice (Optional)</label>
+              <label className="text-[10px]   text-slate-400">Select Invoice (Optional)</label>
               <SearchableSelect
                 options={invoices.map(inv => ({
                   value: inv.id,
@@ -168,7 +168,7 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
             </div>
 
             <div className="space-y-1.5 text-left">
-              <label className="text-[10px] uppercase font-bold text-slate-400">Customer Name</label>
+              <label className="text-[10px]   text-slate-400">Customer Name</label>
               <input
                 type="text"
                 name="customer_name"
@@ -176,33 +176,33 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
                 onChange={handleInputChange}
                 readOnly={viewMode}
                 placeholder="Enter customer name"
-                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5 text-left">
-                <label className="text-[10px] uppercase font-bold text-slate-400">Amount Received (₹)</label>
+                <label className="text-[10px]   text-slate-400">Amount Received (₹)</label>
                 <input
                   type="number"
                   name="amount_received"
                   value={formData.amount_received}
                   onChange={handleInputChange}
                   readOnly={viewMode}
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-emerald-600 focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                  className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs  text-emerald-600 focus:ring-2 focus:ring-emerald-500/20 outline-none"
                   placeholder="0.00"
                   required
                 />
               </div>
               <div className="space-y-1.5 text-left">
-                <label className="text-[10px] uppercase font-bold text-slate-400">Payment Method</label>
+                <label className="text-[10px]   text-slate-400">Payment Method</label>
                 <select
                   name="payment_method"
                   value={formData.payment_method}
                   onChange={handleInputChange}
                   disabled={viewMode}
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                  className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
                 >
                   <option value="NEFT/Bank Transfer">NEFT/Bank Transfer</option>
                   <option value="Cheque">Cheque</option>
@@ -214,7 +214,7 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
             </div>
 
             <div className="space-y-1.5 text-left">
-              <label className="text-[10px] uppercase font-bold text-slate-400">Transaction Reference / UTR</label>
+              <label className="text-[10px]   text-slate-400">Transaction Reference / UTR</label>
               <input
                 type="text"
                 name="transaction_ref"
@@ -222,18 +222,18 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
                 onChange={handleInputChange}
                 readOnly={viewMode}
                 placeholder="UTR No. or Cheque Details"
-                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
               />
             </div>
 
             <div className="space-y-1.5 text-left">
-              <label className="text-[10px] uppercase font-bold text-slate-400">Internal Notes</label>
+              <label className="text-[10px]   text-slate-400">Internal Notes</label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={handleInputChange}
                 readOnly={viewMode}
-                className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm h-20 resize-none outline-none"
+                className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs h-20 resize-none outline-none"
                 placeholder="Any remarks..."
               />
             </div>
@@ -243,7 +243,7 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded text-xs  hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
             >
               {viewMode ? 'Close' : 'Cancel'}
             </button>
@@ -251,7 +251,7 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
+                className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded text-xs  hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
               >
                 <Save size={16} />
                 {submitting ? 'Saving...' : 'Record Receipt'}

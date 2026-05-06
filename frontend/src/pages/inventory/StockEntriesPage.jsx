@@ -89,7 +89,7 @@ const ItemBreakdownTable = ({ entry }) => {
           title="Itemized Stock Receipt"
           titleIcon={<Boxes size={14} />}
           titleExtra={
-            <div className="text-[10px] text-slate-500 bg-slate-100 p-1 rounded">
+            <div className="text-xs text-slate-500 bg-slate-100 p-1 rounded">
               {items.length} materials included
             </div>
           }
@@ -210,15 +210,15 @@ const StockEntriesPage = () => {
   ];
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-2 p-2">
       {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         {stats.map((stat, idx) => (
-          <div key={idx} className="bg-white dark:bg-slate-800 p-3 rounded border border-slate-100 dark:border-slate-700 shadow-sm ">
+          <div key={idx} className="bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700 shadow-sm ">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-1">{stat.title}</p>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{stat.value}</h3>
+                <p className="text-xs   text-slate-400 font-medium mb-1">{stat.title}</p>
+                <h3 className="text-xl  text-slate-900 dark:text-white leading-tight">{stat.value}</h3>
               </div>
               <div className={`p-2 rounded bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600 dark:text-${stat.color}-400`}>
                 <stat.icon size={18} />
@@ -296,7 +296,7 @@ const StockEntriesPage = () => {
             label: "Status",
             className: "text-center",
             render: (val) => (
-              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded text-[10px] font-medium shadow-sm">
+              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded text-xs font-medium shadow-sm">
                 {val || 'SUBMITTED'}
               </span>
             )

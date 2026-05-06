@@ -207,7 +207,7 @@ const MaterialRequestModal = ({ isOpen, onClose, data, materials, planId, onSave
                             </span>
                           )}
                         </p>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[10px] text-slate-500  uppercase tracking-tight">
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[10px] text-slate-500   ">
                           {m.itemGroup && <span className="text-blue-600 dark:text-blue-400">{m.itemGroup}</span>}
                           {m.length > 0 && <span>L: {m.length}</span>}
                           {m.width > 0 && <span>W: {m.width}</span>}

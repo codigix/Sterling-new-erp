@@ -251,7 +251,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       stageName: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
+                  className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
                 />
                 <select
                   value={newStageData.stageType}
@@ -261,7 +261,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       stageType: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
+                  className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
                 >
                   <option value="in_house">In-House</option>
                   <option value="outsourced">Outsourced</option>
@@ -277,7 +277,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       plannedStart: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
+                  className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
                 />
                 <input
                   type="date"
@@ -288,7 +288,7 @@ const ProductionPlanDetail = ({ rootCard }) => {
                       plannedEnd: e.target.value,
                     })
                   }
-                  className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
+                  className="p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800  dark:"
                 />
               </div>
               <div className="flex space-x-2">

@@ -314,15 +314,15 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
+      <div className="bg-white dark:bg-slate-900 rounded shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+        <div className="p-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
               <FileText size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Record Vendor Invoice</h2>
+              <h2 className="text-lg  text-slate-900 dark:text-white">Record Vendor Invoice</h2>
               <p className="text-xs text-slate-500">Create a new tax invoice from purchase order</p>
             </div>
           </div>
@@ -335,11 +335,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
           {/* Top Section: PO Selection & Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+              <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 <ShoppingCart size={12} /> Select Purchase Order
               </label>
               {viewMode ? (
-                <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-mono">
+                <div className="p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono">
                   {formData.po_no}
                 </div>
               ) : (
@@ -358,7 +358,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+              <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 <FileText size={12} /> Bill / Invoice No.
               </label>
               <input
@@ -367,14 +367,14 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                 value={formData.invoice_no}
                 onChange={handleInputChange}
                 readOnly={viewMode}
-                className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all ${viewMode ? 'cursor-default' : ''}`}
+                className={`w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all ${viewMode ? 'cursor-default' : ''}`}
                 placeholder="e.g. INV/2026/001"
                 required
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+              <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 <Calendar size={12} /> Invoice Date
               </label>
               <input
@@ -383,30 +383,30 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                 value={formData.invoice_date}
                 onChange={handleInputChange}
                 readOnly={viewMode}
-                className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all ${viewMode ? 'cursor-default' : ''}`}
+                className={`w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all ${viewMode ? 'cursor-default' : ''}`}
                 required
               />
             </div>
           </div>
 
           {/* Details Row */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-800/30 rounded border border-slate-100 dark:border-slate-800">
             <div>
-              <p className="text-[10px] uppercase text-slate-400 font-bold mb-1">Vendor</p>
+              <p className="text-xs  text-slate-400  mb-1">Vendor</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{formData.vendor_name || "N/A"}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase text-slate-400 font-bold mb-1">Project</p>
+              <p className="text-xs  text-slate-400  mb-1">Project</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{formData.project_name || "N/A"}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase text-slate-400 font-bold mb-1">PO Date</p>
+              <p className="text-xs  text-slate-400  mb-1">PO Date</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {formData.po_date ? new Date(formData.po_date).toLocaleDateString() : "N/A"}
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase text-slate-400 font-bold mb-1">Place of Supply</p>
+              <p className="text-xs  text-slate-400  mb-1">Place of Supply</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{formData.state} ({formData.state_code})</p>
             </div>
           </div>
@@ -414,7 +414,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
           {/* Challan Info */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+              <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 Challan No.
               </label>
               <input
@@ -423,12 +423,12 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                 value={formData.challan_no}
                 onChange={handleInputChange}
                 readOnly={viewMode}
-                className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none ${viewMode ? 'bg-slate-50 dark:bg-slate-800' : ''}`}
+                className={`w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none ${viewMode ? 'bg-slate-50 dark:bg-slate-800' : ''}`}
                 placeholder="Optional"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+              <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 Challan Date
               </label>
               <input
@@ -437,11 +437,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                 value={formData.challan_date}
                 onChange={handleInputChange}
                 readOnly={viewMode}
-                className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none ${viewMode ? 'bg-slate-50 dark:bg-slate-800' : ''}`}
+                className={`w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none ${viewMode ? 'bg-slate-50 dark:bg-slate-800' : ''}`}
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+              <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 <Truck size={12} /> Transporter
               </label>
               <input
@@ -450,11 +450,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                 value={formData.transporter}
                 onChange={handleInputChange}
                 readOnly={viewMode}
-                className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none ${viewMode ? 'bg-slate-50 dark:bg-slate-800' : ''}`}
+                className={`w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none ${viewMode ? 'bg-slate-50 dark:bg-slate-800' : ''}`}
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+              <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 LR No.
               </label>
               <input
@@ -463,23 +463,23 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                 value={formData.lr_no}
                 onChange={handleInputChange}
                 readOnly={viewMode}
-                className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none ${viewMode ? 'bg-slate-50 dark:bg-slate-800' : ''}`}
+                className={`w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none ${viewMode ? 'bg-slate-50 dark:bg-slate-800' : ''}`}
               />
             </div>
           </div>
 
           {/* Items Table */}
-          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="border border-slate-200 dark:border-slate-800 rounded overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase text-slate-500 w-12 text-center">Sr.</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase text-slate-500">Description</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase text-slate-500 w-24">HSN</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase text-slate-500 w-24 text-right">Qty</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase text-slate-500 w-20">Unit</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase text-slate-500 w-32 text-right">Rate</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase text-slate-500 w-32 text-right">Amount</th>
+                  <th className="px-4 py-3 text-xs   text-slate-500 w-12 text-center">Sr.</th>
+                  <th className="px-4 py-3 text-xs   text-slate-500">Description</th>
+                  <th className="px-4 py-3 text-xs   text-slate-500 w-24">HSN</th>
+                  <th className="px-4 py-3 text-xs   text-slate-500 w-24 text-right">Qty</th>
+                  <th className="px-4 py-3 text-xs   text-slate-500 w-20">Unit</th>
+                  <th className="px-4 py-3 text-xs   text-slate-500 w-32 text-right">Rate</th>
+                  <th className="px-4 py-3 text-xs   text-slate-500 w-32 text-right">Amount</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -505,9 +505,9 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                         />
                       </td>
                       <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 text-right">{item.qty}</td>
-                      <td className="px-4 py-3 text-xs text-slate-500 uppercase">{item.unit}</td>
+                      <td className="px-4 py-3 text-xs text-slate-500 ">{item.unit}</td>
                       <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 text-right">₹{parseFloat(item.rate).toLocaleString()}</td>
-                      <td className="px-4 py-3 text-xs font-bold text-slate-900 dark:text-white text-right">₹{parseFloat(item.amount).toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs  text-slate-900 dark:text-white text-right">₹{parseFloat(item.amount).toLocaleString()}</td>
                     </tr>
                   ))
                 ) : (
@@ -524,18 +524,18 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
           {/* Summary & Taxes */}
           <div className="flex flex-col md:flex-row gap-6 justify-between">
             <div className="flex-1 space-y-3">
-              <label className="text-[10px] uppercase font-bold text-slate-400">Additional Notes</label>
+              <label className="text-xs   text-slate-400">Additional Notes</label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={handleInputChange}
                 readOnly={viewMode}
-                className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm min-h-[100px] outline-none ${viewMode ? 'cursor-default' : ''}`}
+                className={`w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs min-h-[100px] outline-none ${viewMode ? 'cursor-default' : ''}`}
                 placeholder={viewMode ? "" : "Any payment terms or internal remarks..."}
               />
             </div>
 
-            <div className="w-full md:w-80 space-y-2 bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+            <div className="w-full md:w-80 space-y-2 bg-slate-50 dark:bg-slate-800/30 p-4 rounded border border-slate-100 dark:border-slate-800">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-slate-500">Sub Total</span>
                 <span className="font-semibold text-slate-900 dark:text-white">₹{formData.sub_total.toLocaleString()}</span>
@@ -554,7 +554,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                     value={formData.cgst_rate}
                     onChange={handleInputChange}
                     readOnly={viewMode}
-                    className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-[10px] ${viewMode ? 'bg-transparent border-transparent' : ''}`}
+                    className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-xs ${viewMode ? 'bg-transparent border-transparent' : ''}`}
                   />
                   <span className="text-slate-500">%</span>
                 </div>
@@ -570,7 +570,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                     value={formData.sgst_rate}
                     onChange={handleInputChange}
                     readOnly={viewMode}
-                    className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-[10px] ${viewMode ? 'bg-transparent border-transparent' : ''}`}
+                    className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-xs ${viewMode ? 'bg-transparent border-transparent' : ''}`}
                   />
                   <span className="text-slate-500">%</span>
                 </div>
@@ -583,7 +583,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
               </div>
 
               <div className="flex justify-between items-center pt-2 border-t-2 border-slate-200 dark:border-slate-700">
-                <span className="text-sm font-bold text-slate-900 dark:text-white uppercase">Grand Total</span>
+                <span className="text-sm  text-slate-900 dark:text-white ">Grand Total</span>
                 <span className="text-lg font-black text-blue-600 dark:text-blue-400">₹{formData.grand_total.toLocaleString()}</span>
               </div>
             </div>
@@ -591,11 +591,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         </form>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/50">
+        <div className="p-2 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/50">
           {viewMode ? (
             <button
               onClick={onClose}
-              className="px-8 py-2 bg-slate-900 text-white rounded-lg text-sm hover:bg-slate-800 transition-all font-bold shadow-lg"
+              className="px-8 py-2 bg-slate-900 text-white rounded text-xs hover:bg-slate-800 transition-all  shadow-lg"
             >
               Close
             </button>
@@ -603,14 +603,14 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
             <>
               <button
                 onClick={onClose}
-                className="px-6 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-bold"
+                className="px-6 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-all "
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={submitting || loading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-all font-bold flex items-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                className="px-6 py-2 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-all  flex items-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50"
               >
                 {submitting ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
                 Record Invoice

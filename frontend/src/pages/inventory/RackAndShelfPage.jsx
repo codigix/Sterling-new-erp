@@ -185,7 +185,7 @@ const RackAndShelfPage = () => {
           {
             key: "location",
             label: "Location ID",
-            render: (val) => <span className="font-mono text-xs font-bold text-blue-600">{val}</span>
+            render: (val) => <span className="font-mono text-xs  text-blue-600">{val}</span>
           },
           {
             key: "wing",

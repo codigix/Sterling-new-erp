@@ -150,7 +150,7 @@ const PaymentTrackingPage = () => {
     {
       key: "receipt_number",
       label: "Receipt #",
-      render: (val) => <span className="font-mono text-blue-600 font-bold">{val}</span>
+      render: (val) => <span className="font-mono text-blue-600 ">{val}</span>
     },
     {
       key: "ref_invoice_no",
@@ -170,7 +170,7 @@ const PaymentTrackingPage = () => {
       key: "amount_received",
       label: "Amount Received",
       align: "right",
-      render: (val) => <span className="text-emerald-600 font-bold">₹{parseFloat(val).toLocaleString()}</span>
+      render: (val) => <span className="text-emerald-600 ">₹{parseFloat(val).toLocaleString()}</span>
     },
     {
       key: "payment_method",
@@ -180,7 +180,7 @@ const PaymentTrackingPage = () => {
       key: "status",
       label: "Status",
       render: (val) => (
-        <span className="px-2 py-1 rounded-full text-[10px] font-bold border bg-emerald-50 text-emerald-600 border-emerald-100 uppercase">
+        <span className="px-2 py-1 rounded-full text-[10px]  border bg-emerald-50 text-emerald-600 border-emerald-100 ">
           {val}
         </span>
       )
@@ -206,7 +206,7 @@ const PaymentTrackingPage = () => {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Payment Tracking</h1>
+          <h1 className="text-xl  text-slate-900 dark:text-white">Payment Tracking</h1>
           <p className="text-xs text-slate-500">Track incoming payments from customers</p>
         </div>
         <button 
@@ -223,8 +223,8 @@ const PaymentTrackingPage = () => {
             <TrendingUp size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Collections (Total)</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">₹{stats.total_received.toLocaleString()}</p>
+            <p className="text-xs text-slate-500  ">Collections (Total)</p>
+            <p className="text-xl  text-slate-900 dark:text-white">₹{stats.total_received.toLocaleString()}</p>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
@@ -232,8 +232,8 @@ const PaymentTrackingPage = () => {
             <CheckCircle2 size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Payments Recorded</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.count} Receipts</p>
+            <p className="text-xs text-slate-500  ">Payments Recorded</p>
+            <p className="text-xl  text-slate-900 dark:text-white">{stats.count} Receipts</p>
           </div>
         </div>
       </div>

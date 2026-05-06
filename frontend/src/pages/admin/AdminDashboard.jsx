@@ -412,7 +412,7 @@ const AdminDashboard = () => {
                   </div>
                 ))
               ) : (
-                <div className="h-full flex items-center justify-center py-10 text-slate-400 italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                <div className="h-full flex items-center justify-center py-10 text-slate-400 italic bg-slate-50 rounded border border-dashed border-slate-200">
                   No active projects tracking.
                 </div>
               )}
@@ -455,7 +455,7 @@ const AdminDashboard = () => {
                      </div>
                    </div>
                 ) : (
-                  <div className="h-full flex items-center justify-center py-10 text-slate-400 italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                  <div className="h-full flex items-center justify-center py-10 text-slate-400 italic bg-slate-50 rounded border border-dashed border-slate-200">
                     Awaiting project data.
                   </div>
                 )
@@ -499,7 +499,7 @@ const KPICard = ({ title, value, subtitle, icon: Icon, color }) => {
   };
 
   return (
-    <div className={`bg-gradient-to-br ${colorMap[color]} border-2 rounded-xl p-2  transition-all hover:shadow-md`}>
+    <div className={`bg-gradient-to-br ${colorMap[color]} border-2 rounded p-2  transition-all hover:shadow-md`}>
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <p className="text-xs    text-slate-500">{title}</p>

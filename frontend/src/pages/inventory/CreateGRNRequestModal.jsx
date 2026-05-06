@@ -362,14 +362,14 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                     <label className="text-xs  text-slate-400   block mb-1"># GRN Number</label>
                     <input 
                       disabled 
-                      className="w-full px-3 py-2 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-500"
+                      className="w-full p-2 bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-500"
                       value={`GRN-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`}
                     />
                   </div>
                   <div>
                     <label className="text-xs  text-slate-400   block mb-1">Purchase Order</label>
                     <select
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                       value={formData.po_id || ""}
                       onChange={(e) => handlePOChange(e.target.value)}
                     >
@@ -433,7 +433,7 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
                   <span className="text-xs   tracking-wider">Transporter Notes</span>
                 </div>
                 <textarea 
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                  className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs  text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
                   placeholder="Vehicle number, driver details etc..."
                   value={formData.transporter_notes}
                   onChange={(e) => setFormData({ ...formData, transporter_notes: e.target.value })}

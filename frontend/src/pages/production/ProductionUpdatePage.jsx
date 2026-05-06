@@ -138,7 +138,7 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
         {/* Header */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white ">
               Define Project Operations
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -168,7 +168,7 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
               <>
                 {/* Add Operation Section - NOW IMMEDIATELY AFTER PROJECT SELECTION */}
                 <div className="bg-blue-50/30 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-100/50 dark:border-blue-900/30">
-                  <h4 className="text-[10px]  text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-4">Add New Operation</h4>
+                  <h4 className="text-[10px]  text-blue-600 dark:text-blue-400  tracking-widest mb-4">Add New Operation</h4>
                   <div className="flex gap-4">
                     <div className="flex-1">
                       <label className="block text-[10px] font-medium text-slate-500 mb-1">Select Operation</label>
@@ -217,10 +217,10 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider w-16">Seq</th>
-                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Operation</th>
-                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center w-24">Phase</th>
-                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-right w-20">Actions</th>
+                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500  tracking-wider w-16">Seq</th>
+                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500  tracking-wider">Operation</th>
+                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500  tracking-wider text-center w-24">Phase</th>
+                        <th className="py-2.5 px-4 text-[10px] font-semibold text-slate-500  tracking-wider text-right w-20">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -240,7 +240,7 @@ const ManageOperationsModal = ({ isOpen, onClose, project, availableOperations, 
                               </span>
                             </td>
                             <td className="py-3 px-4">
-                              <p className="text-xs font-medium text-slate-900 dark:text-white uppercase">{op.operation_name || op.stage_name}</p>
+                              <p className="text-xs font-medium text-slate-900 dark:text-white ">{op.operation_name || op.stage_name}</p>
                             </td>
                             <td className="py-3 px-4 text-center">
                               <span className={`text-[10px]  px-2 py-0.5 rounded-full ${op.phase === 2 ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'}`}>
@@ -382,7 +382,7 @@ const ProductionUpdatePage = () => {
         });
       }
     });
-    return list;
+    return list.sort((a, b) => b.id - a.id);
   }, [filteredProjects]);
 
   const handleManageOperations = (project) => {
@@ -417,7 +417,7 @@ const ProductionUpdatePage = () => {
                 setActiveProject(null);
                 setIsManageModalOpen(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded text-xs  hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
+              className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded text-xs  hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
             >
               <Plus size={14} /> Define Project Operations
             </button>
@@ -456,7 +456,7 @@ const ProductionUpdatePage = () => {
           {(searchTerm || projectFilter) && (
             <button 
               onClick={() => {setSearchTerm(""); setProjectFilter("");}}
-              className="px-4 py-2 text-rose-500 text-xs font-medium hover:bg-rose-50 rounded transition-colors flex items-center gap-1"
+              className="p-2 text-rose-500 text-xs font-medium hover:bg-rose-50 rounded transition-colors flex items-center gap-1"
             >
               <X size={14} /> Clear
             </button>
@@ -474,7 +474,7 @@ const ProductionUpdatePage = () => {
                 key: "projectName",
                 render: (value, row) => (
                   <div className="flex flex-col">
-                    <span className="text-xs  text-slate-900 dark:text-white uppercase" title={value}>
+                    <span className="text-xs  text-slate-900 dark:text-white " title={value}>
                       {value || "N/A"}
                     </span>
                     <div className="flex items-center gap-2">
@@ -498,7 +498,7 @@ const ProductionUpdatePage = () => {
                       {row.sequenceIndex}
                     </span>
                     <div className="flex flex-col">
-                      <span className="text-xs  text-slate-700 dark:text-slate-200 uppercase tracking-tight">
+                      <span className="text-xs  text-slate-700 dark:text-slate-200  ">
                         {value || row.stage_name}
                       </span>
                       <span className={`text-[9px]  px-1.5 py-0.5 rounded w-fit mt-0.5 ${row.phase === 2 ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>

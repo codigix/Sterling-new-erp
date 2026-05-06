@@ -312,28 +312,28 @@ const SpecificationsPage = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleViewSpecification(spec)}
-                  className="flex-1 px-3 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded text-sm hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2"
+                  className="flex-1 p-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded text-sm hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center text-xs justify-center gap-2"
                 >
                   <FileText size={15} />
                   View
                 </button>
                 <button
                   onClick={() => handleEditSpecification(spec)}
-                  className="px-3 py-2 bg-amber-50 dark:bg-amber-900 text-amber-600 dark:text-amber-400 rounded text-sm hover:bg-amber-100 dark:hover:bg-amber-800 transition-colors flex items-center justify-center"
+                  className="p-2 bg-amber-50 dark:bg-amber-900 text-amber-600 dark:text-amber-400 rounded text-sm hover:bg-amber-100 dark:hover:bg-amber-800 transition-colors flex items-center justify-center"
                   title="Edit"
                 >
                   <Edit size={15} />
                 </button>
                 <button
                   onClick={() => handleDownloadSpecification(spec)}
-                  className="px-3 py-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded text-sm hover:bg-green-100 dark:hover:bg-green-800 transition-colors flex items-center justify-center"
+                  className="p-2 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400 rounded text-sm hover:bg-green-100 dark:hover:bg-green-800 transition-colors flex items-center justify-center"
                   title="Download"
                 >
                   <Download size={15} />
                 </button>
                 <button
                   onClick={() => handleDeleteClick(spec)}
-                  className="px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-red-600 dark:text-red-400 transition-colors flex items-center justify-center"
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-red-600 dark:text-red-400 transition-colors flex items-center justify-center"
                   title="Delete"
                 >
                   <Trash2 size={15} />
@@ -374,7 +374,7 @@ const SpecificationsPage = () => {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g., Material Specification"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -387,7 +387,7 @@ const SpecificationsPage = () => {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Optional description..."
                   rows="4"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -400,7 +400,7 @@ const SpecificationsPage = () => {
                   value={formData.version}
                   onChange={(e) => setFormData({ ...formData, version: e.target.value })}
                   placeholder="e.g., v1.0"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 

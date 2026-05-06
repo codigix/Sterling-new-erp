@@ -136,7 +136,7 @@ export default function Step6_QualityCheck() {
       <div className="bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center">
               <FileCode size={20} />
             </div>
             <div>
@@ -149,7 +149,7 @@ export default function Step6_QualityCheck() {
         {qualityStepData.qap_files && qualityStepData.qap_files.length > 0 ? (
           <div className="space-y-3">
             {qualityStepData.qap_files.map((file, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
+              <div key={index} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
                     <FileText className="text-indigo-500" size={16} />
@@ -185,7 +185,7 @@ export default function Step6_QualityCheck() {
             ))}
           </div>
         ) : qualityStepData.qap_path ? (
-          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
                 <FileText className="text-indigo-500" size={16} />
@@ -219,7 +219,7 @@ export default function Step6_QualityCheck() {
             </div>
           </div>
         ) : (
-          <div className="text-center py-6 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+          <div className="text-center py-6 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded">
             <p className="text-sm text-slate-400">No QAP document uploaded yet</p>
           </div>
         )}
@@ -320,7 +320,7 @@ export default function Step6_QualityCheck() {
 
               {expandedReport === report.id && (
                 <div className="border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 p-6 animate-in slide-in-from-top-2 duration-200">
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-2">
                     <h5 className="text-xs  text-slate-500   mb-2 flex items-center gap-2">
                       <Package size={14} /> Material Inspection Details
                     </h5>

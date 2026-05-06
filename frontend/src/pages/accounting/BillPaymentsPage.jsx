@@ -167,7 +167,7 @@ const BillPaymentsPage = () => {
     {
       key: "payment_number",
       label: "Payment #",
-      render: (val) => <span className="font-mono text-blue-600 font-bold">{val}</span>
+      render: (val) => <span className="font-mono text-blue-600 ">{val}</span>
     },
     {
       key: "ref_invoice_no",
@@ -187,7 +187,7 @@ const BillPaymentsPage = () => {
       key: "amount_paid",
       label: "Amount Paid",
       align: "right",
-      render: (val) => <span className="font-bold text-emerald-600">₹{parseFloat(val).toLocaleString()}</span>
+      render: (val) => <span className=" text-emerald-600">₹{parseFloat(val).toLocaleString()}</span>
     },
     {
       key: "payment_method",
@@ -197,10 +197,10 @@ const BillPaymentsPage = () => {
       key: "status",
       label: "Status",
       render: (val) => (
-        <span className={`px-2 py-1 rounded-full text-[10px] font-bold border ${
+        <span className={`px-2 py-1 rounded-full text-[10px]  border ${
           val === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
           'bg-amber-50 text-amber-600 border-amber-100'
-        } uppercase`}>
+        } `}>
           {val}
         </span>
       )
@@ -237,7 +237,7 @@ const BillPaymentsPage = () => {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Bill Payments</h1>
+          <h1 className="text-xl  text-slate-900 dark:text-white">Bill Payments</h1>
           <p className="text-xs text-slate-500">Track and record payments made to vendors</p>
         </div>
         <button 
@@ -254,8 +254,8 @@ const BillPaymentsPage = () => {
             <CheckCircle2 size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Total Paid (Month)</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">₹{summary.totalPaidMonth.toLocaleString()}</p>
+            <p className="text-xs text-slate-500  ">Total Paid (Month)</p>
+            <p className="text-xl  text-slate-900 dark:text-white">₹{summary.totalPaidMonth.toLocaleString()}</p>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
@@ -263,8 +263,8 @@ const BillPaymentsPage = () => {
             <Clock size={24} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 uppercase font-bold">Pending Payments</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white">₹{summary.pendingPayments.toLocaleString()}</p>
+            <p className="text-xs text-slate-500  ">Pending Payments</p>
+            <p className="text-xl  text-slate-900 dark:text-white">₹{summary.pendingPayments.toLocaleString()}</p>
           </div>
         </div>
       </div>

@@ -328,7 +328,7 @@ const MaterialRequestPage = () => {
                   value={formData.rootCardId}
                   onChange={handleFormChange}
                   placeholder="Enter route card ID"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                   required
                 />
               </div>
@@ -342,7 +342,7 @@ const MaterialRequestPage = () => {
                   value={formData.materialName}
                   onChange={handleFormChange}
                   placeholder="Enter material name"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                   required
                 />
               </div>
@@ -359,7 +359,7 @@ const MaterialRequestPage = () => {
                   value={formData.materialCode}
                   onChange={handleFormChange}
                   placeholder="Material code"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -373,7 +373,7 @@ const MaterialRequestPage = () => {
                   value={formData.quantity}
                   onChange={handleFormChange}
                   placeholder="0"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                   required
                 />
               </div>
@@ -385,7 +385,7 @@ const MaterialRequestPage = () => {
                   name="unit"
                   value={formData.unit}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 >
                   <option value="Nos">Nos</option>
                   <option value="Kg">Kg</option>
@@ -401,7 +401,7 @@ const MaterialRequestPage = () => {
                   name="priority"
                   value={formData.priority}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -421,7 +421,7 @@ const MaterialRequestPage = () => {
                 onChange={handleFormChange}
                 placeholder="Material specifications"
                 rows="3"
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
               />
             </div>
 
@@ -435,7 +435,7 @@ const MaterialRequestPage = () => {
                   name="requiredDate"
                   value={formData.requiredDate}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -448,7 +448,7 @@ const MaterialRequestPage = () => {
                   value={formData.remarks}
                   onChange={handleFormChange}
                   placeholder="Additional remarks"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
             </div>
@@ -606,7 +606,7 @@ const MaterialRequestPage = () => {
                   value={vendorData.vendorId}
                   onChange={handleVendorChange}
                   placeholder="Enter vendor ID"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -620,7 +620,7 @@ const MaterialRequestPage = () => {
                   value={vendorData.quotedPrice}
                   onChange={handleVendorChange}
                   placeholder="0.00"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -633,7 +633,7 @@ const MaterialRequestPage = () => {
                   value={vendorData.deliveryDays}
                   onChange={handleVendorChange}
                   placeholder="0"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div>
@@ -646,7 +646,7 @@ const MaterialRequestPage = () => {
                   onChange={handleVendorChange}
                   placeholder="Additional notes"
                   rows="2"
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded"
+                  className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded"
                 />
               </div>
               <div className="flex gap-2 justify-end pt-4">

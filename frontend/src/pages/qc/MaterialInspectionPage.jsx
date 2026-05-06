@@ -54,12 +54,12 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
         <table className="w-full text-left">
           <thead className="bg-slate-50 dark:bg-slate-800/50">
             <tr>
-              <th className="p-2 text-[10px] text-slate-400 uppercase text-center w-10">#</th>
-              <th className="p-2 text-[10px] text-slate-400 uppercase">Item Code</th>
-              <th className="p-2 text-[10px] text-slate-400 uppercase font-mono">Dimensions</th>
-              <th className="p-2 text-[10px] text-indigo-400 uppercase">ST Code</th>
-              <th className="p-2 text-[10px] text-slate-400 uppercase">Status</th>
-              <th className="p-2 text-[10px] text-slate-400 uppercase text-center w-24">Actions</th>
+              <th className="p-2 text-[10px] text-slate-400  text-center w-10">#</th>
+              <th className="p-2 text-[10px] text-slate-400 ">Item Code</th>
+              <th className="p-2 text-[10px] text-slate-400  font-mono">Dimensions</th>
+              <th className="p-2 text-[10px] text-indigo-400 ">ST Code</th>
+              <th className="p-2 text-[10px] text-slate-400 ">Status</th>
+              <th className="p-2 text-[10px] text-slate-400  text-center w-24">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
@@ -399,7 +399,7 @@ const MaterialInspectionPage = () => {
           </div>
           <div>
             <h4 className="text-xs  text-slate-900">{val}</h4>
-            <p className="text-[10px] text-slate-500 uppercase">{row.item_group}</p>
+            <p className="text-[10px] text-slate-500 ">{row.item_group}</p>
           </div>
         </div>
       )
@@ -465,7 +465,7 @@ const MaterialInspectionPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 p-4 rounded border border-slate-100 dark:border-slate-700 shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ">
         <SearchableSelect
           label="Filter by Route Card (Project)"
           options={rootCardOptions}
@@ -522,7 +522,7 @@ const MaterialInspectionPage = () => {
             </div>
             <div className="p-4 space-y-4">
               <div className="p-3 bg-red-50 rounded border border-red-100">
-                <p className="text-[10px] text-red-500 uppercase  mb-1">Item Being Rejected</p>
+                <p className="text-[10px] text-red-500   mb-1">Item Being Rejected</p>
                 <p className="text-xs  text-red-700">{rejectionModal.serialNumber}</p>
               </div>
               <div className="space-y-1.5">

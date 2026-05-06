@@ -241,7 +241,7 @@ const ReleasedMaterialsPage = () => {
                                 label: "QC STATUS",
                                 className: "text-right",
                                 render: (status) => (
-                                  <span className="px-2 py-0.5 rounded text-[8px] bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase">
+                                  <span className="px-2 py-0.5 rounded text-[8px] bg-emerald-50 text-emerald-600 border border-emerald-100 ">
                                     {status || 'ACCEPTED'}
                                   </span>
                                 )

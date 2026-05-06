@@ -439,7 +439,7 @@ const EmployeesTab = () => {
                     </p>
                     <div className="grid grid-cols-3 gap-4 text-[10px]">
                       <div>
-                        <span className="text-slate-400 uppercase ">
+                        <span className="text-slate-400  ">
                           Tasks
                         </span>
                         <p className=" text-slate-700">
@@ -447,7 +447,7 @@ const EmployeesTab = () => {
                         </p>
                       </div>
                       <div>
-                        <span className="text-slate-400 uppercase ">
+                        <span className="text-slate-400  ">
                           Efficiency
                         </span>
                         <p className=" text-green-600">
@@ -455,7 +455,7 @@ const EmployeesTab = () => {
                         </p>
                       </div>
                       <div>
-                        <span className="text-slate-400 uppercase ">
+                        <span className="text-slate-400  ">
                           Rating
                         </span>
                         <p className=" text-blue-600">

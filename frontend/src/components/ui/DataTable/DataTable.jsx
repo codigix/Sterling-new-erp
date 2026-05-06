@@ -159,7 +159,7 @@ const DataTable = ({
     <div className={`space-y-2 ${className}`}>
       {(title || showSearch) && (
         <div className="">
-           <div className='flex justify-between'>
+           <div className='flex justify-between mb-3'>
             <div className="flex items-center my-2 gap-3">
               {titleIcon && (
                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded flex-shrink-0">
@@ -171,7 +171,7 @@ const DataTable = ({
                 </div>
               )}
               {title && (
-                <h2 className="text-xl   dark:text-white  whitespace-nowrap">
+                <h2 className="text-md   dark:text-white  whitespace-nowrap">
                   {title}
                 </h2>
               )}
@@ -214,7 +214,7 @@ const DataTable = ({
                       key={index}
                       value={filterValues[filter.column || filter.key] || "all"}
                       onChange={(e) => handleFilterChange(filter.column || filter.key, e.target.value)}
-                      className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer"
+                      className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer"
                     >
                       <option value="all">All {filter.label}</option>
                       {filter.options.map((option, optIndex) => (
@@ -237,7 +237,7 @@ const DataTable = ({
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800  dark:bg-slate-800/50">
-                {effectiveRenderRowDetail && <th key="expander-header" className="w-10 p-3"></th>}
+                {effectiveRenderRowDetail && <th key="expander-header" className="w-10 p-2"></th>}
                 {columns.map((column, colIndex) => {
                   const key = column.key || column.accessor;
                   const label = column.label || column.header;
@@ -323,7 +323,7 @@ const DataTable = ({
                           return (
                             <td
                               key={`${rowId}-col-${colIndex}-${key || "no-key"}`}
-                              className={`p-3 text-xs text-slate-600 dark:text-slate-300 ${
+                              className={`p-2 text-xs text-slate-600 dark:text-slate-300 ${
                                 column.align === "right" ? "text-right" : "text-left"
                               } ${column.className || ""}`}
                             >

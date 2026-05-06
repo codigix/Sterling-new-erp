@@ -464,7 +464,7 @@ const RoleManagement = () => {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
@@ -478,7 +478,7 @@ const RoleManagement = () => {
                     Description
                   </label>
                   <textarea
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}

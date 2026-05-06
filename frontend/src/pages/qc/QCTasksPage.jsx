@@ -55,7 +55,7 @@ const ReportDetailTable = ({ report }) => {
       label: "Result",
       align: "center",
       render: (value, m) => (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded border border-emerald-100 dark:border-emerald-800 text-[9px] font-medium flex items-center gap-1">
             <CheckCircle size={10} /> {m.accepted_qty} Accepted
           </span>
@@ -76,7 +76,7 @@ const ReportDetailTable = ({ report }) => {
         {m.st_numbers.map((st, stIdx) => (
           <div key={stIdx} className="p-3 rounded border bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-2 transition-all hover:shadow-md">
             <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-bold ${st.status === 'ACCEPTED' ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span className={`text-[10px]  ${st.status === 'ACCEPTED' ? 'text-emerald-600' : 'text-red-600'}`}>
                 {st.status}
               </span>
               {(st.status === 'ACCEPTED' ? m.accepted_report : m.rejected_report) && (
@@ -93,8 +93,8 @@ const ReportDetailTable = ({ report }) => {
               )}
             </div>
             <div className="space-y-0.5">
-              <p className="text-[9px] text-slate-400 uppercase font-bold tracking-wider">ST Code</p>
-              <p className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">{st.st_code}</p>
+              <p className="text-[9px] text-slate-400   tracking-wider">ST Code</p>
+              <p className="text-xs font-mono  text-slate-700 dark:text-slate-300">{st.st_code}</p>
               <p className="text-[10px] text-blue-600 dark:text-blue-400 font-mono mt-1 font-medium bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded w-fit">{renderDimensions(st)}</p>
             </div>
           </div>
@@ -192,7 +192,7 @@ const QCTasksPage = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs  text-slate-900">{val}</span>
-              <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[8px]  uppercase">{row.inspection_type}</span>
+              <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[8px]  ">{row.inspection_type}</span>
             </div>
             <p className="text-[10px] text-slate-500 mt-0.5">Finalized Report</p>
           </div>

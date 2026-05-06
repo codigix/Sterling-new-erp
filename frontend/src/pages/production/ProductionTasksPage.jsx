@@ -276,7 +276,7 @@ const ProductionTasksPage = () => {
                   <label className="block text-sm  text-slate-900 dark:text-white mb-2">
                     Project
                   </label>
-                  <select className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <select className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                     <option>Select Project...</option>
                     <option>PROJ-001 - Motor Assembly Unit</option>
                     <option>PROJ-002 - Control Panel</option>
@@ -311,7 +311,7 @@ const ProductionTasksPage = () => {
                     Notes
                   </label>
                   <textarea
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     rows="3"
                   />
                 </div>
@@ -407,11 +407,11 @@ const ProductionTasksPage = () => {
                 </div>
 
                 <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <button className="flex-1 flex items-center text-xs justify-center gap-2 px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm ">
+                  <button className="flex-1 flex items-center text-xs justify-center gap-2 p-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm ">
                     <Settings size={15} />
                     Manage
                   </button>
-                  <button className="flex-1 flex items-center text-xs justify-center gap-2 px-3 py-2 rounded bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm ">
+                  <button className="flex-1 flex items-center text-xs justify-center gap-2 p-2 rounded bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm ">
                     <Eye size={15} />
                     View
                   </button>
