@@ -34,26 +34,33 @@ export const renderDimensions = (item) => {
     if (get('width', 'width')) parts.push(`W:${get('width', 'width')}`);
     if (get('height', 'height')) parts.push(`H:${get('height', 'height')}`);
   } else if (group.includes("square bar") || group === "square bar" || group === "sq bar" || group.includes("square tube") || group === "sq tube" || group.includes("square")) {
-    const s1 = get('side1', 'side1') || get('side_s1', 'side_s1') || get('width', 'width') || get('side_s', 'side_s') || val(data.s);
+    const s1 = get('side1', 'side1') || get('side_s1', 'side_s1') || get('width', 'width') || get('side_s', 'side_s') || val(data.s) || val(data.s1);
     const s2 = get('side2', 'side2') || get('side_s2', 'side_s2') || get('height', 'height') || s1;
     if (s1) parts.push(`S1:${s1}`);
     if (s2 && s2 !== s1) parts.push(`S2:${s2}`);
     if (get('thickness', 'thickness')) parts.push(`T:${get('thickness', 'thickness')}`);
     if (get('length', 'length')) parts.push(`L:${get('length', 'length')}`);
   } else if (group.includes("rectangular bar") || group === "rec bar" || group.includes("rectangular tube") || group === "rec tube" || group.includes("rectangular") || group.includes("rect")) {
-    if (get('width', 'width') || get('side1', 'side1')) parts.push(`W:${get('width', 'width') || get('side1', 'side1')}`);
-    if (get('height', 'height') || get('side2', 'side2')) parts.push(`H:${get('height', 'height') || get('side2', 'side2')}`);
+    const w = get('width', 'width') || get('side1', 'side1') || get('side_s1', 'side_s1');
+    const h = get('height', 'height') || get('side2', 'side2') || get('side_s2', 'side_s2');
+    if (w) parts.push(`W:${w}`);
+    if (h) parts.push(`H:${h}`);
     if (get('thickness', 'thickness')) parts.push(`T:${get('thickness', 'thickness')}`);
     if (get('length', 'length')) parts.push(`L:${get('length', 'length')}`);
   } else if (group.includes("channel") || group.includes("beam") || group.includes("c-channel") || group.includes("i-beam")) {
-    if (get('height', 'height') || get('side2', 'side2')) parts.push(`H:${get('height', 'height') || get('side2', 'side2')}`);
-    if (get('width', 'width') || get('side1', 'side1')) parts.push(`W:${get('width', 'width') || get('side1', 'side1')}`);
+    const h = get('height', 'height') || get('side2', 'side2');
+    const w = get('width', 'width') || get('side1', 'side1');
+    if (h) parts.push(`H:${h}`);
+    if (w) parts.push(`W:${w}`);
     if (get('web_thickness', 'webThickness') || val(data.tw)) parts.push(`Tw:${get('web_thickness', 'webThickness') || val(data.tw)}`);
     if (get('flange_thickness', 'flangeThickness') || val(data.tf)) parts.push(`FT:${get('flange_thickness', 'flangeThickness') || val(data.tf)}`);
+    if (get('thickness', 'thickness')) parts.push(`T:${get('thickness', 'thickness')}`);
     if (get('length', 'length')) parts.push(`L:${get('length', 'length')}`);
   } else if (group.includes("angle")) {
-    if (get('side1', 'side1') || get('width', 'width')) parts.push(`S1:${get('side1', 'side1') || get('width', 'width')}`);
-    if (get('side2', 'side2') || get('height', 'height')) parts.push(`S2:${get('side2', 'side2') || get('height', 'height')}`);
+    const s1 = get('side1', 'side1') || get('width', 'width') || get('side_s1', 'side_s1');
+    const s2 = get('side2', 'side2') || get('height', 'height') || get('side_s2', 'side_s2');
+    if (s1) parts.push(`S1:${s1}`);
+    if (s2) parts.push(`S2:${s2}`);
     if (get('thickness', 'thickness')) parts.push(`T:${get('thickness', 'thickness')}`);
     if (get('length', 'length')) parts.push(`L:${get('length', 'length')}`);
   } else {
@@ -81,5 +88,5 @@ export const renderDimensions = (item) => {
     });
   }
 
-  return parts.length > 0 ? parts.join(" \u00d7 ") : "-";
+  return parts.length > 0 ? parts.join(" x ") : "-";
 };
