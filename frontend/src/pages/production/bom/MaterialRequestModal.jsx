@@ -86,9 +86,11 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                         <span className="text-xs  text-slate-400 dark:text-slate-500  ">
                           {item.itemGroup || "NO-GROUP"}
                         </span>
-                        <span className="text-xs text-blue-600 dark:text-blue-400 ">
-                          Dim: {renderDimensions(item)} mm
-                        </span>
+                        {renderDimensions(item) !== "-" && (
+                          <span className="text-xs text-blue-600 dark:text-blue-400 ">
+                            Dim: {renderDimensions(item)} mm
+                          </span>
+                        )}
                       </div>
                     ),
                   },

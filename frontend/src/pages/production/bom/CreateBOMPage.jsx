@@ -1483,9 +1483,11 @@ const CreateBOMPage = () => {
                               ) : (
                                 <div className="flex flex-col">
                                   <span className=" text-slate-700 dark:text-slate-200">{row.itemName}</span>
-                                  <span className="text-xs text-blue-600 dark:text-blue-400 ">
-                                    Dim: {renderDimensions(row)} mm
-                                  </span>
+                                  {renderDimensions(row) !== "-" && (
+                                    <span className="text-xs text-blue-600 dark:text-blue-400 ">
+                                      Dim: {renderDimensions(row)} mm
+                                    </span>
+                                  )}
                                   <span className="text-xs  text-slate-500 dark:text-slate-400  ">{row.itemGroup || "NO-GROUP"}</span>
                                 </div>
                               )}
