@@ -540,6 +540,7 @@ const GRNProcessingPage = () => {
         vendor: grn.vendor_name,
         inspectionStatus: grn.inspection_status || "pending",
         status: grn.status || "pending",
+        projectName: grn.root_card_project_name,
         receivedDate: grn.created_at ? new Date(grn.created_at).toISOString().split("T")[0] : null,
         items: grn.items || [],
       }));
@@ -1001,6 +1002,11 @@ const GRNProcessingPage = () => {
       render: (val) => <span className="text-xs text-slate-600">{val}</span>
     },
     {
+      key: "projectName",
+      label: "Project",
+      render: (val) => <span className="text-xs text-slate-600">{val || "N/A"}</span>
+    },
+    {
       key: "receivedDate",
       label: "Date",
       align: "center",
@@ -1037,7 +1043,7 @@ const GRNProcessingPage = () => {
               className="flex items-center gap-1 p-1 bg-amber-600 text-white rounded text-xs hover:bg-amber-700 transition-all"
             >
               <Zap size={12} />
-              Release
+              Release Material
             </button>
           )}
           {grn.status === 'awaiting_storage' && (
@@ -1047,7 +1053,7 @@ const GRNProcessingPage = () => {
               className="flex items-center gap-1 p-1 bg-emerald-600 text-white rounded text-xs hover:bg-emerald-700 disabled:opacity-50 transition-all"
             >
               {processingStock === grn.id ? <RefreshCw size={12} className="animate-spin" /> : <Package size={12} />}
-              Stock
+              Add to Stock
             </button>
           )}
           {grn.status === 'pending' && (
@@ -1057,7 +1063,7 @@ const GRNProcessingPage = () => {
               className="flex items-center gap-1 p-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700 disabled:opacity-50 transition-all"
             >
               {sendingToQC === grn.id ? <RefreshCw size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
-              QC
+              Send to QC
             </button>
           )}
         </div>

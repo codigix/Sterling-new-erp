@@ -330,6 +330,8 @@ const CreateQuotationModal = ({
           unit: m.unit || "",
           rate_per_kg: 0,
           total_weight: 0,
+          items_per_packet: m.items_per_packet || m.itemsPerPacket || 1,
+          vendor_items_per_packet: m.items_per_packet || m.itemsPerPacket || 1,
         }));
         initialFormState.root_card_id =
           preFilledMaterials[0]?.rootCardId || initialFormState.root_card_id;
@@ -910,23 +912,52 @@ const CreateQuotationModal = ({
           header: "Weight (Kg)",
           accessor: "total_weight",
           align: "right",
-          render: (value, item, _, index) => (
-            <input
-              type="number"
-              value={
-                item.total_weight !== null && item.total_weight !== undefined
-                  ? item.total_weight
-                  : ""
-              }
-              onChange={(e) =>
-                handleItemChange(index, "total_weight", e.target.value)
-              }
-              placeholder="0.000"
-              min="0"
-              step="0.001"
-              className="w-full p-1 text-xs text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
-            />
-          ),
+          render: (value, item, _, index) => {
+            if (item.item_group?.toLowerCase() === "bought out" &&
+              (item.unit?.toLowerCase() === "packet" ||
+                item.unit?.toLowerCase() === "box" ||
+                item.unit?.toLowerCase() === "set")) {
+              return (
+                <div className="flex flex-col gap-1 min-w-[100px]">
+                  <div className="flex flex-col gap-0.5">
+                    <label className="text-[10px] text-slate-500">Req: items/{item.unit}</label>
+                    <input
+                      type="number"
+                      value={item.items_per_packet || 1}
+                      onChange={(e) => handleItemChange(index, "items_per_packet", e.target.value)}
+                      className="w-full p-1 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <label className="text-[10px] text-blue-600">Ven: items/{item.unit}</label>
+                    <input
+                      type="number"
+                      value={item.vendor_items_per_packet || item.items_per_packet || 1}
+                      onChange={(e) => handleItemChange(index, "vendor_items_per_packet", e.target.value)}
+                      className="w-full p-1 text-xs border border-blue-200 dark:border-blue-900/30 rounded bg-blue-50/10 dark:bg-blue-900/10"
+                    />
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <input
+                type="number"
+                value={
+                  item.total_weight !== null && item.total_weight !== undefined
+                    ? item.total_weight
+                    : ""
+                }
+                onChange={(e) =>
+                  handleItemChange(index, "total_weight", e.target.value)
+                }
+                placeholder="0.000"
+                min="0"
+                step="0.001"
+                className="w-full p-1 text-xs text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
+              />
+            );
+          },
         },
         {
           header: "Total",

@@ -249,18 +249,39 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                         key: "total_weight",
                         label: "Weight (Kg)",
                         className: "",
-                        render: (_, item) => (
-                          <div className="flex flex-col">
-                            <span className="text-xs  text-slate-700 dark:text-slate-200">
-                              {Number(parseFloat(item.total_weight || 0).toFixed(3))} Kg
-                            </span>
-                            {parseFloat(item.unit_weight) > 0 && (
-                              <span className="text-xs text-slate-400">
-                                Unit: {Number(parseFloat(item.unit_weight || 0).toFixed(3))}
+                        render: (_, item) => {
+                          const isBoughtOut = (item.item_group || "").toLowerCase().includes("bought out");
+                          const uom = (item.uom || "").toLowerCase();
+                          const isPacket = uom.includes("packet") || uom.includes("box") || uom.includes("set");
+                          const itemsPerPacket = item.items_per_packet || 1;
+
+                          if (isBoughtOut && isPacket && itemsPerPacket > 1) {
+                            const totalItems = Math.round(parseFloat(item.required_quantity || 0) * itemsPerPacket);
+                            return (
+                              <div className="flex flex-col">
+                                <span className="text-xs text-blue-600 font-medium">
+                                  {parseFloat(itemsPerPacket)} items/{item.uom}
+                                </span>
+                                <span className="text-[10px] text-slate-400 italic">
+                                  Total: {totalItems} Items
+                                </span>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div className="flex flex-col">
+                              <span className="text-xs  text-slate-700 dark:text-slate-200">
+                                {Number(parseFloat(item.total_weight || 0).toFixed(3))} Kg
                               </span>
-                            )}
-                          </div>
-                        )
+                              {parseFloat(item.unit_weight) > 0 && (
+                                <span className="text-xs text-slate-400">
+                                  Unit: {Number(parseFloat(item.unit_weight || 0).toFixed(3))}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        }
                       },
                       {
                         key: "required_quantity",

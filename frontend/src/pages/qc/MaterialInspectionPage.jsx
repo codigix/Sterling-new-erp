@@ -433,7 +433,31 @@ const MaterialInspectionPage = () => {
       header: "Received",
       accessor: "received_qty",
       className: "text-center",
-      render: (val) => <span className="text-xs  text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{val}</span>
+      render: (val, row) => {
+        const isBoughtOut = (row.item_group || "").toLowerCase().includes("bought out");
+        const uom = (row.unit || "").toLowerCase();
+        const isPacket = uom.includes("packet") || uom.includes("box") || uom.includes("set");
+        const itemsPerPacket = row.vendor_items_per_packet || row.items_per_packet;
+
+        if (isBoughtOut && isPacket && itemsPerPacket > 1) {
+          const totalItems = Math.round(val * itemsPerPacket);
+          return (
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                {val} {row.unit}
+              </span>
+              <span className="text-[10px] text-blue-500 mt-1">
+                {parseFloat(itemsPerPacket)} items/{row.unit}
+              </span>
+              <span className="text-[9px] text-slate-400 italic">
+                Total: {totalItems} Items
+              </span>
+            </div>
+          );
+        }
+
+        return <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{val} {row.unit}</span>
+      }
     },
     {
       header: "Status",

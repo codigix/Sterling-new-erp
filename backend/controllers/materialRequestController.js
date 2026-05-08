@@ -87,12 +87,13 @@ const createMaterialRequest = async (req, res) => {
         item.materialType || item.material_type || null,
         item.density || 0,
         item.unitWeight || item.unit_weight || item.calculatedWeight || 0,
-        item.totalWeight || item.total_weight || 0
+        item.totalWeight || item.total_weight || 0,
+        item.itemsPerPacket || item.items_per_packet || 1
       ]);
 
       await connection.query(
         `INSERT INTO material_request_items 
-        (material_request_id, item_name, item_group, material_grade, part_detail, make, required_quantity, uom, remark, warehouse, operation, length, width, thickness, diameter, outer_diameter, height, side1, side2, web_thickness, flange_thickness, material_type, density, unit_weight, total_weight) 
+        (material_request_id, item_name, item_group, material_grade, part_detail, make, required_quantity, uom, remark, warehouse, operation, length, width, thickness, diameter, outer_diameter, height, side1, side2, web_thickness, flange_thickness, material_type, density, unit_weight, total_weight, items_per_packet) 
         VALUES ?`,
         [itemValues]
       );

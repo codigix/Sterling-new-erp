@@ -300,6 +300,22 @@ const CheckProjectMaterialRequirementsModal = ({
                             {material.quantity || 0} {material.unit || "Nos"}
                           </p>
                         </div>
+                        {material.itemGroup?.toLowerCase() === "bought out" &&
+                          (material.unit?.toLowerCase() === "packet" ||
+                            material.unit?.toLowerCase() === "box" ||
+                            material.unit?.toLowerCase() === "set") && (
+                          <div>
+                            <p className="text-blue-500 dark:text-blue-400 font-medium">
+                              Packaging
+                            </p>
+                            <p className=" text-blue-700 dark:text-blue-300">
+                              {material.itemsPerPacket || material.items_per_packet || 1} items/{material.unit}
+                              <span className="block text-[10px] text-slate-400">
+                                Total: {(material.itemsPerPacket || material.items_per_packet || 1) * (material.quantity || 0)} Items
+                              </span>
+                            </p>
+                          </div>
+                        )}
                         <div>
                           <p className="text-slate-500 dark:text-slate-400">
                             Unit Price

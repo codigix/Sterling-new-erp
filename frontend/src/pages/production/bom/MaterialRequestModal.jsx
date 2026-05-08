@@ -20,7 +20,15 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
         projectId: bom.projectId,
         rootCardId: bom.rootCardId,
         remarks: remarks,
-        items: bom.materials
+        items: bom.materials.map(item => ({
+          ...item,
+          item_name: item.itemName,
+          item_group: item.itemGroup,
+          part_detail: item.partDetail,
+          material_grade: item.materialGrade,
+          total_weight: item.totalWeight,
+          items_per_packet: item.itemsPerPacket || 1
+        }))
       });
       toast.success("Material request sent successfully");
       onClose();
@@ -128,22 +136,51 @@ const MaterialRequestModal = ({ isOpen, onClose, bom }) => {
                     className: "p-2",
                     render: (_, item) => (
                       <div className="flex flex-col">
-                        <span className="text-xs text-left  text-slate-700 dark:text-slate-200">
-                          {Number(
-                            (
-                              parseFloat(item.totalWeight || item.total || 0) ||
-                              parseFloat(item.calculatedWeight || item.unitWeight || 0) *
-                                parseFloat(item.quantity || 0)
-                            ).toFixed(3)
-                          )}{" "}
-                          Kg
-                        </span>
-                        {(parseFloat(item.unitWeight) > 0 ||
-                          parseFloat(item.calculatedWeight) > 0) && (
-                          <span className="text-xs text-slate-400">
-                            Unit:{" "}
-                            {Number(parseFloat(item.unitWeight || item.calculatedWeight || 0).toFixed(3))}
-                          </span>
+                        {item.itemGroup?.toLowerCase() === "bought out" &&
+                        (item.uom?.toLowerCase() === "packet" ||
+                          item.uom?.toLowerCase() === "box" ||
+                          item.uom?.toLowerCase() === "set") ? (
+                          <div className="flex flex-col">
+                            <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                              {parseFloat(item.itemsPerPacket || 1)} items/{item.uom}
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              Total:{" "}
+                              {Math.round((item.itemsPerPacket || 1) * (item.quantity || 0))}{" "}
+                              Items
+                            </span>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="text-xs text-left  text-slate-700 dark:text-slate-200">
+                              {Number(
+                                (
+                                  parseFloat(
+                                    item.totalWeight || item.total || 0,
+                                  ) ||
+                                  parseFloat(
+                                    item.calculatedWeight ||
+                                      item.unitWeight ||
+                                      0,
+                                  ) * parseFloat(item.quantity || 0)
+                                ).toFixed(3),
+                              )}{" "}
+                              Kg
+                            </span>
+                            {(parseFloat(item.unitWeight) > 0 ||
+                              parseFloat(item.calculatedWeight) > 0) && (
+                              <span className="text-xs text-slate-400">
+                                Unit:{" "}
+                                {Number(
+                                  parseFloat(
+                                    item.unitWeight ||
+                                      item.calculatedWeight ||
+                                      0,
+                                  ).toFixed(3),
+                                )}
+                              </span>
+                            )}
+                          </>
                         )}
                       </div>
                     ),

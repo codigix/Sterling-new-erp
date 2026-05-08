@@ -173,12 +173,25 @@ const BOMDetailsPage = () => {
       }
     },
     {
-      key: "unitWeight", label: "Weight (Kg)", render: (val, row) => (
-        <div className="flex flex-col">
-          <span className="text-xs">Unit: {Number(parseFloat(val || 0).toFixed(3))}</span>
-          <span className="text-xs  text-emerald-600">Total: {Number(parseFloat(row.totalWeight || 0).toFixed(3))}</span>
-        </div>
-      )
+      key: "unitWeight", label: "Weight (Kg)", render: (val, row) => {
+        if (row.itemGroup?.toLowerCase() === "bought out" &&
+          (row.uom?.toLowerCase() === "packet" ||
+            row.uom?.toLowerCase() === "box" ||
+            row.uom?.toLowerCase() === "set")) {
+          return (
+            <div className="flex flex-col">
+              <span className="text-xs text-blue-600 font-medium">{parseFloat(row.itemsPerPacket || 1)} items/{row.uom}</span>
+              <span className="text-[10px] text-slate-400">Total: {Math.round((row.itemsPerPacket || 1) * (row.quantity || 0))} Items</span>
+            </div>
+          );
+        }
+        return (
+          <div className="flex flex-col">
+            <span className="text-xs">Unit: {Number(parseFloat(val || 0).toFixed(3))}</span>
+            <span className="text-xs  text-emerald-600">Total: {Number(parseFloat(row.totalWeight || 0).toFixed(3))}</span>
+          </div>
+        );
+      }
     },
     {
       key: "remark", label: "Remark / Make", render: (val, row) => (

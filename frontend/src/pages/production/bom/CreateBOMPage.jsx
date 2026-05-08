@@ -261,6 +261,7 @@ const CreateBOMPage = () => {
     webThickness: "",
     flangeThickness: "",
     calculatedWeight: 0,
+    itemsPerPacket: 1,
   });
 
   const calculateItemWeight = useCallback((item) => {
@@ -458,6 +459,7 @@ const CreateBOMPage = () => {
             webThickness: "",
             flangeThickness: "",
             calculatedWeight: 0,
+            itemsPerPacket: 1,
           });
       }
 
@@ -1788,6 +1790,29 @@ const CreateBOMPage = () => {
                         allowCustom={true}
                       />
                     </div>
+
+                    {newMaterial.itemGroup?.toLowerCase() === "bought out" &&
+                      (newMaterial.uom?.toLowerCase() === "packet" ||
+                        newMaterial.uom?.toLowerCase() === "box" ||
+                        newMaterial.uom?.toLowerCase() === "set") && (
+                      <div className="md:col-span-3">
+                        <label className="block text-xs text-slate-900 dark:text-slate-100 mb-1.5 ml-1">
+                          Items per {newMaterial.uom}
+                        </label>
+                        <input
+                          type="number"
+                          value={newMaterial.itemsPerPacket}
+                          onChange={(e) =>
+                            setNewMaterial((prev) => ({
+                              ...prev,
+                              itemsPerPacket: parseFloat(e.target.value) || 0,
+                            }))
+                          }
+                          placeholder={`Qty per ${newMaterial.uom}`}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                        />
+                      </div>
+                    )}
                     <div className="md:col-span-3">
                       <label className="block text-xs  text-slate-900 dark:text-slate-100   mb-1.5 ml-1">
                         Remark
@@ -2651,33 +2676,77 @@ const CreateBOMPage = () => {
                             </td>
                             <td className="p-2 text-center">
                               <div className="flex flex-col items-center">
-                                <span className="text-xs  text-slate-700 dark:text-slate-200">
-                                  {Number(
-                                    (
-                                      parseFloat(
-                                        row.totalWeight || row.total || 0,
-                                      ) ||
-                                      parseFloat(
-                                        row.calculatedWeight ||
-                                          row.unitWeight ||
-                                          0,
-                                      ) * parseFloat(row.quantity || 0)
-                                    ).toFixed(3),
-                                  )}{" "}
-                                  Kg
-                                </span>
-                                {(parseFloat(row.unitWeight) > 0 ||
-                                  parseFloat(row.calculatedWeight) > 0) && (
-                                  <span className="text-xs text-slate-400">
-                                    Unit:{" "}
-                                    {Number(
-                                      parseFloat(
-                                        row.unitWeight ||
-                                          row.calculatedWeight ||
-                                          0,
-                                      ).toFixed(3),
+                                {isEditing &&
+                                row.itemGroup?.toLowerCase() === "bought out" &&
+                                (row.uom?.toLowerCase() === "packet" ||
+                                  row.uom?.toLowerCase() === "box" ||
+                                  row.uom?.toLowerCase() === "set") ? (
+                                  <div className="space-y-1">
+                                    <label className="text-[10px] text-slate-400 block">
+                                      Per {row.uom}
+                                    </label>
+                                    <input
+                                      type="number"
+                                      value={row.itemsPerPacket || 1}
+                                      onChange={(e) =>
+                                        updateTableRow(
+                                          "materials",
+                                          row.id,
+                                          "itemsPerPacket",
+                                          parseFloat(e.target.value) || 0,
+                                        )
+                                      }
+                                      className="w-16 p-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-center outline-none focus:ring-1 focus:ring-emerald-500"
+                                    />
+                                  </div>
+                                ) : row.itemGroup?.toLowerCase() ===
+                                    "bought out" &&
+                                  (row.uom?.toLowerCase() === "packet" ||
+                                    row.uom?.toLowerCase() === "box" ||
+                                    row.uom?.toLowerCase() === "set") ? (
+                                  <div className="flex flex-col items-center">
+                                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                      {row.itemsPerPacket || 1} items/{row.uom}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400">
+                                      Total:{" "}
+                                      {(row.itemsPerPacket || 1) *
+                                        (row.quantity || 0)}{" "}
+                                      Items
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <span className="text-xs  text-slate-700 dark:text-slate-200">
+                                      {Number(
+                                        (
+                                          parseFloat(
+                                            row.totalWeight || row.total || 0,
+                                          ) ||
+                                          parseFloat(
+                                            row.calculatedWeight ||
+                                              row.unitWeight ||
+                                              0,
+                                          ) * parseFloat(row.quantity || 0)
+                                        ).toFixed(3),
+                                      )}{" "}
+                                      Kg
+                                    </span>
+                                    {(parseFloat(row.unitWeight) > 0 ||
+                                      parseFloat(row.calculatedWeight) >
+                                        0) && (
+                                      <span className="text-xs text-slate-400">
+                                        Unit:{" "}
+                                        {Number(
+                                          parseFloat(
+                                            row.unitWeight ||
+                                              row.calculatedWeight ||
+                                              0,
+                                          ).toFixed(3),
+                                        )}
+                                      </span>
                                     )}
-                                  </span>
+                                  </>
                                 )}
                               </div>
                             </td>

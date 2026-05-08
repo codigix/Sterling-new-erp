@@ -269,7 +269,9 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
         g.status as grn_status,
         po.po_number,
         v.name as vendor_name,
-        poi.item_group
+        poi.item_group,
+        gi.items_per_packet,
+        gi.vendor_items_per_packet
       FROM grn_items gi
       JOIN grns g ON gi.grn_id = g.id
       JOIN purchase_orders po ON g.purchase_order_id = po.id

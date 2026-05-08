@@ -222,7 +222,9 @@ const CreateGRNRequestModal = ({ isOpen, onClose, po, onGRNCreated }) => {
         unit_weight: item.unit_weight,
         total_weight: item.total_weight,
         material_type: item.material_type,
-        item_group: item.item_group
+        item_group: item.item_group,
+        items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
+        vendor_items_per_packet: item.vendor_items_per_packet || item.vendorItemsPerPacket || item.items_per_packet || item.itemsPerPacket || 1
       }));
 
       await axios.post("/department/inventory/purchase-orders/receipts", {

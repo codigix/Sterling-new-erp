@@ -238,12 +238,14 @@ const createPurchaseOrder = async (req, res) => {
           item.side_s || item.s || null,
           item.side_s1 || item.s1 || null,
           item.side_s2 || item.s2 || null,
+          item.items_per_packet || item.itemsPerPacket || 1,
+          item.vendor_items_per_packet || item.vendorItemsPerPacket || item.items_per_packet || item.itemsPerPacket || 1
         ];
       });
 
       await connection.query(
         `INSERT INTO purchase_order_items 
-                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight_alt, side1, side2, web_thickness, flange_thickness, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height, vendor_side1, vendor_side2, vendor_web_thickness, vendor_flange_thickness, side_s, side_s1, side_s2) 
+                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight_alt, side1, side2, web_thickness, flange_thickness, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height, vendor_side1, vendor_side2, vendor_web_thickness, vendor_flange_thickness, side_s, side_s1, side_s2, items_per_packet, vendor_items_per_packet) 
                 VALUES ?`,
         [itemValues],
       );
@@ -372,11 +374,13 @@ const updatePurchaseOrder = async (req, res) => {
         item.side_s || item.s || null,
         item.side_s1 || item.s1 || null,
         item.side_s2 || item.s2 || null,
+        item.items_per_packet || item.itemsPerPacket || 1,
+        item.vendor_items_per_packet || item.vendorItemsPerPacket || item.items_per_packet || item.itemsPerPacket || 1
       ]);
 
       await connection.query(
         `INSERT INTO purchase_order_items 
-                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, side1, side2, web_thickness, flange_thickness, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height, vendor_side1, vendor_side2, vendor_web_thickness, vendor_flange_thickness, side_s, side_s1, side_s2) 
+                (purchase_order_id, material_name, vendor_material_name, item_group, part_detail, material_grade, remark, make, quantity, unit, rate_per_kg, total_weight, rate, amount, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, side1, side2, web_thickness, flange_thickness, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height, vendor_side1, vendor_side2, vendor_web_thickness, vendor_flange_thickness, side_s, side_s1, side_s2, items_per_packet, vendor_items_per_packet) 
                 VALUES ?`,
         [itemValues],
       );
@@ -935,8 +939,9 @@ const createPurchaseReceipt = async (req, res) => {
                     length, width, thickness, diameter, outer_diameter, height, 
                     material_type, density, unit_weight, total_weight,
                     item_group, web_thickness, flange_thickness, 
-                    side_s, side_s1, side_s2, side1, side2
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    side_s, side_s1, side_s2, side1, side2,
+                    items_per_packet, vendor_items_per_packet
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           grnId,
           po_item_id,
@@ -965,6 +970,8 @@ const createPurchaseReceipt = async (req, res) => {
           item.side_s2 || item.s2 || null,
           item.side1 || item.side1 || item.side_s || item.s || null,
           item.side2 || item.side2 || item.side_s1 || item.s1 || null,
+          item.items_per_packet || 1,
+          item.vendor_items_per_packet || item.items_per_packet || 1
         ],
       );
 
@@ -1089,7 +1096,8 @@ const getPurchaseReceipts = async (req, res) => {
             LEFT JOIN vendors v ON g.vendor_id = v.id
             LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
             LEFT JOIN quotations q ON po.quotation_id = q.id
-            LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+            LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+            LEFT JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
             WHERE 1=1
         `;
     const params = [];
@@ -1120,7 +1128,8 @@ const getPurchaseReceiptById = async (req, res) => {
             LEFT JOIN vendors v ON g.vendor_id = v.id
             LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
             LEFT JOIN quotations q ON po.quotation_id = q.id
-            LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+            LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+            LEFT JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
             WHERE g.id = ?
         `,
       [id],

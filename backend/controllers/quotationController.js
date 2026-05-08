@@ -10,7 +10,12 @@ const getQuotations = async (req, res) => {
         let query = `
             SELECT q.*, v.name as vendor_name, mr.request_number as mr_number, rc.project_name,
             rfq.quotation_number as rfq_number,
-            (SELECT COUNT(*) FROM quotation_communications WHERE quotation_id = q.id AND sender_id IS NULL AND is_read = FALSE) as unread_communication_count
+            (SELECT COUNT(*) FROM quotation_communications WHERE quotation_id = q.id AND sender_id IS NULL AND is_read = FALSE) as unread_communication_count,
+            CASE 
+                WHEN q.type = 'outbound' THEN (SELECT EXISTS(SELECT 1 FROM quotations WHERE rfq_id = q.id))
+                WHEN q.type = 'inbound' THEN (SELECT EXISTS(SELECT 1 FROM purchase_orders WHERE quotation_id = q.id))
+                ELSE FALSE
+            END as is_processed
             FROM quotations q
             LEFT JOIN vendors v ON q.vendor_id = v.id
             LEFT JOIN material_requests mr ON q.material_request_id = mr.id
@@ -180,12 +185,14 @@ const createQuotation = async (req, res) => {
                 item.vendor_flange_thickness || 0,
                 item.side_s || item.s || null,
                 item.side_s1 || item.s1 || null,
-                item.side_s2 || item.s2 || null
+                item.side_s2 || item.s2 || null,
+                item.items_per_packet || item.itemsPerPacket || 1,
+                item.vendor_items_per_packet || item.vendorItemsPerPacket || item.items_per_packet || item.itemsPerPacket || 1
             ]);
 
             await connection.query(
                 `INSERT INTO quotation_items 
-                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, side1, side2, web_thickness, flange_thickness, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height, vendor_side1, vendor_side2, vendor_web_thickness, vendor_flange_thickness, side_s, side_s1, side_s2) 
+                (quotation_id, item_name, vendor_item_name, category, quantity, unit, unit_price, rate_per_kg, total_weight, material_grade, part_detail, make, remark, item_group, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, side1, side2, web_thickness, flange_thickness, vendor_length, vendor_width, vendor_thickness, vendor_diameter, vendor_outer_diameter, vendor_height, vendor_side1, vendor_side2, vendor_web_thickness, vendor_flange_thickness, side_s, side_s1, side_s2, items_per_packet, vendor_items_per_packet) 
                 VALUES ?`,
                 [itemValues]
             );

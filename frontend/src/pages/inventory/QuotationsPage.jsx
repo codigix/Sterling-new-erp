@@ -525,18 +525,39 @@ const QuotationsPage = ({ defaultTab }) => {
         return dims !== "-" ? `\nDim: ${dims} mm` : "";
       };
 
+      const isBoughtOut = (item.item_group || "").toLowerCase().includes("bought out");
+      const uom = (item.unit || "").toLowerCase();
+      const isPacket = uom.includes("packet") || uom.includes("box") || uom.includes("set");
+      const itemsPerPacket = (quotation.type === "inbound" ? item.vendor_items_per_packet : item.items_per_packet) || 1;
+
       if (quotation.type === "inbound") {
         const dimText = getDimText(item);
+        const qty = item.quantity ? parseFloat(item.quantity) : 0;
+        
+        let weightCol = `${Number(item.total_weight || 0).toFixed(3)}`;
+        if (isBoughtOut && isPacket && itemsPerPacket > 1) {
+          const totalItems = Math.round(qty * itemsPerPacket);
+          weightCol = `${parseFloat(itemsPerPacket)} items/${item.unit}\nTotal: ${totalItems} Items`;
+        }
+
         return [
           (item.vendor_item_name || item.item_name || "N/A") + dimText,
-          item.quantity ? parseFloat(item.quantity).toString() : "0",
+          qty.toString(),
           item.unit || "N/A",
           `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}`,
-          `${Number(item.total_weight || 0).toFixed(3)}`,
+          weightCol,
           `INR ${Number(item.total_weight * item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}`
         ];
       } else {
         const dimText = getDimText(item);
+        const qty = item.quantity ? parseFloat(item.quantity) : 0;
+        
+        let weightCol = item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)}` : "0.000";
+        if (isBoughtOut && isPacket && itemsPerPacket > 1) {
+          const totalItems = Math.round(qty * itemsPerPacket);
+          weightCol = `${parseFloat(itemsPerPacket)} items/${item.unit}\nTotal: ${totalItems} Items`;
+        }
+
         return [
           (item.item_name || "N/A") + dimText,
           item.item_group || "N/A",
@@ -544,8 +565,8 @@ const QuotationsPage = ({ defaultTab }) => {
           item.part_detail || "N/A",
           item.make || "N/A",
           item.remark || "N/A",
-          item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)}` : "0.000",
-          item.quantity ? parseFloat(item.quantity).toString() : "0",
+          weightCol,
+          qty.toString(),
           item.unit || "N/A",
         ];
       }
@@ -847,12 +868,20 @@ const QuotationsPage = ({ defaultTab }) => {
   };
 
   const handleCreatePOFromQuote = (quote) => {
+    if (isExpired(quote.valid_until) && !quote.is_processed) {
+      toast.error("This quotation has expired. You cannot create a PO against an expired quotation.");
+      return;
+    }
     navigate("/department/procurement/purchase-orders", { 
       state: { quotation: quote } 
     });
   };
 
   const handleRecordResponse = (quote) => {
+    if (isExpired(quote.valid_until) && !quote.is_processed) {
+      toast.error("This RFQ has expired. You cannot record a response against an expired RFQ.");
+      return;
+    }
     setInitialData({
       vendor_id: quote.vendor_id,
       root_card_id: quote.root_card_id || "",
@@ -956,26 +985,32 @@ const QuotationsPage = ({ defaultTab }) => {
       key: "valid_until",
       label: "Valid Till",
       sortable: true,
-      render: (value) => (
+      render: (value, quote) => (
         <div className="flex items-center gap-2">
           <Calendar size={14} className="text-slate-500" />
           <div>
             <p className="text-xs  text-slate-900 dark:text-white">
               {formatDate(value)}
             </p>
-            <p
-              className={`text-xs ${
-                isExpired(value)
-                  ? "text-red-600 "
-                  : getDaysValid(value) <= 3
-                  ? "text-yellow-600"
-                  : "text-green-600"
-              }`}
-            >
-              {isExpired(value)
-                ? "Expired"
-                : getDaysValid(value) + " days valid"}
-            </p>
+            {quote.is_processed ? (
+              <p className="text-xs text-blue-600 font-medium">
+                {activeTab === "outbound" ? "Received" : "Processed"}
+              </p>
+            ) : (
+              <p
+                className={`text-xs ${
+                  isExpired(value)
+                    ? "text-red-600 "
+                    : getDaysValid(value) <= 3
+                    ? "text-yellow-600"
+                    : "text-green-600"
+                }`}
+              >
+                {isExpired(value)
+                  ? "Expired"
+                  : getDaysValid(value) + " days valid"}
+              </p>
+            )}
           </div>
         </div>
       )
@@ -1180,7 +1215,7 @@ const QuotationsPage = ({ defaultTab }) => {
         loading={loading}
         error={error}
         emptyMessage="No quotations found"
-        rowClassName={(quote) => isExpired(quote.valid_until) ? "bg-red-50 dark:bg-red-900/20" : ""}
+        rowClassName={(quote) => (isExpired(quote.valid_until) && !quote.is_processed) ? "bg-red-50 dark:bg-red-900/20" : ""}
         filters={[
           {
             label: "Status",

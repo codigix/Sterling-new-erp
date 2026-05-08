@@ -76,13 +76,14 @@ const createBOM = async (req, res) => {
           m.side1 || 0,
           m.side2 || 0,
           m.webThickness || 0,
-          m.flangeThickness || 0
+          m.flangeThickness || 0,
+          m.itemsPerPacket || 1
         ];
       });
 
       await connection.query(
         `INSERT INTO bom_materials 
-        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight, side1, side2, web_thickness, flange_thickness) 
+        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight, side1, side2, web_thickness, flange_thickness, items_per_packet) 
         VALUES ?`,
         [materialValues]
       );
@@ -206,12 +207,13 @@ const updateBOM = async (req, res) => {
           m.side1 || 0,
           m.side2 || 0,
           m.webThickness || 0,
-          m.flangeThickness || 0
+          m.flangeThickness || 0,
+          m.itemsPerPacket || 1
         ];
       });
       await connection.query(
         `INSERT INTO bom_materials 
-        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight, side1, side2, web_thickness, flange_thickness) 
+        (bom_id, item_name, item_group, material_grade, part_detail, remark, make, quantity, uom, rate, total_amount, warehouse, operation, length, width, thickness, diameter, outer_diameter, height, material_type, density, unit_weight, total_weight, side1, side2, web_thickness, flange_thickness, items_per_packet) 
         VALUES ?`,
         [materialValues]
       );
@@ -320,6 +322,7 @@ const getBOMById = async (req, res) => {
         side2: m.side2,
         webThickness: m.web_thickness,
         flangeThickness: m.flange_thickness,
+        itemsPerPacket: m.items_per_packet || 1,
         ratePerKg: m.rate_per_kg,
         rate: 0,
         totalAmount: 0

@@ -91,18 +91,42 @@ const PurchaseOrderDetailTable = ({ po }) => {
             key: "quantity",
             label: "Ordered Qty",
             align: "right",
-            render: (val, item) => (
-              <div className="flex flex-col items-end">
-                <span className=" text-slate-900 dark:text-white">
-                  {Number(val).toLocaleString()} {item.unit || item.uom}
-                </span>
-                {item.total_weight > 0 && (
-                  <span className="text-[10px] text-slate-500">
-                    {Number(item.total_weight).toFixed(3)} Kg
+            render: (val, item) => {
+              const isBoughtOut = (item.item_group || "").toLowerCase().includes("bought out");
+              const uom = (item.unit || item.uom || "").toLowerCase();
+              const isPacket = uom.includes("packet") || uom.includes("box") || uom.includes("set");
+              const itemsPerPacket = item.items_per_packet || 1;
+
+              if (isBoughtOut && isPacket && itemsPerPacket > 1) {
+                const totalItems = Math.round(parseFloat(val || 0) * itemsPerPacket);
+                return (
+                  <div className="flex flex-col items-end">
+                    <span className="text-slate-900 dark:text-white">
+                      {Number(val).toLocaleString()} {item.unit || item.uom}
+                    </span>
+                    <span className="text-[10px] text-blue-600 font-medium">
+                      {parseFloat(itemsPerPacket)} items/{item.unit || item.uom}
+                    </span>
+                    <span className="text-[10px] text-slate-500 italic">
+                      Total: {totalItems.toLocaleString()} Items
+                    </span>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="flex flex-col items-end">
+                  <span className=" text-slate-900 dark:text-white">
+                    {Number(val).toLocaleString()} {item.unit || item.uom}
                   </span>
-                )}
-              </div>
-            )
+                  {item.total_weight > 0 && (
+                    <span className="text-[10px] text-slate-500">
+                      {Number(item.total_weight).toFixed(3)} Kg
+                    </span>
+                  )}
+                </div>
+              );
+            }
           },
           {
             key: "received_qty",

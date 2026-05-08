@@ -170,6 +170,7 @@ const MaterialRequestDetailModal = ({
         flange_thickness: item.flange_thickness || item.flangeThickness || 0,
         unit_weight: item.unit_weight || item.unitWeight || 0,
         total_weight: item.total_weight || item.totalWeight || 0,
+        items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
       }));
 
       let vendorId = null;
@@ -280,6 +281,7 @@ const MaterialRequestDetailModal = ({
             flange_thickness: item.flange_thickness || item.flangeThickness || 0,
             total_weight: item.total_weight ? Number(parseFloat(item.total_weight).toFixed(3)) : (item.totalWeight ? Number(parseFloat(item.totalWeight).toFixed(3)) : 0),
             unit_weight: item.unit_weight ? Number(parseFloat(item.unit_weight).toFixed(3)) : (item.unitWeight ? Number(parseFloat(item.unitWeight).toFixed(3)) : 0),
+            items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
           })),
           reference_id: null,
           material_request_id: request.id,

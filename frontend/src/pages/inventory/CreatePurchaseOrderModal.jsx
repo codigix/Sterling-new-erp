@@ -79,7 +79,8 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     density: 0,
     unit_weight: 0,
     remark: "",
-    calculatedWeight: 0
+    calculatedWeight: 0,
+    items_per_packet: 1,
   });
 
   const calculateItemWeight = useCallback((item) => {
@@ -781,14 +782,25 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           key: "total_weight",
           align: "center",
           className: "w-32 text-slate-500",
-          render: (value, item) => (
-            value ? (
+          render: (value, item) => {
+            if (item.item_group?.toLowerCase() === "bought out" &&
+              (item.uom?.toLowerCase() === "packet" ||
+                item.uom?.toLowerCase() === "box" ||
+                item.uom?.toLowerCase() === "set")) {
+              return (
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-blue-600 font-medium">{item.items_per_packet || 1} items/{item.uom}</span>
+                  <span className="text-[10px] text-slate-400">Total: {(item.items_per_packet || 1) * (item.quantity || 0)} Items</span>
+                </div>
+              );
+            }
+            return value ? (
               <div className="flex flex-col">
                 <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
                 <span className=" text-slate-700 dark:text-slate-300">Total: {parseFloat(value).toFixed(3)} Kg</span>
               </div>
-            ) : "-"
-          )
+            ) : "-";
+          }
         },
         {
           header: "Total",
@@ -804,14 +816,25 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
         key: "total_weight",
         align: "center",
         className: "w-32 text-slate-500",
-        render: (value, item) => (
-          value ? (
+        render: (value, item) => {
+          if (item.item_group?.toLowerCase() === "bought out" &&
+            (item.uom?.toLowerCase() === "packet" ||
+              item.uom?.toLowerCase() === "box" ||
+              item.uom?.toLowerCase() === "set")) {
+            return (
+              <div className="flex flex-col">
+                <span className="text-[10px] text-blue-600 font-medium">{item.items_per_packet || 1} items/{item.uom}</span>
+                <span className="text-[10px] text-slate-400">Total: {(item.items_per_packet || 1) * (item.quantity || 0)} Items</span>
+              </div>
+            );
+          }
+          return value ? (
             <div className="flex flex-col">
               <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
               <span className=" text-slate-700 dark:text-slate-300">Total: {parseFloat(value).toFixed(3)} Kg</span>
             </div>
-          ) : "-"
-        )
+          ) : "-";
+        }
       });
     }
 
@@ -1484,6 +1507,21 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                       onChange={(val) => setNewManualItem(prev => ({ ...prev, uom: val }))}
                     />
                   </div>
+
+                  {newManualItem.item_group?.toLowerCase() === "bought out" &&
+                    (newManualItem.uom?.toLowerCase() === "packet" ||
+                      newManualItem.uom?.toLowerCase() === "box" ||
+                      newManualItem.uom?.toLowerCase() === "set") && (
+                    <div className="md:col-span-2">
+                      <label className="block text-[10px] text-slate-500 mb-1 ml-1">Items per {newManualItem.uom}</label>
+                      <input
+                        type="number"
+                        value={newManualItem.items_per_packet}
+                        onChange={(e) => setNewManualItem(prev => ({ ...prev, items_per_packet: parseFloat(e.target.value) || 0 }))}
+                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs outline-none"
+                      />
+                    </div>
+                  )}
                   <div className="md:col-span-2">
                     <label className="block text-[10px] text-slate-500 mb-1 ml-1">Rate per Kg (₹)</label>
                     <input
