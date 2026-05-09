@@ -1,5 +1,5 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -18,7 +18,7 @@ const pool = mysql.createPool({
 (async () => {
   try {
     const connection = await pool.getConnection();
-    console.log('Successfully connected to sterling_db');
+    console.log(`Successfully connected to ${process.env.DB_NAME}`);
     connection.release();
   } catch (error) {
     console.error('Error connecting to database:', error.message);
