@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 const db = require('./config/db');
 
 async function checkReports() {
