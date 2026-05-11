@@ -1,0 +1,1583 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model migrations_history {
+  id          Int       @id @default(autoincrement())
+  filename    String    @unique(map: "filename") @db.VarChar(255)
+  executed_at DateTime? @default(now()) @db.Timestamp(0)
+
+  @@map("_migrations_history")
+}
+
+model bom_materials {
+  id               Int       @id @default(autoincrement())
+  bom_id           Int
+  item_name        String    @db.VarChar(255)
+  vendor_item_name String?   @db.Text
+  item_group       String?   @db.VarChar(100)
+  material_grade   String?   @db.VarChar(100)
+  part_detail      String?   @db.VarChar(255)
+  remark           String?   @db.Text
+  make             String?   @db.VarChar(100)
+  quantity         Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  uom              String?   @db.VarChar(20)
+  rate             Decimal?  @default(0.00) @db.Decimal(15, 2)
+  total_amount     Decimal?  @default(0.00) @db.Decimal(15, 2)
+  created_at       DateTime? @default(now()) @db.Timestamp(0)
+  warehouse        String?   @db.VarChar(255)
+  operation        String?   @db.VarChar(255)
+  rate_per_kg      Decimal?  @default(0.00) @db.Decimal(15, 2)
+  total_weight     Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  length           Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  width            Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  thickness        Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  diameter         Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  outer_diameter   Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  height           Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  material_type    String?   @db.VarChar(100)
+  density          Decimal?  @default(0.0000) @db.Decimal(10, 4)
+  unit_weight      Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  side1            Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  side2            Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  web_thickness    Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  flange_thickness Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  side_s           Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  side_s1          Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  side_s2          Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  items_per_packet Decimal?  @default(1.0000) @db.Decimal(15, 4)
+  boms             boms      @relation(fields: [bom_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "bom_materials_ibfk_1")
+
+  @@index([bom_id], map: "bom_id")
+}
+
+model bom_operations {
+  id                    Int       @id @default(autoincrement())
+  bom_id                Int
+  operation_name        String    @db.VarChar(255)
+  type                  String?   @default("in-house") @db.VarChar(50)
+  workstation           String?   @db.VarChar(255)
+  target_warehouse      String?   @db.VarChar(255)
+  vendor_name           String?   @db.VarChar(255)
+  vendor_rate_per_unit  Decimal?  @default(0.00) @db.Decimal(15, 2)
+  subcontract_warehouse String?   @db.VarChar(255)
+  cycle_time            Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  setup_time            Decimal?  @default(0.0000) @db.Decimal(15, 4)
+  hourly_rate           Decimal?  @default(0.00) @db.Decimal(15, 2)
+  cost                  Decimal?  @default(0.00) @db.Decimal(15, 2)
+  created_at            DateTime? @default(now()) @db.Timestamp(0)
+  boms                  boms      @relation(fields: [bom_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "bom_operations_ibfk_1")
+
+  @@index([bom_id], map: "bom_id")
+}
+
+model boms {
+  id                Int                 @id @default(autoincrement())
+  root_card_id      String              @db.VarChar(50)
+  bom_number        String              @db.VarChar(100)
+  revision          Int?                @default(1)
+  description       String?             @db.Text
+  status            String?             @default("draft") @db.VarChar(50)
+  is_active         Boolean?            @default(true)
+  project_id        String?             @db.VarChar(50)
+  total_cost        Decimal?            @default(0.00) @db.Decimal(15, 2)
+  created_at        DateTime?           @default(now()) @db.Timestamp(0)
+  updated_at        DateTime?           @default(now()) @db.Timestamp(0)
+  bom_materials     bom_materials[]
+  bom_operations    bom_operations[]
+  root_cards        root_cards          @relation(fields: [root_card_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "boms_ibfk_1")
+  material_requests material_requests[]
+
+  @@unique([bom_number, revision], map: "unique_bom_rev")
+  @@index([root_card_id], map: "root_card_id")
+}
+
+model customer_invoice_items {
+  id                Int               @id @default(autoincrement())
+  invoice_id        Int
+  description       String            @db.Text
+  hsn_code          String?           @db.VarChar(50)
+  qty               Decimal           @db.Decimal(15, 3)
+  unit              String?           @db.VarChar(20)
+  rate              Decimal           @db.Decimal(15, 2)
+  amount            Decimal           @db.Decimal(15, 2)
+  customer_invoices customer_invoices @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "customer_invoice_items_ibfk_1")
+
+  @@index([invoice_id], map: "invoice_id")
+}
+
+model customer_invoices {
+  id                     Int                       @id @default(autoincrement())
+  invoice_number         String                    @unique(map: "invoice_number") @db.VarChar(50)
+  customer_name          String                    @db.VarChar(255)
+  project_id             String?                   @db.VarChar(50)
+  invoice_date           DateTime                  @db.Date
+  place_of_supply        String?                   @db.VarChar(100)
+  sub_total              Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  taxable_value          Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  cgst_amount            Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  sgst_amount            Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  igst_amount            Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  grand_total            Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  paid_amount            Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  balance_amount         Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  round_off              Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  notes                  String?                   @db.Text
+  status                 customer_invoices_status? @default(PENDING)
+  created_at             DateTime?                 @default(now()) @db.Timestamp(0)
+  updated_at             DateTime?                 @default(now()) @db.Timestamp(0)
+  customer_invoice_items customer_invoice_items[]
+  customer_payments      customer_payments[]
+}
+
+model customer_payments {
+  id                Int                       @id @default(autoincrement())
+  receipt_number    String                    @unique(map: "receipt_number") @db.VarChar(50)
+  invoice_id        Int?
+  customer_name     String                    @db.VarChar(255)
+  received_date     DateTime                  @db.Date
+  amount_received   Decimal                   @db.Decimal(15, 2)
+  payment_method    String?                   @db.VarChar(50)
+  transaction_ref   String?                   @db.VarChar(100)
+  notes             String?                   @db.Text
+  status            customer_payments_status? @default(COMPLETED)
+  created_at        DateTime?                 @default(now()) @db.Timestamp(0)
+  customer_invoices customer_invoices?        @relation(fields: [invoice_id], references: [id], onUpdate: NoAction, map: "customer_payments_ibfk_1")
+
+  @@index([invoice_id], map: "invoice_id")
+}
+
+model daily_operator_assignments {
+  id                       Int                                         @id @default(autoincrement())
+  plan_id                  Int
+  root_card_id             String?                                     @db.VarChar(50)
+  material_entry_no        String?                                     @db.VarChar(255)
+  operation_id             Int?
+  operation_name           String?                                     @db.VarChar(255)
+  assignment_type          daily_operator_assignments_assignment_type? @default(inhouse)
+  operator_name            String?                                     @db.VarChar(255)
+  operator_id              Int?
+  vendor_name              String?                                     @db.VarChar(255)
+  vendor_id                Int?
+  start_time               DateTime?                                   @db.Time(0)
+  end_time                 DateTime?                                   @db.Time(0)
+  break_time               Int?                                        @default(0)
+  total_hours              Decimal?                                    @db.Decimal(5, 2)
+  remarks                  String?                                     @db.Text
+  status                   daily_operator_assignments_status?          @default(Pending)
+  created_at               DateTime?                                   @default(now()) @db.Timestamp(0)
+  daily_production_plans   daily_production_plans                      @relation(fields: [plan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "daily_operator_assignments_ibfk_1")
+  daily_production_updates daily_production_updates[]
+
+  @@index([plan_id], map: "plan_id")
+}
+
+model daily_production_plans {
+  id                         Int                            @id @default(autoincrement())
+  plan_date                  DateTime                       @db.Date
+  created_by                 Int?
+  status                     daily_production_plans_status? @default(Draft)
+  remarks                    String?                        @db.Text
+  created_at                 DateTime?                      @default(now()) @db.Timestamp(0)
+  updated_at                 DateTime?                      @default(now()) @db.Timestamp(0)
+  daily_operator_assignments daily_operator_assignments[]
+  daily_production_updates   daily_production_updates[]
+  material_cutting_reports   material_cutting_reports[]
+}
+
+model daily_production_updates {
+  id                         Int                                       @id @default(autoincrement())
+  work_date                  DateTime                                  @db.Date
+  plan_id                    Int?
+  assignment_id              Int?
+  root_card_id               String?                                   @db.VarChar(50)
+  operation_id               Int?
+  operation_name             String?                                   @db.VarChar(255)
+  assignment_type            daily_production_updates_assignment_type? @default(inhouse)
+  operator_name              String?                                   @db.VarChar(255)
+  operator_id                Int?
+  vendor_name                String?                                   @db.VarChar(255)
+  vendor_id                  Int?
+  actual_start               DateTime?                                 @db.Time(0)
+  actual_end                 DateTime?                                 @db.Time(0)
+  break_time                 Int?                                      @default(0)
+  actual_hours               Decimal?                                  @db.Decimal(5, 2)
+  qty_completed              Decimal?                                  @default(0.00) @db.Decimal(10, 2)
+  pending_qty                Decimal?                                  @default(0.00) @db.Decimal(10, 2)
+  rework_qty                 Decimal?                                  @default(0.00) @db.Decimal(10, 2)
+  scrap_qty                  Decimal?                                  @default(0.00) @db.Decimal(10, 2)
+  status                     daily_production_updates_status?          @default(Pending)
+  remarks                    String?                                   @db.Text
+  created_at                 DateTime?                                 @default(now()) @db.Timestamp(0)
+  daily_production_plans     daily_production_plans?                   @relation(fields: [plan_id], references: [id], onUpdate: NoAction, map: "daily_production_updates_ibfk_1")
+  daily_operator_assignments daily_operator_assignments?               @relation(fields: [assignment_id], references: [id], onUpdate: NoAction, map: "daily_production_updates_ibfk_2")
+
+  @@index([assignment_id], map: "assignment_id")
+  @@index([plan_id], map: "plan_id")
+}
+
+model department_tasks {
+  id              Int                        @id @default(autoincrement())
+  title           String                     @db.VarChar(255)
+  description     String?                    @db.Text
+  department_id   Int
+  priority        department_tasks_priority? @default(Medium)
+  assignment_date DateTime                   @db.Date
+  due_date        DateTime                   @db.Date
+  status          department_tasks_status?   @default(Pending)
+  assigned_by     Int?
+  created_at      DateTime?                  @default(now()) @db.Timestamp(0)
+  updated_at      DateTime?                  @default(now()) @db.Timestamp(0)
+  users           users?                     @relation(fields: [assigned_by], references: [id], onUpdate: NoAction, map: "department_tasks_ibfk_1")
+
+  @@index([assigned_by], map: "assigned_by")
+}
+
+model design_documents {
+  id                                        Int                      @id @default(autoincrement())
+  root_card_id                              String                   @db.VarChar(50)
+  name                                      String                   @db.VarChar(255)
+  type                                      design_documents_type
+  version                                   Int?                     @default(1)
+  file_path                                 String                   @db.VarChar(255)
+  description                               String?                  @db.Text
+  status                                    design_documents_status? @default(Pending_Review)
+  reviewer_id                               Int?
+  reviewer_comment                          String?                  @db.Text
+  created_by                                Int
+  parent_id                                 Int?
+  created_at                                DateTime?                @default(now()) @db.Timestamp(0)
+  updated_at                                DateTime?                @default(now()) @db.Timestamp(0)
+  dwg_path                                  String?                  @db.VarChar(255)
+  step_path                                 String?                  @db.VarChar(255)
+  root_cards                                root_cards               @relation(fields: [root_card_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "design_documents_ibfk_1")
+  users_design_documents_created_byTousers  users                    @relation("design_documents_created_byTousers", fields: [created_by], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "design_documents_ibfk_2")
+  users_design_documents_reviewer_idTousers users?                   @relation("design_documents_reviewer_idTousers", fields: [reviewer_id], references: [id], onUpdate: NoAction, map: "design_documents_ibfk_3")
+  design_documents                          design_documents?        @relation("design_documentsTodesign_documents", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_parent_id")
+  other_design_documents                    design_documents[]       @relation("design_documentsTodesign_documents")
+
+  @@index([created_by], map: "created_by")
+  @@index([parent_id], map: "fk_parent_id")
+  @@index([reviewer_id], map: "reviewer_id")
+  @@index([root_card_id], map: "root_card_id")
+}
+
+model grn_items {
+  id                      Int                  @id @default(autoincrement())
+  grn_id                  Int?
+  po_item_id              Int
+  item_code               String?              @db.VarChar(100)
+  material_name           String?              @db.VarChar(255)
+  ordered_qty             Decimal              @db.Decimal(15, 3)
+  received_qty            Decimal              @db.Decimal(15, 3)
+  received_weight         Decimal?             @default(0.0000) @db.Decimal(15, 4)
+  rate_per_kg             Decimal?             @default(0.00) @db.Decimal(15, 2)
+  unit                    String?              @db.VarChar(50)
+  length                  Decimal?             @db.Decimal(15, 4)
+  width                   Decimal?             @db.Decimal(15, 4)
+  thickness               Decimal?             @db.Decimal(15, 4)
+  diameter                Decimal?             @db.Decimal(15, 4)
+  outer_diameter          Decimal?             @db.Decimal(15, 4)
+  height                  Decimal?             @db.Decimal(15, 4)
+  material_type           String?              @db.VarChar(100)
+  density                 Decimal?             @default(0.0000) @db.Decimal(10, 4)
+  unit_weight             Decimal?             @default(0.0000) @db.Decimal(15, 4)
+  total_weight            Decimal?             @default(0.0000) @db.Decimal(15, 4)
+  total_weight_alt        Decimal?             @default(0.0000) @db.Decimal(15, 4)
+  item_group              String?              @db.VarChar(100)
+  web_thickness           Decimal?             @default(0.0000) @db.Decimal(15, 4)
+  flange_thickness        Decimal?             @default(0.0000) @db.Decimal(15, 4)
+  side_s                  Decimal?             @db.Decimal(15, 4)
+  side_s1                 Decimal?             @db.Decimal(15, 4)
+  side_s2                 Decimal?             @db.Decimal(15, 4)
+  side1                   Decimal?             @db.Decimal(15, 4)
+  side2                   Decimal?             @db.Decimal(15, 4)
+  items_per_packet        Float?               @default(1)
+  vendor_items_per_packet Float?               @default(1)
+  grns                    grns?                @relation(fields: [grn_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "grn_items_ibfk_1")
+  purchase_order_items    purchase_order_items @relation(fields: [po_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "grn_items_ibfk_2")
+
+  @@index([po_item_id], map: "po_item_id")
+  @@index([grn_id], map: "receipt_id")
+}
+
+model grns {
+  id                                         Int                           @id @default(autoincrement())
+  grn_number                                 String?                       @unique(map: "receipt_number") @db.VarChar(100)
+  purchase_order_id                          Int
+  vendor_id                                  Int
+  posting_date                               DateTime                      @db.Date
+  status                                     String?                       @default("pending") @db.VarChar(50)
+  inspection_type                            grns_inspection_type?         @default(Inhouse)
+  inspection_vendor_id                       Int?
+  notes                                      String?                       @db.Text
+  created_at                                 DateTime?                     @default(now()) @db.Timestamp(0)
+  updated_at                                 DateTime?                     @default(now()) @db.Timestamp(0)
+  grn_items                                  grn_items[]
+  purchase_orders                            purchase_orders               @relation(fields: [purchase_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "grns_ibfk_1")
+  vendors_grns_vendor_idTovendors            vendors                       @relation("grns_vendor_idTovendors", fields: [vendor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "grns_ibfk_2")
+  vendors_grns_inspection_vendor_idTovendors vendors?                      @relation("grns_inspection_vendor_idTovendors", fields: [inspection_vendor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "grns_ibfk_3")
+  inventory_serials                          inventory_serials[]
+  quality_final_reports                      quality_final_reports[]
+  quality_inspection_challans                quality_inspection_challans[]
+  quality_inspections                        quality_inspections[]
+  stock_entries                              stock_entries[]
+
+  @@index([inspection_vendor_id], map: "inspection_vendor_id")
+  @@index([purchase_order_id], map: "purchase_order_id")
+  @@index([vendor_id], map: "vendor_id")
+}
+
+model inventory_serials {
+  id                          Int                          @id @default(autoincrement())
+  serial_number               String                       @unique(map: "serial_number") @db.VarChar(100)
+  item_code                   String?                      @db.VarChar(100)
+  purchase_order_id           Int
+  item_id                     Int
+  item_name                   String                       @db.VarChar(255)
+  grn_id                      Int?
+  status                      inventory_serials_status?    @default(Pending)
+  inspection_status           String?                      @default("Pending") @db.VarChar(50)
+  inspection_challan_id       Int?
+  location                    String?                      @db.VarChar(255)
+  created_at                  DateTime?                    @default(now()) @db.Timestamp(0)
+  updated_at                  DateTime?                    @default(now()) @db.Timestamp(0)
+  issued_in_entry_id          Int?
+  length                      Decimal?                     @db.Decimal(15, 4)
+  width                       Decimal?                     @db.Decimal(15, 4)
+  thickness                   Decimal?                     @db.Decimal(15, 4)
+  diameter                    Decimal?                     @db.Decimal(15, 4)
+  outer_diameter              Decimal?                     @db.Decimal(15, 4)
+  height                      Decimal?                     @db.Decimal(15, 4)
+  unit_weight                 Decimal?                     @db.Decimal(15, 4)
+  total_weight                Decimal?                     @db.Decimal(15, 4)
+  density                     Decimal?                     @default(0.0000) @db.Decimal(10, 4)
+  material_grade              String?                      @db.VarChar(100)
+  item_group                  String?                      @db.VarChar(100)
+  web_thickness               Decimal?                     @default(0.0000) @db.Decimal(15, 4)
+  flange_thickness            Decimal?                     @default(0.0000) @db.Decimal(15, 4)
+  side_s                      Decimal?                     @db.Decimal(15, 4)
+  side_s1                     Decimal?                     @db.Decimal(15, 4)
+  side_s2                     Decimal?                     @db.Decimal(15, 4)
+  side1                       Decimal?                     @db.Decimal(15, 4)
+  side2                       Decimal?                     @db.Decimal(15, 4)
+  material_type               String?                      @db.VarChar(100)
+  stock_entries               stock_entries?               @relation(fields: [issued_in_entry_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_issued_entry")
+  purchase_orders             purchase_orders              @relation(fields: [purchase_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inventory_serials_ibfk_1")
+  purchase_order_items        purchase_order_items         @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inventory_serials_ibfk_2")
+  grns                        grns?                        @relation(fields: [grn_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inventory_serials_ibfk_3")
+  quality_inspection_challans quality_inspection_challans? @relation(fields: [inspection_challan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inventory_serials_ibfk_4")
+  quality_inspection_results  quality_inspection_results[]
+
+  @@index([issued_in_entry_id], map: "fk_issued_entry")
+  @@index([inspection_challan_id], map: "inspection_challan_id")
+  @@index([item_id], map: "item_id")
+  @@index([purchase_order_id], map: "purchase_order_id")
+  @@index([grn_id], map: "receipt_id")
+}
+
+model inward_challan_items {
+  id                Int              @id @default(autoincrement())
+  inward_challan_id Int?
+  item_code         String?          @db.VarChar(100)
+  item_name         String?          @db.VarChar(255)
+  batch_no          String?          @db.VarChar(100)
+  sent_qty          Decimal?         @db.Decimal(15, 6)
+  received_qty      Decimal?         @db.Decimal(15, 6)
+  accepted_qty      Decimal?         @db.Decimal(15, 6)
+  rejected_qty      Decimal?         @db.Decimal(15, 6)
+  uom               String?          @db.VarChar(20)
+  remarks           String?          @db.Text
+  inward_challans   inward_challans? @relation(fields: [inward_challan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inward_challan_items_ibfk_1")
+
+  @@index([inward_challan_id], map: "inward_challan_id")
+}
+
+model inward_challans {
+  id                   Int                     @id @default(autoincrement())
+  challan_no           String                  @unique(map: "challan_no") @db.VarChar(50)
+  challan_date         DateTime                @db.Date
+  status               inward_challans_status? @default(DRAFT)
+  outward_challan_id   Int?
+  vendor_id            Int?
+  vendor_name          String?                 @db.VarChar(255)
+  vendor_address       String?                 @db.Text
+  received_date        DateTime?               @db.Date
+  vehicle_no           String?                 @db.VarChar(50)
+  remarks              String?                 @db.Text
+  root_card_id         String?                 @db.VarChar(50)
+  created_at           DateTime?               @default(now()) @db.Timestamp(0)
+  updated_at           DateTime?               @default(now()) @db.Timestamp(0)
+  inward_challan_items inward_challan_items[]
+  outward_challans     outward_challans?       @relation(fields: [outward_challan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inward_challans_ibfk_1")
+
+  @@index([outward_challan_id], map: "outward_challan_id")
+}
+
+model ledger_entries {
+  id               Int                             @id @default(autoincrement())
+  date             DateTime                        @db.Date
+  reference_no     String                          @db.VarChar(50)
+  description      String?                         @db.Text
+  account_name     String                          @db.VarChar(100)
+  debit            Decimal?                        @default(0.00) @db.Decimal(15, 2)
+  credit           Decimal?                        @default(0.00) @db.Decimal(15, 2)
+  transaction_type ledger_entries_transaction_type
+  related_id       Int?
+  created_at       DateTime?                       @default(now()) @db.Timestamp(0)
+}
+
+model material_cutting_report_items {
+  id                       Int                      @id @default(autoincrement())
+  mcr_id                   Int
+  serial_number            String                   @db.VarChar(100)
+  item_code                String                   @db.VarChar(100)
+  item_name                String                   @db.VarChar(255)
+  design                   String?                  @default("Rectangular") @db.VarChar(50)
+  produced_qty             Int?                     @default(1)
+  cutting_axis             String?                  @default("L") @db.VarChar(10)
+  raw_l                    Decimal?                 @db.Decimal(10, 2)
+  raw_w                    Decimal?                 @db.Decimal(10, 2)
+  raw_t                    Decimal?                 @db.Decimal(10, 2)
+  new_l                    Decimal?                 @db.Decimal(10, 2)
+  new_w                    Decimal?                 @db.Decimal(10, 2)
+  new_t                    Decimal?                 @db.Decimal(10, 2)
+  weight_consumed          Decimal?                 @db.Decimal(10, 3)
+  unit_weight_consumed     Decimal?                 @db.Decimal(10, 3)
+  scrap_weight             Decimal?                 @db.Decimal(10, 3)
+  is_finished              Boolean?                 @default(false)
+  remarks                  String?                  @db.Text
+  item_group               String?                  @db.VarChar(100)
+  material_grade           String?                  @db.VarChar(100)
+  return_to_stock          Boolean?                 @default(false)
+  return_l                 Decimal?                 @default(0.0000) @db.Decimal(15, 4)
+  return_w                 Decimal?                 @default(0.0000) @db.Decimal(15, 4)
+  return_t                 Decimal?                 @default(0.0000) @db.Decimal(15, 4)
+  raw_diameter             Decimal?                 @db.Decimal(15, 4)
+  raw_outer_diameter       Decimal?                 @db.Decimal(15, 4)
+  raw_height               Decimal?                 @db.Decimal(15, 4)
+  raw_web_thickness        Decimal?                 @db.Decimal(15, 4)
+  raw_flange_thickness     Decimal?                 @db.Decimal(15, 4)
+  raw_side1                Decimal?                 @db.Decimal(15, 4)
+  raw_side2                Decimal?                 @db.Decimal(15, 4)
+  raw_side_s               Decimal?                 @db.Decimal(15, 4)
+  raw_side_s1              Decimal?                 @db.Decimal(15, 4)
+  raw_side_s2              Decimal?                 @db.Decimal(15, 4)
+  new_diameter             Decimal?                 @db.Decimal(15, 4)
+  new_outer_diameter       Decimal?                 @db.Decimal(15, 4)
+  new_height               Decimal?                 @db.Decimal(15, 4)
+  new_web_thickness        Decimal?                 @db.Decimal(15, 4)
+  new_flange_thickness     Decimal?                 @db.Decimal(15, 4)
+  new_side1                Decimal?                 @db.Decimal(15, 4)
+  new_side2                Decimal?                 @db.Decimal(15, 4)
+  new_side_s               Decimal?                 @db.Decimal(15, 4)
+  new_side_s1              Decimal?                 @db.Decimal(15, 4)
+  new_side_s2              Decimal?                 @db.Decimal(15, 4)
+  return_diameter          Decimal?                 @db.Decimal(15, 4)
+  return_outer_diameter    Decimal?                 @db.Decimal(15, 4)
+  return_height            Decimal?                 @db.Decimal(15, 4)
+  return_web_thickness     Decimal?                 @db.Decimal(15, 4)
+  return_flange_thickness  Decimal?                 @db.Decimal(15, 4)
+  return_side1             Decimal?                 @db.Decimal(15, 4)
+  return_side2             Decimal?                 @db.Decimal(15, 4)
+  return_side_s            Decimal?                 @db.Decimal(15, 4)
+  return_side_s1           Decimal?                 @db.Decimal(15, 4)
+  return_side_s2           Decimal?                 @db.Decimal(15, 4)
+  root_card_id             String?                  @db.VarChar(100)
+  material_cutting_reports material_cutting_reports @relation(fields: [mcr_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "material_cutting_report_items_ibfk_1")
+
+  @@index([mcr_id], map: "mcr_id")
+}
+
+model material_cutting_reports {
+  id                            Int                             @id @default(autoincrement())
+  plan_id                       Int
+  work_date                     DateTime                        @db.Date
+  created_at                    DateTime?                       @default(now()) @db.Timestamp(0)
+  material_cutting_report_items material_cutting_report_items[]
+  daily_production_plans        daily_production_plans          @relation(fields: [plan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "material_cutting_reports_ibfk_1")
+
+  @@index([plan_id], map: "plan_id")
+}
+
+model material_request_items {
+  id                  Int               @id @default(autoincrement())
+  material_request_id Int
+  item_name           String            @db.VarChar(255)
+  item_group          String?           @db.VarChar(100)
+  material_grade      String?           @db.VarChar(100)
+  part_detail         String?           @db.VarChar(255)
+  make                String?           @db.VarChar(100)
+  required_quantity   Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  uom                 String?           @db.VarChar(50)
+  remark              String?           @db.Text
+  received_quantity   Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  warehouse           String?           @db.VarChar(255)
+  operation           String?           @db.VarChar(255)
+  length              Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  width               Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  thickness           Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  diameter            Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  outer_diameter      Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  height              Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  material_type       String?           @db.VarChar(100)
+  density             Decimal?          @default(0.0000) @db.Decimal(10, 4)
+  unit_weight         Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  total_weight        Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  side1               Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  side2               Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  web_thickness       Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  flange_thickness    Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  side_s              Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  side_s1             Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  side_s2             Decimal?          @default(0.0000) @db.Decimal(15, 4)
+  items_per_packet    Decimal?          @default(1.0000) @db.Decimal(15, 4)
+  material_requests   material_requests @relation(fields: [material_request_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "material_request_items_ibfk_1")
+
+  @@index([material_request_id], map: "material_request_id")
+}
+
+model material_requests {
+  id                     Int                      @id @default(autoincrement())
+  bom_id                 Int?
+  request_number         String                   @unique(map: "request_number") @db.VarChar(100)
+  status                 String?                  @default("pending") @db.VarChar(50)
+  department             String?                  @default("Production") @db.VarChar(100)
+  project_id             String?                  @db.VarChar(50)
+  root_card_id           String?                  @db.VarChar(50)
+  created_by             Int?
+  remarks                String?                  @db.Text
+  type                   String?                  @default("production") @db.VarChar(50)
+  created_at             DateTime?                @default(now()) @db.Timestamp(0)
+  updated_at             DateTime?                @default(now()) @db.Timestamp(0)
+  bom_number             String?                  @db.VarChar(100)
+  project_name           String?                  @db.VarChar(255)
+  revision               Int?                     @default(0)
+  material_request_items material_request_items[]
+  boms                   boms?                    @relation(fields: [bom_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "material_requests_ibfk_1")
+  root_cards             root_cards?              @relation(fields: [root_card_id], references: [id], onUpdate: NoAction, map: "material_requests_ibfk_2")
+  quotations             quotations[]
+
+  @@index([bom_id], map: "bom_id")
+  @@index([root_card_id], map: "root_card_id")
+}
+
+model notifications {
+  id          Int       @id @default(autoincrement())
+  user_id     Int?
+  department  String?   @db.VarChar(50)
+  title       String    @db.VarChar(255)
+  message     String    @db.Text
+  type        String?   @default("info") @db.VarChar(50)
+  link        String?   @db.VarChar(255)
+  metadata    Json?
+  read_status Boolean?  @default(false)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  users       users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "notifications_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model operations {
+  id          Int              @id @default(autoincrement())
+  name        String           @db.VarChar(255)
+  type        operations_type? @default(In_house)
+  phase       Int?             @default(1)
+  description String?          @db.Text
+  created_at  DateTime?        @default(now()) @db.Timestamp(0)
+  updated_at  DateTime?        @default(now()) @db.Timestamp(0)
+}
+
+model outward_challan_items {
+  id               Int               @id @default(autoincrement())
+  challan_id       Int?
+  item_code        String?           @db.VarChar(100)
+  item_name        String?           @db.VarChar(255)
+  batch_no         String?           @db.VarChar(100)
+  available_qty    Decimal?          @db.Decimal(15, 6)
+  dispatch_qty     Decimal?          @db.Decimal(15, 6)
+  uom              String?           @db.VarChar(20)
+  outward_challans outward_challans? @relation(fields: [challan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "outward_challan_items_ibfk_1")
+
+  @@index([challan_id], map: "challan_id")
+}
+
+model outward_challans {
+  id                    Int                      @id @default(autoincrement())
+  challan_no            String                   @unique(map: "challan_no") @db.VarChar(50)
+  challan_date          DateTime                 @db.Date
+  status                outward_challans_status? @default(DRAFT)
+  vendor_id             Int?
+  vendor_name           String?                  @db.VarChar(255)
+  vendor_address        String?                  @db.Text
+  operation_name        String?                  @db.VarChar(100)
+  supply_order_no       String?                  @db.VarChar(100)
+  supply_order_date     DateTime?                @db.Date
+  despatched_through    String?                  @db.VarChar(255)
+  against_lr_rr_no      String?                  @db.VarChar(100)
+  freight_type          String?                  @db.VarChar(50)
+  remarks               String?                  @db.Text
+  assignment_id         Int?
+  plan_id               Int?
+  root_card_id          String?                  @db.VarChar(50)
+  created_at            DateTime?                @default(now()) @db.Timestamp(0)
+  updated_at            DateTime?                @default(now()) @db.Timestamp(0)
+  inward_challans       inward_challans[]
+  outward_challan_items outward_challan_items[]
+}
+
+model permissions {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique(map: "name") @db.VarChar(255)
+  description      String?            @db.Text
+  created_at       DateTime?          @default(now()) @db.Timestamp(0)
+  role_permissions role_permissions[]
+}
+
+model project_inspections {
+  id              Int                         @id @default(autoincrement())
+  root_card_id    String                      @db.VarChar(255)
+  inspection_name String                      @db.VarChar(255)
+  phase           Int?                        @default(1)
+  status          project_inspections_status? @default(Pending)
+  document_path   String?                     @db.VarChar(255)
+  created_at      DateTime?                   @default(now()) @db.Timestamp(0)
+  updated_at      DateTime?                   @default(now()) @db.Timestamp(0)
+
+  @@index([phase], map: "phase")
+  @@index([root_card_id], map: "root_card_id")
+}
+
+model purchase_order_attachments {
+  id                Int             @id @default(autoincrement())
+  purchase_order_id Int
+  file_name         String          @db.VarChar(255)
+  file_path         String          @db.VarChar(255)
+  file_size         Int?
+  mime_type         String?         @db.VarChar(100)
+  uploaded_by       Int?
+  created_at        DateTime?       @default(now()) @db.Timestamp(0)
+  purchase_orders   purchase_orders @relation(fields: [purchase_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "purchase_order_attachments_ibfk_1")
+  users             users?          @relation(fields: [uploaded_by], references: [id], onUpdate: NoAction, map: "purchase_order_attachments_ibfk_2")
+
+  @@index([purchase_order_id], map: "purchase_order_id")
+  @@index([uploaded_by], map: "uploaded_by")
+}
+
+model purchase_order_communication_attachments {
+  id                            Int                           @id @default(autoincrement())
+  communication_id              Int
+  file_name                     String                        @db.VarChar(255)
+  file_path                     String                        @db.VarChar(255)
+  file_size                     Int?
+  mime_type                     String?                       @db.VarChar(100)
+  created_at                    DateTime?                     @default(now()) @db.Timestamp(0)
+  purchase_order_communications purchase_order_communications @relation(fields: [communication_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "purchase_order_communication_attachments_ibfk_1")
+
+  @@index([communication_id], map: "communication_id")
+}
+
+model purchase_order_communications {
+  id                                       Int                                        @id @default(autoincrement())
+  purchase_order_id                        Int
+  sender_id                                Int?
+  message                                  String?                                    @db.Text
+  attachment_path                          String?                                    @db.VarChar(255)
+  created_at                               DateTime?                                  @default(now()) @db.Timestamp(0)
+  is_read                                  Boolean?                                   @default(false)
+  is_outgoing                              Boolean?                                   @default(true)
+  subject                                  String?                                    @db.VarChar(255)
+  sender_email                             String?                                    @db.VarChar(255)
+  content_text                             String?                                    @db.Text
+  has_attachments                          Boolean?                                   @default(false)
+  purchase_order_communication_attachments purchase_order_communication_attachments[]
+  purchase_orders                          purchase_orders                            @relation(fields: [purchase_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "purchase_order_communications_ibfk_1")
+
+  @@index([purchase_order_id], map: "purchase_order_id")
+}
+
+model purchase_order_items {
+  id                      Int                    @id @default(autoincrement())
+  purchase_order_id       Int
+  material_name           String?                @db.VarChar(255)
+  vendor_material_name    String?                @db.VarChar(255)
+  item_group              String?                @db.VarChar(100)
+  part_detail             String?                @db.VarChar(255)
+  material_grade          String?                @db.VarChar(100)
+  remark                  String?                @db.Text
+  make                    String?                @db.VarChar(100)
+  quantity                Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  unit                    String?                @db.VarChar(50)
+  rate_per_kg             Decimal?               @default(0.00) @db.Decimal(15, 2)
+  total_weight            Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  rate                    Decimal?               @default(0.00) @db.Decimal(15, 2)
+  amount                  Decimal?               @default(0.00) @db.Decimal(15, 2)
+  received                Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  length                  Decimal?               @db.Decimal(15, 4)
+  width                   Decimal?               @db.Decimal(15, 4)
+  thickness               Decimal?               @db.Decimal(15, 4)
+  diameter                Decimal?               @db.Decimal(15, 4)
+  outer_diameter          Decimal?               @db.Decimal(15, 4)
+  height                  Decimal?               @db.Decimal(15, 4)
+  material_type           String?                @db.VarChar(100)
+  density                 Decimal?               @default(0.0000) @db.Decimal(10, 4)
+  unit_weight             Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  total_weight_alt        Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_length           Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_width            Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_thickness        Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_diameter         Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_outer_diameter   Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_height           Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  side1                   Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  side2                   Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  web_thickness           Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  flange_thickness        Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_side1            Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_side2            Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_web_thickness    Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  vendor_flange_thickness Decimal?               @default(0.0000) @db.Decimal(15, 4)
+  side_s                  Decimal?               @db.Decimal(15, 4)
+  side_s1                 Decimal?               @db.Decimal(15, 4)
+  side_s2                 Decimal?               @db.Decimal(15, 4)
+  items_per_packet        Float?                 @default(1)
+  vendor_items_per_packet Float?                 @default(1)
+  grn_items               grn_items[]
+  inventory_serials       inventory_serials[]
+  purchase_orders         purchase_orders        @relation(fields: [purchase_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "purchase_order_items_ibfk_1")
+  vendor_invoice_items    vendor_invoice_items[]
+
+  @@index([purchase_order_id], map: "purchase_order_id")
+}
+
+model purchase_orders {
+  id                            Int                             @id @default(autoincrement())
+  po_number                     String                          @unique(map: "po_number") @db.VarChar(100)
+  quotation_id                  Int?
+  project_id                    String?                         @db.VarChar(50)
+  vendor_id                     Int
+  order_date                    DateTime                        @db.Date
+  expected_delivery_date        DateTime?                       @db.Date
+  delivery_location             String?                         @db.VarChar(255)
+  location_link                 String?                         @db.Text
+  currency                      String?                         @default("INR") @db.VarChar(10)
+  tax_template                  String?                         @default("No Tax Template") @db.VarChar(100)
+  tax_amount                    Decimal?                        @default(0.00) @db.Decimal(15, 2)
+  subtotal                      Decimal?                        @default(0.00) @db.Decimal(15, 2)
+  total_amount                  Decimal?                        @default(0.00) @db.Decimal(15, 2)
+  notes                         String?                         @db.Text
+  terms                         String?                         @db.Text
+  status                        String?                         @default("draft") @db.VarChar(50)
+  inventory_status              String?                         @default("pending") @db.VarChar(50)
+  created_at                    DateTime?                       @default(now()) @db.Timestamp(0)
+  updated_at                    DateTime?                       @default(now()) @db.Timestamp(0)
+  dc_approved                   Boolean?                        @default(false)
+  grns                          grns[]
+  inventory_serials             inventory_serials[]
+  purchase_order_attachments    purchase_order_attachments[]
+  purchase_order_communications purchase_order_communications[]
+  purchase_order_items          purchase_order_items[]
+  root_cards                    root_cards?                     @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_po_project")
+  quotations                    quotations?                     @relation(fields: [quotation_id], references: [id], onUpdate: NoAction, map: "purchase_orders_ibfk_1")
+  vendors                       vendors                         @relation(fields: [vendor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "purchase_orders_ibfk_2")
+  vendor_invoices               vendor_invoices[]
+
+  @@index([project_id], map: "fk_po_project")
+  @@index([quotation_id], map: "quotation_id")
+  @@index([vendor_id], map: "vendor_id")
+}
+
+model quality_final_report_items {
+  id                              Int                               @id @default(autoincrement())
+  report_id                       Int
+  material_name                   String?                           @db.VarChar(255)
+  item_code                       String?                           @db.VarChar(100)
+  item_group                      String?                           @db.VarChar(255)
+  material_id                     Int?
+  received_qty                    Decimal?                          @db.Decimal(15, 3)
+  unit                            String?                           @db.VarChar(50)
+  accepted_qty                    Int?
+  rejected_qty                    Int?
+  accepted_report                 String?                           @db.VarChar(255)
+  rejected_report                 String?                           @db.VarChar(255)
+  length                          Decimal?                          @db.Decimal(15, 4)
+  width                           Decimal?                          @db.Decimal(15, 4)
+  thickness                       Decimal?                          @db.Decimal(15, 4)
+  diameter                        Decimal?                          @db.Decimal(15, 4)
+  outer_diameter                  Decimal?                          @db.Decimal(15, 4)
+  height                          Decimal?                          @db.Decimal(15, 4)
+  density                         Decimal?                          @default(0.0000) @db.Decimal(10, 4)
+  web_thickness                   Decimal?                          @db.Decimal(15, 4)
+  flange_thickness                Decimal?                          @db.Decimal(15, 4)
+  side1                           Decimal?                          @db.Decimal(15, 4)
+  side2                           Decimal?                          @db.Decimal(15, 4)
+  side_s                          Decimal?                          @db.Decimal(15, 4)
+  side_s1                         Decimal?                          @db.Decimal(15, 4)
+  side_s2                         Decimal?                          @db.Decimal(15, 4)
+  quality_final_reports           quality_final_reports             @relation(fields: [report_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "quality_final_report_items_ibfk_1")
+  quality_final_report_st_numbers quality_final_report_st_numbers[]
+
+  @@index([report_id], map: "report_id")
+}
+
+model quality_final_report_st_numbers {
+  id                         Int                                     @id @default(autoincrement())
+  report_item_id             Int
+  st_code                    String?                                 @db.VarChar(100)
+  item_code                  String?                                 @db.VarChar(100)
+  status                     quality_final_report_st_numbers_status?
+  length                     Decimal?                                @db.Decimal(15, 4)
+  width                      Decimal?                                @db.Decimal(15, 4)
+  thickness                  Decimal?                                @db.Decimal(15, 4)
+  diameter                   Decimal?                                @db.Decimal(15, 4)
+  outer_diameter             Decimal?                                @db.Decimal(15, 4)
+  height                     Decimal?                                @db.Decimal(15, 4)
+  density                    Decimal?                                @default(0.0000) @db.Decimal(10, 4)
+  item_group                 String?                                 @db.VarChar(255)
+  web_thickness              Decimal?                                @db.Decimal(15, 4)
+  flange_thickness           Decimal?                                @db.Decimal(15, 4)
+  side1                      Decimal?                                @db.Decimal(15, 4)
+  side2                      Decimal?                                @db.Decimal(15, 4)
+  side_s                     Decimal?                                @db.Decimal(15, 4)
+  side_s1                    Decimal?                                @db.Decimal(15, 4)
+  side_s2                    Decimal?                                @db.Decimal(15, 4)
+  quality_final_report_items quality_final_report_items              @relation(fields: [report_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "quality_final_report_st_numbers_ibfk_1")
+
+  @@index([report_item_id], map: "report_item_id")
+}
+
+model quality_final_reports {
+  id                         Int                          @id @default(autoincrement())
+  grn_id                     Int
+  grn_number                 String?                      @db.VarChar(100)
+  project_name               String?                      @db.VarChar(255)
+  vendor_name                String?                      @db.VarChar(255)
+  inspection_type            String?                      @db.VarChar(50)
+  received_date              DateTime?                    @db.Date
+  report_date                DateTime?                    @default(now()) @db.Timestamp(0)
+  created_at                 DateTime?                    @default(now()) @db.Timestamp(0)
+  is_sent_to_inventory       Boolean?                     @default(false)
+  quality_final_report_items quality_final_report_items[]
+  grns                       grns                         @relation(fields: [grn_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quality_final_reports_ibfk_1")
+
+  @@index([grn_id], map: "grn_id")
+}
+
+model quality_inspection_challans {
+  id                Int                                 @id @default(autoincrement())
+  grn_id            Int
+  vendor_id         Int
+  challan_number    String                              @unique(map: "challan_number") @db.VarChar(100)
+  challan_date      DateTime                            @db.Date
+  status            quality_inspection_challans_status? @default(Created)
+  created_at        DateTime?                           @default(now()) @db.Timestamp(0)
+  updated_at        DateTime?                           @default(now()) @db.Timestamp(0)
+  inventory_serials inventory_serials[]
+  grns              grns                                @relation(fields: [grn_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quality_inspection_challans_ibfk_1")
+  vendors           vendors                             @relation(fields: [vendor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quality_inspection_challans_ibfk_2")
+
+  @@index([grn_id], map: "grn_id")
+  @@index([vendor_id], map: "vendor_id")
+}
+
+model quality_inspection_results {
+  id                  Int                               @id @default(autoincrement())
+  inspection_id       Int
+  serial_number       String                            @db.VarChar(100)
+  status              quality_inspection_results_status
+  notes               String?                           @db.Text
+  document_path       String?                           @db.VarChar(255)
+  created_at          DateTime?                         @default(now()) @db.Timestamp(0)
+  quality_inspections quality_inspections               @relation(fields: [inspection_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quality_inspection_results_ibfk_1")
+  inventory_serials   inventory_serials                 @relation(fields: [serial_number], references: [serial_number], onDelete: NoAction, onUpdate: NoAction, map: "quality_inspection_results_ibfk_2")
+
+  @@index([inspection_id], map: "inspection_id")
+  @@index([serial_number], map: "serial_number")
+}
+
+model quality_inspections {
+  id                         Int                                 @id @default(autoincrement())
+  grn_id                     Int
+  po_item_id                 Int?
+  inspector_id               Int?
+  inspection_date            DateTime?                           @default(now()) @db.DateTime(0)
+  inspection_type            quality_inspections_inspection_type
+  status                     quality_inspections_status?         @default(Pending)
+  remarks                    String?                             @db.Text
+  common_document_path       String?                             @db.VarChar(255)
+  rejected_document_path     String?                             @db.VarChar(255)
+  created_at                 DateTime?                           @default(now()) @db.Timestamp(0)
+  updated_at                 DateTime?                           @default(now()) @db.Timestamp(0)
+  quality_inspection_results quality_inspection_results[]
+  grns                       grns                                @relation(fields: [grn_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quality_inspections_ibfk_1")
+  users                      users?                              @relation(fields: [inspector_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quality_inspections_ibfk_2")
+
+  @@unique([grn_id, po_item_id], map: "idx_grn_item_id")
+  @@index([inspector_id], map: "inspector_id")
+}
+
+model quotation_communication_attachments {
+  id                       Int                      @id @default(autoincrement())
+  communication_id         Int
+  file_name                String                   @db.VarChar(255)
+  file_path                String                   @db.VarChar(255)
+  file_size                Int?
+  mime_type                String?                  @db.VarChar(100)
+  created_at               DateTime?                @default(now()) @db.Timestamp(0)
+  quotation_communications quotation_communications @relation(fields: [communication_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "quotation_communication_attachments_ibfk_1")
+
+  @@index([communication_id], map: "communication_id")
+}
+
+model quotation_communications {
+  id                                  Int                                   @id @default(autoincrement())
+  quotation_id                        Int
+  sender_id                           Int?
+  message                             String                                @db.Text
+  attachment_path                     String?                               @db.VarChar(255)
+  created_at                          DateTime?                             @default(now()) @db.Timestamp(0)
+  is_read                             Boolean?                              @default(false)
+  is_outgoing                         Boolean?                              @default(false)
+  sender_email                        String?                               @db.VarChar(255)
+  subject                             String?                               @db.VarChar(255)
+  content_text                        String?                               @db.Text
+  has_attachments                     Boolean?                              @default(false)
+  quotation_communication_attachments quotation_communication_attachments[]
+  quotations                          quotations                            @relation(fields: [quotation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "quotation_communications_ibfk_1")
+
+  @@index([quotation_id], map: "quotation_id")
+}
+
+model quotation_items {
+  id                      Int        @id @default(autoincrement())
+  quotation_id            Int
+  item_name               String?    @db.Text
+  vendor_item_name        String?    @db.Text
+  category                String?    @db.VarChar(100)
+  quantity                Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  unit                    String?    @db.VarChar(50)
+  unit_price              Decimal?   @default(0.00) @db.Decimal(15, 2)
+  rate_per_kg             Decimal?   @default(0.00) @db.Decimal(15, 2)
+  total_weight            Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  material_grade          String?    @db.VarChar(100)
+  part_detail             String?    @db.VarChar(255)
+  make                    String?    @db.VarChar(100)
+  remark                  String?    @db.Text
+  item_group              String?    @db.VarChar(100)
+  length                  Decimal?   @db.Decimal(15, 4)
+  width                   Decimal?   @db.Decimal(15, 4)
+  thickness               Decimal?   @db.Decimal(15, 4)
+  diameter                Decimal?   @db.Decimal(15, 4)
+  outer_diameter          Decimal?   @db.Decimal(15, 4)
+  height                  Decimal?   @db.Decimal(15, 4)
+  material_type           String?    @db.VarChar(100)
+  density                 Decimal?   @default(0.0000) @db.Decimal(10, 4)
+  unit_weight             Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_length           Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_width            Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_thickness        Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_diameter         Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_outer_diameter   Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_height           Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  side1                   Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  side2                   Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  web_thickness           Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  flange_thickness        Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_side1            Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_side2            Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_web_thickness    Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  vendor_flange_thickness Decimal?   @default(0.0000) @db.Decimal(15, 4)
+  side_s                  Decimal?   @db.Decimal(15, 4)
+  side_s1                 Decimal?   @db.Decimal(15, 4)
+  side_s2                 Decimal?   @db.Decimal(15, 4)
+  items_per_packet        Decimal?   @default(1.0000) @db.Decimal(15, 4)
+  vendor_items_per_packet Decimal?   @default(1.0000) @db.Decimal(15, 4)
+  quotations              quotations @relation(fields: [quotation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "quotation_items_ibfk_1")
+
+  @@index([quotation_id], map: "quotation_id")
+}
+
+model quotations {
+  id                       Int                        @id @default(autoincrement())
+  quotation_number         String                     @unique(map: "quotation_number") @db.VarChar(100)
+  vendor_id                Int
+  root_card_id             String?                    @db.VarChar(50)
+  material_request_id      Int?
+  type                     quotations_type?           @default(outbound)
+  notes                    String?                    @db.Text
+  total_amount             Decimal?                   @default(0.00) @db.Decimal(15, 2)
+  valid_until              DateTime?                  @db.Date
+  status                   String?                    @default("pending") @db.VarChar(50)
+  created_at               DateTime?                  @default(now()) @db.Timestamp(0)
+  updated_at               DateTime?                  @default(now()) @db.Timestamp(0)
+  rfq_id                   Int?
+  received_quotation_path  String?                    @db.VarChar(255)
+  purchase_orders          purchase_orders[]
+  quotation_communications quotation_communications[]
+  quotation_items          quotation_items[]
+  vendors                  vendors                    @relation(fields: [vendor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "quotations_ibfk_1")
+  root_cards               root_cards?                @relation(fields: [root_card_id], references: [id], onUpdate: NoAction, map: "quotations_ibfk_2")
+  material_requests        material_requests?         @relation(fields: [material_request_id], references: [id], onUpdate: NoAction, map: "quotations_ibfk_3")
+  quotations               quotations?                @relation("quotationsToquotations", fields: [rfq_id], references: [id], onUpdate: NoAction, map: "quotations_ibfk_4")
+  other_quotations         quotations[]               @relation("quotationsToquotations")
+
+  @@index([material_request_id], map: "material_request_id")
+  @@index([rfq_id], map: "rfq_id")
+  @@index([root_card_id], map: "root_card_id")
+  @@index([vendor_id], map: "vendor_id")
+}
+
+model role_permissions {
+  role_id       Int
+  permission_id Int
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_permissions_ibfk_1")
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_permissions_ibfk_2")
+
+  @@id([role_id, permission_id])
+  @@index([permission_id], map: "permission_id")
+}
+
+model roles {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique(map: "name") @db.VarChar(255)
+  description      String?            @db.Text
+  is_active        Boolean?           @default(true)
+  created_at       DateTime?          @default(now()) @db.Timestamp(0)
+  updated_at       DateTime?          @default(now()) @db.Timestamp(0)
+  role_permissions role_permissions[]
+}
+
+model root_card_operations {
+  id             Int                                  @id @default(autoincrement())
+  root_card_id   String                               @db.VarChar(50)
+  operation_name String                               @db.VarChar(255)
+  operation_type root_card_operations_operation_type? @default(in_house)
+  phase          Int?                                 @default(1)
+  status         root_card_operations_status?         @default(Pending)
+  planned_start  DateTime?                            @db.Date
+  planned_end    DateTime?                            @db.Date
+  notes          String?                              @db.Text
+  created_at     DateTime?                            @default(now()) @db.Timestamp(0)
+  updated_at     DateTime?                            @default(now()) @db.Timestamp(0)
+  root_cards     root_cards                           @relation(fields: [root_card_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "root_card_operations_ibfk_1")
+
+  @@index([root_card_id], map: "root_card_id")
+}
+
+model root_card_steps {
+  id           Int        @id @default(autoincrement())
+  root_card_id String     @db.VarChar(50)
+  step_key     String     @db.VarChar(50)
+  step_data    Json?
+  assigned_to  Int?
+  status       String?    @default("pending") @db.VarChar(50)
+  created_at   DateTime?  @default(now()) @db.Timestamp(0)
+  updated_at   DateTime?  @default(now()) @db.Timestamp(0)
+  root_cards   root_cards @relation(fields: [root_card_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "root_card_steps_ibfk_1")
+
+  @@unique([root_card_id, step_key], map: "unique_step")
+}
+
+model root_cards {
+  id                   String                 @id @db.VarChar(50)
+  po_number            String                 @unique(map: "po_number") @db.VarChar(100)
+  po_date              DateTime?              @db.Date
+  project_name         String                 @db.VarChar(255)
+  project_code         String?                @db.VarChar(100)
+  quantity             Int?                   @default(1)
+  delivery_date        DateTime?              @db.Date
+  total                Decimal?               @db.Decimal(15, 2)
+  currency             String?                @default("INR") @db.VarChar(10)
+  priority             root_cards_priority?   @default(medium)
+  status               String?                @default("RC_CREATED") @db.VarChar(100)
+  inspection           String?                @db.VarChar(255)
+  inspection_authority String?                @db.VarChar(255)
+  ld                   String?                @db.Text
+  items                Json?
+  documents            Json?
+  notes                String?                @db.Text
+  project_scope        Json?
+  created_at           DateTime?              @default(now()) @db.Timestamp(0)
+  updated_at           DateTime?              @default(now()) @db.Timestamp(0)
+  boms                 boms[]
+  design_documents     design_documents[]
+  material_requests    material_requests[]
+  purchase_orders      purchase_orders[]
+  quotations           quotations[]
+  root_card_operations root_card_operations[]
+  root_card_steps      root_card_steps[]
+  vendor_invoices      vendor_invoices[]
+}
+
+model stock_entries {
+  id                Int                      @id @default(autoincrement())
+  entry_no          String                   @unique(map: "entry_no") @db.VarChar(100)
+  entry_type        stock_entries_entry_type
+  from_warehouse    String?                  @db.VarChar(255)
+  to_warehouse      String?                  @db.VarChar(255)
+  entry_date        DateTime                 @db.Date
+  status            stock_entries_status?    @default(submitted)
+  remarks           String?                  @db.Text
+  grn_id            Int?
+  project_name      String?                  @db.VarChar(255)
+  vendor_name       String?                  @db.VarChar(255)
+  created_at        DateTime?                @default(now()) @db.Timestamp(0)
+  updated_at        DateTime?                @default(now()) @db.Timestamp(0)
+  inventory_serials inventory_serials[]
+  grns              grns?                    @relation(fields: [grn_id], references: [id], onUpdate: NoAction, map: "stock_entries_ibfk_1")
+  stock_entry_items stock_entry_items[]
+
+  @@index([grn_id], map: "grn_id")
+}
+
+model stock_entry_items {
+  id               Int           @id @default(autoincrement())
+  stock_entry_id   Int
+  material_id      Int?
+  item_code        String        @db.VarChar(100)
+  item_name        String        @db.VarChar(255)
+  quantity         Decimal       @db.Decimal(15, 3)
+  uom              String?       @db.VarChar(50)
+  batch_no         String?       @db.VarChar(100)
+  valuation_rate   Decimal?      @default(0.00) @db.Decimal(15, 2)
+  length           Decimal?      @db.Decimal(15, 4)
+  width            Decimal?      @db.Decimal(15, 4)
+  thickness        Decimal?      @db.Decimal(15, 4)
+  diameter         Decimal?      @db.Decimal(15, 4)
+  outer_diameter   Decimal?      @db.Decimal(15, 4)
+  height           Decimal?      @db.Decimal(15, 4)
+  unit_weight      Decimal?      @db.Decimal(15, 4)
+  total_weight     Decimal?      @db.Decimal(15, 4)
+  density          Decimal?      @default(0.0000) @db.Decimal(10, 4)
+  side1            Decimal?      @db.Decimal(15, 4)
+  side2            Decimal?      @db.Decimal(15, 4)
+  side_s           Decimal?      @db.Decimal(15, 4)
+  side_s1          Decimal?      @db.Decimal(15, 4)
+  side_s2          Decimal?      @db.Decimal(15, 4)
+  web_thickness    Decimal?      @db.Decimal(15, 4)
+  flange_thickness Decimal?      @db.Decimal(15, 4)
+  item_group       String?       @db.VarChar(100)
+  material_type    String?       @db.VarChar(100)
+  stock_entries    stock_entries @relation(fields: [stock_entry_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "stock_entry_items_ibfk_1")
+
+  @@index([stock_entry_id], map: "stock_entry_id")
+}
+
+model stock_ledger {
+  id               Int       @id @default(autoincrement())
+  item_code        String    @db.VarChar(100)
+  material_name    String?   @db.VarChar(255)
+  posting_date     DateTime  @db.Date
+  posting_time     DateTime  @db.Time(0)
+  voucher_type     String    @db.VarChar(100)
+  voucher_no       String    @db.VarChar(100)
+  actual_qty       Decimal   @db.Decimal(15, 3)
+  uom              String?   @db.VarChar(50)
+  balance_qty      Decimal?  @default(0.000) @db.Decimal(15, 3)
+  project_name     String?   @db.VarChar(255)
+  vendor_name      String?   @db.VarChar(255)
+  valuation_rate   Decimal?  @default(0.00) @db.Decimal(15, 2)
+  remarks          String?   @db.Text
+  created_at       DateTime? @default(now()) @db.Timestamp(0)
+  length           Decimal?  @db.Decimal(15, 4)
+  width            Decimal?  @db.Decimal(15, 4)
+  thickness        Decimal?  @db.Decimal(15, 4)
+  diameter         Decimal?  @db.Decimal(15, 4)
+  outer_diameter   Decimal?  @db.Decimal(15, 4)
+  height           Decimal?  @db.Decimal(15, 4)
+  unit_weight      Decimal?  @db.Decimal(15, 4)
+  total_weight     Decimal?  @db.Decimal(15, 4)
+  density          Decimal?  @default(0.0000) @db.Decimal(10, 4)
+  side1            Decimal?  @db.Decimal(15, 4)
+  side2            Decimal?  @db.Decimal(15, 4)
+  side_s           Decimal?  @db.Decimal(15, 4)
+  side_s1          Decimal?  @db.Decimal(15, 4)
+  side_s2          Decimal?  @db.Decimal(15, 4)
+  web_thickness    Decimal?  @db.Decimal(15, 4)
+  flange_thickness Decimal?  @db.Decimal(15, 4)
+  item_group       String?   @db.VarChar(100)
+  material_type    String?   @db.VarChar(100)
+}
+
+model users {
+  id                                                   Int                          @id @default(autoincrement())
+  full_name                                            String                       @db.VarChar(255)
+  email                                                String                       @unique(map: "email") @db.VarChar(255)
+  password                                             String                       @db.VarChar(255)
+  department                                           String?                      @default("Production") @db.VarChar(50)
+  role                                                 String?                      @default("employee") @db.VarChar(50)
+  created_at                                           DateTime?                    @default(now()) @db.Timestamp(0)
+  updated_at                                           DateTime?                    @default(now()) @db.Timestamp(0)
+  first_name                                           String?                      @db.VarChar(255)
+  last_name                                            String?                      @db.VarChar(255)
+  designation                                          String?                      @db.VarChar(255)
+  login_id                                             String?                      @unique(map: "idx_login_id") @db.VarChar(255)
+  role_id                                              Int?
+  test_field                                           String?                      @db.VarChar(100)
+  department_id                                        Int?
+  actions                                              String?                      @db.Text
+  department_tasks                                     department_tasks[]
+  design_documents_design_documents_created_byTousers  design_documents[]           @relation("design_documents_created_byTousers")
+  design_documents_design_documents_reviewer_idTousers design_documents[]           @relation("design_documents_reviewer_idTousers")
+  notifications                                        notifications[]
+  purchase_order_attachments                           purchase_order_attachments[]
+  quality_inspections                                  quality_inspections[]
+}
+
+model vendor_invoice_items {
+  id                   Int                  @id @default(autoincrement())
+  invoice_id           Int
+  po_item_id           Int
+  description          String               @db.Text
+  hsn_code             String?              @db.VarChar(50)
+  qty                  Decimal              @db.Decimal(15, 3)
+  unit                 String?              @db.VarChar(50)
+  rate                 Decimal              @db.Decimal(15, 2)
+  amount               Decimal              @db.Decimal(15, 2)
+  vendor_invoices      vendor_invoices      @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "vendor_invoice_items_ibfk_1")
+  purchase_order_items purchase_order_items @relation(fields: [po_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoice_items_ibfk_2")
+
+  @@index([invoice_id], map: "invoice_id")
+  @@index([po_item_id], map: "po_item_id")
+}
+
+model vendor_invoices {
+  id                   Int                     @id @default(autoincrement())
+  invoice_number       String                  @unique(map: "invoice_number") @db.VarChar(100)
+  purchase_order_id    Int
+  vendor_id            Int
+  project_id           String?                 @db.VarChar(50)
+  invoice_date         DateTime                @db.Date
+  place_of_supply      String?                 @db.VarChar(255)
+  transporter          String?                 @db.VarChar(255)
+  lr_number            String?                 @db.VarChar(100)
+  challan_number       String?                 @db.VarChar(100)
+  challan_date         DateTime?               @db.Date
+  sub_total            Decimal?                @default(0.00) @db.Decimal(15, 2)
+  taxable_value        Decimal?                @default(0.00) @db.Decimal(15, 2)
+  cgst_amount          Decimal?                @default(0.00) @db.Decimal(15, 2)
+  sgst_amount          Decimal?                @default(0.00) @db.Decimal(15, 2)
+  igst_amount          Decimal?                @default(0.00) @db.Decimal(15, 2)
+  grand_total          Decimal?                @default(0.00) @db.Decimal(15, 2)
+  paid_amount          Decimal?                @default(0.00) @db.Decimal(15, 2)
+  balance_amount       Decimal?                @default(0.00) @db.Decimal(15, 2)
+  round_off            Decimal?                @default(0.00) @db.Decimal(15, 2)
+  status               vendor_invoices_status? @default(PENDING)
+  notes                String?                 @db.Text
+  created_at           DateTime?               @default(now()) @db.Timestamp(0)
+  updated_at           DateTime?               @default(now()) @db.Timestamp(0)
+  vendor_invoice_items vendor_invoice_items[]
+  purchase_orders      purchase_orders         @relation(fields: [purchase_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_1")
+  vendors              vendors                 @relation(fields: [vendor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_2")
+  root_cards           root_cards?             @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_3")
+  vendor_payments      vendor_payments[]
+
+  @@index([project_id], map: "project_id")
+  @@index([purchase_order_id], map: "purchase_order_id")
+  @@index([vendor_id], map: "vendor_id")
+}
+
+model vendor_payments {
+  id               Int                             @id @default(autoincrement())
+  payment_number   String                          @unique(map: "payment_number") @db.VarChar(100)
+  invoice_id       Int
+  vendor_id        Int
+  payment_date     DateTime                        @db.Date
+  amount_paid      Decimal                         @db.Decimal(15, 2)
+  payment_method   vendor_payments_payment_method? @default(Bank_Transfer)
+  reference_number String?                         @db.VarChar(100)
+  status           vendor_payments_status?         @default(COMPLETED)
+  notes            String?                         @db.Text
+  created_at       DateTime?                       @default(now()) @db.Timestamp(0)
+  updated_at       DateTime?                       @default(now()) @db.Timestamp(0)
+  vendor_invoices  vendor_invoices                 @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_payments_ibfk_1")
+  vendors          vendors                         @relation(fields: [vendor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_payments_ibfk_2")
+
+  @@index([invoice_id], map: "invoice_id")
+  @@index([vendor_id], map: "vendor_id")
+}
+
+model vendors {
+  id                                      Int                           @id @default(autoincrement())
+  name                                    String                        @db.VarChar(255)
+  email                                   String                        @unique(map: "email") @db.VarChar(255)
+  address                                 String?                       @db.Text
+  category                                String?                       @db.VarChar(100)
+  rating                                  Decimal?                      @default(0.00) @db.Decimal(3, 2)
+  created_at                              DateTime?                     @default(now()) @db.Timestamp(0)
+  updated_at                              DateTime?                     @default(now()) @db.Timestamp(0)
+  vendor_code                             String?                       @unique(map: "vendor_code") @db.VarChar(50)
+  contact_person_name                     String?                       @db.VarChar(255)
+  designation                             String?                       @db.VarChar(100)
+  mobile_number                           String?                       @db.VarChar(50)
+  vendor_type                             vendors_vendor_type?          @default(material_supplier)
+  status                                  vendors_status?               @default(active)
+  city                                    String?                       @db.VarChar(100)
+  state                                   String?                       @db.VarChar(100)
+  pincode                                 String?                       @db.VarChar(20)
+  gstin                                   String?                       @db.VarChar(20)
+  pan_number                              String?                       @db.VarChar(20)
+  msme_category                           vendors_msme_category?        @default(none)
+  msme_certificate                        String?                       @db.VarChar(255)
+  payment_terms                           vendors_payment_terms?        @default(net_30)
+  credit_limit                            Decimal?                      @default(0.00) @db.Decimal(15, 2)
+  bank_name                               String?                       @db.VarChar(255)
+  account_number                          String?                       @db.VarChar(100)
+  ifsc_code                               String?                       @db.VarChar(20)
+  average_lead_time                       Int?                          @default(0)
+  preferred_vendor                        Boolean?                      @default(false)
+  notes                                   String?                       @db.Text
+  grns_grns_vendor_idTovendors            grns[]                        @relation("grns_vendor_idTovendors")
+  grns_grns_inspection_vendor_idTovendors grns[]                        @relation("grns_inspection_vendor_idTovendors")
+  purchase_orders                         purchase_orders[]
+  quality_inspection_challans             quality_inspection_challans[]
+  quotations                              quotations[]
+  vendor_invoices                         vendor_invoices[]
+  vendor_payments                         vendor_payments[]
+}
+
+model warehouses {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique(map: "name") @db.VarChar(255)
+  type       String?   @default("Warehouse") @db.VarChar(100)
+  location   String?   @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+}
+
+enum operations_type {
+  In_house  @map("In-house")
+  Outsource
+}
+
+enum stock_entries_entry_type {
+  Material_Receipt  @map("Material Receipt")
+  Material_Issue    @map("Material Issue")
+  Material_Transfer @map("Material Transfer")
+}
+
+enum daily_production_plans_status {
+  Draft
+  Finalized
+  In_Progress @map("In Progress")
+  Completed
+}
+
+enum design_documents_type {
+  Part_Drawing           @map("Part Drawing")
+  Assembly_Drawing       @map("Assembly Drawing")
+  Final_Approved_Drawing @map("Final Approved Drawing")
+  Mechanical
+  Electrical
+  Assembly
+}
+
+enum inward_challans_status {
+  DRAFT
+  SUBMITTED
+  CANCELLED
+}
+
+enum outward_challans_status {
+  DRAFT
+  SUBMITTED
+  RECEIVED
+  CANCELLED
+}
+
+enum quality_inspection_results_status {
+  Accepted
+  Rejected
+}
+
+enum root_card_operations_operation_type {
+  in_house
+  outsourced
+}
+
+enum department_tasks_priority {
+  Low
+  Medium
+  High
+}
+
+enum project_inspections_status {
+  Pending
+  Approved
+  Rejected
+}
+
+enum quality_final_report_st_numbers_status {
+  ACCEPTED
+  REJECTED
+  PENDING
+}
+
+enum quality_inspection_challans_status {
+  Created
+  Sent
+  Returned
+}
+
+enum quality_inspections_inspection_type {
+  Inhouse
+  Outsource
+}
+
+enum quotations_type {
+  inbound
+  outbound
+}
+
+enum root_card_operations_status {
+  Pending
+  In_Progress         @map("In Progress")
+  Partially_Completed @map("Partially Completed")
+  Completed
+  Delayed
+  On_Hold             @map("On Hold")
+}
+
+enum daily_operator_assignments_assignment_type {
+  inhouse
+  outsource
+}
+
+enum grns_inspection_type {
+  Inhouse
+  Outsource
+}
+
+enum quality_inspections_status {
+  Pending
+  Completed
+}
+
+enum stock_entries_status {
+  draft
+  submitted
+  cancelled
+}
+
+enum vendor_payments_payment_method {
+  Cash
+  Bank_Transfer @map("Bank Transfer")
+  Cheque
+  UPI
+  Other
+}
+
+enum daily_production_updates_assignment_type {
+  inhouse
+  outsource
+}
+
+enum department_tasks_status {
+  Pending
+  In_Progress @map("In Progress")
+  Completed
+}
+
+enum design_documents_status {
+  Draft
+  Pending_Review @map("Pending Review")
+  Rejected
+  Approved
+}
+
+enum inventory_serials_status {
+  Available
+  Used
+  Rejected
+  Pending
+  Quality
+  Consumed
+}
+
+enum ledger_entries_transaction_type {
+  PAYMENT_MADE
+  PAYMENT_RECEIVED
+  JOURNAL
+  INVOICE
+}
+
+enum vendor_payments_status {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum customer_payments_status {
+  COMPLETED
+  PENDING
+  FAILED
+}
+
+enum root_cards_priority {
+  low
+  medium
+  high
+  critical
+}
+
+enum vendors_vendor_type {
+  material_supplier
+  service_vendor
+  contractor
+}
+
+enum vendors_status {
+  active
+  inactive
+}
+
+enum customer_invoices_status {
+  PENDING
+  PAID
+  PARTIAL
+  OVERDUE
+  CANCELLED
+}
+
+enum daily_operator_assignments_status {
+  Pending
+  In_Progress         @map("In Progress")
+  Partially_Completed @map("Partially Completed")
+  Completed
+  Delayed
+  On_Hold             @map("On Hold")
+}
+
+enum vendors_msme_category {
+  micro
+  small
+  medium
+  none
+}
+
+enum daily_production_updates_status {
+  Pending
+  In_Progress         @map("In Progress")
+  Partially_Completed @map("Partially Completed")
+  Completed
+  Delayed
+  On_Hold             @map("On Hold")
+}
+
+enum vendor_invoices_status {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum vendors_payment_terms {
+  advance
+  net_15
+  net_30
+  net_45
+  net_60
+}
