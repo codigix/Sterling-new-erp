@@ -3,6 +3,7 @@ const { sendEmail } = require('../utils/emailService');
 const fs = require('fs');
 const path = require('path');
 const pdf = require('pdf-parse');
+const crypto = require('crypto');
 
 const getQuotations = async (req, res) => {
     try {
@@ -955,12 +956,16 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
         
         console.log(`Generating new BOM version: ${newBomNumber} (Base: ${baseBomNumber})`);
 
+        // Generate public_id for secure routing
+        const publicId = crypto.randomUUID();
+
         // 4. Create new BOM record
         const [bomResult] = await connection.query(
             `INSERT INTO boms 
-            (root_card_id, bom_number, description, status, is_active, project_id, total_cost) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            (public_id, root_card_id, bom_number, description, status, is_active, project_id, total_cost) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             [
+                publicId,
                 currentBom.root_card_id,
                 newBomNumber,
                 `${currentBom.description || ''} (Vendor Alternative Revision)`,

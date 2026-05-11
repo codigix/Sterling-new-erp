@@ -11,9 +11,10 @@ const createMaterialRequest = async (req, res) => {
     const [cards] = await connection.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [rootCardId, rootCardId]);
     const effectiveRootCardId = cards.length > 0 ? cards[0].id : rootCardId;
 
-    // Fetch BOM details for snapshot
-    const [bomRows] = await connection.query('SELECT bom_number FROM boms WHERE id = ?', [bomId]);
-    const bomNumberSnapshot = bomRows.length > 0 ? bomRows[0].bom_number : 'N/A';
+    // Resolve internal BOM ID if public_id is provided
+    const [bomLookup] = await connection.query('SELECT id, bom_number FROM boms WHERE id = ? OR public_id = ?', [bomId, bomId]);
+    const effectiveBomId = bomLookup.length > 0 ? bomLookup[0].id : bomId;
+    const bomNumberSnapshot = bomLookup.length > 0 ? bomLookup[0].bom_number : 'N/A';
 
     // Project Name snapshot
     const projectNameSnapshot = cards.length > 0 ? cards[0].project_name : 'N/A';
@@ -44,13 +45,13 @@ const createMaterialRequest = async (req, res) => {
       `INSERT INTO material_requests 
       (bom_id, request_number, status, department, project_id, root_card_id, created_by, remarks, bom_number, project_name) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [bomId, requestNumber, 'pending', 'Production', projectId || null, effectiveRootCardId || null, req.user?.id || null, remarks || '', bomNumberSnapshot, projectNameSnapshot]
+      [effectiveBomId, requestNumber, 'pending', 'Production', projectId || null, effectiveRootCardId || null, req.user?.id || null, remarks || '', bomNumberSnapshot, projectNameSnapshot]
     );
 
     const requestId = requestResult.insertId;
 
     // 1.1 Update BOM status to 'request_sent'
-    await connection.query('UPDATE boms SET status = ? WHERE id = ?', ['request_sent', bomId]);
+    await connection.query('UPDATE boms SET status = ? WHERE id = ?', ['request_sent', effectiveBomId]);
 
     // 1.2 Update Root Card status to 'MATERIAL_PLANNING'
     if (effectiveRootCardId) {
@@ -153,8 +154,12 @@ const getMaterialRequests = async (req, res) => {
       params.push(type);
     }
     if (projectId) {
+        // Resolve internal ID if public_id is provided
+        const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [projectId, projectId]);
+        const effectiveId = cards.length > 0 ? cards[0].id : projectId;
+        
         query += " AND mr.project_id = ?";
-        params.push(projectId);
+        params.push(effectiveId);
     }
     if (rootCardId) {
         // Resolve internal ID if public_id is provided

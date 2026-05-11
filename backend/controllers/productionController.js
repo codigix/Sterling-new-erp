@@ -80,7 +80,7 @@ exports.getDailyPlans = async (req, res) => {
       SELECT p.*, 
         IFNULL((SELECT GROUP_CONCAT(DISTINCT r.project_name SEPARATOR ', ') 
          FROM daily_operator_assignments a 
-         JOIN root_cards r ON a.root_card_id = r.id 
+         JOIN root_cards r ON (a.root_card_id = r.id OR a.root_card_id = r.public_id) 
          WHERE a.plan_id = p.id), '') as project_names,
         IFNULL((SELECT GROUP_CONCAT(DISTINCT a.operation_name SEPARATOR ', ') 
          FROM daily_operator_assignments a 
@@ -115,7 +115,7 @@ exports.getDailyPlans = async (req, res) => {
             'status', a.status
           )
         ) FROM daily_operator_assignments a 
-          LEFT JOIN root_cards r ON a.root_card_id = r.id 
+          LEFT JOIN root_cards r ON (a.root_card_id = r.id OR a.root_card_id = r.public_id) 
           WHERE a.plan_id = p.id) as assignments
       FROM daily_production_plans p
       LEFT JOIN material_cutting_reports m ON p.id = m.plan_id
@@ -210,7 +210,7 @@ exports.getDailyPlanDetails = async (req, res) => {
     const [assignments] = await db.query(`
       SELECT a.*, r.project_name, r.id as root_card_ref
       FROM daily_operator_assignments a
-      LEFT JOIN root_cards r ON a.root_card_id = r.id
+      LEFT JOIN root_cards r ON (a.root_card_id = r.id OR a.root_card_id = r.public_id)
       WHERE a.plan_id = ?
     `, [id]);
 
@@ -525,6 +525,10 @@ exports.updateAssignment = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Resolve internal ID if public_id is provided
+    const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    const effectiveRootCardId = cards.length > 0 ? cards[0].id : root_card_id;
+
     // 1. Update assignment
     await connection.query(
       `UPDATE daily_operator_assignments 
@@ -532,7 +536,7 @@ exports.updateAssignment = async (req, res) => {
            vendor_id = ?, vendor_name = ?, assignment_type = ?,
            start_time = ?, end_time = ?, break_time = ?, total_hours = ?, remarks = ?, status = ?
        WHERE id = ?`,
-      [root_card_id, operation_id, operation_name, operator_name, operator_id, 
+      [effectiveRootCardId, operation_id, operation_name, operator_name, operator_id, 
        vendor_id || null, vendor_name || null, assignment_type || 'inhouse',
        start_time, end_time, break_time || 0, total_hours, remarks || '', status || 'Pending', id]
     );
@@ -550,9 +554,9 @@ exports.updateAssignment = async (req, res) => {
         // Update existing record
         await connection.query(
           `UPDATE daily_production_updates 
-           SET status = ?, remarks = ?, work_date = ?, actual_start = ?, actual_end = ?, actual_hours = ?
+           SET status = ?, remarks = ?, work_date = ?, actual_start = ?, actual_end = ?, actual_hours = ?, root_card_id = ?
            WHERE assignment_id = ?`,
-          [status, remarks || '', plan_date || new Date(), start_time, end_time, total_hours, id]
+          [status, remarks || '', plan_date || new Date(), start_time, end_time, total_hours, effectiveRootCardId, id]
         );
       } else {
         // Create new record
@@ -562,19 +566,19 @@ exports.updateAssignment = async (req, res) => {
            operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
            actual_start, actual_end, break_time, actual_hours, status, remarks) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [plan_date || new Date(), plan_id, id, root_card_id, operation_id, operation_name,
+          [plan_date || new Date(), plan_id, id, effectiveRootCardId, operation_id, operation_name,
            operator_name, operator_id, vendor_name, vendor_id, assignment_type || 'inhouse',
            start_time, end_time, break_time || 0, total_hours, status, remarks || '']
         );
       }
 
       // 2b. Sync with root_card_operations (Project Stages)
-      console.log(`Syncing stage status: ${status} for Project: ${root_card_id}, Operation: ${operation_name}`);
+      console.log(`Syncing stage status: ${status} for Project: ${effectiveRootCardId}, Operation: ${operation_name}`);
       const [stageSync] = await connection.query(
         `UPDATE root_card_operations 
          SET status = ?, updated_at = CURRENT_TIMESTAMP 
          WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
-        [status, root_card_id, operation_name]
+        [status, effectiveRootCardId, operation_name]
       );
       console.log(`Stage sync result: ${stageSync.affectedRows} row(s) updated`);
     }
@@ -663,13 +667,17 @@ exports.createProductionUpdate = async (req, res) => {
   } = req.body;
 
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    const effectiveRootCardId = cards.length > 0 ? cards[0].id : root_card_id;
+
     const [result] = await db.query(
       `INSERT INTO daily_production_updates 
       (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
        operator_name, operator_id, actual_start, actual_end, break_time, actual_hours, 
        qty_completed, status, remarks) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name,
+      [work_date, plan_id, assignment_id, effectiveRootCardId, operation_id, operation_name,
         operator_name, operator_id, actual_start, actual_end, break_time || 0, actual_hours,
         qty_completed, status, remarks || '']
     );

@@ -3,6 +3,7 @@ const db = require('../config/db');
 // Map snake_case database row to camelCase BOM object
 const mapBomRowToModel = (row) => ({
   id: row.id,
+  public_id: row.public_id,
   rootCardId: row.root_card_id,
   bomNumber: row.bom_number,
   description: row.description,
@@ -20,6 +21,8 @@ const mapBomRowToModel = (row) => ({
   updatedAt: row.updated_at
 });
 
+const crypto = require('crypto');
+
 const createBOM = async (req, res) => {
   const { productInfo, materials, operations } = req.body;
   const connection = await db.getConnection();
@@ -34,12 +37,16 @@ const createBOM = async (req, res) => {
       if (cards.length > 0) effectiveRootCardId = cards[0].id;
     }
 
+    // Generate public_id for secure routing
+    const publicId = crypto.randomUUID();
+
     // 1. Insert into boms table
     const [bomResult] = await connection.query(
       `INSERT INTO boms 
-      (root_card_id, bom_number, description, status, is_active, project_id, total_cost) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      (public_id, root_card_id, bom_number, description, status, is_active, project_id, total_cost) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        publicId,
         effectiveRootCardId,
         productInfo.bomNumber,
         productInfo.description || '',
@@ -131,7 +138,10 @@ const createBOM = async (req, res) => {
     );
 
     await connection.commit();
-    res.status(201).json({ message: 'BOM created successfully', bomId });
+    res.status(201).json({ 
+      message: 'BOM created successfully', 
+      bomId: publicId 
+    });
   } catch (error) {
     await connection.rollback();
     console.error('Error creating BOM:', error);
@@ -149,12 +159,30 @@ const createBOM = async (req, res) => {
 };
 
 const updateBOM = async (req, res) => {
-  const { bomId } = req.params;
+  let { bomId } = req.params;
   const { productInfo, materials, operations } = req.body;
   const connection = await db.getConnection();
 
   try {
     await connection.beginTransaction();
+
+    // Support legacy Base64 encoded IDs
+    if (bomId && bomId.includes('=') || bomId.length > 20 && !bomId.includes('-')) {
+      try {
+        const decoded = Buffer.from(bomId, 'base64').toString();
+        if (decoded.startsWith('bom_') && decoded.endsWith('_erp')) {
+          bomId = decoded.split('_')[1];
+        }
+      } catch (e) {}
+    }
+
+    // Resolve internal BOM ID if public_id is provided
+    const [bomLookup] = await connection.query('SELECT id FROM boms WHERE id = ? OR public_id = ?', [bomId, bomId]);
+    if (bomLookup.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ message: 'BOM not found' });
+    }
+    const internalBomId = bomLookup[0].id;
 
     // Resolve internal ID if public_id is provided
     let effectiveRootCardId = productInfo.rootCardId;
@@ -180,22 +208,17 @@ const updateBOM = async (req, res) => {
         productInfo.status || 'draft',
         productInfo.isActive !== undefined ? productInfo.isActive : true,
         productInfo.projectId || null,
-        bomId
+        internalBomId
       ]
     );
 
-    if (updateResult.affectedRows === 0) {
-      await connection.rollback();
-      return res.status(404).json({ message: 'BOM not found' });
-    }
-
     let totalBOMCost = 0;
 
-    await connection.query('DELETE FROM bom_materials WHERE bom_id = ?', [bomId]);
+    await connection.query('DELETE FROM bom_materials WHERE bom_id = ?', [internalBomId]);
     if (materials && materials.length > 0) {
       const materialValues = materials.map(m => {
         return [
-          bomId,
+          internalBomId,
           m.itemName,
           m.itemGroup || null,
           m.materialGrade || null,
@@ -233,12 +256,12 @@ const updateBOM = async (req, res) => {
       );
     }
 
-    await connection.query('DELETE FROM bom_operations WHERE bom_id = ?', [bomId]);
+    await connection.query('DELETE FROM bom_operations WHERE bom_id = ?', [internalBomId]);
     if (operations && operations.length > 0) {
       const operationValues = operations.map(o => {
         totalBOMCost += parseFloat(o.cost) || 0;
         return [
-          bomId,
+          internalBomId,
           o.operationName,
           o.type || 'in-house',
           o.workstation || null,
@@ -260,7 +283,7 @@ const updateBOM = async (req, res) => {
       );
     }
 
-    await connection.query('UPDATE boms SET total_cost = ? WHERE id = ?', [totalBOMCost, bomId]);
+    await connection.query('UPDATE boms SET total_cost = ? WHERE id = ?', [totalBOMCost, internalBomId]);
 
     await connection.commit();
     res.json({ message: 'BOM updated successfully' });
@@ -289,21 +312,36 @@ const getBOMs = async (req, res) => {
 };
 
 const getBOMById = async (req, res) => {
-  const { bomId } = req.params;
+  let { bomId } = req.params;
   try {
+    // Support legacy Base64 encoded IDs for backward compatibility
+    if (bomId && bomId.includes('=') || bomId.length > 20 && !bomId.includes('-')) {
+      try {
+        const decoded = Buffer.from(bomId, 'base64').toString();
+        if (decoded.startsWith('bom_') && decoded.endsWith('_erp')) {
+          bomId = decoded.split('_')[1];
+          console.log(`Decoded legacy BOM ID: ${bomId}`);
+        }
+      } catch (e) {
+        // Not a valid base64 or doesn't match pattern, continue with original bomId
+      }
+    }
+
     const [bomRows] = await db.query(`
       SELECT b.*, rc.project_name, rc.project_code, rc.po_number, rc.quantity
       FROM boms b
       JOIN root_cards rc ON b.root_card_id = rc.id
-      WHERE b.id = ?
-    `, [bomId]);
+      WHERE b.id = ? OR b.public_id = ?
+    `, [bomId, bomId]);
 
     if (bomRows.length === 0) {
       return res.status(404).json({ message: 'BOM not found' });
     }
 
-    const [materials] = await db.query('SELECT * FROM bom_materials WHERE bom_id = ?', [bomId]);
-    const [operations] = await db.query('SELECT * FROM bom_operations WHERE bom_id = ?', [bomId]);
+    const internalBomId = bomRows[0].id;
+
+    const [materials] = await db.query('SELECT * FROM bom_materials WHERE bom_id = ?', [internalBomId]);
+    const [operations] = await db.query('SELECT * FROM bom_operations WHERE bom_id = ?', [internalBomId]);
 
     const bom = mapBomRowToModel(bomRows[0]);
     
@@ -378,9 +416,19 @@ const getBOMById = async (req, res) => {
 };
 
 const deleteBOM = async (req, res) => {
-  const { bomId } = req.params;
+  let { bomId } = req.params;
   try {
-    const [result] = await db.query('DELETE FROM boms WHERE id = ?', [bomId]);
+    // Support legacy Base64 encoded IDs
+    if (bomId && bomId.includes('=') || bomId.length > 20 && !bomId.includes('-')) {
+      try {
+        const decoded = Buffer.from(bomId, 'base64').toString();
+        if (decoded.startsWith('bom_') && decoded.endsWith('_erp')) {
+          bomId = decoded.split('_')[1];
+        }
+      } catch (e) {}
+    }
+
+    const [result] = await db.query('DELETE FROM boms WHERE id = ? OR public_id = ?', [bomId, bomId]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'BOM not found' });
     }

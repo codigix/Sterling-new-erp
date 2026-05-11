@@ -7,7 +7,7 @@ const getVendorInvoices = async (req, res) => {
       SELECT vi.*, v.name as vendor_name, rc.project_name as project_name, po.po_number
       FROM vendor_invoices vi
       LEFT JOIN vendors v ON vi.vendor_id = v.id
-      LEFT JOIN root_cards rc ON vi.project_id = rc.id
+      LEFT JOIN root_cards rc ON (vi.project_id = rc.id OR vi.project_id = rc.public_id)
       LEFT JOIN purchase_orders po ON vi.purchase_order_id = po.id
       WHERE 1=1
     `;
@@ -51,7 +51,7 @@ const getVendorInvoiceById = async (req, res) => {
              po.po_number, po.order_date as po_date
       FROM vendor_invoices vi
       LEFT JOIN vendors v ON vi.vendor_id = v.id
-      LEFT JOIN root_cards rc ON vi.project_id = rc.id
+      LEFT JOIN root_cards rc ON (vi.project_id = rc.id OR vi.project_id = rc.public_id)
       LEFT JOIN purchase_orders po ON vi.purchase_order_id = po.id
       WHERE vi.id = ?
     `, [id]);
@@ -125,14 +125,17 @@ const getVendorPayments = async (req, res) => {
       FROM vendor_payments vp
       JOIN vendor_invoices vi ON vp.invoice_id = vi.id
       JOIN vendors v ON vp.vendor_id = v.id
-      LEFT JOIN root_cards rc ON vi.project_id = rc.id
+      LEFT JOIN root_cards rc ON (vi.project_id = rc.id OR vi.project_id = rc.public_id)
       WHERE 1=1
     `;
     const params = [];
 
     if (projectId) {
+      // Resolve internal ID if public_id is provided
+      const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [projectId, projectId]);
+      const effectiveId = cards.length > 0 ? cards[0].id : projectId;
       query += " AND vi.project_id = ?";
-      params.push(projectId);
+      params.push(effectiveId);
     }
 
     if (search) {
@@ -367,7 +370,7 @@ const getCustomerInvoices = async (req, res) => {
     let query = `
       SELECT ci.*, rc.project_name
       FROM customer_invoices ci
-      LEFT JOIN root_cards rc ON ci.project_id = rc.id
+      LEFT JOIN root_cards rc ON (ci.project_id = rc.id OR ci.project_id = rc.public_id)
       WHERE 1=1
     `;
     const params = [];
@@ -407,7 +410,7 @@ const getCustomerInvoiceById = async (req, res) => {
     const [rows] = await db.query(`
       SELECT ci.*, rc.project_name
       FROM customer_invoices ci
-      LEFT JOIN root_cards rc ON ci.project_id = rc.id
+      LEFT JOIN root_cards rc ON (ci.project_id = rc.id OR ci.project_id = rc.public_id)
       WHERE ci.id = ?
     `, [id]);
 
@@ -537,14 +540,17 @@ const getCustomerPayments = async (req, res) => {
       SELECT cp.*, ci.invoice_number as ref_invoice_no, rc.project_name
       FROM customer_payments cp
       LEFT JOIN customer_invoices ci ON cp.invoice_id = ci.id
-      LEFT JOIN root_cards rc ON ci.project_id = rc.id
+      LEFT JOIN root_cards rc ON (ci.project_id = rc.id OR ci.project_id = rc.public_id)
       WHERE 1=1
     `;
     const params = [];
 
     if (projectId) {
+      // Resolve internal ID if public_id is provided
+      const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [projectId, projectId]);
+      const effectiveId = cards.length > 0 ? cards[0].id : projectId;
       query += " AND ci.project_id = ?";
-      params.push(projectId);
+      params.push(effectiveId);
     }
 
     if (search) {

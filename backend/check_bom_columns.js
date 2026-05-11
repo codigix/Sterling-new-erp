@@ -11,8 +11,8 @@ async function check() {
   });
 
   try {
-    const [rows] = await connection.query('SHOW CREATE TABLE boms');
-    console.log(rows[0]['Create Table']);
+    const [columns] = await connection.query('SHOW COLUMNS FROM boms');
+    console.log(JSON.stringify(columns, null, 2));
   } catch (error) {
     console.error('Error:', error);
   } finally {
