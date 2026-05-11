@@ -8,26 +8,30 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Checkout latest code
-        uses: actions/checkout@v4
+      # 1. Manually pull the code into your specific directory
+      - name: Pull latest code
+        run: |
+          cd /var/www/Sterling-new-erp
+          git pull origin development-branch
 
+      # 2. Update Frontend
       - name: Update Frontend
         run: |
-          cd frontend
+          cd /var/www/Sterling-new-erp/frontend
           npm install
           npm run build
 
+      # 3. Update Backend & Prisma
       - name: Update Backend & Database
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          cd backend
+          cd /var/www/Sterling-new-erp/backend
           npm install
           npx prisma generate
-          # This command applies any NEW migrations. 
-          # It won't fail if the database is already partially set up.
           npx prisma migrate deploy
 
+      # 4. Restart
       - name: Restart Application
         run: |
           pm2 restart all
