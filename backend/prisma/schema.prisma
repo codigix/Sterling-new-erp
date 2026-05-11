@@ -1218,6 +1218,7 @@ model users {
   login_id                                             String?                      @unique(map: "idx_login_id") @db.VarChar(255)
   role_id                                              Int?
   test_field                                           String?                      @db.VarChar(100)
+  prisma_test_sync                                     String?                      @db.VarChar(100)
   department_id                                        Int?
   actions                                              String?                      @db.Text
   department_tasks                                     department_tasks[]

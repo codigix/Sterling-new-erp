@@ -1,34 +1,29 @@
-name: Sterling ERP Dev CI/CD
+name: Sterling ERP Development Deploy
 
 on:
   push:
-    branches: [ development-branch ] # 1. Trigger only on development-branch
+    branches: [ "development-branch" ]
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Checkout code
+      - name: Checkout latest code
         uses: actions/checkout@v4
 
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd /var/www/Sterling-new-erp
-            
-            # 2. Pull from the development-branch
-            git pull origin development-branch
-            
-            cd frontend
-            npm install
-            npm run build
-            
-            cd ../backend
-            npm install
-            
-            pm2 restart sterling
-            echo "Dev Deployment Successful!"
+      - name: Update Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      - name: Update Backend & Database
+        run: |
+          cd backend
+          npm install
+          npx prisma generate
+          npx prisma migrate deploy
+
+      - name: Restart Application
+        run: |
+          pm2 restart all
