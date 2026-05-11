@@ -24,6 +24,8 @@ jobs:
           cd backend
           npm install
           npx prisma generate
+          # This command applies any NEW migrations. 
+          # It won't fail if the database is already partially set up.
           npx prisma migrate deploy
 
       - name: Restart Application
