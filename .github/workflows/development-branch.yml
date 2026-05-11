@@ -18,12 +18,13 @@ jobs:
           npm run build
 
       - name: Update Backend & Database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           cd backend
           npm install
           npx prisma generate
-          # Manually loading the local .env file for the migrate deploy command
-          npx prisma migrate deploy --config prisma.config.ts
+          npx prisma migrate deploy
 
       - name: Restart Application
         run: |
