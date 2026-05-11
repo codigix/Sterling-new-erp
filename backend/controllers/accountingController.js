@@ -19,8 +19,11 @@ const getVendorInvoices = async (req, res) => {
     }
 
     if (projectId) {
+      // Resolve internal ID if public_id is provided
+      const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [projectId, projectId]);
+      const effectiveId = cards.length > 0 ? cards[0].id : projectId;
       query += " AND vi.project_id = ?";
-      params.push(projectId);
+      params.push(effectiveId);
     }
 
     if (search) {
@@ -294,6 +297,13 @@ const createVendorInvoice = async (req, res) => {
       items
     } = req.body;
 
+    // Resolve internal ID if public_id is provided
+    let effectiveProjectId = project_id;
+    if (effectiveProjectId) {
+      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [effectiveProjectId, effectiveProjectId]);
+      if (cards.length > 0) effectiveProjectId = cards[0].id;
+    }
+
     // Insert invoice header
     const [invoiceResult] = await connection.query(
       `INSERT INTO vendor_invoices (
@@ -304,7 +314,7 @@ const createVendorInvoice = async (req, res) => {
         paid_amount, balance_amount, round_off, notes, status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 'PENDING')`,
       [
-        invoice_number, purchase_order_id, vendor_id, project_id,
+        invoice_number, purchase_order_id, vendor_id, effectiveProjectId,
         invoice_date, place_of_supply, transporter, lr_number,
         challan_number, challan_date || null, sub_total, taxable_value,
         cgst_amount, sgst_amount, igst_amount, grand_total,
@@ -368,8 +378,11 @@ const getCustomerInvoices = async (req, res) => {
     }
 
     if (projectId) {
+      // Resolve internal ID if public_id is provided
+      const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [projectId, projectId]);
+      const effectiveId = cards.length > 0 ? cards[0].id : projectId;
       query += " AND ci.project_id = ?";
-      params.push(projectId);
+      params.push(effectiveId);
     }
 
     if (search) {
@@ -463,6 +476,13 @@ const createCustomerInvoice = async (req, res) => {
       items
     } = req.body;
 
+    // Resolve internal ID if public_id is provided
+    let effectiveProjectId = project_id;
+    if (effectiveProjectId) {
+      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [effectiveProjectId, effectiveProjectId]);
+      if (cards.length > 0) effectiveProjectId = cards[0].id;
+    }
+
     const [invoiceResult] = await connection.query(
       `INSERT INTO customer_invoices (
         invoice_number, customer_name, project_id, invoice_date, 
@@ -471,7 +491,7 @@ const createCustomerInvoice = async (req, res) => {
         balance_amount, round_off, notes, status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 'PENDING')`,
       [
-        invoice_number, customer_name, project_id, invoice_date,
+        invoice_number, customer_name, effectiveProjectId, invoice_date,
         place_of_supply, sub_total, taxable_value, cgst_amount,
         sgst_amount, igst_amount, grand_total, grand_total,
         round_off, notes
