@@ -25,11 +25,11 @@ const UniversalRootCardsPage = ({ isAccountantView = false }) => {
   const basePath = getBasePath();
 
   const handleViewRootCard = (order) => {
-    navigate(`${basePath}/${order.id}?mode=view`);
+    navigate(`${basePath}/${order.public_id || order.id}?mode=view`);
   };
 
   const handleEditRootCard = (order) => {
-    navigate(`${basePath}/${order.id}?mode=edit`);
+    navigate(`${basePath}/${order.public_id || order.id}?mode=edit`);
   };
 
   const handleSendToDesignEngineering = async (order) => {

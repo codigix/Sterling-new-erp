@@ -79,9 +79,15 @@ exports.approveDimensionalInspection = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    // 1. Get Root Card info
-    const [rcs] = await connection.query('SELECT project_name FROM root_cards WHERE id = ?', [root_card_id]);
-    const projectName = rcs.length > 0 ? rcs[0].project_name : root_card_id;
+    // Resolve internal ID if public_id is provided
+    const [cards] = await connection.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    if (cards.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ success: false, message: 'Root Card not found' });
+    }
+
+    const internalId = cards[0].id;
+    const projectName = cards[0].project_name;
 
     // 2. Update Root Card status based on phase
     const newStatus = phase === 1 
@@ -89,7 +95,7 @@ exports.approveDimensionalInspection = async (req, res) => {
       : 'Redy for Dispatch';
     await connection.query(
       "UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-      [newStatus, root_card_id]
+      [newStatus, internalId]
     );
 
     // 3. Notify Production
@@ -125,8 +131,12 @@ exports.getProjectInspections = async (req, res) => {
   const { root_card_id } = req.params;
   const { phase } = req.query;
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
+
     let query = 'SELECT * FROM project_inspections WHERE root_card_id = ?';
-    const params = [root_card_id];
+    const params = [effectiveId];
     
     if (phase) {
       query += ' AND phase = ?';
@@ -145,9 +155,13 @@ exports.getProjectInspections = async (req, res) => {
 exports.addProjectInspection = async (req, res) => {
   const { root_card_id, inspection_name, phase } = req.body;
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
+
     const [result] = await db.query(
       'INSERT INTO project_inspections (root_card_id, inspection_name, phase, status) VALUES (?, ?, ?, ?)',
-      [root_card_id, inspection_name, phase || 1, 'Pending']
+      [effectiveId, inspection_name, phase || 1, 'Pending']
     );
     res.json({ success: true, id: result.insertId, message: 'Inspection added successfully' });
   } catch (error) {
@@ -283,8 +297,12 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
     const queryParams = [];
 
     if (rootCardId) {
+      // Resolve internal ID if public_id is provided
+      const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [rootCardId, rootCardId]);
+      const effectiveId = cards.length > 0 ? cards[0].id : rootCardId;
+      
       query += ` AND q.root_card_id = ?`;
-      queryParams.push(rootCardId);
+      queryParams.push(effectiveId);
     }
 
     if (grnNumber) {

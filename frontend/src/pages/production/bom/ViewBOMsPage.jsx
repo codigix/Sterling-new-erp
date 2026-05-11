@@ -253,7 +253,7 @@ const ViewBOMsPage = () => {
       render: (_, row) => (
         <div className="flex items-center gap-2">
           <button 
-            onClick={() => navigate(`/department/production/bom/view/${row.id}`)}
+            onClick={() => navigate(`/department/production/bom/view/${row.public_id || row.id}`)}
             className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
             title="View Details"
           >
@@ -261,7 +261,7 @@ const ViewBOMsPage = () => {
           </button>
           {row.status !== 'request_sent' && (
             <button 
-              onClick={() => handleMaterialRequest(row.id)}
+              onClick={() => handleMaterialRequest(row.public_id || row.id)}
               className="p-1 hover:bg-blue-50 rounded-md text-blue-600 transition-colors"
               title="Send Material Request"
             >
@@ -269,7 +269,7 @@ const ViewBOMsPage = () => {
             </button>
           )}
           <button 
-            onClick={() => navigate(`/department/production/bom/create?bomId=${row.id}`)}
+            onClick={() => navigate(`/department/production/bom/create?bomId=${row.public_id || row.id}`)}
             className="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 transition-colors"
             title="Edit BOM"
           >

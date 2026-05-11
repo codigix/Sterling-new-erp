@@ -35,8 +35,12 @@ const getPurchaseOrders = async (req, res) => {
       }
     }
     if (root_card_id) {
+      // Resolve internal ID if public_id is provided
+      const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+      const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
+      
       query += " AND (q.root_card_id = ? OR mr.root_card_id = ?)";
-      params.push(root_card_id, root_card_id);
+      params.push(effectiveId, effectiveId);
     }
     if (search) {
       query +=
@@ -125,6 +129,13 @@ const createPurchaseOrder = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Resolve internal ID if public_id is provided for project_id
+    let effectiveProjectId = project_id;
+    if (project_id) {
+      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [project_id, project_id]);
+      if (cards.length > 0) effectiveProjectId = cards[0].id;
+    }
+
     // Generate Unique PO Number with random suffix
     let finalPoNumber = po_number;
     if (!finalPoNumber) {
@@ -169,7 +180,7 @@ const createPurchaseOrder = async (req, res) => {
       [
         finalPoNumber,
         quotation_id || null,
-        project_id || null,
+        effectiveProjectId || null,
         vendor_id,
         order_date,
         expected_delivery_date || null,
@@ -301,6 +312,13 @@ const updatePurchaseOrder = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Resolve internal ID if public_id is provided for project_id
+    let effectiveProjectId = project_id;
+    if (project_id) {
+      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [project_id, project_id]);
+      if (cards.length > 0) effectiveProjectId = cards[0].id;
+    }
+
     await connection.query(
       `UPDATE purchase_orders 
             SET quotation_id = ?, project_id = ?, vendor_id = ?, order_date = ?, expected_delivery_date = ?, 
@@ -309,7 +327,7 @@ const updatePurchaseOrder = async (req, res) => {
             WHERE id = ?`,
       [
         quotation_id || null,
-        project_id || null,
+        effectiveProjectId || null,
         vendor_id,
         order_date,
         expected_delivery_date || null,

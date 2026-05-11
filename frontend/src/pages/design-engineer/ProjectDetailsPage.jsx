@@ -220,11 +220,11 @@ const ProjectDetailsPage = () => {
   };
 
   const handleSelectProject = (project) => {
-    navigate(`/design-engineer/root-cards?projectId=${project.id}&mode=edit`);
+    navigate(`/design-engineer/root-cards?projectId=${project.public_id || project.id}&mode=edit`);
   };
 
   const handleViewProject = (project) => {
-    navigate(`/design-engineer/root-cards/${project.id}`);
+    navigate(`/design-engineer/root-cards/${project.public_id || project.id}`);
   };
 
   const loadProjectFromUrl = async () => {

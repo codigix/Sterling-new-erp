@@ -7,16 +7,16 @@ const createMaterialRequest = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Resolve internal ID if public_id is provided
+    const [cards] = await connection.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [rootCardId, rootCardId]);
+    const effectiveRootCardId = cards.length > 0 ? cards[0].id : rootCardId;
+
     // Fetch BOM details for snapshot
     const [bomRows] = await connection.query('SELECT bom_number FROM boms WHERE id = ?', [bomId]);
     const bomNumberSnapshot = bomRows.length > 0 ? bomRows[0].bom_number : 'N/A';
 
-    // Fetch Project Name snapshot
-    let projectNameSnapshot = 'N/A';
-    if (rootCardId) {
-      const [rcRows] = await connection.query('SELECT project_name FROM root_cards WHERE id = ?', [rootCardId]);
-      if (rcRows.length > 0) projectNameSnapshot = rcRows[0].project_name;
-    }
+    // Project Name snapshot
+    const projectNameSnapshot = cards.length > 0 ? cards[0].project_name : 'N/A';
 
     // Generate Request Number
     const year = new Date().getFullYear();
@@ -44,7 +44,7 @@ const createMaterialRequest = async (req, res) => {
       `INSERT INTO material_requests 
       (bom_id, request_number, status, department, project_id, root_card_id, created_by, remarks, bom_number, project_name) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [bomId, requestNumber, 'pending', 'Production', projectId || null, rootCardId || null, req.user?.id || null, remarks || '', bomNumberSnapshot, projectNameSnapshot]
+      [bomId, requestNumber, 'pending', 'Production', projectId || null, effectiveRootCardId || null, req.user?.id || null, remarks || '', bomNumberSnapshot, projectNameSnapshot]
     );
 
     const requestId = requestResult.insertId;
@@ -53,10 +53,10 @@ const createMaterialRequest = async (req, res) => {
     await connection.query('UPDATE boms SET status = ? WHERE id = ?', ['request_sent', bomId]);
 
     // 1.2 Update Root Card status to 'MATERIAL_PLANNING'
-    if (rootCardId) {
+    if (effectiveRootCardId) {
       await connection.query(
         'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', 
-        ['MATERIAL_PLANNING', rootCardId]
+        ['MATERIAL_PLANNING', effectiveRootCardId]
       );
     }
 
@@ -102,8 +102,8 @@ const createMaterialRequest = async (req, res) => {
     // 3. Create notification for Procurement
     try {
         const notifMessage = `New Material Request ${requestNumber} received from Production for project ${projectNameSnapshot !== 'N/A' ? projectNameSnapshot : 'N/A'}`;
-        const metadata = JSON.stringify({ rootCardId: rootCardId, requestId: requestId });
-        const link = `/department/procurement/material-requests?rootCardId=${rootCardId}`;
+        const metadata = JSON.stringify({ rootCardId: effectiveRootCardId, requestId: requestId });
+        const link = `/department/procurement/material-requests?rootCardId=${effectiveRootCardId}`;
 
         await connection.query(
             `INSERT INTO notifications (user_id, title, message, type, department, link, metadata) 
@@ -157,8 +157,12 @@ const getMaterialRequests = async (req, res) => {
         params.push(projectId);
     }
     if (rootCardId) {
+        // Resolve internal ID if public_id is provided
+        const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [rootCardId, rootCardId]);
+        const effectiveId = cards.length > 0 ? cards[0].id : rootCardId;
+        
         query += " AND mr.root_card_id = ?";
-        params.push(rootCardId);
+        params.push(effectiveId);
     }
 
     query += " ORDER BY mr.created_at DESC";

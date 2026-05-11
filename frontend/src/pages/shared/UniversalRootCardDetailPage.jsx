@@ -39,7 +39,14 @@ const UniversalRootCardDetailPage = () => {
         const response = await axios.get(`/root-cards/${id}`, {
           params: { includeSteps: true }
         });
-        setRootCard(response.data.rootCard || response.data);
+        const data = response.data.rootCard || response.data;
+        setRootCard(data);
+        
+        // If accessed via legacy ID (e.g. RC-9592) and we have a public_id, redirect to public_id
+        if (data.public_id && id === data.id) {
+          const newPath = location.pathname.replace(id, data.public_id);
+          navigate(newPath + location.search, { replace: true });
+        }
       } catch (err) {
         console.error('Error fetching root card:', err);
         setError(err.response?.data?.message || 'Failed to load route card');

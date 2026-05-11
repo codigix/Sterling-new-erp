@@ -56,7 +56,7 @@ const QualityQAPPage = () => {
 
   const rootCardOptions = useMemo(() => {
     return rootCards.map(rc => ({
-      value: rc.id,
+      value: rc.public_id || rc.id,
       label: `${rc.project_name} (${rc.project_code})`,
       subLabel: `PO: ${rc.po_number || 'N/A'}`
     }));
@@ -93,7 +93,8 @@ const QualityQAPPage = () => {
 
     try {
       setUploading(true);
-      await axios.post(`/root-cards/${selectedRow.id}/upload-qap`, formData, {
+      const rootCardIdForApi = selectedRow.public_id || selectedRow.id;
+      await axios.post(`/root-cards/${rootCardIdForApi}/upload-qap`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       
@@ -112,7 +113,8 @@ const QualityQAPPage = () => {
   const handleSendToDesign = async (rc) => {
     try {
       setUploading(true);
-      await axios.post(`/root-cards/${rc.id}/return-to-design-engineering`);
+      const rootCardIdForApi = rc.public_id || rc.id;
+      await axios.post(`/root-cards/${rootCardIdForApi}/return-to-design-engineering`);
       showSuccess("Route card sent to Design Engineer for Production hand-off");
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {

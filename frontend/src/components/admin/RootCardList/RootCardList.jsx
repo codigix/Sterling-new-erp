@@ -66,7 +66,8 @@ const RootCardList = ({
     ? rootCards 
     : rootCards.filter(rootCard => rootCard.status === filter);
 
-  const handleDelete = async (rootCardId) => {
+  const handleDelete = async (rootCard) => {
+    const rootCardId = rootCard.public_id || rootCard.id;
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -80,7 +81,7 @@ const RootCardList = ({
     if (result.isConfirmed) {
       try {
         await axios.delete(`/root-cards/${rootCardId}`);
-        setRootCards(rootCards.filter(rootCard => rootCard.id !== rootCardId));
+        setRootCards(rootCards.filter(rc => (rc.public_id || rc.id) !== rootCardId));
         showSuccess('Route card deleted successfully');
       } catch (error) {
         console.error('Error deleting root card:', error);

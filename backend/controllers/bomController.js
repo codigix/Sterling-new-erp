@@ -27,13 +27,20 @@ const createBOM = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Resolve internal ID if public_id is provided
+    let effectiveRootCardId = productInfo.rootCardId;
+    if (effectiveRootCardId) {
+      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [effectiveRootCardId, effectiveRootCardId]);
+      if (cards.length > 0) effectiveRootCardId = cards[0].id;
+    }
+
     // 1. Insert into boms table
     const [bomResult] = await connection.query(
       `INSERT INTO boms 
       (root_card_id, bom_number, description, status, is_active, project_id, total_cost) 
       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        productInfo.rootCardId,
+        effectiveRootCardId,
         productInfo.bomNumber,
         productInfo.description || '',
         productInfo.status || 'draft',
@@ -149,6 +156,13 @@ const updateBOM = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Resolve internal ID if public_id is provided
+    let effectiveRootCardId = productInfo.rootCardId;
+    if (effectiveRootCardId) {
+      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [effectiveRootCardId, effectiveRootCardId]);
+      if (cards.length > 0) effectiveRootCardId = cards[0].id;
+    }
+
     const [updateResult] = await connection.query(
       `UPDATE boms SET 
         root_card_id = ?, 
@@ -160,7 +174,7 @@ const updateBOM = async (req, res) => {
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?`,
       [
-        productInfo.rootCardId,
+        effectiveRootCardId,
         productInfo.bomNumber,
         productInfo.description || '',
         productInfo.status || 'draft',

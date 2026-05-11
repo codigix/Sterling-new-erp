@@ -1084,6 +1084,7 @@ model root_card_steps {
 
 model root_cards {
   id                   String                 @id @db.VarChar(50)
+  public_id            String?                @unique(map: "idx_public_id") @db.VarChar(36)
   po_number            String                 @unique(map: "po_number") @db.VarChar(100)
   po_date              DateTime?              @db.Date
   project_name         String                 @db.VarChar(255)

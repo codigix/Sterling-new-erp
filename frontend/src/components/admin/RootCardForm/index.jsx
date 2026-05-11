@@ -278,15 +278,16 @@ function RootCardFormContent({
       };
 
       let response;
-      if (mode === "edit" && initialData?.id) {
-        response = await axios.put(`/root-cards/${initialData.id}`, rootCardData);
+      const rootCardIdForApi = initialData?.public_id || initialData?.id;
+      if (mode === "edit" && rootCardIdForApi) {
+        response = await axios.put(`/root-cards/${rootCardIdForApi}`, rootCardData);
       } else {
         response = await axios.post("/root-cards", rootCardData);
       }
       
-      const rootCardId = response.data.rootCard?.id || response.data.id || initialData?.id;
+      const newRootCardId = response.data.rootCard?.public_id || response.data.rootCard?.id || response.data.public_id || response.data.id || rootCardIdForApi;
 
-      if (!rootCardId) {
+      if (!newRootCardId) {
         throw new Error("Failed to process route card - no ID returned");
       }
 
@@ -297,7 +298,7 @@ function RootCardFormContent({
       };
 
       await saveAllStepsToRootCard(
-        rootCardId,
+        newRootCardId,
         mergedFormData,
         state.poDocuments || []
       );

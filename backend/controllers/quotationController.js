@@ -34,8 +34,12 @@ const getQuotations = async (req, res) => {
             params.push(material_request_id);
         }
         if (root_card_id) {
+            // Resolve internal ID if public_id is provided
+            const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+            const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
+            
             query += " AND (q.root_card_id = ? OR mr.root_card_id = ?)";
-            params.push(root_card_id, root_card_id);
+            params.push(effectiveId, effectiveId);
         }
         if (status && status !== 'all') {
             query += " AND q.status = ?";
@@ -94,6 +98,12 @@ const createQuotation = async (req, res) => {
         await connection.beginTransaction();
 
         let finalRootCardId = root_card_id;
+
+        // Resolve internal ID if public_id is provided
+        if (finalRootCardId) {
+            const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [finalRootCardId, finalRootCardId]);
+            if (cards.length > 0) finalRootCardId = cards[0].id;
+        }
 
         // If root_card_id is missing but we have RFQ, fetch it from the RFQ
         if (!finalRootCardId && rfq_id) {

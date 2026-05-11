@@ -147,11 +147,15 @@ exports.createDailyPlan = async (req, res) => {
     // 2. Insert Assignments and Sync Updates if provided
     if (assignments && assignments.length > 0) {
       for (const a of assignments) {
+        // Resolve internal ID if public_id is provided
+        const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [a.root_card_id, a.root_card_id]);
+        const effectiveRootCardId = cards.length > 0 ? cards[0].id : a.root_card_id;
+
         const [assignResult] = await connection.query(
           `INSERT INTO daily_operator_assignments 
           (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks, status) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [planId, a.root_card_id, a.operation_id, a.operation_name, 
+          [planId, effectiveRootCardId, a.operation_id, a.operation_name, 
            a.assignment_type || 'inhouse',
            a.operator_name, a.operator_id,
            a.vendor_name, a.vendor_id,
@@ -168,7 +172,7 @@ exports.createDailyPlan = async (req, res) => {
            operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
            actual_start, actual_end, break_time, actual_hours, status, remarks) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [plan_date, planId, newAssignmentId, a.root_card_id, a.operation_id, a.operation_name,
+          [plan_date, planId, newAssignmentId, effectiveRootCardId, a.operation_id, a.operation_name,
            a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
            a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.status || 'Pending', a.remarks || '']
         );
@@ -178,7 +182,7 @@ exports.createDailyPlan = async (req, res) => {
           `UPDATE root_card_operations 
            SET status = ?, updated_at = CURRENT_TIMESTAMP 
            WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
-          [a.status || 'Pending', a.root_card_id, a.operation_name]
+          [a.status || 'Pending', effectiveRootCardId, a.operation_name]
         );
       }
     }
@@ -238,11 +242,15 @@ exports.updateDailyPlan = async (req, res) => {
     // 3. Insert New Assignments and Sync Updates
     if (assignments && assignments.length > 0) {
       for (const a of assignments) {
+        // Resolve internal ID if public_id is provided
+        const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [a.root_card_id, a.root_card_id]);
+        const effectiveRootCardId = cards.length > 0 ? cards[0].id : a.root_card_id;
+
         const [assignResult] = await connection.query(
           `INSERT INTO daily_operator_assignments 
           (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks, status) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [id, a.root_card_id, a.operation_id, a.operation_name, 
+          [id, effectiveRootCardId, a.operation_id, a.operation_name, 
            a.assignment_type || 'inhouse',
            a.operator_name, a.operator_id,
            a.vendor_name, a.vendor_id,
@@ -256,7 +264,7 @@ exports.updateDailyPlan = async (req, res) => {
         // For batch updates, we check if an update exists for this plan_id, root_card_id and operation_name
         const [existingUpdate] = await connection.query(
           'SELECT id FROM daily_production_updates WHERE plan_id = ? AND root_card_id = ? AND operation_name = ?',
-          [id, a.root_card_id, a.operation_name]
+          [id, effectiveRootCardId, a.operation_name]
         );
 
         if (existingUpdate.length > 0) {
@@ -276,7 +284,7 @@ exports.updateDailyPlan = async (req, res) => {
              operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
              actual_start, actual_end, break_time, actual_hours, status, remarks) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [plan_date, id, newAssignmentId, a.root_card_id, a.operation_id, a.operation_name,
+            [plan_date, id, newAssignmentId, effectiveRootCardId, a.operation_id, a.operation_name,
              a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
              a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.status || 'Pending', a.remarks || '']
           );
@@ -287,7 +295,7 @@ exports.updateDailyPlan = async (req, res) => {
           `UPDATE root_card_operations 
            SET status = ?, updated_at = CURRENT_TIMESTAMP 
            WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
-          [a.status || 'Pending', a.root_card_id, a.operation_name]
+          [a.status || 'Pending', effectiveRootCardId, a.operation_name]
         );
       }
     }
@@ -381,6 +389,10 @@ exports.addAssignment = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Resolve internal ID if public_id is provided
+    const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    const effectiveRootCardId = cards.length > 0 ? cards[0].id : root_card_id;
+
     // 1. Get plan date
     const [plans] = await connection.query('SELECT plan_date FROM daily_production_plans WHERE id = ?', [plan_id]);
     const plan_date = plans.length > 0 ? plans[0].plan_date : new Date();
@@ -390,7 +402,7 @@ exports.addAssignment = async (req, res) => {
       `INSERT INTO daily_operator_assignments 
       (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks, status) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [plan_id, root_card_id, operation_id, operation_name, assignment_type || 'inhouse', operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time || 0, total_hours, remarks || '', status || 'Pending']
+      [plan_id, effectiveRootCardId, operation_id, operation_name, assignment_type || 'inhouse', operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time || 0, total_hours, remarks || '', status || 'Pending']
     );
 
     const newAssignmentId = result.insertId;
@@ -402,7 +414,7 @@ exports.addAssignment = async (req, res) => {
        operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
        actual_start, actual_end, break_time, actual_hours, status, remarks) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [plan_date, plan_id, newAssignmentId, root_card_id, operation_id, operation_name,
+      [plan_date, plan_id, newAssignmentId, effectiveRootCardId, operation_id, operation_name,
        operator_name, operator_id, vendor_name, vendor_id, assignment_type || 'inhouse',
        start_time, end_time, break_time || 0, total_hours, status || 'Pending', remarks || '']
     );
@@ -412,7 +424,7 @@ exports.addAssignment = async (req, res) => {
       `UPDATE root_card_operations 
        SET status = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
-      [status || 'Pending', root_card_id, operation_name]
+      [status || 'Pending', effectiveRootCardId, operation_name]
     );
 
     await connection.commit();
@@ -728,9 +740,14 @@ exports.sendFabricationToQC = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    // 1. Get Root Card info
-    const [rcs] = await connection.query('SELECT project_name FROM root_cards WHERE id = ?', [root_card_id]);
-    const projectName = rcs.length > 0 ? rcs[0].project_name : root_card_id;
+    // 1. Resolve internal ID if public_id is provided
+    const [rcs] = await connection.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    if (rcs.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ success: false, message: 'Root Card not found' });
+    }
+    const internalId = rcs[0].id;
+    const projectName = rcs[0].project_name;
 
     // 2. Update Root Card status based on phase
     const newStatus = currentPhase === 1 
@@ -738,14 +755,14 @@ exports.sendFabricationToQC = async (req, res) => {
       : 'final Prodcution completed and send to quality for final qc';
     await connection.query(
       "UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-      [newStatus, root_card_id]
+      [newStatus, internalId]
     );
 
     // 3. Notify Quality
     const notificationTitle = currentPhase === 1 ? 'Fabrication Ready for QC' : 'Painting & Finishing Ready for QC';
     const notificationMsg = currentPhase === 1
-      ? `Fabrication operations are complete for Project ${projectName} (${root_card_id}). The project is now ready for quality testing before Painting and Finishing.`
-      : `Painting and Finishing operations are complete for Project ${projectName} (${root_card_id}). The project is now ready for final quality inspection.`;
+      ? `Fabrication operations are complete for Project ${projectName} (${internalId}). The project is now ready for quality testing before Painting and Finishing.`
+      : `Painting and Finishing operations are complete for Project ${projectName} (${internalId}). The project is now ready for final quality inspection.`;
 
     await connection.query(
       `INSERT INTO notifications (department, title, message, type, link) 
@@ -1229,6 +1246,10 @@ exports.getCombinedMCRSummary = async (req, res) => {
 exports.getCombinedMCRReport = async (req, res) => {
   const { root_card_id } = req.query;
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
+
     const query = `
       SELECT 
         data.*, 
@@ -1251,7 +1272,7 @@ exports.getCombinedMCRReport = async (req, res) => {
       ORDER BY data.work_date DESC, data.id DESC
     `;
 
-    const [rows] = await db.query(query, [root_card_id]);
+    const [rows] = await db.query(query, [effectiveId]);
     res.json({ success: true, report: rows });
   } catch (error) {
     console.error('Error fetching combined MCR report:', error);
@@ -1316,13 +1337,16 @@ exports.getEmployeeLaborLogs = async (req, res) => {
 exports.getRootCardById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await db.query('SELECT * FROM root_cards WHERE id = ?', [id]);
+    const [rows] = await db.query('SELECT * FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Root Card not found' });
     }
 
+    const rootCard = rows[0];
+    const internalId = rootCard.id;
+
     // Fetch operations with phase info
-    const [operations] = await db.query('SELECT * FROM root_card_operations WHERE root_card_id = ? ORDER BY id DESC', [id]);
+    const [operations] = await db.query('SELECT * FROM root_card_operations WHERE root_card_id = ? ORDER BY id DESC', [internalId]);
     
     // Check if Phase 1 is fully completed and approved by Quality
     const phase1Ops = operations.filter(op => op.phase === 1);
@@ -1360,9 +1384,16 @@ exports.addProductionOperation = async (req, res) => {
   const { stageName, stageType, plannedStart, plannedEnd, notes, phase } = req.body;
   
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ success: false, message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+
     const [result] = await db.query(
       'INSERT INTO root_card_operations (root_card_id, operation_name, operation_type, phase, planned_start, planned_end, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [id, stageName, stageType || 'in_house', phase || 1, plannedStart || null, plannedEnd || null, notes || '']
+      [internalId, stageName, stageType || 'in_house', phase || 1, plannedStart || null, plannedEnd || null, notes || '']
     );
     
     res.json({ success: true, id: result.insertId, message: 'Operation added successfully' });
@@ -1377,9 +1408,16 @@ exports.updateProductionOperation = async (req, res) => {
   const { status, notes } = req.body;
 
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ success: false, message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+
     await db.query(
       'UPDATE root_card_operations SET status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND root_card_id = ?',
-      [status, notes, operationId, id]
+      [status, notes, operationId, internalId]
     );
     res.json({ success: true, message: 'Operation updated successfully' });
   } catch (error) {

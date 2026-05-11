@@ -11,6 +11,10 @@ exports.uploadDrawing = async (req, res) => {
     const { root_card_id, name, type, description } = req.body;
     const created_by = req.user.id;
     
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
+
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
@@ -21,7 +25,7 @@ exports.uploadDrawing = async (req, res) => {
     const [result] = await db.query(
       `INSERT INTO design_documents (root_card_id, name, type, version, file_path, description, status, created_by) 
        VALUES (?, ?, ?, 1, ?, ?, ?, ?)`,
-      [root_card_id, name, type, file_path, description, initialStatus, created_by]
+      [effectiveId, name, type, file_path, description, initialStatus, created_by]
     );
 
     res.status(201).json({ 
@@ -203,6 +207,10 @@ exports.getRootCardDrawings = async (req, res) => {
     const { rootCardId } = req.params;
     const isProduction = req.user && (req.user.role?.toLowerCase().includes('production') || req.user.department?.toLowerCase() === 'production');
 
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [rootCardId, rootCardId]);
+    const effectiveId = cards.length > 0 ? cards[0].id : rootCardId;
+
     let query = `
       SELECT d.*, u.full_name as created_by_name, r.full_name as reviewer_name,
              rc.project_name, rc.po_number
@@ -238,7 +246,7 @@ exports.getRootCardDrawings = async (req, res) => {
       query += ` AND d.status = 'Approved' AND rc.status IN ('${productionAllowedStatuses.join("', '")}')`;
     }
 
-    const [documents] = await db.query(query + " ORDER BY d.created_at DESC", [rootCardId]);
+    const [documents] = await db.query(query + " ORDER BY d.created_at DESC", [effectiveId]);
     res.json({ success: true, drawings: documents });
   } catch (error) {
     console.error('Error fetching root card drawings:', error);

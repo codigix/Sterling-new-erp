@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const crypto = require('crypto');
 
 const createRootCard = async (req, res) => {
   const {
@@ -24,13 +25,15 @@ const createRootCard = async (req, res) => {
   try {
     // Generate a random ID in the format RC-XXXX
     const randomId = `RC-${Math.floor(1000 + Math.random() * 9000)}`;
+    const publicId = crypto.randomUUID();
 
     const [result] = await db.query(
       `INSERT INTO root_cards 
-      (id, po_number, po_date, project_name, project_code, quantity, delivery_date, total, currency, priority, status, inspection, inspection_authority, ld, items, documents, notes, project_scope) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (id, public_id, po_number, po_date, project_name, project_code, quantity, delivery_date, total, currency, priority, status, inspection, inspection_authority, ld, items, documents, notes, project_scope) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         randomId,
+        publicId,
         poNumber,
         poDate || null,
         projectName,
@@ -76,7 +79,7 @@ const createRootCard = async (req, res) => {
 
     res.status(201).json({
       message: 'Root Card created successfully',
-      rootCard: { id: randomId, poNumber, projectName },
+      rootCard: { id: randomId, public_id: publicId, poNumber, projectName },
       notificationsSent: roles.length
     });
   } catch (error) {
@@ -171,15 +174,16 @@ const getAllRootCards = async (req, res) => {
 const getRootCardById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await db.query('SELECT * FROM root_cards WHERE id = ?', [id]);
+    const [rows] = await db.query('SELECT * FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Root Card not found' });
     }
 
     const rootCard = rows[0];
+    const internalId = rootCard.id;
 
     // Fetch steps
-    const [stepRows] = await db.query('SELECT step_key, step_data FROM root_card_steps WHERE root_card_id = ?', [id]);
+    const [stepRows] = await db.query('SELECT step_key, step_data FROM root_card_steps WHERE root_card_id = ?', [internalId]);
     
     rootCard.steps = {};
     stepRows.forEach(row => {
@@ -203,6 +207,13 @@ const saveAllSteps = async (req, res) => {
   }
 
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+
     const results = [];
     for (const step of steps) {
       const { stepKey, stepData, assignedTo, status } = step;
@@ -215,7 +226,7 @@ const saveAllSteps = async (req, res) => {
          assigned_to = VALUES(assigned_to),
          status = VALUES(status),
          updated_at = CURRENT_TIMESTAMP`,
-        [id, stepKey, JSON.stringify(stepData || {}), assignedTo || null, status || 'pending']
+        [internalId, stepKey, JSON.stringify(stepData || {}), assignedTo || null, status || 'pending']
       );
       results.push({ stepKey, success: true });
     }
@@ -230,9 +241,16 @@ const saveAllSteps = async (req, res) => {
 const getStepData = async (req, res) => {
   const { id, stepKey } = req.params;
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+
     const [rows] = await db.query(
       'SELECT * FROM root_card_steps WHERE root_card_id = ? AND step_key = ?',
-      [id, stepKey]
+      [internalId, stepKey]
     );
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Step data not found' });
@@ -274,7 +292,7 @@ const updateRootCard = async (req, res) => {
       status = ?, inspection = ?, inspection_authority = ?, ld = ?, 
       items = ?, documents = ?, notes = ?, project_scope = ?,
       updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?`,
+      WHERE id = ? OR public_id = ?`,
       [
         poNumber,
         poDate || null,
@@ -293,6 +311,7 @@ const updateRootCard = async (req, res) => {
         JSON.stringify(documents || []),
         notes || '',
         JSON.stringify(projectScope || {}),
+        id,
         id
       ]
     );
@@ -317,12 +336,19 @@ const deleteRootCard = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    // 1. Delete associated inspections
-    await connection.query('DELETE FROM project_inspections WHERE root_card_id = ?', [id]);
+    // Find internal ID first
+    const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
 
-    // 2. Delete the root card (cascading deletes for root_card_operations should happen if FK is set, 
-    // but we can be explicit if needed. Based on create_root_card_operations_table.js, it has ON DELETE CASCADE)
-    const [result] = await connection.query('DELETE FROM root_cards WHERE id = ?', [id]);
+    // 1. Delete associated inspections
+    await connection.query('DELETE FROM project_inspections WHERE root_card_id = ?', [internalId]);
+
+    // 2. Delete the root card
+    const [result] = await connection.query('DELETE FROM root_cards WHERE id = ?', [internalId]);
     
     if (result.affectedRows === 0) {
       await connection.rollback();
@@ -343,22 +369,23 @@ const deleteRootCard = async (req, res) => {
 const sendToDesignEngineering = async (req, res) => {
   const { id } = req.params;
   try {
-    // Check if root card exists
-    const [cards] = await db.query('SELECT project_name FROM root_cards WHERE id = ?', [id]);
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       return res.status(404).json({ message: 'Root Card not found' });
     }
 
+    const internalId = cards[0].id;
     const projectName = cards[0].project_name;
     
     // Update root card status
     await db.query(
       'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      ['DESIGN_IN_PROGRESS', id]
+      ['DESIGN_IN_PROGRESS', internalId]
     );
 
     const title = 'Design Engineering Phase Started';
-    const message = `Root Card ${id} for project "${projectName}" has been sent for Design Engineering. Please start uploading design drawings.`;
+    const message = `Root Card ${internalId} for project "${projectName}" has been sent for Design Engineering. Please start uploading design drawings.`;
 
     // Send notification to Design Engineering role
     await db.query(
@@ -376,22 +403,23 @@ const sendToDesignEngineering = async (req, res) => {
 const sendToProduction = async (req, res) => {
   const { id } = req.params;
   try {
-    // Check if root card exists
-    const [cards] = await db.query('SELECT project_name FROM root_cards WHERE id = ?', [id]);
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       return res.status(404).json({ message: 'Root Card not found' });
     }
 
+    const internalId = cards[0].id;
     const projectName = cards[0].project_name;
     
     // Update root card status
     await db.query(
       'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      ['BOM_PREPARATION', id]
+      ['BOM_PREPARATION', internalId]
     );
 
     const title = 'BOM Preparation Started';
-    const message = `Root Card ${id} for project "${projectName}" has been sent for Production (BOM Preparation). All approved drawings and QAP are now available.`;
+    const message = `Root Card ${internalId} for project "${projectName}" has been sent for Production (BOM Preparation). All approved drawings and QAP are now available.`;
 
     // Send notification to Production department
     await db.query(
@@ -409,25 +437,26 @@ const sendToProduction = async (req, res) => {
 const sendToQuality = async (req, res) => {
   const { id } = req.params;
   try {
-    // Check if root card exists
-    const [cards] = await db.query('SELECT project_name FROM root_cards WHERE id = ?', [id]);
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       return res.status(404).json({ message: 'Root Card not found' });
     }
 
+    const internalId = cards[0].id;
     const projectName = cards[0].project_name;
     
     // Fetch approved drawings to store in step data for quick access
     const [drawings] = await db.query(
       'SELECT file_path, name FROM design_documents WHERE root_card_id = ? AND status = "Approved" ORDER BY version DESC',
-      [id]
+      [internalId]
     );
 
     if (drawings.length > 0) {
       // Store the latest approved drawings in the design_engineering step data
       const [existingStep] = await db.query(
         'SELECT step_data FROM root_card_steps WHERE root_card_id = ? AND step_key = ?',
-        [id, 'design_engineering']
+        [internalId, 'design_engineering']
       );
 
       let stepData = {};
@@ -443,18 +472,18 @@ const sendToQuality = async (req, res) => {
          ON DUPLICATE KEY UPDATE 
          step_data = VALUES(step_data),
          updated_at = CURRENT_TIMESTAMP`,
-        [id, 'design_engineering', JSON.stringify(stepData), 'completed']
+        [internalId, 'design_engineering', JSON.stringify(stepData), 'completed']
       );
     }
 
     // Update root card status
     await db.query(
       'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      ['QUALITY_QAP_PENDING', id]
+      ['QUALITY_QAP_PENDING', internalId]
     );
 
     const title = 'QAP Upload Required';
-    const message = `Root Card ${id} for project "${projectName}" has been sent for QAP upload by Quality department.`;
+    const message = `Root Card ${internalId} for project "${projectName}" has been sent for QAP upload by Quality department.`;
 
     // Send notification to Quality department
     await db.query(
@@ -472,22 +501,23 @@ const sendToQuality = async (req, res) => {
 const returnToDesignEngineering = async (req, res) => {
   const { id } = req.params;
   try {
-    // Check if root card exists
-    const [cards] = await db.query('SELECT project_name FROM root_cards WHERE id = ?', [id]);
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       return res.status(404).json({ message: 'Root Card not found' });
     }
 
+    const internalId = cards[0].id;
     const projectName = cards[0].project_name;
     
     // Update root card status - Back to DESIGN_QAP_REVIEW so Design Engineer can send to Production
     await db.query(
       'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      ['DESIGN_QAP_REVIEW', id]
+      ['DESIGN_QAP_REVIEW', internalId]
     );
 
     const title = 'QAP Uploaded - Ready for Production Hand-off';
-    const message = `Quality department has uploaded the QAP for Root Card ${id} ("${projectName}"). Please review and send to Production.`;
+    const message = `Quality department has uploaded the QAP for Root Card ${internalId} ("${projectName}"). Please review and send to Production.`;
 
     // Send notification to Design Engineering
     await db.query(
@@ -511,11 +541,18 @@ const uploadQAP = async (req, res) => {
   }
 
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+
     // We can either update a column if it exists, or update the quality step data
     // Let's update the quality step data for consistency with how other steps work
     const [existingStep] = await db.query(
       'SELECT step_data FROM root_card_steps WHERE root_card_id = ? AND step_key = ?',
-      [id, 'quality']
+      [internalId, 'quality']
     );
 
     let stepData = {};
@@ -549,7 +586,7 @@ const uploadQAP = async (req, res) => {
        ON DUPLICATE KEY UPDATE 
        step_data = VALUES(step_data),
        updated_at = CURRENT_TIMESTAMP`,
-      [id, 'quality', JSON.stringify(stepData), 'in_progress']
+      [internalId, 'quality', JSON.stringify(stepData), 'in_progress']
     );
 
     res.json({ 
@@ -576,7 +613,8 @@ const getAllRootCardRequirements = async (req, res) => {
 const getRootCardRequirementsById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await db.query('SELECT * FROM root_cards WHERE id = ?', [id]);
+    // Resolve internal ID if public_id is provided
+    const [rows] = await db.query('SELECT * FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Root Card not found' });
     }
@@ -602,10 +640,17 @@ const updateRootCardRequirements = async (req, res) => {
   const { id } = req.params;
   const { materials, procurementStatus } = req.body;
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+
     // For now, we update the items field if that's where requirements come from
     await db.query(
       'UPDATE root_cards SET items = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [JSON.stringify(materials), procurementStatus === 'pending' ? 'RC_CREATED' : 'RC_CREATED', id]
+      [JSON.stringify(materials), procurementStatus === 'pending' ? 'RC_CREATED' : 'RC_CREATED', internalId]
     );
     res.json({ success: true, message: 'Requirements updated successfully' });
   } catch (error) {
@@ -619,9 +664,16 @@ const updateRootCardStatus = async (req, res) => {
   const { status } = req.body;
 
   try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+
     const [result] = await db.query(
       'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [status, id]
+      [status, internalId]
     );
 
     if (result.affectedRows === 0) {
@@ -630,7 +682,7 @@ const updateRootCardStatus = async (req, res) => {
 
     // Send notification to relevant department based on status
     let department = '';
-    let message = `Root Card ${id} status has been updated to ${status.replace(/_/g, ' ')}.`;
+    let message = `Root Card ${internalId} status has been updated to ${status.replace(/_/g, ' ')}.`;
     let link = `/admin/root-cards/${id}?mode=view`;
 
     if (status === 'DESIGN_IN_PROGRESS') department = 'Design Engineer';
