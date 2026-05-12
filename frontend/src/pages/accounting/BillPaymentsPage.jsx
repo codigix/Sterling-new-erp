@@ -100,7 +100,7 @@ const BillPaymentsPage = () => {
     const doc = new jsPDF();
     try {
       const logo = await loadImage("/logo.png");
-      doc.addImage(logo, "PNG", 14, 5, 50, 15);
+      doc.addImage(logo, "PNG", 14, 5, 21, 21);
     } catch (error) {
       console.warn("Logo not found or failed to load:", error);
     }

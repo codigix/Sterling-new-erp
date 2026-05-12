@@ -1521,13 +1521,13 @@ exports.createOutwardChallan = async (req, res) => {
         if (items && items.length > 0) {
             const itemValues = items.map(item => [
                 challanId, item.item_code, item.item_name, item.batch_no,
-                item.available_qty, item.dispatch_qty, item.uom
+                item.available_qty, item.dispatch_qty, item.uom, item.rate || 0
             ]);
 
             await connection.query(
                 `INSERT INTO outward_challan_items (
                     challan_id, item_code, item_name, batch_no, 
-                    available_qty, dispatch_qty, uom
+                    available_qty, dispatch_qty, uom, rate
                 ) VALUES ?`,
                 [itemValues]
             );

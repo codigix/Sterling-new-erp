@@ -77,6 +77,8 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
           'PO Number': initialData?.po_number || formData?.poNumber,
           'Project Name': initialData?.project_name || formData?.projectName,
           'Project Code': formData?.projectCode,
+          'Quantity': formData?.quantity,
+          'Sales Price': formData?.salesPrice,
           'Project Owner': getEmployeeName(formData?.internalProjectOwner),
           'Project Requirements': formData?.projectRequirements,
         });
@@ -238,6 +240,8 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                   <DetailField label="PO Number" value={initialData?.po_number || formData?.poNumber} />
                   <DetailField label="Project Name" value={initialData?.project_name || formData?.projectName} />
                   <DetailField label="Project Code" value={formData?.projectCode} />
+                  <DetailField label="Quantity" value={formData?.quantity} />
+                  <DetailField label="Sales Price" value={formData?.salesPrice} />
                   <DetailField label="Project Owner" value={getEmployeeName(formData?.internalProjectOwner)} />
                 </div>
               </div>

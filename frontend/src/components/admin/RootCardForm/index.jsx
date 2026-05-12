@@ -138,6 +138,7 @@ function RootCardFormContent({
       updateField("projectName", initialData.project_name || "");
       updateField("projectCode", initialData.project_code || "");
       updateField("quantity", initialData.quantity || 1);
+      updateField("salesPrice", initialData.sales_price || 0);
       updateField("poDate", formatDateForInput(initialData.po_date));
       updateField("deliveryDate", formatDateForInput(initialData.delivery_date));
       updateField("inspection", initialData.inspection || "");
@@ -266,6 +267,7 @@ function RootCardFormContent({
         projectName: formData.projectName,
         projectCode: formData.projectCode,
         quantity: parseInt(formData.quantity || 1),
+        salesPrice: parseFloat(formData.salesPrice || 0),
         deliveryDate: formData.deliveryDate || formData.estimatedEndDate,
         status: formData.status || "RC_CREATED",
         inspection: formData.inspection,

@@ -116,17 +116,19 @@ const CustomerInvoicesPage = () => {
       
       try {
         const logo = await loadImage("/logo.png");
-        doc.addImage(logo, "PNG", margin + 2, margin + 2, 20, 20);
-      } catch (e) {}
+        doc.addImage(logo, "PNG", margin + 2, margin + 2, 21, 21);
+      } catch (e) {
+        console.warn("Logo failed to load", e);
+      }
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
-      doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", margin + 25, margin + 8);
+      doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", margin + 28, margin + 8);
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-      doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", margin + 25, margin + 13);
+      doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", margin + 28, margin + 13);
       doc.setFont("helvetica", "italic");
-      doc.text("Transforming Ideas Into Reality With Trusted Engineering Solutions", margin + 25, margin + 18);
+      doc.text("Transforming Ideas Into Reality With Trusted Engineering Solutions", margin + 28, margin + 18);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(14);
@@ -161,27 +163,33 @@ const CustomerInvoicesPage = () => {
       
       const cols = [
         { name: "Sr.", x: margin + 2, w: 10 },
-        { name: "Description", x: margin + 12, w: 80 },
-        { name: "HSN", x: margin + 92, w: 20 },
+        { name: "Description", x: margin + 12, w: 100 },
         { name: "Qty", x: margin + 112, w: 15 },
         { name: "Rate", x: margin + 127, w: 30 },
         { name: "Amount", x: margin + 157, w: 30 }
       ];
 
       doc.setFont("helvetica", "bold");
-      cols.forEach(c => doc.text(c.name, c.x, tableY + 7));
+      cols.forEach(c => {
+        doc.text(c.name, c.x, tableY + 7);
+        if (c.x > margin + 2) {
+          doc.line(c.x - 1, tableY, c.x - 1, tableY + 100);
+        }
+      });
       doc.line(margin, tableY + 10, margin + contentWidth, tableY + 10);
 
       doc.setFont("helvetica", "normal");
       let currentY = tableY + 15;
       (invoice.items || []).forEach((item, idx) => {
         doc.text((idx + 1).toString(), cols[0].x, currentY);
-        doc.text(item.description, cols[1].x, currentY, { maxWidth: 75 });
-        doc.text(item.hsn_code || "-", cols[2].x, currentY);
-        doc.text(parseFloat(item.qty).toString(), cols[3].x, currentY);
-        doc.text(parseFloat(item.rate).toLocaleString(), cols[4].x, currentY);
-        doc.text(parseFloat(item.amount).toLocaleString(), cols[5].x, currentY);
+        doc.text(item.description || "", cols[1].x, currentY, { maxWidth: 95 });
+        doc.text(parseFloat(item.qty || 0).toString(), cols[2].x, currentY);
+        doc.text(parseFloat(item.rate || 0).toLocaleString(), cols[3].x, currentY);
+        doc.text(parseFloat(item.amount || 0).toLocaleString(), cols[4].x, currentY);
         currentY += 10;
+        if (currentY < tableY + 100) {
+            doc.line(margin, currentY - 3, margin + contentWidth, currentY - 3);
+        }
       });
 
       // Totals
@@ -240,13 +248,13 @@ const CustomerInvoicesPage = () => {
       key: "paid_amount",
       label: "Received",
       align: "right",
-      render: (val) => <span className="text-emerald-600 font-medium">₹${parseFloat(val).toLocaleString()}</span>
+      render: (val) => <span className="text-emerald-600 font-medium">₹{parseFloat(val).toLocaleString()}</span>
     },
     {
       key: "balance_amount",
       label: "Remaining",
       align: "right",
-      render: (val) => <span className="text-amber-600 font-medium">₹${parseFloat(val).toLocaleString()}</span>
+      render: (val) => <span className="text-amber-600 font-medium">₹{parseFloat(val).toLocaleString()}</span>
     },
     {
       key: "status",

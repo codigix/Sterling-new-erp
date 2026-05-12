@@ -4,11 +4,16 @@ const getVendorInvoices = async (req, res) => {
   try {
     const { search, status, projectId } = req.query;
     let query = `
-      SELECT vi.*, v.name as vendor_name, rc.project_name as project_name, po.po_number
+      SELECT vi.*, v.name as vendor_name, 
+             COALESCE(rc.project_name, po_rc.project_name, oc_rc.project_name) as project_name, 
+             po.po_number, oc.challan_no
       FROM vendor_invoices vi
       LEFT JOIN vendors v ON vi.vendor_id = v.id
       LEFT JOIN root_cards rc ON (vi.project_id = rc.id OR vi.project_id = rc.public_id)
       LEFT JOIN purchase_orders po ON vi.purchase_order_id = po.id
+      LEFT JOIN outward_challans oc ON vi.outward_challan_id = oc.id
+      LEFT JOIN root_cards po_rc ON po.project_id = po_rc.id
+      LEFT JOIN root_cards oc_rc ON oc.root_card_id = oc_rc.id
       WHERE 1=1
     `;
     const params = [];
@@ -27,9 +32,9 @@ const getVendorInvoices = async (req, res) => {
     }
 
     if (search) {
-      query += " AND (vi.invoice_number LIKE ? OR v.name LIKE ? OR po.po_number LIKE ?)";
+      query += " AND (vi.invoice_number LIKE ? OR v.name LIKE ? OR po.po_number LIKE ? OR oc.challan_no LIKE ?)";
       const searchVal = `%${search}%`;
-      params.push(searchVal, searchVal, searchVal);
+      params.push(searchVal, searchVal, searchVal, searchVal);
     }
 
     query += " ORDER BY vi.created_at DESC";
@@ -47,12 +52,16 @@ const getVendorInvoiceById = async (req, res) => {
     const { id } = req.params;
     const [rows] = await db.query(`
       SELECT vi.*, v.name as vendor_name, v.address as vendor_address, v.gstin as vendor_gst,
-             rc.project_name as project_name,
-             po.po_number, po.order_date as po_date
+             COALESCE(rc.project_name, po_rc.project_name, oc_rc.project_name) as project_name,
+             po.po_number, po.order_date as po_date,
+             oc.challan_no, oc.challan_date as oc_date
       FROM vendor_invoices vi
       LEFT JOIN vendors v ON vi.vendor_id = v.id
       LEFT JOIN root_cards rc ON (vi.project_id = rc.id OR vi.project_id = rc.public_id)
       LEFT JOIN purchase_orders po ON vi.purchase_order_id = po.id
+      LEFT JOIN outward_challans oc ON vi.outward_challan_id = oc.id
+      LEFT JOIN root_cards po_rc ON po.project_id = po_rc.id
+      LEFT JOIN root_cards oc_rc ON oc.root_card_id = oc_rc.id
       WHERE vi.id = ?
     `, [id]);
 
@@ -78,10 +87,11 @@ const getPendingInvoices = async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT vi.id, vi.invoice_number, vi.grand_total, vi.paid_amount, vi.balance_amount, 
-             v.name as vendor_name, v.id as vendor_id, po.po_number
+             v.name as vendor_name, v.id as vendor_id, po.po_number, oc.challan_no
       FROM vendor_invoices vi
       JOIN vendors v ON vi.vendor_id = v.id
       LEFT JOIN purchase_orders po ON vi.purchase_order_id = po.id
+      LEFT JOIN outward_challans oc ON vi.outward_challan_id = oc.id
       WHERE vi.status IN ('PENDING', 'OVERDUE') AND vi.balance_amount > 0
       ORDER BY vi.invoice_date ASC
     `);
@@ -224,17 +234,17 @@ const createVendorPayment = async (req, res) => {
     const [vendorRows] = await connection.query("SELECT name FROM vendors WHERE id = ?", [vendor_id]);
     const vendorName = vendorRows[0]?.name || "Vendor";
 
-    // Entry 1: Debit Vendor/Accounts Payable
-    await connection.query(
-      `INSERT INTO ledger_entries (date, reference_no, description, account_name, debit, credit, transaction_type, related_id)
-       VALUES (?, ?, ?, ?, ?, 0, 'PAYMENT_MADE', ?)`,
-      [payment_date, payment_number, `Payment to ${vendorName} for Inv #${req.body.invoice_number || 'N/A'}`, "Accounts Payable", amount_paid, paymentResult.insertId]
-    );
-
-    // Entry 2: Credit Bank/Cash
+    // Entry 1: Credit Vendor/Accounts Payable (Swapped for Statement Style)
     await connection.query(
       `INSERT INTO ledger_entries (date, reference_no, description, account_name, debit, credit, transaction_type, related_id)
        VALUES (?, ?, ?, ?, 0, ?, 'PAYMENT_MADE', ?)`,
+      [payment_date, payment_number, `Payment to ${vendorName} for Inv #${req.body.invoice_number || 'N/A'}`, "Accounts Payable", amount_paid, paymentResult.insertId]
+    );
+
+    // Entry 2: Debit Bank/Cash (Swapped for Statement Style)
+    await connection.query(
+      `INSERT INTO ledger_entries (date, reference_no, description, account_name, debit, credit, transaction_type, related_id)
+       VALUES (?, ?, ?, ?, ?, 0, 'PAYMENT_MADE', ?)`,
       [payment_date, payment_number, `Payment to ${vendorName}`, payment_method.includes("Bank") ? "Bank Account" : "Cash Account", amount_paid, paymentResult.insertId]
     );
 
@@ -281,6 +291,7 @@ const createVendorInvoice = async (req, res) => {
     const {
       invoice_number,
       purchase_order_id,
+      outward_challan_id,
       vendor_id,
       project_id,
       invoice_date,
@@ -310,14 +321,14 @@ const createVendorInvoice = async (req, res) => {
     // Insert invoice header
     const [invoiceResult] = await connection.query(
       `INSERT INTO vendor_invoices (
-        invoice_number, purchase_order_id, vendor_id, project_id, 
+        invoice_number, purchase_order_id, outward_challan_id, vendor_id, project_id, 
         invoice_date, place_of_supply, transporter, lr_number, 
         challan_number, challan_date, sub_total, taxable_value, 
         cgst_amount, sgst_amount, igst_amount, grand_total, 
         paid_amount, balance_amount, round_off, notes, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 'PENDING')`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 'PENDING')`,
       [
-        invoice_number, purchase_order_id, vendor_id, effectiveProjectId,
+        invoice_number, purchase_order_id || null, outward_challan_id || null, vendor_id, effectiveProjectId,
         invoice_date, place_of_supply, transporter, lr_number,
         challan_number, challan_date || null, sub_total, taxable_value,
         cgst_amount, sgst_amount, igst_amount, grand_total,
@@ -332,7 +343,8 @@ const createVendorInvoice = async (req, res) => {
     if (items && items.length > 0) {
       const itemValues = items.map(item => [
         invoiceId,
-        item.po_item_id,
+        item.po_item_id || null,
+        item.challan_item_id || null,
         item.description,
         item.hsn_code,
         item.qty,
@@ -343,7 +355,7 @@ const createVendorInvoice = async (req, res) => {
 
       await connection.query(
         `INSERT INTO vendor_invoice_items (
-          invoice_id, po_item_id, description, hsn_code, 
+          invoice_id, po_item_id, challan_item_id, description, hsn_code, 
           qty, unit, rate, amount
         ) VALUES ?`,
         [itemValues]
@@ -361,6 +373,61 @@ const createVendorInvoice = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   } finally {
     connection.release();
+  }
+};
+
+const getEligibleOutwardChallans = async (req, res) => {
+  try {
+    const { vendorId } = req.query;
+    let query = `
+      SELECT oc.*, rc.project_name, oc.root_card_id as project_id
+      FROM outward_challans oc
+      LEFT JOIN root_cards rc ON oc.root_card_id = rc.id
+      WHERE oc.status IN ('SUBMITTED', 'RECEIVED')
+      AND oc.id NOT IN (SELECT outward_challan_id FROM vendor_invoices WHERE outward_challan_id IS NOT NULL)
+    `;
+    const params = [];
+
+    if (vendorId) {
+      query += " AND oc.vendor_id = ?";
+      params.push(vendorId);
+    }
+
+    query += " ORDER BY oc.challan_date DESC";
+
+    const [rows] = await db.query(query, params);
+    res.json({ challans: rows });
+  } catch (error) {
+    console.error("Error fetching eligible outward challans:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getOutwardChallanDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await db.query(`
+      SELECT oc.*, rc.project_name, oc.root_card_id as project_id
+      FROM outward_challans oc
+      LEFT JOIN root_cards rc ON oc.root_card_id = rc.id
+      WHERE oc.id = ?
+    `, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Challan not found" });
+    }
+
+    const challan = rows[0];
+    const [items] = await db.query(
+      "SELECT * FROM outward_challan_items WHERE challan_id = ?",
+      [id]
+    );
+    challan.items = items;
+
+    res.json(challan);
+  } catch (error) {
+    console.error("Error fetching outward challan details:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -637,17 +704,17 @@ const createCustomerPayment = async (req, res) => {
     }
 
     // 3. Create Ledger Entries (Double Entry)
-    // Entry 1: Debit Bank/Cash
-    await connection.query(
-      `INSERT INTO ledger_entries (date, reference_no, description, account_name, debit, credit, transaction_type, related_id)
-       VALUES (?, ?, ?, ?, ?, 0, 'PAYMENT_RECEIVED', ?)`,
-      [received_date, receipt_number, `Payment received from ${customer_name}`, payment_method.includes("Bank") ? "Bank Account" : "Cash Account", amount_received, paymentResult.insertId]
-    );
-
-    // Entry 2: Credit Customer/Accounts Receivable
+    // Entry 1: Credit Bank/Cash (Swapped for Statement Style)
     await connection.query(
       `INSERT INTO ledger_entries (date, reference_no, description, account_name, debit, credit, transaction_type, related_id)
        VALUES (?, ?, ?, ?, 0, ?, 'PAYMENT_RECEIVED', ?)`,
+      [received_date, receipt_number, `Payment received from ${customer_name}`, payment_method.includes("Bank") ? "Bank Account" : "Cash Account", amount_received, paymentResult.insertId]
+    );
+
+    // Entry 2: Debit Customer/Accounts Receivable (Swapped for Statement Style)
+    await connection.query(
+      `INSERT INTO ledger_entries (date, reference_no, description, account_name, debit, credit, transaction_type, related_id)
+       VALUES (?, ?, ?, ?, ?, 0, 'PAYMENT_RECEIVED', ?)`,
       [received_date, receipt_number, `Payment received from ${customer_name}`, "Accounts Receivable", amount_received, paymentResult.insertId]
     );
 
@@ -697,7 +764,7 @@ const getLedgerEntries = async (req, res) => {
 const getProjects = async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT id, project_name, project_code FROM root_cards ORDER BY created_at DESC"
+      "SELECT id, project_name, project_code, quantity, sales_price FROM root_cards ORDER BY created_at DESC"
     );
     res.json({ projects: rows });
   } catch (error) {
@@ -737,5 +804,7 @@ module.exports = {
   createCustomerPayment,
   getLedgerEntries,
   getProjects,
-  getInvoicesForSelection
+  getInvoicesForSelection,
+  getEligibleOutwardChallans,
+  getOutwardChallanDetails
 };

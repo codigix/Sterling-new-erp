@@ -104,15 +104,15 @@ const PaymentTrackingPage = () => {
       
       try {
         const logo = await loadImage("/logo.png");
-        doc.addImage(logo, "PNG", margin + 2, margin + 2, 20, 20);
+        doc.addImage(logo, "PNG", margin + 2, margin + 2, 21, 21);
       } catch (e) {}
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
-      doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", margin + 25, margin + 8);
+      doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", margin + 28, margin + 8);
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-      doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", margin + 25, margin + 13);
+      doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", margin + 28, margin + 13);
       
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");

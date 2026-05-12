@@ -8,6 +8,7 @@ const createRootCard = async (req, res) => {
     projectName,
     projectCode,
     quantity,
+    salesPrice,
     deliveryDate,
     total,
     currency,
@@ -29,8 +30,8 @@ const createRootCard = async (req, res) => {
 
     const [result] = await db.query(
       `INSERT INTO root_cards 
-      (id, public_id, po_number, po_date, project_name, project_code, quantity, delivery_date, total, currency, priority, status, inspection, inspection_authority, ld, items, documents, notes, project_scope) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (id, public_id, po_number, po_date, project_name, project_code, quantity, sales_price, delivery_date, total, currency, priority, status, inspection, inspection_authority, ld, items, documents, notes, project_scope) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         randomId,
         publicId,
@@ -39,6 +40,7 @@ const createRootCard = async (req, res) => {
         projectName,
         projectCode || null,
         quantity || 1,
+        salesPrice || 0,
         deliveryDate || null,
         total || 0,
         currency || 'INR',
@@ -270,6 +272,7 @@ const updateRootCard = async (req, res) => {
     projectName,
     projectCode,
     quantity,
+    salesPrice,
     deliveryDate,
     total,
     currency,
@@ -288,7 +291,7 @@ const updateRootCard = async (req, res) => {
     const [result] = await db.query(
       `UPDATE root_cards SET 
       po_number = ?, po_date = ?, project_name = ?, project_code = ?, 
-      quantity = ?, delivery_date = ?, total = ?, currency = ?, priority = ?, 
+      quantity = ?, sales_price = ?, delivery_date = ?, total = ?, currency = ?, priority = ?, 
       status = ?, inspection = ?, inspection_authority = ?, ld = ?, 
       items = ?, documents = ?, notes = ?, project_scope = ?,
       updated_at = CURRENT_TIMESTAMP
@@ -299,6 +302,7 @@ const updateRootCard = async (req, res) => {
         projectName,
         projectCode || null,
         quantity || 1,
+        salesPrice || 0,
         deliveryDate || null,
         total || 0,
         currency || 'INR',

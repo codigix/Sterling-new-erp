@@ -32,6 +32,7 @@ export const buildStepPayload = (stepNumber, formData, poDocuments = []) => {
       poNumber: formData.poNumber,
       projectName: formData.projectName,
       projectCode: formData.projectCode,
+      salesPrice: formData.salesPrice,
       projectRequirements: formData.projectRequirements || {},
       notes: formData.notes || null,
       attachments: poDocuments,

@@ -7,6 +7,8 @@ const authMiddleware = require("../middleware/authMiddleware");
 router.use(authMiddleware);
 
 router.get("/vendor-invoices", accountingController.getVendorInvoices);
+router.get("/vendor-invoices/eligible-challans", accountingController.getEligibleOutwardChallans);
+router.get("/vendor-invoices/challans/:id", accountingController.getOutwardChallanDetails);
 router.get("/vendor-invoices/pending", accountingController.getPendingInvoices);
 router.get("/vendor-invoices/next-number", accountingController.getNextInvoiceNumber);
 router.get("/vendor-invoices/:id", accountingController.getVendorInvoiceById);

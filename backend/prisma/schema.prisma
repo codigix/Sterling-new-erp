@@ -605,6 +605,7 @@ model outward_challan_items {
   available_qty    Decimal?          @db.Decimal(15, 6)
   dispatch_qty     Decimal?          @db.Decimal(15, 6)
   uom              String?           @db.VarChar(20)
+  rate             Decimal?          @default(0.00) @db.Decimal(15, 2)
   outward_challans outward_challans? @relation(fields: [challan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "outward_challan_items_ibfk_1")
 
   @@index([challan_id], map: "challan_id")

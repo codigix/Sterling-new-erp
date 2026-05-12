@@ -25,7 +25,7 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
     grand_total: 0,
     round_off: 0,
     notes: "",
-    items: [{ description: "", hsn_code: "", qty: 1, unit: "NOS", rate: 0, amount: 0 }]
+    items: [{ description: "", qty: 1, unit: "NOS", rate: 0, amount: 0 }]
   });
 
   useEffect(() => {
@@ -106,11 +106,59 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
 
   const handleProjectChange = (projectId) => {
     const project = projects.find(p => p.id === projectId);
-    setFormData(prev => ({
-      ...prev,
-      project_id: projectId,
-      project_name: project ? project.project_name : ""
-    }));
+    
+    if (project) {
+      const qty = parseFloat(project.quantity) || 1;
+      const rate = parseFloat(project.sales_price) || 0;
+      const amount = qty * rate;
+      
+      const newItem = {
+        description: `${project.project_name} (${project.project_code || 'N/A'})`,
+        qty: qty,
+        unit: "NOS",
+        rate: rate,
+        amount: amount
+      };
+
+      setFormData(prev => {
+        // Filter out initial empty item if it's the only one and is empty
+        const currentItems = (prev.items.length === 1 && !prev.items[0].description && prev.items[0].rate === 0) 
+          ? [newItem] 
+          : [...prev.items, newItem];
+        
+        const newState = {
+          ...prev,
+          project_id: projectId,
+          project_name: project.project_name,
+          items: currentItems
+        };
+        
+        // Use a timeout or return a state that calculateTotals can use
+        // Since setFormData is async, we'll calculate totals for the new items directly
+        const subTotal = currentItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+        const cgst = subTotal * 0.09;
+        const sgst = subTotal * 0.09;
+        const total = subTotal + cgst + sgst;
+        const roundedTotal = Math.round(total);
+        const roundOff = roundedTotal - total;
+
+        return {
+          ...newState,
+          sub_total: subTotal,
+          taxable_value: subTotal,
+          cgst_amount: cgst,
+          sgst_amount: sgst,
+          grand_total: roundedTotal,
+          round_off: roundOff
+        };
+      });
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        project_id: projectId,
+        project_name: ""
+      }));
+    }
   };
 
   const handleItemChange = (index, field, value) => {
@@ -128,7 +176,7 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
   const addItem = () => {
     setFormData(prev => ({
       ...prev,
-      items: [...prev.items, { description: "", hsn_code: "", qty: 1, unit: "NOS", rate: 0, amount: 0 }]
+      items: [...prev.items, { description: "", qty: 1, unit: "NOS", rate: 0, amount: 0 }]
     }));
   };
 
@@ -293,7 +341,6 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
                       <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                         <th className="px-4 py-2 text-[10px]  text-slate-400  w-12 text-center">Sr.</th>
                         <th className="px-4 py-2 text-[10px]  text-slate-400 ">Description</th>
-                        <th className="px-4 py-2 text-[10px]  text-slate-400  w-24">HSN</th>
                         <th className="px-4 py-2 text-[10px]  text-slate-400  w-24 text-center">Qty</th>
                         <th className="px-4 py-2 text-[10px]  text-slate-400  w-20">Unit</th>
                         <th className="px-4 py-2 text-[10px]  text-slate-400  w-32 text-right">Rate (₹)</th>
@@ -313,16 +360,6 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
                               readOnly={viewMode}
                               className="w-full bg-transparent border-none text-xs focus:ring-0 outline-none p-0 text-slate-700 dark:text-slate-200"
                               placeholder="Item description..."
-                            />
-                          </td>
-                          <td className="px-4 py-2">
-                            <input
-                              type="text"
-                              value={item.hsn_code}
-                              onChange={(e) => handleItemChange(index, 'hsn_code', e.target.value)}
-                              readOnly={viewMode}
-                              className="w-full bg-transparent border-none text-xs focus:ring-0 outline-none p-0 text-slate-700 dark:text-slate-200"
-                              placeholder="HSN"
                             />
                           </td>
                           <td className="px-4 py-2">

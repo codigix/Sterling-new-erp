@@ -100,6 +100,7 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
           batch_no: "",
           available_qty: 0,
           dispatch_qty: 0,
+          rate: 0,
           uom: ""
         }
       ]
@@ -223,6 +224,20 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
           className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right  bg-white dark:bg-slate-900"
           value={value}
           onChange={(e) => handleItemChange(item.id, "dispatch_qty", e.target.value)}
+        />
+      )
+    },
+    {
+      key: "rate",
+      label: "Rate",
+      width: "120px",
+      render: (value, item) => (
+        <input
+          type="number"
+          step="0.01"
+          className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right  bg-white dark:bg-slate-900"
+          value={value}
+          onChange={(e) => handleItemChange(item.id, "rate", e.target.value)}
         />
       )
     },

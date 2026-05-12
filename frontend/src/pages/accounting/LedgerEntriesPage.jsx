@@ -67,13 +67,13 @@ const LedgerEntriesPage = () => {
       key: "debit",
       label: "Debit (Dr)",
       align: "right",
-      render: (val) => parseFloat(val) > 0 ? <span className="text-emerald-600 ">₹{parseFloat(val).toLocaleString()}</span> : '-'
+      render: (val) => parseFloat(val) > 0 ? <span className="text-red-600 ">₹{parseFloat(val).toLocaleString()}</span> : '-'
     },
     {
       key: "credit",
       label: "Credit (Cr)",
       align: "right",
-      render: (val) => parseFloat(val) > 0 ? <span className="text-red-600 ">₹{parseFloat(val).toLocaleString()}</span> : '-'
+      render: (val) => parseFloat(val) > 0 ? <span className="text-emerald-600 ">₹{parseFloat(val).toLocaleString()}</span> : '-'
     },
     {
       key: "actions",
@@ -110,8 +110,8 @@ const LedgerEntriesPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
-          <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded">
-            <BookOpen size={24} />
+          <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 rounded">
+            <ArrowUpRight size={24} />
           </div>
           <div>
             <p className="text-xs text-slate-500  ">Total Debits</p>
@@ -119,8 +119,8 @@ const LedgerEntriesPage = () => {
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
-          <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 rounded">
-            <ArrowUpRight size={24} />
+          <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded">
+            <ArrowDownLeft size={24} />
           </div>
           <div>
             <p className="text-xs text-slate-500  ">Total Credits</p>
@@ -128,8 +128,8 @@ const LedgerEntriesPage = () => {
           </div>
         </div>
         <div className="bg-white dark:bg-slate-800 p-4 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-4">
-          <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded">
-            <ArrowDownLeft size={24} />
+          <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded">
+            <BookOpen size={24} />
           </div>
           <div>
             <p className="text-xs text-slate-500  ">Trial Balance</p>

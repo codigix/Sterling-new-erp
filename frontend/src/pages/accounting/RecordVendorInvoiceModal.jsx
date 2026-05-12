@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Save, RefreshCw, Package, FileText, Calendar, Truck, CreditCard, ShoppingCart } from "lucide-react";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
@@ -7,6 +7,8 @@ import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData = null, initialViewMode = false }) => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [challans, setChallans] = useState([]);
+  const [sourceType, setSourceType] = useState('PO'); // 'PO' or 'CHALLAN'
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState(initialViewMode);
@@ -17,6 +19,8 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     po_id: "",
     po_no: "",
     po_date: "",
+    outward_challan_id: "",
+    outward_challan_no: "",
     challan_no: "",
     challan_date: "",
     vendor_id: "",
@@ -46,6 +50,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         fetchInvoiceDetails(editData.id);
       } else {
         fetchPurchaseOrders();
+        fetchChallans();
         fetchNextInvoiceNumber();
         // Reset form for new record
         setFormData({
@@ -54,6 +59,8 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
           po_id: "",
           po_no: "",
           po_date: "",
+          outward_challan_id: "",
+          outward_challan_no: "",
           challan_no: "",
           challan_date: "",
           vendor_id: "",
@@ -75,6 +82,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
           round_off: 0,
           notes: ""
         });
+        setSourceType('PO');
       }
     }
   }, [isOpen, editData, initialViewMode]);
@@ -84,12 +92,15 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     try {
       const response = await axios.get(`/accounting/vendor-invoices/${id}`);
       const inv = response.data;
+      setSourceType(inv.outward_challan_id ? 'CHALLAN' : 'PO');
       setFormData({
         invoice_no: inv.invoice_number,
         invoice_date: inv.invoice_date.split('T')[0],
-        po_id: inv.purchase_order_id,
-        po_no: inv.po_number,
-        po_date: inv.po_date,
+        po_id: inv.purchase_order_id || "",
+        po_no: inv.po_number || "",
+        po_date: inv.po_date || "",
+        outward_challan_id: inv.outward_challan_id || "",
+        outward_challan_no: inv.outward_challan_no || "",
         challan_no: inv.challan_number || "",
         challan_date: inv.challan_date ? inv.challan_date.split('T')[0] : "",
         vendor_id: inv.vendor_id,
@@ -148,6 +159,19 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     }
   };
 
+  const fetchChallans = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get("/accounting/vendor-invoices/eligible-challans");
+      setChallans(response.data.challans || response.data || []);
+    } catch (error) {
+      console.error("Error fetching eligible challans:", error);
+      toastUtils.error("Failed to load eligible challans");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePOChange = async (poId) => {
     if (!poId) {
       setFormData(prev => ({
@@ -155,6 +179,8 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         po_id: "",
         po_no: "",
         po_date: "",
+        outward_challan_id: "",
+        outward_challan_no: "",
         vendor_id: "",
         vendor_name: "",
         project_id: "",
@@ -187,6 +213,8 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         
         return {
           id: item.id,
+          po_item_id: item.id,
+          challan_item_id: null,
           description: item.material_name || item.item_group,
           hsn_code: "",
           qty: qty,
@@ -203,6 +231,8 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         po_id: poId,
         po_no: po.po_number,
         po_date: po.order_date || po.created_at,
+        outward_challan_id: "",
+        outward_challan_no: "",
         vendor_id: po.vendor_id,
         vendor_name: po.vendor_name,
         project_id: po.root_card_id,
@@ -216,6 +246,83 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     } catch (error) {
       console.error("Error fetching PO details:", error);
       toastUtils.error("Failed to load PO details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChallanChange = async (challanId) => {
+    if (!challanId) {
+      setFormData(prev => ({
+        ...prev,
+        po_id: "",
+        po_no: "",
+        po_date: "",
+        outward_challan_id: "",
+        outward_challan_no: "",
+        vendor_id: "",
+        vendor_name: "",
+        project_id: "",
+        project_name: "",
+        items: [],
+        sub_total: 0,
+        taxable_value: 0,
+        cgst_amount: 0,
+        sgst_amount: 0,
+        grand_total: 0,
+        round_off: 0
+      }));
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Assuming we have an endpoint to get challan details, or we might need to find it from the challans list
+      // The spec doesn't explicitly mention a getChallanById endpoint for accounting, 
+      // but let's check if we can get it from inventory/outward-challans/:id
+      const response = await axios.get(`/accounting/vendor-invoices/challans/${challanId}`);
+      const challan = response.data;
+
+      const items = (challan.items || []).map(item => {
+        const qty = parseFloat(item.dispatch_qty) || 0;
+        const rate = parseFloat(item.rate) || 0;
+        const amount = qty * rate;
+        
+        return {
+          id: item.id,
+          po_item_id: null,
+          challan_item_id: item.id,
+          description: item.item_name,
+          hsn_code: "",
+          qty: qty,
+          unit: item.uom,
+          rate: rate,
+          amount: amount
+        };
+      });
+
+      const subTotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      
+      setFormData(prev => ({
+        ...prev,
+        po_id: "",
+        po_no: "",
+        po_date: "",
+        outward_challan_id: challanId,
+        outward_challan_no: challan.challan_no,
+        vendor_id: challan.vendor_id,
+        vendor_name: challan.vendor_name,
+        project_id: challan.project_id,
+        project_name: challan.project_name,
+        items: items,
+        sub_total: subTotal,
+        taxable_value: subTotal
+      }));
+
+      calculateTotals(subTotal, prev => ({ ...prev, sub_total: subTotal, taxable_value: subTotal }));
+    } catch (error) {
+      console.error("Error fetching challan details:", error);
+      toastUtils.error("Failed to load challan details");
     } finally {
       setLoading(false);
     }
@@ -248,10 +355,36 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     });
   };
 
+  const handleItemChange = (index, field, value) => {
+    const newItems = [...formData.items];
+    newItems[index][field] = value;
+
+    if (field === 'qty' || field === 'rate') {
+      const qty = parseFloat(newItems[index].qty) || 0;
+      const rate = parseFloat(newItems[index].rate) || 0;
+      newItems[index].amount = qty * rate;
+    }
+
+    const subTotal = newItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    
+    setFormData(prev => ({
+      ...prev,
+      items: newItems,
+      sub_total: subTotal,
+      taxable_value: subTotal
+    }));
+
+    calculateTotals(subTotal, { ...formData, sub_total: subTotal, taxable_value: subTotal });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.po_id) {
+    if (sourceType === 'PO' && !formData.po_id) {
       toastUtils.error("Please select a Purchase Order");
+      return;
+    }
+    if (sourceType === 'CHALLAN' && !formData.outward_challan_id) {
+      toastUtils.error("Please select an Outsourcing Challan");
       return;
     }
     if (!formData.invoice_no) {
@@ -263,7 +396,8 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     try {
       const payload = {
         invoice_number: formData.invoice_no,
-        purchase_order_id: formData.po_id,
+        purchase_order_id: sourceType === 'PO' ? formData.po_id : null,
+        outward_challan_id: sourceType === 'CHALLAN' ? formData.outward_challan_id : null,
         vendor_id: formData.vendor_id,
         project_id: formData.project_id,
         invoice_date: formData.invoice_date,
@@ -281,7 +415,8 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         round_off: formData.round_off,
         notes: formData.notes,
         items: formData.items.map(item => ({
-          po_item_id: item.id,
+          po_item_id: item.po_item_id,
+          challan_item_id: item.challan_item_id,
           description: item.description,
           hsn_code: item.hsn_code,
           qty: item.qty,
@@ -323,37 +458,81 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
             </div>
             <div>
               <h2 className="text-lg  text-slate-900 dark:text-white">Record Vendor Invoice</h2>
-              <p className="text-xs text-slate-500">Create a new tax invoice from purchase order</p>
+              <p className="text-xs text-slate-500">Create a new tax invoice from {sourceType === 'PO' ? 'purchase order' : 'outsourcing challan'}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
-            <X size={20} className="text-slate-500" />
-          </button>
+          <div className="flex items-center gap-4">
+            {!viewMode && !editData && (
+              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSourceType('PO');
+                    handlePOChange("");
+                  }}
+                  className={`px-3 py-1 text-xs rounded-md transition-all ${sourceType === 'PO' ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-500'}`}
+                >
+                  Purchase Order
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSourceType('CHALLAN');
+                    handleChallanChange("");
+                  }}
+                  className={`px-3 py-1 text-xs rounded-md transition-all ${sourceType === 'CHALLAN' ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-500'}`}
+                >
+                  Outsourcing Challan
+                </button>
+              </div>
+            )}
+            <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
+              <X size={20} className="text-slate-500" />
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Top Section: PO Selection & Basic Info */}
+          {/* Top Section: PO/Challan Selection & Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-1.5">
               <label className="text-xs   text-slate-400 flex items-center gap-1.5">
-                <ShoppingCart size={12} /> Select Purchase Order
+                {sourceType === 'PO' ? (
+                  <><ShoppingCart size={12} /> Select Purchase Order</>
+                ) : (
+                  <><Package size={12} /> Select Outsourcing Challan</>
+                )}
               </label>
               {viewMode ? (
                 <div className="p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono">
-                  {formData.po_no}
+                  {sourceType === 'PO' ? formData.po_no : formData.outward_challan_no}
                 </div>
               ) : (
-                <SearchableSelect
-                  options={purchaseOrders.map(po => ({
-                    value: po.id,
-                    label: po.po_number,
-                    subLabel: `${po.vendor_name} | Project: ${po.root_card_project_name || 'Direct PO'}`
-                  }))}
-                  value={formData.po_id}
-                  onChange={handlePOChange}
-                  placeholder="Search PO Number..."
-                  loading={loading}
-                />
+                sourceType === 'PO' ? (
+                  <SearchableSelect
+                    options={purchaseOrders.map(po => ({
+                      value: po.id,
+                      label: po.po_number,
+                      subLabel: `${po.vendor_name} | Project: ${po.root_card_project_name || 'Direct PO'}`
+                    }))}
+                    value={formData.po_id}
+                    onChange={handlePOChange}
+                    placeholder="Search PO Number..."
+                    loading={loading}
+                  />
+                ) : (
+                  <SearchableSelect
+                    options={challans.map(ch => ({
+                      value: ch.id,
+                      label: ch.challan_no,
+                      subLabel: `${ch.vendor_name} | Project: ${ch.project_name || 'N/A'}`
+                    }))}
+                    value={formData.outward_challan_id}
+                    onChange={handleChallanChange}
+                    placeholder="Search Challan Number..."
+                    loading={loading}
+                  />
+                )
               )}
             </div>
 
@@ -400,9 +579,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{formData.project_name || "N/A"}</p>
             </div>
             <div>
-              <p className="text-xs  text-slate-400  mb-1">PO Date</p>
+              <p className="text-xs  text-slate-400  mb-1">{sourceType === 'PO' ? 'PO Date' : 'Challan Date'}</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {formData.po_date ? new Date(formData.po_date).toLocaleDateString() : "N/A"}
+                {sourceType === 'PO' 
+                  ? (formData.po_date ? new Date(formData.po_date).toLocaleDateString() : "N/A")
+                  : (formData.challan_date ? new Date(formData.challan_date).toLocaleDateString() : "N/A")}
               </p>
             </div>
             <div>
@@ -495,25 +676,40 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                           type="text"
                           value={item.hsn_code}
                           readOnly={viewMode}
-                          onChange={(e) => {
-                            const newItems = [...formData.items];
-                            newItems[index].hsn_code = e.target.value;
-                            setFormData({ ...formData, items: newItems });
-                          }}
+                          onChange={(e) => handleItemChange(index, 'hsn_code', e.target.value)}
                           className={`w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded text-xs outline-none ${viewMode ? 'hover:border-transparent cursor-default' : ''}`}
                           placeholder={viewMode ? "" : "8511"}
                         />
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 text-right">{item.qty}</td>
+                      <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 text-right">
+                        <input
+                          type="number"
+                          value={item.qty}
+                          readOnly={viewMode}
+                          onChange={(e) => handleItemChange(index, 'qty', e.target.value)}
+                          className={`w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded text-xs text-right outline-none ${viewMode ? 'hover:border-transparent cursor-default' : ''}`}
+                        />
+                      </td>
                       <td className="px-4 py-3 text-xs text-slate-500 ">{item.unit}</td>
-                      <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 text-right">₹{parseFloat(item.rate).toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <span>₹</span>
+                          <input
+                            type="number"
+                            value={item.rate}
+                            readOnly={viewMode}
+                            onChange={(e) => handleItemChange(index, 'rate', e.target.value)}
+                            className={`w-20 px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded text-xs text-right outline-none ${viewMode ? 'hover:border-transparent cursor-default' : ''}`}
+                          />
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-xs  text-slate-900 dark:text-white text-right">₹{parseFloat(item.amount).toLocaleString()}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan="7" className="px-4 py-8 text-center text-xs text-slate-400 italic">
-                      Select a Purchase Order to load items
+                      Select a {sourceType === 'PO' ? 'Purchase Order' : 'Outsourcing Challan'} to load items
                     </td>
                   </tr>
                 )}

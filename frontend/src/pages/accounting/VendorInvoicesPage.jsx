@@ -13,7 +13,9 @@ import {
   RefreshCw,
   Search,
   Calendar,
-  DollarSign
+  DollarSign,
+  ShoppingCart,
+  Package
 } from "lucide-react";
 import RecordVendorInvoiceModal from "./RecordVendorInvoiceModal";
 
@@ -113,20 +115,20 @@ const VendorInvoicesPage = () => {
 
     try {
       const logo = await loadImage("/logo.png");
-      doc.addImage(logo, "PNG", margin + 2, margin + 2, 20, 20);
+      doc.addImage(logo, "PNG", margin + 2, margin + 2, 21, 21);
     } catch (error) {
-      console.warn("Logo failed to load");
+      console.warn("Logo failed to load", error);
     }
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", margin + 25, margin + 8);
+    doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", margin + 28, margin + 8);
     
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", margin + 25, margin + 13);
+    doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", margin + 28, margin + 13);
     doc.setFont("helvetica", "italic");
-    doc.text("Transforming Ideas Into Reality With Trusted Engineering Solutions", margin + 25, margin + 18);
+    doc.text("Transforming Ideas Into Reality With Trusted Engineering Solutions", margin + 28, margin + 18);
 
     // 2. Title
     doc.setFont("helvetica", "bold");
@@ -191,8 +193,16 @@ const VendorInvoicesPage = () => {
     drawGridText("Challan No.", invoice.challan_number, rightX, gridY + rowH);
     drawGridText("Date", formatDate(invoice.challan_date), rightX + 65, gridY + rowH, 5);
     
-    drawGridText("P.O. No.", invoice.po_number, rightX, gridY + (rowH * 2));
-    drawGridText("Date", formatDate(invoice.po_date), rightX + 65, gridY + (rowH * 2), 5);
+    if (invoice.po_number) {
+      drawGridText("P.O. No.", invoice.po_number, rightX, gridY + (rowH * 2));
+      drawGridText("Date", formatDate(invoice.po_date), rightX + 65, gridY + (rowH * 2), 5);
+    } else if (invoice.challan_no) {
+      drawGridText("Out. Ch. No.", invoice.challan_no, rightX, gridY + (rowH * 2));
+      drawGridText("Date", formatDate(invoice.oc_date), rightX + 65, gridY + (rowH * 2), 5);
+    } else {
+      drawGridText("P.O. No.", "-", rightX, gridY + (rowH * 2));
+      drawGridText("Date", "-", rightX + 65, gridY + (rowH * 2), 5);
+    }
 
     drawGridText("State", invoice.place_of_supply || "Maharashtra", rightX, gridY + (rowH * 3));
     drawGridText("Code", "27", rightX + 65, gridY + (rowH * 3), 5);
@@ -323,6 +333,25 @@ const VendorInvoicesPage = () => {
       key: "project_name",
       label: "Project",
       render: (val) => val || "Direct PO"
+    },
+    {
+      key: "source",
+      label: "PO / Challan",
+      render: (_, inv) => (
+        <span className="text-xs">
+          {inv.po_number ? (
+            <span className="flex items-center gap-1 text-slate-600">
+              <ShoppingCart size={12} className="text-slate-400" /> {inv.po_number}
+            </span>
+          ) : inv.challan_no ? (
+            <span className="flex items-center gap-1 text-slate-600">
+              <Package size={12} className="text-slate-400" /> {inv.challan_no}
+            </span>
+          ) : (
+            <span className="text-slate-400">-</span>
+          )}
+        </span>
+      )
     },
     {
       key: "invoice_date",

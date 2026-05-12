@@ -56,7 +56,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
               <ClipboardList size={15} className="text-blue-600" />
               Project & PO Information
             </h5>
-            <FormRow cols={3} className="mb-3">
+            <FormRow cols={4} className="mb-3">
               <Input
                 label="Project Name"
                 value={formData.projectName || ""}
@@ -79,6 +79,15 @@ export default function Step1_ClientPO({ readOnly = false }) {
                 value={formData.quantity || ""}
                 onChange={(e) => updateField("quantity", e.target.value)}
                 placeholder="Enter quantity"
+                disabled={readOnly}
+                required
+              />
+              <Input
+                label="Sales Price"
+                type="number"
+                value={formData.salesPrice || ""}
+                onChange={(e) => updateField("salesPrice", e.target.value)}
+                placeholder="Enter sales price"
                 disabled={readOnly}
                 required
               />
