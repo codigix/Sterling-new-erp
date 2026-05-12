@@ -52,7 +52,7 @@ const RecordCustomerInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editDa
           grand_total: 0,
           round_off: 0,
           notes: "",
-          items: [{ description: "", hsn_code: "", qty: 1, unit: "NOS", rate: 0, amount: 0 }]
+          items: [{ description: "", qty: 1, unit: "NOS", rate: 0, amount: 0 }]
         });
       }
     }

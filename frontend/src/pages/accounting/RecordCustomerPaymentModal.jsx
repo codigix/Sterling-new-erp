@@ -158,7 +158,7 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
               <SearchableSelect
                 options={invoices.map(inv => ({
                   value: inv.id,
-                  label: `${inv.invoice_number} - ${inv.customer_name} (Bal: ₹${parseFloat(inv.balance_amount).toLocaleString()})`
+                  label: `${inv.invoice_number} - ${inv.customer_name} (Bal: ₹{parseFloat(inv.balance_amount).toLocaleString()})`
                 }))}
                 value={formData.invoice_id}
                 onChange={handleInvoiceChange}

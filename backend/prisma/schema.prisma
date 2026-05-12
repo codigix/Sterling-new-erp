@@ -113,7 +113,7 @@ model customer_invoice_items {
 
 model customer_invoices {
   id                     Int                       @id @default(autoincrement())
-  public_id              String?                   @unique(map: "idx_customer_invoice_public_id") @db.VarChar(36)
+  public_id              String?                   @unique(map: "idx_ci_public_id") @db.VarChar(36)
   invoice_number         String                    @unique(map: "invoice_number") @db.VarChar(50)
   customer_name          String                    @db.VarChar(255)
   project_id             String?                   @db.VarChar(50)
@@ -597,16 +597,17 @@ model operations {
 }
 
 model outward_challan_items {
-  id               Int               @id @default(autoincrement())
-  challan_id       Int?
-  item_code        String?           @db.VarChar(100)
-  item_name        String?           @db.VarChar(255)
-  batch_no         String?           @db.VarChar(100)
-  available_qty    Decimal?          @db.Decimal(15, 6)
-  dispatch_qty     Decimal?          @db.Decimal(15, 6)
-  uom              String?           @db.VarChar(20)
-  rate             Decimal?          @default(0.00) @db.Decimal(15, 2)
-  outward_challans outward_challans? @relation(fields: [challan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "outward_challan_items_ibfk_1")
+  id                   Int                    @id @default(autoincrement())
+  challan_id           Int?
+  item_code            String?                @db.VarChar(100)
+  item_name            String?                @db.VarChar(255)
+  batch_no             String?                @db.VarChar(100)
+  available_qty        Decimal?               @db.Decimal(15, 6)
+  dispatch_qty         Decimal?               @db.Decimal(15, 6)
+  uom                  String?                @db.VarChar(20)
+  rate                 Decimal?               @default(0.00) @db.Decimal(15, 2)
+  outward_challans     outward_challans?      @relation(fields: [challan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "outward_challan_items_ibfk_1")
+  vendor_invoice_items vendor_invoice_items[]
 
   @@index([challan_id], map: "challan_id")
 }
@@ -633,6 +634,7 @@ model outward_challans {
   updated_at            DateTime?                @default(now()) @db.Timestamp(0)
   inward_challans       inward_challans[]
   outward_challan_items outward_challan_items[]
+  vendor_invoices       vendor_invoices[]
 }
 
 model permissions {
@@ -1226,10 +1228,9 @@ model users {
   designation                                          String?                      @db.VarChar(255)
   login_id                                             String?                      @unique(map: "idx_login_id") @db.VarChar(255)
   role_id                                              Int?
-  test_field                                           String?                      @db.VarChar(100)
-  prisma_test_sync                                     String?                      @db.VarChar(100)
   department_id                                        Int?
   actions                                              String?                      @db.Text
+  test_field                                           String?                      @db.VarChar(100)
   department_tasks                                     department_tasks[]
   design_documents_design_documents_created_byTousers  design_documents[]           @relation("design_documents_created_byTousers")
   design_documents_design_documents_reviewer_idTousers design_documents[]           @relation("design_documents_reviewer_idTousers")
@@ -1239,27 +1240,31 @@ model users {
 }
 
 model vendor_invoice_items {
-  id                   Int                  @id @default(autoincrement())
-  invoice_id           Int
-  po_item_id           Int
-  description          String               @db.Text
-  hsn_code             String?              @db.VarChar(50)
-  qty                  Decimal              @db.Decimal(15, 3)
-  unit                 String?              @db.VarChar(50)
-  rate                 Decimal              @db.Decimal(15, 2)
-  amount               Decimal              @db.Decimal(15, 2)
-  vendor_invoices      vendor_invoices      @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "vendor_invoice_items_ibfk_1")
-  purchase_order_items purchase_order_items @relation(fields: [po_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoice_items_ibfk_2")
+  id                    Int                    @id @default(autoincrement())
+  invoice_id            Int
+  po_item_id            Int?
+  challan_item_id       Int?
+  description           String                 @db.Text
+  hsn_code              String?                @db.VarChar(50)
+  qty                   Decimal                @db.Decimal(15, 3)
+  unit                  String?                @db.VarChar(50)
+  rate                  Decimal                @db.Decimal(15, 2)
+  amount                Decimal                @db.Decimal(15, 2)
+  outward_challan_items outward_challan_items? @relation(fields: [challan_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vendor_invoice_items_challan_item")
+  vendor_invoices       vendor_invoices        @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "vendor_invoice_items_ibfk_1")
+  purchase_order_items  purchase_order_items?  @relation(fields: [po_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoice_items_ibfk_2")
 
   @@index([invoice_id], map: "invoice_id")
   @@index([po_item_id], map: "po_item_id")
+  @@index([challan_item_id], map: "fk_vendor_invoice_items_challan_item")
 }
 
 model vendor_invoices {
   id                   Int                     @id @default(autoincrement())
-  public_id            String?                 @unique(map: "idx_vendor_invoice_public_id") @db.VarChar(36)
+  public_id            String?                 @unique(map: "idx_vi_public_id") @db.VarChar(36)
   invoice_number       String                  @unique(map: "invoice_number") @db.VarChar(100)
-  purchase_order_id    Int
+  purchase_order_id    Int?
+  outward_challan_id   Int?
   vendor_id            Int
   project_id           String?                 @db.VarChar(50)
   invoice_date         DateTime                @db.Date
@@ -1282,7 +1287,8 @@ model vendor_invoices {
   created_at           DateTime?               @default(now()) @db.Timestamp(0)
   updated_at           DateTime?               @default(now()) @db.Timestamp(0)
   vendor_invoice_items vendor_invoice_items[]
-  purchase_orders      purchase_orders         @relation(fields: [purchase_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_1")
+  outward_challans     outward_challans?       @relation(fields: [outward_challan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_4")
+  purchase_orders      purchase_orders?        @relation(fields: [purchase_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_1")
   vendors              vendors                 @relation(fields: [vendor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_2")
   root_cards           root_cards?             @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_3")
   vendor_payments      vendor_payments[]
@@ -1290,6 +1296,7 @@ model vendor_invoices {
   @@index([project_id], map: "project_id")
   @@index([purchase_order_id], map: "purchase_order_id")
   @@index([vendor_id], map: "vendor_id")
+  @@index([outward_challan_id], map: "fk_vendor_invoices_outward_challan")
 }
 
 model vendor_payments {
