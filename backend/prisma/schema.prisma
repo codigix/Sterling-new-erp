@@ -1097,6 +1097,7 @@ model root_cards {
   project_name         String                 @db.VarChar(255)
   project_code         String?                @db.VarChar(100)
   quantity             Int?                   @default(1)
+  sales_price          Decimal?               @default(0.00) @db.Decimal(15, 2)
   delivery_date        DateTime?              @db.Date
   total                Decimal?               @db.Decimal(15, 2)
   currency             String?                @default("INR") @db.VarChar(10)
