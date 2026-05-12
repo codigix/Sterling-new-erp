@@ -86,7 +86,7 @@ const LoginPage = () => {
 
       <div className="w-full max-w-md bg-white rounded  border border-slate-200 p-5">
         <div className="flex bg-slate-100 p-1 rounded-md mb-4">
-          <button className="flex-1 py-1.5 text-xs  rounded bg-red-600 text-blue-600 ">
+          <button className="flex-1 py-1.5 text-xs  rounded bg-white text-blue-600 ">
             Sign In
           </button>
           <Link to="/register" className="flex-1 py-1.5 text-xs  rounded text-slate-500 hover:text-slate-700 text-center">
