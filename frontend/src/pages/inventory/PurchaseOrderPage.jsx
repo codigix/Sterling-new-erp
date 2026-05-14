@@ -129,29 +129,31 @@ const PurchaseOrderDetailTable = ({ po }) => {
             }
           },
           {
-            key: "received_qty",
-            label: "Received",
-            align: "right",
-            render: (val, item) => (
-              <span className={` ${Number(val || 0) >= Number(item.quantity || 0) ? 'text-emerald-600' : 'text-blue-600'}`}>
-                {Number(val || 0).toLocaleString()}
-              </span>
-            )
-          },
-          {
             key: "rate",
             label: "Rate",
             align: "right",
-            render: (val, item) => (
-              <div className="flex flex-col items-end">
-                <span className="text-slate-900 dark:text-white">
-                  ₹{Number(item.rate_per_kg || val || 0).toLocaleString()}
-                </span>
-                <span className="text-[10px] text-slate-500">
-                  per {item.rate_per_kg ? 'Kg' : (item.unit || 'Unit')}
-                </span>
-              </div>
-            )
+            render: (val, item) => {
+              const rate = Number(item.rate_per_kg) > 0 ? item.rate_per_kg : (Number(item.rate || val) > 0 ? (item.rate || val) : 0);
+              
+              // Detect if rate is per Kg or per Unit based on calculation
+              let unitLabel = item.unit || item.uom || 'Unit';
+              if (Number(item.rate_per_kg) > 0) {
+                unitLabel = 'Kg';
+              } else if (Number(item.total_weight) > 0 && Math.abs((Number(item.total_weight) * rate) - Number(item.amount)) < 1) {
+                unitLabel = 'Kg';
+              }
+
+              return (
+                <div className="flex flex-col items-end">
+                  <span className="text-slate-900 dark:text-white font-medium">
+                    ₹{Number(rate).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium">
+                    per {unitLabel}
+                  </span>
+                </div>
+              );
+            }
           },
           {
             key: "amount",
