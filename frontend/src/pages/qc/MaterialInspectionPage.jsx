@@ -22,8 +22,7 @@ import {
   RotateCcw,
   CheckCheck,
   MessageSquare,
-  X,
-  Loader2
+  X
 } from "lucide-react";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import { showSuccess, showError } from "../../utils/toastUtils";
@@ -578,17 +577,6 @@ const MaterialInspectionPage = () => {
             Filter materials by project or GRN number to inspect incoming items
           </p>
         </div>
-        
-        {materials.length > 0 && materials.every(m => m.status === 'QC Completed') && (
-          <button
-            onClick={() => handleFinalizeQC(materials[0].grn_id)}
-            disabled={loading}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs transition-all shadow-lg shadow-emerald-200 flex items-center gap-2"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCheck size={16} />}
-            Finalize QC & Generate Report
-          </button>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ">
