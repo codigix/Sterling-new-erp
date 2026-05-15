@@ -66,7 +66,7 @@ router.get('/:id', auth, getPurchaseOrderById);
 router.post('/', auth, createPurchaseOrder);
 router.put('/:id', auth, updatePurchaseOrder);
 router.patch('/:id/status', auth, updatePurchaseOrderStatus);
-router.post('/:id/email', auth, sendPurchaseOrderEmail);
+router.post('/:id/email', auth, upload.single('pdf'), sendPurchaseOrderEmail);
 router.get('/:id/communications', auth, getCommunications);
 router.get('/attachments/:id/download', auth, downloadAttachment);
 router.delete('/:id', auth, deletePurchaseOrder);

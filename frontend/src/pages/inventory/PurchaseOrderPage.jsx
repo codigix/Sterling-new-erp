@@ -807,12 +807,21 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
     setSendingEmail(true);
     try {
       const doc = await generatePOPDF(emailData.po);
-      const pdfBase64 = doc.output("datauristring");
-      await axios.post(`/department/procurement/purchase-orders/${emailData.poId}/email`, { 
-        ...emailData, 
-        pdfBase64,
-        poNumber: emailData.po.po_number 
+      const pdfBlob = doc.output("blob");
+
+      const formData = new FormData();
+      formData.append("email", emailData.email);
+      formData.append("subject", emailData.subject);
+      formData.append("message", emailData.message);
+      formData.append("poNumber", emailData.po.po_number);
+      formData.append("pdf", pdfBlob, `PurchaseOrder-${emailData.po.po_number}.pdf`);
+
+      await axios.post(`/department/procurement/purchase-orders/${emailData.poId}/email`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
+
       if (emailData.po.status === "draft") {
         await axios.patch(`/department/procurement/purchase-orders/${emailData.poId}/status`, { status: "submitted" });
       }

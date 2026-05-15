@@ -744,13 +744,18 @@ const QuotationsPage = ({ defaultTab }) => {
       if (!fullQuotation) throw new Error("Quotation not found");
 
       const doc = await generateQuotationPDF(fullQuotation);
-      const pdfBase64 = doc.output("datauristring");
+      const pdfBlob = doc.output("blob");
+      
+      const formData = new FormData();
+      formData.append("email", emailData.email);
+      formData.append("subject", emailData.subject);
+      formData.append("message", emailData.message);
+      formData.append("pdf", pdfBlob, `Quotation-${fullQuotation.quotation_number}.pdf`);
 
-      await axios.post(`${basePath}/quotations/${fullQuotation.id}/email`, {
-        email: emailData.email,
-        subject: emailData.subject,
-        message: emailData.message,
-        pdfBase64,
+      await axios.post(`${basePath}/quotations/${fullQuotation.id}/email`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       await axios.patch(`${basePath}/quotations/${fullQuotation.id}/status`, {

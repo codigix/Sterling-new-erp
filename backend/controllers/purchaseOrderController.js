@@ -516,6 +516,7 @@ const getPurchaseOrderStats = async (req, res) => {
 const sendPurchaseOrderEmail = async (req, res) => {
   const { id } = req.params;
   const { email, subject, message, pdfBase64, poNumber } = req.body;
+  const file = req.file;
 
   try {
     console.log(`Sending PO email to: ${email}`);
@@ -526,7 +527,21 @@ const sendPurchaseOrderEmail = async (req, res) => {
       ? `PurchaseOrder-${poNumber}.pdf`
       : `PurchaseOrder-${id}.pdf`;
 
-    if (pdfBase64) {
+    // Handle file upload from multipart/form-data
+    if (file) {
+      pdfBuffer = fs.readFileSync(file.path);
+      attachments.push({
+        filename: file.originalname || filename,
+        content: pdfBuffer,
+        contentType: file.mimetype || "application/pdf",
+      });
+      // Clean up temporary file after reading
+      setTimeout(() => {
+        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      }, 1000);
+    }
+    // Fallback to legacy base64 if provided
+    else if (pdfBase64) {
       const base64Data = pdfBase64.split(",")[1] || pdfBase64;
       pdfBuffer = Buffer.from(base64Data, "base64");
       attachments.push({

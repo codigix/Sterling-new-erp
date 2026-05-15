@@ -128,7 +128,7 @@ router.get('/:id/communications', auth, getCommunications);
 router.get('/:id', auth, getQuotationById);
 
 // @route   POST api/department/procurement/quotations/:id/email
-router.post('/:id/email', auth, sendQuotationEmail);
+router.post('/:id/email', auth, upload.single('pdf'), sendQuotationEmail);
 
 // @route   PATCH api/department/procurement/quotations/:id/status
 router.patch('/:id/status', auth, upload.single('received_quotation'), updateQuotationStatus);

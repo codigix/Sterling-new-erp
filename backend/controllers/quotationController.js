@@ -727,12 +727,27 @@ const downloadAttachment = async (req, res) => {
 const sendQuotationEmail = async (req, res) => {
     const { id } = req.params;
     const { email, subject, message, pdfBase64 } = req.body;
+    const file = req.file;
 
     try {
         console.log(`Sending email to: ${email}`);
         
         const attachments = [];
-        if (pdfBase64) {
+        
+        // Handle file upload from multipart/form-data
+        if (file) {
+            attachments.push({
+                filename: file.originalname || `Quotation-${id}.pdf`,
+                content: fs.readFileSync(file.path),
+                contentType: file.mimetype || 'application/pdf'
+            });
+            // Clean up temporary file after reading
+            setTimeout(() => {
+                if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+            }, 1000);
+        } 
+        // Fallback to legacy base64 if no file provided
+        else if (pdfBase64) {
             const base64Data = pdfBase64.split(',')[1] || pdfBase64;
             attachments.push({
                 filename: `Quotation-${id}.pdf`,
