@@ -434,7 +434,7 @@ const QCInspectionsPage = () => {
               <Eye size={14} />
               View Report
             </button>
-          ) : row.qcStatus === 'completed' ? (
+          ) : (row.qcStatus === 'completed' || row.status === 'qc_finalized' || row.status === 'qc_completed') ? (
             <button
               onClick={() => handleShowReport(row)}
               className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs transition-all shadow-emerald-200 flex items-center gap-2"
