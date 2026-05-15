@@ -430,7 +430,7 @@ exports.finalizeGRNQC = async (req, res) => {
             return res.status(400).json({ message: 'All items must be inspected before finalizing QC' });
         }
 
-        // Check if all outsource items have documents
+        // Check if all items have required documents
         const [grnInfo] = await db.query('SELECT inspection_type FROM grns WHERE id = ?', [id]);
         const isOutsource = grnInfo[0]?.inspection_type === 'Outsource';
         
@@ -887,7 +887,7 @@ exports.submitQualityInspection = async (req, res) => {
                 for (const itemId of itemIds) {
                     const hasAccepted = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Accepted');
                     const hasRejected = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Rejected');
-                    const doc = itemDocs.find(d => d.po_item_id === itemId);
+                    const doc = itemDocs.find(d => Number(d.po_item_id) === Number(itemId));
                     
                     if (hasAccepted && !doc?.common_document_path) { allDocsPresent = false; break; }
                     if (hasRejected && !doc?.rejected_document_path) { allDocsPresent = false; break; }
@@ -1089,6 +1089,8 @@ exports.submitOutsourceResults = async (req, res) => {
                 
                 if (allDocsPresent) {
                     await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [gid]);
+                } else {
+                    await connection.query('UPDATE grns SET status = "qc_pending" WHERE id = ?', [gid]);
                 }
             } else {
                 await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [gid]);

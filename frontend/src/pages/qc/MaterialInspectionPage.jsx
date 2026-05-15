@@ -31,23 +31,108 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { getServerUrl } from "../../utils/fileUtils";
 import DataTable from "../../components/ui/DataTable/DataTable";
 
-const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApproveAll, onRejectAll }) => {
+const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApproveAll, onRejectAll, onUpload }) => {
+  const isOutsource = item.inspection_type === 'Outsource';
+  const hasAccepted = item.serials?.some(s => s.inspection_status === 'Accepted');
+  const hasRejected = item.serials?.some(s => s.inspection_status === 'Rejected');
+
   return (
     <div className="p-4 bg-slate-50 dark:bg-slate-900/50 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h5 className="text-xs  text-slate-500 flex items-center gap-2">
           <Tag size={12} /> Material Tags (ST Numbers) - {item.serials?.length || 0} Units
         </h5>
-        {item.serials?.some(s => s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
-          <div className="flex gap-2">
+        
+        <div className="flex flex-wrap items-center gap-2">
+          {item.serials?.some(s => s.inspection_status === 'Pending' || s.inspection_status === 'Sent for Inspection') && (
             <button 
               onClick={() => onApproveAll(item)}
               className="flex items-center gap-1 px-2 py-1 bg-emerald-600 text-white rounded text-[10px]  hover:bg-emerald-700 transition-colors"
             >
               <CheckCheck size={12} /> Approve All
             </button>
-          </div>
-        )}
+          )}
+
+          {isOutsource && (
+            <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-2 ml-2">
+              {hasAccepted && (
+                <div className="flex items-center gap-2">
+                  {!item.common_document_path ? (
+                    <label className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] border border-blue-100 cursor-pointer hover:bg-blue-100 transition-all">
+                      <Upload size={12} />
+                      Upload Accepted Report
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted')}
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <a 
+                        href={getServerUrl(item.common_document_path)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[10px] border border-emerald-100 hover:bg-emerald-100 transition-all"
+                      >
+                        <Eye size={12} />
+                        Accepted Report
+                      </a>
+                      <label className="p-1 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" title="Update Report">
+                        <RotateCcw size={12} />
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted')}
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {hasRejected && (
+                <div className="flex items-center gap-2">
+                  {!item.rejected_document_path ? (
+                    <label className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] border border-red-100 cursor-pointer hover:bg-red-100 transition-all">
+                      <Upload size={12} />
+                      Upload Rejected Report
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected')}
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <a 
+                        href={getServerUrl(item.rejected_document_path)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] border border-red-100 hover:bg-red-100 transition-all"
+                      >
+                        <Eye size={12} />
+                        Rejected Report
+                      </a>
+                      <label className="p-1 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" title="Update Report">
+                        <RotateCcw size={12} />
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected')}
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden">
@@ -263,10 +348,15 @@ const MaterialInspectionPage = () => {
           return s;
         });
         
-        // Re-calculate item-level completion status logic (similar to backend logic used in materials fetch)
+        // Re-calculate item-level completion status logic
+        const isOutsource = item.inspection_type === 'Outsource';
         const allProcessed = updatedSerials.length > 0 && updatedSerials.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
-        // Simple logic for UI: if all serials processed, mark as QC Completed
-        const newStatus = allProcessed ? 'QC Completed' : 'QC Pending';
+        const hasAccepted = updatedSerials.some(s => s.inspection_status === 'Accepted');
+        const hasRejected = updatedSerials.some(s => s.inspection_status === 'Rejected');
+        const needsAcceptedDoc = isOutsource && hasAccepted && !item.common_document_path;
+        const needsRejectedDoc = isOutsource && hasRejected && !item.rejected_document_path;
+        
+        const newStatus = (allProcessed && !needsAcceptedDoc && !needsRejectedDoc) ? 'QC Completed' : 'QC Pending';
         
         return { ...item, serials: updatedSerials, status: newStatus };
       }
@@ -299,7 +389,7 @@ const MaterialInspectionPage = () => {
   };
 
   const handleQuickStatusUpdate = async (grnId, poItemId, serialNumber, status, inspectionType) => {
-    if (status === 'Rejected' && (!inspectionType || inspectionType === 'Inhouse')) {
+    if (status === 'Rejected') {
       setRejectionModal({
         isOpen: true,
         grnId,
@@ -527,6 +617,7 @@ const MaterialInspectionPage = () => {
             onUpdateStatus={handleQuickStatusUpdate}
             onRevertStatus={handleRevertStatus}
             onApproveAll={handleApproveAll}
+            onUpload={handleConsolidatedUpload}
           />
         )}
       />
