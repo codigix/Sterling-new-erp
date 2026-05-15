@@ -428,7 +428,12 @@ const QualityInspectionDetail = () => {
                       {item.serials.map((s) => (
                         <tr key={s.serial_number} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/50 transition-colors">
                           <td className="p-2  text-slate-700 dark:text-white">
-                            {s.serial_number}
+                            <div className="flex flex-col">
+                              <span>{s.serial_number}</span>
+                              {item.items_per_packet > 1 && (item.item_group?.toLowerCase() === 'bought out') && (
+                                <span className="text-[10px] text-blue-600">({item.items_per_packet} items)</span>
+                              )}
+                            </div>
                           </td>
                           <td className="p-2">
                             <div className="text-xs text-slate-500 font-mono">

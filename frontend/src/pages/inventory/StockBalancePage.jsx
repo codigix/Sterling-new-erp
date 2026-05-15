@@ -65,9 +65,18 @@ const SerialDetailTable = ({ item }) => {
           },
           {
             key: "weight",
-            label: "Weight",
+            label: "Measurement / Weight",
             className: "text-center",
             render: (_, st) => {
+              const group = (item.item_group || "").toLowerCase();
+              const uom = (item.unit || "").toLowerCase();
+              if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
+                return <span className="text-xs text-blue-600 font-medium">{st.items_per_packet || item.items_per_packet || 1} Items</span>;
+              }
+              if (group === "paint" || uom === "l" || uom === "liter") {
+                const vol = st.unit_weight || st.total_weight || item.unit_weight || 0;
+                return `${Number(vol).toFixed(2)} L`;
+              }
               const pieceWeight = st.unit_weight || st.total_weight || item.unit_weight || 0;
               return `${Number(pieceWeight).toFixed(3)} Kg`;
             }
@@ -146,6 +155,8 @@ const StockBalancePage = () => {
           side2: getDim('side2', 'sideS2'),
           web_thickness: getDim('web_thickness', 'tw'),
           flange_thickness: getDim('flange_thickness', 'tf'),
+          items_per_packet: item.items_per_packet || 1,
+          vendor_items_per_packet: item.vendor_items_per_packet || item.items_per_packet || 1,
           serials: item.serials || []
         };
       });
@@ -239,7 +250,7 @@ const StockBalancePage = () => {
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded  ${val <= item.reorderLevel ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
                       <span className={`text-xs  ${val <= item.reorderLevel ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>
-                        {val.toLocaleString(undefined, { minimumFractionDigits: 3 })}
+                        {parseFloat(val).toLocaleString(undefined, { maximumFractionDigits: 3 })}
                       </span>
                     </div>
                     {val <= item.reorderLevel && (
@@ -250,18 +261,49 @@ const StockBalancePage = () => {
               },
               {
                 key: "total_weight",
-                label: "Weight (Kg)",
+                label: "Measurement / Weight",
                 className: "text-center",
-                render: (_, item) => (
-                  <div className="flex flex-col items-center">
-                     <span className="text-xs  text-slate-900 dark:text-white">
-                        {Number(item.total_weight || 0).toFixed(3)} Kg
-                     </span>
-                     <span className="text-xs text-slate-400">
-                        Unit: {Number(item.unit_weight || 0).toFixed(3)}
-                     </span>
-                  </div>
-                )
+                render: (_, item) => {
+                  const group = (item.item_group || "").toLowerCase();
+                  const uom = (item.unit || "").toLowerCase();
+
+                  if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
+                    return (
+                      <div className="flex flex-col items-center">
+                         <span className="text-xs  text-blue-600 font-medium">
+                            {parseFloat(item.items_per_packet || 1)} Items / Unit
+                         </span>
+                         <span className="text-xs text-slate-400">
+                            Total: {parseFloat((item.items_per_packet || 1) * item.quantity)} Items
+                         </span>
+                      </div>
+                    );
+                  }
+
+                  if (group === "paint" || uom === "l" || uom === "liter") {
+                    return (
+                      <div className="flex flex-col items-center">
+                         <span className="text-xs  text-slate-900 dark:text-white">
+                            {parseFloat(item.total_weight || 0)} L
+                         </span>
+                         <span className="text-xs text-slate-400">
+                            Volume/Pkg: {parseFloat(item.unit_weight || 0)} L
+                         </span>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="flex flex-col items-center">
+                       <span className="text-xs  text-slate-900 dark:text-white">
+                          {parseFloat(item.total_weight || 0)} Kg
+                       </span>
+                       <span className="text-xs text-slate-400">
+                          Unit: {parseFloat(item.unit_weight || 0)}
+                       </span>
+                    </div>
+                  );
+                }
               },
               {
                 key: "unit",

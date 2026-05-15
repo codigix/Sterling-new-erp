@@ -1049,8 +1049,9 @@ const createPurchaseReceipt = async (req, res) => {
                             item_name, grn_id, status, length, width, thickness, 
                             diameter, outer_diameter, height, density,
                             item_group, web_thickness, flange_thickness, 
-                            side_s, side_s1, side_s2, side1, side2, material_type
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            side_s, side_s1, side_s2, side1, side2, material_type,
+                            items_per_packet, vendor_items_per_packet
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               serial_number,
               itemCodePerPiece,
@@ -1075,6 +1076,8 @@ const createPurchaseReceipt = async (req, res) => {
               item.side1 || item.side_s || item.s || null,
               item.side2 || item.side_s1 || item.s1 || null,
               item.material_type || null,
+              item.items_per_packet || 1,
+              item.vendor_items_per_packet || item.items_per_packet || 1
             ],
           );
         }
@@ -1323,15 +1326,14 @@ const addGRNToStock = async (req, res) => {
 
     // 6. Process items for Stock Entry Items and Ledger
     for (const item of items) {
-      // Insert Stock Entry Item
       await connection.query(
         `INSERT INTO stock_entry_items (
                     stock_entry_id, item_code, item_name, quantity, uom, valuation_rate, 
                     length, width, thickness, diameter, outer_diameter, height, 
                     unit_weight, total_weight, item_group, web_thickness, 
                     flange_thickness, side_s, side_s1, side_s2, side1, side2,
-                    density, material_type
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    density, material_type, items_per_packet, vendor_items_per_packet
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           stockEntryId,
           item.item_code,
@@ -1357,6 +1359,8 @@ const addGRNToStock = async (req, res) => {
           item.side2,
           item.density || 0,
           item.material_type,
+          item.items_per_packet || 1,
+          item.vendor_items_per_packet || item.items_per_packet || 1
         ],
       );
 
@@ -1375,8 +1379,8 @@ const addGRNToStock = async (req, res) => {
                 valuation_rate, remarks, length, width, thickness, diameter, 
                 outer_diameter, height, unit_weight, total_weight, density,
                 item_group, web_thickness, flange_thickness, side_s, side_s1, side_s2,
-                side1, side2, material_type
-            ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                side1, side2, material_type, items_per_packet, vendor_items_per_packet
+            ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
       const ledgerValues = [
         item.item_code,
@@ -1409,6 +1413,8 @@ const addGRNToStock = async (req, res) => {
         item.side1,
         item.side2,
         item.material_type,
+        item.items_per_packet || 1,
+        item.vendor_items_per_packet || item.items_per_packet || 1
       ];
 
       await connection.query(ledgerSql, ledgerValues);
@@ -1576,14 +1582,14 @@ const releaseGRNMaterial = async (req, res) => {
         const released_weight =
           parseFloat(item.accepted_qty) * (parseFloat(item.unit_weight) || 0);
 
-        // Insert Stock Entry Item
         await connection.query(
           `INSERT INTO stock_entry_items (
                         stock_entry_id, item_code, item_name, quantity, uom, valuation_rate, 
                         length, width, thickness, diameter, outer_diameter, height, 
                         unit_weight, total_weight, density, item_group, web_thickness, 
-                        flange_thickness, side_s, side_s1, side_s2, side1, side2, material_type
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        flange_thickness, side_s, side_s1, side_s2, side1, side2, material_type,
+                        items_per_packet, vendor_items_per_packet
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             stockEntryId,
             item.item_code,
@@ -1609,6 +1615,8 @@ const releaseGRNMaterial = async (req, res) => {
             item.side1,
             item.side2,
             item.material_type,
+            item.items_per_packet || 1,
+            item.vendor_items_per_packet || item.items_per_packet || 1
           ],
         );
 
@@ -1628,8 +1636,8 @@ const releaseGRNMaterial = async (req, res) => {
                         valuation_rate, remarks, length, width, thickness, diameter, 
                         outer_diameter, height, unit_weight, total_weight, density,
                         item_group, web_thickness, flange_thickness, side_s, side_s1, side_s2,
-                        side1, side2, material_type
-                    ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        side1, side2, material_type, items_per_packet, vendor_items_per_packet
+                    ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             item.item_code,
             item.material_name,
@@ -1661,6 +1669,8 @@ const releaseGRNMaterial = async (req, res) => {
             item.side1,
             item.side2,
             item.material_type,
+            item.items_per_packet || 1,
+            item.vendor_items_per_packet || item.items_per_packet || 1
           ],
         );
 

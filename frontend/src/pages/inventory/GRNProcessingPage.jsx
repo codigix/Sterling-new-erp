@@ -133,6 +133,27 @@ const GRNDetailTable = ({ grnId }) => {
         const finalRejected = (item.serials && item.serials.length > 0) ? rejectedQty : 0;
         return <span className="text-xs text-red-600">{finalRejected}</span>;
       }
+    },
+    {
+      key: "measurement",
+      label: "Measurement",
+      align: "center",
+      render: (_, item) => {
+        const group = item.item_group?.toLowerCase();
+        const uom = (item.unit || "").toLowerCase();
+        if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
+          return (
+            <div className="flex flex-col">
+              <span className="text-[10px] text-blue-600 font-medium">{item.items_per_packet || 1} items/{item.unit}</span>
+              <span className="text-[10px] text-slate-400">Total: {(item.items_per_packet || 1) * (item.received_qty || 0)} Items</span>
+            </div>
+          );
+        }
+        if (group === "paint" || uom === "l" || uom === "liter") {
+          return <span className="text-xs">{parseFloat(item.received_weight || 0)} L</span>;
+        }
+        return <span className="text-xs">{parseFloat(item.received_weight || 0).toFixed(3)} Kg</span>;
+      }
     }
   ];
 
@@ -411,6 +432,8 @@ const GRNProcessingPage = () => {
             material_type: item.material_type || null,
             density: item.density || null,
             material_grade: item.material_grade || null,
+            items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
+            vendor_items_per_packet: item.vendor_items_per_packet || item.vendorItemsPerPacket || item.items_per_packet || item.itemsPerPacket || 1,
             generate_st: true
           };
         });
@@ -840,27 +863,55 @@ const GRNProcessingPage = () => {
           </div>
         )
       },
-      { key: "ordered_qty", label: "Ordered", align: "center", className: "w-20", render: (val) => <span className="text-xs text-slate-400">{val}</span> },
-      { key: "previously_received", label: "Prev Received", align: "center", className: "w-20", render: (val) => <span className="text-xs text-slate-400">{val}</span> },
-      { key: "remaining_qty", label: "Balance", align: "center", className: "w-20", render: (val) => <span className="text-xs font-medium text-blue-600">{parseFloat(val.toFixed(3))}</span> },
+      { key: "ordered_qty", label: "Ordered", align: "center", className: "w-20", render: (val) => <span className="text-xs text-slate-400">{parseFloat(val)}</span> },
+      { key: "previously_received", label: "Prev Received", align: "center", className: "w-20", render: (val) => <span className="text-xs text-slate-400">{parseFloat(val)}</span> },
+      { key: "remaining_qty", label: "Balance", align: "center", className: "w-20", render: (val) => <span className="text-xs font-medium text-blue-600">{parseFloat(val)}</span> },
       { key: "unit", label: "UOM", align: "center", className: "w-20", render: (val) => <span className="text-xs text-slate-400">{val}</span> },
       {
         key: "received_weight",
-        label: "Weight (Kg)",
+        label: "Measurement / Weight",
         align: "center",
         className: "w-32",
-        render: (val, _, __, idx) => (
-          <div className="flex gap-2 items-center">
-            <input 
-              type="number"
-              step="any"
-              value={val}
-              onChange={(e) => handleItemChange(idx, 'received_weight', e.target.value)}
-              className="w-[50px] p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-center focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-            <span className="text-xs text-slate-400">Kg</span>
-          </div>
-        )
+        render: (val, item, __, idx) => {
+          const group = item.item_group?.toLowerCase();
+          const uom = (item.unit || "").toLowerCase();
+
+          if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
+            return (
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[10px] text-blue-600 font-medium">{parseFloat(item.items_per_packet || 1)} Items / Unit</span>
+              </div>
+            );
+          }
+
+          if (group === "paint" || uom === "l" || uom === "liter") {
+            return (
+              <div className="flex gap-1 items-center justify-center">
+                <input 
+                  type="number"
+                  step="any"
+                  value={parseFloat(val)}
+                  onChange={(e) => handleItemChange(idx, 'received_weight', e.target.value)}
+                  className="w-[60px] p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-center focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                <span className="text-xs text-slate-400">L</span>
+              </div>
+            );
+          }
+
+          return (
+            <div className="flex gap-1 items-center justify-center">
+              <input 
+                type="number"
+                step="any"
+                value={parseFloat(val)}
+                onChange={(e) => handleItemChange(idx, 'received_weight', e.target.value)}
+                className="w-[60px] p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-center focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+              <span className="text-xs text-slate-400">Kg</span>
+            </div>
+          );
+        }
       },
       {
         key: "received_qty",
@@ -871,7 +922,7 @@ const GRNProcessingPage = () => {
           <input 
             type="number"
             step="any"
-            value={val}
+            value={parseFloat(val)}
             onChange={(e) => handleItemChange(idx, 'received_qty', e.target.value)}
             className="w-full p-1 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded text-xs text-center text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
           />

@@ -38,8 +38,9 @@ const createStockEntry = async (req, res) => {
                         stock_entry_id, material_id, item_code, item_name, quantity, uom, 
                         batch_no, valuation_rate, length, width, thickness, diameter, 
                         outer_diameter, height, unit_weight, total_weight, density,
-                        item_group, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        item_group, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2,
+                        items_per_packet, vendor_items_per_packet
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         stockEntryId, 
                         item.material_id || null, 
@@ -65,7 +66,9 @@ const createStockEntry = async (req, res) => {
                         item.side_s1 || item.s1 || null,
                         item.side_s2 || item.s2 || null,
                         item.side1 || item.s1 || null,
-                        item.side2 || item.s2 || null
+                        item.side2 || item.s2 || null,
+                        item.items_per_packet || 1,
+                        item.vendor_items_per_packet || item.items_per_packet || 1
                     ]
                 );
 
@@ -85,8 +88,9 @@ const createStockEntry = async (req, res) => {
                     voucher_no, actual_qty, uom, balance_qty, project_name, vendor_name, 
                     valuation_rate, remarks, length, width, thickness, diameter, 
                     outer_diameter, height, unit_weight, total_weight, density,
-                    item_group, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2
-                ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    item_group, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2,
+                    items_per_packet, vendor_items_per_packet
+                ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                 
                 const ledgerValues = [
                     item.item_code, 
@@ -117,7 +121,9 @@ const createStockEntry = async (req, res) => {
                     item.side_s1 || item.s1 || null,
                     item.side_s2 || item.s2 || null,
                     item.side1 || item.s1 || null,
-                    item.side2 || item.s2 || null
+                    item.side2 || item.s2 || null,
+                    item.items_per_packet || 1,
+                    item.vendor_items_per_packet || item.items_per_packet || 1
                 ];
 
                 await connection.query(ledgerSql, ledgerValues);
@@ -210,14 +216,14 @@ const getStockEntries = async (req, res) => {
                 if (entry.grn_id && entry.entry_type === 'Material Receipt') {
                     // Fetch by GRN for Material Receipt - Only Available ones
                     const [serialRows] = await db.query(
-                        'SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2 FROM inventory_serials WHERE grn_id = ? AND item_code LIKE ? AND item_name = ? AND status = "Available"',
+                        'SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2, items_per_packet, vendor_items_per_packet FROM inventory_serials WHERE grn_id = ? AND item_code LIKE ? AND item_name = ? AND status = "Available"',
                         [entry.grn_id, `${item.item_code}%`, item.item_name]
                     );
                     serials = serialRows;
                 } else if (entry.entry_type === 'Material Issue') {
                     // Fetch by Entry ID for Material Issue - These are the ones released
                     const [serialRows] = await db.query(
-                        'SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2 FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
+                        'SELECT serial_number, status, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2, items_per_packet, vendor_items_per_packet FROM inventory_serials WHERE issued_in_entry_id = ? AND item_code LIKE ? AND item_name = ?',
                         [entry.id, `${item.item_code}%`, item.item_name]
                     );
                     serials = serialRows;
@@ -272,6 +278,8 @@ const getStockBalance = async (req, res) => {
                    MAX(l1.side_s) as side_s,
                    MAX(l1.side_s1) as side_s1,
                    MAX(l1.side_s2) as side_s2,
+                   MAX(l1.items_per_packet) as items_per_packet,
+                   MAX(l1.vendor_items_per_packet) as vendor_items_per_packet,
                    MD5(CONCAT(l1.item_code, l1.material_name, IFNULL(l1.project_name, ''), IFNULL(l1.vendor_name, ''))) as id
             FROM stock_ledger l1
             GROUP BY l1.item_code, l1.material_name, l1.uom, l1.project_name, l1.vendor_name
@@ -286,7 +294,7 @@ const getStockBalance = async (req, res) => {
 
         // Fetch serials for each material
         const materialsWithSerials = await Promise.all(rows.map(async (material) => {
-            let serialQuery = 'SELECT serial_number, status, item_code, item_name, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2 FROM inventory_serials WHERE item_code LIKE ? AND item_name = ? AND status IN ("Available", "Rejected")';
+            let serialQuery = 'SELECT serial_number, status, item_code, item_name, inspection_status, length, width, thickness, diameter, outer_diameter, height, unit_weight, total_weight, density, web_thickness, flange_thickness, side_s, side_s1, side_s2, side1, side2, items_per_packet, vendor_items_per_packet FROM inventory_serials WHERE item_code LIKE ? AND item_name = ? AND status IN ("Available", "Rejected")';
             let serialParams = [`${material.item_code}%`, material.itemName];
 
             if (material.project_name) {

@@ -322,16 +322,33 @@ const CreateQuotationModal = ({
 
       if (preFilledMaterials) {
         initialFormState.items = preFilledMaterials.map((m) => ({
-          item_name: m.item_name || m.material_name || m.itemName || "",
+          item_name: m.item_name || m.material_name || m.description || m.itemName || "",
           vendor_item_name: "",
           material_id: m._id || m.id,
-          quantity: m.quantity || m.requiredQuantity || 0,
+          quantity: parseFloat(m.quantity || m.requiredQuantity || 0),
           unit_price: 0,
           unit: m.unit || "",
           rate_per_kg: 0,
-          total_weight: 0,
+          total_weight: (m.item_group?.toLowerCase() === "paint" || m.item_group?.toLowerCase() === "bought out" || (m.unit || "").toLowerCase() === "l" || (m.unit || "").toLowerCase() === "liter" || (m.unit || "").toLowerCase() === "packet")
+            ? parseFloat(m.quantity || m.requiredQuantity || 0)
+            : parseFloat(m.total_weight || m.totalWeight || 0),
           items_per_packet: m.items_per_packet || m.itemsPerPacket || 1,
           vendor_items_per_packet: m.items_per_packet || m.itemsPerPacket || 1,
+          item_group: m.item_group || "",
+          part_detail: m.part_detail || "",
+          material_grade: m.material_grade || "",
+          make: m.make || "",
+          remark: m.remark || "",
+          length: m.length || null,
+          width: parseFloat(m.width) || parseFloat(m.side1) || null,
+          thickness: m.thickness || null,
+          diameter: m.diameter || null,
+          outer_diameter: m.outer_diameter || null,
+          height: parseFloat(m.height) || parseFloat(m.side2) || null,
+          side1: parseFloat(m.side1) || parseFloat(m.width) || null,
+          side2: parseFloat(m.side2) || parseFloat(m.height) || null,
+          web_thickness: m.web_thickness || null,
+          flange_thickness: m.flange_thickness || null,
         }));
         initialFormState.root_card_id =
           preFilledMaterials[0]?.rootCardId || initialFormState.root_card_id;
@@ -393,23 +410,40 @@ const CreateQuotationModal = ({
             "vendor_side2",
             "vendor_web_thickness",
             "vendor_flange_thickness",
+            "items_per_packet",
+            "vendor_items_per_packet",
           ];
-          return {
+          const updatedItem = {
             ...item,
             [field]: stringFields.includes(field)
               ? value
               : numberFields.includes(field)
-                ? value
+                ? (value === "" ? 0 : parseFloat(value))
                 : value,
           };
+
+          // Auto-sync total_weight for special item groups if quantity changes
+          if (field === "quantity") {
+            const group = (updatedItem.item_group || "").toLowerCase();
+            const uom = (updatedItem.unit || "").toLowerCase();
+            if (group === "bought out" || group === "paint" || uom === "l" || uom === "packet") {
+              updatedItem.total_weight = updatedItem.quantity;
+            }
+          }
+
+          return updatedItem;
         }
         return item;
       });
 
       const newTotal = newItems.reduce((sum, item) => {
+        const group = (item.item_group || "").toLowerCase();
+        const uom = (item.unit || "").toLowerCase();
+        const useQty = group === "bought out" || group === "paint" || uom === "l" || uom === "packet";
+
         if (formData.type === "inbound") {
-          // Strictly Weight * Rate per kg for inbound
-          const itemTotal = item.total_weight * item.rate_per_kg || 0;
+          const weight = useQty ? (item.quantity || 0) : (item.total_weight || 0);
+          const itemTotal = weight * item.rate_per_kg || 0;
           return sum + itemTotal;
         }
         const itemTotal = item.quantity * item.unit_price || 0;
@@ -418,7 +452,7 @@ const CreateQuotationModal = ({
       return {
         ...prev,
         items: newItems,
-        total_amount: Number(newTotal.toFixed(3)),
+        total_amount: newTotal,
       };
     });
   };
@@ -519,20 +553,24 @@ const CreateQuotationModal = ({
               item.itemName ||
               "",
             vendor_item_name: "",
-            quantity: item.required_quantity || item.quantity || 0,
+            quantity: parseFloat(item.required_quantity || item.quantity || 0),
             unit: item.uom || item.unit || "",
             unit_price: 0,
             rate_per_kg: 0,
-            total_weight: item.total_weight
-              ? Number(parseFloat(item.total_weight).toFixed(3))
-              : item.totalWeight
-                ? Number(parseFloat(item.totalWeight).toFixed(3))
-                : 0,
+            total_weight: (item.item_group?.toLowerCase() === "paint" || item.item_group?.toLowerCase() === "bought out" || (item.uom || item.unit || "").toLowerCase() === "l" || (item.uom || item.unit || "").toLowerCase() === "liter")
+              ? parseFloat(item.required_quantity || item.quantity || 0)
+              : (item.total_weight
+                ? parseFloat(item.total_weight)
+                : item.totalWeight
+                  ? parseFloat(item.totalWeight)
+                  : 0),
             unit_weight: item.unit_weight
               ? Number(parseFloat(item.unit_weight).toFixed(3))
               : item.unitWeight
                 ? Number(parseFloat(item.unitWeight).toFixed(3))
                 : 0,
+            items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
+            vendor_items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
             item_group: item.item_group || "",
             material_grade: item.material_grade || "",
             part_detail: item.part_detail || "",
@@ -587,7 +625,7 @@ const CreateQuotationModal = ({
         items: (selectedQuote.items || []).map((item) => ({
           item_name: item.item_name || item.description,
           vendor_item_name: item.vendor_item_name || "",
-          quantity: item.quantity,
+          quantity: parseFloat(item.quantity),
           unit: item.unit || "",
           unit_price: 0,
           item_group: item.item_group || "",
@@ -595,9 +633,9 @@ const CreateQuotationModal = ({
           material_grade: item.material_grade || "",
           make: item.make || "",
           remark: item.remark || "",
-          total_weight: item.total_weight
-            ? Number(parseFloat(item.total_weight).toFixed(3))
-            : 0,
+          total_weight: (item.item_group?.toLowerCase() === "paint" || (item.unit || "").toLowerCase() === "l" || (item.unit || "").toLowerCase() === "liter")
+            ? Number(parseFloat(item.quantity || 0).toFixed(3))
+            : (item.total_weight ? Number(parseFloat(item.total_weight).toFixed(3)) : 0),
           unit_weight: item.unit_weight
             ? Number(parseFloat(item.unit_weight).toFixed(3))
             : 0,
@@ -660,11 +698,11 @@ const CreateQuotationModal = ({
       const selectedItems = rootCardMaterials.filter((m) => m.selected);
       const items = selectedItems.map((m) => ({
         item_name: m.itemName || m.item_name || "Unnamed Material",
-        quantity: Math.max(
-          0,
-          (parseFloat(m.requiredQuantity) || 0) -
-            (parseFloat(m.currentStock) || 0),
-        ),
+          quantity: parseFloat(Math.max(
+            0,
+            (parseFloat(m.requiredQuantity) || 0) -
+              (parseFloat(m.currentStock) || 0),
+          ).toFixed(4)),
         unit: m.unit || "",
         unit_price: 0,
         item_group: m.itemGroupName || m.itemGroup || m.category || "",
@@ -769,9 +807,8 @@ const CreateQuotationModal = ({
   };
 
   const formatCurrency = (value) => {
-    if (!value && value !== 0) return "₹0.000";
-    return `₹${Number(value).toLocaleString("en-IN", {
-      minimumFractionDigits: 3,
+    if (!value && value !== 0) return "₹0";
+    return `₹${parseFloat(value).toLocaleString("en-IN", {
       maximumFractionDigits: 3,
     })}`;
   };
@@ -782,27 +819,34 @@ const CreateQuotationModal = ({
     return date.toLocaleDateString("en-IN");
   };
 
+  const displayItems = useMemo(() => {
+    return formData.items.map((item, index) => ({
+      ...item,
+      globalIndex: index
+    }));
+  }, [formData.items]);
+
   const columns = useMemo(() => {
     const common = [
       {
         header: "#",
         accessor: "index",
         className: "w-12 text-center",
-        render: (_, __, ___, index) => (
-          <span className="text-xs text-slate-400">{index + 1}</span>
+        render: (_, item) => (
+          <span className="text-xs text-slate-400">{item.globalIndex + 1}</span>
         ),
       },
       {
         header: "Item Name / Group",
         accessor: "item_name",
         className: "w-1/4",
-        render: (value, item, _, index) => (
+        render: (value, item) => (
           <div className="flex flex-col">
             <input
               type="text"
               value={item.item_name}
               onChange={(e) =>
-                handleItemChange(index, "item_name", e.target.value)
+                handleItemChange(item.globalIndex, "item_name", e.target.value)
               }
               placeholder="Item name"
               disabled
@@ -812,7 +856,7 @@ const CreateQuotationModal = ({
               type="text"
               value={item.item_group}
               onChange={(e) =>
-                handleItemChange(index, "item_group", e.target.value)
+                handleItemChange(item.globalIndex, "item_group", e.target.value)
               }
               placeholder="Group"
               disabled
@@ -832,18 +876,18 @@ const CreateQuotationModal = ({
           header: "Vendor Material Name",
           accessor: "vendor_item_name",
           className: "w-1/4",
-          render: (value, item, _, index) => (
+          render: (value, item) => (
             <div className="flex flex-col">
               <input
                 type="text"
                 value={item.vendor_item_name}
                 onChange={(e) =>
-                  handleItemChange(index, "vendor_item_name", e.target.value)
+                  handleItemChange(item.globalIndex, "vendor_item_name", e.target.value)
                 }
                 placeholder="Vendor Material Name (if different)"
                 className="w-full p-2 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
               />
-              {renderVendorDimensionFields(item, index, handleItemChange)}
+              {renderVendorDimensionFields(item, item.globalIndex, handleItemChange)}
             </div>
           ),
         },
@@ -851,16 +895,16 @@ const CreateQuotationModal = ({
           header: "Qty",
           accessor: "quantity",
           className: "w-24",
-          render: (value, item, _, index) => (
+          render: (value, item) => (
             <input
               type="number"
               value={
                 item.quantity !== undefined && item.quantity !== null
-                  ? item.quantity
+                  ? parseFloat(item.quantity)
                   : ""
               }
               onChange={(e) =>
-                handleItemChange(index, "quantity", e.target.value)
+                handleItemChange(item.globalIndex, "quantity", e.target.value)
               }
               placeholder="0"
               min="0"
@@ -874,11 +918,11 @@ const CreateQuotationModal = ({
           header: "UOM",
           accessor: "unit",
           className: "w-20",
-          render: (value, item, _, index) => (
+          render: (value, item) => (
             <input
               type="text"
               value={item.unit}
-              onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+              onChange={(e) => handleItemChange(item.globalIndex, "unit", e.target.value)}
               placeholder="Unit"
               disabled={preFilledMaterials}
               className="w-full p-1 text-xs text-center text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-none rounded disabled:opacity-80"
@@ -888,55 +932,62 @@ const CreateQuotationModal = ({
         {
           header: (
             <>
-              Rate/Kg <span className="text-red-500">*</span>
+              Rate/Unit <span className="text-red-500">*</span>
             </>
           ),
           accessor: "rate_per_kg",
           align: "right",
-          render: (value, item, _, index) => (
+          render: (value, item) => (
             <input
               type="number"
-              value={item.rate_per_kg}
+              value={item.rate_per_kg ? parseFloat(item.rate_per_kg) : ""}
               onChange={(e) =>
-                handleItemChange(index, "rate_per_kg", e.target.value)
+                handleItemChange(item.globalIndex, "rate_per_kg", e.target.value)
               }
               placeholder="0.00"
               min="0"
-              step="0.01"
+              step="any"
               required
               className="w-full p-1 text-xs text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
             />
           ),
         },
         {
-          header: "Weight (Kg)",
+          header: "Measurement / Weight",
           accessor: "total_weight",
           align: "right",
-          render: (value, item, _, index) => {
+          render: (value, item) => {
             if (item.item_group?.toLowerCase() === "bought out" &&
               (item.unit?.toLowerCase() === "packet" ||
                 item.unit?.toLowerCase() === "box" ||
                 item.unit?.toLowerCase() === "set")) {
               return (
-                <div className="flex flex-col gap-1 min-w-[100px]">
+                <div className="flex flex-col gap-1 min-w-[120px]">
                   <div className="flex flex-col gap-0.5">
-                    <label className="text-[10px] text-slate-500">Req: items/{item.unit}</label>
+                    <label className="text-[10px] text-slate-500">Items / {item.unit}</label>
                     <input
                       type="number"
-                      value={item.items_per_packet || 1}
-                      onChange={(e) => handleItemChange(index, "items_per_packet", e.target.value)}
-                      className="w-full p-1 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <label className="text-[10px] text-blue-600">Ven: items/{item.unit}</label>
-                    <input
-                      type="number"
-                      value={item.vendor_items_per_packet || item.items_per_packet || 1}
-                      onChange={(e) => handleItemChange(index, "vendor_items_per_packet", e.target.value)}
+                      value={item.vendor_items_per_packet ? parseFloat(item.vendor_items_per_packet) : parseFloat(item.items_per_packet || 1)}
+                      onChange={(e) => handleItemChange(item.globalIndex, "vendor_items_per_packet", e.target.value)}
+                      placeholder="Items per packet"
                       className="w-full p-1 text-xs border border-blue-200 dark:border-blue-900/30 rounded bg-blue-50/10 dark:bg-blue-900/10"
                     />
                   </div>
+                </div>
+              );
+            }
+            if (item.item_group?.toLowerCase() === "paint" || item.unit?.toLowerCase() === "l" || item.unit?.toLowerCase() === "liter") {
+              return (
+                <div className="flex flex-col gap-1 min-w-[100px]">
+                  <label className="text-[10px] text-slate-500">Volume (L)</label>
+                  <input
+                    type="number"
+                    value={item.total_weight ? parseFloat(item.total_weight) : 0}
+                    onChange={(e) => handleItemChange(item.globalIndex, "total_weight", e.target.value)}
+                    placeholder="0.00"
+                    step="any"
+                    className="w-full p-1 text-xs text-right border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900"
+                  />
                 </div>
               );
             }
@@ -945,15 +996,15 @@ const CreateQuotationModal = ({
                 type="number"
                 value={
                   item.total_weight !== null && item.total_weight !== undefined
-                    ? item.total_weight
+                    ? parseFloat(item.total_weight)
                     : ""
                 }
                 onChange={(e) =>
-                  handleItemChange(index, "total_weight", e.target.value)
+                  handleItemChange(item.globalIndex, "total_weight", e.target.value)
                 }
-                placeholder="0.000"
+                placeholder="0.00"
                 min="0"
-                step="0.001"
+                step="any"
                 className="w-full p-1 text-xs text-right text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded bg-white dark:bg-slate-900 transition-all"
               />
             );
@@ -963,18 +1014,24 @@ const CreateQuotationModal = ({
           header: "Total",
           accessor: "total",
           align: "right",
-          render: (_, item) => (
-            <span className="text-xs text-emerald-600">
-              ₹
-              {Number(item.total_weight * item.rate_per_kg || 0).toLocaleString(
-                undefined,
-                {
-                  minimumFractionDigits: 3,
-                  maximumFractionDigits: 3,
-                }
-              )}
-            </span>
-          ),
+          render: (_, item) => {
+            const group = (item.item_group || "").toLowerCase();
+            const uom = (item.unit || "").toLowerCase();
+            const useQty = group === "bought out" || group === "paint" || uom === "l" || uom === "packet";
+            const weight = useQty ? (item.quantity || 0) : (item.total_weight || 0);
+
+            return (
+              <span className="text-xs text-emerald-600">
+                ₹
+                {parseFloat(weight * item.rate_per_kg || 0).toLocaleString(
+                  undefined,
+                  {
+                    maximumFractionDigits: 3,
+                  }
+                )}
+              </span>
+            );
+          },
         },
       ];
     } else {
@@ -984,13 +1041,13 @@ const CreateQuotationModal = ({
           header: "Part Detail / Grade",
           accessor: "part_detail",
           className: "w-1/4",
-          render: (value, item, _, index) => (
+          render: (value, item) => (
             <div className="flex flex-col gap-1">
               <input
                 type="text"
                 value={item.part_detail}
                 onChange={(e) =>
-                  handleItemChange(index, "part_detail", e.target.value)
+                  handleItemChange(item.globalIndex, "part_detail", e.target.value)
                 }
                 placeholder="Part Detail"
                 disabled={preFilledMaterials}
@@ -1000,7 +1057,7 @@ const CreateQuotationModal = ({
                 type="text"
                 value={item.material_grade}
                 onChange={(e) =>
-                  handleItemChange(index, "material_grade", e.target.value)
+                  handleItemChange(item.globalIndex, "material_grade", e.target.value)
                 }
                 placeholder="Grade"
                 disabled={preFilledMaterials}
@@ -1012,13 +1069,13 @@ const CreateQuotationModal = ({
         {
           header: "Remark / Make",
           accessor: "remark",
-          render: (value, item, _, index) => (
+          render: (value, item) => (
             <div className="flex flex-col gap-1">
               <input
                 type="text"
                 value={item.remark}
                 onChange={(e) =>
-                  handleItemChange(index, "remark", e.target.value)
+                  handleItemChange(item.globalIndex, "remark", e.target.value)
                 }
                 placeholder="Remark"
                 disabled={preFilledMaterials}
@@ -1027,7 +1084,7 @@ const CreateQuotationModal = ({
               <input
                 type="text"
                 value={item.make}
-                onChange={(e) => handleItemChange(index, "make", e.target.value)}
+                onChange={(e) => handleItemChange(item.globalIndex, "make", e.target.value)}
                 placeholder="Make"
                 disabled={preFilledMaterials}
                 className="w-full p-1 text-xs text-slate-500 dark:text-slate-400 border-none bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-all disabled:opacity-80"
@@ -1036,32 +1093,69 @@ const CreateQuotationModal = ({
           ),
         },
         {
-          header: "Weight (Kg)",
+          header: "Measurement / Weight",
           accessor: "total_weight",
           className: "w-24",
           align: "center",
-          render: (value, item) => (
-            <div className="flex flex-col items-center">
-              <span className="text-xs text-slate-700 dark:text-slate-200">
-                {parseFloat(item.total_weight || 0).toFixed(3)} Kg
-              </span>
-            </div>
-          ),
+          render: (value, item) => {
+            const group = item.item_group?.toLowerCase();
+            const unit = item.unit?.toLowerCase();
+            
+            if (group === "bought out" && ["packet", "box", "set"].includes(unit)) {
+              return (
+                <div className="flex flex-col gap-1 items-center min-w-[100px]">
+                   <div className="flex flex-col gap-0.5 w-full">
+                    <label className="text-[10px] text-slate-500">Items / Unit</label>
+                    <input
+                      type="number"
+                      value={parseFloat(item.items_per_packet || 1)}
+                      onChange={(e) => handleItemChange(item.globalIndex, "items_per_packet", e.target.value)}
+                      className="w-full p-1 text-[10px] text-center border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900"
+                    />
+                  </div>
+                </div>
+              );
+            }
+            
+            if (group === "paint" || unit === "l" || unit === "liter") {
+              return (
+                <div className="flex flex-col items-center min-w-[80px]">
+                   <div className="flex flex-col gap-0.5 w-full">
+                    <label className="text-[10px] text-slate-500">Liters (L)</label>
+                    <input
+                      type="number"
+                      value={item.total_weight || 0}
+                      onChange={(e) => handleItemChange(item.globalIndex, "total_weight", e.target.value)}
+                      className="w-full p-1 text-[10px] text-center border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900"
+                    />
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-slate-700 dark:text-slate-200">
+                  {parseFloat(item.total_weight || 0)} Kg
+                </span>
+              </div>
+            );
+          },
         },
         {
           header: "Qty",
           accessor: "quantity",
           className: "w-24",
-          render: (value, item, _, index) => (
+          render: (value, item) => (
             <input
               type="number"
               value={
                 item.quantity !== undefined && item.quantity !== null
-                  ? item.quantity
+                  ? parseFloat(item.quantity)
                   : ""
               }
               onChange={(e) =>
-                handleItemChange(index, "quantity", e.target.value)
+                handleItemChange(item.globalIndex, "quantity", e.target.value)
               }
               placeholder="0"
               min="0"
@@ -1075,11 +1169,11 @@ const CreateQuotationModal = ({
           header: "UOM",
           accessor: "unit",
           className: "w-20",
-          render: (value, item, _, index) => (
+          render: (value, item) => (
             <input
               type="text"
               value={item.unit}
-              onChange={(e) => handleItemChange(index, "unit", e.target.value)}
+              onChange={(e) => handleItemChange(item.globalIndex, "unit", e.target.value)}
               placeholder="Unit"
               disabled={preFilledMaterials}
               className="w-full p-1 text-xs text-center text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-none rounded disabled:opacity-80"
@@ -1195,7 +1289,7 @@ const CreateQuotationModal = ({
                       {
                         key: "currentStock",
                         label: "Current Stock",
-                        render: (val) => <span className="text-sm text-slate-700 dark:text-slate-300">{val}</span>
+                        render: (val) => <span className="text-sm text-slate-700 dark:text-slate-300">{parseFloat(val || 0)}</span>
                       },
                       {
                         key: "requiredQuantity",
@@ -1447,7 +1541,7 @@ const CreateQuotationModal = ({
                         <input
                           type="text"
                           name="total_amount"
-                          value={Number(formData.total_amount || 0).toFixed(3)}
+                          value={parseFloat(formData.total_amount || 0).toLocaleString(undefined, { maximumFractionDigits: 3 })}
                           onChange={handleFormChange}
                           placeholder="0.000"
                           disabled
@@ -1474,7 +1568,7 @@ const CreateQuotationModal = ({
                     <div className="space-y-0">
                       <DataTable
                         columns={columns}
-                        data={formData.items}
+                        data={displayItems}
                         showSearch={false}
                         striped={true}
                         hover={true}

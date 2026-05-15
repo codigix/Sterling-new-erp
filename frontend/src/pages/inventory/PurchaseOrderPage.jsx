@@ -587,18 +587,28 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
       doc.text(`Expected Delivery: ${formatDate(po.expected_delivery_date)}`, 14, 60);
     }
 
-    const tableColumn = ["#", "Item Name / Group", "Qty", "UOM", "Rate/Kg", "Weight (Kg)", "Total"];
+    const tableColumn = ["#", "Item Name / Group", "Qty", "UOM", "Rate/Unit", "Measurement / Weight", "Total"];
     const tableRows = (po.items || []).map((item, index) => {
       const dimText = renderDimensions(item);
       const dimDisplay = dimText ? `\nDim: ${dimText} mm` : "";
       const rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
+      const group = (item.item_group || "").toLowerCase();
+      const uom = (item.unit || item.uom || "").toLowerCase();
+      let measurement = item.total_weight ? parseFloat(item.total_weight).toFixed(3) + " Kg" : "0.000 Kg";
+
+      if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
+        measurement = `${item.items_per_packet || 1} Items/Unit\nTotal: ${(item.items_per_packet || 1) * (item.quantity || 0)} Items`;
+      } else if (group === "paint" || uom === "l" || uom === "liter") {
+        measurement = `${parseFloat(item.total_weight || 0).toFixed(2)} L`;
+      }
+
       return [
         index + 1,
         { content: `${item.material_name || "N/A"}\n${item.item_group || "-"}${dimDisplay}`, styles: { fontStyle: "bold" } },
         item.quantity ? parseFloat(item.quantity).toString() : "0",
         item.unit || item.uom || "Nos",
         `INR ${Number(rate).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
-        item.total_weight ? parseFloat(item.total_weight).toFixed(3) : "0.000",
+        measurement,
         `INR ${Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}`,
       ];
     });
@@ -757,12 +767,22 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
 
       const exportData = items.map((item) => {
         const rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
+        const group = (item.item_group || "").toLowerCase();
+        const uom = (item.unit || item.uom || "").toLowerCase();
+        let measurement = item.total_weight ? parseFloat(item.total_weight).toFixed(3) + " Kg" : "0.000 Kg";
+
+        if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
+          measurement = `${item.items_per_packet || 1} Items/Unit (Total: ${(item.items_per_packet || 1) * (item.quantity || 0)} Items)`;
+        } else if (group === "paint" || uom === "l" || uom === "liter") {
+          measurement = `${parseFloat(item.total_weight || 0).toFixed(2)} L`;
+        }
+
         return {
           "Item Name / Group": `${item.material_name || "N/A"}\n(${item.item_group || "-"})`,
           "Dimensions": renderDimensions(item),
           "Ordered Qty": `${item.quantity} ${item.unit || item.uom}`,
-          "Rate": rate,
-          "Weight (Kg)": item.total_weight ? parseFloat(item.total_weight).toFixed(3) : "0.000",
+          "Rate/Unit": rate,
+          "Measurement / Weight": measurement,
           "Total Amount": item.amount || 0,
         };
       });

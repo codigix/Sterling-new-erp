@@ -503,8 +503,8 @@ const QuotationsPage = ({ defaultTab }) => {
       "Material Name", // Replaced with vendor name if different
       "Qty",
       "UOM",
-      "Rate/Kg",
-      "Weight (Kg)",
+      "Rate/Unit",
+      "Measurement",
       "Total"
     ] : [
       "Item Name",
@@ -513,7 +513,7 @@ const QuotationsPage = ({ defaultTab }) => {
       "Part Detail",
       "Make",
       "Remark",
-      "Weight (Kg)",
+      "Measurement",
       "Qty",
       "Unit",
     ];
@@ -534,28 +534,32 @@ const QuotationsPage = ({ defaultTab }) => {
         const dimText = getDimText(item);
         const qty = item.quantity ? parseFloat(item.quantity) : 0;
         
-        let weightCol = `${Number(item.total_weight || 0).toFixed(3)}`;
-        if (isBoughtOut && isPacket && itemsPerPacket > 1) {
-          const totalItems = Math.round(qty * itemsPerPacket);
-          weightCol = `${parseFloat(itemsPerPacket)} items/${item.unit}\nTotal: ${totalItems} Items`;
+        let weightCol = `${parseFloat(item.total_weight || 0)} Kg`;
+        const itemGroup = (item.item_group || "").toLowerCase();
+        if (itemGroup === "paint" || uom === "l" || uom === "liter") {
+          weightCol = `${parseFloat(item.total_weight || 0)} L`;
+        } else if (isBoughtOut && isPacket) {
+          weightCol = `${parseFloat(itemsPerPacket)} Items / Unit`;
         }
 
         return [
           (item.vendor_item_name || item.item_name || "N/A") + dimText,
           qty.toString(),
           item.unit || "N/A",
-          `INR ${Number(item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}`,
+          `INR ${parseFloat(item.rate_per_kg || 0).toLocaleString(undefined, { maximumFractionDigits: 3 })}`,
           weightCol,
-          `INR ${Number(item.total_weight * item.rate_per_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}`
+          `INR ${parseFloat(item.total_weight * item.rate_per_kg || 0).toLocaleString(undefined, { maximumFractionDigits: 3 })}`
         ];
       } else {
         const dimText = getDimText(item);
         const qty = item.quantity ? parseFloat(item.quantity) : 0;
         
-        let weightCol = item.total_weight ? `${parseFloat(item.total_weight).toFixed(3)}` : "0.000";
-        if (isBoughtOut && isPacket && itemsPerPacket > 1) {
-          const totalItems = Math.round(qty * itemsPerPacket);
-          weightCol = `${parseFloat(itemsPerPacket)} items/${item.unit}\nTotal: ${totalItems} Items`;
+        let weightCol = item.total_weight ? `${parseFloat(item.total_weight)} Kg` : "0 Kg";
+        const itemGroup = (item.item_group || "").toLowerCase();
+        if (itemGroup === "paint" || uom === "l" || uom === "liter") {
+          weightCol = `${parseFloat(item.total_weight || 0)} L`;
+        } else if (isBoughtOut && isPacket) {
+          weightCol = `${parseFloat(itemsPerPacket)} Items / Unit`;
         }
 
         return [
@@ -897,7 +901,7 @@ const QuotationsPage = ({ defaultTab }) => {
         item_name: item.item_name,
         vendor_item_name: item.vendor_item_name || "",
         category: item.category || item.materialType || "",
-        quantity: item.quantity,
+        quantity: parseFloat(item.quantity),
         unit: item.unit || "",
         unit_price: 0,
         item_group: item.item_group || "",

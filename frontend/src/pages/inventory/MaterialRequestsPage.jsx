@@ -279,7 +279,9 @@ const MaterialRequestDetailModal = ({
             side2: item.side2 || 0,
             web_thickness: item.web_thickness || item.webThickness || 0,
             flange_thickness: item.flange_thickness || item.flangeThickness || 0,
-            total_weight: item.total_weight ? Number(parseFloat(item.total_weight).toFixed(3)) : (item.totalWeight ? Number(parseFloat(item.totalWeight).toFixed(3)) : 0),
+            total_weight: (item.item_group?.toLowerCase() === "paint" || (item.unit || "").toLowerCase() === "l" || (item.unit || "").toLowerCase() === "liter")
+              ? Number(parseFloat(item.quantity || 0).toFixed(3))
+              : (item.total_weight ? Number(parseFloat(item.total_weight).toFixed(3)) : (item.totalWeight ? Number(parseFloat(item.totalWeight).toFixed(3)) : 0)),
             unit_weight: item.unit_weight ? Number(parseFloat(item.unit_weight).toFixed(3)) : (item.unitWeight ? Number(parseFloat(item.unitWeight).toFixed(3)) : 0),
             items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
           })),

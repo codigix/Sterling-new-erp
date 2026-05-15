@@ -373,7 +373,9 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
             density: item.density || 0,
             side_s: item.side_s || item.s || null,
             side_s1: item.side_s1 || item.s1 || null,
-            side_s2: item.side_s2 || item.s2 || null
+            side_s2: item.side_s2 || item.s2 || null,
+            items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
+            vendor_items_per_packet: item.vendor_items_per_packet || item.vendorItemsPerPacket || item.items_per_packet || item.itemsPerPacket || 1,
           };
         });
 
@@ -435,7 +437,9 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           density: item.density || 0,
           side_s: item.side_s || item.s || null,
           side_s1: item.side_s1 || item.s1 || null,
-          side_s2: item.side_s2 || item.side_s2 || null
+          side_s2: item.side_s2 || item.side_s2 || null,
+          items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
+          vendor_items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
         }));
 
         calculateTotals(initialItems, formData.tax_template);
@@ -759,13 +763,13 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
     if (!isInventoryView || !viewMode) {
       cols.push(
         {
-          header: "Rate (per Kg/Unit)",
+          header: "Rate (per Unit/Kg)",
           key: "rate",
           align: "center",
           className: "w-32",
           render: (value, item, __, idx) => (
             viewMode ? (
-              <span className="text-xs">₹{Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 })}/{item.total_weight > 0 ? 'kg' : 'unit'}</span>
+              <span className="text-xs">₹{parseFloat(value || 0).toLocaleString(undefined, { maximumFractionDigits: 3 })}/{item.item_group?.toLowerCase() === 'bought out' || (item.uom || item.unit || '').toLowerCase() === 'packet' ? 'unit' : (item.total_weight > 0 ? 'kg' : 'unit')}</span>
             ) : (
               <input 
                 type="number"
@@ -778,26 +782,34 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           )
         },
         {
-          header: "Weight (Kg)",
+          header: "Measurement / Weight",
           key: "total_weight",
           align: "center",
           className: "w-32 text-slate-500",
           render: (value, item) => {
-            if (item.item_group?.toLowerCase() === "bought out" &&
-              (item.uom?.toLowerCase() === "packet" ||
-                item.uom?.toLowerCase() === "box" ||
-                item.uom?.toLowerCase() === "set")) {
+            const group = item.item_group?.toLowerCase();
+            const uom = (item.uom || item.unit || "").toLowerCase();
+
+            if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
               return (
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-blue-600 font-medium">{item.items_per_packet || 1} items/{item.uom}</span>
-                  <span className="text-[10px] text-slate-400">Total: {(item.items_per_packet || 1) * (item.quantity || 0)} Items</span>
+                  <span className="text-[10px] text-blue-600 font-medium">{parseFloat(item.items_per_packet || 1)} Items / Unit</span>
                 </div>
               );
             }
+
+            if (group === "paint" || uom === "l" || uom === "liter") {
+              return (
+                <div className="flex flex-col">
+                  <span className="text-xs text-slate-700 dark:text-slate-300">Total: {parseFloat(value || item.quantity || 0)} L</span>
+                </div>
+              );
+            }
+
             return value ? (
               <div className="flex flex-col">
-                <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
-                <span className=" text-slate-700 dark:text-slate-300">Total: {parseFloat(value).toFixed(3)} Kg</span>
+                <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0)} Kg</span>
+                <span className=" text-slate-700 dark:text-slate-300">Total: {parseFloat(value)} Kg</span>
               </div>
             ) : "-";
           }
@@ -812,26 +824,34 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       );
     } else if (isInventoryView && viewMode) {
       cols.push({
-        header: "Weight (Kg)",
+        header: "Measurement / Weight",
         key: "total_weight",
         align: "center",
         className: "w-32 text-slate-500",
         render: (value, item) => {
-          if (item.item_group?.toLowerCase() === "bought out" &&
-            (item.uom?.toLowerCase() === "packet" ||
-              item.uom?.toLowerCase() === "box" ||
-              item.uom?.toLowerCase() === "set")) {
+          const group = item.item_group?.toLowerCase();
+          const uom = (item.uom || item.unit || "").toLowerCase();
+
+          if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
             return (
               <div className="flex flex-col">
-                <span className="text-[10px] text-blue-600 font-medium">{item.items_per_packet || 1} items/{item.uom}</span>
-                <span className="text-[10px] text-slate-400">Total: {(item.items_per_packet || 1) * (item.quantity || 0)} Items</span>
+                <span className="text-[10px] text-blue-600 font-medium">{parseFloat(item.items_per_packet || 1)} Items / Unit</span>
               </div>
             );
           }
+
+          if (group === "paint" || uom === "l" || uom === "liter") {
+            return (
+              <div className="flex flex-col">
+                <span className="text-xs text-slate-700 dark:text-slate-300">Total: {parseFloat(value || item.quantity || 0)} L</span>
+              </div>
+            );
+          }
+
           return value ? (
             <div className="flex flex-col">
-              <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0).toFixed(3)} Kg</span>
-              <span className=" text-slate-700 dark:text-slate-300">Total: {parseFloat(value).toFixed(3)} Kg</span>
+              <span className="text-[10px] text-slate-400">Unit: {parseFloat(item.unit_weight || 0)} Kg</span>
+              <span className=" text-slate-700 dark:text-slate-300">Total: {parseFloat(value)} Kg</span>
             </div>
           ) : "-";
         }
