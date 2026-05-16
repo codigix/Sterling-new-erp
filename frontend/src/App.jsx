@@ -14,6 +14,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import AdminLayout from "./components/layout/AdminLayout";
 import DepartmentLayout from "./components/layout/DepartmentLayout";
 import DesignEngineerLayout from "./components/layout/DesignEngineerLayout";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // Lazy load role-based dashboards for better performance
 const InventoryDepartmentDashboard = lazy(() => import("./pages/roles/InventoryDepartmentDashboard"));
@@ -140,7 +141,11 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               
               {/* Admin Routes */}
-              <Route path="/admin" element={<AdminLayout />}>
+              <Route path="/admin" element={
+                <ProtectedRoute allowedRoles={["Admin"]}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }>
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="root-cards" element={<UniversalRootCardsPage />} />
                 <Route path="root-cards/new-root-card" element={<UniversalNewRootCardPage />} />
@@ -163,50 +168,187 @@ function App() {
               
               {/* Department Routes - Task-Oriented Pages */}
               <Route path="/department" element={<DepartmentLayout />}>
-                <Route path="root-cards" element={<UniversalRootCardsPage />} />
-                <Route path="root-cards/new-root-card" element={<UniversalNewRootCardPage />} />
-                <Route path="root-cards/:id" element={<UniversalRootCardDetailPage />} />
-                <Route path="engineering" element={<EngineeringTasksPage />} />
-                <Route path="engineering/tasks" element={<DepartmentPortalTasksPage />} />
-                <Route path="engineering/drawings" element={<DesignDrawingManagement />} />
-                <Route path="procurement/*" element={<ProcurementDashboard />} />
-                <Route path="procurement/tasks" element={<DepartmentPortalTasksPage />} />
-                <Route path="qc" element={<QCInspectionsPage />} />
-                <Route path="qc/tasks" element={<DepartmentPortalTasksPage />} />
-                <Route path="qc/inspection/:id" element={<QualityInspectionDetail />} />
-                <Route path="inventory/*" element={<InventoryDepartmentDashboard />} />
-                <Route path="production" element={<ProductionDashboard />} />
-                <Route path="production/tasks" element={<DepartmentPortalTasksPage />} />
+                <Route path="root-cards" element={
+                  <ProtectedRoute allowedRoles={["Admin", "Sales", "Production", "Procurement", "Inventory", "Engineering", "Design Engineer", "Quality", "QC"]}>
+                    <UniversalRootCardsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="root-cards/new-root-card" element={
+                  <ProtectedRoute allowedRoles={["Admin", "Sales", "Production", "Engineering", "Design Engineer"]}>
+                    <UniversalNewRootCardPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="root-cards/:id" element={
+                  <ProtectedRoute>
+                    <UniversalRootCardDetailPage />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Engineering/Design */}
+                <Route path="engineering" element={
+                  <ProtectedRoute allowedDepartments={["Design Engineer", "Engineering"]}>
+                    <EngineeringTasksPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="engineering/tasks" element={
+                  <ProtectedRoute allowedDepartments={["Design Engineer", "Engineering"]}>
+                    <DepartmentPortalTasksPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="engineering/drawings" element={
+                  <ProtectedRoute allowedDepartments={["Design Engineer", "Engineering"]}>
+                    <DesignDrawingManagement />
+                  </ProtectedRoute>
+                } />
+
+                {/* Procurement */}
+                <Route path="procurement/*" element={
+                  <ProtectedRoute allowedDepartments={["Procurement"]}>
+                    <ProcurementDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="procurement/tasks" element={
+                  <ProtectedRoute allowedDepartments={["Procurement"]}>
+                    <DepartmentPortalTasksPage />
+                  </ProtectedRoute>
+                } />
+
+                {/* QC/Quality */}
+                <Route path="qc" element={
+                  <ProtectedRoute allowedDepartments={["Quality", "QC"]}>
+                    <QCInspectionsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="qc/tasks" element={
+                  <ProtectedRoute allowedDepartments={["Quality", "QC"]}>
+                    <DepartmentPortalTasksPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="qc/inspection/:id" element={
+                  <ProtectedRoute allowedDepartments={["Quality", "QC"]}>
+                    <QualityInspectionDetail />
+                  </ProtectedRoute>
+                } />
+
+                {/* Inventory */}
+                <Route path="inventory/*" element={
+                  <ProtectedRoute allowedDepartments={["Inventory"]}>
+                    <InventoryDepartmentDashboard />
+                  </ProtectedRoute>
+                } />
+
+                {/* Production */}
+                <Route path="production" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <ProductionDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/tasks" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <DepartmentPortalTasksPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/root-cards" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <UniversalRootCardsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/root-cards/:id" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <UniversalRootCardDetailPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/design-drawings" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <ProductionDesignDrawings />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/material-requests" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <MaterialRequestsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/released-materials" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <ReleasedMaterialsPage />
+                  </ProtectedRoute>
+                } />
+                
+                {/* BOM Routes */}
+                <Route path="production/bom/create" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <CreateBOMPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/bom/view" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <ViewBOMsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/bom/view/:id" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <BOMDetailsPage />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="production/plans" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <DailyProductionPlanningPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/updates" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <ProductionUpdatePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/quality-handover" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <QualityHandoverPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/daily-updates" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <DailyProductionUpdatesPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/employee-work-logs" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <EmployeeWorkLogsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/operations" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <OperationsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/mcr-reports" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <MCRReportPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/outsourcing-challans" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <OutsourcingChallansPage />
+                  </ProtectedRoute>
+                } />
+
                 <Route path="tasks" element={<DepartmentPortalTasksPage />} />
                 <Route path="root-cards/tasks" element={<DepartmentPortalTasksPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
-                
-                {/* Production Flow Routes */}
-                <Route path="production/root-cards" element={<UniversalRootCardsPage />} />
-                <Route path="production/root-cards/:id" element={<UniversalRootCardDetailPage />} />
-                <Route path="production/design-drawings" element={<ProductionDesignDrawings />} />
-                <Route path="production/material-requests" element={<MaterialRequestsPage />} />
-                <Route path="production/released-materials" element={<ReleasedMaterialsPage />} />
-                
-                {/* BOM Routes */}
-                <Route path="production/bom/create" element={<CreateBOMPage />} />
-                <Route path="production/bom/view" element={<ViewBOMsPage />} />
-                <Route path="production/bom/view/:id" element={<BOMDetailsPage />} />
-
-                <Route path="production/plans" element={<DailyProductionPlanningPage />} />
-                <Route path="production/updates" element={<ProductionUpdatePage />} />
-                <Route path="production/quality-handover" element={<QualityHandoverPage />} />
-                <Route path="production/daily-updates" element={<DailyProductionUpdatesPage />} />
-                <Route path="production/employee-work-logs" element={<EmployeeWorkLogsPage />} />
-                <Route path="production/operations" element={<OperationsPage />} />
-                <Route path="production/mcr-reports" element={<MCRReportPage />} />
-                <Route path="production/outsourcing-challans" element={<OutsourcingChallansPage />} />
               </Route>
               
-              <Route path="/department/quality/*" element={<QualityDepartmentDashboard />} />
+              <Route path="/department/quality/*" element={
+                <ProtectedRoute allowedDepartments={["Quality", "QC"]}>
+                  <QualityDepartmentDashboard />
+                </ProtectedRoute>
+              } />
               
               {/* Employee Routes */}
-              <Route path="/employee" element={<EmployeeDashboardLayout />}>
+              <Route path="/employee" element={
+                <ProtectedRoute allowedRoles={["Employee", "Supervisor", "Admin"]}>
+                  <EmployeeDashboardLayout />
+                </ProtectedRoute>
+              }>
                 <Route path="dashboard" element={<EmployeeDashboardHome />} />
                 <Route path="profile" element={<EmployeeProfile />} />
                 <Route path="attendance" element={<EmployeeAttendance />} />
@@ -219,12 +361,20 @@ function App() {
               </Route>
               
               {/* Legacy Employee Portal */}
-              <Route path="/employee-portal" element={<DepartmentLayout />}>
+              <Route path="/employee-portal" element={
+                <ProtectedRoute allowedRoles={["Employee", "Supervisor", "Admin"]}>
+                  <DepartmentLayout />
+                </ProtectedRoute>
+              }>
                 <Route path="portal" element={<EmployeePortalPage />} />
               </Route>
               
               {/* Reports Routes */}
-              <Route path="/reports" element={<DepartmentLayout />}>
+              <Route path="/reports" element={
+                <ProtectedRoute allowedRoles={["Admin", "Management"]}>
+                  <DepartmentLayout />
+                </ProtectedRoute>
+              }>
                 <Route
                   path="project-tracking"
                   element={<ProjectTrackingDashboard />}
@@ -238,8 +388,16 @@ function App() {
               {/* Shared Pages */}
               
               {/* Role-Based Dashboards */}
-              <Route path="/design-engineer/*" element={<DesignEngineerLayout />} />
-              <Route path="/accountant/*" element={<AccountantDashboard />} />
+              <Route path="/design-engineer/*" element={
+                <ProtectedRoute allowedRoles={["Design Engineer", "Engineering"]}>
+                  <DesignEngineerLayout />
+                </ProtectedRoute>
+              } />
+              <Route path="/accountant/*" element={
+                <ProtectedRoute allowedRoles={["Accountant", "Admin"]}>
+                  <AccountantDashboard />
+                </ProtectedRoute>
+              } />
               
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/login" replace />} />

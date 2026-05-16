@@ -1148,76 +1148,76 @@ model stock_entries {
 }
 
 model stock_entry_items {
-  id               Int           @id @default(autoincrement())
-  stock_entry_id   Int
-  material_id      Int?
-  item_code        String        @db.VarChar(100)
-  item_name        String        @db.VarChar(255)
-  quantity         Decimal       @db.Decimal(15, 3)
-  uom              String?       @db.VarChar(50)
-  batch_no         String?       @db.VarChar(100)
-  valuation_rate   Decimal?      @default(0.00) @db.Decimal(15, 2)
-  length           Decimal?      @db.Decimal(15, 4)
-  width            Decimal?      @db.Decimal(15, 4)
-  thickness        Decimal?      @db.Decimal(15, 4)
-  diameter         Decimal?      @db.Decimal(15, 4)
-  outer_diameter   Decimal?      @db.Decimal(15, 4)
-  height           Decimal?      @db.Decimal(15, 4)
-  unit_weight      Decimal?      @db.Decimal(15, 4)
-  total_weight     Decimal?      @db.Decimal(15, 4)
-  density          Decimal?      @default(0.0000) @db.Decimal(10, 4)
-  side1            Decimal?      @db.Decimal(15, 4)
-  side2            Decimal?      @db.Decimal(15, 4)
-  side_s           Decimal?      @db.Decimal(15, 4)
-  side_s1          Decimal?      @db.Decimal(15, 4)
-  side_s2          Decimal?      @db.Decimal(15, 4)
-  web_thickness    Decimal?      @db.Decimal(15, 4)
-  flange_thickness Decimal?      @db.Decimal(15, 4)
-  item_group       String?       @db.VarChar(100)
-  material_type    String?       @db.VarChar(100)
-  items_per_packet Decimal?      @default(1.0000) @db.Decimal(10, 4)
-  vendor_items_per_packet Decimal? @default(1.0000) @db.Decimal(10, 4)
-  stock_entries    stock_entries @relation(fields: [stock_entry_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "stock_entry_items_ibfk_1")
+  id                      Int           @id @default(autoincrement())
+  stock_entry_id          Int
+  material_id             Int?
+  item_code               String        @db.VarChar(100)
+  item_name               String        @db.VarChar(255)
+  quantity                Decimal       @db.Decimal(15, 3)
+  uom                     String?       @db.VarChar(50)
+  batch_no                String?       @db.VarChar(100)
+  valuation_rate          Decimal?      @default(0.00) @db.Decimal(15, 2)
+  length                  Decimal?      @db.Decimal(15, 4)
+  width                   Decimal?      @db.Decimal(15, 4)
+  thickness               Decimal?      @db.Decimal(15, 4)
+  diameter                Decimal?      @db.Decimal(15, 4)
+  outer_diameter          Decimal?      @db.Decimal(15, 4)
+  height                  Decimal?      @db.Decimal(15, 4)
+  unit_weight             Decimal?      @db.Decimal(15, 4)
+  total_weight            Decimal?      @db.Decimal(15, 4)
+  density                 Decimal?      @default(0.0000) @db.Decimal(10, 4)
+  side1                   Decimal?      @db.Decimal(15, 4)
+  side2                   Decimal?      @db.Decimal(15, 4)
+  side_s                  Decimal?      @db.Decimal(15, 4)
+  side_s1                 Decimal?      @db.Decimal(15, 4)
+  side_s2                 Decimal?      @db.Decimal(15, 4)
+  web_thickness           Decimal?      @db.Decimal(15, 4)
+  flange_thickness        Decimal?      @db.Decimal(15, 4)
+  item_group              String?       @db.VarChar(100)
+  material_type           String?       @db.VarChar(100)
+  items_per_packet        Decimal?      @default(1.0000) @db.Decimal(10, 4)
+  vendor_items_per_packet Decimal?      @default(1.0000) @db.Decimal(10, 4)
+  stock_entries           stock_entries @relation(fields: [stock_entry_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "stock_entry_items_ibfk_1")
 
   @@index([stock_entry_id], map: "stock_entry_id")
 }
 
 model stock_ledger {
-  id               Int       @id @default(autoincrement())
-  item_code        String    @db.VarChar(100)
-  material_name    String?   @db.VarChar(255)
-  posting_date     DateTime  @db.Date
-  posting_time     DateTime  @db.Time(0)
-  voucher_type     String    @db.VarChar(100)
-  voucher_no       String    @db.VarChar(100)
-  actual_qty       Decimal   @db.Decimal(15, 3)
-  uom              String?   @db.VarChar(50)
-  balance_qty      Decimal?  @default(0.000) @db.Decimal(15, 3)
-  project_name     String?   @db.VarChar(255)
-  vendor_name      String?   @db.VarChar(255)
-  valuation_rate   Decimal?  @default(0.00) @db.Decimal(15, 2)
-  remarks          String?   @db.Text
-  created_at       DateTime? @default(now()) @db.Timestamp(0)
-  length           Decimal?  @db.Decimal(15, 4)
-  width            Decimal?  @db.Decimal(15, 4)
-  thickness        Decimal?  @db.Decimal(15, 4)
-  diameter         Decimal?  @db.Decimal(15, 4)
-  outer_diameter   Decimal?  @db.Decimal(15, 4)
-  height           Decimal?  @db.Decimal(15, 4)
-  unit_weight      Decimal?  @db.Decimal(15, 4)
-  total_weight     Decimal?  @db.Decimal(15, 4)
-  density          Decimal?  @default(0.0000) @db.Decimal(10, 4)
-  side1            Decimal?  @db.Decimal(15, 4)
-  side2            Decimal?  @db.Decimal(15, 4)
-  side_s           Decimal?  @db.Decimal(15, 4)
-  side_s1          Decimal?  @db.Decimal(15, 4)
-  side_s2          Decimal?  @db.Decimal(15, 4)
-  web_thickness    Decimal?  @db.Decimal(15, 4)
-  flange_thickness Decimal?  @db.Decimal(15, 4)
-  item_group       String?   @db.VarChar(100)
-  material_type    String?   @db.VarChar(100)
-  items_per_packet Decimal?  @default(1.0000) @db.Decimal(10, 4)
-  vendor_items_per_packet Decimal? @default(1.0000) @db.Decimal(10, 4)
+  id                      Int       @id @default(autoincrement())
+  item_code               String    @db.VarChar(100)
+  material_name           String?   @db.VarChar(255)
+  posting_date            DateTime  @db.Date
+  posting_time            DateTime  @db.Time(0)
+  voucher_type            String    @db.VarChar(100)
+  voucher_no              String    @db.VarChar(100)
+  actual_qty              Decimal   @db.Decimal(15, 3)
+  uom                     String?   @db.VarChar(50)
+  balance_qty             Decimal?  @default(0.000) @db.Decimal(15, 3)
+  project_name            String?   @db.VarChar(255)
+  vendor_name             String?   @db.VarChar(255)
+  valuation_rate          Decimal?  @default(0.00) @db.Decimal(15, 2)
+  remarks                 String?   @db.Text
+  created_at              DateTime? @default(now()) @db.Timestamp(0)
+  length                  Decimal?  @db.Decimal(15, 4)
+  width                   Decimal?  @db.Decimal(15, 4)
+  thickness               Decimal?  @db.Decimal(15, 4)
+  diameter                Decimal?  @db.Decimal(15, 4)
+  outer_diameter          Decimal?  @db.Decimal(15, 4)
+  height                  Decimal?  @db.Decimal(15, 4)
+  unit_weight             Decimal?  @db.Decimal(15, 4)
+  total_weight            Decimal?  @db.Decimal(15, 4)
+  density                 Decimal?  @default(0.0000) @db.Decimal(10, 4)
+  side1                   Decimal?  @db.Decimal(15, 4)
+  side2                   Decimal?  @db.Decimal(15, 4)
+  side_s                  Decimal?  @db.Decimal(15, 4)
+  side_s1                 Decimal?  @db.Decimal(15, 4)
+  side_s2                 Decimal?  @db.Decimal(15, 4)
+  web_thickness           Decimal?  @db.Decimal(15, 4)
+  flange_thickness        Decimal?  @db.Decimal(15, 4)
+  item_group              String?   @db.VarChar(100)
+  material_type           String?   @db.VarChar(100)
+  items_per_packet        Decimal?  @default(1.0000) @db.Decimal(10, 4)
+  vendor_items_per_packet Decimal?  @default(1.0000) @db.Decimal(10, 4)
 }
 
 model users {
@@ -1370,6 +1370,17 @@ model warehouses {
   type       String?   @default("Warehouse") @db.VarChar(100)
   location   String?   @db.VarChar(255)
   created_at DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model audit_logs {
+  id         Int                @id @default(autoincrement())
+  user_name  String             @db.VarChar(255)
+  action     String             @db.VarChar(255)
+  type       audit_logs_type
+  details    String?            @db.Text
+  ip_address String?            @db.VarChar(45)
+  status     audit_logs_status? @default(success)
+  created_at DateTime?          @default(now()) @db.Timestamp(0)
 }
 
 enum operations_type {
@@ -1604,4 +1615,19 @@ enum vendors_payment_terms {
   net_30
   net_45
   net_60
+}
+
+enum audit_logs_type {
+  auth
+  admin
+  export
+  account
+  security
+  system
+}
+
+enum audit_logs_status {
+  success
+  warning
+  error
 }
