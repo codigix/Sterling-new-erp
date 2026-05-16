@@ -148,7 +148,7 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
         unit_weight: unitWeight,
         total_weight: totalWeight,
         // If UOM is Kg, automatically update quantity to match total weight if it's currently 1 or 0
-        quantity: prev.uom === "Kg" && (prev.quantity === 1 || prev.quantity === 0) ? totalWeight.toFixed(3) : prev.quantity
+        quantity: prev.uom === "Kg" && (prev.quantity === 1 || prev.quantity === 0) ? parseFloat(totalWeight.toFixed(3)) : prev.quantity
       }));
     }
   }, [
@@ -769,7 +769,11 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
           className: "w-32",
           render: (value, item, __, idx) => (
             viewMode ? (
-              <span className="text-xs">₹{parseFloat(value || 0).toLocaleString(undefined, { maximumFractionDigits: 3 })}/{item.item_group?.toLowerCase() === 'bought out' || (item.uom || item.unit || '').toLowerCase() === 'packet' ? 'unit' : (item.total_weight > 0 ? 'kg' : 'unit')}</span>
+              <span className="text-xs">₹{parseFloat(value || 0).toLocaleString(undefined, { maximumFractionDigits: 3 })}/{
+                (item.item_group?.toLowerCase().includes('bought out') || item.item_group?.toLowerCase().includes('paint'))
+                  ? (item.unit || item.uom || 'unit').toLowerCase()
+                  : (item.total_weight > 0 ? 'kg' : 'unit')
+              }</span>
             ) : (
               <input 
                 type="number"
@@ -1586,8 +1590,8 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 {newManualItem.calculatedWeight > 0 && (
                   <div className="mt-3 text-[10px] text-emerald-600 dark:text-emerald-400  flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                    Calculated Unit Weight: {newManualItem.calculatedWeight.toFixed(3)} Kg | 
-                    Total Weight: {(newManualItem.calculatedWeight * newManualItem.quantity).toFixed(3)} Kg
+                    Calculated Unit Weight: {parseFloat(newManualItem.calculatedWeight.toFixed(3))} Kg | 
+                    Total Weight: {parseFloat((newManualItem.calculatedWeight * newManualItem.quantity).toFixed(3))} Kg
                   </div>
                 )}
               </div>

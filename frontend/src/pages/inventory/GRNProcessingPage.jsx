@@ -152,7 +152,7 @@ const GRNDetailTable = ({ grnId }) => {
         if (group === "paint" || uom === "l" || uom === "liter") {
           return <span className="text-xs">{parseFloat(item.received_weight || 0)} L</span>;
         }
-        return <span className="text-xs">{parseFloat(item.received_weight || 0).toFixed(3)} Kg</span>;
+        return <span className="text-xs">{parseFloat(Number(item.received_weight || 0).toFixed(3))} Kg</span>;
       }
     }
   ];

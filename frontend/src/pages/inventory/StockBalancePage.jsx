@@ -75,10 +75,10 @@ const SerialDetailTable = ({ item }) => {
               }
               if (group === "paint" || uom === "l" || uom === "liter") {
                 const vol = st.unit_weight || st.total_weight || item.unit_weight || 0;
-                return `${Number(vol).toFixed(2)} L`;
+                return `${parseFloat(Number(vol).toFixed(2))} L`;
               }
               const pieceWeight = st.unit_weight || st.total_weight || item.unit_weight || 0;
-              return `${Number(pieceWeight).toFixed(3)} Kg`;
+              return `${parseFloat(Number(pieceWeight).toFixed(3))} Kg`;
             }
           },
           {

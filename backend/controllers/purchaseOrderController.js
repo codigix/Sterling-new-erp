@@ -1050,8 +1050,9 @@ const createPurchaseReceipt = async (req, res) => {
                             diameter, outer_diameter, height, density,
                             item_group, web_thickness, flange_thickness, 
                             side_s, side_s1, side_s2, side1, side2, material_type,
-                            items_per_packet, vendor_items_per_packet
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            items_per_packet, vendor_items_per_packet,
+                            unit_weight, total_weight
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               serial_number,
               itemCodePerPiece,
@@ -1077,7 +1078,9 @@ const createPurchaseReceipt = async (req, res) => {
               item.side2 || item.side_s1 || item.s1 || null,
               item.material_type || null,
               item.items_per_packet || 1,
-              item.vendor_items_per_packet || item.items_per_packet || 1
+              item.vendor_items_per_packet || item.items_per_packet || 1,
+              isNos ? (item.unit_weight || 0) : (item.unit_weight || 0),
+              isNos ? (item.unit_weight || 0) : (item.received_weight || item.total_weight || received_qty || 0)
             ],
           );
         }

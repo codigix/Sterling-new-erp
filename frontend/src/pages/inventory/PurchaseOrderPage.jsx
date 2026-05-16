@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
@@ -108,7 +108,7 @@ const PurchaseOrderDetailTable = ({ po }) => {
                       {parseFloat(itemsPerPacket)} items/{item.unit || item.uom}
                     </span>
                     <span className="text-[10px] text-slate-500 italic">
-                      Total: {totalItems.toLocaleString()} Items
+                      Total: {parseFloat(totalItems.toFixed(3)).toLocaleString()} Items
                     </span>
                   </div>
                 );
@@ -121,7 +121,7 @@ const PurchaseOrderDetailTable = ({ po }) => {
                   </span>
                   {item.total_weight > 0 && (
                     <span className="text-[10px] text-slate-500">
-                      {Number(item.total_weight).toFixed(3)} Kg
+                      {parseFloat(Number(item.total_weight).toFixed(3))} Kg
                     </span>
                   )}
                 </div>
@@ -137,7 +137,13 @@ const PurchaseOrderDetailTable = ({ po }) => {
               
               // Detect if rate is per Kg or per Unit based on calculation
               let unitLabel = item.unit || item.uom || 'Unit';
-              if (Number(item.rate_per_kg) > 0) {
+              const itemGroup = (item.item_group || "").toLowerCase();
+              const isBoughtOut = itemGroup.includes("bought out");
+              const isPaint = itemGroup.includes("paint");
+
+              if (isBoughtOut || isPaint) {
+                unitLabel = item.unit || item.uom || (isPaint ? 'L' : 'Unit');
+              } else if (Number(item.rate_per_kg) > 0) {
                 unitLabel = 'Kg';
               } else if (Number(item.total_weight) > 0 && Math.abs((Number(item.total_weight) * rate) - Number(item.amount)) < 1) {
                 unitLabel = 'Kg';
@@ -479,6 +485,23 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
   const [filesToUpload, setFilesToUpload] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
   const [isFullReceipt, setIsFullReceipt] = useState(false);
+  const commContainerRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (commContainerRef.current) {
+      commContainerRef.current.scrollTo({
+        top: commContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (showMonitorModal && communications.length > 0) {
+      // Small timeout to ensure DOM is rendered
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [communications, showMonitorModal]);
 
   const fetchPOAttachments = async (poId) => {
     try {
@@ -594,12 +617,12 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
       const rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
       const group = (item.item_group || "").toLowerCase();
       const uom = (item.unit || item.uom || "").toLowerCase();
-      let measurement = item.total_weight ? parseFloat(item.total_weight).toFixed(3) + " Kg" : "0.000 Kg";
+      let measurement = item.total_weight ? parseFloat(Number(item.total_weight).toFixed(3)).toString() + " Kg" : "0 Kg";
 
       if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
         measurement = `${item.items_per_packet || 1} Items/Unit\nTotal: ${(item.items_per_packet || 1) * (item.quantity || 0)} Items`;
       } else if (group === "paint" || uom === "l" || uom === "liter") {
-        measurement = `${parseFloat(item.total_weight || 0).toFixed(2)} L`;
+        measurement = `${parseFloat(Number(item.total_weight || 0).toFixed(2))} L`;
       }
 
       return [
@@ -678,7 +701,10 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
     try {
       setFetchingCommunications(true);
       const response = await axios.get(`/department/procurement/purchase-orders/${poId}/communications`);
-      setCommunications(response.data);
+      const sorted = (response.data || []).sort((a, b) => 
+        new Date(a.received_at || a.created_at) - new Date(b.received_at || b.created_at)
+      );
+      setCommunications(sorted);
     } catch (error) {
       console.error("Error fetching communications:", error);
     } finally {
@@ -769,7 +795,7 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
         const rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
         const group = (item.item_group || "").toLowerCase();
         const uom = (item.unit || item.uom || "").toLowerCase();
-        let measurement = item.total_weight ? parseFloat(item.total_weight).toFixed(3) + " Kg" : "0.000 Kg";
+        let measurement = item.total_weight ? parseFloat(Number(item.total_weight).toFixed(3)).toString() + " Kg" : "0 Kg";
 
         if (group === "bought out" && ["packet", "box", "set"].includes(uom)) {
           measurement = `${item.items_per_packet || 1} Items/Unit (Total: ${(item.items_per_packet || 1) * (item.quantity || 0)} Items)`;
@@ -1198,7 +1224,10 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30 dark:bg-slate-900/30">
+            <div 
+              ref={commContainerRef}
+              className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30 dark:bg-slate-900/30 custom-scrollbar"
+            >
               {fetchingCommunications ? (
                 <div className="flex flex-col items-center justify-center h-full gap-3 text-slate-400">
                   <RefreshCw size={24} className="animate-spin" />
@@ -1240,12 +1269,17 @@ const PurchaseOrderPage = ({ isInventoryView = false, isAccountantView = false }
                             <p className="text-[10px] text-slate-500">{new Date(comm.received_at).toLocaleString()}</p>
                           </div>
                         </div>
-                        {comm.has_attachments && (
-                          <div className="flex items-center gap-1 text-[9px]  text-blue-600 bg-blue-100/50 dark:bg-blue-900/40 px-2 py-0.5 rounded-full">
-                            <Paperclip size={10} />
-                            Attachments
+                        <div className="flex items-center gap-2">
+                          {!!comm.has_attachments && (
+                            <div className="flex items-center gap-1 text-[9px]  text-blue-600 bg-blue-100/50 dark:bg-blue-900/40 px-2 py-0.5 rounded-full">
+                              <Paperclip size={10} />
+                              Attachments
+                            </div>
+                          )}
+                          <div className={`text-[9px] px-2 py-0.5 rounded-full font-medium ${comm.is_outgoing ? "bg-blue-600 text-white" : "bg-emerald-600 text-white"}`}>
+                            {comm.is_outgoing ? "Sent" : "Received"}
                           </div>
-                        )}
+                        </div>
                       </div>
                       <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
                         {comm.content_text}

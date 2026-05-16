@@ -17,11 +17,10 @@ import "../../styles/TaskPage.css";
 
 const formatCurrency = (value) => {
   const amount = Number(value || 0);
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-  }).format(amount);
+  return `₹${parseFloat(amount).toLocaleString("en-IN", {
+    maximumFractionDigits: 3,
+    minimumFractionDigits: 0,
+  })}`;
 };
 
 const MaterialRequestPage = () => {

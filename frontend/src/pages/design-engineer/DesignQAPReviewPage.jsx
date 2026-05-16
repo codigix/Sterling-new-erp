@@ -35,12 +35,9 @@ const DesignQAPReviewPage = () => {
         const response = await axios.get('/root-cards', {
           params: { includeSteps: true }
         });
-        // Filter cards that are in QAP review status or further
+        const excludedStatuses = ['pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING'];
         const relevant = (response.data.rootCards || []).filter(rc => 
-          rc.status === 'DESIGN_QAP_REVIEW' || 
-          rc.status === 'BOM_PREPARATION' || 
-          rc.status === 'RC_PRODUCTION_READY' ||
-          rc.status === 'RC_IN_PRODUCTION'
+          !excludedStatuses.includes(rc.status)
         );
         setRootCards(relevant);
       } catch (error) {
@@ -247,9 +244,9 @@ const DesignQAPReviewPage = () => {
               {/* QAP Files Section */}
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="textsm  text-slate-900 dark:text-white flex items-center gap-2">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                     <FileText className="text-indigo-600 dark:text-indigo-400" size={15} />
-                    Quality Assurance Plans (QAP)
+                    QAP Documents
                   </h4>
                   <span className="text-[10x]  text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                     {viewModalData.qapFiles.length + (viewModalData.legacyPath ? 1 : 0)} Files
@@ -314,9 +311,9 @@ const DesignQAPReviewPage = () => {
               {/* Design Drawings Section */}
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="textsm  text-slate-900 dark:text-white flex items-center gap-2">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                     <FileText className="text-emerald-600 dark:text-emerald-400" size={15} />
-                    Your Approved Design Drawings
+                    Design Drawings
                   </h4>
                   <span className="text-[10x]  text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                     {viewModalData.drawings.length} Files

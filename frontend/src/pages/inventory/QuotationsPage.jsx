@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
@@ -28,7 +28,10 @@ import {
   Paperclip,
   PlusCircle,
   ChevronDown,
+  ChevronRight,
   FileSpreadsheet,
+  User,
+  Clock,
 } from "lucide-react";
 import axios from "../../utils/api";
 import useRootCardInventoryTask from "../../hooks/useRootCardInventoryTask";
@@ -177,6 +180,39 @@ const QuotationsPage = ({ defaultTab }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [quotationToApprove, setQuotationToApprove] = useState(null);
+  const commContainerRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (commContainerRef.current) {
+      commContainerRef.current.scrollTo({
+        top: commContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (showCommunicationsModal && communications.length > 0) {
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [communications, showCommunicationsModal]);
+
+  useEffect(() => {
+    let interval;
+    if (showCommunicationsModal && selectedQuotationForComms) {
+      interval = setInterval(() => {
+        axios.get(`${basePath}/quotations/${selectedQuotationForComms.id}/communications`)
+          .then(res => {
+            const sorted = (res.data || []).sort((a, b) => 
+              new Date(a.received_at || a.created_at) - new Date(b.received_at || b.created_at)
+            );
+            setCommunications(sorted);
+          })
+          .catch(err => console.error("Error polling RFQ comms:", err));
+      }, 30000);
+    }
+    return () => interval && clearInterval(interval);
+  }, [showCommunicationsModal, selectedQuotationForComms]);
 
   const fetchQuotations = useCallback(async () => {
     try {
@@ -666,7 +702,10 @@ const QuotationsPage = ({ defaultTab }) => {
       const response = await axios.get(
         `${basePath}/quotations/${quotation.id}/communications`
       );
-      setCommunications(response.data || []);
+      const sorted = (response.data || []).sort((a, b) => 
+        new Date(a.received_at || a.created_at) - new Date(b.received_at || b.created_at)
+      );
+      setCommunications(sorted);
     } catch (error) {
       console.error("Error fetching communications:", error);
       setCommunications([]);
@@ -695,11 +734,13 @@ const QuotationsPage = ({ defaultTab }) => {
       });
 
       setReplyMessage("");
-      // Refresh communications
       const response = await axios.get(
         `${basePath}/quotations/${selectedQuotationForComms.id}/communications`
       );
-      setCommunications(response.data || []);
+      const sorted = (response.data || []).sort((a, b) => 
+        new Date(a.received_at || a.created_at) - new Date(b.received_at || b.created_at)
+      );
+      setCommunications(sorted);
       
       toast.success("Reply sent successfully");
     } catch (error) {
@@ -1380,109 +1421,116 @@ const QuotationsPage = ({ defaultTab }) => {
       )}
 
       {showCommunicationsModal && selectedQuotationForComms && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded  w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
-            <div className="p-2 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-              <div>
-                <h3 className="text-md  text-slate-900 dark:text-white">
-                  Communications
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 ">
-                  RFQ: {selectedQuotationForComms?.quotation_number}
-                </p>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600">
+                  <MessageSquare size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg  text-slate-900 dark:text-white">Vendor Communication</h3>
+                  <p className="text-xs text-slate-500">RFQ: {selectedQuotationForComms?.quotation_number}</p>
+                </div>
               </div>
-              <button
-                onClick={handleCloseCommunications}
-                className="text-slate-400 hover:text-slate-500 transition-colors"
-              >
-                <X size={15} />
+              <button onClick={handleCloseCommunications} className="text-slate-400 hover:text-slate-500">
+                <X size={20} />
               </button>
             </div>
-
-            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+            
+            <div 
+              ref={commContainerRef}
+              className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30 dark:bg-slate-900/30 custom-scrollbar"
+            >
               {loadingCommunications ? (
-                <div className="flex justify-center p-4">
-                  <Loader2 className="animate-spin text-blue-600" size={32} />
+                <div className="flex flex-col items-center justify-center h-full gap-3 text-slate-400">
+                  <Loader2 size={24} className="animate-spin" />
+                  <p className="text-sm">Fetching communications...</p>
                 </div>
               ) : communications.length === 0 ? (
-                <div className="text-center p-2 text-slate-500 dark:text-slate-400">
-                  <MessageSquare
-                    size={15}
-                    className="mx-auto mb-4 opacity-20"
-                  />
-                  <p>No communications found for this quotation.</p>
-                  <p className="text-sm mt-2">
-                    Replies to emails with subject "{selectedQuotationForComms?.quotation_number}"
-                    will appear here.
-                  </p>
-                  <p className="text-xs mt-4 opacity-75 italic">
-                    Note: The system checks for new vendor replies every 30 seconds.
-                  </p>
+                <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-400">
+                  <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <Clock size={32} />
+                  </div>
+                  <div className="text-center">
+                    <p className=" text-slate-600 dark:text-slate-400">No communication found</p>
+                    <p className="text-xs">Replies from vendor via email will appear here</p>
+                  </div>
                 </div>
               ) : (
-                communications
-                  .filter(comm => comm.sender_id === null) // Only show messages received from vendor
-                  .map((comm) => (
-                  <div
-                    key={comm.id}
-                    className={`rounded p-2 border transition-all ${
-                      comm.sender_id 
-                        ? "bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30 ml-8" 
-                        : "bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 mr-8"
-                    }`}
+                communications.map((comm) => (
+                  <div 
+                    key={comm.id} 
+                    className={`flex flex-col ${comm.is_outgoing || comm.sender_id ? "items-end" : "items-start"} space-y-1`}
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs   p-1 rounded ${
-                          comm.sender_id 
-                            ? "bg-blue-600 text-white" 
-                            : "bg-emerald-600 text-white"
-                        }`}>
-                          {comm.sender_id ? "Sent" : "Received"}
-                        </span>
-                        <div>
-                          <span className=" text-slate-900 dark:text-white text-xs">
-                            {comm.sender_email}
-                          </span>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {new Date(comm.received_at).toLocaleString()}
-                          </p>
+                    <div className={`max-w-[85%] rounded-lg p-4 shadow-sm space-y-3 ${
+                      (comm.is_outgoing || comm.sender_id)
+                        ? "bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800" 
+                        : "bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
+                    }`}>
+                      <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-800/50 pb-2 gap-4">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            (comm.is_outgoing || comm.sender_id) ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-600"
+                          }`}>
+                            <User size={14} />
+                          </div>
+                          <div>
+                            <p className="text-[10px]  text-slate-900 dark:text-white">
+                              {(comm.is_outgoing || comm.sender_id) ? "Me (Sterling)" : (comm.sender_name || comm.sender_email)}
+                              {(comm.is_outgoing || comm.sender_id) && <span className="ml-2 font-normal text-slate-500">(Sent)</span>}
+                            </p>
+                            <p className="text-[10px] text-slate-500">{new Date(comm.received_at || comm.created_at).toLocaleString()}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {!!comm.has_attachments && (
+                            <div className="flex items-center gap-1 text-[9px]  text-indigo-600 bg-indigo-100/50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-full">
+                              <Paperclip size={10} />
+                              Attachments
+                            </div>
+                          )}
+                          <div className={`text-[9px] px-2 py-0.5 rounded-full font-medium ${(comm.is_outgoing || comm.sender_id) ? "bg-indigo-600 text-white" : "bg-emerald-600 text-white"}`}>
+                            {(comm.is_outgoing || comm.sender_id) ? "Sent" : "Received"}
+                          </div>
                         </div>
                       </div>
-                      {comm.has_attachments && (
-                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs  rounded ">
-                          PDF Attachment
-                        </span>
+                      <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                        {comm.content_text || comm.message}
+                      </div>
+                      {comm.attachments && comm.attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-50 dark:border-slate-800/50">
+                          {comm.attachments.map((att) => (
+                            <div key={att.id} className="flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded overflow-hidden shadow-sm">
+                              <button
+                                onClick={() => handleDownloadAttachment(att.id, att.file_name)}
+                                className="flex items-center gap-2 px-2 py-1 text-[10px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                title="Download file"
+                              >
+                                <FileText size={12} className="text-red-500" />
+                                <span className="max-w-[120px] truncate">{att.file_name}</span>
+                                <span className="text-slate-400 text-[8px]">({Math.round(att.file_size / 1024)} KB)</span>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap  p-3 rounded bg-white/80 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 ">
-                      {comm.content_text || "No message content"}
-                    </div>
-
-                    {comm.attachments && comm.attachments.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {comm.attachments.map((att) => (
-                          <button
-                            key={att.id}
-                            onClick={() =>
-                              handleDownloadAttachment(att.id, att.file_name)
-                            }
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs  text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 rounded hover:bg-slate-50 dark:hover:bg-slate-500 transition-colors"
-                          >
-                            <Paperclip size={14} />
-                            {att.file_name}
-                            <span className="text-slate-400 dark:text-slate-400 ml-1">
-                              ({Math.round(att.file_size / 1024)} KB)
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 ))
               )}
             </div>
-
+            
+            <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+              <div className="flex items-center gap-2">
+                <button onClick={() => handleViewCommunications(selectedQuotationForComms)} className="p-1 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded transition-all" title="Refresh">
+                  <Clock size={14} />
+                </button>
+                <div className="text-[10px] text-slate-500 italic">
+                  Monitoring vendor replies for RFQ #{selectedQuotationForComms?.quotation_number}...
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

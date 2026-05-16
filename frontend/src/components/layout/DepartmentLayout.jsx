@@ -121,7 +121,13 @@ const DepartmentLayout = () => {
   };
 
   const isActive = (path) => {
-    return location.pathname === path;
+    // Exact match for base dashboard paths to avoid highlighting everything in the department
+    const basePaths = ["/department/procurement", "/department/inventory", "/department/production", "/department/engineering", "/department/qc", "/department/root-cards"];
+    if (basePaths.includes(path)) {
+      return location.pathname === path || location.pathname === `${path}/dashboard`;
+    }
+    // Sub-route match for other modules (e.g., /quotations matches /quotations/sent)
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
   return (
@@ -271,7 +277,7 @@ const DepartmentLayout = () => {
             ) : (
               <>
                 {/* Your Department */}
-                {getDepartmentRole().title !== "Production" && (
+                {getDepartmentRole().title !== "Production" && getDepartmentRole().title !== "Procurement" && (
               <div>
                 <h6
                   className={`text-xs  text-slate-500 dark:text-slate-400  tracking-wider mb-3 ${

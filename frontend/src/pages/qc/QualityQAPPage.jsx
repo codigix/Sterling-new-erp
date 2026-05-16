@@ -147,17 +147,36 @@ const QualityQAPPage = () => {
     {
       header: "Status",
       accessor: "status",
-      render: (status) => {
-        const statusConfig = {
-          'QUALITY_QAP_PENDING': { label: 'QAP PENDING', classes: 'bg-amber-50 text-amber-600 border-amber-100' },
-          'DESIGN_QAP_REVIEW': { label: 'UNDER REVIEW', classes: 'bg-blue-50 text-blue-600 border-blue-100' },
-          'PRODUCTION_PLANNING': { label: 'PRODUCTION READY', classes: 'bg-emerald-50 text-emerald-600 border-emerald-100' }
-        };
-        const config = statusConfig[status] || { label: status?.replace(/_/g, ' ') || 'UNKNOWN', classes: 'bg-slate-50 text-slate-600 border-slate-100' };
+      render: (status, row) => {
+        const qapFiles = row.steps?.quality?.qap_files || [];
+        const hasFiles = qapFiles.length > 0 || !!row.steps?.quality?.qap_path;
         
+        let label = 'WAITING FOR DESIGN';
+        let classes = 'bg-slate-50 text-slate-400 border-slate-100';
+
+        // QAP Specific Workflow Statuses
+        if (status === 'QUALITY_QAP_PENDING') {
+          if (hasFiles) {
+            label = 'UPLOADED - PENDING FINALIZE';
+            classes = 'bg-blue-50 text-blue-600 border-blue-200';
+          } else {
+            label = 'QAP PENDING';
+            classes = 'bg-amber-50 text-amber-600 border-amber-200';
+          }
+        } else if (status === 'DESIGN_QAP_REVIEW') {
+          label = 'AWAITING DESIGN REVIEW';
+          classes = 'bg-purple-50 text-purple-600 border-purple-200';
+        } else if (['BOM_PREPARATION', 'PRODUCTION_PLANNING', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 'PROCUREMENT_IN_PROGRESS', 'MATERIAL_RECEIVED', 'MATERIAL_QC_PENDING', 'MATERIAL_QC_APPROVED', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY', 'Redy for Dispatch'].includes(status)) {
+          label = 'APPROVED & FINALIZED';
+          classes = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+        } else if (status === 'DESIGN_IN_PROGRESS' || status === 'RC_CREATED') {
+          label = 'DESIGN IN PROGRESS';
+          classes = 'bg-slate-50 text-slate-500 border-slate-200';
+        }
+
         return (
-          <span className={`px-2 py-0.5 rounded text-[10px]  border ${config.classes}`}>
-            {config.label}
+          <span className={`px-2 py-1 rounded text-[10px] font-medium border ${classes}`}>
+            {label}
           </span>
         );
       }
@@ -168,12 +187,17 @@ const QualityQAPPage = () => {
       className: "text-center",
       render: (_, rc) => {
         const qapFiles = rc.steps?.quality?.qap_files || [];
-        const hasLegacy = !!rc.steps?.quality?.qap_path;
-        const total = qapFiles.length + (hasLegacy ? 1 : 0);
+        const legacyPath = rc.steps?.quality?.qap_path;
+        
+        // Filter out legacy if it's already in the qap_files array to avoid duplicates
+        const isLegacyDuplicate = qapFiles.some(f => f.path === legacyPath);
+        const showLegacyCount = legacyPath && !isLegacyDuplicate ? 1 : 0;
+        
+        const total = qapFiles.length + showLegacyCount;
         
         return (
           <div className="flex flex-col items-center">
-            <span className={`text-[10px]  ${total > 0 ? 'text-blue-600' : 'text-slate-400'}`}>
+            <span className={`text-[10px] font-medium ${total > 0 ? 'text-blue-600' : 'text-slate-400'}`}>
               {total > 0 ? `${total} File(s)` : 'None'}
             </span>
             {total > 0 && <FileText size={12} className="text-blue-400 mt-0.5" />}
@@ -309,22 +333,24 @@ const QualityQAPPage = () => {
                       QAP Documents
                     </h4>
                     <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full ">
-                      {viewModalData.qapFiles.length + (viewModalData.legacyPath ? 1 : 0)} Files
+                      {viewModalData.qapFiles.length + (viewModalData.legacyPath && !viewModalData.qapFiles.some(f => f.path === viewModalData.legacyPath) ? 1 : 0)} Files
                     </span>
                   </div>
                   
                   <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-                    {viewModalData.legacyPath && (
-                      <div className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm">
+                    {viewModalData.legacyPath && !viewModalData.qapFiles.some(f => f.path === viewModalData.legacyPath) && (
+                      <div className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm group hover:border-blue-200 transition-colors">
                         <div className="flex items-center gap-2 overflow-hidden">
-                          <FileText size={14} className="text-slate-400 shrink-0" />
-                          <span className="text-xs text-slate-600 dark:text-slate-400 truncate">Legacy QAP Document</span>
+                          <div className="p-1.5 bg-slate-100 dark:bg-slate-700 rounded">
+                            <FileText size={14} className="text-slate-400 shrink-0" />
+                          </div>
+                          <span className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">Legacy QAP Document</span>
                         </div>
                         <a 
                           href={getServerUrl(viewModalData.legacyPath)} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
                         >
                           <Download size={14} />
                         </a>

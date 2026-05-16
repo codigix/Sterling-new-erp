@@ -229,12 +229,34 @@ const ReleasedMaterialsPage = () => {
                               },
                               {
                                 key: "weight",
-                                label: "Weight",
-                                render: (_, stObj) => (
-                                  <span className="text-[10px] text-slate-500">
-                                    {Number(stObj.unit_weight || stObj.total_weight || item.unit_weight || 0).toFixed(3)} Kg
-                                  </span>
-                                )
+                                label: "Measurement",
+                                render: (_, stObj) => {
+                                  const group = (item.item_group || "").toLowerCase();
+                                  const uom = (item.uom || "").toLowerCase();
+
+                                  if (group.includes("bought out") && ["packet", "box", "set"].includes(uom)) {
+                                    const qty = parseFloat(stObj.total_weight || stObj.quantity || 0);
+                                    const itemsPerPacket = parseFloat(stObj.items_per_packet || item.items_per_packet || 1);
+                                    return (
+                                      <div className="flex flex-col">
+                                        <span className="text-[10px] font-medium text-slate-900">{qty} {item.uom}</span>
+                                        <span className="text-[9px] text-blue-600">
+                                          {itemsPerPacket} items/{item.uom}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+
+                                  if (group.includes("paint") || uom === 'l' || uom === 'liter') {
+                                    return <span className="text-[10px] font-medium text-slate-900">{parseFloat(stObj.total_weight || stObj.quantity || 0)} L</span>;
+                                  }
+
+                                  return (
+                                    <span className="text-[10px] text-slate-500">
+                                      {parseFloat(Number(stObj.unit_weight || stObj.total_weight || item.unit_weight || 0).toFixed(3))} Kg
+                                    </span>
+                                  );
+                                }
                               },
                               {
                                 key: "inspection_status",
@@ -280,7 +302,7 @@ const ReleasedMaterialsPage = () => {
                         key: "quantity",
                         label: "Released Qty",
                         className: "text-center",
-                        render: (val) => <span className="text-emerald-600 font-medium text-xs">{val}</span>
+                        render: (val) => <span className="text-emerald-600 font-medium text-xs">{parseFloat(val || 0)}</span>
                       },
                       {
                         key: "uom",
@@ -290,22 +312,59 @@ const ReleasedMaterialsPage = () => {
                       },
                       {
                         key: "total_weight",
-                        label: "Weight (Kg)",
+                        label: "Measurement",
                         className: "text-center",
-                        render: (val, item) => (
-                          <div className="flex flex-col items-center">
-                            <span className="text-xs text-slate-900">{Number(val || 0).toFixed(3)} Kg</span>
-                            <span className="text-[8px] text-slate-400">Unit: {Number(item.unit_weight || 0).toFixed(3)}</span>
-                          </div>
-                        )
+                        render: (val, item) => {
+                          const group = (item.item_group || "").toLowerCase();
+                          const uom = (item.uom || "").toLowerCase();
+                          
+                          // Match PO/GRN logic for Bought Out items
+                          if (group.includes("bought out") && ["packet", "box", "set"].includes(uom)) {
+                            const itemsPerPacket = parseFloat(item.items_per_packet || 1);
+                            const totalItems = itemsPerPacket * parseFloat(item.quantity || 0);
+                            return (
+                              <div className="flex flex-col items-center">
+                                <span className="text-[10px] text-blue-600 font-medium">{itemsPerPacket} items/{item.uom}</span>
+                                <span className="text-[10px] text-slate-500">Total: {totalItems.toLocaleString()} Items</span>
+                              </div>
+                            );
+                          }
+
+                          // Match PO/GRN logic for Paint
+                          if (group.includes("paint") || uom === 'l' || uom === 'liter') {
+                            return (
+                              <div className="flex flex-col items-center">
+                                <span className="text-xs text-slate-900 font-medium">{parseFloat(item.quantity || 0)} L</span>
+                              </div>
+                            );
+                          }
+                          
+                          return (
+                            <div className="flex flex-col items-center">
+                              <span className="text-xs text-slate-900 font-medium">{parseFloat(Number(val || 0).toFixed(3))} Kg</span>
+                              <span className="text-[8px] text-slate-400">Unit: {parseFloat(Number(item.unit_weight || 0).toFixed(3))} Kg</span>
+                            </div>
+                          );
+                        }
                       },
                       {
                         key: "serials",
                         label: "ST Numbers",
                         className: "text-right",
-                        render: (serials) => (
-                          <span className="text-xs text-blue-600 font-medium">{serials?.length || 0} Pieces</span>
-                        )
+                        render: (serials, item) => {
+                          const group = (item.item_group || "").toLowerCase();
+                          const uom = (item.uom || "").toLowerCase();
+                          
+                          // Sum up total quantity from serials
+                          const totalQty = (serials || []).reduce((sum, s) => sum + parseFloat(s.total_weight || s.quantity || 1), 0);
+
+                          let unitLabel = "Pieces";
+                          if (group.includes("bought out")) unitLabel = item.uom || "Packets";
+                          else if (group.includes("paint") || uom === "l") unitLabel = "Liters";
+                          else if (uom === "kg") unitLabel = "Items";
+
+                          return <span className="text-xs text-blue-600 font-medium">{parseFloat(totalQty)} {unitLabel}</span>;
+                        }
                       }
                     ]}
                   />

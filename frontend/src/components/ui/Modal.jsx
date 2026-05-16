@@ -44,29 +44,29 @@ const Modal = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all duration-300" 
+      className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all duration-300" 
       onClick={handleOverlayClick}
     >
       <div 
-        className={`rounded shadow-2xl w-full ${sizes[size]} max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 animate-in fade-in scale-95 duration-300`}
+        className={`rounded-xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 animate-in fade-in zoom-in-95 duration-300 flex flex-col`}
       >
         {title && (
-          <div className="flex items-center justify-between p-2 border-b border-slate-700/50">
+          <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30">
             <div className="flex-1">
-              <h3 className="text-lg  text-left ">{title}</h3>
+              <h3 className="text-md font-bold text-slate-900 dark:text-white">{title}</h3>
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-2 rounded hover:bg-white/10 transition-all duration-200 ml-4"
+              className="text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 ml-4 group"
               aria-label="Close modal"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="w-5 h-5 transition-transform group-hover:rotate-90 duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         )}
-        <div className="overflow-auto max-h-[calc(90vh-80px)]">
+        <div className="overflow-auto flex-1">
           {children}
         </div>
       </div>
@@ -75,19 +75,19 @@ const Modal = ({
 };
 
 const ModalHeader = ({ children, className = '', ...props }) => (
-  <div className={`p-6 border-b border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900 ${className}`} {...props}>
+  <div className={`p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 ${className}`} {...props}>
     {children}
   </div>
 );
 
 const ModalBody = ({ children, className = '', ...props }) => (
-  <div className={`p-2  ${className}`} {...props}>
+  <div className={`p-5 ${className}`} {...props}>
     {children}
   </div>
 );
 
 const ModalFooter = ({ children, className = '', ...props }) => (
-  <div className={`p-2 border-t border-slate-200 bg-slate-800 ${className}`} {...props}>
+  <div className={`p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 ${className}`} {...props}>
     {children}
   </div>
 );
