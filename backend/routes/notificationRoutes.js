@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const notificationController = require('../controllers/notificationController');
+const auth = require('../middleware/authMiddleware');
+
+// Protect all notification routes
+router.use(auth);
 
 router.get('/', notificationController.getNotifications);
 router.get('/user/:userId', (req, res) => {

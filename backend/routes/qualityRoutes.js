@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const qualityController = require('../controllers/qualityController');
+const auth = require('../middleware/authMiddleware');
 
 // Multer storage configuration
 const storage = multer.diskStorage({
@@ -27,6 +28,9 @@ const upload = multer({
     }
   }
 });
+
+// Protect all quality routes
+router.use(auth);
 
 router.get('/tasks', qualityController.getQualityTasks);
 router.post('/production/approve-dimensional', qualityController.approveDimensionalInspection);

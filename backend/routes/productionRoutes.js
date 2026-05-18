@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const productionController = require('../controllers/productionController');
+const auth = require('../middleware/authMiddleware');
+
+// Protect all production routes
+router.use(auth);
 
 // Root Card Routes for Production Planning
 router.get('/root-cards', productionController.getRootCards);

@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(() => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     localStorage.removeItem("demoUser");
     delete axios.defaults.headers.common["Authorization"];
     setUser(null);
@@ -68,13 +69,27 @@ export const AuthProvider = ({ children }) => {
 
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
+    // Read cached user to prevent immediate redirection to login page on internet drop
+    const cachedUser = localStorage.getItem("user");
+    if (cachedUser) {
+      try {
+        setUser(JSON.parse(cachedUser));
+      } catch (e) {
+        console.warn("Failed to parse cached user context on start", e);
+      }
+    }
+
     try {
       const response = await axios.get("/auth/me", { __sessionGuard: true });
       setUser(response.data.user);
+      localStorage.setItem("user", JSON.stringify(response.data.user)); // Refresh cached user
     } catch (error) {
+      // ONLY log out if the server explicitly says our token is invalid (401 Unauthorized)
       if (error.response?.status === 401) {
         logout();
       }
+      // If it is a network drop or database server disconnect, we DO NOT call logout()
+      // The user stays logged in with their cachedUser context!
     } finally {
       setLoading(false);
     }
@@ -93,6 +108,7 @@ export const AuthProvider = ({ children }) => {
       const { token, user: userData } = response.data;
 
       localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(userData)); // Cache user context for stable recovery
       localStorage.removeItem("demoUser");
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       setUser(userData);
