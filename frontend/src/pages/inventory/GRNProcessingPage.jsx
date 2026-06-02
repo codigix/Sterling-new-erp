@@ -847,11 +847,115 @@ const GRNProcessingPage = () => {
                 <>
                   <div className="space-y-1">
                     <label className="text-[9px] text-slate-500 ml-1">W</label>
-                    <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
+                    <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">T</label>
+                    <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="T" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('square tube') || item.item_group?.toLowerCase() === 'sq tube') && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">Side (S1)</label>
+                    <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="S1" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">T</label>
+                    <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="T" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('rectangular tube') || item.item_group?.toLowerCase() === 'rec tube') && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">W</label>
+                    <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] text-slate-500 ml-1">H</label>
-                    <input type="number" value={item.side2 || ''} onChange={(e) => handleItemChange(idx, 'side2', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="H" />
+                    <input type="number" value={item.height || ''} onChange={(e) => handleItemChange(idx, 'height', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="H" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">T</label>
+                    <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="T" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('c channel') || item.item_group?.toLowerCase() === 'c-channel') && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">W</label>
+                    <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">H</label>
+                    <input type="number" value={item.height || ''} onChange={(e) => handleItemChange(idx, 'height', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="H" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">Tw</label>
+                    <input type="number" value={item.web_thickness || ''} onChange={(e) => handleItemChange(idx, 'web_thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="Tw" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">Tf</label>
+                    <input type="number" value={item.flange_thickness || ''} onChange={(e) => handleItemChange(idx, 'flange_thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="Tf" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('angle')) && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">S1</label>
+                    <input type="number" value={item.side1 || ''} onChange={(e) => handleItemChange(idx, 'side1', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="S1" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">S2</label>
+                    <input type="number" value={item.side2 || ''} onChange={(e) => handleItemChange(idx, 'side2', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="S2" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">T</label>
+                    <input type="number" value={item.thickness || ''} onChange={(e) => handleItemChange(idx, 'thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="T" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">L</label>
+                    <input type="number" value={item.length || ''} onChange={(e) => handleItemChange(idx, 'length', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="L" />
+                  </div>
+                </>
+              )}
+              {(item.item_group?.toLowerCase()?.includes('beam')) && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">W</label>
+                    <input type="number" value={item.width || ''} onChange={(e) => handleItemChange(idx, 'width', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="W" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">H</label>
+                    <input type="number" value={item.height || ''} onChange={(e) => handleItemChange(idx, 'height', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="H" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">Tw</label>
+                    <input type="number" value={item.web_thickness || ''} onChange={(e) => handleItemChange(idx, 'web_thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="Tw" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-500 ml-1">Tf</label>
+                    <input type="number" value={item.flange_thickness || ''} onChange={(e) => handleItemChange(idx, 'flange_thickness', e.target.value)} className="w-full p-1 border rounded text-xs outline-none" placeholder="Tf" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] text-slate-500 ml-1">L</label>
