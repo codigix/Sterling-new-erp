@@ -677,28 +677,33 @@ const createCustomerPayment = async (req, res) => {
       notes
     } = req.body;
 
+    const effectiveInvoiceId = (invoice_id && invoice_id !== "") ? parseInt(invoice_id) : null;
+    const parsedAmountReceived = parseFloat(amount_received) || 0;
+
     const [paymentResult] = await connection.query(
       `INSERT INTO customer_payments (
         receipt_number, invoice_id, customer_name, received_date, 
         amount_received, payment_method, transaction_ref, notes, status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'COMPLETED')`,
-      [receipt_number, invoice_id, customer_name, received_date, amount_received, payment_method, transaction_ref, notes]
+      [receipt_number, effectiveInvoiceId, customer_name, received_date, parsedAmountReceived, payment_method, transaction_ref || null, notes || null]
     );
 
-    if (invoice_id) {
+    if (effectiveInvoiceId) {
       const [invoiceRows] = await connection.query(
         "SELECT grand_total, paid_amount FROM customer_invoices WHERE id = ?",
-        [invoice_id]
+        [effectiveInvoiceId]
       );
 
       if (invoiceRows.length > 0) {
-        const newPaidAmount = parseFloat(invoiceRows[0].paid_amount) + parseFloat(amount_received);
-        const balanceAmount = parseFloat(invoiceRows[0].grand_total) - newPaidAmount;
+        const currentPaid = parseFloat(invoiceRows[0].paid_amount) || 0;
+        const grandTotal = parseFloat(invoiceRows[0].grand_total) || 0;
+        const newPaidAmount = currentPaid + parsedAmountReceived;
+        const balanceAmount = grandTotal - newPaidAmount;
         const status = balanceAmount <= 0 ? 'PAID' : (newPaidAmount > 0 ? 'PARTIAL' : 'PENDING');
 
         await connection.query(
           "UPDATE customer_invoices SET paid_amount = ?, balance_amount = ?, status = ? WHERE id = ?",
-          [newPaidAmount, balanceAmount, status, invoice_id]
+          [newPaidAmount, balanceAmount, status, effectiveInvoiceId]
         );
       }
     }
@@ -708,14 +713,14 @@ const createCustomerPayment = async (req, res) => {
     await connection.query(
       `INSERT INTO ledger_entries (date, reference_no, description, account_name, debit, credit, transaction_type, related_id)
        VALUES (?, ?, ?, ?, 0, ?, 'PAYMENT_RECEIVED', ?)`,
-      [received_date, receipt_number, `Payment received from ${customer_name}`, payment_method.includes("Bank") ? "Bank Account" : "Cash Account", amount_received, paymentResult.insertId]
+      [received_date, receipt_number, `Payment received from ${customer_name}`, payment_method.includes("Bank") ? "Bank Account" : "Cash Account", parsedAmountReceived, paymentResult.insertId]
     );
 
     // Entry 2: Debit Customer/Accounts Receivable (Swapped for Statement Style)
     await connection.query(
       `INSERT INTO ledger_entries (date, reference_no, description, account_name, debit, credit, transaction_type, related_id)
        VALUES (?, ?, ?, ?, ?, 0, 'PAYMENT_RECEIVED', ?)`,
-      [received_date, receipt_number, `Payment received from ${customer_name}`, "Accounts Receivable", amount_received, paymentResult.insertId]
+      [received_date, receipt_number, `Payment received from ${customer_name}`, "Accounts Receivable", parsedAmountReceived, paymentResult.insertId]
     );
 
     await connection.commit();
@@ -723,7 +728,7 @@ const createCustomerPayment = async (req, res) => {
   } catch (error) {
     await connection.rollback();
     console.error("Error creating customer payment:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error: " + error.message });
   } finally {
     connection.release();
   }
