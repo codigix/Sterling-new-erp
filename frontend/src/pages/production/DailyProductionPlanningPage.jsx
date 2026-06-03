@@ -351,12 +351,12 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     setSelectedReleaseEntry(null);
   }, [mode, initialData, isOpen, projects, planDate, calculateHours, isSingleAssignmentEdit]);
 
-  const [phaseStatus, setPhaseStatus] = useState({ phase1Completed: false, phase2Unlocked: false });
+  const [phaseStatus, setPhaseStatus] = useState({ phase1Completed: false, phase2Unlocked: false, phase2Completed: false });
 
   const fetchProjectOperations = async (projectId) => {
     if (!projectId) {
       setProjectOperations([]);
-      setPhaseStatus({ phase1Completed: false, phase2Unlocked: false });
+      setPhaseStatus({ phase1Completed: false, phase2Unlocked: false, phase2Completed: false });
       return;
     }
     try {
@@ -364,12 +364,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       const response = await axios.get(`/production/root-cards/${projectId}`);
       if (response.data.success) {
         const ops = response.data.stages || [];
-        setPhaseStatus(response.data.phaseStatus || { phase1Completed: false, phase2Unlocked: false });
+        setPhaseStatus(response.data.phaseStatus || { phase1Completed: false, phase2Unlocked: false, phase2Completed: false });
         setProjectOperations(ops.map(op => ({
           value: op.operation_name || op.stage_name,
           label: op.operation_name || op.stage_name,
           id: op.id,
-          phase: op.phase || 1
+          phase: op.phase || 1,
+          status: op.status || 'Pending'
         })));
       }
     } catch (error) {
@@ -598,8 +599,10 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
               <div className="space-y-1.5">
                 <label className="text-xs text-slate-400 flex justify-between">
                   <span>Operation</span>
-                  {phaseStatus.phase1Completed ? (
-                    <span className="text-[10px] text-emerald-500 font-medium">Phase 1 Done</span>
+                  {phaseStatus.phase2Completed ? (
+                    <span className="text-[10px] text-emerald-500 font-medium">Phase 1 & Phase 2 Completed</span>
+                  ) : phaseStatus.phase1Completed ? (
+                    <span className="text-[10px] text-emerald-500 font-medium">Phase 1 Completed</span>
                   ) : (
                     <span className="text-[10px] text-amber-500 font-medium">Phase 1 In-Progress</span>
                   )}
@@ -609,7 +612,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                     .filter(op => op.phase === 1 || phaseStatus.phase2Unlocked)
                     .map(op => ({
                       ...op,
-                      label: `${op.phase === 2 ? "🎨 " : "⚙️ "}${op.label}`
+                      label: `${op.phase === 2 ? "🎨 " : "⚙️ "}${op.label}`,
+                      subLabel: op.status === 'Completed' ? '✅ Completed' : `⏳ ${op.status || 'Pending'}`
                     }))}
                   value={newAssignment.operation}
                   onChange={(val) => {
@@ -805,9 +809,13 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                           <div className={`${newAssignment.type === "inhouse" ? "md:col-span-3" : "md:col-span-5"} space-y-1.5`}>
                             <label className="text-xs  text-slate-900 dark:text-slate-200  flex justify-between">
                               <span>Operation</span>
-                              {phaseStatus.phase1Completed ? (
+                              {phaseStatus.phase2Completed ? (
                                 <span className="text-[10px] text-emerald-500 font-medium flex items-center gap-0.5">
-                                  <CheckCircle2 size={10} /> Phase 1 Done
+                                  <CheckCircle2 size={10} /> Phase 1 & Phase 2 Completed
+                                </span>
+                              ) : phaseStatus.phase1Completed ? (
+                                <span className="text-[10px] text-emerald-500 font-medium flex items-center gap-0.5">
+                                  <CheckCircle2 size={10} /> Phase 1 Completed
                                 </span>
                               ) : (
                                 <span className="text-[10px] text-amber-500 font-medium">Phase 1 In-Progress</span>
@@ -818,7 +826,8 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                                 .filter(op => op.phase === 1 || phaseStatus.phase2Unlocked)
                                 .map(op => ({
                                   ...op,
-                                  label: `${op.phase === 2 ? "🎨 " : "⚙️ "}${op.label}`
+                                  label: `${op.phase === 2 ? "🎨 " : "⚙️ "}${op.label}`,
+                                  subLabel: op.status === 'Completed' ? '✅ Completed' : `⏳ ${op.status || 'Pending'}`
                                 }))}
                               value={newAssignment.operation}
                               onChange={(val) => {

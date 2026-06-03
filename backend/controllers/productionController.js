@@ -1342,6 +1342,58 @@ exports.getEmployeeLaborLogs = async (req, res) => {
   }
 };
 
+exports.getLaborProjectsSummary = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        rc.id as project_id,
+        rc.public_id,
+        COALESCE(rc.project_name, 'Unknown Project') as project_name,
+        COUNT(DISTINCT a.operator_id) as total_operators,
+        ROUND(IFNULL(SUM(a.total_hours), 0), 2) as total_hours,
+        COUNT(a.id) as total_assignments
+      FROM daily_operator_assignments a
+      LEFT JOIN root_cards rc ON a.root_card_id = rc.id
+      WHERE a.root_card_id IS NOT NULL
+      GROUP BY rc.id, rc.public_id, rc.project_name
+      ORDER BY total_hours DESC
+    `;
+    const [rows] = await db.query(query);
+    res.json({ success: true, projects: rows });
+  } catch (error) {
+    console.error('Error fetching project labor summary:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getProjectLaborLogs = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const query = `
+      SELECT 
+        a.id,
+        p.plan_date as work_date,
+        a.operator_id,
+        u.full_name as operator_name,
+        a.operation_name,
+        a.start_time,
+        a.end_time,
+        a.total_hours as actual_hours,
+        a.remarks
+      FROM daily_operator_assignments a
+      JOIN daily_production_plans p ON a.plan_id = p.id
+      LEFT JOIN users u ON a.operator_id = u.id
+      WHERE a.root_card_id = ?
+      ORDER BY p.plan_date DESC, a.start_time DESC
+    `;
+    const [rows] = await db.query(query, [id]);
+    res.json({ success: true, logs: rows });
+  } catch (error) {
+    console.error('Error fetching project labor logs:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 exports.getRootCardById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -1372,13 +1424,19 @@ exports.getRootCardById = async (req, res) => {
 
     const phase1Completed = (phase1Ops.length > 0 && phase1Ops.every(op => op.status === 'Completed')) || phase2Unlocked;
 
+    const phase2Ops = operations.filter(op => op.phase === 2);
+    const phase2Completed = (phase2Ops.length > 0 && phase2Ops.every(op => op.status === 'Completed')) || 
+                            rows[0].status === 'PHASE_2_QC_APPROVED' || 
+                            rows[0].status === 'Redy for Dispatch';
+
     res.json({ 
       success: true, 
       rootCard: rows[0], 
       stages: operations,
       phaseStatus: {
         phase1Completed,
-        phase2Unlocked
+        phase2Unlocked,
+        phase2Completed
       }
     });
   } catch (error) {

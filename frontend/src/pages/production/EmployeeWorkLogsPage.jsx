@@ -18,14 +18,17 @@ import {
 import DataTable from "../../components/ui/DataTable/DataTable";
 
 const EmployeeWorkLogsPage = () => {
+  const [activeTab, setActiveTab] = useState("employee"); // "employee" or "project"
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [workLogs, setWorkLogs] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [projectWorkLogs, setProjectWorkLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
-  const [projectSearchTerm, setProjectSearchTerm] = useState("");
 
   const from24h = (timeStr) => {
     if (!timeStr) return { time: "", period: "AM" };
@@ -72,6 +75,27 @@ const EmployeeWorkLogsPage = () => {
     }
   }, []);
 
+  // Fetch summary of all projects
+  const fetchProjectsSummary = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/production/labor/projects-summary");
+      if (response.data.success) {
+        const processedProjects = response.data.projects.map(proj => ({
+          ...proj,
+          total_hours: parseFloat(proj.total_hours) || 0,
+          total_operators: parseInt(proj.total_operators) || 0
+        }));
+        setProjects(processedProjects);
+      }
+    } catch (error) {
+      console.error("Error fetching project labor summary:", error);
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Fetch detailed logs for a specific employee
   const fetchEmployeeDetails = async (employee) => {
     try {
@@ -89,19 +113,35 @@ const EmployeeWorkLogsPage = () => {
     }
   };
 
+  // Fetch detailed logs for a specific project
+  const fetchProjectDetails = async (project) => {
+    try {
+      setLoadingDetails(true);
+      setSelectedProject(project);
+      const response = await axios.get(`/production/labor/project/${project.project_id}/logs`);
+      if (response.data.success) {
+        setProjectWorkLogs(response.data.logs);
+      }
+    } catch (error) {
+      console.error("Error fetching project details:", error);
+      setProjectWorkLogs([]);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
   useEffect(() => {
     fetchEmployeesSummary();
-  }, [fetchEmployeesSummary]);
+    fetchProjectsSummary();
+  }, [fetchEmployeesSummary, fetchProjectsSummary]);
 
   const filteredEmployees = employees.filter(emp => 
     emp.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredWorkLogs = workLogs.filter(log => {
-    const matchesProject = log.project_name?.toLowerCase().includes(projectSearchTerm.toLowerCase()) || 
-                          log.root_card_id?.toLowerCase().includes(projectSearchTerm.toLowerCase());
-    const matchesDate = !dateFilter || log.work_date === dateFilter;
-    return matchesProject && matchesDate;
+    const matchesDate = !dateFilter || (log.work_date || "").substring(0, 10) === dateFilter;
+    return matchesDate;
   });
 
   const employeeColumns = [
@@ -333,6 +373,223 @@ const EmployeeWorkLogsPage = () => {
     </div>
   );
 
+  const filteredProjectWorkLogs = projectWorkLogs.filter(log => {
+    const matchesDate = !dateFilter || log.work_date.substring(0, 10) === dateFilter;
+    return matchesDate;
+  });
+
+  const projectColumns = [
+    {
+      header: "Project Name",
+      accessor: "project_name",
+      render: (_, proj) => (
+        <span className="text-xs font-semibold text-slate-900 dark:text-white">{proj.project_name}</span>
+      ),
+    },
+    {
+      header: "Total Operators Assigned",
+      accessor: "total_operators",
+      align: "center",
+      render: (value) => (
+        <span className="p-1 bg-blue-50 dark:bg-blue-900/20 text-xs text-blue-600 dark:text-blue-400 rounded">
+          {value} Operators
+        </span>
+      ),
+    },
+    {
+      header: "Total Man-Hours",
+      accessor: "total_hours",
+      align: "center",
+      render: (value) => (
+        <span className="text-xs text-slate-900 dark:text-white font-medium">{value} hrs</span>
+      ),
+    },
+    {
+      header: "Total Tasks Allocations",
+      accessor: "total_assignments",
+      align: "center",
+      render: (value) => (
+        <span className="text-xs text-slate-500 dark:text-slate-400">{value} allocations</span>
+      ),
+    },
+    {
+      header: "Action",
+      align: "right",
+      render: (_, proj) => (
+        <button
+          onClick={() => fetchProjectDetails(proj)}
+          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+        >
+          <ChevronRight size={15} />
+        </button>
+      ),
+    },
+  ];
+
+  const projectWorkLogColumns = [
+    {
+      header: "Date",
+      accessor: "work_date",
+      render: (value) => (
+        <span className="text-xs text-slate-600 dark:text-slate-400">
+          {new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </span>
+      ),
+    },
+    {
+      header: "Operator",
+      accessor: "operator_name",
+      render: (value) => (
+        <span className="text-xs text-slate-900 dark:text-white font-medium">{value}</span>
+      ),
+    },
+    {
+      header: "Operation",
+      accessor: "operation_name",
+      render: (value) => (
+        <span className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-1 rounded border border-blue-100 dark:border-blue-900/30">
+          {value}
+        </span>
+      ),
+    },
+    {
+      header: "Start Time",
+      accessor: "start_time",
+      align: "center",
+      render: (value) => (
+        <span className="text-xs text-slate-600 dark:text-slate-400">{format12h(value)}</span>
+      ),
+    },
+    {
+      header: "End Time",
+      accessor: "end_time",
+      align: "center",
+      render: (value) => (
+        <span className="text-xs text-slate-600 dark:text-slate-400">{format12h(value)}</span>
+      ),
+    },
+    {
+      header: "Hours",
+      accessor: "actual_hours",
+      align: "center",
+      render: (value) => (
+        <span className="text-sm text-slate-900 dark:text-white font-medium">{value} hrs</span>
+      ),
+    },
+    {
+      header: "Remarks",
+      accessor: "remarks",
+      render: (value) => (
+        <span className="text-xs text-slate-500 dark:text-slate-400 italic">{value || "-"}</span>
+      ),
+    },
+  ];
+
+  const renderProjectList = () => (
+    <div className="space-y-6 p-4">
+      {/* Project Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="bg-white p-2 flex items-center gap-2">
+          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded">
+            <Target size={15} />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 tracking-wider">Total Projects</p>
+            <p className="text-xl text-slate-900 dark:text-white">{projects.length}</p>
+          </div>
+        </div>
+        <div className="bg-white p-2 flex items-center gap-2">
+          <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded">
+            <Clock size={15} />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 tracking-wider font-semibold">Total Man-Hours</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">
+              {projects.reduce((acc, curr) => acc + (curr.total_hours || 0), 0).toFixed(2)}
+            </p>
+          </div>
+        </div>
+        <div className="bg-white p-2 flex items-center gap-2">
+          <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded">
+            <Users size={15} />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 tracking-wider font-semibold">Avg. Operators/Proj</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">
+              {projects.length > 0 ? Math.round(projects.reduce((acc, curr) => acc + (curr.total_operators || 0), 0) / projects.length) : 0}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Projects Table */}
+      <DataTable
+        columns={projectColumns}
+        data={projects}
+        loading={loading}
+        searchPlaceholder="SEARCH PROJECTS..."
+      />
+    </div>
+  );
+
+  const renderProjectDetails = () => (
+    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+      <button 
+        onClick={() => setSelectedProject(null)}
+        className="flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+      >
+        <ArrowLeft size={15} />
+        <span className="text-sm">Back to Project List</span>
+      </button>
+
+      <div className=" p-2 rounded  flex flex-col md:flex-row justify-between items-start  gap-6">
+        <div className="flex items-center gap-2">
+          
+          <div>
+            <h2 className="text-xl  text-slate-900 dark:text-white">{selectedProject.project_name}</h2>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded text-center min-w-[100px]">
+            <p className="text-xs text-slate-400  ">Operators</p>
+            <p className="text-lg  text-slate-900 dark:text-white">{selectedProject.total_operators}</p>
+          </div>
+          <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded text-center min-w-[100px]">
+            <p className="text-xs text-slate-400  ">Total Hours</p>
+            <p className="text-lg  text-slate-900 dark:text-white">{selectedProject.total_hours}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className=" dark:border-slate-800  overflow-hidden">
+        <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-2">
+          <h3 className="text-sm  text-slate-900 dark:text-white flex items-center gap-2">
+            <History size={15} className="text-blue-500" />
+            Project Labor Distribution
+          </h3>
+          <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+              <input 
+                type="date" 
+                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border-none rounded text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <DataTable
+          columns={projectWorkLogColumns}
+          data={filteredProjectWorkLogs}
+          loading={loadingDetails}
+          searchPlaceholder="Search Operator / Operation..."
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
       {/* Header */}
@@ -344,9 +601,12 @@ const EmployeeWorkLogsPage = () => {
             <p className="text-xs text-slate-500 mt-1">Track labor distribution and man-hours per project</p>
           </div>
         </div>
-        {!selectedEmployee && (
+        {!selectedEmployee && !selectedProject && (
           <button 
-            onClick={fetchEmployeesSummary}
+            onClick={() => {
+              fetchEmployeesSummary();
+              fetchProjectsSummary();
+            }}
             className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs hover:bg-slate-50 transition-all flex items-center gap-2"
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : <TrendingUp size={14} />}
@@ -355,8 +615,42 @@ const EmployeeWorkLogsPage = () => {
         )}
       </div>
 
+      {/* Tab Switcher */}
+      {!selectedEmployee && !selectedProject && (
+        <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6 gap-6">
+          <button
+            onClick={() => setActiveTab("employee")}
+            className={`pb-3 text-sm font-medium transition-all relative ${
+              activeTab === "employee"
+                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+            }`}
+          >
+            By Employee
+          </button>
+          <button
+            onClick={() => setActiveTab("project")}
+            className={`pb-3 text-sm font-medium transition-all relative ${
+              activeTab === "project"
+                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+            }`}
+          >
+            By Project
+          </button>
+        </div>
+      )}
+
       <div className=" mx-auto">
-        {!selectedEmployee ? renderEmployeeList() : renderEmployeeDetails()}
+        {selectedEmployee ? (
+          renderEmployeeDetails()
+        ) : selectedProject ? (
+          renderProjectDetails()
+        ) : activeTab === "employee" ? (
+          renderEmployeeList()
+        ) : (
+          renderProjectList()
+        )}
       </div>
     </div>
   );

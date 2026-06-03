@@ -44,6 +44,8 @@ router.post('/mcr/save', productionController.saveMCR);
 // Labor & Work Log Routes
 router.get('/labor/employees-summary', productionController.getLaborEmployeesSummary);
 router.get('/labor/employee/:id/logs', productionController.getEmployeeLaborLogs);
+router.get('/labor/projects-summary', productionController.getLaborProjectsSummary);
+router.get('/labor/project/:id/logs', productionController.getProjectLaborLogs);
 
 // Outward Challan Routes
 router.post('/outward-challans', productionController.createOutwardChallan);
