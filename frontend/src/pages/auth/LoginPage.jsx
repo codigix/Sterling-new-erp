@@ -105,14 +105,9 @@ const LoginPage = () => {
           </div>
 
           <div className="flex flex-col">
-            <div className="flex justify-between items-center mb-0.5">
-              <label htmlFor="password" title="Password" className="text-xs  text-slate-900">
-                Password
-              </label>
-              <a href="#forgot" className="text-xs text-blue-600 hover:underline">
-                Forgot?
-              </a>
-            </div>
+            <label htmlFor="password" title="Password" className="text-xs text-slate-900 mb-1 text-left font-medium">
+              Password
+            </label>
             <div className="relative flex items-center">
               <Lock className="absolute left-3 text-slate-400" size={14} />
               <input
@@ -133,6 +128,11 @@ const LoginPage = () => {
               >
                 {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
+            </div>
+            <div className="text-right mt-1.5">
+              <Link to="/forgot-password" className="text-xs text-blue-600 hover:underline font-medium">
+                Forgot Password?
+              </Link>
             </div>
           </div>
 

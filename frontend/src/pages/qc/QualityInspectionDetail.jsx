@@ -273,7 +273,8 @@ const QualityInspectionDetail = () => {
       const formData = new FormData();
       formData.append('grn_id', id);
       formData.append('po_item_id', targetItem.po_item_id);
-      formData.append('remarks', remarks || "Outsource inspection results");
+      formData.append('inspection_type', inspectionType);
+      formData.append('remarks', remarks || `${inspectionType} inspection results`);
       
       if (targetItem.acceptedDoc instanceof File) {
         formData.append('accepted_doc', targetItem.acceptedDoc);
@@ -420,7 +421,7 @@ const QualityInspectionDetail = () => {
                         <th className="p-2 text-left">Dimensions</th>
                         <th className="p-2 text-left">Current Status</th>
                         <th className="p-2 text-center">Action</th>
-                        {inspectionType === 'Outsource' && <th className="p-2 text-center">Doc</th>}
+                        <th className="p-2 text-center">Doc</th>
                         <th className="p-2 text-left">Notes</th>
                       </tr>
                     </thead>
@@ -490,8 +491,7 @@ const QualityInspectionDetail = () => {
                               )}
                             </div>
                           </td>
-                          {inspectionType === 'Outsource' && (
-                            <td className="p-2 text-center">
+                           <td className="p-2 text-center">
                               {s.tempStatus === 'Rejected' ? (
                                 <div className="flex flex-col items-center gap-1">
                                   <label className={`cursor-pointer p-2 rounded transition-all ${s.doc ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}>
@@ -520,7 +520,6 @@ const QualityInspectionDetail = () => {
                                 <span className="text-slate-200">-</span>
                               )}
                             </td>
-                          )}
                           <td className="p-2">
                             <input 
                               type="text"
@@ -553,7 +552,6 @@ const QualityInspectionDetail = () => {
                 </div>
                 
                 <div className="p-2 bg-slate-50/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                  {inspectionType === 'Outsource' ? (
                     <div className="flex flex-wrap items-center gap-4">
                       {/* Accepted Report */}
                       <div className={`flex items-center p-2 rounded border transition-all ${item.acceptedDoc ? 'bg-green-50 border-green-200' : 'bg-white dark:bg-slate-800 border-blue-200 border-dashed hover:border-blue-400'}`}>
@@ -573,7 +571,7 @@ const QualityInspectionDetail = () => {
                               className="hidden" 
                               onChange={(e) => {
                                 const file = e.target.files[0];
-                                setItems(prev => prev.map(it => it.itemName === item.itemName ? { ...it, acceptedDoc: file } : it));
+                                  setItems(prev => prev.map(it => it.itemName === item.itemName ? { ...it, acceptedDoc: file } : it));
                               }} 
                             />
                           </label>
@@ -598,7 +596,7 @@ const QualityInspectionDetail = () => {
                               className="hidden" 
                               onChange={(e) => {
                                 const file = e.target.files[0];
-                                setItems(prev => prev.map(it => it.itemName === item.itemName ? { ...it, rejectedDoc: file } : it));
+                                  setItems(prev => prev.map(it => it.itemName === item.itemName ? { ...it, rejectedDoc: file } : it));
                               }} 
                             />
                           </label>
@@ -612,11 +610,6 @@ const QualityInspectionDetail = () => {
                         <Save size={14} /> Complete Item Inspection
                       </button>
                     </div>
-                  ) : (
-                    <div className="text-xs  text-slate-400   italic">
-                      Inhouse inspection - Process each ST number above
-                    </div>
-                  )}
                 </div>
               </>
             )}
@@ -692,7 +685,7 @@ const QualityInspectionDetail = () => {
               const needsAcceptedDoc = items.some(item => item.serials.some(s => s.inspection_status === 'Accepted') && !item.acceptedDoc);
               const needsRejectedDoc = items.some(item => item.serials.some(s => s.inspection_status === 'Rejected') && !item.rejectedDoc);
               
-              const canFinalize = allProcessed && (!isOutsource || (!needsAcceptedDoc && !needsRejectedDoc));
+              const canFinalize = allProcessed && !needsAcceptedDoc && !needsRejectedDoc;
               
               if (grn?.status === 'qc_completed') return null;
 

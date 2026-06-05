@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import axios from "../../utils/api";
 import {
   LayoutDashboard,
   Users,
@@ -17,6 +18,7 @@ import {
   BarChart3,
   ShoppingCart,
   CheckSquare,
+  Key,
 } from "lucide-react";
 import NotificationBell from "../common/NotificationBell";
 
@@ -33,6 +35,24 @@ const AdminLayout = () => {
   };
 
   const [expandedSections, setExpandedSections] = useState({});
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const response = await axios.get("/admin/password-reset-requests");
+        const pending = response.data.filter((r) => r.status === "PENDING").length;
+        setPendingCount(pending);
+      } catch (err) {
+        console.error("Failed to fetch pending requests count in layout:", err);
+      }
+    };
+
+    fetchPendingCount();
+    // Poll every 30 seconds
+    const interval = setInterval(fetchPendingCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -59,6 +79,12 @@ const AdminLayout = () => {
       path: "/admin/employee-management",
       icon: Users,
       badge: null,
+    },
+    {
+      title: "Reset Requests",
+      path: "/admin/password-resets",
+      icon: Key,
+      badge: pendingCount > 0 ? pendingCount : null,
     },
     {
       title: "Assign Dept Tasks",

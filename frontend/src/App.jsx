@@ -11,6 +11,8 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import AdminLayout from "./components/layout/AdminLayout";
 import DepartmentLayout from "./components/layout/DepartmentLayout";
 import DesignEngineerLayout from "./components/layout/DesignEngineerLayout";
@@ -44,6 +46,7 @@ import ReportsAnalytics from "./pages/admin/ReportsAnalytics";
 import SystemSettings from "./pages/admin/SystemSettings";
 import RoleManagement from "./pages/admin/RoleManagement";
 import EmployeeManagement from "./pages/admin/EmployeeManagement";
+import PasswordResetsPage from "./pages/admin/PasswordResetsPage";
 import DepartmentTasksPage from "./pages/admin/DepartmentTasksPage";
 
 // Sales Pages
@@ -83,17 +86,7 @@ import QualityHandoverPage from "./pages/production/QualityHandoverPage";
 import DailyProductionUpdatesPage from "./pages/production/DailyProductionUpdatesPage";
 import EmployeeWorkLogsPage from "./pages/production/EmployeeWorkLogsPage";
 
-// Employee Portal
-import EmployeePortalPage from "./pages/employee/EmployeePortalPage";
-import EmployeeDashboardLayout from "./components/layout/EmployeeDashboardLayout";
-import EmployeeDashboardHome from "./pages/employee/EmployeeDashboardHome";
-import EmployeeProfile from "./pages/employee/EmployeeProfile";
-import EmployeeAttendance from "./pages/employee/EmployeeAttendance";
-import EmployeeTasks from "./pages/employee/EmployeeTasks";
-import EmployeeProjects from "./pages/employee/EmployeeProjects";
-import EmployeeAlerts from "./pages/employee/EmployeeAlerts";
-import EmployeeUpdates from "./pages/employee/EmployeeUpdates";
-import EmployeeSettings from "./pages/employee/EmployeeSettings";
+// Employee Portal removed
 
 // Reports/Tracking Pages
 import ProjectTrackingDashboard from "./pages/reports/ProjectTrackingDashboard";
@@ -139,6 +132,8 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={
@@ -160,6 +155,7 @@ function App() {
                 <Route path="resources" element={<ResourcesPage />} />
                 <Route path="roles" element={<RoleManagement />} />
                 <Route path="employee-management" element={<EmployeeManagement />} />
+                <Route path="password-resets" element={<PasswordResetsPage />} />
                 <Route path="department-tasks" element={<DepartmentTasksPage />} />
                 <Route path="reports" element={<ReportsAnalytics />} />
                 <Route path="settings" element={<SystemSettings />} />
@@ -343,31 +339,7 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Employee Routes */}
-              <Route path="/employee" element={
-                <ProtectedRoute allowedRoles={["Employee", "Supervisor", "Admin"]}>
-                  <EmployeeDashboardLayout />
-                </ProtectedRoute>
-              }>
-                <Route path="dashboard" element={<EmployeeDashboardHome />} />
-                <Route path="profile" element={<EmployeeProfile />} />
-                <Route path="attendance" element={<EmployeeAttendance />} />
-                <Route path="tasks" element={<EmployeeTasks />} />
-                <Route path="projects" element={<EmployeeProjects />} />
-                <Route path="alerts" element={<EmployeeAlerts />} />
-                <Route path="updates" element={<EmployeeUpdates />} />
-                <Route path="settings" element={<EmployeeSettings />} />
-                <Route path="notifications" element={<NotificationsPage />} />
-              </Route>
-              
-              {/* Legacy Employee Portal */}
-              <Route path="/employee-portal" element={
-                <ProtectedRoute allowedRoles={["Employee", "Supervisor", "Admin"]}>
-                  <DepartmentLayout />
-                </ProtectedRoute>
-              }>
-                <Route path="portal" element={<EmployeePortalPage />} />
-              </Route>
+
               
               {/* Reports Routes */}
               <Route path="/reports" element={

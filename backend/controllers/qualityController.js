@@ -431,28 +431,23 @@ exports.finalizeGRNQC = async (req, res) => {
         }
 
         // Check if all items have required documents
-        const [grnInfo] = await db.query('SELECT inspection_type FROM grns WHERE id = ?', [id]);
-        const isOutsource = grnInfo[0]?.inspection_type === 'Outsource';
+        const [itemDocs] = await db.query(
+            'SELECT po_item_id, common_document_path, rejected_document_path FROM quality_inspections WHERE grn_id = ?',
+            [id]
+        );
         
-        if (isOutsource) {
-            const [itemDocs] = await db.query(
-                'SELECT po_item_id, common_document_path, rejected_document_path FROM quality_inspections WHERE grn_id = ?',
-                [id]
-            );
+        const itemIds = [...new Set(allSerials.map(s => s.item_id))];
+        
+        for (const itemId of itemIds) {
+            const hasAccepted = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Accepted');
+            const hasRejected = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Rejected');
+            const doc = itemDocs.find(d => Number(d.po_item_id) === Number(itemId));
             
-            const itemIds = [...new Set(allSerials.map(s => s.item_id))];
-            
-            for (const itemId of itemIds) {
-                const hasAccepted = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Accepted');
-                const hasRejected = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Rejected');
-                const doc = itemDocs.find(d => Number(d.po_item_id) === Number(itemId));
-                
-                if (hasAccepted && !doc?.common_document_path) {
-                    return res.status(400).json({ message: 'Missing Accepted Items Report for some materials' });
-                }
-                if (hasRejected && !doc?.rejected_document_path) {
-                    return res.status(400).json({ message: 'Missing Rejected Items Report for some materials' });
-                }
+            if (hasAccepted && !doc?.common_document_path) {
+                return res.status(400).json({ message: 'Missing Accepted Items Report for some materials' });
+            }
+            if (hasRejected && !doc?.rejected_document_path) {
+                return res.status(400).json({ message: 'Missing Rejected Items Report for some materials' });
             }
         }
 
@@ -871,35 +866,28 @@ exports.submitQualityInspection = async (req, res) => {
         const allProcessed = allSerials.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
         
         if (allProcessed) {
-            const [grnInfo] = await connection.query('SELECT inspection_type FROM grns WHERE id = ?', [grn_id]);
-            const isOutsource = grnInfo[0]?.inspection_type === 'Outsource';
+            // Check per-item documents
+            const [itemDocs] = await connection.query(
+                'SELECT po_item_id, common_document_path, rejected_document_path FROM quality_inspections WHERE grn_id = ?',
+                [grn_id]
+            );
             
-            if (isOutsource) {
-                // Check per-item documents
-                const [itemDocs] = await connection.query(
-                    'SELECT po_item_id, common_document_path, rejected_document_path FROM quality_inspections WHERE grn_id = ?',
-                    [grn_id]
-                );
+            const itemIds = [...new Set(allSerials.map(s => s.item_id))];
+            let allDocsPresent = true;
+            
+            for (const itemId of itemIds) {
+                const hasAccepted = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Accepted');
+                const hasRejected = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Rejected');
+                const doc = itemDocs.find(d => Number(d.po_item_id) === Number(itemId));
                 
-                const itemIds = [...new Set(allSerials.map(s => s.item_id))];
-                let allDocsPresent = true;
-                
-                for (const itemId of itemIds) {
-                    const hasAccepted = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Accepted');
-                    const hasRejected = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Rejected');
-                    const doc = itemDocs.find(d => Number(d.po_item_id) === Number(itemId));
-                    
-                    if (hasAccepted && !doc?.common_document_path) { allDocsPresent = false; break; }
-                    if (hasRejected && !doc?.rejected_document_path) { allDocsPresent = false; break; }
-                }
-                
-                if (allDocsPresent) {
-                    await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [grn_id]);
-                } else {
-                    await connection.query('UPDATE grns SET status = "qc_pending" WHERE id = ?', [grn_id]);
-                }
-            } else {
+                if (hasAccepted && !doc?.common_document_path) { allDocsPresent = false; break; }
+                if (hasRejected && !doc?.rejected_document_path) { allDocsPresent = false; break; }
+            }
+            
+            if (allDocsPresent) {
                 await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [grn_id]);
+            } else {
+                await connection.query('UPDATE grns SET status = "qc_pending" WHERE id = ?', [grn_id]);
             }
         } else {
             // If not all processed (due to a revert), move GRN back to qc_pending if it was completed
@@ -972,7 +960,7 @@ exports.updateOutsourceStatus = async (req, res) => {
 };
 
 exports.submitOutsourceResults = async (req, res) => {
-    let { grn_id, po_item_id, results, remarks, common_document_path, rejected_document_path } = req.body;
+    let { grn_id, po_item_id, inspection_type, results, remarks, common_document_path, rejected_document_path } = req.body;
     
     // Process uploaded files from req.files (using upload.any())
     if (req.files && req.files.length > 0) {
@@ -1023,8 +1011,9 @@ exports.submitOutsourceResults = async (req, res) => {
              remarks = IFNULL(VALUES(remarks), remarks), 
              common_document_path = IFNULL(VALUES(common_document_path), common_document_path), 
              rejected_document_path = IFNULL(VALUES(rejected_document_path), rejected_document_path),
+             inspection_type = VALUES(inspection_type),
              status = 'Completed'`,
-            [gid, pid, 'Outsource', 'Completed', remarks || null, common_document_path || null, rejected_document_path || null]
+            [gid, pid, inspection_type || 'Outsource', 'Completed', remarks || null, common_document_path || null, rejected_document_path || null]
         );
         
         console.log('DB Update Result:', inspResult.affectedRows, 'rows affected');
@@ -1066,34 +1055,27 @@ exports.submitOutsourceResults = async (req, res) => {
         const allProcessed = allSerials.length > 0 && allSerials.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
         
         if (allProcessed) {
-            const [grnInfo] = await connection.query('SELECT inspection_type FROM grns WHERE id = ?', [gid]);
-            const isOutsource = grnInfo[0]?.inspection_type === 'Outsource';
+            const [itemDocs] = await connection.query(
+                'SELECT po_item_id, common_document_path, rejected_document_path FROM quality_inspections WHERE grn_id = ?',
+                [gid]
+            );
             
-            if (isOutsource) {
-                const [itemDocs] = await connection.query(
-                    'SELECT po_item_id, common_document_path, rejected_document_path FROM quality_inspections WHERE grn_id = ?',
-                    [gid]
-                );
+            const itemIds = [...new Set(allSerials.map(s => s.item_id))];
+            let allDocsPresent = true;
+            
+            for (const itemId of itemIds) {
+                const hasAccepted = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Accepted');
+                const hasRejected = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Rejected');
+                const doc = itemDocs.find(d => Number(d.po_item_id) === Number(itemId));
                 
-                const itemIds = [...new Set(allSerials.map(s => s.item_id))];
-                let allDocsPresent = true;
-                
-                for (const itemId of itemIds) {
-                    const hasAccepted = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Accepted');
-                    const hasRejected = allSerials.some(s => s.item_id === itemId && s.inspection_status === 'Rejected');
-                    const doc = itemDocs.find(d => Number(d.po_item_id) === Number(itemId));
-                    
-                    if (hasAccepted && !doc?.common_document_path) { allDocsPresent = false; break; }
-                    if (hasRejected && !doc?.rejected_document_path) { allDocsPresent = false; break; }
-                }
-                
-                if (allDocsPresent) {
-                    await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [gid]);
-                } else {
-                    await connection.query('UPDATE grns SET status = "qc_pending" WHERE id = ?', [gid]);
-                }
-            } else {
+                if (hasAccepted && !doc?.common_document_path) { allDocsPresent = false; break; }
+                if (hasRejected && !doc?.rejected_document_path) { allDocsPresent = false; break; }
+            }
+            
+            if (allDocsPresent) {
                 await connection.query('UPDATE grns SET status = "qc_completed" WHERE id = ?', [gid]);
+            } else {
+                await connection.query('UPDATE grns SET status = "qc_pending" WHERE id = ?', [gid]);
             }
         }
 

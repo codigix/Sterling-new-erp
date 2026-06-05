@@ -115,6 +115,13 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true, user: userData };
     } catch (error) {
+      if (error.response) {
+        return {
+          success: false,
+          message: error.response.data?.message || "Login failed",
+        };
+      }
+
       const normalizedUsername = username?.trim().toLowerCase();
       const demoEntry = normalizedUsername ? DEMO_USERS[normalizedUsername] : null;
 
@@ -139,7 +146,7 @@ export const AuthProvider = ({ children }) => {
 
       return {
         success: false,
-        message: error.response?.data?.message || "Login failed",
+        message: "Login failed. Server is unreachable.",
       };
     }
   };

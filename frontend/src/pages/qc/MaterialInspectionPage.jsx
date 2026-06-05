@@ -53,7 +53,7 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
             </button>
           )}
 
-          {isOutsource && (
+          {(hasAccepted || hasRejected) && (
             <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-2 ml-2">
               {hasAccepted && (
                 <div className="flex items-center gap-2">
@@ -65,7 +65,7 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
                         type="file" 
                         className="hidden" 
                         accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted')}
+                        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted', item.inspection_type)}
                       />
                     </label>
                   ) : (
@@ -85,7 +85,7 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
                           type="file" 
                           className="hidden" 
                           accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted')}
+                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted', item.inspection_type)}
                         />
                       </label>
                     </div>
@@ -103,7 +103,7 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
                         type="file" 
                         className="hidden" 
                         accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected')}
+                        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected', item.inspection_type)}
                       />
                     </label>
                   ) : (
@@ -123,7 +123,7 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
                           type="file" 
                           className="hidden" 
                           accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected')}
+                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected', item.inspection_type)}
                         />
                       </label>
                     </div>
@@ -349,12 +349,11 @@ const MaterialInspectionPage = () => {
         });
         
         // Re-calculate item-level completion status logic
-        const isOutsource = item.inspection_type === 'Outsource';
         const allProcessed = updatedSerials.length > 0 && updatedSerials.every(s => s.inspection_status === 'Accepted' || s.inspection_status === 'Rejected');
         const hasAccepted = updatedSerials.some(s => s.inspection_status === 'Accepted');
         const hasRejected = updatedSerials.some(s => s.inspection_status === 'Rejected');
-        const needsAcceptedDoc = isOutsource && hasAccepted && !item.common_document_path;
-        const needsRejectedDoc = isOutsource && hasRejected && !item.rejected_document_path;
+        const needsAcceptedDoc = hasAccepted && !item.common_document_path;
+        const needsRejectedDoc = hasRejected && !item.rejected_document_path;
         
         const newStatus = (allProcessed && !needsAcceptedDoc && !needsRejectedDoc) ? 'QC Completed' : 'QC Pending';
         
@@ -433,14 +432,14 @@ const MaterialInspectionPage = () => {
     handleBulkStatusUpdate(grnId, poItemId, [serialNumber], 'Pending', inspectionType);
   };
 
-  const handleConsolidatedUpload = async (file, grnId, poItemId, type) => {
+  const handleConsolidatedUpload = async (file, grnId, poItemId, type, inspectionType) => {
     try {
       setLoading(true);
       const formData = new FormData();
       formData.append(type === 'Accepted' ? 'accepted_doc' : 'rejected_doc', file);
       formData.append('grn_id', grnId);
       formData.append('po_item_id', poItemId);
-      formData.append('inspection_type', 'Outsource');
+      formData.append('inspection_type', inspectionType || 'Inhouse');
       formData.append('remarks', `Consolidated ${type} items report uploaded for item`);
       formData.append('results', JSON.stringify([])); // Header update only
 

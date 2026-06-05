@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { logAudit } = require('../utils/auditLogger');
 
 const getDashboardStats = async (req, res) => {
@@ -165,29 +166,30 @@ const getEmployeeList = async (req, res) => {
 };
 
 const createEmployee = async (req, res) => {
-  const { firstName, lastName, email, designation, department, departmentId, roleId, loginId, password, actions } = req.body;
+  const { firstName, lastName, email, department, departmentId } = req.body;
 
   try {
     // Check if user exists
-    const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ? OR login_id = ?', [email, loginId]);
+    const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
     if (existingUsers.length > 0) {
-      return res.status(400).json({ message: 'User with this email or login ID already exists' });
+      return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    // Hash password
+    // Hash a dummy password since they won't log in
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const dummyPassword = Math.random().toString(36) + Math.random().toString(36);
+    const hashedPassword = await bcrypt.hash(dummyPassword, salt);
 
     const fullName = `${firstName} ${lastName}`;
-    const role = 'employee'; // Fixed as per user request
+    const role = 'employee';
 
     const [result] = await db.query(
       `INSERT INTO users (full_name, first_name, last_name, email, password, designation, department, department_id, role, role_id, login_id, actions) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [fullName, firstName, lastName, email, hashedPassword, designation, department, departmentId, role, roleId, loginId, JSON.stringify(actions || [])]
+      [fullName, firstName, lastName, email, hashedPassword, null, department, departmentId, role, null, null, '[]']
     );
 
-    await logAudit(req.user?.fullName || 'Admin', 'Create Employee', 'account', `New employee created: ${fullName} (${designation})`, req.ip, 'success');
+    await logAudit(req.user?.fullName || 'Admin', 'Create Employee', 'account', `New employee created: ${fullName}`, req.ip, 'success');
 
     res.status(201).json({ 
       message: 'Employee created successfully', 
@@ -201,27 +203,18 @@ const createEmployee = async (req, res) => {
 
 const updateEmployee = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, email, designation, department, departmentId, roleId, loginId, password, actions } = req.body;
+  const { firstName, lastName, email, department, departmentId } = req.body;
 
   try {
     const fullName = `${firstName} ${lastName}`;
     
     let query = `
       UPDATE users 
-      SET full_name = ?, first_name = ?, last_name = ?, email = ?, designation = ?, 
-          department = ?, department_id = ?, role_id = ?, actions = ?
+      SET full_name = ?, first_name = ?, last_name = ?, email = ?, 
+          department = ?, department_id = ?
+      WHERE id = ?
     `;
-    const params = [fullName, firstName, lastName, email, designation, department, departmentId, roleId, JSON.stringify(actions || [])];
-
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      query += `, password = ?`;
-      params.push(hashedPassword);
-    }
-
-    query += ` WHERE id = ?`;
-    params.push(id);
+    const params = [fullName, firstName, lastName, email, department, departmentId, id];
 
     await db.query(query, params);
     await logAudit(req.user?.fullName || 'Admin', 'Update Employee', 'account', `Employee details updated for: ${fullName}`, req.ip, 'success');
@@ -389,6 +382,143 @@ const getDepartments = async (req, res) => {
   res.json(departments);
 };
 
+const getPasswordResetRequests = async (req, res) => {
+  try {
+    const [requests] = await db.query(
+      'SELECT pr.*, u.login_id FROM password_reset_requests pr JOIN users u ON pr.user_id = u.id ORDER BY pr.created_at DESC'
+    );
+    res.json(requests);
+  } catch (error) {
+    console.error('Error fetching password reset requests:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const approvePasswordResetRequest = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Get the request
+    const [requests] = await db.query('SELECT * FROM password_reset_requests WHERE id = ?', [id]);
+    if (requests.length === 0) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    const request = requests[0];
+    if (request.status !== 'PENDING') {
+      return res.status(400).json({ message: 'Request is already processed' });
+    }
+
+    // Generate secure token
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
+
+    // Update request
+    await db.query(
+      'UPDATE password_reset_requests SET status = "APPROVED", token = ?, expires_at = ? WHERE id = ?',
+      [token, expiresAt, id]
+    );
+
+    // Construct reset link using FRONTEND_URL from environment variable
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password?token=${token}`;
+
+    await logAudit(
+      req.user?.fullName || 'Admin',
+      'Approve Password Reset',
+      'account',
+      `Approved password reset and generated link for: ${request.full_name}`,
+      req.ip,
+      'success'
+    );
+
+    // (Mock email delivery logging or email sending if SMTP configured)
+    console.log(`Password reset link generated for ${request.email}: ${resetLink}`);
+
+    res.json({
+      message: 'Password reset request approved and link generated successfully',
+      resetLink,
+    });
+  } catch (error) {
+    console.error('Error approving password reset:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const rejectPasswordResetRequest = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Get the request
+    const [requests] = await db.query('SELECT * FROM password_reset_requests WHERE id = ?', [id]);
+    if (requests.length === 0) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    const request = requests[0];
+    if (request.status !== 'PENDING') {
+      return res.status(400).json({ message: 'Request is already processed' });
+    }
+
+    // Update request status to REJECTED
+    await db.query('UPDATE password_reset_requests SET status = "REJECTED" WHERE id = ?', [id]);
+
+    await logAudit(
+      req.user?.fullName || 'Admin',
+      'Reject Password Reset',
+      'account',
+      `Rejected password reset request for: ${request.full_name}`,
+      req.ip,
+      'success'
+    );
+
+    res.json({ message: 'Password reset request rejected successfully' });
+  } catch (error) {
+    console.error('Error rejecting password reset:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const sendResetLinkEmail = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [requests] = await db.query('SELECT * FROM password_reset_requests WHERE id = ?', [id]);
+    if (requests.length === 0) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    const request = requests[0];
+    if (request.status !== 'APPROVED') {
+      return res.status(400).json({ message: 'Request must be approved before sending the email' });
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password?token=${request.token}`;
+
+    const { sendEmail } = require('../utils/emailService');
+    await sendEmail({
+      to: request.email,
+      subject: 'Sterling ERP - Password Reset Link',
+      text: `Hello ${request.full_name},\n\nYour administrator has approved your password reset request.\n\nPlease click the link below to set a new password:\n${resetLink}\n\nThis link will expire in 1 hour.\n\nRegards,\nSterling Manufacturing Support`
+    });
+
+    await logAudit(
+      req.user?.fullName || 'Admin',
+      'Send Password Reset Email',
+      'account',
+      `Sent password reset link email to: ${request.email}`,
+      req.ip,
+      'success'
+    );
+
+    res.json({ message: 'Reset link email sent successfully' });
+  } catch (error) {
+    console.error('Error sending reset link email:', error);
+    res.status(500).json({ message: 'Failed to send email', error: error.message });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getEmployeeList,
@@ -403,5 +533,9 @@ module.exports = {
   getPermissions,
   getDesignations,
   getDepartments,
-  sendCredentials
+  sendCredentials,
+  getPasswordResetRequests,
+  approvePasswordResetRequest,
+  rejectPasswordResetRequest,
+  sendResetLinkEmail
 };
