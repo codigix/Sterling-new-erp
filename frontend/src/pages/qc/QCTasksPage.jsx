@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "../../utils/api";
 import { getServerUrl } from "../../utils/fileUtils";
 import {
@@ -11,6 +10,7 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   Filter,
   Trash2,
   Calendar,
@@ -20,12 +20,14 @@ import {
   Hash,
   Tag,
   Info,
-  RefreshCw
+  RefreshCw,
+  X
 } from "lucide-react";
 import { showError, showSuccess } from "../../utils/toastUtils";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import Swal from "sweetalert2";
 import DataTable from "../../components/ui/DataTable/DataTable";
+
 
 const ReportDetailTable = ({ report }) => {
   const detailColumns = [
@@ -39,7 +41,10 @@ const ReportDetailTable = ({ report }) => {
           </div>
           <div>
             <p className="text-xs font-medium text-slate-900 dark:text-white">{m.material_name}</p>
-            <p className="text-[10px] text-slate-400">{m.item_code} • {m.item_group}</p>
+            <p className="text-[10px] text-slate-400">
+              {m.item_code} • {m.item_group}
+              {m.material_grade && ` • Grade: ${m.material_grade}`}
+            </p>
           </div>
         </div>
       )
@@ -72,33 +77,58 @@ const ReportDetailTable = ({ report }) => {
   const renderSTNumbers = (m) => {
     if (!m.st_numbers || m.st_numbers.length === 0) return null;
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-2 bg-slate-50/50 dark:bg-slate-800/50 rounded">
-        {m.st_numbers.map((st, stIdx) => (
-          <div key={stIdx} className="p-3 rounded border bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-2 transition-all hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <span className={`text-[10px]  ${st.status === 'ACCEPTED' ? 'text-emerald-600' : 'text-red-600'}`}>
-                {st.status}
-              </span>
-              {(st.status === 'ACCEPTED' ? m.accepted_report : m.rejected_report) && (
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const reportPath = st.status === 'ACCEPTED' ? m.accepted_report : m.rejected_report;
-                    window.open(getServerUrl(reportPath), '_blank');
-                  }}
-                  className="p-1 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-emerald-600 rounded transition-colors"
-                >
-                  <Eye size={14} />
-                </button>
-              )}
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-[9px] text-slate-400   tracking-wider">ST Code</p>
-              <p className="text-xs font-mono  text-slate-700 dark:text-slate-300">{st.st_code}</p>
-              <p className="text-[10px] text-blue-600 dark:text-blue-400 font-mono mt-1 font-medium bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded w-fit">{renderDimensions(st)}</p>
-            </div>
-          </div>
-        ))}
+      <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-800/80">
+        <p className="text-[10px] font-semibold text-slate-400 tracking-wider uppercase mb-2">Individual Serial / ST Numbers</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800">
+                <th className="p-2 text-[10px] font-semibold text-slate-400 tracking-wider uppercase w-12 text-center">#</th>
+                <th className="p-2 text-[10px] font-semibold text-slate-400 tracking-wider uppercase">ST Code</th>
+                <th className="p-2 text-[10px] font-semibold text-slate-400 tracking-wider uppercase">Dimensions</th>
+                <th className="p-2 text-[10px] font-semibold text-slate-400 tracking-wider uppercase text-center w-24">Status</th>
+                <th className="p-2 text-[10px] font-semibold text-slate-400 tracking-wider uppercase text-center w-20">Doc</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {m.st_numbers.map((st, stIdx) => {
+                const reportPath = st.status === 'ACCEPTED' ? m.accepted_report : m.rejected_report;
+                return (
+                  <tr key={stIdx} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/30">
+                    <td className="p-2 text-xs text-slate-400 text-center">{stIdx + 1}</td>
+                    <td className="p-2 text-xs font-mono text-slate-700 dark:text-slate-300 font-semibold">{st.st_code}</td>
+                    <td className="p-2 text-[10px] text-blue-600 dark:text-blue-400 font-mono">{renderDimensions(st)}</td>
+                    <td className="p-2 text-center">
+                      <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold ${
+                        st.status === 'ACCEPTED' 
+                          ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400' 
+                          : 'bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400'
+                      }`}>
+                        {st.status}
+                      </span>
+                    </td>
+                    <td className="p-2 text-center">
+                      {reportPath ? (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(getServerUrl(reportPath), '_blank');
+                          }}
+                          className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-emerald-600 rounded transition-colors"
+                          title="View Report Document"
+                        >
+                          <Eye size={14} />
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-slate-300 dark:text-slate-700">-</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   };
@@ -122,14 +152,21 @@ const ReportDetailTable = ({ report }) => {
 };
 
 const QCTasksPage = () => {
-  const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sendingReport, setSendingReport] = useState(null);
+  const [expandedMaterials, setExpandedMaterials] = useState({});
 
   useEffect(() => {
     fetchReports();
   }, []);
+
+  const toggleMaterialExpand = (idx) => {
+    setExpandedMaterials(prev => ({
+      ...prev,
+      [idx]: !prev[idx]
+    }));
+  };
 
   const fetchReports = async () => {
     try {
@@ -143,6 +180,11 @@ const QCTasksPage = () => {
       setLoading(false);
     }
   };
+
+  const uniqueProjects = React.useMemo(() => {
+    const projectNames = [...new Set(reports.map(r => r.project_name))].filter(Boolean);
+    return projectNames.map(name => ({ label: name, value: name }));
+  }, [reports]);
 
   const handleSendToInventory = async (e, reportId) => {
     e.stopPropagation();
@@ -175,6 +217,7 @@ const QCTasksPage = () => {
         setReports(reports.filter(r => r.id !== id));
         showSuccess("Report deleted");
       } catch (error) {
+        console.error("Error deleting report:", error);
         showError("Failed to delete report");
       }
     }
@@ -243,7 +286,7 @@ const QCTasksPage = () => {
               className="flex items-center gap-1 px-2 py-1 bg-blue-600 text-white rounded text-[10px] hover:bg-blue-700 disabled:opacity-50 transition-all"
             >
               {sendingReport === report.id ? <RefreshCw size={12} className="animate-spin" /> : <ExternalLink size={12} />}
-              Send
+              Send to Inventory
             </button>
           ) : (
             <div className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[10px]  border border-emerald-100 flex items-center gap-1">
@@ -286,6 +329,11 @@ const QCTasksPage = () => {
         expandableRow={(row) => <ReportDetailTable report={row} />}
         filters={[
           {
+            label: "Project",
+            column: "project_name",
+            options: uniqueProjects
+          },
+          {
             label: "Type",
             column: "inspection_type",
             options: [
@@ -305,6 +353,8 @@ const QCTasksPage = () => {
           }
         ]}
       />
+
+
     </div>
   );
 };

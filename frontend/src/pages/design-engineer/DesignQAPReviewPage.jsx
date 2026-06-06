@@ -67,12 +67,16 @@ const DesignQAPReviewPage = () => {
   const handleViewClick = (rc) => {
     const qapFiles = rc.steps?.quality?.qap_files || [];
     const legacyPath = rc.steps?.quality?.qap_path;
+    const atpFiles = rc.steps?.quality?.atp_files || [];
+    const legacyAtpPath = rc.steps?.quality?.atp_path;
     const drawings = rc.steps?.design_engineering?.approved_drawings || [];
 
     setViewModalData({
       rc,
       qapFiles,
       legacyPath,
+      atpFiles,
+      legacyAtpPath,
       drawings
     });
   };
@@ -248,7 +252,7 @@ const DesignQAPReviewPage = () => {
                     <FileText className="text-indigo-600 dark:text-indigo-400" size={15} />
                     QAP Documents
                   </h4>
-                  <span className="text-[10x]  text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                     {viewModalData.qapFiles.length + (viewModalData.legacyPath ? 1 : 0)} Files
                   </span>
                 </div>
@@ -308,6 +312,73 @@ const DesignQAPReviewPage = () => {
                 </div>
               </div>
 
+              {/* ATP Files Section */}
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                    <FileText className="text-blue-600 dark:text-blue-400" size={15} />
+                    ATP Documents
+                  </h4>
+                  <span className="text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                    {viewModalData.atpFiles.length + (viewModalData.legacyAtpPath ? 1 : 0)} Files
+                  </span>
+                </div>
+                
+                <div className="space-y-1">
+                  {viewModalData.atpFiles.length > 0 ? (
+                    viewModalData.atpFiles.map((f, idx) => (
+                      <div key={idx} className="group flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded transition-all">
+                        <div className="flex items-center gap-3">
+                          <FileText size={15} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                          <div className="flex flex-col">
+                            <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[400px]">
+                              {f.original_name || f.path.split('-').slice(2).join('-')}
+                            </span>
+                            <span className="text-[10px] text-slate-400">Uploaded by Quality</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 transition-all">
+                          <a 
+                            href={getServerUrl(f.path)} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
+                            title="View"
+                          >
+                            <Eye size={15} />
+                          </a>
+                        </div>
+                      </div>
+                    ))
+                  ) : viewModalData.legacyAtpPath ? (
+                    <div className="group flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded transition-all">
+                      <div className="flex items-center gap-3">
+                        <FileText size={15} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                        <div className="flex flex-col">
+                          <span className="text-sm text-slate-700 dark:text-slate-200">
+                            {viewModalData.legacyAtpPath.split('-').slice(2).join('-')}
+                          </span>
+                          <span className="text-[10px] text-slate-400">Main ATP Document</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 transition-all">
+                        <a 
+                          href={getServerUrl(viewModalData.legacyAtpPath)} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"
+                          title="View"
+                        >
+                          <Eye size={15} />
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400 italic py-2 text-center">No ATP files uploaded yet.</p>
+                  )}
+                </div>
+              </div>
+
               {/* Design Drawings Section */}
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -315,7 +386,7 @@ const DesignQAPReviewPage = () => {
                     <FileText className="text-emerald-600 dark:text-emerald-400" size={15} />
                     Design Drawings
                   </h4>
-                  <span className="text-[10x]  text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                     {viewModalData.drawings.length} Files
                   </span>
                 </div>

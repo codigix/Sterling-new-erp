@@ -25,10 +25,12 @@ import {
   ChevronUp,
   Zap,
   Edit,
+  AlertTriangle,
 } from "lucide-react";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import taskService from "../../utils/taskService";
 import DataTable from "../../components/ui/DataTable/DataTable";
+import { getServerUrl } from "../../utils/fileUtils";
 
 const renderOriginalDimensions = (item) => {
   if (!item) return "-";
@@ -154,6 +156,40 @@ const GRNDetailTable = ({ grnId }) => {
         }
         return <span className="text-xs">{parseFloat(Number(item.received_weight || 0).toFixed(3))} Kg</span>;
       }
+    },
+    {
+      key: "qc_reports",
+      label: "QC Documents",
+      align: "left",
+      render: (_, item) => {
+        return (
+          <div className="flex flex-col gap-1">
+            {item.common_document_path && (
+              <a
+                href={getServerUrl(item.common_document_path)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-emerald-600 hover:underline flex items-center gap-1 font-medium"
+              >
+                <Eye size={10} /> Accepted Report
+              </a>
+            )}
+            {item.rejected_document_path && (
+              <a
+                href={getServerUrl(item.rejected_document_path)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-red-600 hover:underline flex items-center gap-1 font-medium"
+              >
+                <Eye size={10} /> Rejected Report
+              </a>
+            )}
+            {!item.common_document_path && !item.rejected_document_path && (
+              <span className="text-[10px] text-slate-400 italic">No Reports</span>
+            )}
+          </div>
+        );
+      }
     }
   ];
 
@@ -261,6 +297,143 @@ const GRNDetailTable = ({ grnId }) => {
   );
 };
 
+const parseDimensionsFromText = (text, itemGroup) => {
+  if (!text) return null;
+  const upper = text.toUpperCase().trim();
+  const group = (itemGroup || "").toLowerCase();
+  
+  const numbers = [];
+  const regex = /(\d+(?:\.\d+)?)/g;
+  let match;
+  while ((match = regex.exec(upper)) !== null) {
+    numbers.push(parseFloat(match[1]));
+  }
+  
+  if (numbers.length === 0) return null;
+
+  const result = {};
+
+  if (group.includes("plate") || group.includes("block")) {
+    if (numbers.length >= 3) {
+      result.length = numbers[0];
+      result.width = numbers[1];
+      result.thickness = numbers[2];
+    } else if (numbers.length === 2) {
+      result.width = numbers[0];
+      result.thickness = numbers[1];
+    } else if (numbers.length === 1) {
+      result.thickness = numbers[0];
+    }
+  } else if (group.includes("round bar")) {
+    if (numbers.length >= 2) {
+      result.diameter = numbers[0];
+      result.length = numbers[1];
+    } else if (numbers.length === 1) {
+      result.diameter = numbers[0];
+    }
+  } else if (group.includes("pipe")) {
+    if (numbers.length >= 3) {
+      result.outer_diameter = numbers[0];
+      result.thickness = numbers[1];
+      result.length = numbers[2];
+    } else if (numbers.length === 2) {
+      result.outer_diameter = numbers[0];
+      result.length = numbers[1];
+    } else if (numbers.length === 1) {
+      result.outer_diameter = numbers[0];
+    }
+  } else if (group.includes("square bar") || group === "sq bar") {
+    if (numbers.length >= 2) {
+      result.side1 = numbers[0];
+      result.length = numbers[1];
+    } else if (numbers.length === 1) {
+      result.side1 = numbers[0];
+    }
+  } else if (group.includes("rectangular bar") || group === "rec bar") {
+    if (numbers.length >= 3) {
+      result.width = numbers[0];
+      result.thickness = numbers[1];
+      result.length = numbers[2];
+    } else if (numbers.length === 2) {
+      result.width = numbers[0];
+      result.thickness = numbers[1];
+    } else if (numbers.length === 1) {
+      result.thickness = numbers[0];
+    }
+  } else if (group.includes("square tube") || group === "sq tube") {
+    if (numbers.length >= 3) {
+      result.side1 = numbers[0];
+      result.thickness = numbers[1];
+      result.length = numbers[2];
+    } else if (numbers.length === 2) {
+      result.side1 = numbers[0];
+      result.thickness = numbers[1];
+    } else if (numbers.length === 1) {
+      result.side1 = numbers[0];
+    }
+  } else if (group.includes("rectangular tube") || group === "rec tube") {
+    if (numbers.length >= 4) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+      result.thickness = numbers[2];
+      result.length = numbers[3];
+    } else if (numbers.length === 3) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+      result.thickness = numbers[2];
+    } else if (numbers.length === 2) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+    }
+  } else if (group.includes("angle")) {
+    if (numbers.length >= 4) {
+      result.side1 = numbers[0];
+      result.side2 = numbers[1];
+      result.thickness = numbers[2];
+      result.length = numbers[3];
+    } else if (numbers.length === 3) {
+      result.side1 = numbers[0];
+      result.side2 = numbers[1];
+      result.thickness = numbers[2];
+    } else if (numbers.length === 2) {
+      result.side1 = numbers[0];
+      result.side2 = numbers[1];
+    }
+  } else if (group.includes("c channel") || group === "c-channel") {
+    if (numbers.length >= 5) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+      result.web_thickness = numbers[2];
+      result.flange_thickness = numbers[3];
+      result.length = numbers[4];
+    } else if (numbers.length === 3) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+      result.length = numbers[2];
+    } else if (numbers.length === 2) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+    }
+  } else if (group.includes("beam")) {
+    if (numbers.length >= 5) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+      result.web_thickness = numbers[2];
+      result.flange_thickness = numbers[3];
+      result.length = numbers[4];
+    } else if (numbers.length === 3) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+      result.length = numbers[2];
+    } else if (numbers.length === 2) {
+      result.width = numbers[0];
+      result.height = numbers[1];
+    }
+  }
+
+  return result;
+};
+
 const GRNProcessingPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -288,18 +461,25 @@ const GRNProcessingPage = () => {
   const calculateItemWeight = useCallback((item) => {
     const group = (item.item_group || "").toLowerCase();
     const density = parseFloat(item.density) || 0;
-    if (density <= 0) return 0;
 
-    const L = parseFloat(item.length) || 0;
-    const W = parseFloat(item.width) || 0;
-    const T = parseFloat(item.thickness) || 0;
-    const D = parseFloat(item.diameter) || 0;
-    const OD = parseFloat(item.outer_diameter) || 0;
-    const H = parseFloat(item.height) || 0;
-    const S1 = parseFloat(item.side1) || 0;
-    const S2 = parseFloat(item.side2) || 0;
-    const Tw = parseFloat(item.web_thickness) || 0;
-    const Tf = parseFloat(item.flange_thickness) || 0;
+    const getDim = (field) => {
+      const val = item[field];
+      if (val !== undefined && val !== null && val !== '') {
+        return parseFloat(val);
+      }
+      return parseFloat(item[`${field}_original`]) || 0;
+    };
+
+    const L = getDim('length');
+    const W = getDim('width');
+    const T = getDim('thickness');
+    const D = getDim('diameter');
+    const OD = getDim('outer_diameter');
+    const H = getDim('height');
+    const S1 = getDim('side1');
+    const S2 = getDim('side2');
+    const Tw = getDim('web_thickness');
+    const Tf = getDim('flange_thickness');
 
     let unitWeight = 0;
 
@@ -382,13 +562,25 @@ const GRNProcessingPage = () => {
       const response = await axios.get(`/department/inventory/purchase-orders/${id}`);
       setPoData(response.data);
       
-      const initialItems = (response.data.items || [])
+      const itemsWithDensity = await Promise.all((response.data.items || [])
         .filter(item => (parseFloat(item.quantity) - parseFloat(item.received || 0)) > 0)
-        .map(item => {
+        .map(async (item) => {
           const matName = item.material_name || item.vendor_material_name || item.itemName || item.item_name || item.name || item.description;
           const remaining = parseFloat(item.quantity) - parseFloat(item.received || 0);
           const initialUnitWeight = parseFloat(item.unit_weight) || (item.quantity > 0 ? (parseFloat(item.total_weight) || 0) / parseFloat(item.quantity) : 0);
           
+          let resolvedDensity = parseFloat(item.density) || 0;
+          if (resolvedDensity <= 0) {
+            try {
+              const densityRes = await axios.get(`/department/inventory/purchase-orders/materials/density`, { params: { name: matName } });
+              if (densityRes.data && densityRes.data.density > 0) {
+                resolvedDensity = parseFloat(densityRes.data.density);
+              }
+            } catch (err) {
+              console.error("Error fetching density for", matName, err);
+            }
+          }
+
           return {
             po_item_id: item.id,
             material_name: '', // Initially empty as requested
@@ -430,15 +622,15 @@ const GRNProcessingPage = () => {
             web_thickness: '',
             flange_thickness: '',
             material_type: item.material_type || null,
-            density: item.density || null,
+            density: resolvedDensity || null,
             material_grade: item.material_grade || null,
             items_per_packet: item.items_per_packet || item.itemsPerPacket || 1,
             vendor_items_per_packet: item.vendor_items_per_packet || item.vendorItemsPerPacket || item.items_per_packet || item.itemsPerPacket || 1,
             generate_st: true
           };
-        });
+        }));
 
-      setGrnForm(prev => ({ ...prev, items: initialItems }));
+      setGrnForm(prev => ({ ...prev, items: itemsWithDensity }));
     } catch (error) {
       console.error("Error fetching PO:", error);
       showError("Failed to load Purchase Order details");
@@ -461,9 +653,47 @@ const GRNProcessingPage = () => {
 
     newItems[idx][field] = value;
     
-    // Recalculate weight if dimensions or quantity changed
+    // Update item code and auto-parse dimensions if name changed
+    if (field === 'material_name') {
+      newItems[idx].item_code = value ? generateItemCode(value) : newItems[idx].item_code_original;
+      if (value) {
+        const parsedDims = parseDimensionsFromText(value, newItems[idx].item_group);
+        if (parsedDims) {
+          Object.keys(parsedDims).forEach(dimField => {
+            newItems[idx][dimField] = parsedDims[dimField];
+          });
+        }
+
+        // Fetch density asynchronously when material name changes
+        axios.get(`/department/inventory/purchase-orders/materials/density`, { params: { name: value } })
+          .then(res => {
+            if (res.data && res.data.density > 0) {
+              const fetchedDensity = parseFloat(res.data.density);
+              setGrnForm(prev => {
+                const updatedItems = [...prev.items];
+                if (updatedItems[idx]) {
+                  updatedItems[idx].density = fetchedDensity;
+                  const dimensionFields = ['length', 'width', 'thickness', 'diameter', 'outer_diameter', 'height', 'side1', 'side2', 'web_thickness', 'flange_thickness'];
+                  const hasNewDimensions = dimensionFields.some(f => updatedItems[idx][f] !== '');
+                  if (hasNewDimensions) {
+                    const unitWeight = calculateItemWeight(updatedItems[idx]);
+                    updatedItems[idx].unit_weight = unitWeight;
+                  }
+                  updatedItems[idx].received_weight = parseFloat((parseFloat(updatedItems[idx].received_qty || 0) * updatedItems[idx].unit_weight).toFixed(4));
+                }
+                return { ...prev, items: updatedItems };
+              });
+            }
+          })
+          .catch(err => {
+            console.error("Error fetching density:", err);
+          });
+      }
+    }
+    
+    // Recalculate weight if dimensions, name, or quantity changed
     const dimensionFields = ['length', 'width', 'thickness', 'diameter', 'outer_diameter', 'height', 'side1', 'side2', 'web_thickness', 'flange_thickness'];
-    if (['received_qty', ...dimensionFields, 'density', 'item_group'].includes(field)) {
+    if (['received_qty', 'material_name', ...dimensionFields, 'density', 'item_group'].includes(field)) {
       // Only recalculate unit weight if at least one dimension is entered
       const hasNewDimensions = dimensionFields.some(f => newItems[idx][f] !== '');
       
@@ -474,11 +704,6 @@ const GRNProcessingPage = () => {
       // If no dimensions are entered, it keeps using the initial unit_weight (from PO)
       
       newItems[idx].received_weight = parseFloat((parseFloat(newItems[idx].received_qty || 0) * newItems[idx].unit_weight).toFixed(4));
-    }
-
-    // Update item code if name changed
-    if (field === 'material_name') {
-      newItems[idx].item_code = value ? generateItemCode(value) : newItems[idx].item_code_original;
     }
 
     setGrnForm({ ...grnForm, items: newItems });
@@ -592,9 +817,27 @@ const GRNProcessingPage = () => {
 
   const handleReleaseMaterial = async (grn) => {
     try {
+      // Fetch GRN details to check for rejected items
+      const response = await axios.get(`/department/inventory/purchase-orders/receipts/${grn.id}`);
+      const details = response.data;
+
+      const hasRejected = details?.items?.some(item => 
+        (item.serials || []).some(s => s.inspection_status === 'Rejected')
+      );
+
+      const warningHtml = hasRejected 
+        ? `Do you want to release the accepted material from <strong>${grn.grnNo}</strong> for production?<br/><br/>` +
+          `<div class="p-3 bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400 rounded border border-amber-100 dark:border-amber-900/40 text-left text-xs space-y-1">` +
+            `<div class="font-semibold flex items-center gap-1.5">` +
+              `⚠️ Shortage Notice` +
+            `</div>` +
+            `<p class="mt-1">Since there are rejected items in this GRN, a shortage material request will be automatically created and sent to the Procurement department upon release.</p>` +
+          `</div>`
+        : `Do you want to release the accepted material from <strong>${grn.grnNo}</strong> for production?`;
+
       const result = await Swal.fire({
         title: "Release Material?",
-        text: `Do you want to release the accepted material from ${grn.grnNo} for production?`,
+        html: warningHtml,
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Yes, Release",

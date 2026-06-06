@@ -154,10 +154,11 @@ const QCInspectionsPage = () => {
         inspection_type: reportData.inspectionType,
         received_date: reportData.receivedDate,
         materials: reportData.materials.map(m => ({
-          material_id: m.material_id,
+          material_id: m.material_id || m.po_item_id,
           material_name: m.material_name,
           item_code: m.item_code,
           item_group: m.item_group,
+          material_grade: m.material_grade || null,
           received_qty: m.received_qty,
           unit: m.unit,
           accepted_qty: m.serials?.filter(s => s.inspection_status === 'Accepted').length || 0,
@@ -466,7 +467,10 @@ const QCInspectionsPage = () => {
           </div>
           <div>
             <p className="text-xs text-slate-900 dark:text-white">{value}</p>
-            <p className="text-xs text-slate-400">{row.item_group}</p>
+            <p className="text-xs text-slate-400">
+              {row.item_group}
+              {row.material_grade && ` • Grade: ${row.material_grade}`}
+            </p>
           </div>
         </div>
       ),
@@ -751,35 +755,51 @@ const QCInspectionsPage = () => {
                     )}
                     showSearch={false}
                     expandableRow={(item) => (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 bg-slate-50/50 dark:bg-slate-800/20 rounded">
-                        {item.serials?.map((s, sIdx) => (
-                          <div 
-                            key={sIdx}
-                            className={`p-3 rounded border flex flex-col gap-1.5 transition-all ${
-                              s.inspection_status === 'Accepted' 
-                                ? 'bg-white dark:bg-slate-900 border-green-100 dark:border-green-900/30' 
-                                : 'bg-white dark:bg-slate-900 border-red-100 dark:border-red-900/30'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-[8px]  text-slate-400  ">ST Number</span>
-                              <span className={`w-2 h-2 rounded  ${s.inspection_status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                            </div>
-                            <p className="text-xs  text-slate-700 dark:text-slate-200  truncate" title={s.serial_number}>
-                              {s.serial_number}
-                            </p>
-                            <div className="text-xs text-blue-600 font-mono">
-                              {renderDimensions(s.dimensions)}
-                            </div>
-                            <div className={`mt-1 px-2 py-0.5 rounded text-[8px]   er w-fit ${
-                              s.inspection_status === 'Accepted' 
-                                ? 'bg-green-50 text-green-600' 
-                                : 'bg-red-50 text-red-600'
-                            }`}>
-                              {s.inspection_status}
-                            </div>
-                          </div>
-                        ))}
+                      <div className="p-4 bg-slate-50 dark:bg-slate-900/50 space-y-2 rounded">
+                        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded overflow-hidden">
+                          <table className="w-full text-left">
+                            <thead className="bg-slate-50 dark:bg-slate-800/50">
+                              <tr>
+                                <th className="p-2 text-[10px] text-slate-400 text-center w-10">#</th>
+                                  <th className="p-2 text-[10px] text-slate-400">ST Code</th>
+                                  <th className="p-2 text-[10px] text-slate-400">Item Code</th>
+                                  <th className="p-2 text-[10px] text-slate-400 font-mono">Dimensions</th>
+                                  <th className="p-2 text-[10px] text-slate-400">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
+                              {item.serials?.map((s, sIdx) => (
+                                <React.Fragment key={sIdx}>
+                                  <tr className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="p-2 text-[10px] text-slate-400 text-center">{sIdx + 1}</td>
+                                    <td className="p-2 text-[10px] text-blue-600 font-medium">{s.serial_number}</td>
+                                    <td className="p-2 text-[10px] text-slate-600">{s.item_code || s.serial_number?.replace('ST-', '')}</td>
+                                    <td className="p-2 text-[10px] text-slate-500 font-mono">{renderDimensions(s.dimensions)}</td>
+                                    <td className="p-2">
+                                      <span className={`px-1.5 py-0.5 rounded text-[9px] ${
+                                        s.inspection_status === 'Accepted' ? 'bg-emerald-50 text-emerald-600' :
+                                        s.inspection_status === 'Rejected' ? 'bg-red-50 text-red-600' :
+                                        'bg-amber-50 text-amber-600'
+                                      }`}>
+                                        {s.inspection_status}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                  {s.inspection_status === 'Rejected' && s.rejection_reason && (
+                                    <tr className="bg-red-50/30">
+                                      <td colSpan="5" className="p-2">
+                                        <div className="flex items-start gap-2 text-[10px] text-red-600 italic">
+                                          <AlertTriangle size={10} className="mt-0.5" />
+                                          <span>Rejection Reason: {s.rejection_reason}</span>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )}
+                                </React.Fragment>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     )}
                   />

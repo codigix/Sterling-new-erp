@@ -15,6 +15,7 @@ const {
   sendToQuality,
   returnToDesignEngineering,
   uploadQAP,
+  uploadATP,
   getAllRootCardRequirements,
   getRootCardRequirementsById,
   updateRootCardRequirements,
@@ -72,6 +73,10 @@ router.post('/:id/return-to-design-engineering', auth, returnToDesignEngineering
 // @route   POST api/root-cards/:id/upload-qap
 // @desc    Upload QAP for a root card
 router.post('/:id/upload-qap', auth, upload.array('qap', 10), uploadQAP);
+
+// @route   POST api/root-cards/:id/upload-atp
+// @desc    Upload ATP for a root card
+router.post('/:id/upload-atp', auth, upload.array('atp', 10), uploadATP);
 
 // @route   PUT api/root-cards/:id
 // @desc    Update a root card

@@ -284,6 +284,7 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
         po.po_number,
         v.name as vendor_name,
         poi.item_group,
+        poi.material_grade as material_grade,
         gi.items_per_packet,
         gi.vendor_items_per_packet
       FROM grn_items gi
@@ -371,11 +372,10 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       const hasAccepted = itemSerials.some(s => s.inspection_status === 'Accepted');
       const hasRejected = itemSerials.some(s => s.inspection_status === 'Rejected');
       
-      const isOutsource = item.inspection_type === 'Outsource';
-      const needsAcceptedDoc = isOutsource && hasAccepted && (!itemDoc || !itemDoc.common_document_path);
-      const needsRejectedDoc = isOutsource && hasRejected && (!itemDoc || !itemDoc.rejected_document_path);
+      const needsAcceptedDoc = hasAccepted && (!itemDoc || !itemDoc.common_document_path);
+      const needsRejectedDoc = hasRejected && (!itemDoc || !itemDoc.rejected_document_path);
       
-      const isItemDone = allProcessed && (!isOutsource || (!needsAcceptedDoc && !needsRejectedDoc));
+      const isItemDone = allProcessed && !needsAcceptedDoc && !needsRejectedDoc;
 
       return {
         ...item,
@@ -461,6 +461,14 @@ exports.finalizeGRNQC = async (req, res) => {
 
 exports.createFinalQCReport = async (req, res) => {
     const { grn_id, grn_number, project_name, vendor_name, inspection_type, received_date, materials } = req.body;
+    
+    // Ensure column exists
+    try {
+        await db.query("ALTER TABLE quality_final_report_items ADD COLUMN material_grade VARCHAR(100) DEFAULT NULL AFTER item_group");
+    } catch (err) {
+        // Safe to ignore if column exists
+    }
+
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
@@ -480,13 +488,14 @@ exports.createFinalQCReport = async (req, res) => {
             for (const item of materials) {
                 const [itemResult] = await connection.query(
                     `INSERT INTO quality_final_report_items 
-                     (report_id, material_name, item_code, item_group, material_id, received_qty, unit, accepted_qty, rejected_qty, accepted_report, rejected_report, length, width, thickness, diameter, outer_diameter, height, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                     (report_id, material_name, item_code, item_group, material_grade, material_id, received_qty, unit, accepted_qty, rejected_qty, accepted_report, rejected_report, length, width, thickness, diameter, outer_diameter, height, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         reportId, 
                         item.material_name, 
                         item.item_code,
                         item.item_group,
+                        item.material_grade || null,
                         item.material_id, 
                         item.received_qty, 
                         item.unit, 
@@ -557,6 +566,13 @@ exports.createFinalQCReport = async (req, res) => {
 
 exports.getFinalQCReports = async (req, res) => {
     try {
+        // Ensure column exists
+        try {
+            await db.query("ALTER TABLE quality_final_report_items ADD COLUMN material_grade VARCHAR(100) DEFAULT NULL AFTER item_group");
+        } catch (err) {
+            // Safe to ignore if column exists
+        }
+
         const { rootCardId } = req.query;
         let query = 'SELECT * FROM quality_final_reports';
         let queryParams = [];
@@ -573,13 +589,36 @@ exports.getFinalQCReports = async (req, res) => {
             queryParams = [rootCardId];
         }
 
+        // Self-heal material_id references for historical reports
+        try {
+            await db.query(`
+                UPDATE quality_final_report_items qfri
+                JOIN quality_final_reports qfr ON qfri.report_id = qfr.id
+                JOIN grns g ON qfr.grn_id = g.id
+                JOIN grn_items gi ON gi.grn_id = g.id AND gi.item_code = qfri.item_code
+                SET qfri.material_id = gi.po_item_id
+                WHERE qfri.material_id IS NULL
+            `);
+        } catch (err) {
+            console.log("Self-heal error for report items:", err.message);
+        }
+
         const [rows] = await db.query(`${query} ORDER BY created_at DESC`, queryParams);
         
         // Fetch items for each report
         const reports = [];
         for (const report of rows) {
             const [items] = await db.query(
-                'SELECT id, material_name, item_code, item_group, received_qty, unit, accepted_qty, rejected_qty, length, width, thickness, diameter, outer_diameter, height, density, web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2 FROM quality_final_report_items WHERE report_id = ?',
+                `SELECT qfri.id, qfri.material_name, qfri.item_code, qfri.item_group, 
+                        COALESCE(qfri.material_grade, poi.material_grade) as material_grade, 
+                        qfri.received_qty, qfri.unit, qfri.accepted_qty, qfri.rejected_qty, 
+                        qfri.accepted_report, qfri.rejected_report, qfri.length, qfri.width, 
+                        qfri.thickness, qfri.diameter, qfri.outer_diameter, qfri.height, 
+                        qfri.density, qfri.web_thickness, qfri.flange_thickness, qfri.side1, 
+                        qfri.side2, qfri.side_s, qfri.side_s1, qfri.side_s2 
+                 FROM quality_final_report_items qfri
+                 LEFT JOIN purchase_order_items poi ON qfri.material_id = poi.id
+                 WHERE qfri.report_id = ?`,
                 [report.id]
             );
 

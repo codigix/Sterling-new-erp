@@ -17,7 +17,8 @@ const {
     createPurchaseReceipt,
     getPurchaseReceipts,
     getPurchaseReceiptById,
-    getInventorySerials
+    getInventorySerials,
+    getMaterialDensity
 } = require('../controllers/purchaseOrderController');
 
 const auth = require('../middleware/authMiddleware');
@@ -62,6 +63,7 @@ router.get('/receipts/all', auth, getPurchaseReceipts);
 router.get('/receipts/serials', auth, getInventorySerials);
 router.get('/receipts/:id', auth, getPurchaseReceiptById);
 router.post('/receipts', auth, createPurchaseReceipt);
+router.get('/materials/density', auth, getMaterialDensity);
 router.get('/:id', auth, getPurchaseOrderById);
 router.post('/', auth, createPurchaseOrder);
 router.put('/:id', auth, updatePurchaseOrder);

@@ -604,6 +604,71 @@ const uploadQAP = async (req, res) => {
   }
 };
 
+const uploadATP = async (req, res) => {
+  const { id } = req.params;
+  const files = req.files || (req.file ? [req.file] : []);
+  
+  if (files.length === 0) {
+    return res.status(400).json({ message: 'No files uploaded' });
+  }
+
+  try {
+    // Resolve internal ID if public_id is provided
+    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+
+    const [existingStep] = await db.query(
+      'SELECT step_data FROM root_card_steps WHERE root_card_id = ? AND step_key = ?',
+      [internalId, 'quality']
+    );
+
+    let stepData = {};
+    if (existingStep.length > 0) {
+      stepData = existingStep[0].step_data || {};
+    }
+
+    if (!Array.isArray(stepData.atp_files)) {
+      stepData.atp_files = [];
+    }
+
+    // Add all uploaded files to the list
+    files.forEach(file => {
+      stepData.atp_files.push({
+        path: file.filename,
+        uploaded_at: new Date(),
+        uploaded_by: req.user?.id,
+        original_name: file.originalname
+      });
+    });
+
+    const lastFile = files[files.length - 1];
+    stepData.atp_path = lastFile.filename;
+    stepData.atp_uploaded_at = new Date();
+    stepData.atp_uploaded_by = req.user?.id;
+
+    await db.query(
+      `INSERT INTO root_card_steps (root_card_id, step_key, step_data, status)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE 
+       step_data = VALUES(step_data),
+       updated_at = CURRENT_TIMESTAMP`,
+      [internalId, 'quality', JSON.stringify(stepData), 'in_progress']
+    );
+
+    res.json({ 
+      success: true, 
+      message: `${files.length} ATP files uploaded successfully`, 
+      atpFiles: stepData.atp_files
+    });
+  } catch (error) {
+    console.error('Error uploading ATP:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 const getAllRootCardRequirements = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM root_cards');
@@ -722,6 +787,7 @@ module.exports = {
   sendToQuality,
   returnToDesignEngineering,
   uploadQAP,
+  uploadATP,
   getAllRootCardRequirements,
   getRootCardRequirementsById,
   updateRootCardRequirements,

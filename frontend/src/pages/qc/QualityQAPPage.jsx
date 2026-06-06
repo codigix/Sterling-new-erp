@@ -32,6 +32,7 @@ const QualityQAPPage = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedRow, setSelectedRow] = useState(null);
   const [viewModalData, setViewModalData] = useState(null);
+  const [uploadType, setUploadType] = useState("qap");
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -64,6 +65,15 @@ const QualityQAPPage = () => {
 
   const onUploadQAPClick = (rc) => {
     setSelectedRow(rc);
+    setUploadType("qap");
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const onUploadATPClick = (rc) => {
+    setSelectedRow(rc);
+    setUploadType("atp");
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -72,12 +82,16 @@ const QualityQAPPage = () => {
   const handleViewClick = (rc) => {
     const qapFiles = rc.steps?.quality?.qap_files || [];
     const legacyPath = rc.steps?.quality?.qap_path;
+    const atpFiles = rc.steps?.quality?.atp_files || [];
+    const legacyAtpPath = rc.steps?.quality?.atp_path;
     const drawings = rc.steps?.design_engineering?.approved_drawings || [];
 
     setViewModalData({
       rc,
       qapFiles,
       legacyPath,
+      atpFiles,
+      legacyAtpPath,
       drawings
     });
   };
@@ -88,21 +102,25 @@ const QualityQAPPage = () => {
 
     const formData = new FormData();
     files.forEach(file => {
-      formData.append("qap", file);
+      formData.append(uploadType, file);
     });
 
     try {
       setUploading(true);
       const rootCardIdForApi = selectedRow.public_id || selectedRow.id;
-      await axios.post(`/root-cards/${rootCardIdForApi}/upload-qap`, formData, {
+      const endpoint = uploadType === 'qap'
+        ? `/root-cards/${rootCardIdForApi}/upload-qap`
+        : `/root-cards/${rootCardIdForApi}/upload-atp`;
+
+      await axios.post(endpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       
-      showSuccess(`${files.length} QAP file(s) uploaded successfully`);
+      showSuccess(`${files.length} ${uploadType.toUpperCase()} file(s) uploaded successfully`);
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
-      console.error("Error uploading QAP:", error);
-      showError(error.response?.data?.message || "Failed to upload QAP");
+      console.error(`Error uploading ${uploadType.toUpperCase()}:`, error);
+      showError(error.response?.data?.message || `Failed to upload ${uploadType.toUpperCase()}`);
     } finally {
       setUploading(false);
       setSelectedRow(null);
@@ -206,6 +224,29 @@ const QualityQAPPage = () => {
       }
     },
     {
+      header: "ATP Files",
+      accessor: "id",
+      className: "text-center",
+      render: (_, rc) => {
+        const atpFiles = rc.steps?.quality?.atp_files || [];
+        const legacyPath = rc.steps?.quality?.atp_path;
+        
+        const isLegacyDuplicate = atpFiles.some(f => f.path === legacyPath);
+        const showLegacyCount = legacyPath && !isLegacyDuplicate ? 1 : 0;
+        
+        const total = atpFiles.length + showLegacyCount;
+        
+        return (
+          <div className="flex flex-col items-center">
+            <span className={`text-[10px] font-medium ${total > 0 ? 'text-indigo-600' : 'text-slate-400'}`}>
+              {total > 0 ? `${total} File(s)` : 'None'}
+            </span>
+            {total > 0 && <FileText size={12} className="text-indigo-400 mt-0.5" />}
+          </div>
+        );
+      }
+    },
+    {
       header: "Actions",
       accessor: "id",
       className: "text-right",
@@ -213,6 +254,10 @@ const QualityQAPPage = () => {
         const qapFiles = rc.steps?.quality?.qap_files || [];
         const isPending = rc.status === 'QUALITY_QAP_PENDING';
         const hasFiles = qapFiles.length > 0 || !!rc.steps?.quality?.qap_path;
+        const atpFiles = rc.steps?.quality?.atp_files || [];
+        const hasAtpFiles = atpFiles.length > 0 || !!rc.steps?.quality?.atp_path;
+
+        const isUploadingThisRow = uploading && selectedRow && (String(selectedRow.id) === String(rc.id) || String(selectedRow.public_id) === String(rc.public_id));
         
         return (
           <div className="flex items-center justify-end gap-2">
@@ -221,37 +266,82 @@ const QualityQAPPage = () => {
               variant="ghost" 
               onClick={() => handleViewClick(rc)}
               className="text-blue-600 hover:bg-blue-50 p-1.5 h-auto"
+              title="View Overview"
             >
               <Eye size={16} />
             </Button>
 
             {isPending ? (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => onUploadQAPClick(rc)}
-                className="flex items-center gap-1.5 text-xs py-1 h-auto"
-              >
-                <Upload size={14} />
-                {hasFiles ? 'Upload More' : 'Upload QAP'}
-              </Button>
-            ) : (
-              <div className="flex items-center gap-1 text-emerald-600 text-[10px]  bg-emerald-50 px-2 py-1 rounded">
-                <CheckCircle size={12} />
-                READY
-              </div>
-            )}
+              <>
+                {isUploadingThisRow && uploadType === 'qap' ? (
+                  <div 
+                    style={{ backgroundColor: '#fef3c7' }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-amber-700 border border-amber-200 rounded text-xs h-8"
+                  >
+                    <Loader2 size={12} className="animate-spin text-amber-700" />
+                    <span>Uploading...</span>
+                  </div>
+                ) : (
+                  !hasFiles && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => onUploadQAPClick(rc)}
+                      style={{ backgroundColor: '#fef3c7' }}
+                      className="flex items-center gap-1.5 text-xs py-1.5 px-3 h-auto text-amber-700 border border-amber-300 font-medium hover:bg-amber-100 transition-colors"
+                      disabled={uploading}
+                    >
+                      <Upload size={14} />
+                      Upload QAP
+                    </Button>
+                  )
+                )}
 
-            {hasFiles && isPending && (
-              <Button 
-                size="sm" 
-                onClick={() => handleSendToDesign(rc)}
-                className="flex items-center gap-1.5 text-xs py-1 h-auto bg-blue-600 hover:bg-blue-700"
-                disabled={uploading}
-              >
-                <Send size={14} />
-                Finalize
-              </Button>
+                {hasFiles && (
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={() => handleSendToDesign(rc)}
+                    style={{ backgroundColor: '#d1fae5' }}
+                    className="flex items-center gap-1.5 text-xs py-1.5 px-3 h-auto text-emerald-700 border border-emerald-300 font-medium hover:bg-emerald-100 transition-colors"
+                    disabled={uploading}
+                  >
+                    <Send size={14} />
+                    Finalize
+                  </Button>
+                )}
+              </>
+            ) : (
+              <>
+                {isUploadingThisRow && uploadType === 'atp' ? (
+                  <div 
+                    style={{ backgroundColor: '#cffafe' }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-cyan-700 border border-cyan-200 rounded text-xs h-8"
+                  >
+                    <Loader2 size={12} className="animate-spin text-cyan-700" />
+                    <span>Uploading...</span>
+                  </div>
+                ) : (
+                  !hasAtpFiles && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => onUploadATPClick(rc)}
+                      style={{ backgroundColor: '#cffafe' }}
+                      className="flex items-center gap-1.5 text-xs py-1.5 px-3 h-auto text-cyan-700 border border-cyan-300 font-medium hover:bg-cyan-100 transition-colors"
+                      disabled={uploading}
+                    >
+                      <Upload size={14} />
+                      Upload ATP
+                    </Button>
+                  )
+                )}
+
+                <div className="flex items-center gap-1 text-emerald-600 text-[10px]  bg-emerald-50 px-2 py-1 rounded">
+                  <CheckCircle size={12} />
+                  READY
+                </div>
+              </>
             )}
           </div>
         );
@@ -265,10 +355,10 @@ const QualityQAPPage = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl  text-slate-900 dark:text-white flex items-center gap-2">
-            QAP Management
+            QAP & ATP Management
           </h1>
           <p className="text-slate-500 text-xs mt-0.5">
-            Manage Quality Assurance Plans for pending route cards
+            Manage Quality Assurance Plans and Acceptance Test Procedures for pending route cards
           </p>
         </div>
         <Button 
@@ -290,11 +380,39 @@ const QualityQAPPage = () => {
         accept=".pdf,.doc,.docx,.xls,.xlsx"
       />
 
-      
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4 items-end">
+        <div className="flex-1 w-full max-w-md">
+          <SearchableSelect
+            label="Select Route Card"
+            placeholder="Search and select route card..."
+            options={rootCardOptions}
+            value={selectedRootCardId}
+            onChange={setSelectedRootCardId}
+            className="w-full"
+          />
+        </div>
+        <div className="flex gap-2 w-full md:w-auto">
+          {selectedRootCardId && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedRootCardId("")}
+              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
+              Clear Filter
+            </Button>
+          )}
+          <div className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-400 text-sm whitespace-nowrap">
+            <Filter size={15} />
+            <span className='text-xs'>All Route Cards</span>
+          </div>
+        </div>
+      </div>
 
       <DataTable 
         columns={columns}
-        data={rootCards.filter(rc => !selectedRootCardId || String(rc.id) === String(selectedRootCardId))}
+        data={rootCards.filter(rc => !selectedRootCardId || String(rc.public_id || rc.id) === String(selectedRootCardId))}
         loading={loading}
         searchPlaceholder="Search project, route card or PO..."
       />
@@ -304,35 +422,35 @@ const QualityQAPPage = () => {
         <Modal 
           isOpen={!!viewModalData} 
           onClose={() => setViewModalData(null)}
-          title="QAP & Drawings Overview"
+          title="QAP, ATP & Drawings Overview"
           size="lg"
         >
           <ModalBody>
             <div className="space-y-6">
               {/* Project Info */}
               <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
-                <h4 className="text-xs  text-slate-900 dark:text-white  tracking-wider mb-2">Project Details</h4>
+                <h4 className="text-xs  text-slate-900 dark:text-white uppercase tracking-wider mb-2 font-semibold">Project Details</h4>
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>
                     <p className="text-slate-500">Project Name</p>
-                    <p className=" text-slate-700 dark:text-slate-300">{viewModalData.rc.project_name}</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-300">{viewModalData.rc.project_name}</p>
                   </div>
                   <div>
                     <p className="text-slate-500">Route Card No.</p>
-                    <p className=" text-slate-700 dark:text-slate-300">{viewModalData.rc.root_card_number}</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-300">{viewModalData.rc.root_card_number}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* QAP Files */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs  text-slate-900 dark:text-white  tracking-wider flex items-center gap-2">
+                    <h4 className="text-xs  text-slate-900 dark:text-white font-semibold uppercase tracking-wider flex items-center gap-2">
                       <FileText size={14} className="text-blue-600" />
                       QAP Documents
                     </h4>
-                    <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full ">
+                    <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
                       {viewModalData.qapFiles.length + (viewModalData.legacyPath && !viewModalData.qapFiles.some(f => f.path === viewModalData.legacyPath) ? 1 : 0)} Files
                     </span>
                   </div>
@@ -362,7 +480,7 @@ const QualityQAPPage = () => {
                         <div key={idx} className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm">
                           <div className="flex items-center gap-2 overflow-hidden">
                             <FileText size={14} className="text-slate-400 shrink-0" />
-                            <span className="text-xs text-slate-600 dark:text-slate-400 truncate">{file.name || `QAP File ${idx + 1}`}</span>
+                            <span className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">{file.original_name || file.name || `QAP File ${idx + 1}`}</span>
                           </div>
                           <a 
                             href={getServerUrl(file.path)} 
@@ -383,14 +501,72 @@ const QualityQAPPage = () => {
                   </div>
                 </div>
 
+                {/* ATP Files */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs  text-slate-900 dark:text-white font-semibold uppercase tracking-wider flex items-center gap-2">
+                      <FileText size={14} className="text-indigo-600" />
+                      ATP Documents
+                    </h4>
+                    <span className="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+                      {viewModalData.atpFiles.length + (viewModalData.legacyAtpPath && !viewModalData.atpFiles.some(f => f.path === viewModalData.legacyAtpPath) ? 1 : 0)} Files
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                    {viewModalData.legacyAtpPath && !viewModalData.atpFiles.some(f => f.path === viewModalData.legacyAtpPath) && (
+                      <div className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm group hover:border-indigo-200 transition-colors">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <div className="p-1.5 bg-slate-100 dark:bg-slate-700 rounded">
+                            <FileText size={14} className="text-slate-400 shrink-0" />
+                          </div>
+                          <span className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">Legacy ATP Document</span>
+                        </div>
+                        <a 
+                          href={getServerUrl(viewModalData.legacyAtpPath)} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                        >
+                          <Download size={14} />
+                        </a>
+                      </div>
+                    )}
+                    
+                    {viewModalData.atpFiles.length > 0 ? (
+                      viewModalData.atpFiles.map((file, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <FileText size={14} className="text-slate-400 shrink-0" />
+                            <span className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">{file.original_name || file.name || `ATP File ${idx + 1}`}</span>
+                          </div>
+                          <a 
+                            href={getServerUrl(file.path)} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="p-1 text-indigo-600 hover:bg-indigo-50 rounded"
+                          >
+                            <Download size={14} />
+                          </a>
+                        </div>
+                      ))
+                    ) : !viewModalData.legacyAtpPath && (
+                      <div className="text-center py-8 bg-slate-50 dark:bg-slate-900/50 rounded border border-dashed border-slate-200">
+                        <AlertCircle size={20} className="mx-auto text-slate-300 mb-2" />
+                        <p className="text-[10px] text-slate-500">No ATP files uploaded yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Approved Drawings */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs  text-slate-900 dark:text-white  tracking-wider flex items-center gap-2">
+                    <h4 className="text-xs  text-slate-900 dark:text-white font-semibold uppercase tracking-wider flex items-center gap-2">
                       <Eye size={14} className="text-emerald-600" />
                       Approved Drawings
                     </h4>
-                    <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full ">
+                    <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">
                       {viewModalData.drawings.length} Files
                     </span>
                   </div>
@@ -401,10 +577,10 @@ const QualityQAPPage = () => {
                         <div key={idx} className="flex items-center justify-between p-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded shadow-sm">
                           <div className="flex items-center gap-2 overflow-hidden">
                             <Eye size={14} className="text-slate-400 shrink-0" />
-                            <span className="text-xs text-slate-600 dark:text-slate-400 truncate">{file.name || `Drawing ${idx + 1}`}</span>
+                            <span className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">{file.name || `Drawing ${idx + 1}`}</span>
                           </div>
                           <a 
-                            href={getServerUrl(file.path)} 
+                            href={getServerUrl(file.file_path || file.path)} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="p-1 text-emerald-600 hover:bg-emerald-50 rounded"

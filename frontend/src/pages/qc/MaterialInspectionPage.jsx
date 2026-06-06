@@ -22,7 +22,8 @@ import {
   RotateCcw,
   CheckCheck,
   MessageSquare,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import { showSuccess, showError } from "../../utils/toastUtils";
@@ -31,7 +32,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { getServerUrl } from "../../utils/fileUtils";
 import DataTable from "../../components/ui/DataTable/DataTable";
 
-const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApproveAll, onRejectAll, onUpload }) => {
+const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApproveAll, onRejectAll, onUpload, uploadingReports = {} }) => {
   const isOutsource = item.inspection_type === 'Outsource';
   const hasAccepted = item.serials?.some(s => s.inspection_status === 'Accepted');
   const hasRejected = item.serials?.some(s => s.inspection_status === 'Rejected');
@@ -58,16 +59,23 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
               {hasAccepted && (
                 <div className="flex items-center gap-2">
                   {!item.common_document_path ? (
-                    <label className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] border border-blue-100 cursor-pointer hover:bg-blue-100 transition-all">
-                      <Upload size={12} />
-                      Upload Accepted Report
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted', item.inspection_type)}
-                      />
-                    </label>
+                    uploadingReports[`${item.grn_id}-${item.po_item_id}-Accepted`] ? (
+                      <span className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] border border-blue-100 opacity-70 cursor-not-allowed">
+                        <Loader2 size={12} className="animate-spin" />
+                        Upload Accepted Report
+                      </span>
+                    ) : (
+                      <label className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] border border-blue-100 cursor-pointer hover:bg-blue-100 transition-all">
+                        <Upload size={12} />
+                        Upload Accepted Report
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted', item.inspection_type)}
+                        />
+                      </label>
+                    )
                   ) : (
                     <div className="flex items-center gap-1">
                       <a 
@@ -79,15 +87,21 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
                         <Eye size={12} />
                         Accepted Report
                       </a>
-                      <label className="p-1 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" title="Update Report">
-                        <RotateCcw size={12} />
-                        <input 
-                          type="file" 
-                          className="hidden" 
-                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted', item.inspection_type)}
-                        />
-                      </label>
+                      {uploadingReports[`${item.grn_id}-${item.po_item_id}-Accepted`] ? (
+                        <span className="p-1 text-blue-600 flex items-center justify-center cursor-not-allowed">
+                          <Loader2 size={12} className="animate-spin" />
+                        </span>
+                      ) : (
+                        <label className="p-1 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors flex items-center justify-center" title="Update Report">
+                          <RotateCcw size={12} />
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                            onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Accepted', item.inspection_type)}
+                          />
+                        </label>
+                      )}
                     </div>
                   )}
                 </div>
@@ -96,16 +110,23 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
               {hasRejected && (
                 <div className="flex items-center gap-2">
                   {!item.rejected_document_path ? (
-                    <label className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] border border-red-100 cursor-pointer hover:bg-red-100 transition-all">
-                      <Upload size={12} />
-                      Upload Rejected Report
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected', item.inspection_type)}
-                      />
-                    </label>
+                    uploadingReports[`${item.grn_id}-${item.po_item_id}-Rejected`] ? (
+                      <span className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] border border-red-100 opacity-70 cursor-not-allowed">
+                        <Loader2 size={12} className="animate-spin" />
+                        Upload Rejected Report
+                      </span>
+                    ) : (
+                      <label className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] border border-red-100 cursor-pointer hover:bg-red-100 transition-all">
+                        <Upload size={12} />
+                        Upload Rejected Report
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected', item.inspection_type)}
+                        />
+                      </label>
+                    )
                   ) : (
                     <div className="flex items-center gap-1">
                       <a 
@@ -117,15 +138,21 @@ const SerialInspectionTable = ({ item, onUpdateStatus, onRevertStatus, onApprove
                         <Eye size={12} />
                         Rejected Report
                       </a>
-                      <label className="p-1 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" title="Update Report">
-                        <RotateCcw size={12} />
-                        <input 
-                          type="file" 
-                          className="hidden" 
-                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected', item.inspection_type)}
-                        />
-                      </label>
+                      {uploadingReports[`${item.grn_id}-${item.po_item_id}-Rejected`] ? (
+                        <span className="p-1 text-red-600 flex items-center justify-center cursor-not-allowed">
+                          <Loader2 size={12} className="animate-spin" />
+                        </span>
+                      ) : (
+                        <label className="p-1 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors flex items-center justify-center" title="Update Report">
+                          <RotateCcw size={12} />
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                            onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0], item.grn_id, item.po_item_id, 'Rejected', item.inspection_type)}
+                          />
+                        </label>
+                      )}
                     </div>
                   )}
                 </div>
@@ -226,6 +253,7 @@ const MaterialInspectionPage = () => {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingRC, setLoadingRC] = useState(true);
+  const [uploadingReports, setUploadingReports] = useState({});
   const [expandedItem, setExpandedItem] = useState(null);
   const [rejectionModal, setRejectionModal] = useState({
     isOpen: false,
@@ -433,8 +461,9 @@ const MaterialInspectionPage = () => {
   };
 
   const handleConsolidatedUpload = async (file, grnId, poItemId, type, inspectionType) => {
+    const uploadKey = `${grnId}-${poItemId}-${type}`;
     try {
-      setLoading(true);
+      setUploadingReports(prev => ({ ...prev, [uploadKey]: true }));
       const formData = new FormData();
       formData.append(type === 'Accepted' ? 'accepted_doc' : 'rejected_doc', file);
       formData.append('grn_id', grnId);
@@ -448,12 +477,12 @@ const MaterialInspectionPage = () => {
       });
 
       showSuccess(`${type} items report uploaded successfully`);
-      fetchMaterials(selectedRootCardId, grnNumber);
+      await fetchMaterials(selectedRootCardId, grnNumber, true); // Silent reload to prevent full-table flash
     } catch (error) {
       console.error("Error uploading consolidated document:", error);
       showError("Failed to upload report");
     } finally {
-      setLoading(false);
+      setUploadingReports(prev => ({ ...prev, [uploadKey]: false }));
     }
   };
 
@@ -487,8 +516,13 @@ const MaterialInspectionPage = () => {
             <Package size={15} />
           </div>
           <div>
-            <h4 className="text-xs  text-slate-900">{val}</h4>
-            <p className="text-[10px] text-slate-500 ">{row.item_group}</p>
+            <h4 className="text-xs font-medium text-slate-900">{val}</h4>
+            <p className="text-[10px] text-slate-500">{row.item_group}</p>
+            {row.material_grade && (
+              <p className="text-[10px] text-indigo-600 font-medium mt-0.5">
+                Grade: {row.material_grade}
+              </p>
+            )}
           </div>
         </div>
       )
@@ -617,6 +651,7 @@ const MaterialInspectionPage = () => {
             onRevertStatus={handleRevertStatus}
             onApproveAll={handleApproveAll}
             onUpload={handleConsolidatedUpload}
+            uploadingReports={uploadingReports}
           />
         )}
       />

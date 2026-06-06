@@ -182,81 +182,164 @@ export default function Step2_DesignEngineering({ readOnly = false }) {
         </div>
       )}
 
-      {/* QAP Section for Review */}
-      {(state.formData?.qualityCheck?.qap_path || (state.formData?.qualityCheck?.qap_files && state.formData.qualityCheck.qap_files.length > 0)) && (
+      {/* QAP & ATP Section for Review */}
+      {(state.formData?.qualityCheck?.qap_path || 
+        (state.formData?.qualityCheck?.qap_files && state.formData.qualityCheck.qap_files.length > 0) ||
+        state.formData?.qualityCheck?.atp_path ||
+        (state.formData?.qualityCheck?.atp_files && state.formData.qualityCheck.atp_files.length > 0)) && (
         <FormSection
-          title="Project QAP / ATP"
-          subtitle="Quality Assurance Plan uploaded by Quality Department"
+          title="Project QAP & ATP Documents"
+          subtitle="Quality Assurance Plan & Acceptance Test Procedure documents uploaded by Quality Department"
           icon={ClipboardCheck}
         >
-          <div className="space-y-3">
-            {state.formData.qualityCheck.qap_files && state.formData.qualityCheck.qap_files.length > 0 ? (
-              state.formData.qualityCheck.qap_files.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded border border-indigo-100 dark:border-indigo-800">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
-                      <FileText className="text-indigo-500" size={16} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* QAP Section */}
+            <div>
+              <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2 tracking-wider">QAP Documents</h4>
+              {state.formData?.qualityCheck?.qap_files && state.formData.qualityCheck.qap_files.length > 0 ? (
+                <div className="space-y-3">
+                  {state.formData.qualityCheck.qap_files.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded border border-indigo-100 dark:border-indigo-800">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                          <FileText className="text-indigo-500" size={14} />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[150px]">
+                            {file.original_name || file.path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
+                          </p>
+                          <p className="text-[10px] text-slate-400">Quality upload</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <a 
+                          href={getServerUrl(file.path)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1.5 bg-white dark:bg-slate-800 text-blue-600 hover:bg-blue-50 rounded border border-blue-100"
+                        >
+                          <Eye size={12} />
+                        </a>
+                        <button
+                          onClick={() => downloadFile(file.path, file.original_name || 'Project_QAP.pdf')}
+                          className="p-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded"
+                        >
+                          <Download size={12} />
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm  text-slate-700 dark:text-slate-300">
-                        {file.original_name || file.path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
+                  ))}
+                </div>
+              ) : state.formData?.qualityCheck?.qap_path ? (
+                <div className="flex items-center justify-between p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded border border-indigo-100 dark:border-indigo-800">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                      <FileText className="text-indigo-500" size={14} />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[150px]">
+                        {state.formData.qualityCheck.qap_path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
                       </p>
-                      <p className="text-xs text-slate-400">
-                        Uploaded by Quality Department
-                      </p>
+                      <p className="text-[10px] text-slate-400">Quality upload</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <a 
-                      href={getServerUrl(file.path)}
+                      href={getServerUrl(state.formData.qualityCheck.qap_path)}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 text-blue-600 hover:bg-blue-50 text-xs rounded transition-colors border border-blue-100"
+                      className="p-1.5 bg-white dark:bg-slate-800 text-blue-600 hover:bg-blue-50 rounded border border-blue-100"
                     >
-                      <Eye size={14} /> View
+                      <Eye size={12} />
                     </a>
                     <button
-                      onClick={() => downloadFile(file.path, file.original_name || 'Project_QAP.pdf')}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 text-xs rounded transition-colors"
+                      onClick={() => downloadFile(state.formData.qualityCheck.qap_path, 'Project_QAP.pdf')}
+                      className="p-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded"
                     >
-                      <Download size={14} /> Download
+                      <Download size={12} />
                     </button>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded border border-indigo-100 dark:border-indigo-800">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
-                    <FileText className="text-indigo-500" size={16} />
+              ) : (
+                <div className="text-center py-3 border border-dashed border-slate-200 rounded">
+                  <p className="text-xs text-slate-400">No QAP document uploaded yet</p>
+                </div>
+              )}
+            </div>
+
+            {/* ATP Section */}
+            <div>
+              <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2 tracking-wider">ATP Documents</h4>
+              {state.formData?.qualityCheck?.atp_files && state.formData.qualityCheck.atp_files.length > 0 ? (
+                <div className="space-y-3">
+                  {state.formData.qualityCheck.atp_files.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded border border-indigo-100 dark:border-indigo-800">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                          <FileText className="text-indigo-500" size={14} />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[150px]">
+                            {file.original_name || file.path.split('-').slice(2).join('-') || 'Project_ATP.pdf'}
+                          </p>
+                          <p className="text-[10px] text-slate-400">Quality upload</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <a 
+                          href={getServerUrl(file.path)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1.5 bg-white dark:bg-slate-800 text-blue-600 hover:bg-blue-50 rounded border border-blue-100"
+                        >
+                          <Eye size={12} />
+                        </a>
+                        <button
+                          onClick={() => downloadFile(file.path, file.original_name || 'Project_ATP.pdf')}
+                          className="p-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded"
+                        >
+                          <Download size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : state.formData?.qualityCheck?.atp_path ? (
+                <div className="flex items-center justify-between p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded border border-indigo-100 dark:border-indigo-800">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                      <FileText className="text-indigo-500" size={14} />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[150px]">
+                        {state.formData.qualityCheck.atp_path.split('-').slice(2).join('-') || 'Project_ATP.pdf'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">Quality upload</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm  text-slate-700 dark:text-slate-300">
-                      {state.formData.qualityCheck.qap_path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      Uploaded by Quality Department
-                    </p>
+                  <div className="flex items-center gap-1">
+                    <a 
+                      href={getServerUrl(state.formData.qualityCheck.atp_path)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-1.5 bg-white dark:bg-slate-800 text-blue-600 hover:bg-blue-50 rounded border border-blue-100"
+                    >
+                      <Eye size={12} />
+                    </a>
+                    <button
+                      onClick={() => downloadFile(state.formData.qualityCheck.atp_path, 'Project_ATP.pdf')}
+                      className="p-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded"
+                    >
+                      <Download size={12} />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <a 
-                    href={getServerUrl(state.formData.qualityCheck.qap_path)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 text-blue-600 hover:bg-blue-50 text-xs rounded transition-colors border border-blue-100"
-                  >
-                    <Eye size={14} /> View
-                  </a>
-                  <button
-                    onClick={() => downloadFile(state.formData.qualityCheck.qap_path, 'Project_QAP.pdf')}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 text-xs rounded transition-colors"
-                  >
-                    <Download size={14} /> Download
-                  </button>
+              ) : (
+                <div className="text-center py-3 border border-dashed border-slate-200 rounded">
+                  <p className="text-xs text-slate-400">No ATP document uploaded yet</p>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </FormSection>
       )}

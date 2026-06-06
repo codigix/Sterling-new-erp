@@ -131,98 +131,185 @@ export default function Step6_QualityCheck() {
   }
 
   return (
-    <div className="space-y-4">
-      {/* QAP Upload Section */}
-      <div className="bg-white dark:bg-slate-800 rounded  border border-slate-200 dark:border-slate-700 p-6">
+    <div className="space-y-4">      {/* QAP & ATP Upload Section */}
+      <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center">
               <FileCode size={20} />
             </div>
             <div>
-              <h3 className="text-lg  text-slate-900 dark:text-white">Project QAP / ATP</h3>
-              <p className="text-sm text-slate-500">Quality Assurance Plan for this route card</p>
+              <h3 className="text-lg text-slate-900 dark:text-white font-medium">Project QAP & ATP</h3>
+              <p className="text-sm text-slate-500">Quality Assurance Plan and Acceptance Test Procedure documents for this route card</p>
             </div>
           </div>
         </div>
 
-        {qualityStepData.qap_files && qualityStepData.qap_files.length > 0 ? (
-          <div className="space-y-3">
-            {qualityStepData.qap_files.map((file, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
-                    <FileText className="text-indigo-500" size={16} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* QAP Documents */}
+          <div>
+            <h4 className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-2">QAP Documents</h4>
+            {qualityStepData.qap_files && qualityStepData.qap_files.length > 0 ? (
+              <div className="space-y-3">
+                {qualityStepData.qap_files.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                        <FileText className="text-indigo-500" size={14} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[200px]">
+                          {file.original_name || file.path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
+                        </p>
+                        <p className="text-[10px] text-slate-400">
+                          {new Date(file.uploaded_at || qualityStepData.qap_uploaded_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <a 
+                        href={getServerUrl(file.path)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        title="View Document"
+                      >
+                        <Eye size={16} />
+                      </a>
+                      <button
+                        onClick={() => downloadFile(file.path, file.original_name || 'Project_QAP.pdf')}
+                        className="p-1 text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                        title="Download QAP"
+                      >
+                        <Download size={16} />
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm  text-slate-700 dark:text-slate-300">
-                      {file.original_name || file.path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
+                ))}
+              </div>
+            ) : qualityStepData.qap_path ? (
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                    <FileText className="text-indigo-500" size={14} />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[200px]">
+                      {qualityStepData.qap_path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
                     </p>
-                    <p className="text-xs text-slate-400">
-                      Uploaded on {new Date(file.uploaded_at || qualityStepData.qap_uploaded_at).toLocaleDateString()}
+                    <p className="text-[10px] text-slate-400">
+                      {new Date(qualityStepData.qap_uploaded_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <a 
-                    href={getServerUrl(file.path)}
+                    href={getServerUrl(qualityStepData.qap_path)}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                     title="View Document"
                   >
-                    <Eye size={18} />
+                    <Eye size={16} />
                   </a>
                   <button
-                    onClick={() => downloadFile(file.path, file.original_name || 'Project_QAP.pdf')}
-                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                    onClick={() => downloadFile(qualityStepData.qap_path, 'Project_QAP.pdf')}
+                    className="p-1 text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
                     title="Download QAP"
                   >
-                    <Download size={18} />
+                    <Download size={16} />
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : qualityStepData.qap_path ? (
-          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded bg-white dark:bg-slate-800 border border-slate-200">
-                <FileText className="text-indigo-500" size={16} />
+            ) : (
+              <div className="text-center py-4 border border-dashed border-slate-200 dark:border-slate-700 rounded">
+                <p className="text-xs text-slate-400">No QAP document uploaded yet</p>
               </div>
-              <div>
-                <p className="text-sm  text-slate-700 dark:text-slate-300">
-                  {qualityStepData.qap_path.split('-').slice(2).join('-') || 'Project_QAP.pdf'}
-                </p>
-                <p className="text-xs text-slate-400">
-                  Uploaded on {new Date(qualityStepData.qap_uploaded_at).toLocaleDateString()}
-                </p>
+            )}
+          </div>
+
+          {/* ATP Documents */}
+          <div>
+            <h4 className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-2">ATP Documents</h4>
+            {qualityStepData.atp_files && qualityStepData.atp_files.length > 0 ? (
+              <div className="space-y-3">
+                {qualityStepData.atp_files.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                        <FileText className="text-indigo-500" size={14} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[200px]">
+                          {file.original_name || file.path.split('-').slice(2).join('-') || 'Project_ATP.pdf'}
+                        </p>
+                        <p className="text-[10px] text-slate-400">
+                          {new Date(file.uploaded_at || qualityStepData.atp_uploaded_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <a 
+                        href={getServerUrl(file.path)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        title="View Document"
+                      >
+                        <Eye size={16} />
+                      </a>
+                      <button
+                        onClick={() => downloadFile(file.path, file.original_name || 'Project_ATP.pdf')}
+                        className="p-1 text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                        title="Download ATP"
+                      >
+                        <Download size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <a 
-                href={getServerUrl(qualityStepData.qap_path)}
-                target="_blank"
-                rel="noreferrer"
-                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                title="View Document"
-              >
-                <Eye size={18} />
-              </a>
-              <button
-                onClick={() => downloadFile(qualityStepData.qap_path, 'Project_QAP.pdf')}
-                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
-                title="Download QAP"
-              >
-                <Download size={18} />
-              </button>
-            </div>
+            ) : qualityStepData.atp_path ? (
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <div className="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200">
+                    <FileText className="text-indigo-500" size={14} />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[200px]">
+                      {qualityStepData.atp_path.split('-').slice(2).join('-') || 'Project_ATP.pdf'}
+                    </p>
+                    <p className="text-[10px] text-slate-400">
+                      {new Date(qualityStepData.atp_uploaded_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <a 
+                    href={getServerUrl(qualityStepData.atp_path)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    title="View Document"
+                  >
+                    <Eye size={16} />
+                  </a>
+                  <button
+                    onClick={() => downloadFile(qualityStepData.atp_path, 'Project_ATP.pdf')}
+                    className="p-1 text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                    title="Download ATP"
+                  >
+                    <Download size={16} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4 border border-dashed border-slate-200 dark:border-slate-700 rounded">
+                <p className="text-xs text-slate-400">No ATP document uploaded yet</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-center py-6 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded">
-            <p className="text-sm text-slate-400">No QAP document uploaded yet</p>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Header with Search */}

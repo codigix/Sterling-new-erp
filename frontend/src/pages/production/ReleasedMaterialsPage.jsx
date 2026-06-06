@@ -356,7 +356,18 @@ const ReleasedMaterialsPage = () => {
                           const uom = (item.uom || "").toLowerCase();
                           
                           // Sum up total quantity from serials
-                          const totalQty = (serials || []).reduce((sum, s) => sum + parseFloat(s.total_weight || s.quantity || 1), 0);
+                          const totalQty = (serials || []).reduce((sum, s) => {
+                            const uomLower = uom.toLowerCase();
+                            const groupLower = group.toLowerCase();
+                            if (groupLower.includes("paint") || uomLower === "l" || uomLower === "liter" || uomLower === "liters") {
+                              return sum + parseFloat(s.total_weight || s.quantity || 0);
+                            } else if (groupLower.includes("bought out")) {
+                              return sum + parseFloat(s.quantity || s.total_weight || 1);
+                            } else {
+                              // For steel profiles/plates (Nos, Kg): 1 piece per serial
+                              return sum + 1;
+                            }
+                          }, 0);
 
                           let unitLabel = "Pieces";
                           if (group.includes("bought out")) unitLabel = item.uom || "Packets";

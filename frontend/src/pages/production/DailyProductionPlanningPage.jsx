@@ -118,7 +118,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
     startPeriod: "AM",
     endTime: "",
     endPeriod: "PM",
-    breakTime: "60",
+    breakTime: "0",
     mcr_scrap: "",
     remarks: "",
     status: "Pending"
@@ -326,7 +326,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
           endPeriod: endObj.period,
           remarks: assignment.remarks || "",
           mcr_scrap: assignment.mcr_scrap || "",
-          breakTime: assignment.break_time || "60",
+          breakTime: assignment.break_time || "0",
           status: assignment.status || "Pending"
         });
       }
@@ -486,7 +486,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       startPeriod: "AM",
       endTime: "",
       endPeriod: "PM",
-      breakTime: "60",
+      breakTime: "0",
       mcr_scrap: "",
       remarks: "",
       status: "Pending"
@@ -509,7 +509,7 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
       endPeriod: endObj.period,
       remarks: assignment.remarks || "",
       mcr_scrap: assignment.mcr_scrap || "",
-      breakTime: assignment.break_time || "60",
+      breakTime: assignment.break_time || "0",
       status: assignment.status || "Pending"
     };
 

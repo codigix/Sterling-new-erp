@@ -5,6 +5,7 @@ import { useRootCardContext } from "../hooks";
 import axios from "../../../../utils/api";
 import DataTable from "../../../ui/DataTable/DataTable";
 import Badge from "../../../ui/Badge";
+import { getServerUrl } from "../../../../utils/fileUtils";
 
 const GRNDetailTable = ({ grnId }) => {
   const [details, setDetails] = useState(null);
@@ -41,6 +42,7 @@ const GRNDetailTable = ({ grnId }) => {
               <th className="p-2 text-[10px] text-slate-400  text-center">Ordered</th>
               <th className="p-2 text-[10px] text-slate-400  text-center">Received</th>
               <th className="p-2 text-[10px] text-slate-400 ">Unit</th>
+              <th className="p-2 text-[10px] text-slate-400 ">QC Documents</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -53,6 +55,33 @@ const GRNDetailTable = ({ grnId }) => {
                 <td className="p-2 text-center text-xs text-slate-500">{item.ordered_qty}</td>
                 <td className="p-2 text-center text-xs font-semibold text-blue-600">{item.received_qty}</td>
                 <td className="p-2 text-xs text-slate-500">{item.unit}</td>
+                <td className="p-2">
+                  <div className="flex flex-col gap-1">
+                    {item.common_document_path && (
+                      <a
+                        href={getServerUrl(item.common_document_path)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] text-emerald-600 hover:underline flex items-center gap-1 font-medium"
+                      >
+                        <Eye size={10} /> Accepted Report
+                      </a>
+                    )}
+                    {item.rejected_document_path && (
+                      <a
+                        href={getServerUrl(item.rejected_document_path)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] text-red-600 hover:underline flex items-center gap-1 font-medium"
+                      >
+                        <Eye size={10} /> Rejected Report
+                      </a>
+                    )}
+                    {!item.common_document_path && !item.rejected_document_path && (
+                      <span className="text-[10px] text-slate-400 italic">No Reports</span>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

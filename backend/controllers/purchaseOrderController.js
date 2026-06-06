@@ -3,6 +3,13 @@ const { sendEmail } = require("../utils/emailService");
 const fs = require("fs");
 const path = require("path");
 
+const getFinancialYear = (dateStr) => {
+  const date = dateStr ? new Date(dateStr) : new Date();
+  const year = date.getFullYear();
+  const isNewFY = date.getMonth() >= 3; // April is index 3
+  return isNewFY ? year : year - 1;
+};
+
 const getPurchaseOrders = async (req, res) => {
   try {
     const { search, status, inventory_status, root_card_id } = req.query;
@@ -89,6 +96,44 @@ const getPurchaseOrderById = async (req, res) => {
       "SELECT * FROM purchase_order_items WHERE purchase_order_id = ?",
       [po.id],
     );
+
+    if (po.root_card_id) {
+      for (const item of items) {
+        if (!item.density || parseFloat(item.density) <= 0) {
+          // Try exact match first
+          let [bomMatRows] = await db.query(
+            `SELECT bm.density 
+             FROM bom_materials bm 
+             JOIN boms b ON bm.bom_id = b.id 
+             WHERE b.root_card_id = ? AND (bm.item_name = ? OR bm.vendor_item_name = ?) AND bm.density > 0 
+             LIMIT 1`,
+            [po.root_card_id, item.material_name, item.material_name]
+          );
+
+          // If no exact match, try a normalized match (ignoring spaces, multiplication signs, and casing)
+          if (bomMatRows.length === 0) {
+            const normalizedName = (item.material_name || "").replace(/[\s×xX*]/g, "").toLowerCase();
+            const [allBomMats] = await db.query(
+              `SELECT bm.item_name, bm.vendor_item_name, bm.density 
+               FROM bom_materials bm 
+               JOIN boms b ON bm.bom_id = b.id 
+               WHERE b.root_card_id = ? AND bm.density > 0`,
+              [po.root_card_id]
+            );
+            const matchedMat = allBomMats.find(bm => {
+              const name1 = (bm.item_name || "").replace(/[\s×xX*]/g, "").toLowerCase();
+              const name2 = (bm.vendor_item_name || "").replace(/[\s×xX*]/g, "").toLowerCase();
+              return name1 === normalizedName || name2 === normalizedName;
+            });
+            if (matchedMat) {
+              item.density = matchedMat.density;
+            }
+          } else {
+            item.density = bomMatRows[0].density;
+          }
+        }
+      }
+    }
     po.items = items;
 
     const [attachments] = await db.query(
@@ -1011,10 +1056,10 @@ const createPurchaseReceipt = async (req, res) => {
       // Generate ST numbers if requested
       if (generate_st) {
         const itemCode = finalItemCode;
+        const currentYear = getFinancialYear(posting_date);
+        const stPrefix = `ST-${currentYear}`;
 
-        const stPrefix = `ST-${itemCode}`;
-
-        // 3. Get next sequence for this item pattern
+        // 3. Get next sequence for this financial year pattern
         const [seqResult] = await connection.query(
           `SELECT MAX(CAST(SUBSTRING_INDEX(serial_number, '-', -1) AS UNSIGNED)) as max_seq 
                      FROM inventory_serials WHERE serial_number LIKE ?`,
@@ -1028,20 +1073,9 @@ const createPurchaseReceipt = async (req, res) => {
         const loopCount = isNos ? Math.floor(parseFloat(received_qty)) : 1;
 
         for (let i = 0; i < loopCount; i++) {
-          let itemCodePerPiece = itemCode;
-          let serial_number = "";
-
-          if (isNos) {
-            const sequenceStr = (startSeq + i).toString().padStart(3, "0");
-            itemCodePerPiece = `${itemCode}-${sequenceStr}`;
-            serial_number = `ST-${itemCodePerPiece}`;
-          } else {
-            // For non-Nos, we create one ST number for the entire batch.
-            // To ensure uniqueness across different GRNs and different items in same GRN,
-            // we use both the GRN suffix and the PO Item ID.
-            const grnSuffix = grn_number.split("-").pop(); // e.g. 0001
-            serial_number = `ST-${itemCode}-${grnSuffix}-${po_item_id}`;
-          }
+          const sequenceStr = (startSeq + i).toString().padStart(3, "0");
+          const serial_number = `${stPrefix}-${sequenceStr}`;
+          const itemCodePerPiece = isNos ? `${itemCode}-${sequenceStr}` : itemCode;
 
           await connection.query(
             `INSERT INTO inventory_serials (
@@ -1182,9 +1216,10 @@ const getPurchaseReceiptById = async (req, res) => {
 
     const [items] = await db.query(
       `
-            SELECT gri.*, poi.item_group
+            SELECT gri.*, poi.item_group, qi.common_document_path, qi.rejected_document_path
             FROM grn_items gri
             LEFT JOIN purchase_order_items poi ON gri.po_item_id = poi.id
+            LEFT JOIN quality_inspections qi ON qi.grn_id = gri.grn_id AND qi.po_item_id = gri.po_item_id
             WHERE gri.grn_id = ?
         `,
       [id],
@@ -1582,8 +1617,9 @@ const releaseGRNMaterial = async (req, res) => {
     for (const item of itemStats) {
       // ONLY deduct and issue the accepted quantity
       if (item.accepted_qty > 0) {
-        const released_weight =
-          parseFloat(item.accepted_qty) * (parseFloat(item.unit_weight) || 0);
+        const unitWeight = parseFloat(item.unit_weight) || 
+          (parseFloat(item.received_qty) > 0 ? (parseFloat(item.received_weight) / parseFloat(item.received_qty)) : 0);
+        const released_weight = parseFloat(item.accepted_qty) * unitWeight;
 
         await connection.query(
           `INSERT INTO stock_entry_items (
@@ -1862,6 +1898,107 @@ const releaseGRNMaterial = async (req, res) => {
   }
 };
 
+const getMaterialDensity = async (req, res) => {
+  const { name } = req.query;
+  if (!name) {
+    return res.status(400).json({ message: "Material name is required" });
+  }
+
+  try {
+    // 1. Try exact match in bom_materials first
+    let [bomMatRows] = await db.query(
+      `SELECT density 
+       FROM bom_materials 
+       WHERE (item_name = ? OR vendor_item_name = ?) AND density > 0 
+       LIMIT 1`,
+      [name, name]
+    );
+
+    if (bomMatRows.length > 0) {
+      return res.json({ density: parseFloat(bomMatRows[0].density) });
+    }
+
+    // 2. Try exact match in material_request_items
+    let [mrMatRows] = await db.query(
+      `SELECT density 
+       FROM material_request_items 
+       WHERE item_name = ? AND density > 0 
+       LIMIT 1`,
+      [name]
+    );
+
+    if (mrMatRows.length > 0) {
+      return res.json({ density: parseFloat(mrMatRows[0].density) });
+    }
+
+    // 3. Try exact match in inventory_serials
+    let [serialRows] = await db.query(
+      `SELECT density 
+       FROM inventory_serials 
+       WHERE item_name = ? AND density > 0 
+       LIMIT 1`,
+      [name]
+    );
+
+    if (serialRows.length > 0) {
+      return res.json({ density: parseFloat(serialRows[0].density) });
+    }
+
+    // 4. Try exact match in stock_ledger
+    let [ledgerRows] = await db.query(
+      `SELECT density 
+       FROM stock_ledger 
+       WHERE material_name = ? AND density > 0 
+       LIMIT 1`,
+      [name]
+    );
+
+    if (ledgerRows.length > 0) {
+      return res.json({ density: parseFloat(ledgerRows[0].density) });
+    }
+
+    // 5. If no exact match, try normalized match in bom_materials
+    const normalizedName = name.replace(/[\s×xX*]/g, "").toLowerCase();
+    const [allBomMats] = await db.query(
+      `SELECT DISTINCT item_name, vendor_item_name, density 
+       FROM bom_materials 
+       WHERE density > 0`
+    );
+
+    const matchedMat = allBomMats.find(bm => {
+      const name1 = (bm.item_name || "").replace(/[\s×xX*]/g, "").toLowerCase();
+      const name2 = (bm.vendor_item_name || "").replace(/[\s×xX*]/g, "").toLowerCase();
+      return name1 === normalizedName || name2 === normalizedName;
+    });
+
+    if (matchedMat) {
+      return res.json({ density: parseFloat(matchedMat.density) });
+    }
+
+    // 6. Try normalized match in material_request_items
+    const [allMrMats] = await db.query(
+      `SELECT DISTINCT item_name, density 
+       FROM material_request_items 
+       WHERE density > 0`
+    );
+
+    const matchedMrMat = allMrMats.find(mr => {
+      const name1 = (mr.item_name || "").replace(/[\s×xX*]/g, "").toLowerCase();
+      return name1 === normalizedName;
+    });
+
+    if (matchedMrMat) {
+      return res.json({ density: parseFloat(matchedMrMat.density) });
+    }
+
+    // If absolutely not found, return 0 (no default fallback!)
+    return res.json({ density: 0 });
+  } catch (error) {
+    console.error("Error fetching material density:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getPurchaseOrders,
   getPurchaseOrderById,
@@ -1881,4 +2018,5 @@ module.exports = {
   addGRNToStock,
   approveGRN,
   releaseGRNMaterial,
+  getMaterialDensity,
 };
