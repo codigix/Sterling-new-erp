@@ -124,6 +124,20 @@ const DepartmentTasksPage = () => {
     setEditingTask(null);
   };
 
+  const isCompletedLate = (row) => {
+    const isCompleted = row.status === 'Completed' || row.status === 'completed';
+    if (!isCompleted) return false;
+    if (!row.dueDate || !row.updated_at) return false;
+    
+    const due = new Date(row.dueDate);
+    due.setHours(0, 0, 0, 0);
+    
+    const completedDate = new Date(row.updated_at);
+    completedDate.setHours(0, 0, 0, 0);
+    
+    return completedDate > due;
+  };
+
   const columns = [
     {
       label: "Task Title",
@@ -188,12 +202,48 @@ const DepartmentTasksPage = () => {
     {
       label: "Status",
       key: "status",
-      render: (value) => (
-        <span className="flex items-center text-xs  text-slate-700">
-          <CheckCircle2 size={14} className="mr-1 text-slate-400" />
-          {value || "Pending"}
-        </span>
-      ),
+      render: (value, row) => {
+        const isCompleted = value === 'Completed' || value === 'completed';
+        if (isCompleted) {
+          const isLate = isCompletedLate(row);
+          if (isLate) {
+            return (
+              <span className="flex items-center text-xs font-semibold text-amber-600">
+                <CheckCircle2 size={14} className="mr-1 text-amber-500 animate-pulse" />
+                Completed (Delayed)
+              </span>
+            );
+          }
+          return (
+            <span className="flex items-center text-xs font-semibold text-green-600">
+              <CheckCircle2 size={14} className="mr-1 text-green-500" />
+              Completed
+            </span>
+          );
+        }
+
+        // Non-completed: check if overdue (due date in the past)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const due = new Date(row.dueDate);
+        due.setHours(0, 0, 0, 0);
+        const isOverdue = due < today;
+        if (isOverdue) {
+          return (
+            <span className="flex items-center text-xs font-semibold text-red-600">
+              <AlertCircle size={14} className="mr-1 text-red-500 animate-pulse" />
+              Overdue
+            </span>
+          );
+        }
+
+        return (
+          <span className="flex items-center text-xs text-slate-700">
+            <Clock size={14} className="mr-1 text-slate-400" />
+            {value || "Pending"}
+          </span>
+        );
+      },
     },
     {
       label: "Actions",
@@ -255,6 +305,39 @@ const DepartmentTasksPage = () => {
     }
   };
 
+  const getTaskCounts = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let completed = 0;
+    let pending = 0;
+    let overdue = 0;
+
+    tasks.forEach(t => {
+      const isCompleted = t.status === 'Completed' || t.status === 'completed';
+      if (isCompleted) {
+        completed++;
+      } else {
+        const hasDueDate = !!t.dueDate;
+        if (hasDueDate) {
+          const due = new Date(t.dueDate);
+          due.setHours(0, 0, 0, 0);
+          if (due < today) {
+            overdue++;
+          } else {
+            pending++;
+          }
+        } else {
+          pending++;
+        }
+      }
+    });
+
+    return { total: tasks.length, completed, pending, overdue };
+  };
+
+  const { total, completed, pending, overdue } = getTaskCounts();
+
   return (
     <div className=" space-y-2 p-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -276,7 +359,7 @@ const DepartmentTasksPage = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-white">
           <CardContent className=" flex items-center gap-4">
             <div className=" bg-blue-100 rounded">
@@ -284,7 +367,7 @@ const DepartmentTasksPage = () => {
             </div>
             <div>
               <p className="text-sm text-slate-500 ">Total Tasks</p>
-              <h3 className="text-xl  text-slate-900">{tasks.length}</h3>
+              <h3 className="text-xl  text-slate-900">{total}</h3>
             </div>
           </CardContent>
         </Card>
@@ -295,9 +378,7 @@ const DepartmentTasksPage = () => {
             </div>
             <div>
               <p className="text-sm text-slate-500 ">Pending Tasks</p>
-              <h3 className="text-xl  text-slate-900">
-                {tasks.filter(t => t.status !== 'Completed').length}
-              </h3>
+              <h3 className="text-xl  text-slate-900">{pending}</h3>
             </div>
           </CardContent>
         </Card>
@@ -308,9 +389,18 @@ const DepartmentTasksPage = () => {
             </div>
             <div>
               <p className="text-sm text-slate-500 ">Completed</p>
-              <h3 className="text-xl  text-slate-900">
-                {tasks.filter(t => t.status === 'Completed').length}
-              </h3>
+              <h3 className="text-xl  text-slate-900">{completed}</h3>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-l-4 border-red-500 shadow-sm">
+          <CardContent className=" flex items-center gap-4">
+            <div className=" bg-red-100 rounded p-2">
+              <AlertCircle className="text-red-600 animate-pulse" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 ">Overdue Tasks</p>
+              <h3 className="text-xl font-bold text-slate-900 text-red-600">{overdue}</h3>
             </div>
           </CardContent>
         </Card>

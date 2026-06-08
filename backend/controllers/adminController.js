@@ -18,31 +18,7 @@ const getDashboardStats = async (req, res) => {
     const [userStats] = await db.query('SELECT COUNT(*) as total FROM users');
     const [poStats] = await db.query('SELECT COUNT(*) as total FROM purchase_orders');
 
-    // Department Analytics - improved to include all departments from users
-    const [deptAnalytics] = await db.query(`
-      SELECT 
-        d.name,
-        COUNT(DISTINCT u.id) as employeeCount,
-        COUNT(dpu.id) as taskCount
-      FROM (
-        SELECT 'Admin' as name UNION SELECT 'Design Engineer' UNION SELECT 'Production' UNION 
-        SELECT 'Procurement' UNION SELECT 'Quality' UNION SELECT 'Inventory' UNION SELECT 'Accountant'
-      ) d
-      LEFT JOIN users u ON (
-        CASE 
-          WHEN u.department = 'admin' THEN 'Admin'
-          WHEN u.department = 'design_engineer' THEN 'Design Engineer'
-          WHEN u.department = 'production' THEN 'Production'
-          WHEN u.department = 'procurement' THEN 'Procurement'
-          WHEN u.department = 'quality' THEN 'Quality'
-          WHEN u.department = 'inventory' THEN 'Inventory'
-          WHEN u.department = 'accountant' THEN 'Accountant'
-          ELSE u.department 
-        END = d.name
-      )
-      LEFT JOIN daily_production_updates dpu ON u.id = dpu.operator_id
-      GROUP BY d.name
-    `);
+
 
     // Monthly Trends (last 6 months) - improved grouping
     const [monthlyTrends] = await db.query(`
@@ -113,6 +89,12 @@ const getDashboardStats = async (req, res) => {
       LIMIT 6
     `);
 
+    // Get all admin assigned departmental tasks for filtering and stats
+    const [tasks] = await db.query(`
+      SELECT id, department_id, status, due_date
+      FROM department_tasks
+    `);
+
     res.json({
       kpis: {
         total_projects: projectStats[0].total,
@@ -128,11 +110,11 @@ const getDashboardStats = async (req, res) => {
         critical: projectStats[0].critical,
         completed: projectStats[0].completed
       },
-      deptAnalytics,
       monthlyTrends,
       materialConsumption,
       operationStats,
-      recentProjects
+      recentProjects,
+      tasks
     });
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
@@ -519,8 +501,194 @@ const sendResetLinkEmail = async (req, res) => {
   }
 };
 
+/**
+ * GET /admin/dept-progress
+ * ───────────────────────────────────────────────────────────────────────────
+ * Actual Sterling ERP workflow:
+ *  1. Admin          → Creates Route Card
+ *  2. Design Eng     → Uploads design drawings, sends to Quality
+ *  3. Quality        → Uploads QAP + ATP files
+ *  4. Design Eng     → Reviews & approves QAP, sends RC to Production
+ *  5. Production     → Views drawings, creates BOM, raises Material Request
+ *  6. Procurement    → RFQ → vendor quotation → PO → vendor
+ *  7. Inventory      → Material received, GRN, ST numbers, stock added
+ *  8. Quality        → Material QC inspection, documents, report → Inventory
+ *  9. Inventory      → Reviews report, releases material to Production
+ * 10. Production     → Phase-1 ops (Cutting/Welding), daily plans, reports
+ * 11. Quality        → Phase-1 QC inspection → back to Production
+ * 12. Production     → Phase-2 ops (Painting/Surface Prep)
+ * 13. Quality        → Final QC inspection → approves
+ * 14. Admin          → Project ready for dispatch
+ * ───────────────────────────────────────────────────────────────────────────
+ * Quality appears in 3 rounds (QAP + Material QC + Production QC) → each round ~33%
+ * Production appears in 2 rounds (BOM/MR + Phase-1/Phase-2 ops) → each round ~50%
+ */
+const getDeptProgressByProject = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        id,
+        project_name,
+        project_code,
+        status,
+        priority,
+        updated_at
+      FROM root_cards
+      ORDER BY updated_at DESC
+      LIMIT 30
+    `);
+
+    // ─── Exact per-status department progress ──────────────────────────────────
+    // Keys: Admin | Design Engineer | Quality | Production | Procurement | Inventory
+    // Values: % of that department's TOTAL project involvement completed.
+    //
+    // Quality has 3 rounds → QAP(33%) + Material QC(66%) + Production QC(100%)
+    // Production has 2 rounds → BOM/MR(50%) + Phase-1+2 ops(100%)
+    const D = {
+      RC_CREATED:                  { Admin:10,  'Design Engineer':0,   Quality:0,  Production:0,  Procurement:0,   Inventory:0   },
+      DESIGN_IN_PROGRESS:          { Admin:100, 'Design Engineer':40,  Quality:0,  Production:0,  Procurement:0,   Inventory:0   },
+      // Design sent drawings to Quality; Quality uploads QAP + ATP
+      DESIGN_APPROVED:             { Admin:100, 'Design Engineer':80,  Quality:33, Production:0,  Procurement:0,   Inventory:0   },
+      // Design reviewed & approved QAP, RC sent to Production
+      BOM_PREPARATION:             { Admin:100, 'Design Engineer':100, Quality:33, Production:20, Procurement:0,   Inventory:0   },
+      MATERIAL_PLANNING:           { Admin:100, 'Design Engineer':100, Quality:33, Production:35, Procurement:0,   Inventory:0   },
+      // Material Request raised, sent to Procurement
+      MATERIAL_RELEASED:           { Admin:100, 'Design Engineer':100, Quality:33, Production:40, Procurement:10,  Inventory:0   },
+      MATERIAL_PARTIALLY_RELEASED: { Admin:100, 'Design Engineer':100, Quality:33, Production:40, Procurement:20,  Inventory:0   },
+      PARTIALLY_RELEASED:          { Admin:100, 'Design Engineer':100, Quality:33, Production:40, Procurement:20,  Inventory:0   },
+      // Procurement: RFQ → vendor quotation in system → PO created & sent
+      PURCHASE_ORDER_RELEASED:     { Admin:100, 'Design Engineer':100, Quality:33, Production:40, Procurement:80,  Inventory:0   },
+      PO_RELEASED:                 { Admin:100, 'Design Engineer':100, Quality:33, Production:40, Procurement:80,  Inventory:0   },
+      PROCUREMENT_IN_PROGRESS:     { Admin:100, 'Design Engineer':100, Quality:33, Production:40, Procurement:90,  Inventory:0   },
+      // Inventory: material arrived, GRN created, ST numbers assigned, added to stock
+      MATERIAL_RECEIVED:           { Admin:100, 'Design Engineer':100, Quality:33, Production:40, Procurement:100, Inventory:30  },
+      // Quality Round 2: material QC inspection started
+      MATERIAL_QC_PENDING:         { Admin:100, 'Design Engineer':100, Quality:55, Production:40, Procurement:100, Inventory:60  },
+      // Quality: inspection done, docs uploaded, report sent to Inventory; Inventory releasing material
+      MATERIAL_QC_APPROVED:        { Admin:100, 'Design Engineer':100, Quality:66, Production:40, Procurement:100, Inventory:85  },
+      SEND_TO_PRODUCTION:          { Admin:100, 'Design Engineer':100, Quality:66, Production:45, Procurement:100, Inventory:100 },
+      SEND_TO_PRODUCTION_FOR_COMPLETE_FINAL_PRODUCTION:
+                                   { Admin:100, 'Design Engineer':100, Quality:66, Production:50, Procurement:100, Inventory:100 },
+      // Production: Phase-1 ops (Cutting, Welding…), daily plans, operator assign, reports
+      PRODUCTION_IN_PROGRESS:      { Admin:100, 'Design Engineer':100, Quality:66, Production:65, Procurement:100, Inventory:100 },
+      // Phase-1 complete; sent to Quality for QC inspection
+      DIMENSIONAL_QC_PENDING:      { Admin:100, 'Design Engineer':100, Quality:80, Production:75, Procurement:100, Inventory:100 },
+      // Quality Phase-1 QC done; RC back to Production for Phase-2
+      DIMENSIONAL_QC_APPROVED:     { Admin:100, 'Design Engineer':100, Quality:85, Production:80, Procurement:100, Inventory:100 },
+      // Production: Phase-2 ops (Painting, Surface Prep…)
+      PAINTING_IN_PROGRESS:        { Admin:100, 'Design Engineer':100, Quality:85, Production:90, Procurement:100, Inventory:100 },
+      // Phase-2 complete; sent to Quality for Final QC
+      FINAL_QC_PENDING:            { Admin:100, 'Design Engineer':100, Quality:92, Production:100, Procurement:100, Inventory:100 },
+      // Final QC approved — all departments done
+      FINAL_QC_APPROVED:           { Admin:100, 'Design Engineer':100, Quality:100, Production:100, Procurement:100, Inventory:100 },
+      READY_FOR_DELIVERY:          { Admin:100, 'Design Engineer':100, Quality:100, Production:100, Procurement:100, Inventory:100 },
+      READY_FOR_DISPATCH:          { Admin:100, 'Design Engineer':100, Quality:100, Production:100, Procurement:100, Inventory:100 },
+      DISPATCHED:                  { Admin:100, 'Design Engineer':100, Quality:100, Production:100, Procurement:100, Inventory:100 },
+      DELIVERED:                   { Admin:100, 'Design Engineer':100, Quality:100, Production:100, Procurement:100, Inventory:100 },
+      ON_HOLD:                     { Admin:10,  'Design Engineer':0,   Quality:0,  Production:0,  Procurement:0,   Inventory:0   },
+      CANCELLED:                   { Admin:0,   'Design Engineer':0,   Quality:0,  Production:0,  Procurement:0,   Inventory:0   },
+    };
+
+    // Overall project % for progress bar
+    const OVERALL = {
+      RC_CREATED:3, DESIGN_IN_PROGRESS:10, DESIGN_APPROVED:18,
+      BOM_PREPARATION:25, MATERIAL_PLANNING:32, MATERIAL_RELEASED:38,
+      MATERIAL_PARTIALLY_RELEASED:40, PARTIALLY_RELEASED:40,
+      PURCHASE_ORDER_RELEASED:48, PO_RELEASED:48,
+      PROCUREMENT_IN_PROGRESS:54, MATERIAL_RECEIVED:60,
+      MATERIAL_QC_PENDING:65, MATERIAL_QC_APPROVED:70,
+      SEND_TO_PRODUCTION:73, SEND_TO_PRODUCTION_FOR_COMPLETE_FINAL_PRODUCTION:75,
+      PRODUCTION_IN_PROGRESS:80, DIMENSIONAL_QC_PENDING:85,
+      DIMENSIONAL_QC_APPROVED:88, PAINTING_IN_PROGRESS:92,
+      FINAL_QC_PENDING:95, FINAL_QC_APPROVED:98,
+      READY_FOR_DELIVERY:100, READY_FOR_DISPATCH:100,
+      DISPATCHED:100, DELIVERED:100, ON_HOLD:3, CANCELLED:0,
+    };
+
+    // Normalise: uppercase + underscores (handles spaces, hyphens, mixed case)
+    const normalise = (s) => (s || '').toUpperCase().trim().replace(/\s+/g, '_').replace(/-/g, '_');
+
+    // Keyword fallback for any DB status not explicitly in the table above
+    const keywordFallback = (n) => {
+      if (n.includes('DELIVER') || n.includes('DISPATCH'))
+        return { Admin:100,'Design Engineer':100,Quality:100,Production:100,Procurement:100,Inventory:100 };
+      if (n.includes('FINAL_QC'))
+        return { Admin:100,'Design Engineer':100,Quality:92, Production:100,Procurement:100,Inventory:100 };
+      if (n.includes('PAINTING') || n.includes('SURFACE'))
+        return { Admin:100,'Design Engineer':100,Quality:85, Production:90, Procurement:100,Inventory:100 };
+      if (n.includes('DIMENSIONAL') || n.includes('DIM_QC'))
+        return { Admin:100,'Design Engineer':100,Quality:80, Production:75, Procurement:100,Inventory:100 };
+      if (n.includes('PRODUCTION') || n.includes('SEND_TO_PROD'))
+        return { Admin:100,'Design Engineer':100,Quality:66, Production:60, Procurement:100,Inventory:100 };
+      if (n.includes('MATERIAL_QC') || n.includes('QC_INSP'))
+        return { Admin:100,'Design Engineer':100,Quality:55, Production:40, Procurement:100,Inventory:65 };
+      if (n.includes('MATERIAL_RECEIV'))
+        return { Admin:100,'Design Engineer':100,Quality:33, Production:40, Procurement:100,Inventory:30 };
+      if (n.includes('PROCUREMENT') || n.includes('PURCHASE') || n.includes('PO_'))
+        return { Admin:100,'Design Engineer':100,Quality:33, Production:40, Procurement:70, Inventory:0  };
+      if (n.includes('MATERIAL_PLAN') || n.includes('MATERIAL_RELEAS') || n.includes('PARTIAL'))
+        return { Admin:100,'Design Engineer':100,Quality:33, Production:38, Procurement:15, Inventory:0  };
+      if (n.includes('BOM'))
+        return { Admin:100,'Design Engineer':100,Quality:33, Production:20, Procurement:0,  Inventory:0  };
+      if (n.includes('DESIGN'))
+        return { Admin:100,'Design Engineer':60, Quality:10, Production:0,  Procurement:0,  Inventory:0  };
+      return   { Admin:10, 'Design Engineer':0,  Quality:0,  Production:0,  Procurement:0,  Inventory:0  };
+    };
+
+    const overallKeyword = (n) => {
+      if (n.includes('DELIVER') || n.includes('DISPATCH')) return 100;
+      if (n.includes('FINAL_QC'))  return 96;
+      if (n.includes('PAINTING'))  return 92;
+      if (n.includes('DIMENSIONAL')) return 85;
+      if (n.includes('PRODUCTION') || n.includes('SEND_TO_PROD')) return 78;
+      if (n.includes('MATERIAL_QC')) return 67;
+      if (n.includes('MATERIAL_RECEIV')) return 60;
+      if (n.includes('PROCUREMENT') || n.includes('PO') || n.includes('PURCHASE')) return 50;
+      if (n.includes('MATERIAL')) return 35;
+      if (n.includes('BOM')) return 25;
+      if (n.includes('DESIGN')) return 12;
+      return 3;
+    };
+
+    const DEPTS = ['Admin', 'Design Engineer', 'Quality', 'Production', 'Procurement', 'Inventory'];
+
+    const projects = rows.map(row => {
+      const norm    = normalise(row.status);
+      const deptMap = D[norm] || keywordFallback(norm);
+      const overall = OVERALL[norm] !== undefined ? OVERALL[norm] : overallKeyword(norm);
+
+      const departments = {};
+      DEPTS.forEach(dept => {
+        const pct = deptMap[dept] ?? 0;
+        departments[dept] = {
+          progress: pct,
+          status: pct === 100 ? 'completed' : pct > 0 ? 'in_progress' : 'pending',
+        };
+      });
+
+      return {
+        id: row.id,
+        project_name: row.project_name,
+        project_code: row.project_code,
+        status: row.status,
+        priority: row.priority,
+        overall_progress: overall,
+        departments,
+      };
+    });
+
+    res.json({ projects });
+  } catch (error) {
+    console.error('Error fetching dept progress:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
 module.exports = {
   getDashboardStats,
+  getDeptProgressByProject,
   getEmployeeList,
   createEmployee,
   updateEmployee,

@@ -6,3 +6,5 @@ export { default as MaterialsTab } from "./MaterialsTab";
 export { default as ProductionTab } from "./ProductionTab";
 export { default as EmployeesTab } from "./EmployeesTab";
 export { default as ResourcesTab } from "./ResourcesTab";
+export { default as PertChart } from "./PertChart";
+

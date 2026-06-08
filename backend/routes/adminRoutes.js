@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { 
   getDashboardStats,
+  getDeptProgressByProject,
   getEmployeeList, 
   createEmployee, 
   updateEmployee, 
@@ -25,6 +26,10 @@ const auth = require('../middleware/authMiddleware');
 // @route   GET api/admin/stats
 // @desc    Get dashboard stats
 router.get('/stats', auth, getDashboardStats);
+
+// @route   GET api/admin/dept-progress
+// @desc    Get per-project department progress for PERT chart
+router.get('/dept-progress', auth, getDeptProgressByProject);
 
 // @route   GET api/admin/employee-list
 // @desc    Get all employees
