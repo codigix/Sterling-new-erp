@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link, Routes, Route } from "react-router-dom";
 import axios from "../../utils/api";
 import RoleDashboardLayout from "../../components/layout/RoleDashboardLayout";
+import DashboardAlerts from "../../components/dashboard/DashboardAlerts";
 import QCInspectionsPage from "../inventory/QCInspectionsPage";
 import MaterialInspectionPage from "../qc/MaterialInspectionPage";
 import QualityInspectionDetail from "../qc/QualityInspectionDetail";
@@ -127,6 +128,10 @@ const DashboardHome = () => {
             Start Inspection
           </Link>
         </div>
+      </div>
+
+      <div className="mt-4">
+        <DashboardAlerts />
       </div>
 
       {/* Stats Grid */}

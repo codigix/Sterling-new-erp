@@ -15,12 +15,9 @@ import {
   Trash2,
   Download,
   Send,
-  AlertCircle,
-  CheckCircle2,
-  Filter,
-  ChevronDown,
   Loader2,
-  FileText
+  Calendar,
+  X
 } from 'lucide-react';
 
 const RootCardList = ({ 
@@ -37,12 +34,101 @@ const RootCardList = ({
   isAccountantView = false
 }) => {
   const [rootCards, setRootCards] = useState([]);
-  const [filter, setFilter] = useState(initialFilter);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const { user } = useAuth();
 
   const isAdmin = user?.role?.toLowerCase() === 'admin';
+
+  const formatDate = (value) => {
+    if (!value) return '-';
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '-';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${day}-${month}-${year}`;
+  };
+
+  const [selectedCardForTimeline, setSelectedCardForTimeline] = useState(null);
+  const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
+  const [timelineForm, setTimelineForm] = useState({
+    Design: { startDate: '', endDate: '' },
+    Production: { startDate: '', endDate: '' },
+    Procurement: { startDate: '', endDate: '' },
+    Inventory: { startDate: '', endDate: '' },
+    Quality: { startDate: '', endDate: '' }
+  });
+
+  useEffect(() => {
+    if (selectedCardForTimeline) {
+      let timelinesObj = selectedCardForTimeline.timelines;
+      if (typeof timelinesObj === 'string') {
+        try {
+          timelinesObj = JSON.parse(timelinesObj);
+        } catch (e) {
+          timelinesObj = null;
+        }
+      }
+      
+      const defaultTimelines = {
+        Design: { startDate: '', endDate: '' },
+        Production: { startDate: '', endDate: '' },
+        Procurement: { startDate: '', endDate: '' },
+        Inventory: { startDate: '', endDate: '' },
+        Quality: { startDate: '', endDate: '' }
+      };
+
+      if (timelinesObj) {
+        setTimelineForm({
+          Design: { 
+            startDate: timelinesObj.Design?.startDate ? timelinesObj.Design.startDate.substring(0, 10) : '', 
+            endDate: timelinesObj.Design?.endDate ? timelinesObj.Design.endDate.substring(0, 10) : '' 
+          },
+          Production: { 
+            startDate: timelinesObj.Production?.startDate ? timelinesObj.Production.startDate.substring(0, 10) : '', 
+            endDate: timelinesObj.Production?.endDate ? timelinesObj.Production.endDate.substring(0, 10) : '' 
+          },
+          Procurement: { 
+            startDate: timelinesObj.Procurement?.startDate ? timelinesObj.Procurement.startDate.substring(0, 10) : '', 
+            endDate: timelinesObj.Procurement?.endDate ? timelinesObj.Procurement.endDate.substring(0, 10) : '' 
+          },
+          Inventory: { 
+            startDate: timelinesObj.Inventory?.startDate ? timelinesObj.Inventory.startDate.substring(0, 10) : '', 
+            endDate: timelinesObj.Inventory?.endDate ? timelinesObj.Inventory.endDate.substring(0, 10) : '' 
+          },
+          Quality: { 
+            startDate: timelinesObj.Quality?.startDate ? timelinesObj.Quality.startDate.substring(0, 10) : '', 
+            endDate: timelinesObj.Quality?.endDate ? timelinesObj.Quality.endDate.substring(0, 10) : '' 
+          }
+        });
+      } else {
+        setTimelineForm(defaultTimelines);
+      }
+    }
+  }, [selectedCardForTimeline]);
+
+  const handleTimelineSubmit = async (e) => {
+    e.preventDefault();
+    const cardId = selectedCardForTimeline.id;
+    try {
+      setLoading(true);
+      await axios.post(`/root-cards/${cardId}/timelines`, { timelines: timelineForm });
+      
+      setRootCards(rootCards.map(rc => 
+        rc.id === cardId ? { ...rc, timelines: timelineForm } : rc
+      ));
+      
+      showSuccess('Timelines saved and notifications sent successfully');
+      setIsTimelineModalOpen(false);
+      setSelectedCardForTimeline(null);
+    } catch (error) {
+      console.error('Error saving timelines:', error);
+      showError(error.response?.data?.message || 'Failed to save timelines');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchRootCards = async () => {
@@ -62,9 +148,14 @@ const RootCardList = ({
     fetchRootCards();
   }, [refreshTrigger]);
 
-  const filteredRootCards = filter === 'all' 
-    ? rootCards 
-    : rootCards.filter(rootCard => rootCard.status === filter);
+  const processedRootCards = rootCards.map(rc => {
+    const level = STATUS_LEVELS.find(l => l.value === (rc.status || 'RC_CREATED'));
+    const statusLabel = level ? level.label : (rc.status || 'Created');
+    return {
+      ...rc,
+      statusLabel
+    };
+  });
 
   const handleDelete = async (rootCard) => {
     const rootCardId = rootCard.public_id || rootCard.id;
@@ -159,29 +250,13 @@ const RootCardList = ({
       key: 'po_date',
       label: 'PO Date',
       sortable: true,
-      render: (value) => {
-        if (!value) return '-';
-        const d = new Date(value);
-        if (isNaN(d.getTime())) return '-';
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${day}-${month}-${year}`;
-      },
+      render: formatDate,
     },
     {
       key: 'delivery_date',
       label: 'Delivery Date',
       sortable: true,
-      render: (value) => {
-        if (!value) return '-';
-        const d = new Date(value);
-        if (isNaN(d.getTime())) return '-';
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${day}-${month}-${year}`;
-      },
+      render: formatDate,
     },
     {
       key: 'quantity',
@@ -258,102 +333,127 @@ const RootCardList = ({
       key: 'id',
       label: 'Actions',
       sortable: false,
-      render: (value, row) => (
-        <div className="flex items-center text-xs gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewRootCard(row);
-            }}
-            title="View"
-            className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition"
-          >
-            <Eye className="w-3 h-3 text-blue-600" />
-          </button>
-          {!isAccountantView && (
+      render: (value, row) => {
+        let hasTimeline = false;
+        if (row.timelines) {
+          let tObj = row.timelines;
+          if (typeof tObj === 'string') {
+            try { tObj = JSON.parse(tObj); } catch (e) { tObj = null; }
+          }
+          if (tObj) {
+            hasTimeline = Object.values(tObj).some(dates => dates && (dates.startDate || dates.endDate));
+          }
+        }
+
+        return (
+          <div className="flex items-center text-xs gap-1">
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onEditRootCard(row);
+                onViewRootCard(row);
               }}
-              title="Edit"
-              className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition"
-            >
-              <Edit2 className="w-3 h-3 text-green-600" />
-            </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDownload(row);
-            }}
-            title="Download"
-            className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
-          >
-            <Download className="w-3 h-3 text-purple-600" />
-          </button>
-          {!isAccountantView && onSendToProduction && (row.status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_APPROVED') && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onSendToProduction(row);
-              }}
-              title="Send to Production"
-              className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition"
-            >
-              <Send className="w-3 h-3 text-green-600" />
-            </button>
-          )}
-          {!isAccountantView && onSendToQuality && row.status === 'DESIGN_IN_PROGRESS' && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onSendToQuality(row);
-              }}
-              title="Send to Quality"
-              className="p-1 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded transition"
-            >
-              <Send className="w-3 h-3 text-amber-600" />
-            </button>
-          )}
-          {!isAccountantView && onReturnToDesignEngineering && row.status === 'QUALITY_QAP_PENDING' && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onReturnToDesignEngineering(row);
-              }}
-              title="Send to Design Engineer"
+              title="View"
               className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition"
             >
-              <Send className="w-3 h-3 text-blue-600" />
+              <Eye className="w-3 h-3 text-blue-600" />
             </button>
-          )}
-          {!isAccountantView && onUploadQAP && row.status === 'QUALITY_QAP_PENDING' && (
+            {!isAccountantView && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditRootCard(row);
+                }}
+                title="Edit"
+                className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition"
+              >
+                <Edit2 className="w-3 h-3 text-green-600" />
+              </button>
+            )}
+            {!isAccountantView && isAdmin && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedCardForTimeline(row);
+                  setIsTimelineModalOpen(true);
+                }}
+                title={row.timelines ? "View/Edit Timelines" : "Assign Timelines"}
+                className="p-1 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded transition"
+              >
+                <Calendar className="w-3 h-3 text-indigo-600" />
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onUploadQAP(row);
+                handleDownload(row);
               }}
-              title="Upload QAP"
-              className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded transition"
+              title="Download"
+              className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
             >
-              <Plus className="w-3 h-3 text-emerald-600" />
+              <Download className="w-3 h-3 text-purple-600" />
             </button>
-          )}
-          {!isAccountantView && isAdmin && (
-            <>
-              {onSendToDesignEngineering && row.status === 'RC_CREATED' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSendToDesignEngineering(row);
-                  }}
-                  title="Send to Design Engineering"
-                  className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
-                >
-                  <Send className="w-3 h-3 text-purple-600" />
-                </button>
-              )}
+            {!isAccountantView && onSendToProduction && (row.status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_APPROVED') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSendToProduction(row);
+                }}
+                title="Send to Production"
+                className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition"
+              >
+                <Send className="w-3 h-3 text-green-600" />
+              </button>
+            )}
+            {!isAccountantView && onSendToQuality && row.status === 'DESIGN_IN_PROGRESS' && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSendToQuality(row);
+                }}
+                title="Send to Quality"
+                className="p-1 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded transition"
+              >
+                <Send className="w-3 h-3 text-amber-600" />
+              </button>
+            )}
+            {!isAccountantView && onReturnToDesignEngineering && row.status === 'QUALITY_QAP_PENDING' && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReturnToDesignEngineering(row);
+                }}
+                title="Send to Design Engineer"
+                className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition"
+              >
+                <Send className="w-3 h-3 text-blue-600" />
+              </button>
+            )}
+            {!isAccountantView && onUploadQAP && row.status === 'QUALITY_QAP_PENDING' && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUploadQAP(row);
+                }}
+                title="Upload QAP"
+                className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded transition"
+              >
+                <Plus className="w-3 h-3 text-emerald-600" />
+              </button>
+            )}
+            {!isAccountantView && isAdmin && (
+              <>
+                {onSendToDesignEngineering && row.status === 'RC_CREATED' && hasTimeline && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSendToDesignEngineering(row);
+                    }}
+                    title="Send to Design Engineering"
+                    className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
+                  >
+                    <Send className="w-3 h-3 text-purple-600" />
+                  </button>
+                )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -367,24 +467,12 @@ const RootCardList = ({
             </>
           )}
         </div>
-      ),
+      );
     },
+  },
   ];
 
-  const getStatusCount = (statusValue) => {
-    if (statusValue === 'all') return rootCards.length;
-    return rootCards.filter(rc => rc.status === statusValue).length;
-  };
-
-  const tabs = [
-    { value: 'all', label: 'All', icon: <Filter className="w-3.5 h-3.5" /> },
-    { value: 'RC_CREATED', label: 'Created', icon: <Plus className="w-3.5 h-3.5" /> },
-    { value: 'DESIGN_IN_PROGRESS', label: 'In Design', icon: <Edit2 className="w-3.5 h-3.5" /> },
-    { value: 'QUALITY_QAP_PENDING', label: 'QAP Pending', icon: <AlertCircle className="w-3.5 h-3.5" /> },
-    { value: 'BOM_PREPARATION', label: 'BOM Prep', icon: <FileText className="w-3.5 h-3.5" /> },
-    { value: 'PRODUCTION_IN_PROGRESS', label: 'In Production', icon: <Send className="w-3.5 h-3.5" /> },
-    { value: 'READY_FOR_DELIVERY', label: 'Ready', icon: <CheckCircle2 className="w-3.5 h-3.5" /> }
-  ];
+  const uniqueStatusLabels = Array.from(new Set(STATUS_LEVELS.map(l => l.label)));
 
   return (
     <div className="w-full space-y-4 p-4">
@@ -409,47 +497,6 @@ const RootCardList = ({
         )}
       </div>
 
-      {/* Modern Redesigned Tabs */}
-      <div className="border-b border-slate-200 dark:border-slate-700 mb-2">
-        <div className="flex gap-8 overflow-x-auto no-scrollbar">
-          {tabs.map((tab) => {
-            const isActive = filter === tab.value;
-            const count = getStatusCount(tab.value);
-            
-            return (
-              <button
-                key={tab.value}
-                onClick={() => setFilter(tab.value)}
-                className={`flex items-center gap-2 py-3 px-1 relative transition-all duration-200 group whitespace-nowrap ${
-                  isActive 
-                    ? 'text-blue-600 ' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
-                }`}
-              >
-                <span className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
-                  {tab.icon}
-                </span>
-                <span className="text-sm">{tab.label}</span>
-                {count > 0 && (
-                  <span className={`text-xs px-1.5 py-0.5 rounded  transition-colors duration-200 ${
-                    isActive 
-                      ? 'bg-blue-100 text-blue-600 ' 
-                      : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
-                  }`}>
-                    {count}
-                  </span>
-                )}
-                
-                {/* Active Underline Indicator */}
-                <div className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300 ${
-                  isActive ? 'bg-blue-600 scale-x-100' : 'bg-transparent scale-x-0 group-hover:bg-slate-300 group-hover:scale-x-50'
-                }`} />
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* DataTable */}
       <div shadow="md" padding="none" className=" dark:border-slate-700 overflow-hidden">
         <CardContent className="p-0  flex flex-col">
@@ -463,15 +510,134 @@ const RootCardList = ({
           ) : (
             <DataTable
               columns={columns}
-              data={filteredRootCards}
+              data={processedRootCards}
               emptyMessage="No route cards found"
               sortable={true}
               striped={true}
               hover={true}
+              filters={[
+                {
+                  key: 'statusLabel',
+                  label: `Statuses (${rootCards.length})`,
+                  options: uniqueStatusLabels.map(label => {
+                    const count = rootCards.filter(rc => {
+                      const level = STATUS_LEVELS.find(l => l.value === (rc.status || 'RC_CREATED'));
+                      const cardLabel = level ? level.label : (rc.status || 'Created');
+                      return cardLabel === label;
+                    }).length;
+                    return {
+                      value: label,
+                      label: `${label} ${count > 0 ? `(${count})` : ''}`
+                    };
+                  })
+                }
+              ]}
             />
           )}
         </CardContent>
       </div>
+
+      {/* Department Timelines Modal */}
+      {isTimelineModalOpen && selectedCardForTimeline && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-lg max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                    Department Timelines
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    Set schedule for <strong className="text-slate-700 dark:text-slate-300">{selectedCardForTimeline.project_name}</strong> ({selectedCardForTimeline.id})
+                  </p>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                    <span className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                      <strong>PO Date:</strong> {formatDate(selectedCardForTimeline.po_date)}
+                    </span>
+                    <span className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                      <strong>Delivery Date:</strong> {formatDate(selectedCardForTimeline.delivery_date)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsTimelineModalOpen(false);
+                  setSelectedCardForTimeline(null);
+                }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <form onSubmit={handleTimelineSubmit}>
+              <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                <div className="grid grid-cols-3 gap-4 text-xs font-semibold text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-2">
+                  <div>Department</div>
+                  <div>Start Date</div>
+                  <div>End Date</div>
+                </div>
+
+                {Object.keys(timelineForm).map((dept) => (
+                  <div key={dept} className="grid grid-cols-3 gap-4 items-center py-2 border-b border-slate-50 dark:border-slate-800/40">
+                    <div className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                      {dept}
+                    </div>
+                    <div>
+                      <input
+                        type="date"
+                        value={timelineForm[dept].startDate}
+                        onChange={(e) => setTimelineForm({
+                          ...timelineForm,
+                          [dept]: { ...timelineForm[dept], startDate: e.target.value }
+                        })}
+                        className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="date"
+                        value={timelineForm[dept].endDate}
+                        onChange={(e) => setTimelineForm({
+                          ...timelineForm,
+                          [dept]: { ...timelineForm[dept], endDate: e.target.value }
+                        })}
+                        className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end gap-2 p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setIsTimelineModalOpen(false);
+                    setSelectedCardForTimeline(null);
+                  }}
+                  className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all rounded text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-all rounded text-xs"
+                >
+                  Save & Notify Departments
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

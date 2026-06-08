@@ -20,6 +20,7 @@ const grnRoutes = require('./routes/grnRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const productionRoutes = require('./routes/productionRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
+const { startTimelineAlerts } = require('./utils/timelineAlerts');
 const reportRoutes = require('./routes/reportRoutes');
 const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
 const accountingRoutes = require('./routes/accountingRoutes');
@@ -138,4 +139,6 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   // Start monitoring vendor email replies
   startEmailMonitor();
+  // Start checking timeline deadlines
+  startTimelineAlerts();
 });

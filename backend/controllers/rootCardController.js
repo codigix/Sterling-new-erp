@@ -374,13 +374,29 @@ const sendToDesignEngineering = async (req, res) => {
   const { id } = req.params;
   try {
     // Resolve internal ID if public_id is provided
-    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    const [cards] = await db.query('SELECT id, project_name, timelines FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       return res.status(404).json({ message: 'Root Card not found' });
     }
 
     const internalId = cards[0].id;
     const projectName = cards[0].project_name;
+    const timelinesVal = cards[0].timelines;
+
+    let hasTimeline = false;
+    if (timelinesVal) {
+      let tObj = timelinesVal;
+      if (typeof tObj === 'string') {
+        try { tObj = JSON.parse(tObj); } catch (e) { tObj = null; }
+      }
+      if (tObj) {
+        hasTimeline = Object.values(tObj).some(dates => dates && (dates.startDate || dates.endDate));
+      }
+    }
+
+    if (!hasTimeline) {
+      return res.status(400).json({ message: 'Please set timelines before sending the Route Card to Design Engineering' });
+    }
     
     // Update root card status
     await db.query(
@@ -774,6 +790,65 @@ const updateRootCardStatus = async (req, res) => {
   }
 };
 
+const updateRootCardTimelines = async (req, res) => {
+  const { id } = req.params;
+  const { timelines } = req.body; // e.g., { Design: { startDate, endDate }, Production: { startDate, endDate }, ... }
+
+  try {
+    // Resolve internal ID and project_name if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    if (cards.length === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+    const internalId = cards[0].id;
+    const projectName = cards[0].project_name;
+
+    // Update the timelines field in the database
+    const [result] = await db.query(
+      'UPDATE root_cards SET timelines = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [JSON.stringify(timelines), internalId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Root Card not found' });
+    }
+
+    // Send notifications to departments
+    const departmentRoleMap = {
+      Design: 'Design Engineer',
+      Production: 'Production',
+      Procurement: 'Procurement',
+      Inventory: 'Inventory',
+      Quality: 'Quality'
+    };
+
+    for (const [deptKey, dates] of Object.entries(timelines)) {
+      const role = departmentRoleMap[deptKey];
+      if (role && dates && dates.startDate && dates.endDate) {
+        const title = 'Project Timeline Assigned';
+        const message = `Timeline for Project "${projectName}" (Route Card ${internalId}) has been assigned. Start: ${dates.startDate}, End: ${dates.endDate}.`;
+        
+        let link = '/';
+        if (role === 'Design Engineer') link = '/design-engineer/root-cards';
+        else if (role === 'Production') link = '/department/production/root-cards';
+        else if (role === 'Procurement') link = '/department/procurement/root-cards';
+        else if (role === 'Inventory') link = '/department/inventory/root-cards';
+        else if (role === 'Quality') link = '/department/quality/root-cards';
+
+        await db.query(
+          'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+          [role, title, message, 'info', link]
+        );
+      }
+    }
+
+    res.json({ success: true, message: 'Timelines updated and notifications sent successfully' });
+  } catch (error) {
+    console.error('Error updating root card timelines:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   createRootCard,
   getAllRootCards,
@@ -791,5 +866,6 @@ module.exports = {
   getAllRootCardRequirements,
   getRootCardRequirementsById,
   updateRootCardRequirements,
-  updateRootCardStatus
+  updateRootCardStatus,
+  updateRootCardTimelines
 };

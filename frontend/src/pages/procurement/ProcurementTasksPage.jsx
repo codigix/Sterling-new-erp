@@ -9,6 +9,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Badge from "../../components/ui/Badge";
+import DashboardAlerts from "../../components/dashboard/DashboardAlerts";
 
 import {
   Chart as ChartJS,
@@ -182,6 +183,8 @@ const ProcurementTasksPage = () => {
           </button>
         </div>
       </div>
+
+      <DashboardAlerts />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

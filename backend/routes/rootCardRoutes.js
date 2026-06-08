@@ -19,7 +19,8 @@ const {
   getAllRootCardRequirements,
   getRootCardRequirementsById,
   updateRootCardRequirements,
-  updateRootCardStatus
+  updateRootCardStatus,
+  updateRootCardTimelines
 } = require('../controllers/rootCardController');
 const auth = require('../middleware/authMiddleware');
 
@@ -53,6 +54,10 @@ router.post('/', auth, createRootCard);
 // @route   PATCH api/root-cards/:id/status
 // @desc    Update root card status
 router.patch('/:id/status', auth, updateRootCardStatus);
+
+// @route   POST api/root-cards/:id/timelines
+// @desc    Update root card timelines
+router.post('/:id/timelines', auth, updateRootCardTimelines);
 
 // @route   POST api/root-cards/:id/send-to-design-engineering
 // @desc    Send root card to design engineering

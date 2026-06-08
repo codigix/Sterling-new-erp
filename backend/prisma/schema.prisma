@@ -1114,6 +1114,7 @@ model root_cards {
   documents            Json?
   notes                String?                @db.Text
   project_scope        Json?
+  timelines            Json?
   created_at           DateTime?              @default(now()) @db.Timestamp(0)
   updated_at           DateTime?              @default(now()) @db.Timestamp(0)
   boms                 boms[]

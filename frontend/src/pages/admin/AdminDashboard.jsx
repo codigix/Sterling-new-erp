@@ -3,6 +3,7 @@ import axios from "../../utils/api";
 import Card, { CardHeader, CardTitle, CardContent } from "../../components/ui/Card";
 import RootCardForm from "../../components/admin/RootCardForm";
 import RootCardList from "../../components/admin/RootCardList/RootCardList";
+import DashboardAlerts from "../../components/dashboard/DashboardAlerts";
 import {
   BarChart3,
   ShoppingCart,
@@ -147,6 +148,8 @@ const AdminDashboard = () => {
           Last Updated: {new Date().toLocaleTimeString()}
         </div>
       </div>
+
+      <DashboardAlerts />
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

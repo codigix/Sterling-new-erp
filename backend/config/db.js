@@ -14,14 +14,22 @@ const pool = mysql.createPool({
   dateStrings: false
 });
 
-// Test connection
+// Test connection & ensure timelines column exists
 (async () => {
   try {
     const connection = await pool.getConnection();
     console.log(`Successfully connected to ${process.env.DB_NAME}`);
+    
+    // Check if timelines column exists
+    const [columns] = await connection.query("SHOW COLUMNS FROM root_cards LIKE 'timelines'");
+    if (columns.length === 0) {
+      await connection.query("ALTER TABLE root_cards ADD COLUMN timelines JSON DEFAULT NULL");
+      console.log("Added 'timelines' column to 'root_cards' table.");
+    }
+    
     connection.release();
   } catch (error) {
-    console.error('Error connecting to database:', error.message);
+    console.error('Error connecting or running schema update:', error.message);
   }
 })();
 

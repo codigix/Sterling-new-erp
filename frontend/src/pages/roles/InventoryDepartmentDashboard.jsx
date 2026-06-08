@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import axios from "../../utils/api";
 import RoleDashboardLayout from "../../components/layout/RoleDashboardLayout";
+import DashboardAlerts from "../../components/dashboard/DashboardAlerts";
 
 // Lazy load sub-pages for better performance
 const StockBalancePage = lazy(() => import("../inventory/StockBalancePage"));
@@ -221,6 +222,8 @@ const DashboardContent = React.memo(({
               </select>
             </div>
           </div>
+
+          <DashboardAlerts />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 my-5 gap-2">
             {stats.map((stat) => {

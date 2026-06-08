@@ -29,6 +29,8 @@ const DataTable = ({
   pageSize = 10,
   pageSizeOptions = [5, 10, 25, 50, 100],
   rowKey = null,
+  // dateRangeFilter: { column: 'fieldName', startDate: 'YYYY-MM-DD', endDate: 'YYYY-MM-DD' }
+  dateRangeFilter = null,
 }) => {
   const effectiveRenderRowDetail = renderRowDetail || expandableRow;
   const [sortConfig, setSortConfig] = useState(null);
@@ -97,8 +99,31 @@ const DataTable = ({
       }
     });
 
+    // Apply date range filter
+    if (dateRangeFilter && dateRangeFilter.column) {
+      const { column: dateCol, startDate, endDate } = dateRangeFilter;
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        result = result.filter((row) => {
+          const val = row[dateCol];
+          if (!val) return false;
+          return new Date(val) >= start;
+        });
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        result = result.filter((row) => {
+          const val = row[dateCol];
+          if (!val) return false;
+          return new Date(val) <= end;
+        });
+      }
+    }
+
     return result;
-  }, [data, searchQuery, columns, filterValues]);
+  }, [data, searchQuery, columns, filterValues, dateRangeFilter]);
 
   const sortedData = useMemo(() => {
     if (!sortConfig) return filteredData;
@@ -159,33 +184,33 @@ const DataTable = ({
     <div className={`space-y-2 ${className}`}>
       {(title || showSearch) && (
         <div className="">
-           <div className='flex justify-between mb-3'>
-            <div className="flex items-center my-2 gap-3">
-              {titleIcon && (
-                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded flex-shrink-0">
-                  {React.isValidElement(titleIcon) ? (
-                    titleIcon
-                  ) : (
-                    React.createElement(titleIcon, { size: 18 })
-                  )}
-                </div>
-              )}
-              {title && (
-                <h2 className="text-md   dark:text-white  whitespace-nowrap">
-                  {title}
-                </h2>
-              )}
+          {(title || titleIcon) && (
+            <div className='flex justify-between mb-3'>
+              <div className="flex items-center my-2 gap-3">
+                {titleIcon && (
+                  <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded flex-shrink-0">
+                    {React.isValidElement(titleIcon) ? (
+                      titleIcon
+                    ) : (
+                      React.createElement(titleIcon, { size: 18 })
+                    )}
+                  </div>
+                )}
+                {title && (
+                  <h2 className="text-md   dark:text-white  whitespace-nowrap">
+                    {title}
+                  </h2>
+                )}
+              </div>
             </div>
-             {titleExtra && (
-                <div className="flex items-center gap-2 w-full sm:w-auto sm:justify-end">
+          )}
+          <div className="flex flex-wrap items-center justify-end gap-3">
+              {titleExtra && (
+                <div className="flex items-center gap-2">
                   {titleExtra}
                 </div>
               )}
-           </div>
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-           
 
-            <div className="flex flex-col sm:flex-row items-center gap-3 flex-1 lg:justify-end">
               {showSearch && (
                 <div className="relative w-full sm:max-w-xs group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={14} />
@@ -208,7 +233,7 @@ const DataTable = ({
               )}
 
               {filters && filters.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <div className="flex flex-wrap items-center gap-2">
                   {filters.map((filter, index) => (
                     <select
                       key={index}
@@ -226,9 +251,6 @@ const DataTable = ({
                   ))}
                 </div>
               )}
-
-             
-            </div>
           </div>
         </div>
       )}
