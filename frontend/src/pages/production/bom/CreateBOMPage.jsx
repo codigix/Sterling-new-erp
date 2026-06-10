@@ -2899,7 +2899,7 @@ const CreateBOMPage = () => {
                 </>
               )}
             </button>
-            {editMode && (
+            {/* {editMode && (
               <button
                 type="button"
                 onClick={() => handleSave(true)}
@@ -2909,7 +2909,7 @@ const CreateBOMPage = () => {
                 <Copy size={15} />
                 Save as New Revision
               </button>
-            )}
+            )} */}
           </div>
         </div>
       </div>

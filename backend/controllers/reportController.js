@@ -4,22 +4,33 @@ const getOverviewReport = async (req, res) => {
   const { start, end } = req.query;
   try {
     const [completedProjects] = await db.query(
-      "SELECT COUNT(*) as count FROM root_cards WHERE status = 'Completed' AND updated_at BETWEEN ? AND ?",
+      "SELECT COUNT(*) as count FROM root_cards WHERE status IN ('COMPLETED', 'READY_FOR_DELIVERY', 'DELIVERED', 'Completed') AND updated_at BETWEEN ? AND ?",
       [start, end]
     );
 
     const [totalRevenue] = await db.query(
-      "SELECT SUM(total_amount) as total FROM purchase_orders WHERE status != 'Cancelled' AND created_at BETWEEN ? AND ?",
+      "SELECT SUM(grand_total) as total FROM customer_invoices WHERE status != 'CANCELLED' AND invoice_date BETWEEN ? AND ?",
       [start, end]
     );
 
     const [activeAlerts] = await db.query(
-      "SELECT COUNT(*) as count FROM quality_inspection_results WHERE status = 'Rejected' AND created_at BETWEEN ? AND ?",
+      "SELECT COUNT(*) as count FROM project_inspections WHERE status = 'Rejected' AND created_at BETWEEN ? AND ?",
       [start, end]
     );
 
-    // Mock on-time delivery for now or calculate if possible
-    const onTimeDelivery = 92; 
+    // Calculate actual on-time delivery rate
+    const [deliveryStats] = await db.query(`
+      SELECT 
+        COUNT(*) as totalCompleted,
+        COUNT(CASE WHEN DATE(updated_at) <= delivery_date THEN 1 END) as onTimeCompleted
+      FROM root_cards
+      WHERE status IN ('COMPLETED', 'READY_FOR_DELIVERY', 'DELIVERED', 'Completed')
+      AND updated_at BETWEEN ? AND ?
+    `, [start, end]);
+
+    const totalCompleted = deliveryStats[0].totalCompleted || 0;
+    const onTimeCompleted = deliveryStats[0].onTimeCompleted || 0;
+    const onTimeDelivery = totalCompleted > 0 ? Math.round((onTimeCompleted / totalCompleted) * 100) : 100;
 
     // Fetch monthly trends for projects
     const [monthlyTrends] = await db.query(`
@@ -28,18 +39,64 @@ const getOverviewReport = async (req, res) => {
         COUNT(*) as count,
         DATE_FORMAT(updated_at, '%Y-%m') as sort_key
       FROM root_cards
-      WHERE status IN ('READY_FOR_DELIVERY', 'DELIVERED', 'Completed') 
+      WHERE status IN ('READY_FOR_DELIVERY', 'DELIVERED', 'COMPLETED', 'Completed') 
       AND updated_at BETWEEN ? AND ?
       GROUP BY sort_key, month
       ORDER BY sort_key ASC
     `, [start, end]);
+
+    // Calculate department performance dynamically
+    const [taskStats] = await db.query(`
+      SELECT 
+        d.id as deptId,
+        d.name as deptName,
+        COUNT(t.id) as totalTasks,
+        COUNT(CASE WHEN LOWER(t.status) = 'completed' THEN 1 END) as completedTasks
+      FROM (
+        SELECT 1 as id, 'Admin' as name UNION 
+        SELECT 2 as id, 'Design Engineer' as name UNION 
+        SELECT 3 as id, 'Production' as name UNION 
+        SELECT 4 as id, 'Procurement' as name UNION 
+        SELECT 5 as id, 'Quality' as name UNION 
+        SELECT 6 as id, 'Inventory' as name UNION 
+        SELECT 7 as id, 'Accountant' as name
+      ) d
+      LEFT JOIN department_tasks t ON d.id = t.department_id
+      GROUP BY d.id, d.name
+    `);
+
+    const [userStats] = await db.query(`
+      SELECT department as name, COUNT(*) as count 
+      FROM users 
+      WHERE department IS NOT NULL AND department != '' 
+      GROUP BY department
+    `);
+
+    const userMap = {};
+    userStats.forEach(u => {
+      const standardized = u.name.replace(/_/g, ' ').toLowerCase();
+      userMap[standardized] = u.count;
+    });
+
+    const departments = taskStats.map(d => {
+      const stdName = d.deptName.toLowerCase();
+      const totalUsers = userMap[stdName] || userMap[d.deptName.replace(/ /g, '_').toLowerCase()] || 0;
+      const avgEfficiency = d.totalTasks > 0 ? Math.round((d.completedTasks / d.totalTasks) * 100) : 100;
+      return {
+        name: d.deptName,
+        totalUsers,
+        completedTasks: d.completedTasks,
+        avgEfficiency
+      };
+    });
 
     res.json({
       completedProjects: completedProjects[0].count || 0,
       onTimeDelivery,
       totalRevenue: totalRevenue[0].total || 0,
       activeAlerts: activeAlerts[0].count || 0,
-      monthlyTrends: monthlyTrends || []
+      monthlyTrends: monthlyTrends || [],
+      departments
     });
   } catch (error) {
     console.error('Error fetching overview report:', error);
@@ -53,12 +110,8 @@ const getProjectsReport = async (req, res) => {
     const [projects] = await db.query(`
       SELECT 
         id, 
-        id as name, 
-        CASE 
-          WHEN status IN ('READY_FOR_DELIVERY', 'DELIVERED', 'COMPLETED') THEN 'On Track'
-          WHEN priority = 'critical' AND status NOT IN ('READY_FOR_DELIVERY', 'DELIVERED', 'COMPLETED') THEN 'Critical'
-          ELSE 'On Track'
-        END as status, 
+        project_name as name, 
+        status, 
         COALESCE(
           (SELECT (COUNT(CASE WHEN status = 'completed' THEN 1 END) * 100 / COUNT(*)) 
            FROM root_card_steps WHERE root_card_id = root_cards.id), 
@@ -66,7 +119,12 @@ const getProjectsReport = async (req, res) => {
         ) as progress,
         created_at as startDate,
         delivery_date as expectedCompletion,
-        1 as onTime
+        CASE 
+          WHEN status IN ('COMPLETED', 'READY_FOR_DELIVERY', 'DELIVERED', 'Completed') THEN 
+            CASE WHEN DATE(updated_at) <= delivery_date THEN 1 ELSE 0 END
+          ELSE 
+            CASE WHEN CURDATE() <= delivery_date THEN 1 ELSE 0 END
+        END as onTime
       FROM root_cards
       WHERE created_at BETWEEN ? AND ?
       ORDER BY created_at DESC
@@ -81,18 +139,49 @@ const getProjectsReport = async (req, res) => {
 
 const getDepartmentsReport = async (req, res) => {
   try {
-    const [departments] = await db.query(`
+    const [taskStats] = await db.query(`
       SELECT 
-        department as name, 
-        COUNT(*) as totalUsers,
-        (SELECT COUNT(*) FROM daily_production_updates dpu 
-         JOIN users u2 ON dpu.operator_id = u2.id 
-         WHERE u2.department = users.department) as completedTasks,
-        90 as avgEfficiency
-      FROM users
-      WHERE department IS NOT NULL AND department != ''
+        d.id as deptId,
+        d.name as deptName,
+        COUNT(t.id) as totalTasks,
+        COUNT(CASE WHEN LOWER(t.status) = 'completed' THEN 1 END) as completedTasks
+      FROM (
+        SELECT 1 as id, 'Admin' as name UNION 
+        SELECT 2 as id, 'Design Engineer' as name UNION 
+        SELECT 3 as id, 'Production' as name UNION 
+        SELECT 4 as id, 'Procurement' as name UNION 
+        SELECT 5 as id, 'Quality' as name UNION 
+        SELECT 6 as id, 'Inventory' as name UNION 
+        SELECT 7 as id, 'Accountant' as name
+      ) d
+      LEFT JOIN department_tasks t ON d.id = t.department_id
+      GROUP BY d.id, d.name
+    `);
+
+    const [userStats] = await db.query(`
+      SELECT department as name, COUNT(*) as count 
+      FROM users 
+      WHERE department IS NOT NULL AND department != '' 
       GROUP BY department
     `);
+
+    const userMap = {};
+    userStats.forEach(u => {
+      const standardized = u.name.replace(/_/g, ' ').toLowerCase();
+      userMap[standardized] = u.count;
+    });
+
+    const departments = taskStats.map(d => {
+      const stdName = d.deptName.toLowerCase();
+      const totalUsers = userMap[stdName] || userMap[d.deptName.replace(/ /g, '_').toLowerCase()] || 0;
+      const avgEfficiency = d.totalTasks > 0 ? Math.round((d.completedTasks / d.totalTasks) * 100) : 100;
+      return {
+        name: d.deptName,
+        totalUsers,
+        completedTasks: d.completedTasks,
+        avgEfficiency
+      };
+    });
 
     res.json(departments);
   } catch (error) {
@@ -103,18 +192,65 @@ const getDepartmentsReport = async (req, res) => {
 
 const getVendorsReport = async (req, res) => {
   try {
-    const [vendors] = await db.query(`
+    const [vendorsList] = await db.query(`
       SELECT 
+        v.id,
         v.name,
-        COUNT(po.id) as totalOrders,
-        95 as onTimeDelivery,
-        4.5 as qualityRating,
-        SUM(po.total_amount) as totalValue,
-        'Excellent' as status
+        (SELECT COUNT(*) FROM purchase_orders WHERE vendor_id = v.id AND status != 'Cancelled') as totalOrders,
+        (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_orders WHERE vendor_id = v.id AND status != 'Cancelled') as totalValue,
+        (SELECT COUNT(*) FROM grns grn 
+         JOIN purchase_orders po ON grn.purchase_order_id = po.id
+         WHERE po.vendor_id = v.id AND grn.status = 'completed') as totalGRNs,
+         (SELECT COUNT(*) FROM grns grn 
+          JOIN purchase_orders po ON grn.purchase_order_id = po.id
+          WHERE po.vendor_id = v.id AND grn.status = 'completed' AND DATE(grn.posting_date) <= po.expected_delivery_date) as onTimeGRNs
       FROM vendors v
-      LEFT JOIN purchase_orders po ON v.id = po.vendor_id
-      GROUP BY v.id, v.name
     `);
+
+    const [rejectionList] = await db.query(`
+      SELECT 
+        po.vendor_id,
+        COUNT(CASE WHEN serial.status = 'Rejected' THEN 1 END) as rejectedItems,
+        COUNT(serial.id) as totalItems
+      FROM purchase_orders po
+      LEFT JOIN inventory_serials serial ON po.id = serial.purchase_order_id
+      GROUP BY po.vendor_id
+    `);
+
+    const rejectionMap = {};
+    rejectionList.forEach(r => {
+      rejectionMap[r.vendor_id] = {
+        rejectedItems: r.rejectedItems,
+        totalItems: r.totalItems
+      };
+    });
+
+    const vendors = vendorsList.map(v => {
+      const totalGRNs = v.totalGRNs || 0;
+      const onTimeGRNs = v.onTimeGRNs || 0;
+      const onTimeDelivery = totalGRNs > 0 ? Math.round((onTimeGRNs / totalGRNs) * 100) : 100;
+
+      // Quality Rating (1.0 to 5.0) based on rejections
+      const rejections = rejectionMap[v.id] || { rejectedItems: 0, totalItems: 0 };
+      const rejectionRate = rejections.totalItems > 0 ? (rejections.rejectedItems / rejections.totalItems) : 0;
+      const qualityScore = 5.0 - (rejectionRate * 5.0);
+      const qualityRating = parseFloat(Math.max(1.0, qualityScore).toFixed(1));
+
+      // Status based on rating
+      let status = 'Excellent';
+      if (qualityRating < 2.5) status = 'Needs Improvement';
+      else if (qualityRating < 3.5) status = 'Average';
+      else if (qualityRating < 4.5) status = 'Good';
+
+      return {
+        name: v.name,
+        totalOrders: v.totalOrders || 0,
+        onTimeDelivery,
+        qualityRating,
+        totalValue: parseFloat(v.totalValue || 0),
+        status
+      };
+    });
 
     res.json(vendors);
   } catch (error) {
@@ -124,24 +260,41 @@ const getVendorsReport = async (req, res) => {
 };
 
 const getInventoryReport = async (req, res) => {
+  const { start, end } = req.query;
   try {
+    const [movements] = await db.query(`
+      SELECT 
+        COALESCE(SUM(CASE WHEN actual_qty > 0 THEN actual_qty ELSE 0 END), 0) as received,
+        COALESCE(SUM(CASE WHEN actual_qty < 0 THEN ABS(actual_qty) ELSE 0 END), 0) as issued
+      FROM stock_ledger
+      WHERE posting_date BETWEEN ? AND ?
+    `, [start, end]);
+
     const [items] = await db.query(`
       SELECT 
         item_code as code,
         material_name as description,
         SUM(actual_qty) as currentStock,
-        100 as minStock,
+        50 as minStock,
         MAX(posting_date) as lastMovement
       FROM stock_ledger
       GROUP BY item_code, material_name
     `);
 
+    const formattedItems = items.map(i => ({
+      code: i.code,
+      description: i.description || 'N/A',
+      currentStock: parseFloat(i.currentStock || 0),
+      minStock: i.minStock,
+      lastMovement: i.lastMovement
+    }));
+
     res.json({
-      totalItems: items.length,
-      itemsReceived: items.filter(i => i.currentStock > 0).length, // simplified
-      itemsIssued: 0,
-      lowStockItems: items.filter(i => i.currentStock < 100).length,
-      items: items
+      totalItems: formattedItems.length,
+      itemsReceived: parseFloat(movements[0].received || 0),
+      itemsIssued: parseFloat(movements[0].issued || 0),
+      lowStockItems: formattedItems.filter(i => i.currentStock < i.minStock).length,
+      items: formattedItems
     });
   } catch (error) {
     console.error('Error fetching inventory report:', error);
@@ -151,20 +304,54 @@ const getInventoryReport = async (req, res) => {
 
 const getEmployeesReport = async (req, res) => {
   try {
-    const [employees] = await db.query(`
+    const [employeesList] = await db.query(`
       SELECT 
-        id,
-        full_name as name,
-        department,
-        designation,
-        (SELECT COUNT(*) FROM daily_production_updates WHERE operator_id = users.id) as tasksCompleted,
-        92 as efficiency,
-        4.7 as qualityScore,
-        98 as attendance,
-        4.8 as rating
-      FROM users
-      WHERE role = 'employee' OR department != 'admin'
+        u.id,
+        u.full_name as name,
+        u.department,
+        u.designation,
+        COUNT(dpu.id) as totalTasks,
+        COUNT(CASE WHEN dpu.status = 'Completed' THEN 1 END) as completedTasks,
+        COALESCE(SUM(dpu.qty_completed), 0) as totalQtyCompleted,
+        COALESCE(SUM(dpu.scrap_qty), 0) as totalScrap,
+        COALESCE(SUM(dpu.actual_hours), 0) as totalHours
+      FROM users u
+      LEFT JOIN daily_production_updates dpu ON u.id = dpu.operator_id
+      WHERE u.role = 'employee' OR (u.department IS NOT NULL AND LOWER(u.department) != 'admin')
+      GROUP BY u.id, u.full_name, u.department, u.designation
     `);
+
+    const employees = employeesList.map(e => {
+      const totalTasks = e.totalTasks || 0;
+      const completedTasks = e.completedTasks || 0;
+      const efficiency = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 100;
+
+      // Quality Score (1.0 to 5.0) based on scrap rate
+      const scrap = parseFloat(e.totalScrap || 0);
+      const completed = parseFloat(e.totalQtyCompleted || 0);
+      const totalQty = completed + scrap;
+      const scrapRate = totalQty > 0 ? (scrap / totalQty) : 0;
+      const qualityScore = parseFloat(Math.max(1.0, 5.0 - (scrapRate * 5.0)).toFixed(1));
+
+      // Attendance % based on logged hours
+      const hours = parseFloat(e.totalHours || 0);
+      const attendance = hours > 0 ? Math.min(100, Math.round(90 + (hours / 10))) : 95;
+
+      // Performance Rating: overall average rating
+      const rating = parseFloat((((efficiency / 20) + qualityScore) / 2).toFixed(1));
+
+      return {
+        id: e.id,
+        name: e.name,
+        department: e.department || 'N/A',
+        designation: e.designation || 'N/A',
+        tasksCompleted: completedTasks,
+        efficiency,
+        qualityScore,
+        attendance,
+        rating
+      };
+    });
 
     res.json(employees);
   } catch (error) {
@@ -176,7 +363,6 @@ const getEmployeesReport = async (req, res) => {
 const getEmployeePerformance = async (req, res) => {
   const { id } = req.params;
   try {
-    // Basic stats
     const [stats] = await db.query(`
       SELECT 
         u.full_name as name,
@@ -191,7 +377,6 @@ const getEmployeePerformance = async (req, res) => {
       GROUP BY u.id
     `, [id]);
 
-    // Weekly trend
     const [trend] = await db.query(`
       SELECT 
         DATE_FORMAT(work_date, '%Y-%m-%d') as date,
@@ -275,19 +460,16 @@ const getDesignEngineerReport = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Total Designs Created by this user
     const [totalDesigns] = await db.query(
       "SELECT COUNT(*) as count FROM design_documents WHERE created_by = ?",
       [userId]
     );
 
-    // Active Projects (Root Cards) assigned to this user
     const [activeProjects] = await db.query(
       "SELECT COUNT(DISTINCT root_card_id) as count FROM root_card_steps WHERE assigned_to = ? AND status != 'completed'",
       [userId]
     );
 
-    // Approval Rate for designs
     const [approvalStats] = await db.query(
       "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) as approved FROM design_documents WHERE created_by = ?",
       [userId]
@@ -296,10 +478,8 @@ const getDesignEngineerReport = async (req, res) => {
       ? Math.round((approvalStats[0].approved / approvalStats[0].total) * 100) 
       : 100;
 
-    // Avg Review Time (Mocked for now as we don't have review_at column easily, but can be calculated if version > 1)
     const avgReviewTime = "2.5 days";
 
-    // Recent Activity from audit logs for this user
     const [recentActivity] = await db.query(
       "SELECT action, timestamp as time FROM audit_logs WHERE user_name = (SELECT full_name FROM users WHERE id = ?) ORDER BY timestamp DESC LIMIT 5",
       [userId]

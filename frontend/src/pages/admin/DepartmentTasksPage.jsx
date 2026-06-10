@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 import Card, {
   CardContent,
   CardTitle,
@@ -20,7 +21,9 @@ import {
   ClipboardList,
   Clock,
   Calendar,
-  Filter
+  Filter,
+  Download,
+  FileSpreadsheet
 } from "lucide-react";
 
 const DepartmentTasksPage = () => {
@@ -31,6 +34,10 @@ const DepartmentTasksPage = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("all");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("all");
   
   const [formData, setFormData] = useState({
     title: "",
@@ -138,6 +145,74 @@ const DepartmentTasksPage = () => {
     return completedDate > due;
   };
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "";
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleExportToExcel = () => {
+    setExporting(true);
+    
+    // Wrap the synchronous Excel sheet generation in a setTimeout to allow the UI to update with a loading spinner.
+    setTimeout(() => {
+      try {
+        // Format the tasks for exporting
+        const exportData = filteredTasks.map((task) => {
+          // Find completion date
+          const isCompleted = task.status === 'Completed' || task.status === 'completed';
+          let doneDate = 'N/A';
+          if (isCompleted && task.updated_at) {
+            doneDate = formatDate(task.updated_at);
+          }
+
+          // Determine late / overdue status details
+          let statusDetail = task.status || 'Pending';
+          if (isCompleted) {
+            const isLate = isCompletedLate(task);
+            if (isLate) {
+              statusDetail = 'Completed (Delayed)';
+            }
+          } else {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const due = new Date(task.dueDate);
+            due.setHours(0, 0, 0, 0);
+            const isOverdue = due < today;
+            if (isOverdue) {
+              statusDetail = 'Overdue';
+            }
+          }
+
+          return {
+            "Task Title": task.title || "",
+            "Description": task.description || "",
+            "Department": task.departmentName || "",
+            "Assigned By": task.assignedByName || "Admin",
+            "Priority": task.priority || "Medium",
+            "Assignment Date": formatDate(task.assignmentDate),
+            "Due Date": formatDate(task.dueDate),
+            "Completed Date": doneDate,
+            "Status": statusDetail
+          };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Departmental Tasks");
+        XLSX.writeFile(wb, "Departmental_Tasks.xlsx");
+      } catch (err) {
+        console.error("Export to Excel error:", err);
+      } finally {
+        setExporting(false);
+      }
+    }, 800);
+  };
+
   const columns = [
     {
       label: "Task Title",
@@ -186,18 +261,27 @@ const DepartmentTasksPage = () => {
     {
       label: "Dates",
       key: "dates",
-      render: (_, row) => (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center text-xs text-slate-600">
-            <Calendar size={14} className="mr-1 text-blue-500" />
-            <span className="">Assign:</span> {new Date(row.assignmentDate).toLocaleDateString()}
+      render: (_, row) => {
+        const isCompleted = row.status === 'Completed' || row.status === 'completed';
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center text-xs text-slate-600">
+              <Calendar size={14} className="mr-1 text-blue-500" />
+              <span className="">Assign:</span> {formatDate(row.assignmentDate)}
+            </div>
+            <div className="flex items-center text-xs text-slate-600">
+              <Clock size={14} className="mr-1 text-amber-500" />
+              <span className="">Due:</span> {formatDate(row.dueDate)}
+            </div>
+            {isCompleted && row.updated_at && (
+              <div className="flex items-center text-xs text-slate-600">
+                <CheckCircle2 size={14} className="mr-1 text-green-500" />
+                <span className="font-semibold text-green-600">Done:</span> {formatDate(row.updated_at)}
+              </div>
+            )}
           </div>
-          <div className="flex items-center text-xs text-slate-600">
-            <Clock size={14} className="mr-1 text-amber-500" />
-            <span className="">Due:</span> {new Date(row.dueDate).toLocaleDateString()}
-          </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       label: "Status",
@@ -277,10 +361,65 @@ const DepartmentTasksPage = () => {
   ];
 
   const filteredTasks = tasks.filter((task) => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    let matchesSearch = true;
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      const fieldsToSearch = [
+        task.title,
+        task.description,
+        task.departmentName,
+        task.assignedByName,
+        task.priority,
+        task.status
+      ];
+      matchesSearch = fieldsToSearch.some(field => 
+        field && String(field).toLowerCase().includes(lowerSearch)
+      );
+    }
     const matchesDept = filterDepartment === "all" || task.department_id.toString() === filterDepartment.toString();
-    return matchesSearch && matchesDept;
+    
+    let matchesDate = true;
+    if (task.assignmentDate) {
+      const taskAssignDate = task.assignmentDate.split('T')[0];
+      if (startDateFilter) {
+        matchesDate = matchesDate && taskAssignDate >= startDateFilter;
+      }
+      if (endDateFilter) {
+        matchesDate = matchesDate && taskAssignDate <= endDateFilter;
+      }
+    }
+
+    let matchesStatus = true;
+    if (filterStatus !== "all") {
+      const isCompleted = task.status === 'Completed' || task.status === 'completed';
+      if (filterStatus === "Completed") {
+        matchesStatus = isCompleted;
+      } else if (filterStatus === "Completed (Delayed)") {
+        matchesStatus = isCompleted && isCompletedLate(task);
+      } else if (filterStatus === "Overdue") {
+        if (isCompleted) {
+          matchesStatus = false;
+        } else {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const due = new Date(task.dueDate);
+          due.setHours(0, 0, 0, 0);
+          matchesStatus = due < today;
+        }
+      } else if (filterStatus === "Pending") {
+        if (isCompleted) {
+          matchesStatus = false;
+        } else {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const due = new Date(task.dueDate);
+          due.setHours(0, 0, 0, 0);
+          matchesStatus = due >= today;
+        }
+      }
+    }
+    
+    return matchesSearch && matchesDept && matchesDate && matchesStatus;
   });
 
   const handleDelete = async (id) => {
@@ -312,11 +451,21 @@ const DepartmentTasksPage = () => {
     let completed = 0;
     let pending = 0;
     let overdue = 0;
+    let completedDelayed = 0;
 
     tasks.forEach(t => {
       const isCompleted = t.status === 'Completed' || t.status === 'completed';
       if (isCompleted) {
         completed++;
+        if (t.dueDate && t.updated_at) {
+          const due = new Date(t.dueDate);
+          due.setHours(0, 0, 0, 0);
+          const completedDate = new Date(t.updated_at);
+          completedDate.setHours(0, 0, 0, 0);
+          if (completedDate > due) {
+            completedDelayed++;
+          }
+        }
       } else {
         const hasDueDate = !!t.dueDate;
         if (hasDueDate) {
@@ -333,10 +482,10 @@ const DepartmentTasksPage = () => {
       }
     });
 
-    return { total: tasks.length, completed, pending, overdue };
+    return { total: tasks.length, completed, pending, overdue, completedDelayed };
   };
 
-  const { total, completed, pending, overdue } = getTaskCounts();
+  const { total, completed, pending, overdue, completedDelayed } = getTaskCounts();
 
   return (
     <div className=" space-y-2 p-4">
@@ -347,19 +496,30 @@ const DepartmentTasksPage = () => {
           </h1>
           <p className="text-slate-500 text-xs">Assign and track tasks for different departments</p>
         </div>
-        <Button
-          onClick={() => {
-            resetForm();
-            setShowModal(true);
-          }}
-          className="flex items-center gap-2"
-        >
-          <Plus size={15} />
-          Assign New Task
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleExportToExcel}
+            variant="success"
+            loading={exporting}
+            className="flex items-center gap-2"
+          >
+            <FileSpreadsheet size={15} />
+            Export to Excel
+          </Button>
+          <Button
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2"
+          >
+            <Plus size={15} />
+            Assign New Task
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card className="bg-white">
           <CardContent className=" flex items-center gap-4">
             <div className=" bg-blue-100 rounded">
@@ -393,6 +553,17 @@ const DepartmentTasksPage = () => {
             </div>
           </CardContent>
         </Card>
+        <Card className="bg-white border-l-4 border-amber-500 shadow-sm">
+          <CardContent className=" flex items-center gap-4">
+            <div className=" bg-amber-100 rounded p-2">
+              <AlertCircle className="text-amber-600 animate-pulse" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 ">Completed (Delayed)</p>
+              <h3 className="text-xl font-bold text-slate-900 text-amber-600">{completedDelayed}</h3>
+            </div>
+          </CardContent>
+        </Card>
         <Card className="bg-white border-l-4 border-red-500 shadow-sm">
           <CardContent className=" flex items-center gap-4">
             <div className=" bg-red-100 rounded p-2">
@@ -406,32 +577,80 @@ const DepartmentTasksPage = () => {
         </Card>
       </div>
 
-      <div className="">
-        <div className="">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-           
-            <div className="flex items-center gap-2">
-              <Filter size={15} className="text-slate-400" />
-              <select
-                className="border border-slate-200 rounded p-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                value={filterDepartment}
-                onChange={(e) => setFilterDepartment(e.target.value)}
-              >
-                <option value="all">All Departments</option>
-                {departments.map((dept) => (
-                  <option key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
         <CardContent className="p-0">
           <DataTable
             columns={columns}
             data={filteredTasks}
             loading={loading}
+            onSearch={(val) => setSearchTerm(val)}
+            initialSearchValue={searchTerm}
+            titleExtra={
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                {/* Department Filter */}
+                <div className="flex items-center gap-2">
+                  <Filter size={14} className="text-slate-400" />
+                  <span className="text-xs font-medium text-slate-500">Department:</span>
+                  <select
+                    className="border border-slate-200 rounded p-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 shadow-sm cursor-pointer hover:border-slate-300 transition-colors min-w-[150px]"
+                    value={filterDepartment}
+                    onChange={(e) => setFilterDepartment(e.target.value)}
+                  >
+                    <option value="all">All Departments</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Status Filter */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-slate-500">Status:</span>
+                  <select
+                    className="border border-slate-200 rounded p-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 shadow-sm cursor-pointer hover:border-slate-300 transition-colors min-w-[130px]"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Completed (Delayed)">Completed (Delayed)</option>
+                    <option value="Overdue">Overdue</option>
+                  </select>
+                </div>
+
+                {/* Date Filter */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-slate-500">From:</span>
+                    <input
+                      type="date"
+                      className="border border-slate-200 rounded p-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 shadow-sm cursor-pointer hover:border-slate-300 transition-colors"
+                      value={startDateFilter}
+                      onChange={(e) => setStartDateFilter(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-slate-500">To:</span>
+                    <input
+                      type="date"
+                      className="border border-slate-200 rounded p-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 shadow-sm cursor-pointer hover:border-slate-300 transition-colors"
+                      value={endDateFilter}
+                      onChange={(e) => setEndDateFilter(e.target.value)}
+                    />
+                  </div>
+                  {(startDateFilter || endDateFilter) && (
+                    <button
+                      onClick={() => { setStartDateFilter(""); setEndDateFilter(""); }}
+                      className="text-xs text-red-500 hover:text-red-700 transition-colors ml-2 font-medium"
+                    >
+                      Clear Date
+                    </button>
+                  )}
+                </div>
+              </div>
+            }
           />
           {!loading && filteredTasks.length === 0 && (
             <div className="py-12 text-center">
@@ -441,16 +660,18 @@ const DepartmentTasksPage = () => {
             </div>
           )}
         </CardContent>
-      </div>
 
       {/* Task Assignment Modal */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="lg">
+      <Modal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        size="lg"
+        title={editingTask ? "Edit Task" : "Assign New Departmental Task"}
+        closeOnOverlayClick={false}
+      >
         <form onSubmit={handleSubmit}>
           <ModalBody>
             <div className="space-y-2">
-              <h2 className="text-xl  text-slate-900">
-                {editingTask ? "Edit Task" : "Assign New Departmental Task"}
-              </h2>
               
               <div className="space-y-1">
                 <label className="text-xs  text-slate-700">Task Title</label>

@@ -59,7 +59,8 @@ const ReportsAnalytics = () => {
       onTimeDelivery: 0,
       totalRevenue: 0,
       activeAlerts: 0,
-      monthlyTrends: []
+      monthlyTrends: [],
+      departments: []
     },
     projects: [],
     departments: [],
@@ -562,7 +563,7 @@ const ReportsAnalytics = () => {
                 </div>
               </div>
               <div className="p-2 space-y-4">
-                {(reportData?.departments?.length > 0 ? reportData.departments : [
+                {(reportData?.overview?.departments?.length > 0 ? reportData.overview.departments : [
                   { name: 'Engineering', avgEfficiency: 95 },
                   { name: 'Production', avgEfficiency: 88 },
                   { name: 'Quality', avgEfficiency: 97 },

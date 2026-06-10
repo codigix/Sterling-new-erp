@@ -93,12 +93,6 @@ const AdminLayout = () => {
       badge: null,
     },
     {
-      title: "Role Management",
-      path: "/admin/roles",
-      icon: Shield,
-      badge: null,
-    },
-    {
       title: "Reports",
       path: "/admin/reports",
       icon: FileText,

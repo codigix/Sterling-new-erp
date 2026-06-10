@@ -170,6 +170,22 @@ const forgotPassword = async (req, res) => {
       [user.id, username, user.full_name, user.email]
     );
 
+    // Insert notification for Admin
+    try {
+      await db.query(
+        'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+        [
+          'Admin',
+          'Password Reset Request',
+          `${user.full_name} (${user.email}) has requested a password reset.`,
+          'warning',
+          '/admin/password-resets'
+        ]
+      );
+    } catch (notifError) {
+      console.error('Failed to create admin notification for password reset request:', notifError);
+    }
+
     await logAudit(user.full_name, 'Password Reset Request', 'auth', `${user.full_name} submitted a password reset request`, req.ip, 'success');
 
     res.json({ message: 'Password reset request submitted successfully' });

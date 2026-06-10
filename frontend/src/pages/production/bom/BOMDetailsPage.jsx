@@ -30,6 +30,14 @@ import { toast } from "react-toastify";
 import MaterialRequestModal from "./MaterialRequestModal";
 import { renderDimensions } from "../../../utils/dimensionUtils";
 
+const getBOMRevision = (bom) => {
+  if (!bom) return "V1";
+  if (bom.revision && bom.revision > 1) return `V${bom.revision}`;
+  const val = bom.bomNumber || "";
+  const parts = val.split('-V');
+  return parts.length > 1 ? `V${parts[1]}` : 'V1';
+};
+
 const BOMDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -74,7 +82,7 @@ const BOMDetailsPage = () => {
     doc.setFontSize(10);
     doc.text(`BOM ID: ${bom.bomNumber}`, 14, 25);
     doc.text(`Product: ${bom.productName}`, 14, 30);
-    doc.text(`Revision: ${bom.revision}`, 14, 35);
+    doc.text(`Revision: ${getBOMRevision(bom)}`, 14, 35);
     doc.text(`Date: ${new Date().toLocaleDateString()}`, pageWidth - 14, 25, { align: "right" });
 
     let currentY = 45;
@@ -142,7 +150,7 @@ const BOMDetailsPage = () => {
       });
     }
 
-    doc.save(`BOM_${bom.itemCode}_Rev${bom.revision}.pdf`);
+    doc.save(`BOM_${bom.itemCode || bom.productCode || 'N/A'}_Rev${getBOMRevision(bom)}.pdf`);
   };
 
   const materialColumns = [
@@ -253,7 +261,7 @@ const BOMDetailsPage = () => {
               </Badge>
             </div>
             <p className="text-slate-500 text-xs ">
-              BOM ID: <span className="text-slate-900 text-xs">{bom.bomNumber}</span> • Revision: {bom.revision}
+              BOM ID: <span className="text-slate-900 text-xs">{bom.bomNumber}</span> • Revision: {getBOMRevision(bom)}
             </p>
           </div>
         </div>
@@ -314,7 +322,7 @@ const BOMDetailsPage = () => {
             </div>
             <div className="text-right">
               <p className="text-sm ">BOM NO: {bom.bomNumber}</p>
-              <p className="text-sm">REVISION: {bom.revision}</p>
+              <p className="text-sm">REVISION: {getBOMRevision(bom)}</p>
               <p className="text-sm">DATE: {new Date().toLocaleDateString()}</p>
             </div>
           </div>

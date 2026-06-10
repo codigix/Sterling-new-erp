@@ -91,6 +91,16 @@ const DepartmentPortalTasksPage = () => {
     return completedDate > due;
   };
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "";
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const columns = [
     {
       label: "Task Title",
@@ -105,11 +115,7 @@ const DepartmentPortalTasksPage = () => {
       render: (value) => (
         <div className="flex items-center text-sm text-slate-600">
           <Calendar size={14} className="mr-1.5 text-blue-500" />
-          {new Date(value).toLocaleDateString(undefined, {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-          })}
+          {formatDate(value)}
         </div>
       ),
     },
@@ -119,11 +125,7 @@ const DepartmentPortalTasksPage = () => {
       render: (value) => (
         <div className="flex items-center text-sm text-slate-600">
           <Calendar size={14} className="mr-1.5 text-amber-500" />
-          {new Date(value).toLocaleDateString(undefined, {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-          })}
+          {formatDate(value)}
         </div>
       ),
     },
@@ -381,13 +383,13 @@ const DepartmentPortalTasksPage = () => {
                     <div className="bg-slate-50 p-2 rounded border border-slate-100">
                       <p className="text-xs text-slate-400   mb-1">Assigned On</p>
                       <p className="text-sm  text-slate-700">
-                        {new Date(selectedTask.assignment_date).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                        {formatDate(selectedTask.assignment_date)}
                       </p>
                     </div>
                     <div className="bg-slate-50 p-2 rounded border border-slate-100">
                       <p className="text-xs text-slate-400   mb-1">Due Date</p>
                       <p className="text-sm  text-slate-700">
-                        {new Date(selectedTask.due_date).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                        {formatDate(selectedTask.due_date)}
                       </p>
                     </div>
                   </div>

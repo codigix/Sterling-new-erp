@@ -23,15 +23,24 @@ const UPLOADS_DIR_POS = path.resolve(__dirname, '..', UPLOAD_BASE, 'purchase_ord
 let lastErrorLogged = 0;
 const ERROR_LOG_INTERVAL = 30 * 60 * 1000; // Log error at most once every 30 minutes
 
+let isMonitoring = false;
+
 const monitorReplies = async () => {
+    if (isMonitoring) {
+        console.log('Email Monitor: already running, skipping.');
+        return false;
+    }
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
         const now = Date.now();
         if (now - lastErrorLogged > ERROR_LOG_INTERVAL) {
             console.warn('Email Monitor: EMAIL_USER or EMAIL_PASS not set in environment.');
             lastErrorLogged = now;
         }
-        return;
+        return false;
     }
+
+    isMonitoring = true;
+    console.log('Email Monitor: Starting check for new emails...');
 
     const client = new ImapFlow({
         host: 'imap.gmail.com',
@@ -53,15 +62,32 @@ const monitorReplies = async () => {
     });
 
     try {
+        console.log('Email Monitor: Connecting to IMAP...');
         await client.connect();
+        console.log('Email Monitor: Connected successfully.');
         
         // Select and lock the INBOX
+        console.log('Email Monitor: Acquiring INBOX lock...');
         let lock = await client.getMailboxLock('INBOX');
+        console.log('Email Monitor: Acquired lock on INBOX.');
         try {
-            // Search for unread messages
-            for await (let message of client.fetch({ unseen: true }, { source: true, envelope: true })) {
+            // Search for unread messages from the last 7 days to avoid performance issues
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+            console.log('Email Monitor: Fetching unseen messages since 7 days ago...');
+            const messagesToProcess = [];
+            for await (let message of client.fetch({ unseen: true, since: sevenDaysAgo }, { source: true, envelope: true })) {
+                messagesToProcess.push(message);
+            }
+            console.log(`Email Monitor: Found ${messagesToProcess.length} unseen messages.`);
+
+            const uidsToMark = [];
+            for (const message of messagesToProcess) {
                 try {
                     const parsed = await simpleParser(message.source);
+                    uidsToMark.push(message.uid);
+
                     const subject = parsed.subject || '';
                     
                     // Match RFQ-YYYY-NNNN, QTN-YYYY-NNNN or PO-YYYY-NNNN
@@ -164,29 +190,56 @@ const monitorReplies = async () => {
                     console.error('Error parsing individual email:', parseError);
                 }
             }
+
+            // Mark all processed messages as seen outside the fetch loop
+            if (uidsToMark.length > 0) {
+                try {
+                    await client.messageFlagsAdd(uidsToMark, ['\\Seen'], { uid: true });
+                    console.log(`Email Monitor: Marked ${uidsToMark.length} messages as seen.`);
+                } catch (flagErr) {
+                    console.error('Email Monitor: Failed to mark messages as seen:', flagErr.message);
+                }
+            }
+
         } finally {
             // release lock
             if (lock) lock.release();
         }
         
         await client.logout();
+        return true;
     } catch (err) {
         // Log the error but don't crash the server. Rate limit to 30 mins
         const now = Date.now();
         if (now - lastErrorLogged > ERROR_LOG_INTERVAL) {
-            console.error('Email Monitor Connection Error:', err.message);
+            console.error('Email Monitor Connection Error:', err);
             lastErrorLogged = now;
         }
+        return false;
+    } finally {
+        isMonitoring = false;
     }
 };
 
-// Start periodic monitoring (every 60 seconds)
+let currentDelay = 60000; // start at 1 minute
+const MIN_DELAY = 60000;
+const MAX_DELAY = 15 * 60 * 1000; // max 15 minutes
+
+const runAndSchedule = async () => {
+    const success = await monitorReplies();
+    if (success) {
+        currentDelay = MIN_DELAY; // reset to 1 minute
+    } else {
+        currentDelay = Math.min(currentDelay * 2, MAX_DELAY); // double delay
+        console.log(`Email Monitor: Connection failed. Next check scheduled in ${currentDelay / 1000} seconds.`);
+    }
+    setTimeout(runAndSchedule, currentDelay);
+};
+
+// Start periodic monitoring with backoff
 const startEmailMonitor = () => {
-    console.log('Starting Email Monitoring System...');
-    // Initial run
-    monitorReplies();
-    // Schedule
-    setInterval(monitorReplies, 60000);
+    console.log('Starting Email Monitoring System with backoff...');
+    runAndSchedule();
 };
 
 module.exports = { startEmailMonitor };
