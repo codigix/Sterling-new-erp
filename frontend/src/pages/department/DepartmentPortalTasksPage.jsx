@@ -80,12 +80,13 @@ const DepartmentPortalTasksPage = () => {
   const isCompletedLate = (row) => {
     const isCompleted = row.status === 'Completed' || row.status === 'completed';
     if (!isCompleted) return false;
-    if (!row.due_date || !row.updated_at) return false;
+    const finishedAt = row.completed_date || row.updated_at;
+    if (!row.due_date || !finishedAt) return false;
     
     const due = new Date(row.due_date);
     due.setHours(0, 0, 0, 0);
     
-    const completedDate = new Date(row.updated_at);
+    const completedDate = new Date(finishedAt);
     completedDate.setHours(0, 0, 0, 0);
     
     return completedDate > due;
@@ -128,6 +129,20 @@ const DepartmentPortalTasksPage = () => {
           {formatDate(value)}
         </div>
       ),
+    },
+    {
+      label: "Completed Date",
+      key: "completed_date",
+      render: (value, row) => {
+        const isCompleted = row.status === 'Completed' || row.status === 'completed';
+        if (!isCompleted) return <span className="text-slate-400">-</span>;
+        return (
+          <div className="flex items-center text-sm text-slate-600">
+            <CheckCircle2 size={14} className="mr-1.5 text-green-500" />
+            {formatDate(value || row.updated_at)}
+          </div>
+        );
+      },
     },
     {
       label: "Priority",
@@ -379,7 +394,7 @@ const DepartmentPortalTasksPage = () => {
                   <h3 className="text-sm  text-slate-400   flex items-center gap-2">
                     <Calendar size={14} className="text-blue-500" /> Timeline
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className={`grid ${selectedTask.status === 'Completed' ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
                     <div className="bg-slate-50 p-2 rounded border border-slate-100">
                       <p className="text-xs text-slate-400   mb-1">Assigned On</p>
                       <p className="text-sm  text-slate-700">
@@ -392,6 +407,14 @@ const DepartmentPortalTasksPage = () => {
                         {formatDate(selectedTask.due_date)}
                       </p>
                     </div>
+                    {selectedTask.status === 'Completed' && (
+                      <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                        <p className="text-xs text-slate-400   mb-1">Completed On</p>
+                        <p className="text-sm font-semibold text-green-600">
+                          {formatDate(selectedTask.completed_date || selectedTask.updated_at)}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 

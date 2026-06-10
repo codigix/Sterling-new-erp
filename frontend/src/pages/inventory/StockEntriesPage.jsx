@@ -202,31 +202,8 @@ const StockEntriesPage = () => {
     }
   };
 
-  const stats = [
-    { title: "TOTAL MOVEMENTS", value: entries.length, icon: TrendingUp, color: "blue" },
-    { title: "TOTAL THROUGHPUT", value: entries.reduce((acc, entry) => acc + (entry.items?.length || 0), 0), icon: Boxes, color: "indigo" },
-    { title: "INVENTORY VALUE", value: "₹0.02L", icon: IndianRupee, color: "emerald" },
-    { title: "PENDING DRAFTS", value: "0", icon: Clock, color: "amber" },
-  ];
-
   return (
     <div className="space-y-2 p-2">
-      {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-        {stats.map((stat, idx) => (
-          <div key={idx} className="bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700 shadow-sm ">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs   text-slate-400 font-medium mb-1">{stat.title}</p>
-                <h3 className="text-xl  text-slate-900 dark:text-white leading-tight">{stat.value}</h3>
-              </div>
-              <div className={`p-2 rounded bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600 dark:text-${stat.color}-400`}>
-                <stat.icon size={18} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
       {/* Entries Table */}
       <DataTable

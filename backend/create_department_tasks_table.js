@@ -14,6 +14,7 @@ const createDepartmentTasksTable = async () => {
         assignment_date DATE NOT NULL,
         due_date DATE NOT NULL,
         status ENUM('Pending', 'In Progress', 'Completed') DEFAULT 'Pending',
+        completed_date DATETIME DEFAULT NULL,
         assigned_by INT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -31,7 +31,9 @@ import {
   Package,
   Truck,
   CheckCircle,
+  CheckCircle2,
   AlertTriangle,
+  AlertCircle,
   TrendingUp,
   TrendingDown,
   Boxes,
@@ -61,6 +63,54 @@ ChartJS.register(
   Filler
 );
 
+const getTaskCounts = (taskList) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let completed = 0;
+  let completedDelayed = 0;
+  let pending = 0;
+  let overdue = 0;
+
+  taskList.forEach((t) => {
+    const isCompleted = t.status === 'Completed' || t.status === 'completed';
+    
+    if (isCompleted) {
+      // Check if completed late
+      const finishedAt = t.completed_date || t.updated_at;
+      if (t.due_date && finishedAt) {
+        const due = new Date(t.due_date);
+        due.setHours(0, 0, 0, 0);
+        const completedDate = new Date(finishedAt);
+        completedDate.setHours(0, 0, 0, 0);
+        if (completedDate > due) {
+          completedDelayed++;
+        } else {
+          completed++;
+        }
+      } else {
+        completed++;
+      }
+    } else {
+      // Pending or Overdue
+      const hasDueDate = !!t.due_date;
+      if (hasDueDate) {
+        const due = new Date(t.due_date);
+        due.setHours(0, 0, 0, 0);
+        if (due < today) {
+          overdue++;
+        } else {
+          pending++;
+        }
+      } else {
+        pending++;
+      }
+    }
+  });
+
+  return { completed, completedDelayed, pending, overdue };
+};
+
 const DashboardContent = React.memo(({
   dateRange,
   setDateRange,
@@ -72,6 +122,8 @@ const DashboardContent = React.memo(({
 }) => {
   const [departmentTasks, setDepartmentTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
+  const [deptTasks, setDeptTasks] = useState([]);
+  const [loadingDeptTasks, setLoadingDeptTasks] = useState(true);
   const [portalData, setPortalData] = useState({ stock: [], stats: {} });
   const [loadingStats, setLoadingStats] = useState(true);
 
@@ -104,10 +156,23 @@ const DashboardContent = React.memo(({
     }
   }, []);
 
+  const fetchDeptTasks = useCallback(async () => {
+    try {
+      setLoadingDeptTasks(true);
+      const response = await axios.get("/departmental-tasks/department/6");
+      setDeptTasks(response.data || []);
+    } catch (err) {
+      console.error("Error fetching inventory departmental tasks:", err);
+    } finally {
+      setLoadingDeptTasks(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchPortalData();
     fetchTasks();
-  }, [fetchPortalData, fetchTasks]);
+    fetchDeptTasks();
+  }, [fetchPortalData, fetchTasks, fetchDeptTasks]);
 
   const stats = React.useMemo(() => {
     const s = portalData.stats || {};
@@ -224,6 +289,75 @@ const DashboardContent = React.memo(({
           </div>
 
           <DashboardAlerts />
+
+          {/* Departmental Task Count */}
+          <div className="mt-4">
+            <h2 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Departmental Task Count
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+            {/* Pending Card */}
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 group">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Pending Tasks</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {loadingDeptTasks ? <Loader2 className="animate-spin text-slate-400" size={20} /> : getTaskCounts(deptTasks).pending}
+                  </h3>
+                </div>
+                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
+                  <Clock size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Completed Card */}
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 group">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Completed On-Time</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                    {loadingDeptTasks ? <Loader2 className="animate-spin text-slate-400" size={20} /> : getTaskCounts(deptTasks).completed}
+                  </h3>
+                </div>
+                <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40 transition-colors">
+                  <CheckCircle2 size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Completed Delayed Card */}
+            <div className="bg-white dark:bg-slate-850 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 group">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Completed (Delayed)</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    {loadingDeptTasks ? <Loader2 className="animate-spin text-slate-400" size={20} /> : getTaskCounts(deptTasks).completedDelayed}
+                  </h3>
+                </div>
+                <div className="p-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 transition-colors">
+                  <AlertCircle size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Overdue Card */}
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 group">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Overdue Tasks</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                    {loadingDeptTasks ? <Loader2 className="animate-spin text-slate-400" size={20} /> : getTaskCounts(deptTasks).overdue}
+                  </h3>
+                </div>
+                <div className="p-2.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-lg group-hover:bg-rose-100 dark:group-hover:bg-rose-900/40 transition-colors">
+                  <AlertCircle size={20} className={getTaskCounts(deptTasks).overdue > 0 ? "animate-pulse" : ""} />
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 my-5 gap-2">
             {stats.map((stat) => {

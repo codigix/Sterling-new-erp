@@ -61,13 +61,27 @@ const AdminDashboard = () => {
       : allTasks.filter(t => t.department_id?.toString() === selectedDepartment.toString());
 
     let completed = 0;
+    let completedDelayed = 0;
     let pending = 0;
     let overdue = 0;
 
     filtered.forEach(t => {
       const isCompleted = t.status === 'Completed' || t.status === 'completed';
       if (isCompleted) {
-        completed++;
+        const finishedAt = t.completed_date || t.updated_at;
+        if (t.due_date && finishedAt) {
+          const due = new Date(t.due_date);
+          due.setHours(0, 0, 0, 0);
+          const completedDate = new Date(finishedAt);
+          completedDate.setHours(0, 0, 0, 0);
+          if (completedDate > due) {
+            completedDelayed++;
+          } else {
+            completed++;
+          }
+        } else {
+          completed++;
+        }
       } else {
         if (t.due_date) {
           const due = new Date(t.due_date);
@@ -83,7 +97,7 @@ const AdminDashboard = () => {
       }
     });
 
-    return { total: filtered.length, completed, pending, overdue };
+    return { total: filtered.length, completed, completedDelayed, pending, overdue };
   };
 
   const taskStats = getFilteredTaskStats();
@@ -129,12 +143,12 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-gradient-to-br from-green-50 to-white border border-green-100 rounded p-4 flex items-center justify-between shadow-sm group hover:shadow transition-all duration-300">
             <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-500 group-hover:text-green-600 transition-colors">Completed Tasks</p>
+              <p className="text-xs font-semibold text-slate-500 group-hover:text-green-600 transition-colors">Completed Tasks</p>
               <h3 className="text-2xl font-bold text-slate-900">{taskStats.completed}</h3>
-              <p className="text-[10px] text-slate-400">Total completed departmental tasks</p>
+              <p className="text-[10px] text-slate-400">Total completed on schedule</p>
             </div>
             <div className="p-3 rounded-full bg-white border border-green-100 text-green-600 shadow-sm transition-transform duration-300 group-hover:scale-110">
               <CheckCircle2 className="w-6 h-6" />
@@ -143,18 +157,29 @@ const AdminDashboard = () => {
 
           <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-100 rounded p-4 flex items-center justify-between shadow-sm group hover:shadow transition-all duration-300">
             <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-500 group-hover:text-amber-600 transition-colors">Pending Tasks</p>
+              <p className="text-xs font-semibold text-slate-500 group-hover:text-amber-600 transition-colors">Completed (Delayed)</p>
+              <h3 className="text-2xl font-bold text-slate-900">{taskStats.completedDelayed}</h3>
+              <p className="text-[10px] text-slate-400">Total completed with delay</p>
+            </div>
+            <div className="p-3 rounded-full bg-white border border-amber-100 text-amber-600 shadow-sm transition-transform duration-300 group-hover:scale-110">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded p-4 flex items-center justify-between shadow-sm group hover:shadow transition-all duration-300">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-slate-500 group-hover:text-blue-600 transition-colors">Pending Tasks</p>
               <h3 className="text-2xl font-bold text-slate-900">{taskStats.pending}</h3>
               <p className="text-[10px] text-slate-400">In progress or future tasks</p>
             </div>
-            <div className="p-3 rounded-full bg-white border border-amber-100 text-amber-600 shadow-sm transition-transform duration-300 group-hover:scale-110">
+            <div className="p-3 rounded-full bg-white border border-blue-100 text-blue-600 shadow-sm transition-transform duration-300 group-hover:scale-110">
               <Clock className="w-6 h-6" />
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-red-50 to-white border border-red-100 rounded p-4 flex items-center justify-between shadow-sm group hover:shadow transition-all duration-300">
             <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-500 group-hover:text-red-600 transition-colors">Overdue Tasks</p>
+              <p className="text-xs font-semibold text-slate-500 group-hover:text-red-600 transition-colors">Overdue Tasks</p>
               <h3 className="text-2xl font-bold text-slate-900 text-red-600">{taskStats.overdue}</h3>
               <p className="text-[10px] text-slate-400">Tasks past their due date</p>
             </div>

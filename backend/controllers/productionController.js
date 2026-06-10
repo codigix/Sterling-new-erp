@@ -1737,3 +1737,383 @@ exports.getInwardChallanDetails = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+exports.getRootCardPertDetails = async (req, res) => {
+  const { id } = req.params;
+  try {
+    let query = `
+      SELECT id, public_id, project_name, project_code, status, updated_at
+      FROM root_cards
+    `;
+    let params = [];
+    if (id !== 'all') {
+      query += " WHERE id = ? OR public_id = ?";
+      params = [id, id];
+    } else {
+      query += ` WHERE status IN (
+        'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 
+        'Released', 'Production', 'Partially Completed', 'MATERIAL_PLANNING', 
+        'PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 
+        'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'UNDER INSPECTION', 
+        'DESIGN_RELEASED', 'READY_FOR_PRODUCTION', 'READY_FOR_PHASE_2', 
+        'QC_APPROVED', 'Production completed and send to Quality fot QC', 
+        'send to production for complete final produciton', 
+        'final Prodcution completed and send to quality for final qc', 
+        'Redy for Dispatch', 'READY_FOR_DELIVERY', 'READY_FOR_DISPATCH'
+      ) ORDER BY updated_at DESC LIMIT 50`;
+    }
+
+    const [rootCards] = await db.query(query, params);
+    if (rootCards.length === 0) {
+      return res.json({ success: true, projects: [] });
+    }
+
+    const rcIds = rootCards.map(rc => rc.id);
+
+    const [boms] = await db.query('SELECT id, root_card_id, bom_number, status FROM boms WHERE root_card_id IN (?)', [rcIds]);
+    const [mrs] = await db.query('SELECT id, root_card_id, request_number, status FROM material_requests WHERE root_card_id IN (?)', [rcIds]);
+    const [grns] = await db.query(`
+      SELECT q.root_card_id, g.grn_number, g.status 
+      FROM grns g 
+      JOIN purchase_orders po ON g.purchase_order_id = po.id 
+      JOIN quotations q ON po.quotation_id = q.id 
+      WHERE q.root_card_id IN (?)
+    `, [rcIds]);
+    const [ops] = await db.query('SELECT id, root_card_id, operation_name, status, phase FROM root_card_operations WHERE root_card_id IN (?) ORDER BY id ASC', [rcIds]);
+    const [inspections] = await db.query('SELECT id, root_card_id, inspection_name, status, phase FROM project_inspections WHERE root_card_id IN (?)', [rcIds]);
+
+    const projectsDetails = rootCards.map(rc => {
+      const projectBoms = boms.filter(b => b.root_card_id === rc.id);
+      const projectMrs = mrs.filter(m => m.root_card_id === rc.id);
+      const projectGrns = grns.filter(g => g.root_card_id === rc.id);
+      const projectOps = ops.filter(o => o.root_card_id === rc.id);
+      const projectInspections = inspections.filter(i => i.root_card_id === rc.id);
+
+      // 1. BOM Creation
+      const hasBom = projectBoms.length > 0;
+      const isPastBom = !['BOM_PREPARATION'].includes(rc.status);
+      const step1 = { 
+        progress: (hasBom || isPastBom) ? 100 : 0, 
+        details: hasBom ? `BOM Created: ${projectBoms.map(b => b.bom_number).join(', ')}` : "BOM Pending" 
+      };
+
+      // 2. Material Request
+      const hasMr = projectMrs.length > 0;
+      const isPastMr = !['BOM_PREPARATION', 'MATERIAL_PLANNING'].includes(rc.status);
+      const step2 = { 
+        progress: (hasMr || isPastMr) ? 100 : 0, 
+        details: hasMr ? `Material Request Sent: ${projectMrs.map(m => m.request_number).join(', ')}` : "Material Request Pending" 
+      };
+
+      // 3. Material Release
+      const hasRelease = projectGrns.some(g => ['material_released', 'partially_released', 'completed'].includes(g.status));
+      const isPastRelease = ![
+        'BOM_PREPARATION', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 
+        'PARTIALLY_RELEASED', 'MATERIAL_RELEASED'
+      ].includes(rc.status);
+      const step3 = { 
+        progress: (hasRelease || isPastRelease) ? 100 : 0, 
+        details: hasRelease 
+          ? `Materials Released: ${projectGrns.filter(g => ['material_released', 'partially_released', 'completed'].includes(g.status)).map(g => g.grn_number).join(', ')}` 
+          : "Material Release Pending" 
+      };
+
+      // 4. Operation Selection
+      const hasOps = projectOps.length > 0;
+      const step4 = { 
+        progress: hasOps ? 100 : 0, 
+        details: hasOps ? `${projectOps.length} Operations Selected` : "Operations Not Selected" 
+      };
+
+      // 5. Phase 1 Execution
+      const phase1Ops = projectOps.filter(o => o.phase === 1);
+      const phase1CompletedOps = phase1Ops.filter(o => o.status === 'Completed');
+      const phase2Unlocked = [
+        'DIMENSIONAL_QC_APPROVED', 'Production', 'Partially Completed', 
+        'send to production for complete final produciton', 'PHASE_2_QC_PENDING', 
+        'PHASE_2_QC_APPROVED', 'final Prodcution completed and send to quality for final qc', 
+        'Redy for Dispatch', 'READY_FOR_DELIVERY', 'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
+      ].includes(rc.status);
+      
+      const phase1Progress = phase2Unlocked ? 100 : (phase1Ops.length > 0 ? Math.round((phase1CompletedOps.length / phase1Ops.length) * 100) : 0);
+      const step5 = { 
+        progress: phase1Progress, 
+        details: phase1Ops.length > 0 
+          ? `Phase 1 Operations: ${phase1CompletedOps.length}/${phase1Ops.length} Completed` 
+          : "No Phase 1 Operations Defined" 
+      };
+
+      // 6. Quality Handover (Phase 1)
+      const isP1SentToQc = [
+        'Production completed and send to Quality fot QC', 'DIMENSIONAL_QC_PENDING', 
+        'DIMENSIONAL_QC_APPROVED', 'send to production for complete final produciton', 
+        'PAINTING_IN_PROGRESS', 'final Prodcution completed and send to quality for final qc', 
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
+      ].includes(rc.status);
+      const step6 = { 
+        progress: isP1SentToQc ? 100 : 0, 
+        details: isP1SentToQc ? "Phase 1 Fabrication Sent to Quality" : "Pending Phase 1 Handover" 
+      };
+
+      // 7. Quality Report (Phase 1)
+      const isP1QcApproved = [
+        'DIMENSIONAL_QC_APPROVED', 'send to production for complete final produciton', 
+        'PAINTING_IN_PROGRESS', 'final Prodcution completed and send to quality for final qc', 
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
+      ].includes(rc.status);
+      const step7 = { 
+        progress: isP1QcApproved ? 100 : 0, 
+        details: isP1QcApproved ? "Phase 1 QC Approved" : "Pending Quality Report/Approval" 
+      };
+
+      // 8. Phase 2 Execution
+      const phase2Ops = projectOps.filter(o => o.phase === 2);
+      const phase2CompletedOps = phase2Ops.filter(o => o.status === 'Completed');
+      const finalQCUnlocked = [
+        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
+      ].includes(rc.status);
+
+      const phase2Progress = finalQCUnlocked ? 100 : (phase2Ops.length > 0 ? Math.round((phase2CompletedOps.length / phase2Ops.length) * 100) : 0);
+      const step8 = { 
+        progress: phase2Progress, 
+        details: phase2Ops.length > 0 
+          ? `Phase 2 Operations: ${phase2CompletedOps.length}/${phase2Ops.length} Completed` 
+          : "No Phase 2 Operations Defined" 
+      };
+
+      // 9. Quality Handover (Phase 2)
+      const isP2SentToQc = [
+        'final Prodcution completed and send to quality for final qc', 'PHASE_2_QC_PENDING', 
+        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
+      ].includes(rc.status);
+      const step9 = { 
+        progress: isP2SentToQc ? 100 : 0, 
+        details: isP2SentToQc ? "Phase 2 Painting & Finishing Sent to Quality" : "Pending Phase 2 Handover" 
+      };
+
+      // 10. Quality Report (Phase 2)
+      const isP2QcApproved = [
+        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
+      ].includes(rc.status);
+      const step10 = { 
+        progress: isP2QcApproved ? 100 : 0, 
+        details: isP2QcApproved ? "Phase 2 QC Approved" : "Pending Quality Report/Approval" 
+      };
+
+      // 11. Ready for Shipment
+      const isReadyForShipment = [
+        'Redy for Dispatch', 'READY_FOR_DELIVERY', 'READY_FOR_DISPATCH', 
+        'DISPATCHED', 'DELIVERED'
+      ].includes(rc.status);
+      const step11 = { 
+        progress: isReadyForShipment ? 100 : 0, 
+        details: isReadyForShipment ? "Project is Ready for Shipment / Dispatched" : "Pending Final Release" 
+      };
+
+      const steps = [step1, step2, step3, step4, step5, step6, step7, step8, step9, step10, step11];
+      const overallProgress = Math.round(steps.reduce((sum, s) => sum + s.progress, 0) / steps.length);
+
+      return {
+        id: rc.id,
+        public_id: rc.public_id,
+        project_name: rc.project_name,
+        project_code: rc.project_code,
+        status: rc.status,
+        updated_at: rc.updated_at,
+        overall_progress: overallProgress,
+        steps: {
+          step1, step2, step3, step4, step5, step6, step7, step8, step9, step10, step11
+        },
+        raw: {
+          boms: projectBoms,
+          mrs: projectMrs,
+          grns: projectGrns,
+          ops: projectOps,
+          inspections: projectInspections
+        }
+      };
+    });
+
+    res.json({ success: true, projects: projectsDetails });
+  } catch (error) {
+    console.error('Error fetching production pert details:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getTodayAssignments = async (req, res) => {
+  try {
+    const query = `
+      SELECT a.*, r.project_name, r.project_code, p.plan_date
+      FROM daily_operator_assignments a
+      JOIN daily_production_plans p ON a.plan_id = p.id
+      LEFT JOIN root_cards r ON (a.root_card_id = r.id OR a.root_card_id = r.public_id)
+      WHERE DATE(p.plan_date) = CURDATE() OR DATE(p.plan_date) = DATE(NOW())
+      ORDER BY a.start_time ASC
+    `;
+    const [rows] = await db.query(query);
+    res.json({ success: true, assignments: rows });
+  } catch (error) {
+    console.error('Error fetching today assignments:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getRootCardProcurementPertDetails = async (req, res) => {
+  const { id } = req.params;
+  try {
+    let query = `
+      SELECT id, public_id, project_name, project_code, status, updated_at
+      FROM root_cards
+    `;
+    let params = [];
+    if (id !== 'all') {
+      query += " WHERE id = ? OR public_id = ?";
+      params = [id, id];
+    } else {
+      query += ` WHERE status IN (
+        'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 
+        'Released', 'Production', 'Partially Completed', 'MATERIAL_PLANNING', 
+        'PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 
+        'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'UNDER INSPECTION', 
+        'DESIGN_RELEASED', 'READY_FOR_PRODUCTION', 'READY_FOR_PHASE_2', 
+        'QC_APPROVED', 'Production completed and send to Quality fot QC', 
+        'send to production for complete final produciton', 
+        'final Prodcution completed and send to quality for final qc', 
+        'Redy for Dispatch', 'READY_FOR_DELIVERY', 'READY_FOR_DISPATCH'
+      ) ORDER BY updated_at DESC LIMIT 50`;
+    }
+
+    const [rootCards] = await db.query(query, params);
+    if (rootCards.length === 0) {
+      return res.json({ success: true, projects: [] });
+    }
+
+    const rcIds = rootCards.map(rc => rc.id);
+
+    const [mrs] = await db.query('SELECT id, root_card_id, request_number, status, created_at FROM material_requests WHERE root_card_id IN (?)', [rcIds]);
+    
+    const [quotes] = await db.query(`
+      SELECT q.id, q.root_card_id, q.material_request_id, q.quotation_number, q.type, q.status, q.created_at, v.name as vendor_name, q.total_amount
+      FROM quotations q
+      LEFT JOIN vendors v ON q.vendor_id = v.id
+      WHERE q.root_card_id IN (?) OR q.material_request_id IN (
+        SELECT id FROM material_requests WHERE root_card_id IN (?)
+      )
+    `, [rcIds, rcIds]);
+
+    const [pos] = await db.query(`
+      SELECT po.id, po.po_number, po.quotation_id, po.status, po.created_at, po.total_amount,
+             COALESCE(po.project_id, q.root_card_id, mr.root_card_id) as root_card_id
+      FROM purchase_orders po
+      LEFT JOIN quotations q ON po.quotation_id = q.id
+      LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+      WHERE po.project_id IN (?) OR q.root_card_id IN (?) OR mr.root_card_id IN (?)
+    `, [rcIds, rcIds, rcIds]);
+
+    const poIds = pos.map(p => p.id);
+    let communications = [];
+    if (poIds.length > 0) {
+      const [commRows] = await db.query('SELECT purchase_order_id, is_outgoing, created_at FROM purchase_order_communications WHERE purchase_order_id IN (?)', [poIds]);
+      communications = commRows;
+    }
+
+    const projectsDetails = rootCards.map(rc => {
+      const projectMrs = mrs.filter(m => m.root_card_id === rc.id);
+      
+      const projectMrIds = projectMrs.map(m => m.id);
+      const projectQuotes = quotes.filter(q => q.root_card_id === rc.id || (q.material_request_id && projectMrIds.includes(q.material_request_id)));
+      
+      const projectRFQs = projectQuotes.filter(q => q.type === 'outbound');
+      const projectInboundQuotes = projectQuotes.filter(q => q.type === 'inbound');
+
+      const projectPOs = pos.filter(p => p.root_card_id === rc.id);
+      const projectPOIds = projectPOs.map(p => p.id);
+      const projectComms = communications.filter(c => projectPOIds.includes(c.purchase_order_id));
+
+      const hasMr = projectMrs.length > 0;
+      const step1 = {
+        progress: hasMr ? 100 : 0,
+        details: hasMr ? `Material Request(s): ${projectMrs.map(m => m.request_number).join(', ')}` : "Pending Material Request"
+      };
+
+      const mrApproved = projectMrs.some(m => ['approved', 'completed'].includes(m.status));
+      const step2 = {
+        progress: mrApproved ? 100 : 0,
+        details: mrApproved ? "Request Approved in Procurement" : "Awaiting Approval"
+      };
+
+      const hasRfq = projectRFQs.length > 0;
+      const step3 = {
+        progress: hasRfq ? 100 : 0,
+        details: hasRfq ? `RFQ(s) Created: ${projectRFQs.map(q => q.quotation_number).join(', ')}` : "Awaiting RFQ Creation"
+      };
+
+      const rfqSent = projectRFQs.some(q => ['sent', 'received', 'approved', 'rejected'].includes(q.status));
+      const step4 = {
+        progress: rfqSent ? 100 : 0,
+        details: rfqSent ? "RFQ Email Sent to Vendor(s)" : "Awaiting RFQ Dispatch"
+      };
+
+      const hasInbound = projectInboundQuotes.length > 0;
+      const step5 = {
+        progress: hasInbound ? 100 : 0,
+        details: hasInbound 
+          ? `Received: ${projectInboundQuotes.map(q => `${q.quotation_number} (${q.vendor_name || 'Vendor'})`).join(', ')}` 
+          : "Awaiting Vendor Quotation Response"
+      };
+
+      const quoteApproved = projectInboundQuotes.some(q => q.status === 'approved') || projectPOs.length > 0;
+      const step6 = {
+        progress: quoteApproved ? 100 : 0,
+        details: quoteApproved ? "Quotation Approved" : "Awaiting Quote Review/Approval"
+      };
+
+      const hasPo = projectPOs.length > 0;
+      const step7 = {
+        progress: hasPo ? 100 : 0,
+        details: hasPo ? `PO(s) Created: ${projectPOs.map(p => p.po_number).join(', ')}` : "Awaiting Purchase Order Creation"
+      };
+
+      const poSent = projectComms.some(c => c.is_outgoing) || projectPOs.some(p => ['submitted', 'approved', 'sent to inventory', 'fulfilled'].includes(p.status));
+      const step8 = {
+        progress: poSent ? 100 : 0,
+        details: poSent ? "PO Email Sent to Vendor" : "Awaiting PO Dispatch"
+      };
+
+      const poAck = projectComms.some(c => !c.is_outgoing) || projectPOs.some(p => ['approved', 'sent to inventory', 'fulfilled'].includes(p.status));
+      const step9 = {
+        progress: poAck ? 100 : 0,
+        details: poAck ? "PO Confirmation Received from Vendor" : "Awaiting Vendor Acknowledgement"
+      };
+
+      const poSentToInventory = projectPOs.some(p => ['sent to inventory', 'fulfilled'].includes(p.status)) || ['PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 'Production', 'Partially Completed', 'PRODUCTION_IN_PROGRESS'].includes(rc.status);
+      const step10 = {
+        progress: poSentToInventory ? 100 : 0,
+        details: poSentToInventory ? "PO Transmitted to Inventory for Receipt (GRN)" : "PO Awaiting Transmission to Inventory"
+      };
+
+      return {
+        id: rc.id,
+        public_id: rc.public_id,
+        project_name: rc.project_name,
+        project_code: rc.project_code,
+        status: rc.status,
+        updated_at: rc.updated_at,
+        steps: [step1, step2, step3, step4, step5, step6, step7, step8, step9, step10]
+      };
+    });
+
+    res.json({ success: true, projects: projectsDetails });
+  } catch (error) {
+    console.error('Error fetching root card procurement PERT details:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};

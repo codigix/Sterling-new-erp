@@ -134,12 +134,13 @@ const DepartmentTasksPage = () => {
   const isCompletedLate = (row) => {
     const isCompleted = row.status === 'Completed' || row.status === 'completed';
     if (!isCompleted) return false;
-    if (!row.dueDate || !row.updated_at) return false;
+    const finishedAt = row.completed_date || row.updated_at;
+    if (!row.dueDate || !finishedAt) return false;
     
     const due = new Date(row.dueDate);
     due.setHours(0, 0, 0, 0);
     
-    const completedDate = new Date(row.updated_at);
+    const completedDate = new Date(finishedAt);
     completedDate.setHours(0, 0, 0, 0);
     
     return completedDate > due;
@@ -166,8 +167,8 @@ const DepartmentTasksPage = () => {
           // Find completion date
           const isCompleted = task.status === 'Completed' || task.status === 'completed';
           let doneDate = 'N/A';
-          if (isCompleted && task.updated_at) {
-            doneDate = formatDate(task.updated_at);
+          if (isCompleted && (task.completed_date || task.updated_at)) {
+            doneDate = formatDate(task.completed_date || task.updated_at);
           }
 
           // Determine late / overdue status details
@@ -273,10 +274,10 @@ const DepartmentTasksPage = () => {
               <Clock size={14} className="mr-1 text-amber-500" />
               <span className="">Due:</span> {formatDate(row.dueDate)}
             </div>
-            {isCompleted && row.updated_at && (
+            {isCompleted && (row.completed_date || row.updated_at) && (
               <div className="flex items-center text-xs text-slate-600">
                 <CheckCircle2 size={14} className="mr-1 text-green-500" />
-                <span className="font-semibold text-green-600">Done:</span> {formatDate(row.updated_at)}
+                <span className="font-semibold text-green-600">Done:</span> {formatDate(row.completed_date || row.updated_at)}
               </div>
             )}
           </div>

@@ -9,6 +9,9 @@ router.use(auth);
 // Root Card Routes for Production Planning
 router.get('/root-cards', productionController.getRootCards);
 router.get('/root-cards/:id', productionController.getRootCardById);
+router.get('/root-cards/:id/pert-details', productionController.getRootCardPertDetails);
+router.get('/root-cards/:id/procurement-pert-details', productionController.getRootCardProcurementPertDetails);
+router.get('/today-assignments', productionController.getTodayAssignments);
 router.post('/root-cards/:id/stages', productionController.addProductionOperation);
 router.put('/root-cards/:id/stages/:operationId', productionController.updateProductionOperation);
 router.delete('/root-cards/:id/stages/:operationId', productionController.deleteProductionOperation);

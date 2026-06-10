@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "../../utils/api";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import DataTable from "../../components/ui/DataTable/DataTable";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import {
   Package,
   Search,
+  X,
   Filter,
   Download,
   Trash2,
@@ -99,6 +101,7 @@ const SerialDetailTable = ({ item }) => {
 
 const StockBalancePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryQuery, setCategoryQuery] = useState("");
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedItem, setExpandedItem] = useState(null);
@@ -180,6 +183,26 @@ const StockBalancePage = () => {
     }
   };
 
+  const totalItems = stockData.length;
+  const totalBalance = stockData.reduce((sum, item) => sum + item.quantity, 0);
+  const lowStockItems = stockData.filter(item => item.quantity < item.reorderLevel || item.quantity === 0).length;
+
+  const categoryOptions = React.useMemo(() => {
+    return [
+      { label: "All Categories", value: "all" },
+      ...Array.from(new Set(stockData.map(item => item.item_group).filter(Boolean))).map(cat => ({
+        label: cat,
+        value: cat
+      }))
+    ];
+  }, [stockData]);
+
+  const filteredStockData = stockData.filter(item => {
+    if (!categoryQuery || categoryQuery === "all") return true;
+    const cat = item.item_group || "";
+    return cat.toLowerCase().includes(categoryQuery.toLowerCase());
+  });
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -189,33 +212,23 @@ const StockBalancePage = () => {
     );
   }
 
-  const totalItems = stockData.length;
-  const totalBalance = stockData.reduce((sum, item) => sum + item.quantity, 0);
-  const lowStockItems = stockData.filter(item => item.quantity < item.reorderLevel || item.quantity === 0).length;
-
   return (
     <div className="space-y-2 p-4 animate-in fade-in duration-500">
       <DataTable
         title="Inventory Ledger"
         titleIcon={<Warehouse size={15} />}
         titleExtra={
-          <div className="flex items-center gap-2 ml-4">
-            <button onClick={fetchMaterials} className="p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-500 hover:text-cyan-600 transition-all">
-              <RefreshCw size={14} />
-            </button>
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 dark:bg-slate-700 text-white rounded text-xs hover:bg-slate-800 transition-all shadow-sm">
-              <Download size={14} /> Export Data
-            </button>
+          <div className="w-48 sm:w-56 text-left">
+            <SearchableSelect
+              options={categoryOptions}
+              value={categoryQuery || "all"}
+              onChange={(val) => setCategoryQuery(val || "all")}
+              placeholder="Search Category..."
+              allowCustom={true}
+            />
           </div>
         }
-        filters={[
-          {
-            key: "item_group",
-            label: "Category",
-            options: Array.from(new Set(stockData.map(item => item.item_group).filter(Boolean))).map(cat => ({ label: cat, value: cat }))
-          }
-        ]}
-        data={stockData}
+        data={filteredStockData}
         columns={[
               {
                 key: "name",

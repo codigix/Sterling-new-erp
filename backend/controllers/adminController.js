@@ -91,7 +91,7 @@ const getDashboardStats = async (req, res) => {
 
     // Get all admin assigned departmental tasks for filtering and stats
     const [tasks] = await db.query(`
-      SELECT id, department_id, status, due_date
+      SELECT id, department_id, status, due_date, completed_date, updated_at
       FROM department_tasks
     `);
 

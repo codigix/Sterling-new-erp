@@ -83,11 +83,23 @@ const updateTask = async (req, res) => {
   const { title, description, departmentId, priority, assignmentDate, dueDate, status } = req.body;
 
   try {
+    const [current] = await db.query('SELECT status, completed_date FROM department_tasks WHERE id = ?', [id]);
+    if (current.length === 0) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    let completedDate = current[0].completed_date;
+    if (status === 'Completed' && current[0].status !== 'Completed') {
+      completedDate = new Date();
+    } else if (status !== 'Completed') {
+      completedDate = null;
+    }
+
     await db.query(
       `UPDATE department_tasks 
-       SET title = ?, description = ?, department_id = ?, priority = ?, assignment_date = ?, due_date = ?, status = ?
+       SET title = ?, description = ?, department_id = ?, priority = ?, assignment_date = ?, due_date = ?, status = ?, completed_date = ?
        WHERE id = ?`,
-      [title, description, departmentId, priority, assignmentDate, dueDate, status, id]
+      [title, description, departmentId, priority, assignmentDate, dueDate, status, completedDate, id]
     );
     res.json({ message: 'Task updated successfully' });
   } catch (error) {
@@ -133,9 +145,21 @@ const updateTaskStatus = async (req, res) => {
   const { status } = req.body;
 
   try {
+    const [current] = await db.query('SELECT status, completed_date FROM department_tasks WHERE id = ?', [id]);
+    if (current.length === 0) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    let completedDate = current[0].completed_date;
+    if (status === 'Completed' && current[0].status !== 'Completed') {
+      completedDate = new Date();
+    } else if (status !== 'Completed') {
+      completedDate = null;
+    }
+
     await db.query(
-      'UPDATE department_tasks SET status = ? WHERE id = ?',
-      [status, id]
+      'UPDATE department_tasks SET status = ?, completed_date = ? WHERE id = ?',
+      [status, completedDate, id]
     );
     res.json({ message: 'Task status updated successfully' });
   } catch (error) {
