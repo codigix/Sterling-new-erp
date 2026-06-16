@@ -2,6 +2,7 @@ const db = require("../config/db");
 const { sendEmail } = require("../utils/emailService");
 const fs = require("fs");
 const path = require("path");
+const { downloadMissingAttachmentFromEmail } = require("../utils/attachmentDownloader");
 
 // Helpers for fallback/placeholder files when files reside on production but not locally
 const getDummyPDF = (filename) => {
@@ -828,7 +829,12 @@ const downloadAttachment = async (req, res) => {
     }
 
     if (!finalPath) {
-      console.warn(`File ${attachment.file_name} not found on server disk. Serving fallback placeholder.`);
+      // Try to download dynamically from email
+      finalPath = await downloadMissingAttachmentFromEmail('purchase_order', id);
+    }
+
+    if (!finalPath) {
+      console.warn(`File ${attachment.file_name} not found on server disk or IMAP. Serving fallback placeholder.`);
       const fallback = getPlaceholderFile(attachment.file_name);
       res.setHeader('Content-Type', fallback.contentType);
       res.setHeader('Content-Disposition', `attachment; filename="${fallback.filename}"`);
