@@ -45,7 +45,7 @@ const BOMDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-  const printRef = useRef();
+  const printRef = useRef(null);
 
   const fetchBOMDetails = useCallback(async () => {
     try {
@@ -65,7 +65,7 @@ const BOMDetailsPage = () => {
   }, [fetchBOMDetails]);
 
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    contentRef: printRef,
   });
 
   const handleExportPDF = () => {

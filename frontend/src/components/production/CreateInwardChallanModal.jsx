@@ -41,17 +41,20 @@ const CreateInwardChallanModal = ({ isOpen, onClose, outwardChallan, onSuccess }
         setOutwardItems(items);
         setFormData(prev => ({
           ...prev,
-          items: items.map(item => ({
-            item_code: item.item_code,
-            item_name: item.item_name,
-            batch_no: item.batch_no,
-            sent_qty: item.dispatch_qty,
-            received_qty: item.dispatch_qty,
-            accepted_qty: item.dispatch_qty,
-            rejected_qty: 0,
-            uom: item.uom,
-            remarks: ""
-          }))
+          items: items.map(item => {
+            const formattedQty = item.dispatch_qty ? parseFloat(item.dispatch_qty).toString() : "";
+            return {
+              item_code: item.item_code,
+              item_name: item.item_name,
+              batch_no: item.batch_no,
+              sent_qty: formattedQty,
+              received_qty: formattedQty,
+              accepted_qty: formattedQty,
+              rejected_qty: 0,
+              uom: item.uom,
+              remarks: ""
+            };
+          })
         }));
       }
     } catch (error) {
@@ -68,9 +71,31 @@ const CreateInwardChallanModal = ({ isOpen, onClose, outwardChallan, onSuccess }
 
     // Auto-calculate rejected if received and accepted are changed
     if (field === "received_qty" || field === "accepted_qty") {
-      const received = parseFloat(updatedItems[index].received_qty) || 0;
-      const accepted = parseFloat(updatedItems[index].accepted_qty) || 0;
-      updatedItems[index].rejected_qty = Math.max(0, received - accepted);
+      let received = parseFloat(updatedItems[index].received_qty);
+      let accepted = parseFloat(updatedItems[index].accepted_qty);
+      const sent = parseFloat(updatedItems[index].sent_qty) || 0;
+
+      if (field === "received_qty") {
+        if (!isNaN(received) && received > sent) {
+          toast.warning(`Received Qty cannot exceed Sent Qty (${sent})`);
+          updatedItems[index].received_qty = sent.toString();
+          received = sent;
+        }
+        if (!isNaN(received) && !isNaN(accepted) && received < accepted) {
+          updatedItems[index].accepted_qty = updatedItems[index].received_qty;
+          accepted = received;
+        }
+      } else if (field === "accepted_qty") {
+        if (!isNaN(received) && !isNaN(accepted) && accepted > received) {
+          toast.warning(`Accepted Qty cannot exceed Received Qty (${received})`);
+          updatedItems[index].accepted_qty = updatedItems[index].received_qty;
+          accepted = received;
+        }
+      }
+
+      const finalReceived = isNaN(received) ? 0 : received;
+      const finalAccepted = isNaN(accepted) ? 0 : accepted;
+      updatedItems[index].rejected_qty = Math.max(0, finalReceived - finalAccepted);
     }
 
     setFormData({ ...formData, items: updatedItems });
@@ -83,10 +108,53 @@ const CreateInwardChallanModal = ({ isOpen, onClose, outwardChallan, onSuccess }
       return;
     }
 
+    // Validation
+    for (let i = 0; i < formData.items.length; i++) {
+      const item = formData.items[i];
+      const sent = parseFloat(item.sent_qty) || 0;
+      
+      if (item.received_qty === "" || item.received_qty === undefined || item.received_qty === null) {
+        toast.error(`Please enter Received Qty for item ${item.item_name}`);
+        return;
+      }
+      const received = parseFloat(item.received_qty);
+      if (isNaN(received) || received < 0) {
+        toast.error(`Invalid Received Qty for item ${item.item_name}`);
+        return;
+      }
+      if (received > sent) {
+        toast.error(`Received Qty cannot exceed Sent Qty (${sent}) for item ${item.item_name}`);
+        return;
+      }
+
+      if (item.accepted_qty === "" || item.accepted_qty === undefined || item.accepted_qty === null) {
+        toast.error(`Please enter Accepted Qty for item ${item.item_name}`);
+        return;
+      }
+      const accepted = parseFloat(item.accepted_qty);
+      if (isNaN(accepted) || accepted < 0) {
+        toast.error(`Invalid Accepted Qty for item ${item.item_name}`);
+        return;
+      }
+      if (accepted > received) {
+        toast.error(`Accepted Qty cannot exceed Received Qty (${received}) for item ${item.item_name}`);
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
+      const parsedItems = formData.items.map(item => ({
+        ...item,
+        sent_qty: parseFloat(item.sent_qty) || 0,
+        received_qty: parseFloat(item.received_qty) || 0,
+        accepted_qty: parseFloat(item.accepted_qty) || 0,
+        rejected_qty: parseFloat(item.rejected_qty) || 0
+      }));
+
       const payload = {
         ...formData,
+        items: parsedItems,
         outward_challan_id: outwardChallan.id,
         vendor_id: outwardChallan.vendor_id,
         vendor_name: outwardChallan.vendor_name,
@@ -222,13 +290,13 @@ const CreateInwardChallanModal = ({ isOpen, onClose, outwardChallan, onSuccess }
                           </div>
                         </td>
                         <td className="p-2 text-right">
-                          <span className="text-xs  text-slate-500">{parseFloat(item.sent_qty).toString()} <span className="text-[10px] font-normal ">{item.uom}</span></span>
+                          <span className="text-xs  text-slate-500">{(parseFloat(item.sent_qty) || 0).toString()} <span className="text-[10px] font-normal ">{item.uom}</span></span>
                         </td>
                         <td className="p-2">
                           <input
                             type="number"
                             step="any"
-                            value={parseFloat(item.received_qty).toString()}
+                            value={item.received_qty}
                             onChange={(e) => handleItemChange(index, "received_qty", e.target.value)}
                             className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-right focus:border-blue-500 outline-none"
                           />
@@ -237,14 +305,14 @@ const CreateInwardChallanModal = ({ isOpen, onClose, outwardChallan, onSuccess }
                           <input
                             type="number"
                             step="any"
-                            value={parseFloat(item.accepted_qty).toString()}
+                            value={item.accepted_qty}
                             onChange={(e) => handleItemChange(index, "accepted_qty", e.target.value)}
                             className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-right focus:border-blue-500 outline-none"
                           />
                         </td>
                         <td className="p-2 text-right">
-                          <span className={`text-xs  ${parseFloat(item.rejected_qty) > 0 ? "text-red-500" : "text-slate-400"}`}>
-                            {parseFloat(item.rejected_qty).toString()}
+                          <span className={`text-xs  ${(parseFloat(item.rejected_qty) || 0) > 0 ? "text-red-500" : "text-slate-400"}`}>
+                            {(parseFloat(item.rejected_qty) || 0).toString()}
                           </span>
                         </td>
                         <td className="p-2">

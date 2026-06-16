@@ -54,6 +54,7 @@ router.get('/labor/project/:id/logs', productionController.getProjectLaborLogs);
 router.post('/outward-challans', productionController.createOutwardChallan);
 router.get('/outward-challans', productionController.getOutwardChallans);
 router.get('/outward-challans/:id', productionController.getOutwardChallanDetails);
+router.delete('/outward-challans/:id', productionController.deleteOutwardChallan);
 
 // Inward Challan Routes
 router.post('/inward-challans', productionController.createInwardChallan);

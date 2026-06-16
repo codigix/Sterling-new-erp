@@ -3,12 +3,12 @@ import axios from "../../utils/api";
 import { toast } from "react-toastify";
 import {
   X,
-  Printer,
   Download,
   Building2,
   Loader2,
   FileText,
 } from "lucide-react";
+import { exportChallanToPDF } from "../../utils/challanPdfExport";
 
 const ViewOutwardChallanModal = ({ isOpen, onClose, challanId }) => {
   const [loading, setLoading] = useState(false);
@@ -39,17 +39,24 @@ const ViewOutwardChallanModal = ({ isOpen, onClose, challanId }) => {
     }
   }, [isOpen, challanId, fetchDetails]);
 
-  const handlePrint = () => {
-    window.print();
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!challanData) return;
+    try {
+      setDownloading(true);
+      await exportChallanToPDF(challanData, items);
+      toast.success("Downloading challan...");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to generate PDF");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const totalQty = items.reduce(
     (sum, item) => sum + (parseFloat(item.dispatch_qty) || 0),
-    0,
-  );
-  const totalAmount = items.reduce(
-    (sum, item) =>
-      sum + (parseFloat(item.dispatch_qty) || 0) * (parseFloat(item.rate) || 0),
     0,
   );
 
@@ -66,10 +73,11 @@ const ViewOutwardChallanModal = ({ isOpen, onClose, challanId }) => {
           </h2>
           <div className="flex items-center gap-3">
             <button
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs  hover:bg-indigo-700 transition-colors"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs hover:bg-emerald-700 transition-colors disabled:opacity-50"
             >
-              <Printer size={14} /> Print / Save PDF
+              {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} Download PDF
             </button>
             <button
               onClick={onClose}
@@ -98,8 +106,8 @@ const ViewOutwardChallanModal = ({ isOpen, onClose, challanId }) => {
                 {/* Document Header */}
                 <div className="grid grid-cols-12 border-b-2 border-slate-950">
                   <div className="col-span-4 p-4 border-r-2 border-slate-950 flex flex-col items-center justify-center">
-                    <div className="w-16 h-16 bg-slate-100 rounded flex items-center justify-center mb-2 print:bg-transparent">
-                      <Building2 size={32} className="text-slate-900" />
+                    <div className="w-auto h-16 flex items-center justify-center mb-2">
+                      <img src="/logo.png" alt="Sterling Logo" className="h-14 w-auto object-contain" />
                     </div>
                     <h3 className="text-sm font-black text-center leading-tight  text-slate-900">
                       STERLING TECHNO-SYSTEMS PVT. LTD.
@@ -211,13 +219,7 @@ const ViewOutwardChallanModal = ({ isOpen, onClose, challanId }) => {
                         <th className="border-r-2 border-slate-950 p-2 w-[60px]">
                           UNIT
                         </th>
-                        <th className="border-r-2 border-slate-950 p-2 w-[80px] text-right">
-                          QTY.
-                        </th>
-                        <th className="border-r-2 border-slate-950 p-2 w-[80px] text-right">
-                          RATE
-                        </th>
-                        <th className="p-2 w-[100px] text-right">AMOUNT</th>
+                        <th className="p-2 w-[100px] text-right">QTY.</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -237,27 +239,13 @@ const ViewOutwardChallanModal = ({ isOpen, onClose, challanId }) => {
                               <span className="text-[9px]  text-slate-600">
                                 {item.item_code}
                               </span>
-                              {item.batch_no && (
-                                <span className="text-[9px]  italic text-indigo-700">
-                                  ST#: {item.batch_no}
-                                </span>
-                              )}
                             </div>
                           </td>
                           <td className="border-r-2 border-slate-950 p-2 text-center text-[11px] font-black ">
                             {item.uom}
                           </td>
-                          <td className="border-r-2 border-slate-950 p-2 text-right text-[11px] font-black">
-                            {parseFloat(item.dispatch_qty).toString()}
-                          </td>
-                          <td className="border-r-2 border-slate-950 p-2 text-right text-[11px] font-black">
-                            {(parseFloat(item.rate) || 0).toFixed(2)}
-                          </td>
                           <td className="p-2 text-right text-[11px] font-black">
-                            {(
-                              (parseFloat(item.dispatch_qty) || 0) *
-                              (parseFloat(item.rate) || 0)
-                            ).toFixed(2)}
+                            {parseFloat(item.dispatch_qty).toString()}
                           </td>
                         </tr>
                       ))}
@@ -266,8 +254,6 @@ const ViewOutwardChallanModal = ({ isOpen, onClose, challanId }) => {
                         Array.from({ length: 10 - items.length }).map(
                           (_, i) => (
                             <tr key={`empty-${i}`} className="h-8">
-                              <td className="border-r-2 border-slate-950"></td>
-                              <td className="border-r-2 border-slate-950"></td>
                               <td className="border-r-2 border-slate-950"></td>
                               <td className="border-r-2 border-slate-950"></td>
                               <td className="border-r-2 border-slate-950"></td>
@@ -303,30 +289,17 @@ const ViewOutwardChallanModal = ({ isOpen, onClose, challanId }) => {
                         Frieght Paid / To Pay:
                       </span>
                       <span className="font-black flex-1  text-slate-950">
-                        {challanData.freight_type || "Paid"}
+                        {challanData.freight_type || "-"}
                       </span>
                     </div>
                   </div>
-                  <div className="col-span-4 grid grid-cols-2 divide-x-2 divide-slate-950 bg-slate-50">
-                    <div className="flex flex-col items-center justify-center p-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase">
-                        Total Qty
-                      </span>
-                      <span className="text-lg font-black text-slate-950">
-                        {totalQty}
-                      </span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center p-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase">
-                        Total Amount
-                      </span>
-                      <span className="text-lg font-black text-slate-950">
-                        ₹
-                        {totalAmount.toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
+                  <div className="col-span-4 flex flex-col items-center justify-center p-2 bg-slate-50">
+                    <span className="text-[9px] font-black text-slate-600 uppercase">
+                      Total Qty
+                    </span>
+                    <span className="text-lg font-black text-slate-950">
+                      {totalQty}
+                    </span>
                   </div>
                 </div>
 

@@ -112,7 +112,9 @@ exports.getDailyPlans = async (req, res) => {
             'break_time', a.break_time,
             'total_hours', a.total_hours,
             'remarks', a.remarks,
-            'status', a.status
+            'status', a.status,
+            'outward_challan_id', (SELECT id FROM outward_challans WHERE assignment_id = a.id LIMIT 1),
+            'outward_challan_status', (SELECT status FROM outward_challans WHERE assignment_id = a.id LIMIT 1)
           )
         ) FROM daily_operator_assignments a 
           LEFT JOIN root_cards r ON (a.root_card_id = r.id OR a.root_card_id = r.public_id) 
@@ -208,7 +210,9 @@ exports.getDailyPlanDetails = async (req, res) => {
     if (plan.length === 0) return res.status(404).json({ success: false, message: 'Plan not found' });
 
     const [assignments] = await db.query(`
-      SELECT a.*, r.project_name, r.id as root_card_ref
+      SELECT a.*, r.project_name, r.id as root_card_ref,
+             (SELECT id FROM outward_challans WHERE assignment_id = a.id LIMIT 1) as outward_challan_id,
+             (SELECT status FROM outward_challans WHERE assignment_id = a.id LIMIT 1) as outward_challan_status
       FROM daily_operator_assignments a
       LEFT JOIN root_cards r ON (a.root_card_id = r.id OR a.root_card_id = r.public_id)
       WHERE a.plan_id = ?
@@ -1579,16 +1583,71 @@ exports.createOutwardChallan = async (req, res) => {
         if (items && items.length > 0) {
             const itemValues = items.map(item => [
                 challanId, item.item_code, item.item_name, item.batch_no,
-                item.available_qty, item.dispatch_qty, item.uom, item.rate || 0
+                item.available_qty, item.dispatch_qty, item.uom
             ]);
 
             await connection.query(
                 `INSERT INTO outward_challan_items (
                     challan_id, item_code, item_name, batch_no, 
-                    available_qty, dispatch_qty, uom, rate
+                    available_qty, dispatch_qty, uom
                 ) VALUES ?`,
                 [itemValues]
             );
+        }
+
+        if (assignment_id) {
+            // Resolve internal ID if public_id is provided
+            const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+            const effectiveRootCardId = cards.length > 0 ? cards[0].id : root_card_id;
+
+            // 1. Update assignment status to 'Completed'
+            await connection.query(
+                `UPDATE daily_operator_assignments SET status = 'Completed' WHERE id = ?`,
+                [assignment_id]
+            );
+
+            // 2. Sync with daily_production_updates
+            const [existingUpdates] = await connection.query(
+                'SELECT id FROM daily_production_updates WHERE assignment_id = ?',
+                [assignment_id]
+            );
+
+            if (existingUpdates.length > 0) {
+                await connection.query(
+                    `UPDATE daily_production_updates 
+                     SET status = 'Completed', root_card_id = ?
+                     WHERE assignment_id = ?`,
+                    [effectiveRootCardId, assignment_id]
+                );
+            } else {
+                const [assignDetails] = await connection.query(
+                    'SELECT * FROM daily_operator_assignments WHERE id = ?',
+                    [assignment_id]
+                );
+                if (assignDetails.length > 0) {
+                    const a = assignDetails[0];
+                    await connection.query(
+                        `INSERT INTO daily_production_updates 
+                        (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
+                         operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
+                         actual_start, actual_end, break_time, actual_hours, status, remarks) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [challan_date || new Date(), plan_id || a.plan_id, assignment_id, effectiveRootCardId, a.operation_id, a.operation_name,
+                         a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
+                         a.start_time, a.end_time, a.break_time || 0, a.total_hours, 'Completed', a.remarks || '']
+                    );
+                }
+            }
+
+            // 3. Sync with root_card_operations (Project Stages)
+            if (operation_name) {
+                await connection.query(
+                    `UPDATE root_card_operations 
+                     SET status = 'Completed', updated_at = CURRENT_TIMESTAMP 
+                     WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
+                    [effectiveRootCardId, operation_name]
+                );
+            }
         }
 
         await connection.commit();
@@ -1637,6 +1696,63 @@ exports.getOutwardChallanDetails = async (req, res) => {
         res.json({ success: true, challan: challan[0], items });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.deleteOutwardChallan = async (req, res) => {
+    const { id } = req.params;
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Check if there are any associated inward challans
+        const [inwardRows] = await connection.query(
+            'SELECT id FROM inward_challans WHERE outward_challan_id = ?',
+            [id]
+        );
+        if (inwardRows.length > 0) {
+            await connection.rollback();
+            return res.status(400).json({
+                success: false,
+                message: 'Cannot delete outward challan as it has associated inward challan(s).'
+            });
+        }
+
+        // 2. Check if there are any associated vendor invoices
+        const [invoiceRows] = await connection.query(
+            'SELECT id FROM vendor_invoices WHERE outward_challan_id = ?',
+            [id]
+        );
+        if (invoiceRows.length > 0) {
+            await connection.rollback();
+            return res.status(400).json({
+                success: false,
+                message: 'Cannot delete outward challan as it has associated vendor invoice(s).'
+            });
+        }
+
+        // 3. Delete the outward challan (this will cascade delete outward_challan_items)
+        const [result] = await connection.query(
+            'DELETE FROM outward_challans WHERE id = ?',
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            await connection.rollback();
+            return res.status(404).json({
+                success: false,
+                message: 'Challan not found'
+            });
+        }
+
+        await connection.commit();
+        res.json({ success: true, message: 'Outward challan deleted successfully' });
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error('Error deleting outward challan:', error);
+        res.status(500).json({ success: false, message: error.message });
+    } finally {
+        if (connection) connection.release();
     }
 };
 

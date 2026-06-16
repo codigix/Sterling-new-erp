@@ -77,7 +77,7 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       setDownloading(true);
       const response = await axios.get(`/production/outward-challans/${row.id}`);
       if (response.data.success) {
-        exportChallanToPDF(response.data.challan, response.data.items || []);
+        await exportChallanToPDF(response.data.challan, response.data.items || []);
         toast.success("Downloading challan...");
       }
     } catch (error) {
@@ -85,6 +85,20 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
       toast.error("Failed to generate PDF");
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this outward challan?")) return;
+    try {
+      const response = await axios.delete(`/production/outward-challans/${id}`);
+      if (response.data.success) {
+        toast.success("Challan deleted successfully");
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Error deleting challan:", error);
+      toast.error(error.response?.data?.message || "Failed to delete challan");
     }
   };
 
@@ -167,20 +181,12 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
           >
             {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           </button>
-          {!isAccountantView && row.status !== "RECEIVED" && (
-            <button 
-              onClick={() => {
-                setSelectedOutwardChallan(row);
-                setIsCreateInwardModalOpen(true);
-              }}
-              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" 
-              title="Create Inward Challan"
-            >
-              <Truck size={16} />
-            </button>
-          )}
           {!isAccountantView && (
-            <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Delete">
+            <button 
+              onClick={() => handleDelete(row.id)}
+              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" 
+              title="Delete"
+            >
               <Trash2 size={16} />
             </button>
           )}
@@ -302,49 +308,6 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
         </div>
       </Card>
 
-      <div className="mb-6">
-        <div className="flex items-center gap-8 border-b border-slate-200 dark:border-slate-700">
-          <button
-            onClick={() => setActiveTab("outward")}
-            className={`pb-3 text-sm font-semibold flex items-center gap-2 transition-colors relative ${
-              activeTab === "outward" 
-                ? "text-indigo-600" 
-                : "text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            <ArrowUpRight size={18} className={activeTab === "outward" ? "text-indigo-600" : "text-slate-400"} />
-            Outward Challans
-            <span className={`px-2 py-0.5 rounded text-[10px] ${
-              activeTab === "outward" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"
-            }`}>
-              {outwardChallans.filter(c => selectedProject === "all" || c.root_card_id === selectedProject).length}
-            </span>
-            {activeTab === "outward" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t-full"></div>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("inward")}
-            className={`pb-3 text-sm font-semibold flex items-center gap-2 transition-colors relative ${
-              activeTab === "inward" 
-                ? "text-emerald-600" 
-                : "text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            <ArrowDownLeft size={18} className={activeTab === "inward" ? "text-emerald-600" : "text-slate-400"} />
-            Inward Challans
-            <span className={`px-2 py-0.5 rounded text-[10px] ${
-              activeTab === "inward" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
-            }`}>
-              {inwardChallans.filter(c => selectedProject === "all" || c.root_card_id === selectedProject).length}
-            </span>
-            {activeTab === "inward" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600 rounded-t-full"></div>
-            )}
-          </button>
-        </div>
-      </div>
-
       <Card>
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
@@ -353,9 +316,9 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
           </div>
         ) : (
           <DataTable
-            columns={activeTab === "outward" ? outwardColumns : inwardColumns}
-            data={filteredChallans}
-            emptyMessage={`No ${activeTab} challans found`}
+            columns={outwardColumns}
+            data={outwardChallans.filter(c => selectedProject === "all" || c.root_card_id === selectedProject)}
+            emptyMessage="No outward challans found"
           />
         )}
       </Card>

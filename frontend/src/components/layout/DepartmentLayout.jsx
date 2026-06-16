@@ -535,6 +535,19 @@ const DepartmentLayout = () => {
                       {!sidebarCollapsed && <span className="ml-3">Challans</span>}
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      to="/department/production/vendors"
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
+                        isActive("/department/production/vendors")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Users size={15} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Vendors</span>}
+                    </Link>
+                  </li>
                 </ul>
               </div>
             )}

@@ -3,17 +3,18 @@ import axios from "../../utils/api";
 import { toast } from "react-toastify";
 import { 
   X, 
-  Printer, 
-  Building2,
+  Download, 
   Loader2,
   FileText,
   Truck
 } from "lucide-react";
+import { exportInwardChallanToPDF } from "../../utils/challanPdfExport";
 
 const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
   const [loading, setLoading] = useState(false);
   const [challanData, setChallanData] = useState(null);
   const [items, setItems] = useState([]);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (isOpen && challanId) {
@@ -37,8 +38,18 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownload = async () => {
+    if (!challanData) return;
+    try {
+      setDownloading(true);
+      await exportInwardChallanToPDF(challanData, items);
+      toast.success("Downloading challan...");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to generate PDF");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -58,10 +69,11 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
           </h2>
           <div className="flex items-center gap-3">
              <button 
-                onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs  hover:bg-emerald-700 transition-colors"
+                onClick={handleDownload}
+                disabled={downloading}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs hover:bg-emerald-700 transition-colors disabled:opacity-50"
              >
-                <Printer size={14} /> Print / Save PDF
+                {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} Download PDF
              </button>
              <button onClick={onClose} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors">
                 <X size={20} className="text-slate-400" />
@@ -82,8 +94,8 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
               {/* Document Header */}
               <div className="grid grid-cols-12 border-b-2 border-slate-950">
                 <div className="col-span-4 p-4 border-r-2 border-slate-950 flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 bg-slate-100 rounded flex items-center justify-center mb-2 print:bg-transparent">
-                     <Building2 size={32} className="text-slate-900" />
+                  <div className="w-auto h-16 flex items-center justify-center mb-2">
+                    <img src="/logo.png" alt="Sterling Logo" className="h-14 w-auto object-contain" />
                   </div>
                   <h3 className="text-sm font-black text-center leading-tight  text-slate-900">STERLING TECHNO-SYSTEMS PVT. LTD.</h3>
                 </div>
@@ -162,10 +174,10 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
                               {item.batch_no && <span className="text-[9px]  italic text-indigo-700">ST#: {item.batch_no}</span>}
                            </div>
                         </td>
-                        <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black">{parseFloat(item.sent_qty).toString()}</td>
-                        <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black">{parseFloat(item.received_qty).toString()}</td>
-                        <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black text-emerald-700">{parseFloat(item.accepted_qty).toString()}</td>
-                        <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black text-red-600">{parseFloat(item.rejected_qty).toString()}</td>
+                        <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black">{(parseFloat(item.sent_qty) || 0).toString()}</td>
+                        <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black">{(parseFloat(item.received_qty) || 0).toString()}</td>
+                        <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black text-emerald-700">{(parseFloat(item.accepted_qty) || 0).toString()}</td>
+                        <td className="border-r-2 border-slate-950 p-2 text-right text-[10px] font-black text-red-600">{(parseFloat(item.rejected_qty) || 0).toString()}</td>
                         <td className="p-2 text-[9px] font-medium italic">{item.remarks || "-"}</td>
                       </tr>
                     ))}
@@ -199,11 +211,11 @@ const ViewInwardChallanModal = ({ isOpen, onClose, challanId }) => {
                 <div className="col-span-5 grid grid-cols-2 divide-x-2 divide-slate-950">
                   <div className="flex flex-col items-center justify-center bg-slate-50 p-2">
                     <span className="text-[9px] font-black  text-slate-600">Total Received</span>
-                    <span className="text-xl font-black text-slate-950">{parseFloat(totalReceived).toString()}</span>
+                    <span className="text-xl font-black text-slate-950">{(parseFloat(totalReceived) || 0).toString()}</span>
                   </div>
                   <div className="flex flex-col items-center justify-center bg-emerald-50 p-2">
                     <span className="text-[9px] font-black  text-emerald-600">Total Accepted</span>
-                    <span className="text-xl font-black text-emerald-700">{parseFloat(totalAccepted).toString()}</span>
+                    <span className="text-xl font-black text-emerald-700">{(parseFloat(totalAccepted) || 0).toString()}</span>
                   </div>
                 </div>
               </div>

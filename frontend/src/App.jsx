@@ -24,6 +24,7 @@ const ProcurementDashboard = lazy(() => import("./pages/roles/ProcurementDashboa
 const QualityDepartmentDashboard = lazy(() => import("./pages/roles/QualityDepartmentDashboard"));
 const AccountantDashboard = lazy(() => import("./pages/roles/AccountantDashboard"));
 const OutsourcingChallansPage = lazy(() => import("./pages/production/OutsourcingChallansPage"));
+const InventoryVendorsPage = lazy(() => import("./pages/inventory/VendorsPage"));
 
 // BOM Pages (Production)
 const CreateBOMPage = lazy(() => import("./pages/production/bom/CreateBOMPage"));
@@ -325,6 +326,11 @@ function App() {
                 <Route path="production/outsourcing-challans" element={
                   <ProtectedRoute allowedDepartments={["Production"]}>
                     <OutsourcingChallansPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/vendors" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <InventoryVendorsPage />
                   </ProtectedRoute>
                 } />
 

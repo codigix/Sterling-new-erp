@@ -34,12 +34,14 @@ import {
   Scissors,
   PlusCircle,
   ArrowUpRight,
-  ArrowDownLeft
+  ArrowDownLeft,
+  Truck
 } from "lucide-react";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import DataTable from "../../components/ui/DataTable/DataTable";
 import CreateOutwardChallanModal from "../../components/production/CreateOutwardChallanModal";
+import ViewOutwardChallanModal from "../../components/production/ViewOutwardChallanModal";
 const AccordionSection = memo(({ title, children, itemCount = 0 }) => (
   <div className="">
     <div className="p-2 flex items-center justify-between select-none bg-slate-50/80 dark:bg-slate-800/50">
@@ -642,31 +644,18 @@ const CreatePlanModal = ({ isOpen, onClose, planDate, onSave, projects, operator
                 </select>
               </div>
 
-              <div className="space-y-1.5">
-                {newAssignment.type === "inhouse" ? (
-                  <>
-                    <label className="text-xs text-slate-400">Operator</label>
-                    <SearchableSelect
-                      options={operators}
-                      value={newAssignment.operator}
-                      onChange={(val) => setNewAssignment({ ...newAssignment, operator: val })}
-                      placeholder="Select Operator..."
-                      allowCustom={true}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <label className="text-xs text-slate-400">Vendor</label>
-                    <SearchableSelect
-                      options={vendors}
-                      value={newAssignment.vendor}
-                      onChange={(val) => setNewAssignment({ ...newAssignment, vendor: val })}
-                      placeholder="Select Vendor..."
-                      allowCustom={true}
-                    />
-                  </>
-                )}
-              </div>
+              {newAssignment.type === "inhouse" && (
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-400">Operator</label>
+                  <SearchableSelect
+                    options={operators}
+                    value={newAssignment.operator}
+                    onChange={(val) => setNewAssignment({ ...newAssignment, operator: val })}
+                    placeholder="Select Operator..."
+                    allowCustom={true}
+                  />
+                </div>
+              )}
 
               {newAssignment.type === "inhouse" && (
                 <div className="grid grid-cols-2 gap-4">
@@ -3127,6 +3116,8 @@ const DailyProductionPlanningPage = () => {
   // Outward Challan Modal State
   const [isOutwardModalOpen, setIsOutwardModalOpen] = useState(false);
   const [selectedAssignmentForChallan, setSelectedAssignmentForChallan] = useState(null);
+  const [isViewChallanModalOpen, setIsViewChallanModalOpen] = useState(false);
+  const [selectedChallanId, setSelectedChallanId] = useState(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -3285,6 +3276,40 @@ const DailyProductionPlanningPage = () => {
         } catch (error) {
           console.error("Error deleting assignment:", error);
           toast.error(error.response?.data?.message || "We couldn't delete the assignment. Please try again later.");
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
+  };
+
+  const handleCompleteAssignment = async (assignment) => {
+    Swal.fire({
+      title: "Complete Operation?",
+      text: `Do you want to mark the outsourced operation "${assignment.operation_name}" as Completed?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#10b981",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Yes, complete it!",
+      cancelButtonText: "Cancel"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setLoading(true);
+        try {
+          const response = await axios.put(`/production/assignments/${assignment.id}`, {
+            ...assignment,
+            status: "Completed",
+            start_time: assignment.start_time || null,
+            end_time: assignment.end_time || null
+          });
+          if (response.data.success) {
+            toast.success("Operation marked as completed successfully");
+            fetchData();
+          }
+        } catch (error) {
+          console.error("Error completing assignment:", error);
+          toast.error(error.response?.data?.message || "We couldn't update the assignment status. Please try again.");
         } finally {
           setLoading(false);
         }
@@ -3472,7 +3497,7 @@ const DailyProductionPlanningPage = () => {
           >
             <Pencil size={15} />
           </button>
-          {assignment.operation_name?.toLowerCase().includes("cutting") && (
+          {assignment.operation_name?.toLowerCase().includes("cutting") && assignment.assignment_type !== "outsource" && (
             assignment.plan_mcr_id ? (
               <button
                 onClick={() => {
@@ -3505,23 +3530,29 @@ const DailyProductionPlanningPage = () => {
           )}
           {assignment.assignment_type === "outsource" && (
             <>
-              <button
-                onClick={() => {
-                  setSelectedAssignmentForChallan(assignment);
-                  setIsOutwardModalOpen(true);
-                }}
-                className="p-2 text-orange-400 hover:text-orange-600 transition-colors"
-                title="Create Outward Challan"
-              >
-                <ArrowUpRight size={15} />
-              </button>
-              <button
-                onClick={() => toast.info(`Creating Inward Challan for ${assignment.operation_name}...`)}
-                className="p-2 text-blue-400 hover:text-blue-600 transition-colors"
-                title="Create Inward Challan"
-              >
-                <ArrowDownLeft size={15} />
-              </button>
+              {assignment.outward_challan_id ? (
+                <button
+                  onClick={() => {
+                    setSelectedChallanId(assignment.outward_challan_id);
+                    setIsViewChallanModalOpen(true);
+                  }}
+                  className="p-2 text-orange-400 hover:text-orange-600 transition-colors"
+                  title="View Outward Challan"
+                >
+                  <Truck size={15} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setSelectedAssignmentForChallan(assignment);
+                    setIsOutwardModalOpen(true);
+                  }}
+                  className="p-2 text-orange-400 hover:text-orange-600 transition-colors"
+                  title="Create Outward Challan"
+                >
+                  <ArrowUpRight size={15} />
+                </button>
+              )}
             </>
           )}
           <button
@@ -3677,9 +3708,21 @@ const DailyProductionPlanningPage = () => {
 
       <CreateOutwardChallanModal
         isOpen={isOutwardModalOpen}
-        onClose={() => setIsOutwardModalOpen(false)}
+        onClose={() => {
+          setIsOutwardModalOpen(false);
+          fetchData();
+        }}
         assignment={selectedAssignmentForChallan}
         vendors={vendors}
+      />
+
+      <ViewOutwardChallanModal
+        isOpen={isViewChallanModalOpen}
+        onClose={() => {
+          setIsViewChallanModalOpen(false);
+          setSelectedChallanId(null);
+        }}
+        challanId={selectedChallanId}
       />
     </div>
   );

@@ -18,6 +18,21 @@ import {
 import SearchableSelect from "../ui/SearchableSelect";
 import DataTable from "../ui/DataTable/DataTable";
 
+const getDimensionsText = (item) => {
+  const parts = [];
+  const val = (v) => {
+    const n = parseFloat(v);
+    return (n && !isNaN(n) && n !== 0) ? n : null;
+  };
+  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+  if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+  if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+  if (val(item.diameter)) parts.push(`Dia: ${val(item.diameter)}`);
+  if (val(item.outer_diameter)) parts.push(`OD: ${val(item.outer_diameter)}`);
+  if (val(item.height)) parts.push(`H: ${val(item.height)}`);
+  return parts.length > 0 ? parts.join(" \u00d7 ") : "";
+};
+
 const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => {
   const [loading, setLoading] = useState(false);
   const [fetchingMaterials, setFetchingMaterials] = useState(false);
@@ -33,7 +48,7 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
     supply_order_date: "",
     despatched_through: "",
     against_lr_rr_no: "",
-    freight_type: "Paid", 
+    freight_type: "", 
     operation_name: "",
     remarks: "",
     items: []
@@ -72,12 +87,15 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
         entry_date: m.entry_date
       })));
 
-      const options = allItems.map((item, idx) => ({
-        value: `${item.item_code}-${idx}`,
-        label: `${item.item_name || item.material_name} (${item.item_code})`,
-        subLabel: `From: ${item.entry_no} | Available: ${item.quantity} ${item.uom} | ST#: ${item.serials?.[0]?.serial_number || 'N/A'}`,
-        originalItem: item
-      }));
+      const options = allItems.map((item, idx) => {
+        const dims = getDimensionsText(item);
+        return {
+          value: `${item.item_code}-${idx}`,
+          label: `${item.item_name || item.material_name} (${item.item_code})${dims ? ` [${dims}]` : ''}`,
+          subLabel: `From: ${item.entry_no} | Available: ${parseFloat(item.quantity)} ${item.uom}`,
+          originalItem: item
+        };
+      });
       setItemOptions(options);
 
     } catch (error) {
@@ -115,27 +133,40 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
   };
 
   const handleItemChange = (id, field, value) => {
+    let resolvedValue = value;
+    if (field === "dispatch_qty") {
+      const item = formData.items.find(i => i.id === id);
+      if (item) {
+        const qtyVal = parseFloat(value) || 0;
+        if (qtyVal > item.available_qty) {
+          toast.warning(`Quantity cannot exceed available quantity (${item.available_qty})`);
+          resolvedValue = item.available_qty;
+        }
+      }
+    }
+
     setFormData(prev => {
       const newItems = prev.items.map(item => {
         if (item.id === id) {
-          const updatedItem = { ...item, [field]: value };
+          const updatedItem = { ...item, [field]: resolvedValue };
           if (field === "item_code") {
-            const selectedOption = itemOptions.find(opt => opt.value === value);
+            const selectedOption = itemOptions.find(opt => opt.value === resolvedValue);
             if (selectedOption) {
               const original = selectedOption.originalItem;
-              updatedItem.item_name = original.item_name;
+              const dims = getDimensionsText(original);
+              updatedItem.item_name = dims ? `${original.item_name || original.material_name} (${dims})` : (original.item_name || original.material_name);
               updatedItem.item_code = original.item_code;
               updatedItem.uom = original.uom;
-              updatedItem.available_qty = original.quantity;
+              updatedItem.available_qty = parseFloat(original.quantity);
               updatedItem.batch_no = original.serials?.[0]?.serial_number || original.entry_no;
-              updatedItem.dispatch_qty = original.quantity;
+              updatedItem.dispatch_qty = parseFloat(original.quantity);
             } else {
               // Handle custom manual entry
-              updatedItem.item_name = value;
-              updatedItem.item_code = value;
-              updatedItem.uom = "Nos";
-              updatedItem.available_qty = 999999;
-              updatedItem.dispatch_qty = 1;
+              updatedItem.item_name = resolvedValue;
+              updatedItem.item_code = resolvedValue;
+              updatedItem.uom = item.uom || "Nos";
+              updatedItem.available_qty = item.available_qty || 999999;
+              updatedItem.dispatch_qty = item.dispatch_qty || 1;
             }
           }
           return updatedItem;
@@ -151,13 +182,34 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
   }, [formData.items]);
 
   const handleSubmit = async (status = "SUBMITTED") => {
+    if (!formData.challan_date) {
+      toast.error("Challan date is required");
+      return;
+    }
     if (!formData.vendor_name) {
       toast.error("Please select a vendor");
+      return;
+    }
+    if (!formData.vendor_address || !formData.vendor_address.trim()) {
+      toast.error("Vendor address details are required");
       return;
     }
     if (formData.items.length === 0) {
       toast.error("Please add at least one item");
       return;
+    }
+
+    // Validate quantities do not exceed available quantity
+    for (const item of formData.items) {
+      const dispatchQty = parseFloat(item.dispatch_qty) || 0;
+      if (dispatchQty <= 0) {
+        toast.error(`Please enter a valid quantity for ${item.item_name || item.item_code}`);
+        return;
+      }
+      if (dispatchQty > item.available_qty) {
+        toast.error(`Quantity for ${item.item_name || item.item_code} exceeds available quantity of ${item.available_qty}`);
+        return;
+      }
     }
 
     setLoading(true);
@@ -185,6 +237,8 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
 
   if (!isOpen) return null;
 
+  const isCutting = formData.operation_name?.toLowerCase().trim() === "cutting";
+
   const itemColumns = [
     {
       key: "sr_no",
@@ -195,24 +249,56 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
     {
       key: "item_code",
       label: "Item Description",
-      render: (value, item) => (
-        <div className="min-w-[300px]">
-          <SearchableSelect
-            options={itemOptions}
-            value={itemOptions.find(opt => opt.originalItem.item_code === item.item_code)?.value || item.item_code}
-            onChange={(val) => handleItemChange(item.id, "item_code", val)}
-            placeholder="Select Item..."
-            allowCustom={true}
-          />
-        </div>
-      )
+      render: (value, item) => {
+        return (
+          <div className="min-w-[300px]">
+            {isCutting ? (
+              <div className="space-y-1">
+                <SearchableSelect
+                  options={itemOptions}
+                  value={itemOptions.find(opt => opt.originalItem.item_code === item.item_code)?.value || item.item_code}
+                  onChange={(val) => handleItemChange(item.id, "item_code", val)}
+                  placeholder="Select Item..."
+                  allowCustom={true}
+                />
+                {item.item_name && (
+                  <div className="text-[10px] text-slate-500 font-semibold px-1">
+                    Selected: {item.item_name}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <input
+                type="text"
+                className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-900"
+                value={item.item_name || item.item_code || ""}
+                onChange={(e) => handleItemChange(item.id, "item_code", e.target.value)}
+                placeholder="Enter Item Description..."
+              />
+            )}
+          </div>
+        );
+      }
     },
     {
       key: "uom",
       label: "Unit",
       width: "100px",
       align: "center",
-      render: (value) => <span className="text-xs text-slate-600 font-medium">{value || "-"}</span>
+      render: (value, item) => {
+        if (isCutting) {
+          return <span className="text-xs text-slate-600 font-medium">{value || "-"}</span>;
+        }
+        return (
+          <input
+            type="text"
+            className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-center bg-white dark:bg-slate-900"
+            value={value || ""}
+            onChange={(e) => handleItemChange(item.id, "uom", e.target.value)}
+            placeholder="Nos"
+          />
+        );
+      }
     },
     {
       key: "dispatch_qty",
@@ -221,23 +307,10 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
       render: (value, item) => (
         <input
           type="number"
+          max={item.available_qty}
           className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right  bg-white dark:bg-slate-900"
           value={value}
           onChange={(e) => handleItemChange(item.id, "dispatch_qty", e.target.value)}
-        />
-      )
-    },
-    {
-      key: "rate",
-      label: "Rate",
-      width: "120px",
-      render: (value, item) => (
-        <input
-          type="number"
-          step="0.01"
-          className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right  bg-white dark:bg-slate-900"
-          value={value}
-          onChange={(e) => handleItemChange(item.id, "rate", e.target.value)}
         />
       )
     },
@@ -277,123 +350,131 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
         {/* Form Body */}
         <div className="flex-1 overflow-y-auto p-8 space-y-8">
           
-          {/* Section 1: Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-6 md:col-span-2">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
-                      <Hash size={12} /> Challan No.
-                    </label>
-                    <input 
-                      type="text" 
-                      className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm  text-indigo-600"
-                      value={formData.challan_no}
-                      readOnly
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
-                      <Calendar size={12} /> Challan Date
-                    </label>
-                    <input 
-                      type="date" 
-                      className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm"
-                      value={formData.challan_date}
-                      onChange={(e) => setFormData({...formData, challan_date: e.target.value})}
-                    />
-                  </div>
-               </div>
-
-               <div className="space-y-2">
-                  <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
-                    <Building2 size={12} /> Vendor / Sub-contractor
-                  </label>
-                  <SearchableSelect 
-                    options={vendors}
-                    value={formData.vendor_name}
-                    onChange={(val) => {
-                      const vendor = vendors.find(v => v.value === val);
-                      setFormData({...formData, vendor_name: val, vendor_id: vendor?.id || "", vendor_address: vendor?.address || ""});
-                    }}
-                    placeholder="Select Vendor..."
-                  />
-                  <textarea 
-                    className="w-full p-3 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-xs h-20 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
-                    placeholder="Vendor Address details..."
-                    value={formData.vendor_address}
-                    onChange={(e) => setFormData({...formData, vendor_address: e.target.value})}
-                  />
-               </div>
-            </div>
-
-            <div className="bg-indigo-50/50 dark:bg-indigo-900/10 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-900/20 space-y-6">
-                <h3 className="text-xs  text-indigo-600  flex items-center gap-2">
-                  <Info size={14} /> Supply Order Info
-                </h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px]  text-slate-500 ">Supply Order No.</label>
-                    <input 
-                      type="text" 
-                      className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs"
-                      value={formData.supply_order_no}
-                      onChange={(e) => setFormData({...formData, supply_order_no: e.target.value})}
-                      placeholder="Enter order no..."
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px]  text-slate-500 ">Order Date</label>
-                    <input 
-                      type="date" 
-                      className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs"
-                      value={formData.supply_order_date}
-                      onChange={(e) => setFormData({...formData, supply_order_date: e.target.value})}
-                    />
-                  </div>
-                </div>
-            </div>
-          </div>
-
-          {/* Section 2: Logistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+          {/* Main Challan & Order Details */}
+          <div className="bg-slate-50 dark:bg-slate-900/40 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              
+              {/* Row 1 */}
               <div className="space-y-2">
-                <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
+                <label className="text-[11px] text-slate-400 tracking-wider flex items-center gap-2">
+                  <Hash size={12} /> Challan No.
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full p-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm text-indigo-600 font-medium"
+                  value={formData.challan_no}
+                  readOnly
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-[11px] text-slate-400 tracking-wider flex items-center gap-2">
+                  <Calendar size={12} /> Challan Date <span className="text-rose-500">*</span>
+                </label>
+                <input 
+                  type="date" 
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm"
+                  value={formData.challan_date}
+                  onChange={(e) => setFormData({...formData, challan_date: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] text-slate-400 tracking-wider flex items-center gap-2">
+                  <Info size={12} /> Supply Order No.
+                </label>
+                <input 
+                  type="text" 
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  value={formData.supply_order_no}
+                  onChange={(e) => setFormData({...formData, supply_order_no: e.target.value})}
+                  placeholder="Enter order no..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] text-slate-400 tracking-wider flex items-center gap-2">
+                  <Calendar size={12} /> Order Date
+                </label>
+                <input 
+                  type="date" 
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  value={formData.supply_order_date}
+                  onChange={(e) => setFormData({...formData, supply_order_date: e.target.value})}
+                />
+              </div>
+
+              {/* Row 2 */}
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-[11px] text-slate-400 tracking-wider flex items-center gap-2">
+                  <Building2 size={12} /> Vendor / Sub-contractor <span className="text-rose-500">*</span>
+                </label>
+                <SearchableSelect 
+                  options={vendors}
+                  value={formData.vendor_name}
+                  onChange={(val) => {
+                    const vendor = vendors.find(v => v.value === val);
+                    setFormData({...formData, vendor_name: val, vendor_id: vendor?.id || "", vendor_address: vendor?.address || ""});
+                  }}
+                  placeholder="Select Vendor..."
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-[11px] text-slate-400 tracking-wider flex items-center gap-2 font-medium">
                   <Truck size={12} /> Despatched Through
                 </label>
                 <input 
                   type="text" 
-                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm"
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
                   value={formData.despatched_through}
                   onChange={(e) => setFormData({...formData, despatched_through: e.target.value})}
                   placeholder="Vehicle / Courier..."
                 />
               </div>
+
+              {/* Row 3 */}
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-[11px] text-slate-400 tracking-wider flex items-center gap-2">
+                  <Building2 size={12} /> Vendor Address Details <span className="text-rose-500">*</span>
+                </label>
+                <textarea 
+                  className="w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs h-20 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none"
+                  placeholder="Vendor Address details..."
+                  value={formData.vendor_address}
+                  onChange={(e) => setFormData({...formData, vendor_address: e.target.value})}
+                />
+              </div>
+
               <div className="space-y-2">
-                <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
-                  Against L.R. / R.R. No.
+                <label className="text-[11px] text-slate-400 tracking-wider">
+                  Against L.R. / R.R. No. <span className="text-[10px] text-slate-400 font-normal lowercase">(optional)</span>
                 </label>
                 <input 
                   type="text" 
-                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm"
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
                   value={formData.against_lr_rr_no}
                   onChange={(e) => setFormData({...formData, against_lr_rr_no: e.target.value})}
                   placeholder="Enter LR/RR no..."
                 />
               </div>
+
               <div className="space-y-2">
-                <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
-                  Freight Type
+                <label className="text-[11px] text-slate-400 tracking-wider">
+                  Freight Type <span className="text-[10px] text-slate-400 font-normal lowercase">(optional)</span>
                 </label>
                 <select 
-                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none"
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
                   value={formData.freight_type}
                   onChange={(e) => setFormData({...formData, freight_type: e.target.value})}
                 >
+                  <option value="">-</option>
                   <option value="Paid">Freight Paid</option>
                   <option value="To Pay">Freight To Pay</option>
                 </select>
               </div>
+
+            </div>
           </div>
 
           {/* Section 3: Items */}
@@ -423,19 +504,6 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
               <span className="text-xs font-medium text-slate-500">Total Dispatch Quantity:</span>
               <span className="text-lg font-black text-slate-900 dark:text-white">{totalDispatchQty} <span className="text-xs font-normal text-slate-400 ml-1">Units</span></span>
             </div>
-          </div>
-
-          {/* Section 4: Remarks */}
-          <div className="space-y-2">
-            <label className="text-[11px]  text-slate-400  tracking-wider flex items-center gap-2">
-              Remarks / Instructions
-            </label>
-            <textarea 
-              className="w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-sm h-24 outline-none focus:ring-2 focus:ring-indigo-500/20"
-              value={formData.remarks}
-              onChange={(e) => setFormData({...formData, remarks: e.target.value})}
-              placeholder="Any additional instructions for the vendor..."
-            />
           </div>
         </div>
 
