@@ -3,6 +3,72 @@ const { sendEmail } = require("../utils/emailService");
 const fs = require("fs");
 const path = require("path");
 
+// Helpers for fallback/placeholder files when files reside on production but not locally
+const getDummyPDF = (filename) => {
+  const cleanFilename = filename.replace(/[()]/g, '_');
+  const bodyParts = [
+    `%PDF-1.4\n`,
+    `1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`,
+    `2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n`,
+    `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> >>\nendobj\n`
+  ];
+  
+  const contentStream = 
+    `BT\n/F1 12 Tf\n50 750 Td\n(This is a placeholder for a missing local file:) Tj\n` +
+    `0 -20 Td\n(${cleanFilename}) Tj\n` +
+    `0 -40 Td\n(The database references a file uploaded on production that does not exist locally.) Tj\n` +
+    `0 -20 Td\n(A placeholder PDF is served here to prevent breaking your local flow.) Tj\n` +
+    `ET\n`;
+    
+  bodyParts.push(`4 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}endstream\nendobj\n`);
+  
+  // Calculate offsets
+  const offsets = [];
+  let currentOffset = 0;
+  for (let i = 0; i < bodyParts.length; i++) {
+    offsets.push(currentOffset);
+    currentOffset += Buffer.byteLength(bodyParts[i], 'utf8');
+  }
+  
+  const xrefOffset = currentOffset;
+  let xref = `xref\n0 5\n0000000000 65535 f\n`;
+  for (let i = 0; i < offsets.length; i++) {
+    xref += `${String(offsets[i]).padStart(10, '0')} 00000 n\n`;
+  }
+  
+  const trailer = `trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  
+  return Buffer.from(bodyParts.join('') + xref + trailer, 'utf8');
+};
+
+const getDummySVG = (filename) => {
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">` +
+    `<rect width="100%" height="100%" fill="#f3f4f6"/>` +
+    `<text x="20" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Missing File Placeholder</text>` +
+    `<text x="20" y="90" font-family="sans-serif" font-size="12" fill="#4b5563">${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}</text>` +
+    `<text x="20" y="130" font-family="sans-serif" font-size="12" fill="#6b7280">File is stored on the production server.</text>` +
+    `</svg>`
+  );
+};
+
+const getPlaceholderFile = (filename) => {
+  const ext = path.extname(filename).toLowerCase();
+  if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'].includes(ext)) {
+    return {
+      content: getDummySVG(filename),
+      contentType: 'image/svg+xml',
+      filename: filename.endsWith('.svg') ? filename : filename + '.svg'
+    };
+  }
+  return {
+    content: getDummyPDF(filename),
+    contentType: 'application/pdf',
+    filename: filename
+  };
+};
+
+
 const getFinancialYear = (dateStr) => {
   const date = dateStr ? new Date(dateStr) : new Date();
   const year = date.getFullYear();
@@ -762,12 +828,11 @@ const downloadAttachment = async (req, res) => {
     }
 
     if (!finalPath) {
-      console.error(`File not found. Tried paths:`, possiblePaths);
-      return res.status(404).json({
-        message: "File not found on server",
-        details:
-          "The file record exists in the database but the physical file is missing from the expected storage locations.",
-      });
+      console.warn(`File ${attachment.file_name} not found on server disk. Serving fallback placeholder.`);
+      const fallback = getPlaceholderFile(attachment.file_name);
+      res.setHeader('Content-Type', fallback.contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${fallback.filename}"`);
+      return res.send(fallback.content);
     }
 
     res.download(finalPath, attachment.file_name, (err) => {

@@ -5,6 +5,99 @@ const path = require('path');
 const pdf = require('pdf-parse');
 const crypto = require('crypto');
 
+// Helpers for fallback/placeholder files when files reside on production but not locally
+const getDummyPDF = (filename) => {
+  const cleanFilename = filename.replace(/[()]/g, '_');
+  const bodyParts = [
+    `%PDF-1.4\n`,
+    `1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`,
+    `2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n`,
+    `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> >>\nendobj\n`
+  ];
+  
+  const contentStream = 
+    `BT\n/F1 12 Tf\n50 750 Td\n(This is a placeholder for a missing local file:) Tj\n` +
+    `0 -20 Td\n(${cleanFilename}) Tj\n` +
+    `0 -40 Td\n(The database references a file uploaded on production that does not exist locally.) Tj\n` +
+    `0 -20 Td\n(A placeholder PDF is served here to prevent breaking your local flow.) Tj\n` +
+    `ET\n`;
+    
+  bodyParts.push(`4 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}endstream\nendobj\n`);
+  
+  // Calculate offsets
+  const offsets = [];
+  let currentOffset = 0;
+  for (let i = 0; i < bodyParts.length; i++) {
+    offsets.push(currentOffset);
+    currentOffset += Buffer.byteLength(bodyParts[i], 'utf8');
+  }
+  
+  const xrefOffset = currentOffset;
+  let xref = `xref\n0 5\n0000000000 65535 f\n`;
+  for (let i = 0; i < offsets.length; i++) {
+    xref += `${String(offsets[i]).padStart(10, '0')} 00000 n\n`;
+  }
+  
+  const trailer = `trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  
+  return Buffer.from(bodyParts.join('') + xref + trailer, 'utf8');
+};
+
+const getDummySVG = (filename) => {
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">` +
+    `<rect width="100%" height="100%" fill="#f3f4f6"/>` +
+    `<text x="20" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Missing File Placeholder</text>` +
+    `<text x="20" y="90" font-family="sans-serif" font-size="12" fill="#4b5563">${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}</text>` +
+    `<text x="20" y="130" font-family="sans-serif" font-size="12" fill="#6b7280">File is stored on the production server.</text>` +
+    `</svg>`
+  );
+};
+
+const getPlaceholderFile = (filename) => {
+  const ext = path.extname(filename).toLowerCase();
+  if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'].includes(ext)) {
+    return {
+      content: getDummySVG(filename),
+      contentType: 'image/svg+xml',
+      filename: filename.endsWith('.svg') ? filename : filename + '.svg'
+    };
+  }
+  return {
+    content: getDummyPDF(filename),
+    contentType: 'application/pdf',
+    filename: filename
+  };
+};
+
+const resolveFilePath = (storedPath) => {
+  if (!storedPath) return null;
+  
+  // Normalize path separators to ensure cross-platform compatibility
+  const normalizedPath = storedPath.replace(/[\\/]/g, path.sep);
+  
+  // Resolve absolute path starting from the backend root
+  const projectRoot = path.resolve(__dirname, '..');
+  
+  const possiblePaths = [
+    path.isAbsolute(normalizedPath)
+      ? normalizedPath
+      : path.join(projectRoot, normalizedPath),
+    path.resolve(projectRoot, '..', normalizedPath), // Try one level up
+    path.join(projectRoot, 'uploads', path.basename(normalizedPath)), // Try directly in uploads
+    path.join(projectRoot, 'uploads', 'purchase_orders', path.basename(normalizedPath)), // Try PO subfolder
+    path.join(projectRoot, 'uploads', 'quotations', path.basename(normalizedPath)) // Try Quotation subfolder
+  ];
+
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      return p;
+    }
+  }
+  return null;
+};
+
+
 const getQuotations = async (req, res) => {
     try {
         const { type, material_request_id, root_card_id, search, status } = req.query;
@@ -707,10 +800,14 @@ const downloadAttachment = async (req, res) => {
         }
 
         const attachment = rows[0];
-        const filePath = path.join(__dirname, '..', attachment.file_path);
+        const filePath = resolveFilePath(attachment.file_path);
 
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ message: 'File not found on server' });
+        if (!filePath) {
+            console.warn(`File ${attachment.file_name} not found on server disk. Serving fallback placeholder.`);
+            const fallback = getPlaceholderFile(attachment.file_name);
+            res.setHeader('Content-Type', fallback.contentType);
+            res.setHeader('Content-Disposition', `attachment; filename="${fallback.filename}"`);
+            return res.send(fallback.content);
         }
 
         res.setHeader('Content-Type', attachment.mime_type);
@@ -819,19 +916,17 @@ const downloadReceivedQuotation = async (req, res) => {
             return res.status(404).json({ message: 'Quotation file not found' });
         }
 
-        // Normalize path separators to ensure cross-platform compatibility
-        // And remove any duplicate slashes
-        const normalizedPath = rows[0].received_quotation_path.replace(/\\/g, '/').replace(/\/+/g, '/');
+        const filePath = resolveFilePath(rows[0].received_quotation_path);
+        const fileName = path.basename(rows[0].received_quotation_path);
         
-        // Use path.resolve to get an absolute path starting from the backend root
-        const filePath = path.resolve(__dirname, '..', normalizedPath);
-        
-        if (!fs.existsSync(filePath)) {
-            console.error(`ERROR: Quotation PDF not found at ${filePath}`);
-            return res.status(404).json({ message: 'File does not exist on server' });
+        if (!filePath) {
+            console.warn(`Quotation PDF ${fileName} not found on server disk. Serving fallback placeholder.`);
+            const fallback = getPlaceholderFile(fileName);
+            res.setHeader('Content-Disposition', `inline; filename="${fallback.filename}"`);
+            res.setHeader('Content-Type', fallback.contentType);
+            return res.send(fallback.content);
         }
 
-        const fileName = path.basename(filePath);
         res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
         res.setHeader('Content-Type', 'application/pdf');
         
