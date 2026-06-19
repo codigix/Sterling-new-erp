@@ -23,6 +23,7 @@ const InventoryDepartmentDashboard = lazy(() => import("./pages/roles/InventoryD
 const ProcurementDashboard = lazy(() => import("./pages/roles/ProcurementDashboard"));
 const QualityDepartmentDashboard = lazy(() => import("./pages/roles/QualityDepartmentDashboard"));
 const AccountantDashboard = lazy(() => import("./pages/roles/AccountantDashboard"));
+const ProjectDocumentsPage = lazy(() => import("./pages/accounting/ProjectDocumentsPage"));
 const OutsourcingChallansPage = lazy(() => import("./pages/production/OutsourcingChallansPage"));
 const InventoryVendorsPage = lazy(() => import("./pages/inventory/VendorsPage"));
 
@@ -161,6 +162,7 @@ function App() {
                 <Route path="reports" element={<ReportsAnalytics />} />
                 <Route path="settings" element={<SystemSettings />} />
                 <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="project-documents" element={<ProjectDocumentsPage readOnly={true} />} />
               </Route>
               
               {/* Department Routes - Task-Oriented Pages */}

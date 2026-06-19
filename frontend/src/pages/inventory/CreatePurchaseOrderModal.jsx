@@ -49,6 +49,9 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
   const [submitting, setSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState(initialViewMode);
   const [showManualForm, setShowManualForm] = useState(false);
+  const [isQuotationPrefilled, setIsQuotationPrefilled] = useState(false);
+  const [isProjectPrefilled, setIsProjectPrefilled] = useState(false);
+  const [isSupplierPrefilled, setIsSupplierPrefilled] = useState(false);
   
   const [newManualItem, setNewManualItem] = useState({
     material_name: "",
@@ -205,12 +208,24 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       // Reset form data for new entry or load data for edit
       if (!editData) {
         if (preFilledFromQuotation) {
+          setIsQuotationPrefilled(true);
+          setIsProjectPrefilled(true);
+          setIsSupplierPrefilled(true);
           handleQuotationSelect(preFilledFromQuotation.id, preFilledFromQuotation);
         } else if (source && type === 'quotation') {
+          setIsQuotationPrefilled(true);
+          setIsProjectPrefilled(true);
+          setIsSupplierPrefilled(true);
           handleQuotationSelect(source.id, source);
         } else if (source && type === 'shortage') {
+          setIsQuotationPrefilled(false);
+          setIsProjectPrefilled(true);
+          setIsSupplierPrefilled(false);
           handleShortageSelect(source);
         } else {
+          setIsQuotationPrefilled(false);
+          setIsProjectPrefilled(false);
+          setIsSupplierPrefilled(false);
           // Auto-generate PO number based on current count
           axios.get("/department/procurement/purchase-orders").then(res => {
             const pos = res.data.purchaseOrders || res.data || [];
@@ -237,11 +252,22 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
         }
       } else {
         // Load edit data
+        setIsQuotationPrefilled(!!editData.quotation_id);
+        setIsProjectPrefilled(!!(editData.project_id || editData.root_card_project_id));
+        setIsSupplierPrefilled(!!editData.vendor_id);
         const loadFullPO = async () => {
           try {
             const response = await axios.get(`/department/procurement/purchase-orders/${editData.id}`);
             const fullPO = response.data;
-            
+            if (fullPO.quotation_id) {
+              setIsQuotationPrefilled(true);
+            }
+            if (fullPO.project_id || fullPO.root_card_project_id) {
+              setIsProjectPrefilled(true);
+            }
+            if (fullPO.vendor_id) {
+              setIsSupplierPrefilled(true);
+            }
             setFormData({
               id: fullPO.id,
               po_number: fullPO.po_number,
@@ -263,6 +289,15 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
             });
           } catch (error) {
             console.error("Error loading full PO:", error);
+            if (editData.quotation_id) {
+              setIsQuotationPrefilled(true);
+            }
+            if (editData.project_id || editData.root_card_project_id) {
+              setIsProjectPrefilled(true);
+            }
+            if (editData.vendor_id) {
+              setIsSupplierPrefilled(true);
+            }
             setFormData({
               id: editData.id,
               po_number: editData.po_number,
@@ -922,10 +957,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <div>
                   <label className="block text-xs  text-slate-500   ">Project</label>
                   <select 
-                    className={`w-full p-2 text-xs ${viewMode ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded   focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2 text-xs ${viewMode || isProjectPrefilled || !!formData.quotation_id ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 pointer-events-none' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.project_id}
                     onChange={(e) => setFormData({...formData, project_id: e.target.value})}
-                    disabled={viewMode}
+                    disabled={viewMode || isProjectPrefilled || !!formData.quotation_id}
                   >
                     <option value="">Select Project...</option>
                     {projects.map(p => (
@@ -937,10 +972,10 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 <div>
                   <label className="block text-xs  text-slate-500   ">Quotation Reference</label>
                   <select 
-                    className={`w-full p-2 text-xs ${viewMode || !!editData ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded   focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                    className={`w-full p-2 text-xs ${viewMode || !!editData || isQuotationPrefilled ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 pointer-events-none' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
                     value={formData.quotation_id}
                     onChange={(e) => handleQuotationSelect(e.target.value)}
-                    disabled={viewMode || !!editData}
+                    disabled={viewMode || !!editData || isQuotationPrefilled}
                   >
                     <option value="">No Quotation (Manual PO)</option>
                     {quotations.map(q => (
@@ -950,19 +985,26 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
                 </div>
 
                 <div>
-                  <label className="block text-xs  text-slate-500   ">Supplier *</label>
-                  <select 
-                    className={`w-full p-2 text-xs ${viewMode || (!!formData.quotation_id && !!editData) ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 pointer-events-none' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white'} border border-slate-200 dark:border-slate-700 rounded   focus:ring-2 focus:ring-blue-500 transition-all outline-none`}
+                  <SearchableSelect
+                    label={
+                      <span>
+                        Supplier <span className="text-red-500">*</span>
+                      </span>
+                    }
                     value={formData.vendor_id}
-                    onChange={(e) => setFormData({...formData, vendor_id: e.target.value})}
-                    disabled={viewMode || (!!formData.quotation_id && !!editData)}
-                    required
-                  >
-                    <option value="">Select Supplier...</option>
-                    {vendors.map(v => (
-                      <option key={v.id} value={v.id}>{v.name}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        vendor_id: val,
+                      }));
+                    }}
+                    disabled={viewMode || isSupplierPrefilled || !!formData.quotation_id}
+                    placeholder="Select Supplier..."
+                    options={vendors.map((v) => ({
+                      value: v.id,
+                      label: v.name,
+                    }))}
+                  />
                 </div>
 
                 <div>
@@ -1654,32 +1696,9 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
 
               {(!isInventoryView || !viewMode) && (
                 <div className="space-y-2">
-                  <div className="p-2 bg-blue-600 rounded  shadow-blue-500/20 space-y-2">
-                    <div className="flex justify-between items-center text-blue-100">
-                      <span className="text-xs   ">Subtotal</span>
-                      <span className=" text-xs">{formatCurrency(formData.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-blue-100">
-                      <div className="flex flex-col">
-                        <span className="text-xs   ">Tax</span>
-                        <select 
-                          className="mt-1 bg-blue-500 text-white text-xs  border border-blue-400 rounded px-1 py-0.5 outline-none disabled:opacity-50"
-                          value={formData.tax_template}
-                          onChange={(e) => handleTaxTemplateChange(e.target.value)}
-                          disabled={viewMode}
-                        >
-                          <option value="No Tax Template">No Tax Template</option>
-                          <option value="GST 18%">GST 18%</option>
-                          <option value="GST 12%">GST 12%</option>
-                          <option value="GST 5%">GST 5%</option>
-                        </select>
-                      </div>
-                      <span className=" text-xs">{formatCurrency(formData.tax_amount)}</span>
-                    </div>
-                    <div className="pt-4 border-t border-blue-500 flex justify-between items-center text-white">
-                      <span className="text-sm">Grand Total</span>
-                      <span className="text-sm  ">{formatCurrency(formData.total_amount)}</span>
-                    </div>
+                  <div className="p-4 bg-blue-600 rounded shadow-blue-500/20 flex justify-between items-center text-white">
+                    <span className="text-sm font-medium">Grand Total</span>
+                    <span className="text-lg font-semibold">{formatCurrency(formData.total_amount)}</span>
                   </div>
                 </div>
               )}

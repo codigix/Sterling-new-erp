@@ -5,9 +5,26 @@ import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 
+const getDimensionsText = (item) => {
+  const parts = [];
+  const val = (v) => {
+    const n = parseFloat(v);
+    return (n && !isNaN(n) && n !== 0) ? n : null;
+  };
+  if (val(item.length)) parts.push(`L: ${val(item.length)}`);
+  if (val(item.width)) parts.push(`W: ${val(item.width)}`);
+  if (val(item.thickness)) parts.push(`T: ${val(item.thickness)}`);
+  if (val(item.diameter)) parts.push(`Dia: ${val(item.diameter)}`);
+  if (val(item.outer_diameter)) parts.push(`OD: ${val(item.outer_diameter)}`);
+  if (val(item.height)) parts.push(`H: ${val(item.height)}`);
+  return parts.length > 0 ? parts.join(" × ") : "";
+};
+
 const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData = null, initialViewMode = false }) => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [challans, setChallans] = useState([]);
+  const [grns, setGrns] = useState([]);
+  const [selectedGrnId, setSelectedGrnId] = useState("");
   const [sourceType, setSourceType] = useState('PO'); // 'PO' or 'CHALLAN'
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -25,10 +42,18 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     challan_date: "",
     vendor_id: "",
     vendor_name: "",
+    vendor_gstin: "",
+    vendor_address: "",
+    vendor_city: "",
+    vendor_pincode: "",
+    vendor_state: "",        // vendor's registered state
+    is_inter_state: false,   // true = IGST, false = CGST+SGST
     project_id: "",
     project_name: "",
+    operation_name: "",
     state: "Maharashtra",
     state_code: "27",
+    oc_challan_date: "",
     transporter: "",
     lr_no: "",
     items: [],
@@ -36,8 +61,10 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     taxable_value: 0,
     cgst_rate: 9,
     sgst_rate: 9,
+    igst_rate: 18,
     cgst_amount: 0,
     sgst_amount: 0,
+    igst_amount: 0,
     grand_total: 0,
     round_off: 0,
     notes: ""
@@ -65,10 +92,18 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
           challan_date: "",
           vendor_id: "",
           vendor_name: "",
+          vendor_gstin: "",
+          vendor_address: "",
+          vendor_city: "",
+          vendor_pincode: "",
+          vendor_state: "",
+          is_inter_state: false,
           project_id: "",
           project_name: "",
+          operation_name: "",
           state: "Maharashtra",
           state_code: "27",
+          oc_challan_date: "",
           transporter: "",
           lr_no: "",
           items: [],
@@ -76,13 +111,17 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
           taxable_value: 0,
           cgst_rate: 9,
           sgst_rate: 9,
+          igst_rate: 18,
           cgst_amount: 0,
           sgst_amount: 0,
+          igst_amount: 0,
           grand_total: 0,
           round_off: 0,
           notes: ""
         });
         setSourceType('PO');
+        setGrns([]);
+        setSelectedGrnId("");
       }
     }
   }, [isOpen, editData, initialViewMode]);
@@ -92,6 +131,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     try {
       const response = await axios.get(`/accounting/vendor-invoices/${id}`);
       const inv = response.data;
+      const isInterState = parseFloat(inv.igst_amount || 0) > 0;
       setSourceType(inv.outward_challan_id ? 'CHALLAN' : 'PO');
       setFormData({
         invoice_no: inv.invoice_number,
@@ -105,6 +145,14 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         challan_date: inv.challan_date ? inv.challan_date.split('T')[0] : "",
         vendor_id: inv.vendor_id,
         vendor_name: inv.vendor_name,
+        vendor_gstin: inv.vendor_gst || "",
+        vendor_state: inv.vendor_state || "",
+        vendor_city: inv.vendor_city || "",
+        vendor_pincode: inv.vendor_pincode || "",
+        vendor_address: inv.vendor_address || "",
+        is_inter_state: isInterState,
+        oc_challan_date: inv.oc_date || "",
+        operation_name: inv.operation_name || "",
         project_id: inv.project_id,
         project_name: inv.project_name,
         state: inv.place_of_supply || "Maharashtra",
@@ -116,8 +164,10 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         taxable_value: parseFloat(inv.taxable_value),
         cgst_rate: 9,
         sgst_rate: 9,
-        cgst_amount: parseFloat(inv.cgst_amount),
-        sgst_amount: parseFloat(inv.sgst_amount),
+        igst_rate: 18,
+        cgst_amount: parseFloat(inv.cgst_amount || 0),
+        sgst_amount: parseFloat(inv.sgst_amount || 0),
+        igst_amount: parseFloat(inv.igst_amount || 0),
         grand_total: parseFloat(inv.grand_total),
         round_off: parseFloat(inv.round_off),
         notes: inv.notes || ""
@@ -193,6 +243,8 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         grand_total: 0,
         round_off: 0
       }));
+      setGrns([]);
+      setSelectedGrnId("");
       return;
     }
 
@@ -201,31 +253,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
       const response = await axios.get(`/department/procurement/purchase-orders/${poId}`);
       const po = response.data;
 
-      const items = (po.items || []).map(item => {
-        const qty = parseFloat(item.quantity) || 0;
-        const amount = parseFloat(item.amount) || 0;
-        let rate = parseFloat(item.rate_per_kg) || parseFloat(item.rate) || 0;
-        
-        // If rate is 0 but we have amount and qty, calculate it
-        if (rate === 0 && qty > 0) {
-          rate = amount / qty;
-        }
-        
-        return {
-          id: item.id,
-          po_item_id: item.id,
-          challan_item_id: null,
-          description: item.material_name || item.item_group,
-          hsn_code: "",
-          qty: qty,
-          unit: item.unit || item.uom,
-          rate: rate,
-          amount: amount
-        };
-      });
+      const vendorGstin = po.vendor_gstin || "";
+      const vendorState = po.vendor_state || "";
+      // Inter-state: vendor state is different from Sterling's state (Maharashtra)
+      const isInterState = vendorState.trim().toLowerCase() !== "maharashtra";
 
-      const subTotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-      
       setFormData(prev => ({
         ...prev,
         po_id: poId,
@@ -235,17 +267,117 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         outward_challan_no: "",
         vendor_id: po.vendor_id,
         vendor_name: po.vendor_name,
+        vendor_gstin: vendorGstin,
+        vendor_state: vendorState,
+        vendor_address: po.vendor_address || "",
+        vendor_city: po.vendor_city || "",
+        vendor_pincode: po.vendor_pincode || "",
+        is_inter_state: isInterState,
         project_id: po.root_card_id,
         project_name: po.root_card_project_name,
-        items: items,
-        sub_total: subTotal,
-        taxable_value: subTotal
+        // Place of Supply = Sterling's state (where goods are received)
+        state: "Maharashtra",
+        state_code: "27",
+        items: [],
+        sub_total: 0,
+        taxable_value: 0,
+        cgst_amount: 0,
+        sgst_amount: 0,
+        igst_amount: 0,
+        grand_total: 0,
+        round_off: 0
       }));
 
-      calculateTotals(subTotal, prev => ({ ...prev, sub_total: subTotal, taxable_value: subTotal }));
+      // Fetch GRNs associated with the selected PO
+      const grnsResponse = await axios.get(`/grn?purchase_order_id=${poId}`);
+      setGrns(grnsResponse.data || []);
+      setSelectedGrnId("");
     } catch (error) {
       console.error("Error fetching PO details:", error);
       toastUtils.error("Failed to load PO details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGRNChange = async (grnId) => {
+    setSelectedGrnId(grnId);
+    if (!grnId) {
+      setFormData(prev => ({
+        ...prev,
+        challan_no: "",
+        challan_date: "",
+        items: [],
+        sub_total: 0,
+        taxable_value: 0,
+        cgst_amount: 0,
+        sgst_amount: 0,
+        grand_total: 0,
+        round_off: 0
+      }));
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.get(`/grn/${grnId}`);
+      const grnData = response.data;
+      const grn = grnData.grn;
+      const grnItems = grnData.items || [];
+
+      const items = grnItems.map(item => {
+        const qty = parseFloat(item.received_qty) || 0;
+        let rate = parseFloat(item.rate_per_kg) || parseFloat(item.po_rate) || parseFloat(item.po_rate_per_kg) || 0;
+        const amount = qty * rate;
+
+        return {
+          id: item.id,
+          po_item_id: item.po_item_id,
+          challan_item_id: null,
+          description: item.material_name || item.item_group,
+          material_grade: item.material_grade || "",
+          make: item.make || "",
+          remark: item.remark || "",
+          unit: item.unit,
+          qty: qty,
+          rate: rate,
+          amount: amount
+        };
+      });
+
+      const subTotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      const formattedDate = grn.receivedDate ? grn.receivedDate.split('T')[0] : "";
+
+      setFormData(prev => {
+        const isInterState = prev.is_inter_state;
+        let cgst = 0, sgst = 0, igst = 0;
+        if (isInterState) {
+          igst = (subTotal * (prev.igst_rate || 18)) / 100;
+        } else {
+          cgst = (subTotal * (prev.cgst_rate || 9)) / 100;
+          sgst = (subTotal * (prev.sgst_rate || 9)) / 100;
+        }
+        const rawTotal = subTotal + cgst + sgst + igst;
+        const grandTotal = Math.round(rawTotal);
+        const roundOff = (grandTotal - rawTotal).toFixed(2);
+
+        return {
+          ...prev,
+          challan_no: grn.grn_number || "",
+          challan_date: formattedDate,
+          items: items,
+          sub_total: subTotal,
+          taxable_value: subTotal,
+          cgst_amount: cgst,
+          sgst_amount: sgst,
+          igst_amount: igst,
+          grand_total: grandTotal,
+          round_off: parseFloat(roundOff)
+        };
+      });
+    } catch (error) {
+      console.error("Error fetching GRN details:", error);
+      toastUtils.error("Failed to load GRN details");
     } finally {
       setLoading(false);
     }
@@ -288,11 +420,20 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         const rate = parseFloat(item.rate) || 0;
         const amount = qty * rate;
         
+        let description = item.item_name || "";
+        const dims = getDimensionsText(item);
+        if (dims && !description.includes(dims)) {
+          description = `${description} (${dims})`;
+        }
+        
         return {
           id: item.id,
           po_item_id: null,
           challan_item_id: item.id,
-          description: item.item_name,
+          description: description,
+          material_grade: item.material_grade || "",
+          make: item.make || "",
+          remark: item.remark || "",
           hsn_code: "",
           qty: qty,
           unit: item.uom,
@@ -302,6 +443,10 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
       });
 
       const subTotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      const vendorGstin = challan.vendor_gstin || "";
+      const vendorState = challan.vendor_state || "";
+      const isInterState = vendorState.trim().toLowerCase() !== "maharashtra";
+      const formattedChallanDate = challan.challan_date ? challan.challan_date.split('T')[0] : "";
       
       setFormData(prev => ({
         ...prev,
@@ -310,16 +455,32 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         po_date: "",
         outward_challan_id: challanId,
         outward_challan_no: challan.challan_no,
+        challan_no: challan.challan_no || "",
+        challan_date: formattedChallanDate,
         vendor_id: challan.vendor_id,
         vendor_name: challan.vendor_name,
+        vendor_gstin: vendorGstin,
+        vendor_state: vendorState,
+        vendor_city: challan.vendor_city || "",
+        vendor_pincode: challan.vendor_pincode || "",
+        vendor_address: challan.vendor_address || "",
+        is_inter_state: isInterState,
         project_id: challan.project_id,
         project_name: challan.project_name,
+        operation_name: challan.operation_name || "",
+        // Also keep tracking of original challan date for details display
+        oc_challan_date: formattedChallanDate,
         items: items,
         sub_total: subTotal,
         taxable_value: subTotal
       }));
 
-      calculateTotals(subTotal, prev => ({ ...prev, sub_total: subTotal, taxable_value: subTotal }));
+      calculateTotals(subTotal, { 
+        is_inter_state: isInterState,
+        cgst_rate: 9,
+        sgst_rate: 9,
+        igst_rate: 18
+      });
     } catch (error) {
       console.error("Error fetching challan details:", error);
       toastUtils.error("Failed to load challan details");
@@ -329,9 +490,15 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
   };
 
   const calculateTotals = (taxableValue, currentData) => {
-    const cgst = (taxableValue * (currentData.cgst_rate || 9)) / 100;
-    const sgst = (taxableValue * (currentData.sgst_rate || 9)) / 100;
-    const rawTotal = taxableValue + cgst + sgst;
+    const isInterState = currentData.is_inter_state;
+    let cgst = 0, sgst = 0, igst = 0;
+    if (isInterState) {
+      igst = (taxableValue * (currentData.igst_rate || 18)) / 100;
+    } else {
+      cgst = (taxableValue * (currentData.cgst_rate || 9)) / 100;
+      sgst = (taxableValue * (currentData.sgst_rate || 9)) / 100;
+    }
+    const rawTotal = taxableValue + cgst + sgst + igst;
     const grandTotal = Math.round(rawTotal);
     const roundOff = (grandTotal - rawTotal).toFixed(2);
 
@@ -339,6 +506,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
       ...prev,
       cgst_amount: cgst,
       sgst_amount: sgst,
+      igst_amount: igst,
       grand_total: grandTotal,
       round_off: parseFloat(roundOff)
     }));
@@ -348,7 +516,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
     const { name, value } = e.target;
     setFormData(prev => {
       const newData = { ...prev, [name]: value };
-      if (name === "taxable_value" || name === "cgst_rate" || name === "sgst_rate") {
+      if (name === "taxable_value" || name === "cgst_rate" || name === "sgst_rate" || name === "igst_rate") {
         calculateTotals(parseFloat(newData.taxable_value) || 0, newData);
       }
       return newData;
@@ -408,9 +576,9 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
         challan_date: formData.challan_date || null,
         sub_total: formData.sub_total,
         taxable_value: formData.taxable_value,
-        cgst_amount: formData.cgst_amount,
-        sgst_amount: formData.sgst_amount,
-        igst_amount: 0, // Assuming CGST/SGST for now
+        cgst_amount: formData.is_inter_state ? 0 : formData.cgst_amount,
+        sgst_amount: formData.is_inter_state ? 0 : formData.sgst_amount,
+        igst_amount: formData.is_inter_state ? formData.igst_amount : 0,
         grand_total: formData.grand_total,
         round_off: formData.round_off,
         notes: formData.notes,
@@ -494,7 +662,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Top Section: PO/Challan Selection & Basic Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className={`grid grid-cols-1 md:${sourceType === 'PO' ? 'grid-cols-4' : 'grid-cols-3'} gap-6`}>
             <div className="space-y-1.5">
               <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 {sourceType === 'PO' ? (
@@ -536,6 +704,32 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
               )}
             </div>
 
+            {sourceType === 'PO' && (
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-400 flex items-center gap-1.5">
+                  <FileText size={12} /> Select GRN
+                </label>
+                {viewMode ? (
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-mono">
+                    {formData.challan_no || "N/A"}
+                  </div>
+                ) : (
+                  <SearchableSelect
+                    options={grns.map(grn => ({
+                      value: grn.id,
+                      label: grn.grn_number,
+                      subLabel: `Date: ${grn.posting_date ? new Date(grn.posting_date).toLocaleDateString('en-GB') : 'N/A'}`
+                    }))}
+                    value={selectedGrnId}
+                    onChange={handleGRNChange}
+                    placeholder="Select GRN..."
+                    loading={loading}
+                    disabled={!formData.po_id}
+                  />
+                )}
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <label className="text-xs   text-slate-400 flex items-center gap-1.5">
                 <FileText size={12} /> Bill / Invoice No.
@@ -573,22 +767,66 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
             <div>
               <p className="text-xs  text-slate-400  mb-1">Vendor</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{formData.vendor_name || "N/A"}</p>
+              {formData.vendor_gstin && (
+                <p className="text-[10px] text-slate-400 mt-0.5 font-mono">{formData.vendor_gstin}</p>
+              )}
+              {(formData.vendor_city || formData.vendor_pincode) && (
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  {[formData.vendor_city, formData.vendor_pincode].filter(Boolean).join(" – ")}
+                </p>
+              )}
             </div>
             <div>
-              <p className="text-xs  text-slate-400  mb-1">Project</p>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{formData.project_name || "N/A"}</p>
+              <p className="text-xs  text-slate-400  mb-1">
+                {sourceType === 'PO' ? 'Project' : 'Project / Outward Challan'}
+              </p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                {formData.project_name || "N/A"}
+              </p>
+              {sourceType === 'CHALLAN' && formData.outward_challan_no && (
+                <p className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold mt-0.5 font-mono">
+                  Challan: {formData.outward_challan_no}
+                </p>
+              )}
             </div>
             <div>
-              <p className="text-xs  text-slate-400  mb-1">{sourceType === 'PO' ? 'PO Date' : 'Challan Date'}</p>
+              <p className="text-xs  text-slate-400  mb-1">
+                {sourceType === 'PO' ? 'PO Date' : 'Challan Date / Operation'}
+              </p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {sourceType === 'PO' 
-                  ? (formData.po_date ? new Date(formData.po_date).toLocaleDateString() : "N/A")
-                  : (formData.challan_date ? new Date(formData.challan_date).toLocaleDateString() : "N/A")}
+                  ? (formData.po_date ? new Date(formData.po_date).toLocaleDateString('en-GB') : "N/A")
+                  : (formData.oc_challan_date ? new Date(formData.oc_challan_date).toLocaleDateString('en-GB') : "N/A")}
               </p>
+              {sourceType === 'CHALLAN' && formData.operation_name && (
+                <span className="inline-block text-[10px] text-emerald-700 bg-emerald-50 dark:bg-emerald-950/20 px-1.5 py-0.5 rounded font-semibold mt-1">
+                  {formData.operation_name}
+                </span>
+              )}
             </div>
             <div>
-              <p className="text-xs  text-slate-400  mb-1">Place of Supply</p>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{formData.state} ({formData.state_code})</p>
+              <p className="text-xs  text-slate-400  mb-1">Vendor State</p>
+              {formData.vendor_state ? (
+                <>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    {formData.vendor_state}
+                    {formData.vendor_gstin && (
+                      <span className="ml-1 text-slate-400 font-normal">
+                        ({formData.vendor_gstin.substring(0, 2)})
+                      </span>
+                    )}
+                  </p>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded mt-0.5 inline-block ${
+                    formData.is_inter_state
+                      ? 'text-amber-600 bg-amber-50 dark:bg-amber-900/20'
+                      : 'text-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                  }`}>
+                    {formData.is_inter_state ? 'Inter-state → IGST' : 'Intra-state → CGST+SGST'}
+                  </span>
+                </>
+              ) : (
+                <p className="text-sm font-semibold text-slate-400">N/A</p>
+              )}
             </div>
           </div>
 
@@ -596,7 +834,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs   text-slate-400 flex items-center gap-1.5">
-                Challan No.
+                {sourceType === 'PO' ? 'GRN No.' : 'Challan No.'}
               </label>
               <input
                 type="text"
@@ -610,7 +848,7 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
             </div>
             <div className="space-y-1.5">
               <label className="text-xs   text-slate-400 flex items-center gap-1.5">
-                Challan Date
+                {sourceType === 'PO' ? 'GRN Date' : 'Challan Date'}
               </label>
               <input
                 type="date"
@@ -656,7 +894,6 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                 <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                   <th className="px-4 py-3 text-xs   text-slate-500 w-12 text-center">Sr.</th>
                   <th className="px-4 py-3 text-xs   text-slate-500">Description</th>
-                  <th className="px-4 py-3 text-xs   text-slate-500 w-24">HSN</th>
                   <th className="px-4 py-3 text-xs   text-slate-500 w-24 text-right">Qty</th>
                   <th className="px-4 py-3 text-xs   text-slate-500 w-20">Unit</th>
                   <th className="px-4 py-3 text-xs   text-slate-500 w-32 text-right">Rate</th>
@@ -670,16 +907,13 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                       <td className="px-4 py-3 text-xs text-slate-500 text-center">{index + 1}</td>
                       <td className="px-4 py-3">
                         <p className="text-xs font-medium text-slate-700 dark:text-slate-300">{item.description}</p>
-                      </td>
-                      <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          value={item.hsn_code}
-                          readOnly={viewMode}
-                          onChange={(e) => handleItemChange(index, 'hsn_code', e.target.value)}
-                          className={`w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded text-xs outline-none ${viewMode ? 'hover:border-transparent cursor-default' : ''}`}
-                          placeholder={viewMode ? "" : "8511"}
-                        />
+                        {(item.material_grade || item.make || item.remark) && (
+                          <div className="flex flex-wrap gap-x-3 mt-0.5">
+                            {item.material_grade && <span className="text-[10px] text-slate-400">Grade: {item.material_grade}</span>}
+                            {item.make && <span className="text-[10px] text-slate-400">Make: {item.make}</span>}
+                            {item.remark && <span className="text-[10px] text-slate-400 italic">{item.remark}</span>}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 text-right">
                         <input
@@ -687,7 +921,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                           value={item.qty}
                           readOnly={viewMode}
                           onChange={(e) => handleItemChange(index, 'qty', e.target.value)}
-                          className={`w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded text-xs text-right outline-none ${viewMode ? 'hover:border-transparent cursor-default' : ''}`}
+                          className={`w-full px-2 py-1 rounded text-xs text-right outline-none transition-all ${
+                            viewMode 
+                              ? 'bg-transparent border border-transparent cursor-default' 
+                              : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20'
+                          }`}
                         />
                       </td>
                       <td className="px-4 py-3 text-xs text-slate-500 ">{item.unit}</td>
@@ -699,7 +937,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                             value={item.rate}
                             readOnly={viewMode}
                             onChange={(e) => handleItemChange(index, 'rate', e.target.value)}
-                            className={`w-20 px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded text-xs text-right outline-none ${viewMode ? 'hover:border-transparent cursor-default' : ''}`}
+                            className={`w-20 px-2 py-1 rounded text-xs text-right outline-none transition-all ${
+                              viewMode 
+                                ? 'bg-transparent border border-transparent cursor-default' 
+                                : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20'
+                            }`}
                           />
                         </div>
                       </td>
@@ -708,8 +950,11 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="px-4 py-8 text-center text-xs text-slate-400 italic">
-                      Select a {sourceType === 'PO' ? 'Purchase Order' : 'Outsourcing Challan'} to load items
+                    <td colSpan="6" className="px-4 py-8 text-center text-xs text-slate-400 italic">
+                      {sourceType === 'PO' 
+                        ? (formData.po_id ? "Select a GRN to load items" : "Select a Purchase Order to load items")
+                        : "Select an Outsourcing Challan to load items"
+                      }
                     </td>
                   </tr>
                 )}
@@ -741,37 +986,59 @@ const RecordVendorInvoiceModal = ({ isOpen, onClose, onInvoiceRecorded, editData
                 <span className="font-semibold text-slate-900 dark:text-white">₹{formData.taxable_value.toLocaleString()}</span>
               </div>
               
-              <div className="flex justify-between items-center text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-500">CGST @</span>
-                  <input
-                    type="number"
-                    name="cgst_rate"
-                    value={formData.cgst_rate}
-                    onChange={handleInputChange}
-                    readOnly={viewMode}
-                    className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-xs ${viewMode ? 'bg-transparent border-transparent' : ''}`}
-                  />
-                  <span className="text-slate-500">%</span>
+              {/* Tax rows: IGST for inter-state, CGST+SGST for intra-state */}
+              {formData.is_inter_state ? (
+                <div className="flex justify-between items-center text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-600 dark:text-amber-400 font-medium">IGST @</span>
+                    <input
+                      type="number"
+                      name="igst_rate"
+                      value={formData.igst_rate}
+                      onChange={handleInputChange}
+                      readOnly={viewMode}
+                      className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-xs ${viewMode ? 'bg-transparent border-transparent' : ''}`}
+                    />
+                    <span className="text-slate-500">%</span>
+                    <span className="text-[10px] text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded">Inter-state</span>
+                  </div>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400">₹{(formData.igst_amount || 0).toLocaleString()}</span>
                 </div>
-                <span className="font-semibold text-slate-900 dark:text-white">₹{formData.cgst_amount.toLocaleString()}</span>
-              </div>
-
-              <div className="flex justify-between items-center text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-500">SGST @</span>
-                  <input
-                    type="number"
-                    name="sgst_rate"
-                    value={formData.sgst_rate}
-                    onChange={handleInputChange}
-                    readOnly={viewMode}
-                    className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-xs ${viewMode ? 'bg-transparent border-transparent' : ''}`}
-                  />
-                  <span className="text-slate-500">%</span>
-                </div>
-                <span className="font-semibold text-slate-900 dark:text-white">₹{formData.sgst_amount.toLocaleString()}</span>
-              </div>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-500">CGST @</span>
+                      <input
+                        type="number"
+                        name="cgst_rate"
+                        value={formData.cgst_rate}
+                        onChange={handleInputChange}
+                        readOnly={viewMode}
+                        className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-xs ${viewMode ? 'bg-transparent border-transparent' : ''}`}
+                      />
+                      <span className="text-slate-500">%</span>
+                      <span className="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded">Intra-state</span>
+                    </div>
+                    <span className="font-semibold text-slate-900 dark:text-white">₹{formData.cgst_amount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-500">SGST @</span>
+                      <input
+                        type="number"
+                        name="sgst_rate"
+                        value={formData.sgst_rate}
+                        onChange={handleInputChange}
+                        readOnly={viewMode}
+                        className={`w-12 px-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-center text-xs ${viewMode ? 'bg-transparent border-transparent' : ''}`}
+                      />
+                      <span className="text-slate-500">%</span>
+                    </div>
+                    <span className="font-semibold text-slate-900 dark:text-white">₹{formData.sgst_amount.toLocaleString()}</span>
+                  </div>
+                </>
+              )}
 
               <div className="flex justify-between items-center text-xs text-slate-500">
                 <span>Round Off</span>

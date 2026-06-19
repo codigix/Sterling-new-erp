@@ -7,6 +7,7 @@ const {
   createEmployee, 
   updateEmployee, 
   deleteEmployee, 
+  updateEmployeeStatus,
   getRoles, 
   createRole,
   updateRole,
@@ -42,6 +43,10 @@ router.post('/employee-list', auth, createEmployee);
 // @route   PUT api/admin/employee-list/:id
 // @desc    Update employee details
 router.put('/employee-list/:id', auth, updateEmployee);
+
+// @route   PUT api/admin/employee-list/:id/status
+// @desc    Toggle user status
+router.put('/employee-list/:id/status', auth, updateEmployeeStatus);
 
 // @route   DELETE api/admin/employee-list/:id
 // @desc    Delete an employee

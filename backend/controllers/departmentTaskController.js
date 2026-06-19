@@ -18,7 +18,14 @@ const getAllTasks = async (req, res) => {
       SELECT t.*, u.full_name as assignedByName
       FROM department_tasks t
       LEFT JOIN users u ON t.assigned_by = u.id
-      ORDER BY t.created_at DESC
+      ORDER BY 
+        CASE t.priority 
+          WHEN 'High' THEN 1 
+          WHEN 'Medium' THEN 2 
+          WHEN 'Low' THEN 3 
+          ELSE 4 
+        END ASC, 
+        t.created_at DESC
     `;
     const [tasks] = await db.query(query);
     res.json(tasks);
@@ -33,12 +40,41 @@ const createTask = async (req, res) => {
   const { title, description, departmentId, priority, assignmentDate, dueDate } = req.body;
   const assignedBy = req.user.id; // From auth middleware
 
+  const connection = await db.getConnection();
   try {
-    const [result] = await db.query(
-      `INSERT INTO department_tasks (title, description, department_id, priority, assignment_date, due_date, assigned_by) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [title, description, departmentId, priority, assignmentDate, dueDate, assignedBy]
+    await connection.beginTransaction();
+
+    // Generate task_code based on assignmentDate (format: Task-YY/YY-00X)
+    const d = new Date(assignmentDate);
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    let startYear = month >= 4 ? year : year - 1;
+    let startYearShort = String(startYear).slice(-2);
+    let endYearShort = String(startYear + 1).slice(-2);
+    const financialYear = `${startYearShort}/${endYearShort}`;
+
+    const [lastTask] = await connection.query(
+      "SELECT task_code FROM department_tasks WHERE task_code LIKE ? ORDER BY id DESC LIMIT 1 FOR UPDATE",
+      [`Task-${financialYear}-%`]
     );
+
+    let nextSerial = 1;
+    if (lastTask.length > 0 && lastTask[0].task_code) {
+      const parts = lastTask[0].task_code.split('-');
+      const lastSerial = parseInt(parts[parts.length - 1]);
+      if (!isNaN(lastSerial)) {
+        nextSerial = lastSerial + 1;
+      }
+    }
+    const taskCode = `Task-${financialYear}-${String(nextSerial).padStart(3, '0')}`;
+
+    const [result] = await connection.query(
+      `INSERT INTO department_tasks (title, description, department_id, priority, assignment_date, due_date, assigned_by, task_code) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, description, departmentId, priority, assignmentDate, dueDate, assignedBy, taskCode]
+    );
+
+    await connection.commit();
 
     // Create notification for the assigned department
     const departmentName = DEPARTMENT_MAP[departmentId];
@@ -69,11 +105,15 @@ const createTask = async (req, res) => {
 
     res.status(201).json({ 
       message: 'Task assigned successfully', 
-      taskId: result.insertId 
+      taskId: result.insertId,
+      taskCode
     });
   } catch (error) {
+    await connection.rollback();
     console.error('Error creating departmental task:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
+  } finally {
+    connection.release();
   }
 };
 
@@ -129,7 +169,14 @@ const getDepartmentTasks = async (req, res) => {
        FROM department_tasks t
        LEFT JOIN users u ON t.assigned_by = u.id
        WHERE t.department_id = ?
-       ORDER BY t.created_at DESC`,
+       ORDER BY 
+         CASE t.priority 
+           WHEN 'High' THEN 1 
+           WHEN 'Medium' THEN 2 
+           WHEN 'Low' THEN 3 
+           ELSE 4 
+         END ASC, 
+         t.created_at DESC`,
       [departmentId]
     );
     res.json(tasks);

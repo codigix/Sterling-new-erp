@@ -185,7 +185,7 @@ function RootCardFormContent({
     switch (currentStep) {
       case 1:
         return (
-          <Step1_ClientPO readOnly={isStepReadOnly(1)} />
+          <Step1_ClientPO readOnly={isStepReadOnly(1)} isEdit={mode !== "create"} />
         );
       case 2:
         return (

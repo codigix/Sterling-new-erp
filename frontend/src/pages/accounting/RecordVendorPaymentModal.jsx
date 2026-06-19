@@ -142,6 +142,14 @@ const RecordVendorPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editData
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === "amount_paid") {
+      const val = parseFloat(value);
+      if (!isNaN(val) && val > formData.balance_amount) {
+        toastUtils.warning(`Amount cannot exceed remaining balance (₹${formData.balance_amount.toLocaleString()})`);
+        setFormData(prev => ({ ...prev, amount_paid: formData.balance_amount }));
+        return;
+      }
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -253,7 +261,7 @@ const RecordVendorPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editData
                   options={pendingInvoices.map(inv => ({
                     value: inv.id,
                     label: inv.invoice_number,
-                    subLabel: `${inv.vendor_name} | Balance: ₹{parseFloat(inv.balance_amount).toLocaleString()}`
+                    subLabel: `${inv.vendor_name} | Balance: ₹${parseFloat(inv.balance_amount).toLocaleString()}`
                   }))}
                   value={formData.invoice_id}
                   onChange={handleInvoiceChange}

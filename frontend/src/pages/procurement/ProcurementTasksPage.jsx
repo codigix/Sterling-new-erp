@@ -383,7 +383,7 @@ const ProcurementTasksPage = () => {
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                           <Clock size={12} className="text-blue-500 shrink-0" />
-                          {new Date(pr.created_at).toLocaleDateString()}
+                          {new Date(pr.created_at).toLocaleDateString('en-GB')}
                         </div>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
@@ -489,7 +489,7 @@ const ProcurementTasksPage = () => {
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <span className="text-xs text-slate-600 dark:text-slate-400">
-                          {new Date(po.order_date || po.created_at).toLocaleDateString()}
+                          {new Date(po.order_date || po.created_at).toLocaleDateString('en-GB')}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
@@ -593,7 +593,7 @@ const ProcurementTasksPage = () => {
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <span className="text-xs text-slate-600 dark:text-slate-400">
-                          {new Date(s.created_at).toLocaleDateString()}
+                          {new Date(s.created_at).toLocaleDateString('en-GB')}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">

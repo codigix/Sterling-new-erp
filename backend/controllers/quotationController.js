@@ -6,6 +6,8 @@ const pdf = require('pdf-parse');
 const crypto = require('crypto');
 const { downloadMissingAttachmentFromEmail } = require('../utils/attachmentDownloader');
 
+const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
+
 // Helpers for fallback/placeholder files when files reside on production but not locally
 const getDummyPDF = (filename) => {
   const cleanFilename = filename.replace(/[()]/g, '_');
@@ -417,8 +419,15 @@ const createVendor = async (req, res) => {
     const { 
         name, email, address, category, vendor_type, status,
         contact_person_name, designation, mobile_number, city, state, pincode,
-        vendor_code
+        vendor_code, gstin
     } = req.body;
+    
+    if (!gstin || !gstin.trim()) {
+        return res.status(400).json({ message: 'GST number is required' });
+    }
+    if (!GST_REGEX.test(gstin.trim())) {
+        return res.status(400).json({ message: 'Invalid GST number format' });
+    }
     
     try {
         // Generate Vendor Code if not provided
@@ -445,18 +454,28 @@ const createVendor = async (req, res) => {
             `INSERT INTO vendors (
                 name, email, address, category, vendor_type, status,
                 vendor_code, contact_person_name, designation, mobile_number, 
-                city, state, pincode
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                city, state, pincode, gstin
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name, email || '', address || '', category || '', 
                 vendor_type || 'material_supplier', status || 'active',
                 vCode, contact_person_name || '', designation || '', mobile_number || '',
-                city || '', state || '', pincode || ''
+                city || '', state || '', pincode || '', gstin || ''
             ]
         );
         res.status(201).json({ message: 'Vendor created successfully', id: result.insertId, vendor_code: vCode });
     } catch (error) {
         console.error('Error creating vendor:', error);
+        if (error.code === 'ER_DUP_ENTRY') {
+            const msg = error.sqlMessage || '';
+            if (msg.includes('email')) {
+                return res.status(400).json({ message: 'A vendor with this email already exists' });
+            }
+            if (msg.includes('vendor_code')) {
+                return res.status(400).json({ message: 'A vendor with this vendor code already exists' });
+            }
+            return res.status(400).json({ message: 'Duplicate entry detected: ' + msg });
+        }
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -466,8 +485,15 @@ const updateVendor = async (req, res) => {
     const { 
         name, email, address, category, vendor_type, status,
         vendor_code, contact_person_name, designation, mobile_number, 
-        city, state, pincode
+        city, state, pincode, gstin
     } = req.body;
+
+    if (!gstin || !gstin.trim()) {
+        return res.status(400).json({ message: 'GST number is required' });
+    }
+    if (!GST_REGEX.test(gstin.trim())) {
+        return res.status(400).json({ message: 'Invalid GST number format' });
+    }
 
     try {
         await db.query(
@@ -475,18 +501,28 @@ const updateVendor = async (req, res) => {
                 name = ?, email = ?, address = ?, category = ?, 
                 vendor_type = ?, status = ?, vendor_code = ?, contact_person_name = ?, 
                 designation = ?, mobile_number = ?, city = ?, state = ?, 
-                pincode = ?
+                pincode = ?, gstin = ?
             WHERE id = ?`,
             [
                 name, email, address, category, 
                 vendor_type, status, vendor_code, contact_person_name, 
                 designation, mobile_number, city, state, 
-                pincode, id
+                pincode, gstin, id
             ]
         );
         res.json({ message: 'Vendor updated successfully' });
     } catch (error) {
         console.error('Error updating vendor:', error);
+        if (error.code === 'ER_DUP_ENTRY') {
+            const msg = error.sqlMessage || '';
+            if (msg.includes('email')) {
+                return res.status(400).json({ message: 'A vendor with this email already exists' });
+            }
+            if (msg.includes('vendor_code')) {
+                return res.status(400).json({ message: 'A vendor with this vendor code already exists' });
+            }
+            return res.status(400).json({ message: 'Duplicate entry detected: ' + msg });
+        }
         res.status(500).json({ message: 'Server error' });
     }
 };

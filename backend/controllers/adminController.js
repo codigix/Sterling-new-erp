@@ -124,7 +124,7 @@ const getDashboardStats = async (req, res) => {
 
 const getEmployeeList = async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT id, full_name as fullName, first_name as firstName, last_name as lastName, email, designation, department, department_id as departmentId, role, role_id as roleId, login_id as loginId, actions FROM users WHERE role = 'employee' ORDER BY full_name ASC");
+    const [rows] = await db.query("SELECT id, full_name as fullName, first_name as firstName, last_name as lastName, email, designation, department, department_id as departmentId, role, role_id as roleId, login_id as loginId, actions, status FROM users ORDER BY full_name ASC");
     
     // Parse actions if they are stored as JSON string
     const employees = rows.map(emp => {
@@ -148,7 +148,7 @@ const getEmployeeList = async (req, res) => {
 };
 
 const createEmployee = async (req, res) => {
-  const { firstName, lastName, email, department, departmentId } = req.body;
+  const { firstName, lastName, email, department, departmentId, isLoginUser, password, status, designation } = req.body;
 
   try {
     // Check if user exists
@@ -157,24 +157,63 @@ const createEmployee = async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    // Hash a dummy password since they won't log in
+    let userRole = 'employee';
+    let userRoleId = 2; // Default Employee role in roles table
+    let loginId = null;
+    let finalPassword = password;
+
+    if (isLoginUser) {
+      // Map department to Role and RoleId
+      const departmentMap = {
+        'Admin': { id: 1, role: 'admin' },
+        'Design Engineer': { id: 2, role: 'design_engineer' },
+        'Production': { id: 3, role: 'production' },
+        'Procurement': { id: 4, role: 'procurement' },
+        'Quality': { id: 5, role: 'quality' },
+        'Inventory': { id: 6, role: 'inventory' },
+        'Accountant': { id: 7, role: 'accountant' },
+        'admin': { id: 1, role: 'admin' },
+        'design_engineer': { id: 2, role: 'design_engineer' },
+        'production': { id: 3, role: 'production' },
+        'procurement': { id: 4, role: 'procurement' },
+        'quality': { id: 5, role: 'quality' },
+        'inventory': { id: 6, role: 'inventory' },
+        'accountant': { id: 7, role: 'accountant' }
+      };
+      
+      const deptInfo = departmentMap[department] || { id: null, role: department.toLowerCase().replace(/\s+/g, '_') };
+      userRole = deptInfo.role;
+      userRoleId = null; // Login users have role_id = null based on existing data
+      loginId = null;
+    } else {
+      // Daily employee - auto-generate unique login ID format: firstname.lastname
+      loginId = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
+      const [existingLoginId] = await db.query('SELECT * FROM users WHERE login_id = ?', [loginId]);
+      if (existingLoginId.length > 0) {
+        loginId = `${loginId}${Math.floor(100 + Math.random() * 900)}`;
+      }
+      // Generate dummy password for daily workers
+      finalPassword = Math.random().toString(36) + Math.random().toString(36);
+    }
+
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
-    const dummyPassword = Math.random().toString(36) + Math.random().toString(36);
-    const hashedPassword = await bcrypt.hash(dummyPassword, salt);
+    const hashedPassword = await bcrypt.hash(finalPassword, salt);
 
     const fullName = `${firstName} ${lastName}`;
-    const role = 'employee';
 
     const [result] = await db.query(
-      `INSERT INTO users (full_name, first_name, last_name, email, password, designation, department, department_id, role, role_id, login_id, actions) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [fullName, firstName, lastName, email, hashedPassword, null, department, departmentId, role, null, null, '[]']
+      `INSERT INTO users (full_name, first_name, last_name, email, password, designation, department, department_id, role, role_id, login_id, actions, status) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [fullName, firstName, lastName, email, hashedPassword, designation || null, department, departmentId, userRole, userRoleId, loginId, '[]', status || 'active']
     );
 
-    await logAudit(req.user?.fullName || 'Admin', 'Create Employee', 'account', `New employee created: ${fullName}`, req.ip, 'success');
+    const auditAction = isLoginUser ? 'Create Login User' : 'Create Employee';
+    const auditDetail = isLoginUser ? `New department login user created: ${fullName} (${userRole})` : `New employee created: ${fullName}`;
+    await logAudit(req.user?.fullName || 'Admin', auditAction, 'account', auditDetail, req.ip, 'success');
 
     res.status(201).json({ 
-      message: 'Employee created successfully', 
+      message: isLoginUser ? 'Login user created successfully' : 'Employee created successfully', 
       id: result.insertId 
     });
   } catch (error) {
@@ -185,21 +224,77 @@ const createEmployee = async (req, res) => {
 
 const updateEmployee = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, email, department, departmentId } = req.body;
+  const { firstName, lastName, email, department, departmentId, isLoginUser, password, status, designation } = req.body;
 
   try {
     const fullName = `${firstName} ${lastName}`;
     
+    let userRole = 'employee';
+    let userRoleId = 2;
+    let loginId = null;
+
+    if (isLoginUser) {
+      const departmentMap = {
+        'Admin': { id: 1, role: 'admin' },
+        'Design Engineer': { id: 2, role: 'design_engineer' },
+        'Production': { id: 3, role: 'production' },
+        'Procurement': { id: 4, role: 'procurement' },
+        'Quality': { id: 5, role: 'quality' },
+        'Inventory': { id: 6, role: 'inventory' },
+        'Accountant': { id: 7, role: 'accountant' },
+        'admin': { id: 1, role: 'admin' },
+        'design_engineer': { id: 2, role: 'design_engineer' },
+        'production': { id: 3, role: 'production' },
+        'procurement': { id: 4, role: 'procurement' },
+        'quality': { id: 5, role: 'quality' },
+        'inventory': { id: 6, role: 'inventory' },
+        'accountant': { id: 7, role: 'accountant' }
+      };
+      
+      const deptInfo = departmentMap[department] || { id: null, role: department.toLowerCase().replace(/\s+/g, '_') };
+      userRole = deptInfo.role;
+      userRoleId = null;
+      loginId = null;
+    } else {
+      userRole = 'employee';
+      userRoleId = 2;
+      
+      // Keep or generate loginId for employee
+      const [currentUser] = await db.query('SELECT login_id FROM users WHERE id = ?', [id]);
+      if (currentUser.length > 0 && currentUser[0].login_id) {
+        loginId = currentUser[0].login_id;
+      } else {
+        loginId = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
+        const [existingLoginId] = await db.query('SELECT * FROM users WHERE login_id = ? AND id != ?', [loginId, id]);
+        if (existingLoginId.length > 0) {
+          loginId = `${loginId}${Math.floor(100 + Math.random() * 900)}`;
+        }
+      }
+    }
+
     let query = `
       UPDATE users 
       SET full_name = ?, first_name = ?, last_name = ?, email = ?, 
-          department = ?, department_id = ?
-      WHERE id = ?
+          department = ?, department_id = ?, role = ?, role_id = ?, login_id = ?, status = ?, designation = ?
     `;
-    const params = [fullName, firstName, lastName, email, department, departmentId, id];
+    const params = [fullName, firstName, lastName, email, department, departmentId, userRole, userRoleId, loginId, status || 'active', designation || null];
+
+    if (password && password.trim() !== '') {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      query += `, password = ? `;
+      params.push(hashedPassword);
+    }
+
+    query += ` WHERE id = ?`;
+    params.push(id);
 
     await db.query(query, params);
-    await logAudit(req.user?.fullName || 'Admin', 'Update Employee', 'account', `Employee details updated for: ${fullName}`, req.ip, 'success');
+    
+    const auditAction = isLoginUser ? 'Update Login User' : 'Update Employee';
+    const auditDetail = isLoginUser ? `Login user details updated for: ${fullName} (${userRole})` : `Employee details updated for: ${fullName}`;
+    await logAudit(req.user?.fullName || 'Admin', auditAction, 'account', auditDetail, req.ip, 'success');
+    
     res.json({ message: 'Employee updated successfully' });
   } catch (error) {
     console.error('Error updating employee:', error);
@@ -219,6 +314,20 @@ const deleteEmployee = async (req, res) => {
     res.json({ message: 'Employee deleted successfully' });
   } catch (error) {
     console.error('Error deleting employee:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const updateEmployeeStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body; // 'active' | 'inactive'
+
+  try {
+    await db.query('UPDATE users SET status = ? WHERE id = ?', [status, id]);
+    await logAudit(req.user?.fullName || 'Admin', 'Toggle User Status', 'account', `User status updated to ${status} for user ID: ${id}`, req.ip, 'success');
+    res.json({ message: 'User status updated successfully' });
+  } catch (error) {
+    console.error('Error updating user status:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -693,6 +802,7 @@ module.exports = {
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  updateEmployeeStatus,
   getRoles,
   createRole,
   updateRole,

@@ -15,6 +15,7 @@ import {
   List,
   LayoutDashboard,
   ClipboardList,
+  FolderOpen,
 } from "lucide-react";
 
 const PurchaseOrderPage = lazy(() => import("../inventory/PurchaseOrderPage"));
@@ -29,6 +30,7 @@ const BillPaymentsPage = lazy(() => import("../accounting/BillPaymentsPage"));
 const CustomerInvoicesPage = lazy(() => import("../accounting/CustomerInvoicesPage"));
 const PaymentTrackingPage = lazy(() => import("../accounting/PaymentTrackingPage"));
 const LedgerEntriesPage = lazy(() => import("../accounting/LedgerEntriesPage"));
+const ProjectDocumentsPage = lazy(() => import("../accounting/ProjectDocumentsPage"));
 
 const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => (
   <div className="space-y-2 p-4">
@@ -223,6 +225,11 @@ const AccountantDashboard = () => {
       ],
     },
     {
+      title: "Project Documents",
+      path: "/accountant/project-documents",
+      icon: FolderOpen,
+    },
+    {
       title: "Departmental Tasks",
       path: "/accountant/tasks",
       icon: ClipboardList,
@@ -286,6 +293,10 @@ const AccountantDashboard = () => {
                 handleExport={handleExport}
               />
             }
+          />
+          <Route
+            path="/project-documents"
+            element={<ProjectDocumentsPage />}
           />
           <Route
             path="/tasks"

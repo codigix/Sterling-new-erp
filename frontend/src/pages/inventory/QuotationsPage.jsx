@@ -1255,9 +1255,6 @@ const QuotationsPage = ({ defaultTab }) => {
               {activeTab === "outbound" ? <Send size={14} /> : <Plus size={14} />}
               {activeTab === "outbound" ? "Request Quote" : "Record Quote"}
             </button>
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-all shadow-sm">
-              <Download size={14} /> Export
-            </button>
           </div>
         }
         columns={columns}

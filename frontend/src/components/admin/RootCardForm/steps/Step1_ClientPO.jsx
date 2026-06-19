@@ -4,41 +4,61 @@ import Input from "../../../ui/Input";
 import FormSection from "../shared/FormSection";
 import FormRow from "../shared/FormRow";
 import { useFormData } from "../hooks";
+import { useAuth } from "../../../../context/AuthContext";
+import axios from "../../../../utils/api";
 
-export default function Step1_ClientPO({ readOnly = false }) {
+export default function Step1_ClientPO({ readOnly = false, isEdit = false }) {
   const { formData, updateField } = useFormData();
+  const { user } = useAuth();
   
-  // Keep the random number stable during the component's lifecycle
-  const [randomSuffix] = React.useState(() => Math.floor(1000 + Math.random() * 9000));
+  const canSeeSellingPrice = 
+    user?.role?.toLowerCase() === 'admin' || 
+    user?.role?.toLowerCase() === 'accountant' || 
+    user?.department?.toLowerCase() === 'accountant';
+
+  const [isCodeManuallyEdited, setIsCodeManuallyEdited] = React.useState(isEdit);
+  const [debouncedProjectName, setDebouncedProjectName] = React.useState("");
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedProjectName(formData.projectName || "");
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [formData.projectName]);
+
+  React.useEffect(() => {
+    if (readOnly || isCodeManuallyEdited) return;
+    
+    if (!debouncedProjectName.trim()) {
+      updateField("projectCode", "");
+      setIsCodeManuallyEdited(false);
+      return;
+    }
+
+    const fetchCode = async () => {
+      try {
+        const response = await axios.get("/root-cards/next-project-code", {
+          params: { projectName: debouncedProjectName }
+        });
+        if (response.data.success && response.data.projectCode) {
+          updateField("projectCode", response.data.projectCode);
+        }
+      } catch (err) {
+        console.error("Failed to fetch next project code:", err);
+      }
+    };
+
+    fetchCode();
+  }, [debouncedProjectName, readOnly, isCodeManuallyEdited]);
   
   const handleProjectNameChange = (e) => {
-    const projectName = e.target.value;
-    updateField("projectName", projectName);
-
-    // Automatically generate project code if the name has at least 1 character
-    if (projectName.trim().length > 0) {
-      // Generate initials from words or first few letters
-      const words = projectName.trim().split(/\s+/);
-      let codeBase = "";
-      
-      if (words.length > 1) {
-        codeBase = words.map(word => word[0]).join("").toUpperCase();
-      } else {
-        codeBase = projectName.trim().substring(0, 3).toUpperCase();
-      }
-      
-      const generatedCode = `${codeBase}-${randomSuffix}`;
-      
-      // Update if empty or if it was likely auto-generated (matches the pattern)
-      // We check if the user has NOT manually edited the code to something else
-      // For simplicity, we update it as long as the user hasn't explicitly changed it 
-      // away from our pattern, or if it's currently empty.
-      if (!formData.projectCode || formData.projectCode.includes(`-${randomSuffix}`)) {
-        updateField("projectCode", generatedCode);
-      }
-    } else {
-      // Clear code if name is completely removed
-      updateField("projectCode", "");
+    const val = e.target.value;
+    updateField("projectName", val);
+    if (!val.trim()) {
+      setIsCodeManuallyEdited(false);
     }
   };
 
@@ -56,7 +76,7 @@ export default function Step1_ClientPO({ readOnly = false }) {
               <ClipboardList size={15} className="text-blue-600" />
               Project & PO Information
             </h5>
-            <FormRow cols={4} className="mb-3">
+            <FormRow cols={canSeeSellingPrice ? 4 : 3} className="mb-3">
               <Input
                 label="Project Name"
                 value={formData.projectName || ""}
@@ -68,7 +88,10 @@ export default function Step1_ClientPO({ readOnly = false }) {
               <Input
                 label="Project Code"
                 value={formData.projectCode || ""}
-                onChange={(e) => updateField("projectCode", e.target.value)}
+                onChange={(e) => {
+                  setIsCodeManuallyEdited(true);
+                  updateField("projectCode", e.target.value);
+                }}
                 placeholder="Enter project code"
                 disabled={readOnly}
                 required
@@ -82,15 +105,17 @@ export default function Step1_ClientPO({ readOnly = false }) {
                 disabled={readOnly}
                 required
               />
-              <Input
-                label="Sales Price"
-                type="number"
-                value={formData.salesPrice || ""}
-                onChange={(e) => updateField("salesPrice", e.target.value)}
-                placeholder="Enter sales price"
-                disabled={readOnly}
-                required
-              />
+              {canSeeSellingPrice && (
+                <Input
+                  label="Sales Price"
+                  type="number"
+                  value={formData.salesPrice || ""}
+                  onChange={(e) => updateField("salesPrice", e.target.value)}
+                  placeholder="Enter sales price"
+                  disabled={readOnly}
+                  required
+                />
+              )}
             </FormRow>
             
             <FormRow cols={3} className="my-4">

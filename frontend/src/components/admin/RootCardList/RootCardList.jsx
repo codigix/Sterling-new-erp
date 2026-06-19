@@ -13,7 +13,6 @@ import {
   Eye,
   Edit2,
   Trash2,
-  Download,
   Send,
   Loader2,
   Calendar,
@@ -36,6 +35,7 @@ const RootCardList = ({
   const [rootCards, setRootCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [activeTab, setActiveTab] = useState('ongoing');
   const { user } = useAuth();
 
   const isAdmin = user?.role?.toLowerCase() === 'admin';
@@ -155,7 +155,16 @@ const RootCardList = ({
       ...rc,
       statusLabel
     };
-  });
+  }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+  const isCompleted = (rc) => {
+    const status = rc.status || '';
+    return status === 'Redy for Dispatch' || status === 'READY_FOR_DELIVERY' || status === 'DELIVERED' || status === 'Ready for Dispatch';
+  };
+
+  const ongoingCards = processedRootCards.filter(rc => !isCompleted(rc));
+  const completedCards = processedRootCards.filter(rc => isCompleted(rc));
+  const displayedCards = activeTab === 'ongoing' ? ongoingCards : completedCards;
 
   const handleDelete = async (rootCard) => {
     const rootCardId = rootCard.public_id || rootCard.id;
@@ -182,29 +191,6 @@ const RootCardList = ({
     }
   };
 
-  const handleDownload = (rootCard) => {
-    const data = {
-      poNumber: rootCard.po_number,
-      projectName: rootCard.project_name,
-      status: rootCard.status,
-    };
-
-    const csvContent = [
-      ['PO Number', data.poNumber],
-      ['Project Name', data.projectName],
-      ['Status', data.status],
-    ]
-      .map((row) => row.join(','))
-      .join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `RC_${rootCard.po_number}_${new Date().getTime()}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
 
   const handleStatusChange = async (rootCardId, newStatus) => {
     try {
@@ -228,7 +214,7 @@ const RootCardList = ({
   const columns = [
     {
       key: 'project_name',
-      label: 'Project Name & Code',
+      label: 'Project Name & PO Number',
       sortable: true,
       render: (value, row) => (
         <div className="flex flex-col gap-1">
@@ -236,14 +222,14 @@ const RootCardList = ({
             {value || '-'}
           </span>
           <span className="text-xs text-slate-500 dark:text-slate-400">
-            {row.project_code || '-'}
+            {row.po_number || '-'}
           </span>
         </div>
       ),
     },
     {
-      key: 'po_number',
-      label: 'PO Number',
+      key: 'project_code',
+      label: 'Project Code',
       sortable: true,
     },
     {
@@ -263,7 +249,6 @@ const RootCardList = ({
       label: 'QTY',
       sortable: true,
     },
-
     {
       key: 'status',
       label: 'Status',
@@ -312,19 +297,22 @@ const RootCardList = ({
 
         return (
           <div className="min-w-[150px] -mt-1">
-            <Select
+            <select
               value={value || 'RC_CREATED'}
               onChange={(e) => handleStatusChange(row.id, e.target.value)}
               disabled={updatingStatus === row.id}
-              className="text-[10px] !py-0"
-              containerClassName="!space-y-0"
+              className={`w-full px-2 py-1 border rounded text-[10px] font-medium outline-none cursor-pointer ${colorClass}`}
             >
               {STATUS_LEVELS.map((level) => (
-                <option key={level.value} value={level.value}>
+                <option 
+                  key={level.value} 
+                  value={level.value}
+                  className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                >
                   {level.label}
                 </option>
               ))}
-            </Select>
+            </select>
           </div>
         );
       },
@@ -382,16 +370,7 @@ const RootCardList = ({
                 <Calendar className="w-3 h-3 text-indigo-600" />
               </button>
             )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDownload(row);
-              }}
-              title="Download"
-              className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded transition"
-            >
-              <Download className="w-3 h-3 text-purple-600" />
-            </button>
+
             {!isAccountantView && onSendToProduction && (row.status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_APPROVED') && (
               <button
                 onClick={(e) => {
@@ -497,6 +476,46 @@ const RootCardList = ({
         )}
       </div>
 
+      {/* Tabs */}
+      <div className="border-b border-slate-200 dark:border-slate-800 flex gap-6 mt-2 mb-4">
+        <button
+          type="button"
+          onClick={() => setActiveTab('ongoing')}
+          className={`pb-3 text-sm flex items-center transition-all focus:outline-none relative ${
+            activeTab === 'ongoing'
+              ? 'text-blue-600 dark:text-blue-400 font-semibold border-b-2 border-blue-600 dark:border-blue-400'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 font-medium'
+          }`}
+        >
+          Ongoing
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ml-2 transition-all ${
+            activeTab === 'ongoing'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+          }`}>
+            {ongoingCards.length}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('completed')}
+          className={`pb-3 text-sm flex items-center transition-all focus:outline-none relative ${
+            activeTab === 'completed'
+              ? 'text-blue-600 dark:text-blue-400 font-semibold border-b-2 border-blue-600 dark:border-blue-400'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 font-medium'
+          }`}
+        >
+          Completed
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ml-2 transition-all ${
+            activeTab === 'completed'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+          }`}>
+            {completedCards.length}
+          </span>
+        </button>
+      </div>
+
       {/* DataTable */}
       <div shadow="md" padding="none" className=" dark:border-slate-700 overflow-hidden">
         <CardContent className="p-0  flex flex-col">
@@ -510,7 +529,7 @@ const RootCardList = ({
           ) : (
             <DataTable
               columns={columns}
-              data={processedRootCards}
+              data={displayedCards}
               emptyMessage="No route cards found"
               sortable={true}
               striped={true}
@@ -518,9 +537,9 @@ const RootCardList = ({
               filters={[
                 {
                   key: 'statusLabel',
-                  label: `Statuses (${rootCards.length})`,
+                  label: `Statuses (${displayedCards.length})`,
                   options: uniqueStatusLabels.map(label => {
-                    const count = rootCards.filter(rc => {
+                    const count = displayedCards.filter(rc => {
                       const level = STATUS_LEVELS.find(l => l.value === (rc.status || 'RC_CREATED'));
                       const cardLabel = level ? level.label : (rc.status || 'Created');
                       return cardLabel === label;

@@ -20,6 +20,69 @@ import { toast } from "react-toastify";
 import { useRootCardInventoryTask } from "../../hooks/useRootCardInventoryTask";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import DataTable from "../ui/DataTable/DataTable";
+import SearchableSelect from "../ui/SearchableSelect";
+
+const calculateItemWeight = (item) => {
+  const group = (item.item_group || "").toLowerCase();
+  const density = parseFloat(item.density) || 0;
+  if (density <= 0) return 0;
+
+  // Use vendor dimension if specified, otherwise fall back to original dimension
+  const L = parseFloat(item.vendor_length !== null && item.vendor_length !== undefined && item.vendor_length !== "" ? item.vendor_length : item.length) || 0;
+  const W = parseFloat(item.vendor_width !== null && item.vendor_width !== undefined && item.vendor_width !== "" ? item.vendor_width : item.width) || 0;
+  const T = parseFloat(item.vendor_thickness !== null && item.vendor_thickness !== undefined && item.vendor_thickness !== "" ? item.vendor_thickness : item.thickness) || 0;
+  const D = parseFloat(item.vendor_diameter !== null && item.vendor_diameter !== undefined && item.vendor_diameter !== "" ? item.vendor_diameter : item.diameter) || 0;
+  const OD = parseFloat(item.vendor_outer_diameter !== null && item.vendor_outer_diameter !== undefined && item.vendor_outer_diameter !== "" ? item.vendor_outer_diameter : item.outer_diameter) || 0;
+  const H = parseFloat(item.vendor_height !== null && item.vendor_height !== undefined && item.vendor_height !== "" ? item.vendor_height : item.height) || 0;
+  const S1 = parseFloat(item.vendor_side1 !== null && item.vendor_side1 !== undefined && item.vendor_side1 !== "" ? item.vendor_side1 : item.side1) || 0;
+  const S2 = parseFloat(item.vendor_side2 !== null && item.vendor_side2 !== undefined && item.vendor_side2 !== "" ? item.vendor_side2 : item.side2) || 0;
+  const WT = parseFloat(item.vendor_web_thickness !== null && item.vendor_web_thickness !== undefined && item.vendor_web_thickness !== "" ? item.vendor_web_thickness : item.web_thickness) || 0;
+  const FT = parseFloat(item.vendor_flange_thickness !== null && item.vendor_flange_thickness !== undefined && item.vendor_flange_thickness !== "" ? item.vendor_flange_thickness : item.flange_thickness) || 0;
+
+  let unitWeight = 0;
+
+  if (group.includes("plate") || group.includes("block")) {
+    const thick = group.includes("plate") ? T : H;
+    unitWeight = (L * W * thick * density) / 1000000;
+  } else if (group.includes("round bar")) {
+    const radius = D / 2;
+    unitWeight = (Math.PI * Math.pow(radius, 2) * L * density) / 1000000;
+  } else if (group.includes("pipe")) {
+    const outerRadius = OD / 2;
+    const innerRadius = outerRadius - T;
+    if (innerRadius >= 0) {
+      unitWeight =
+        (Math.PI *
+          (Math.pow(outerRadius, 2) - Math.pow(innerRadius, 2)) *
+          L *
+          density) /
+        1000000;
+    }
+  } else if (group.includes("square bar")) {
+    unitWeight = (S1 * S1 * L * density) / 1000000;
+  } else if (group.includes("rectangular bar")) {
+    unitWeight = (W * T * L * density) / 1000000;
+  } else if (group.includes("square tube")) {
+    const outerArea = S1 * S1;
+    const innerSide = S1 - 2 * T;
+    const innerArea = innerSide > 0 ? innerSide * innerSide : 0;
+    unitWeight = ((outerArea - innerArea) * L * density) / 1000000;
+  } else if (group.includes("rectangular tube")) {
+    const outerArea = W * H;
+    const innerW = W - 2 * T;
+    const innerH = H - 2 * T;
+    const innerArea = innerW > 0 && innerH > 0 ? innerW * innerH : 0;
+    unitWeight = ((outerArea - innerArea) * L * density) / 1000000;
+  } else if (group.includes("angle")) {
+    unitWeight = ((S1 + S2 - T) * T * L * density) / 1000000;
+  } else if (group.includes("c channel")) {
+    unitWeight = ((W * T + 2 * (H - T) * T) * L * density) / 1000000;
+  } else if (group.includes("i beam") || group.includes("h beam")) {
+    unitWeight = ((2 * W * FT + (H - 2 * FT) * WT) * L * density) / 1000000;
+  }
+
+  return unitWeight;
+};
 
 const DimensionInput = ({ label, field, placeholder, item, index, handleItemChange }) => (
   <div key={field} className="flex flex-col gap-1 ">
@@ -349,6 +412,7 @@ const CreateQuotationModal = ({
           side2: parseFloat(m.side2) || parseFloat(m.height) || null,
           web_thickness: m.web_thickness || null,
           flange_thickness: m.flange_thickness || null,
+          density: parseFloat(m.density) || 0,
         }));
         initialFormState.root_card_id =
           preFilledMaterials[0]?.rootCardId || initialFormState.root_card_id;
@@ -418,7 +482,7 @@ const CreateQuotationModal = ({
             [field]: stringFields.includes(field)
               ? value
               : numberFields.includes(field)
-                ? (value === "" ? 0 : parseFloat(value))
+                ? (value === "" ? "" : parseFloat(value))
                 : value,
           };
 
@@ -428,7 +492,16 @@ const CreateQuotationModal = ({
             const uom = (updatedItem.unit || "").toLowerCase();
             if (group === "bought out" || group === "paint" || uom === "l" || uom === "packet") {
               updatedItem.total_weight = updatedItem.quantity;
+            } else {
+              updatedItem.total_weight = (parseFloat(updatedItem.unit_weight) || 0) * (parseFloat(updatedItem.quantity) || 0);
             }
+          }
+
+          // If vendor dimensions change, recalculate weight
+          if (field.startsWith("vendor_") && field !== "vendor_item_name" && field !== "vendor_items_per_packet") {
+            const calculatedUnitWeight = calculateItemWeight(updatedItem);
+            updatedItem.unit_weight = calculatedUnitWeight;
+            updatedItem.total_weight = calculatedUnitWeight * (parseFloat(updatedItem.quantity) || 0);
           }
 
           return updatedItem;
@@ -586,6 +659,7 @@ const CreateQuotationModal = ({
             side2: parseFloat(item.side2) || parseFloat(item.height) || null,
             web_thickness: item.web_thickness || null,
             flange_thickness: item.flange_thickness || null,
+            density: parseFloat(item.density) || 0,
             vendor_length: null,
             vendor_width: null,
             vendor_thickness: null,
@@ -650,6 +724,7 @@ const CreateQuotationModal = ({
           side2: parseFloat(item.side2) || parseFloat(item.height) || null,
           web_thickness: item.web_thickness || null,
           flange_thickness: item.flange_thickness || null,
+          density: parseFloat(item.density) || 0,
           vendor_length: null,
           vendor_width: null,
           vendor_thickness: null,
@@ -710,6 +785,17 @@ const CreateQuotationModal = ({
         part_detail: m.partDetail || m.part_detail || "",
         make: m.make || "",
         remark: m.remark || "",
+        length: m.length || null,
+        width: parseFloat(m.width) || parseFloat(m.side1) || null,
+        thickness: m.thickness || null,
+        diameter: m.diameter || null,
+        outer_diameter: m.outer_diameter || null,
+        height: parseFloat(m.height) || parseFloat(m.side2) || null,
+        side1: parseFloat(m.side1) || parseFloat(m.width) || null,
+        side2: parseFloat(m.side2) || parseFloat(m.height) || null,
+        web_thickness: m.web_thickness || null,
+        flange_thickness: m.flange_thickness || null,
+        density: parseFloat(m.density) || 0,
       }));
 
       setFormData((prev) => ({ ...prev, items }));
@@ -1363,72 +1449,70 @@ const CreateQuotationModal = ({
           >
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
               <div className="space-y-2">
-                {!preFilledMaterials && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {!preFilledMaterials && (
                     <div>
-                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
-                      Select Material Request (Optional)
-                    </label>
-                    <div className="relative">
-                      {loadingMaterials ? (
-                        <Loader2
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 animate-spin"
-                          size={15}
-                        />
-                      ) : (
-                        <FileText
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                          size={15}
-                        />
-                      )}
-                      <select
-                        value={formData.material_request_id || ""}
-                        onChange={handleMaterialRequestChange}
-                        disabled={loadingMaterials}
-                        className="w-full p-2 pl-11 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      >
-                        <option value="">
-                          Select Material Request to Load Items
-                        </option>
-                        {materialRequests.map((mr) => (
-                          <option key={mr.id} value={mr.id}>
-                            {mr.request_number || mr.mr_number} -{" "}
-                            {mr.department} ({formatDate(mr.created_at)})
+                      <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
+                        Select Material Request (Optional)
+                      </label>
+                      <div className="relative">
+                        {loadingMaterials ? (
+                          <Loader2
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 animate-spin"
+                            size={15}
+                          />
+                        ) : (
+                          <FileText
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                            size={15}
+                          />
+                        )}
+                        <select
+                          value={formData.material_request_id || ""}
+                          onChange={handleMaterialRequestChange}
+                          disabled={loadingMaterials || !!initialData?.material_request_id}
+                          className={`w-full p-2 pl-11 text-xs border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                            (loadingMaterials || !!initialData?.material_request_id)
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
+                          <option value="">
+                            Select Material Request to Load Items
                           </option>
-                        ))}
-                      </select>
+                          {materialRequests.map((mr) => (
+                            <option key={mr.id} value={mr.id}>
+                              {mr.request_number || mr.mr_number} -{" "}
+                              {mr.department} ({formatDate(mr.created_at)})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
-                      Vendor <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      name="vendor_id"
-                      value={formData.vendor_id}
-                      onChange={handleFormChange}
-                      required
-                      disabled={
-                        formData.type === "inbound" && formData.reference_id
+                  )}
+                  <div className={preFilledMaterials ? "md:col-span-2" : ""}>
+                    <SearchableSelect
+                      label={
+                        <span>
+                          Vendor <span className="text-red-500">*</span>
+                        </span>
                       }
-                      className={`w-full text-xs p-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
-                        formData.type === "inbound" && formData.reference_id
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      <option value="">-- Select a Vendor --</option>
-                      {vendors.map((vendor) => (
-                        <option key={vendor.id} value={vendor.id}>
-                          {vendor.name}{" "}
-                          {vendor.vendor_type
-                            ? `(${vendor.vendor_type
-                                .replace("_", " ")
-                                .toUpperCase()})`
-                            : ""}
-                        </option>
-                      ))}
-                    </select>
+                      value={formData.vendor_id}
+                      onChange={(val) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          vendor_id: val,
+                        }));
+                      }}
+                      disabled={
+                        (formData.type === "inbound" && formData.reference_id) || !!initialData?.vendor_id
+                      }
+                      placeholder="-- Select a Vendor --"
+                      options={vendors.map((vendor) => ({
+                        value: vendor.id,
+                        label: `${vendor.name} ${vendor.gstin ? `(${vendor.gstin})` : ""}`,
+                      }))}
+                    />
                   </div>
                   <div>
                     <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-2">
@@ -1443,8 +1527,7 @@ const CreateQuotationModal = ({
                       className="w-full p-2 border text-xs border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     />
                   </div>
-                  </div>
-                )}
+                </div>
 
                 {formData.type === "inbound" && (
                   <div>

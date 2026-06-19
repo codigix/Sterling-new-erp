@@ -23,7 +23,8 @@ import {
   Calendar,
   Filter,
   Download,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Eye
 } from "lucide-react";
 
 const DepartmentTasksPage = () => {
@@ -38,6 +39,13 @@ const DepartmentTasksPage = () => {
   const [endDateFilter, setEndDateFilter] = useState("");
   const [exporting, setExporting] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [activeTab, setActiveTab] = useState("ongoing"); // "ongoing" | "completed"
+  const [viewingTask, setViewingTask] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+
+  useEffect(() => {
+    setFilterStatus("all");
+  }, [activeTab]);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -216,13 +224,19 @@ const DepartmentTasksPage = () => {
 
   const columns = [
     {
+      label: "Task ID",
+      key: "task_code",
+      render: (value) => (
+        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded border border-slate-200">
+          {value || "-"}
+        </span>
+      ),
+    },
+    {
       label: "Task Title",
       key: "title",
-      render: (value, row) => (
-        <div className="flex flex-col">
-          <span className=" text-slate-900">{row.title}</span>
-          <span className="text-xs text-slate-500 line-clamp-1">{row.description}</span>
-        </div>
+      render: (value) => (
+        <span className="font-semibold text-slate-900">{value}</span>
       ),
     },
     {
@@ -334,7 +348,18 @@ const DepartmentTasksPage = () => {
       label: "Actions",
       key: "actions",
       render: (_, row) => (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setViewingTask(row);
+              setShowViewModal(true);
+            }}
+            title="View Details"
+          >
+            <Eye size={16} className="text-slate-600" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -350,10 +375,16 @@ const DepartmentTasksPage = () => {
               });
               setShowModal(true);
             }}
+            title="Edit"
           >
             <Edit2 size={16} className="text-blue-600" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => handleDelete(row.id)}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => handleDelete(row.id)}
+            title="Delete"
+          >
             <Trash2 size={16} className="text-red-600" />
           </Button>
         </div>
@@ -362,6 +393,11 @@ const DepartmentTasksPage = () => {
   ];
 
   const filteredTasks = tasks.filter((task) => {
+    // Tab filter
+    const isCompleted = task.status === 'Completed' || task.status === 'completed';
+    if (activeTab === "ongoing" && isCompleted) return false;
+    if (activeTab === "completed" && !isCompleted) return false;
+
     let matchesSearch = true;
     if (searchTerm) {
       const lowerSearch = searchTerm.toLowerCase();
@@ -371,7 +407,8 @@ const DepartmentTasksPage = () => {
         task.departmentName,
         task.assignedByName,
         task.priority,
-        task.status
+        task.status,
+        task.task_code
       ];
       matchesSearch = fieldsToSearch.some(field => 
         field && String(field).toLowerCase().includes(lowerSearch)
@@ -421,6 +458,14 @@ const DepartmentTasksPage = () => {
     }
     
     return matchesSearch && matchesDept && matchesDate && matchesStatus;
+  });
+
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    const priorityWeight = { High: 1, Medium: 2, Low: 3 };
+    const wA = priorityWeight[a.priority] || 4;
+    const wB = priorityWeight[b.priority] || 4;
+    if (wA !== wB) return wA - wB;
+    return new Date(b.created_at || b.assignmentDate) - new Date(a.created_at || a.assignmentDate);
   });
 
   const handleDelete = async (id) => {
@@ -578,10 +623,50 @@ const DepartmentTasksPage = () => {
         </Card>
       </div>
 
+      {/* Tabs */}
+      <div className="border-b border-slate-200 dark:border-slate-800 flex gap-6 mt-4 mb-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab("ongoing")}
+          className={`pb-3 text-sm flex items-center transition-all focus:outline-none relative ${
+            activeTab === "ongoing"
+              ? "text-blue-600 dark:text-blue-400 font-semibold border-b-2 border-blue-600 dark:border-blue-400"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 font-medium"
+          }`}
+        >
+          Ongoing Tasks
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ml-2 transition-all ${
+            activeTab === "ongoing"
+              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+          }`}>
+            {tasks.filter(t => t.status !== 'Completed' && t.status !== 'completed').length}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("completed")}
+          className={`pb-3 text-sm flex items-center transition-all focus:outline-none relative ${
+            activeTab === "completed"
+              ? "text-blue-600 dark:text-blue-400 font-semibold border-b-2 border-blue-600 dark:border-blue-400"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 font-medium"
+          }`}
+        >
+          Completed Tasks
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ml-2 transition-all ${
+            activeTab === "completed"
+              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+          }`}>
+            {tasks.filter(t => t.status === 'Completed' || t.status === 'completed').length}
+          </span>
+        </button>
+      </div>
+
         <CardContent className="p-0">
           <DataTable
             columns={columns}
-            data={filteredTasks}
+            data={sortedTasks}
             loading={loading}
             onSearch={(val) => setSearchTerm(val)}
             initialSearchValue={searchTerm}
@@ -614,10 +699,17 @@ const DepartmentTasksPage = () => {
                     onChange={(e) => setFilterStatus(e.target.value)}
                   >
                     <option value="all">All Statuses</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Completed (Delayed)">Completed (Delayed)</option>
-                    <option value="Overdue">Overdue</option>
+                    {activeTab === "ongoing" ? (
+                      <>
+                        <option value="Pending">Pending</option>
+                        <option value="Overdue">Overdue</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="Completed">Completed</option>
+                        <option value="Completed (Delayed)">Completed (Delayed)</option>
+                      </>
+                    )}
                   </select>
                 </div>
 
@@ -653,7 +745,7 @@ const DepartmentTasksPage = () => {
               </div>
             }
           />
-          {!loading && filteredTasks.length === 0 && (
+          {!loading && sortedTasks.length === 0 && (
             <div className="py-12 text-center">
               <ClipboardList size={48} className="mx-auto text-slate-300 mb-4" />
               <h3 className="text-lg  text-slate-900">No tasks found</h3>
@@ -775,6 +867,135 @@ const DepartmentTasksPage = () => {
             </Button>
           </ModalFooter>
         </form>
+      </Modal>
+
+      {/* View Task Modal */}
+      <Modal
+        isOpen={showViewModal}
+        onClose={() => {
+          setShowViewModal(false);
+          setViewingTask(null);
+        }}
+        size="lg"
+        title="Task Information"
+      >
+        <ModalBody>
+          {viewingTask && (
+            <div className="space-y-5 text-left p-1">
+              {/* Header Info */}
+              <div className="flex items-center justify-between border-b pb-4 border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col">
+                  {viewingTask.task_code && (
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded border border-blue-100 dark:border-blue-800 self-start mb-1.5">
+                      {viewingTask.task_code}
+                    </span>
+                  )}
+                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">{viewingTask.title}</h2>
+                </div>
+                <div>
+                  <span className={`px-2.5 py-0.5 rounded text-xs font-semibold ${
+                    viewingTask.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800' :
+                    viewingTask.priority === 'Medium' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800' :
+                    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800'
+                  }`}>
+                    {viewingTask.priority} Priority
+                  </span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Description</h4>
+                <div className="bg-slate-50 dark:bg-slate-800/40 p-4 rounded text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap border border-slate-100 dark:border-slate-800/80 leading-relaxed min-h-[80px]">
+                  {viewingTask.description || "No description provided."}
+                </div>
+              </div>
+
+              {/* Task Metadata Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                {/* Department & Assigned By */}
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Assigned Department</h4>
+                    <span className="inline-block px-2.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-semibold border border-blue-200 dark:border-blue-800">
+                      {viewingTask.departmentName}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Assigned By</h4>
+                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{viewingTask.assignedByName || "Admin"}</span>
+                  </div>
+                </div>
+
+                {/* Dates & Status */}
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Task Status</h4>
+                    <div>
+                      {(() => {
+                        const isCompleted = viewingTask.status === 'Completed' || viewingTask.status === 'completed';
+                        if (isCompleted) {
+                          const isLate = isCompletedLate(viewingTask);
+                          if (isLate) {
+                            return (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs font-semibold border border-amber-200 dark:border-amber-800">
+                                <Clock size={12} className="mr-1 text-amber-500" />
+                                Completed (Delayed)
+                              </span>
+                            );
+                          }
+                          return (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-xs font-semibold border border-green-200 dark:border-green-800">
+                              <CheckCircle2 size={12} className="mr-1 text-green-500" />
+                              Completed
+                            </span>
+                          );
+                        }
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const due = new Date(viewingTask.dueDate);
+                        due.setHours(0, 0, 0, 0);
+                        if (due < today) {
+                          return (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 text-xs font-semibold border border-red-200 dark:border-red-800">
+                              <AlertCircle size={12} className="mr-1 text-red-500" />
+                              Overdue
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                            <Clock size={12} className="mr-1 text-slate-400" />
+                            {viewingTask.status || "Pending"}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
+                      <Calendar size={14} className="mr-2 text-blue-500" />
+                      <span className="font-medium text-slate-500 dark:text-slate-400 mr-1">Assign Date:</span> {formatDate(viewingTask.assignmentDate)}
+                    </div>
+                    <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
+                      <Clock size={14} className="mr-2 text-amber-500" />
+                      <span className="font-medium text-slate-500 dark:text-slate-400 mr-1">Due Date:</span> {formatDate(viewingTask.dueDate)}
+                    </div>
+                    {viewingTask.completed_date && (
+                      <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
+                        <CheckCircle2 size={14} className="mr-2 text-green-500" />
+                        <span className="font-medium text-slate-500 dark:text-slate-400 mr-1">Completed Date:</span> {formatDate(viewingTask.completed_date)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={() => setShowViewModal(false)}>Close</Button>
+        </ModalFooter>
       </Modal>
     </div>
   );

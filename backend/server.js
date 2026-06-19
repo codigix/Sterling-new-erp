@@ -78,6 +78,7 @@ app.use('/api/department/inventory/grns', grnRoutes);
 app.use('/api/inventory/grn', grnRoutes);
 app.use('/api/inventory/grns', grnRoutes);
 app.use('/api/grn', grnRoutes);
+app.use('/api/grns', grnRoutes);
 
 // Multi-path registration for Inventory
 app.use('/api/department/inventory/portal', inventoryRoutes);

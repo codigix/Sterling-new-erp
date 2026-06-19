@@ -18,7 +18,9 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
     amount_received: "",
     payment_method: "NEFT/Bank Transfer",
     transaction_ref: "",
-    notes: ""
+    notes: "",
+    gst_tds: "",
+    it_tds: ""
   });
 
   useEffect(() => {
@@ -34,7 +36,9 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
           amount_received: editData.amount_received || editData.amount || "",
           payment_method: editData.payment_method || editData.method || "NEFT/Bank Transfer",
           transaction_ref: editData.transaction_ref || "",
-          notes: editData.notes || ""
+          notes: editData.notes || "",
+          gst_tds: editData.gst_tds || "",
+          it_tds: editData.it_tds || ""
         });
       } else {
         fetchNextReceiptNumber();
@@ -46,7 +50,9 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
           amount_received: "",
           payment_method: "NEFT/Bank Transfer",
           transaction_ref: "",
-          notes: ""
+          notes: "",
+          gst_tds: "",
+          it_tds: ""
         });
       }
     }
@@ -72,21 +78,94 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // If invoice is selected, check only individual fields in real-time
+    if (formData.invoice_id) {
+      const balance = parseFloat(formData.invoice_balance) || 0;
+      const parsedVal = parseFloat(value) || 0;
+
+      if (name === "amount_received") {
+        if (parsedVal > balance) {
+          toastUtils.warning(`Amount received (₹${parsedVal.toLocaleString()}) cannot exceed remaining balance (₹${balance.toLocaleString()})`);
+          setFormData(prev => ({ ...prev, amount_received: balance }));
+          return;
+        }
+      } else if (name === "gst_tds") {
+        if (parsedVal > balance) {
+          toastUtils.warning(`GST TDS (₹${parsedVal.toLocaleString()}) cannot exceed remaining balance (₹${balance.toLocaleString()})`);
+          setFormData(prev => ({ ...prev, gst_tds: balance, amount_received: 0 }));
+          return;
+        }
+        const currentItTds = parseFloat(formData.it_tds) || 0;
+        const newReceived = Math.max(0, balance - parsedVal - currentItTds);
+        setFormData(prev => ({ 
+          ...prev, 
+          gst_tds: value,
+          amount_received: newReceived
+        }));
+        return;
+      } else if (name === "it_tds") {
+        if (parsedVal > balance) {
+          toastUtils.warning(`Income Tax TDS (₹${parsedVal.toLocaleString()}) cannot exceed remaining balance (₹${balance.toLocaleString()})`);
+          setFormData(prev => ({ ...prev, it_tds: balance, amount_received: 0 }));
+          return;
+        }
+        const currentGstTds = parseFloat(formData.gst_tds) || 0;
+        const newReceived = Math.max(0, balance - parsedVal - currentGstTds);
+        setFormData(prev => ({ 
+          ...prev, 
+          it_tds: value,
+          amount_received: newReceived
+        }));
+        return;
+      }
+    }
+    
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleInvoiceChange = (invoiceId) => {
+    if (!invoiceId) {
+      setFormData(prev => ({
+        ...prev,
+        invoice_id: "",
+        customer_name: "",
+        amount_received: "",
+        gst_tds: "",
+        it_tds: "",
+        invoice_balance: 0
+      }));
+      return;
+    }
+
     const invoice = invoices.find(inv => inv.id === parseInt(invoiceId));
+    const balance = invoice ? parseFloat(invoice.balance_amount) : 0;
     setFormData(prev => ({
       ...prev,
       invoice_id: invoiceId,
       customer_name: invoice ? invoice.customer_name : prev.customer_name,
-      amount_received: invoice ? invoice.balance_amount : prev.amount_received
+      amount_received: balance,
+      gst_tds: "",
+      it_tds: "",
+      invoice_balance: balance
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (formData.invoice_id) {
+      const balance = parseFloat(formData.invoice_balance) || 0;
+      const currentReceived = parseFloat(formData.amount_received) || 0;
+      const currentGstTds = parseFloat(formData.gst_tds) || 0;
+      const currentItTds = parseFloat(formData.it_tds) || 0;
+      
+      if (currentReceived + currentGstTds + currentItTds > balance) {
+        toastUtils.error("Total adjusted amount cannot exceed remaining balance");
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       await axios.post("/accounting/customer-payments", formData);
@@ -210,6 +289,33 @@ const RecordCustomerPaymentModal = ({ isOpen, onClose, onPaymentRecorded, editDa
                   <option value="UPI">UPI</option>
                   <option value="Other">Other</option>
                 </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5 text-left">
+                <label className="text-[10px]   text-slate-400">GST TDS (₹)</label>
+                <input
+                  type="number"
+                  name="gst_tds"
+                  value={formData.gst_tds}
+                  onChange={handleInputChange}
+                  readOnly={viewMode}
+                  className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                  placeholder="0.00"
+                />
+              </div>
+              <div className="space-y-1.5 text-left">
+                <label className="text-[10px]   text-slate-400">Income Tax TDS (₹)</label>
+                <input
+                  type="number"
+                  name="it_tds"
+                  value={formData.it_tds}
+                  onChange={handleInputChange}
+                  readOnly={viewMode}
+                  className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                  placeholder="0.00"
+                />
               </div>
             </div>
 

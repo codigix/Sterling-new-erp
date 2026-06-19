@@ -20,7 +20,8 @@ const {
   getRootCardRequirementsById,
   updateRootCardRequirements,
   updateRootCardStatus,
-  updateRootCardTimelines
+  updateRootCardTimelines,
+  getNextProjectCode
 } = require('../controllers/rootCardController');
 const auth = require('../middleware/authMiddleware');
 
@@ -96,6 +97,9 @@ router.get('/requirements', auth, getAllRootCardRequirements);
 
 // @route   GET api/root-cards/requirements/:id
 router.get('/requirements/:id', auth, getRootCardRequirementsById);
+
+// @route   GET api/root-cards/next-project-code
+router.get('/next-project-code', auth, getNextProjectCode);
 
 // @route   POST api/root-cards/requirements/:id
 router.post('/requirements/:id', auth, updateRootCardRequirements);

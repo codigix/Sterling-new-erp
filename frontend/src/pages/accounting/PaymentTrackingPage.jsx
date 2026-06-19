@@ -119,24 +119,44 @@ const PaymentTrackingPage = () => {
       doc.text("PAYMENT RECEIPT", pageWidth / 2, margin + 35, { align: "center" });
 
       doc.setLineWidth(0.2);
-      doc.rect(margin, margin + 40, contentWidth, 60);
+      const boxHeight = payment.transaction_ref ? 100 : 90;
+      doc.rect(margin, margin + 40, contentWidth, boxHeight);
       
       doc.setFontSize(10);
-      doc.text(`Receipt No: ${payment.receipt_number}`, margin + 5, margin + 50);
-      doc.text(`Date: ${new Date(payment.received_date).toLocaleDateString()}`, margin + 140, margin + 50);
+      doc.text(`Receipt No: ${payment.receipt_number}`, margin + 5, margin + 48);
+      doc.text(`Date: ${new Date(payment.received_date).toLocaleDateString('en-GB')}`, margin + 140, margin + 48);
       
-      doc.text(`Received from: ${payment.customer_name}`, margin + 5, margin + 60);
-      doc.text(`Project: ${payment.project_name || "N/A"}`, margin + 5, margin + 70);
-      doc.text(`Ref Invoice: ${payment.ref_invoice_no || "N/A"}`, margin + 5, margin + 80);
+      doc.text(`Received from: ${payment.customer_name}`, margin + 5, margin + 58);
+      doc.text(`Project: ${payment.project_name || "N/A"}`, margin + 5, margin + 68);
+      doc.text(`Ref Invoice: ${payment.ref_invoice_no || "N/A"}`, margin + 5, margin + 78);
       
-      doc.setFontSize(12);
-      doc.rect(margin + 5, margin + 85, 100, 10);
-      doc.text(`Amount: INR ${parseFloat(payment.amount_received).toLocaleString()}`, margin + 8, margin + 92);
+      const amtReceived = parseFloat(payment.amount_received || 0);
+      const gstTdsVal = parseFloat(payment.gst_tds || 0);
+      const itTdsVal = parseFloat(payment.it_tds || 0);
+      const totalAdj = amtReceived + gstTdsVal + itTdsVal;
 
-      doc.setFontSize(10);
-      doc.text(`Method: ${payment.payment_method}`, margin + 5, margin + 110);
+      doc.text(`Amount Received: INR ${amtReceived.toLocaleString()}`, margin + 5, margin + 88);
+      let nextY = 88;
+      if (gstTdsVal > 0) {
+        nextY += 6;
+        doc.text(`GST TDS Deducted: INR ${gstTdsVal.toLocaleString()}`, margin + 5, margin + nextY);
+      }
+      if (itTdsVal > 0) {
+        nextY += 6;
+        doc.text(`Income Tax TDS Deducted: INR ${itTdsVal.toLocaleString()}`, margin + 5, margin + nextY);
+      }
+      if (gstTdsVal > 0 || itTdsVal > 0) {
+        nextY += 8;
+        doc.setFont("helvetica", "bold");
+        doc.text(`Total Invoice Adjustment: INR ${totalAdj.toLocaleString()}`, margin + 5, margin + nextY);
+        doc.setFont("helvetica", "normal");
+      }
+
+      nextY += 8;
+      doc.text(`Method: ${payment.payment_method}`, margin + 5, margin + nextY);
       if (payment.transaction_ref) {
-        doc.text(`Transaction Ref: ${payment.transaction_ref}`, margin + 5, margin + 120);
+        nextY += 8;
+        doc.text(`Transaction Ref: ${payment.transaction_ref}`, margin + 5, margin + nextY);
       }
 
       doc.save(`Receipt-${payment.receipt_number}.pdf`);
@@ -164,13 +184,25 @@ const PaymentTrackingPage = () => {
     {
       key: "received_date",
       label: "Received Date",
-      render: (val) => new Date(val).toLocaleDateString()
+      render: (val) => new Date(val).toLocaleDateString('en-GB')
     },
     {
       key: "amount_received",
       label: "Amount Received",
       align: "right",
       render: (val) => <span className="text-emerald-600 ">₹{parseFloat(val).toLocaleString()}</span>
+    },
+    {
+      key: "gst_tds",
+      label: "GST TDS",
+      align: "right",
+      render: (val) => parseFloat(val || 0) > 0 ? <span className="text-amber-600 font-medium">₹{parseFloat(val).toLocaleString()}</span> : <span className="text-slate-400">-</span>
+    },
+    {
+      key: "it_tds",
+      label: "IT TDS",
+      align: "right",
+      render: (val) => parseFloat(val || 0) > 0 ? <span className="text-amber-600 font-medium">₹{parseFloat(val).toLocaleString()}</span> : <span className="text-slate-400">-</span>
     },
     {
       key: "payment_method",

@@ -182,10 +182,10 @@ const DataTable = ({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {(title || showSearch) && (
+      {(title || showSearch || titleExtra) && (
         <div className="">
-          {(title || titleIcon) && (
-            <div className='flex justify-between mb-3'>
+          {(title || titleIcon || titleExtra) && (
+            <div className='flex flex-wrap justify-between items-center mb-3 gap-2'>
               <div className="flex items-center my-2 gap-3">
                 {titleIcon && (
                   <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded flex-shrink-0">
@@ -202,15 +202,15 @@ const DataTable = ({
                   </h2>
                 )}
               </div>
-            </div>
-          )}
-          <div className="flex flex-wrap items-center justify-end gap-3">
               {titleExtra && (
                 <div className="flex items-center gap-2">
                   {titleExtra}
                 </div>
               )}
-
+            </div>
+          )}
+          {(showSearch || (filters && filters.length > 0)) && (
+            <div className="flex flex-wrap items-center justify-end gap-3 mb-2">
               {showSearch && (
                 <div className="relative w-full sm:max-w-xs group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={14} />
@@ -251,7 +251,8 @@ const DataTable = ({
                   ))}
                 </div>
               )}
-          </div>
+            </div>
+          )}
         </div>
       )}
       <div className="bg-white dark:bg-slate-900  border border-slate-100 dark:border-slate-800 ">

@@ -7,6 +7,7 @@ import {
   Users,
   Shield,
   FileText,
+  FolderOpen,
   Activity,
   Settings,
   Home,
@@ -96,6 +97,12 @@ const AdminLayout = () => {
       title: "Reports",
       path: "/admin/reports",
       icon: FileText,
+      badge: null,
+    },
+    {
+      title: "Project Documents",
+      path: "/admin/project-documents",
+      icon: FolderOpen,
       badge: null,
     },
     {
@@ -239,7 +246,7 @@ const AdminLayout = () => {
                             onClick={() => toggleSection(item.title)}
                             className={`w-full flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                               isExpanded
-                                ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
+                                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                 : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                             }`}
                           >
@@ -269,7 +276,7 @@ const AdminLayout = () => {
                                       to={subitem.path}
                                       className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                                         isActive(subitem.path)
-                                          ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
+                                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                                       }`}
                                     >
@@ -292,7 +299,7 @@ const AdminLayout = () => {
                           to={item.path}
                           className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                             isActive(item.path)
-                              ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
+                              ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                           }`}
                         >
@@ -301,7 +308,7 @@ const AdminLayout = () => {
                             <>
                               <span className="ml-3">{item.title}</span>
                               {item.badge && (
-                                <span className="ml-auto bg-primary-600 text-white text-xs  rounded ">
+                                <span className="ml-auto px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[1.25rem] h-5 flex items-center justify-center flex-shrink-0">
                                   {item.badge}
                                 </span>
                               )}
@@ -312,23 +319,6 @@ const AdminLayout = () => {
                     </li>
                   );
                 })}
-              </ul>
-            </div>
-
-            {/* Back to App */}
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-              <ul className="space-y-1">
-                <li>
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center text-xs p-2 text-xs  text-slate-700 dark:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <Home size={15} className="flex-shrink-0" />
-                    {!sidebarCollapsed && (
-                      <span className="ml-3">Back to App</span>
-                    )}
-                  </Link>
-                </li>
               </ul>
             </div>
           </nav>

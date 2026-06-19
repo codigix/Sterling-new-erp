@@ -149,10 +149,10 @@ const VendorInvoicesPage = () => {
     doc.rect(margin, gridY, contentWidth, gridHeight); // Outer border
     doc.line(midX, gridY, midX, gridY + gridHeight); // Middle vertical line
 
-    // Left Side: Buyer & Delivery
+    // Left Side: Supplier & Delivery
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.text("Buyer:", margin + 2, gridY + 5);
+    doc.text("Supplier (Vendor):", margin + 2, gridY + 5);
     doc.setFont("helvetica", "normal");
     doc.text(invoice.vendor_name || "N/A", margin + 2, gridY + 10);
     doc.text(invoice.vendor_address || "", margin + 2, gridY + 15, { maxWidth: contentWidth / 2 - 5 });
@@ -161,10 +161,18 @@ const VendorInvoicesPage = () => {
     }
     
     doc.setFont("helvetica", "bold");
-    doc.text("Delivery Address:", margin + 2, gridY + 32);
+    doc.text("Bill To / Consignee:", margin + 2, gridY + 32);
     doc.setFont("helvetica", "normal");
-    doc.text(invoice.project_name || "N/A", margin + 2, gridY + 37);
-    doc.text("Project Site", margin + 2, gridY + 42, { maxWidth: contentWidth / 2 - 5 });
+    doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", margin + 2, gridY + 37);
+    doc.text(`Project: ${invoice.project_name || "N/A"}`, margin + 2, gridY + 42, { maxWidth: contentWidth / 2 - 5 });
+    if (invoice.operation_name) {
+      doc.setFont("helvetica", "bold");
+      doc.text(`Operation: ${invoice.operation_name}`, margin + 2, gridY + 47);
+      doc.setFont("helvetica", "normal");
+      doc.text("Talawade, Pune, Maharashtra - 411062", margin + 2, gridY + 52, { maxWidth: contentWidth / 2 - 5 });
+    } else {
+      doc.text("Talawade, Pune, Maharashtra - 411062", margin + 2, gridY + 47, { maxWidth: contentWidth / 2 - 5 });
+    }
 
     // Right Side: Details
     const rowH = gridHeight / 5;
@@ -190,7 +198,8 @@ const VendorInvoicesPage = () => {
     drawGridText("Bill No.", invoice.invoice_number, rightX, gridY);
     drawGridText("Date", formatDate(invoice.invoice_date), rightX + 65, gridY, 5);
     
-    drawGridText("Challan No.", invoice.challan_number, rightX, gridY + rowH);
+    const isFromPO = !!invoice.purchase_order_id;
+    drawGridText(isFromPO ? "GRN No." : "Challan No.", invoice.challan_number, rightX, gridY + rowH);
     drawGridText("Date", formatDate(invoice.challan_date), rightX + 65, gridY + rowH, 5);
     
     if (invoice.po_number) {
@@ -204,23 +213,34 @@ const VendorInvoicesPage = () => {
       drawGridText("Date", "-", rightX + 65, gridY + (rowH * 2), 5);
     }
 
-    drawGridText("State", invoice.place_of_supply || "Maharashtra", rightX, gridY + (rowH * 3));
-    drawGridText("Code", "27", rightX + 65, gridY + (rowH * 3), 5);
+    const vendorState = invoice.vendor_state || "Maharashtra";
+    const vendorStateCode = invoice.vendor_gst ? invoice.vendor_gst.substring(0, 2) : "27";
+    drawGridText("State", vendorState, rightX, gridY + (rowH * 3));
+    drawGridText("Code", vendorStateCode, rightX + 65, gridY + (rowH * 3), 5);
 
     drawGridText("Transporter", invoice.transporter, rightX, gridY + (rowH * 4));
     drawGridText("LR No.", invoice.lr_number, rightX + 65, gridY + (rowH * 4), 10);
 
     // 4. Items Table
-    const tableColumn = ["Sr. No.", "Description", "HSN Code", "Qty", "Unit", "Rate", "Amount"];
-    const tableRows = (invoice.items || []).map((item, index) => [
-      index + 1,
-      item.description,
-      item.hsn_code || "8511",
-      item.qty,
-      item.unit,
-      parseFloat(item.rate).toFixed(2),
-      parseFloat(item.amount).toFixed(2),
-    ]);
+    const tableColumn = ["Sr. No.", "Description", "Qty", "Unit", "Rate", "Amount"];
+    const tableRows = (invoice.items || []).map((item, index) => {
+      let desc = item.description || "";
+      const details = [];
+      if (item.material_grade) details.push(`Grade: ${item.material_grade}`);
+      if (item.make) details.push(`Make: ${item.make}`);
+      if (item.remark) details.push(`Remark: ${item.remark}`);
+      if (details.length > 0) {
+        desc += `\n(${details.join(" | ")})`;
+      }
+      return [
+        index + 1,
+        desc,
+        item.qty,
+        item.unit,
+        parseFloat(item.rate).toFixed(2),
+        parseFloat(item.amount).toFixed(2),
+      ];
+    });
 
     autoTable(doc, {
       startY: gridY + gridHeight + 5,
@@ -231,12 +251,11 @@ const VendorInvoicesPage = () => {
       styles: { fontSize: 8, textColor: [0, 0, 0], lineWidth: 0.1 },
       columnStyles: {
         0: { halign: 'center', cellWidth: 12 },
-        1: { cellWidth: 80 },
-        2: { halign: 'center', cellWidth: 15 },
-        3: { halign: 'center', cellWidth: 15 },
-        4: { halign: 'center', cellWidth: 15 },
-        5: { halign: 'right', cellWidth: 25 },
-        6: { halign: 'right', cellWidth: 28 },
+        1: { cellWidth: 86 },
+        2: { halign: 'center', cellWidth: 18 },
+        3: { halign: 'center', cellWidth: 18 },
+        4: { halign: 'right', cellWidth: 28 },
+        5: { halign: 'right', cellWidth: 28 },
       },
       margin: { left: margin, right: margin }
     });
@@ -247,21 +266,23 @@ const VendorInvoicesPage = () => {
     doc.rect(margin, finalY, contentWidth, summaryH);
     doc.line(midX + 25, finalY, midX + 25, finalY + summaryH);
 
-    // Left: Bank Details
+    // Left: Vendor / Supplier Details
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
-    doc.text("Sterling Techno-Systems Pvt. Ltd. details", margin + 2, finalY + 5);
+    doc.text(`${invoice.vendor_name || 'Vendor'} Details`, margin + 2, finalY + 5);
     doc.setFont("helvetica", "normal");
-    doc.text("Bank Details: Canara Bank, Pimpri Branch", margin + 2, finalY + 10);
-    doc.text("Bank A/c: 0418261010215", margin + 2, finalY + 15);
-    doc.text("Bank IFSC: CNRB0000418", margin + 2, finalY + 20);
-    doc.text("GSTIN: 27AARCS2886C1ZX", margin + 2, finalY + 25);
-    doc.text("PAN AARCS2886C", margin + 2, finalY + 30);
+    doc.text(`Bank Name: ${invoice.vendor_bank_name || "N/A"}`, margin + 2, finalY + 10);
+    doc.text(`Bank A/c: ${invoice.vendor_account_number || "N/A"}`, margin + 2, finalY + 15);
+    doc.text(`Bank IFSC: ${invoice.vendor_ifsc_code || "N/A"}`, margin + 2, finalY + 20);
+    doc.text(`GSTIN: ${invoice.vendor_gst || "N/A"}`, margin + 2, finalY + 25);
+    doc.text(`PAN: ${invoice.vendor_pan || "N/A"}`, margin + 2, finalY + 30);
 
     // Right: Calculations
-    const calcRowH = summaryH / 6;
+    const isInterState = parseFloat(invoice.igst_amount || 0) > 0;
+    const rowCount = isInterState ? 5 : 6;
+    const calcRowH = summaryH / rowCount;
     const calcX = midX + 25;
-    for(let i=1; i<6; i++) {
+    for(let i=1; i<rowCount; i++) {
       doc.line(calcX, finalY + (i * calcRowH), margin + contentWidth, finalY + (i * calcRowH));
     }
     doc.line(calcX + 45, finalY, calcX + 45, finalY + summaryH);
@@ -272,28 +293,36 @@ const VendorInvoicesPage = () => {
       doc.text(String(val), margin + contentWidth - 2, y + calcRowH/2 + 1, { align: "right" });
     };
 
-    drawCalcText("Sub Total", parseFloat(invoice.sub_total || 0).toLocaleString(), finalY);
-    drawCalcText("Taxable Value", parseFloat(invoice.taxable_value || 0).toLocaleString(), finalY + calcRowH);
-    drawCalcText("CGST @ 9%", parseFloat(invoice.cgst_amount || 0).toLocaleString(), finalY + (calcRowH * 2));
-    drawCalcText("SGST @ 9%", parseFloat(invoice.sgst_amount || 0).toLocaleString(), finalY + (calcRowH * 3));
-    drawCalcText("Grand Total", parseFloat(invoice.grand_total || 0).toLocaleString(), finalY + (calcRowH * 4));
-    drawCalcText("Round Off", parseFloat(invoice.round_off || 0).toLocaleString(), finalY + (calcRowH * 5));
+    let currentY = finalY;
+    drawCalcText("Sub Total", parseFloat(invoice.sub_total || 0).toLocaleString(), currentY);
+    currentY += calcRowH;
+    drawCalcText("Taxable Value", parseFloat(invoice.taxable_value || 0).toLocaleString(), currentY);
+    currentY += calcRowH;
+
+    if (isInterState) {
+      drawCalcText("IGST @ 18%", parseFloat(invoice.igst_amount || 0).toLocaleString(), currentY);
+      currentY += calcRowH;
+    } else {
+      drawCalcText("CGST @ 9%", parseFloat(invoice.cgst_amount || 0).toLocaleString(), currentY);
+      currentY += calcRowH;
+      drawCalcText("SGST @ 9%", parseFloat(invoice.sgst_amount || 0).toLocaleString(), currentY);
+      currentY += calcRowH;
+    }
+
+    drawCalcText("Grand Total", parseFloat(invoice.grand_total || 0).toLocaleString(), currentY);
+    currentY += calcRowH;
+    drawCalcText("Round Off", parseFloat(invoice.round_off || 0).toLocaleString(), currentY);
 
     // 6. Footer
     const footerY = finalY + summaryH + 5;
     doc.setFontSize(7);
     doc.setFont("helvetica", "normal");
-    const declaration = "I / We hereby certify that my/our registration certificate under the GST Act 2017 is in force on the date on which the sale of the goods specified is this tax invoice is made by me/us and it shall be accounted for in the turnover of sales while filling of the return and due tax, if any payable on the sales has been paid or shall be paid.";
+    const declaration = "This is a system-generated copy of the vendor invoice recorded in the Sterling Techno-Systems Pvt. Ltd. ERP system.";
     doc.text(declaration, margin, footerY, { maxWidth: contentWidth });
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.text("For STERLING TECHNO-SYSTEMS PVT. LTD.", margin + contentWidth - 2, footerY + 15, { align: "right" });
-    
-    doc.text("Harshal K. Shinde", margin + contentWidth - 10, footerY + 35, { align: "right" });
-    doc.setFontSize(7);
-    doc.setFont("helvetica", "italic");
-    doc.text("(Director)", margin + contentWidth - 12, footerY + 38, { align: "right" });
+    doc.text("Authorized Signatory", margin + contentWidth - 2, footerY + 25, { align: "right" });
 
     // Contact Footer
     doc.setDrawColor(200);
@@ -356,7 +385,7 @@ const VendorInvoicesPage = () => {
     {
       key: "invoice_date",
       label: "Invoice Date",
-      render: (val) => new Date(val).toLocaleDateString()
+      render: (val) => new Date(val).toLocaleDateString('en-GB')
     },
     {
       key: "grand_total",

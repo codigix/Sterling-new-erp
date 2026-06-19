@@ -48,7 +48,7 @@ const LedgerEntriesPage = () => {
     {
       key: "date",
       label: "Date",
-      render: (val) => new Date(val).toLocaleDateString()
+      render: (val) => new Date(val).toLocaleDateString('en-GB')
     },
     {
       key: "reference_no",

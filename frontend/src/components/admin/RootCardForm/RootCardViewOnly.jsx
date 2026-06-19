@@ -4,9 +4,15 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import RootCardWizard from '../../sales/RootCardWizard';
 import DataTable from '../../ui/DataTable/DataTable';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function RootCardViewOnly({ formData, initialData, onBack, employees = [] }) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const { user } = useAuth();
+  const canSeeSellingPrice = 
+    user?.role?.toLowerCase() === 'admin' || 
+    user?.role?.toLowerCase() === 'accountant' || 
+    user?.department?.toLowerCase() === 'accountant';
 
   const getEmployeeName = (id) => {
     if (!id) return 'Not Assigned';
@@ -73,15 +79,19 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
       };
 
       if (initialData?.po_number || formData?.poNumber) {
-        addSection('Step 1: Project Information', {
+        const projectInfo = {
           'PO Number': initialData?.po_number || formData?.poNumber,
           'Project Name': initialData?.project_name || formData?.projectName,
           'Project Code': formData?.projectCode,
           'Quantity': formData?.quantity,
-          'Sales Price': formData?.salesPrice,
-          'Project Owner': getEmployeeName(formData?.internalProjectOwner),
-          'Project Requirements': formData?.projectRequirements,
-        });
+        };
+        if (canSeeSellingPrice) {
+          projectInfo['Sales Price'] = formData?.salesPrice;
+        }
+        projectInfo['Project Owner'] = getEmployeeName(formData?.internalProjectOwner);
+        projectInfo['Project Requirements'] = formData?.projectRequirements;
+
+        addSection('Step 1: Project Information', projectInfo);
       }
 
       if (formData.attachments?.length > 0) {
@@ -241,7 +251,7 @@ export default function RootCardViewOnly({ formData, initialData, onBack, employ
                   <DetailField label="Project Name" value={initialData?.project_name || formData?.projectName} />
                   <DetailField label="Project Code" value={formData?.projectCode} />
                   <DetailField label="Quantity" value={formData?.quantity} />
-                  <DetailField label="Sales Price" value={formData?.salesPrice} />
+                  {canSeeSellingPrice && <DetailField label="Sales Price" value={formData?.salesPrice} />}
                   <DetailField label="Project Owner" value={getEmployeeName(formData?.internalProjectOwner)} />
                 </div>
               </div>

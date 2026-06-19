@@ -181,7 +181,7 @@ const BillPaymentsPage = () => {
     {
       key: "payment_date",
       label: "Payment Date",
-      render: (val) => new Date(val).toLocaleDateString()
+      render: (val) => new Date(val).toLocaleDateString('en-GB')
     },
     {
       key: "amount_paid",

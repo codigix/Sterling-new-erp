@@ -5,12 +5,54 @@ import {
   Plus, 
   Download, 
   Eye, 
-  Filter
+  Filter,
+  Edit
 } from "lucide-react";
 import RecordCustomerInvoiceModal from "./RecordCustomerInvoiceModal";
 import axios from "../../utils/api";
 import toastUtils from "../../utils/toastUtils";
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
+const INDIAN_STATES = [
+  { code: "01", name: "Jammu & Kashmir" },
+  { code: "02", name: "Himachal Pradesh" },
+  { code: "03", name: "Punjab" },
+  { code: "04", name: "Chandigarh" },
+  { code: "05", name: "Uttarakhand" },
+  { code: "06", name: "Haryana" },
+  { code: "07", name: "Delhi" },
+  { code: "08", name: "Rajasthan" },
+  { code: "09", name: "Uttar Pradesh" },
+  { code: "10", name: "Bihar" },
+  { code: "11", name: "Sikkim" },
+  { code: "12", name: "Arunachal Pradesh" },
+  { code: "13", name: "Nagaland" },
+  { code: "14", name: "Manipur" },
+  { code: "15", name: "Mizoram" },
+  { code: "16", name: "Tripura" },
+  { code: "17", name: "Meghalaya" },
+  { code: "18", name: "Assam" },
+  { code: "19", name: "West Bengal" },
+  { code: "20", name: "Jharkhand" },
+  { code: "21", name: "Odisha" },
+  { code: "22", name: "Chhattisgarh" },
+  { code: "23", name: "Madhya Pradesh" },
+  { code: "24", name: "Gujarat" },
+  { code: "26", name: "Dadra & Nagar Haveli and Daman & Diu" },
+  { code: "27", name: "Maharashtra" },
+  { code: "28", name: "Andhra Pradesh" },
+  { code: "29", name: "Karnataka" },
+  { code: "30", name: "Goa" },
+  { code: "31", name: "Lakshadweep" },
+  { code: "32", name: "Kerala" },
+  { code: "33", name: "Tamil Nadu" },
+  { code: "34", name: "Puducherry" },
+  { code: "35", name: "Andaman & Nicobar Islands" },
+  { code: "36", name: "Telangana" },
+  { code: "37", name: "Andhra Pradesh (New)" },
+  { code: "38", name: "Ladakh" }
+];
 
 const CustomerInvoicesPage = () => {
   const [invoices, setInvoices] = useState([]);
@@ -78,6 +120,12 @@ const CustomerInvoicesPage = () => {
     setIsRecordModalOpen(true);
   };
 
+  const handleEditInvoice = (invoice) => {
+    setSelectedInvoice(invoice);
+    setIsViewMode(false);
+    setIsRecordModalOpen(true);
+  };
+
   const handleCreateInvoice = () => {
     setSelectedInvoice(null);
     setIsViewMode(false);
@@ -94,26 +142,25 @@ const CustomerInvoicesPage = () => {
   };
 
   const generateInvoicePDF = async (invId) => {
+    toastUtils.info("Generating PDF...");
     try {
       const response = await axios.get(`/accounting/customer-invoices/${invId}`);
       const invoice = response.data;
       
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
       const margin = 10;
       const contentWidth = pageWidth - (margin * 2);
 
       const formatDate = (dateStr) => {
-        if (!dateStr) return "N/A";
+        if (!dateStr) return "-";
         const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return "-";
         return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
       };
 
-      // Header
-      doc.setDrawColor(0);
-      doc.setLineWidth(0.5);
-      doc.rect(margin, margin, contentWidth, 25);
-      
+      // 1. Header
       try {
         const logo = await loadImage("/logo.png");
         doc.addImage(logo, "PNG", margin + 2, margin + 2, 21, 21);
@@ -130,88 +177,229 @@ const CustomerInvoicesPage = () => {
       doc.setFont("helvetica", "italic");
       doc.text("Transforming Ideas Into Reality With Trusted Engineering Solutions", margin + 28, margin + 18);
 
+      // Solid corporate blue line under company info
+      doc.setDrawColor(30, 50, 140);
+      doc.setLineWidth(1.5);
+      doc.line(margin, margin + 23, margin + contentWidth, margin + 23);
+
+      // 2. Title
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.setTextColor(180, 0, 0);
-      doc.text("SALES INVOICE", pageWidth / 2, margin + 35, { align: "center" });
+      doc.setFontSize(13);
+      doc.setTextColor(200, 0, 0); // Red color
+      doc.text("TAX INVOICE", pageWidth / 2, margin + 31, { align: "center" });
+      doc.setDrawColor(200, 0, 0);
+      doc.setLineWidth(0.4);
+      doc.line(pageWidth / 2 - 18, margin + 32.5, pageWidth / 2 + 18, margin + 32.5);
       doc.setTextColor(0);
 
-      // Info Grid
-      const gridY = margin + 40;
-      const gridHeight = 50;
+      // 3. Info Grid
+      const gridY = margin + 36;
+      const gridHeight = 55;
       const midX = pageWidth / 2;
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.2);
       doc.rect(margin, gridY, contentWidth, gridHeight);
       doc.line(midX, gridY, midX, gridY + gridHeight);
 
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.text("Customer:", margin + 2, gridY + 5);
-      doc.setFont("helvetica", "normal");
-      doc.text(invoice.customer_name || "N/A", margin + 2, gridY + 10);
-      doc.text(invoice.project_name || "N/A", margin + 2, gridY + 15);
+      // Left side compartment separator
+      doc.line(margin, gridY + 28, midX, gridY + 28);
 
+      // Buyer Section
+      doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
-      doc.text("Invoice Details:", midX + 2, gridY + 5);
+      doc.text("Buyer:", margin + 3, gridY + 5);
       doc.setFont("helvetica", "normal");
-      doc.text(`Invoice No: ${invoice.invoice_number}`, midX + 2, gridY + 12);
-      doc.text(`Invoice Date: ${formatDate(invoice.invoice_date)}`, midX + 2, gridY + 19);
-
-      // Items Table
-      const tableY = gridY + gridHeight + 5;
-      doc.setLineWidth(0.2);
-      doc.rect(margin, tableY, contentWidth, 100); // Items box
+      doc.text(invoice.customer_name || "N/A", margin + 3, gridY + 9);
       
-      const cols = [
-        { name: "Sr.", x: margin + 2, w: 10 },
-        { name: "Description", x: margin + 12, w: 100 },
-        { name: "Qty", x: margin + 112, w: 15 },
-        { name: "Rate", x: margin + 127, w: 30 },
-        { name: "Amount", x: margin + 157, w: 30 }
-      ];
+      let nextBuyerY = gridY + 13;
+      if (invoice.customer_address) {
+        const addrLines = doc.splitTextToSize(invoice.customer_address, midX - margin - 6);
+        doc.text(addrLines, margin + 3, nextBuyerY);
+        nextBuyerY += (addrLines.length * 3.5);
+      }
+      doc.text(`GST - ${invoice.customer_gstin || "-"}`, margin + 3, gridY + 25);
 
+      // Delivery Address Section
       doc.setFont("helvetica", "bold");
-      cols.forEach(c => {
-        doc.text(c.name, c.x, tableY + 7);
-        if (c.x > margin + 2) {
-          doc.line(c.x - 1, tableY, c.x - 1, tableY + 100);
-        }
+      doc.text("Delivery Address:", margin + 3, gridY + 33);
+      doc.setFont("helvetica", "normal");
+      doc.text(invoice.customer_name || "N/A", margin + 3, gridY + 37);
+      
+      let nextDelivY = gridY + 41;
+      if (invoice.customer_address) {
+        const addrLines = doc.splitTextToSize(invoice.customer_address, midX - margin - 6);
+        doc.text(addrLines, margin + 3, nextDelivY);
+      }
+
+      // Right Side Grid (5 Rows)
+      // Horizontal dividers on the right
+      for (let i = 1; i <= 4; i++) {
+        doc.line(midX, gridY + (i * 11), margin + contentWidth, gridY + (i * 11));
+      }
+      // Vertical dividers on the right
+      doc.line(midX + 24, gridY, midX + 24, gridY + 55);
+      doc.line(midX + 56, gridY, midX + 56, gridY + 55);
+      doc.line(midX + 70, gridY, midX + 70, gridY + 55);
+
+      const drawRowCells = (label1, val1, label2, val2, rowIdx) => {
+        const rowY = gridY + (rowIdx * 11);
+        
+        // Cell 1: Label 1
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.text(label1, midX + 2, rowY + 6.5);
+        
+        // Cell 2: Value 1 (bold, wrapped)
+        doc.setFont("helvetica", "bold");
+        const val1Lines = doc.splitTextToSize(String(val1 || "-"), 30);
+        const val1Y = val1Lines.length > 1 ? rowY + 4.5 : rowY + 6.5;
+        doc.text(val1Lines, midX + 26, val1Y);
+        
+        // Cell 3: Label 2
+        doc.setFont("helvetica", "normal");
+        doc.text(label2, midX + 58, rowY + 6.5);
+        
+        // Cell 4: Value 2 (bold, wrapped)
+        doc.setFont("helvetica", "bold");
+        const val2Lines = doc.splitTextToSize(String(val2 || "-"), 23);
+        const val2Y = val2Lines.length > 1 ? rowY + 4.5 : rowY + 6.5;
+        doc.text(val2Lines, midX + 72, val2Y);
+      };
+
+      const stateObj = INDIAN_STATES.find(s => s.code === invoice.customer_state_code);
+      const stateName = stateObj ? stateObj.name : "-";
+
+      drawRowCells("Bill No.", invoice.invoice_number, "Date", formatDate(invoice.invoice_date), 0);
+      drawRowCells("Challan No.", invoice.challan_number, "Date", formatDate(invoice.challan_date), 1);
+      drawRowCells("P.O. No.", invoice.po_number, "Date", formatDate(invoice.po_date), 2);
+      drawRowCells("State", stateName, "Code", invoice.customer_state_code, 3);
+      drawRowCells("Transporter", invoice.transporter, "LR No.", invoice.lr_number, 4);
+
+      // 4. Items Table using autoTable
+      const tableColumn = ["Sr. No.", "Description", "HSN Code", "Qty", "Unit", "Rate", "Amount"];
+      const tableRows = (invoice.items || []).map((item, index) => [
+        (index + 1).toString().padStart(2, '0'),
+        item.description || "",
+        item.hsn_code || "-",
+        item.qty ? String(item.qty).padStart(2, '0') : "00",
+        item.unit || "NOS",
+        parseFloat(item.rate || 0).toFixed(2),
+        parseFloat(item.amount || 0).toFixed(2),
+      ]);
+
+      autoTable(doc, {
+        startY: gridY + gridHeight + 5,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, fontStyle: 'bold', halign: 'center' },
+        styles: { fontSize: 8, textColor: [0, 0, 0], lineWidth: 0.1 },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 12 },
+          1: { cellWidth: 'auto' },
+          2: { halign: 'center', cellWidth: 18 },
+          3: { halign: 'center', cellWidth: 12 },
+          4: { halign: 'center', cellWidth: 15 },
+          5: { halign: 'right', cellWidth: 25 },
+          6: { halign: 'right', cellWidth: 25 },
+        },
+        margin: { left: margin, right: margin }
       });
-      doc.line(margin, tableY + 10, margin + contentWidth, tableY + 10);
+
+      // 5. Summary Section
+      const finalY = doc.lastAutoTable.finalY;
+      const summaryH = 39; // 6 rows of 6.5mm height
+      doc.rect(margin, finalY, contentWidth, summaryH);
+      
+      // Draw 5 horizontal separator lines all the way across
+      for (let i = 1; i <= 5; i++) {
+        doc.line(margin, finalY + (i * 6.5), margin + contentWidth, finalY + (i * 6.5));
+      }
+      
+      // Draw vertical divider between bank details and totals
+      doc.line(margin + 140, finalY, margin + 140, finalY + summaryH);
+
+      const subTotalVal = parseFloat(invoice.sub_total || 0);
+      const cgstAmtVal = parseFloat(invoice.cgst_amount || 0);
+      const sgstAmtVal = parseFloat(invoice.sgst_amount || 0);
+      const igstAmtVal = parseFloat(invoice.igst_amount || 0);
+      const isInterState = igstAmtVal > 0;
+      const grandTotalVal = parseFloat(invoice.grand_total || 0);
+      const roundOffVal = parseFloat(invoice.round_off || 0);
+
+      const cgstRateVal = subTotalVal > 0 ? Math.round((cgstAmtVal / subTotalVal) * 100) : 9;
+      const sgstRateVal = subTotalVal > 0 ? Math.round((sgstAmtVal / subTotalVal) * 100) : 9;
+      const igstRateVal = subTotalVal > 0 ? Math.round((igstAmtVal / subTotalVal) * 100) : 18;
+
+      const drawSummaryRow = (labelLeft, labelRight, valRight, rowIdx) => {
+        const rowY = finalY + (rowIdx * 6.5);
+        // Left side text
+        if (labelLeft) {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          doc.text(labelLeft, margin + 2, rowY + 4.5);
+        }
+        // Right side label
+        if (labelRight) {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          doc.text(labelRight, margin + 142, rowY + 4.5);
+        }
+        // Right side value
+        if (valRight !== undefined && valRight !== null && valRight !== "") {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.text(String(valRight), margin + contentWidth - 2, rowY + 4.5, { align: "right" });
+        }
+      };
+
+      if (isInterState) {
+        drawSummaryRow("Sterling Techno-Systems Pvt. Ltd. details", "Sub Total", subTotalVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 0);
+        drawSummaryRow("Bank Details: Canara Bank, Pimpri Branch", "Taxable Value", subTotalVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 1);
+        drawSummaryRow("Bank A/c: 0418261010215", `IGST @ ${igstRateVal}%`, igstAmtVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 2);
+        drawSummaryRow("Bank IFSC: CNRB0000418", "", "", 3);
+        drawSummaryRow("GSTIN: 27AARCS2886C1ZX", "Grand Total", grandTotalVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 4);
+        drawSummaryRow("PAN AARCS2886C", "Round Off", roundOffVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 5);
+      } else {
+        drawSummaryRow("Sterling Techno-Systems Pvt. Ltd. details", "Sub Total", subTotalVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 0);
+        drawSummaryRow("Bank Details: Canara Bank, Pimpri Branch", "Taxable Value", subTotalVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 1);
+        drawSummaryRow("Bank A/c: 0418261010215", `CGST @ ${cgstRateVal}%`, cgstAmtVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 2);
+        drawSummaryRow("Bank IFSC: CNRB0000418", `SGST @ ${sgstRateVal}%`, sgstAmtVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 3);
+        drawSummaryRow("GSTIN: 27AARCS2886C1ZX", "Grand Total", grandTotalVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 4);
+        drawSummaryRow("PAN AARCS2886C", "Round Off", roundOffVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 5);
+      }
+
+      // 6. Footer
+      const footerY = finalY + summaryH + 4;
+      doc.setFontSize(6.5);
+      doc.setFont("helvetica", "normal");
+      const declaration = "I / We hereby certify that my/our registration certificate under the GST Act 2017 is in force on the 28.06.2017 date on which the sale of the goods specified is this tax invoice is made by me/us and it shall be accounted for in the turnover of sales while filling of the return and due tax, if any payable on the sales has been paid or shall be paid.";
+      const decLines = doc.splitTextToSize(declaration, contentWidth);
+      doc.text(decLines, margin, footerY);
+
+      const sigY = footerY + (decLines.length * 3.5) + 6;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.text("For STERLING TECHNO-SYSTEMS PVT. LTD.", margin + contentWidth - 5, sigY, { align: "right" });
 
       doc.setFont("helvetica", "normal");
-      let currentY = tableY + 15;
-      (invoice.items || []).forEach((item, idx) => {
-        doc.text((idx + 1).toString(), cols[0].x, currentY);
-        doc.text(item.description || "", cols[1].x, currentY, { maxWidth: 95 });
-        doc.text(parseFloat(item.qty || 0).toString(), cols[2].x, currentY);
-        doc.text(parseFloat(item.rate || 0).toLocaleString(), cols[3].x, currentY);
-        doc.text(parseFloat(item.amount || 0).toLocaleString(), cols[4].x, currentY);
-        currentY += 10;
-        if (currentY < tableY + 100) {
-            doc.line(margin, currentY - 3, margin + contentWidth, currentY - 3);
-        }
-      });
+      doc.text("Harshal K. Shinde", margin + contentWidth - 25, sigY + 18, { align: "center" });
+      doc.setFont("helvetica", "italic");
+      doc.text("(Director)", margin + contentWidth - 25, sigY + 22, { align: "center" });
 
-      // Totals
-      const totalsY = tableY + 100;
-      doc.rect(margin, totalsY, contentWidth, 40);
-      doc.line(midX + 20, totalsY, midX + 20, totalsY + 40);
+      // Contact Footer (Bottom blue line & addresses)
+      doc.setDrawColor(30, 50, 140);
+      doc.setLineWidth(1.5);
+      doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+      
+      doc.setFontSize(6.5);
+      doc.setTextColor(80);
+      doc.setFont("helvetica", "normal");
+      doc.text("Gat No. 70, Sonawanewasti, Talawade, Pune-411062, Maharashtra (INDIA)  |  Email: sales@sterling-techno.com  |  sterling.techno.systems@gmail.com", pageWidth / 2, pageHeight - 11, { align: "center" });
+      doc.text("Mob.: +91 9423091147  |  Website: www.sterling-techno.com", pageWidth / 2, pageHeight - 7, { align: "center" });
 
-      const tX = midX + 22;
-      doc.text("Sub Total", tX, totalsY + 7);
-      doc.text(parseFloat(invoice.sub_total).toLocaleString(), margin + contentWidth - 2, totalsY + 7, { align: "right" });
-      
-      doc.text("CGST @ 9%", tX, totalsY + 14);
-      doc.text(parseFloat(invoice.cgst_amount).toLocaleString(), margin + contentWidth - 2, totalsY + 14, { align: "right" });
-      
-      doc.text("SGST @ 9%", tX, totalsY + 21);
-      doc.text(parseFloat(invoice.sgst_amount).toLocaleString(), margin + contentWidth - 2, totalsY + 21, { align: "right" });
-      
-      doc.setFont("helvetica", "bold");
-      doc.text("Grand Total", tX, totalsY + 30);
-      doc.text(`INR ${parseFloat(invoice.grand_total).toLocaleString()}`, margin + contentWidth - 2, totalsY + 30, { align: "right" });
-
-      doc.save(`Invoice-${invoice.invoice_number}.pdf`);
+      doc.save(`Invoice-${invoice.invoice_number.replace(/\//g, "-")}.pdf`);
+      toastUtils.success("PDF Downloaded");
     } catch (error) {
       console.error("PDF Error:", error);
       toastUtils.error("Failed to generate PDF");
@@ -236,7 +424,7 @@ const CustomerInvoicesPage = () => {
     {
       key: "invoice_date",
       label: "Invoice Date",
-      render: (val) => new Date(val).toLocaleDateString()
+      render: (val) => new Date(val).toLocaleDateString('en-GB')
     },
     {
       key: "grand_total",
@@ -257,6 +445,18 @@ const CustomerInvoicesPage = () => {
       render: (val) => <span className="text-amber-600 font-medium">₹{parseFloat(val).toLocaleString()}</span>
     },
     {
+      key: "gst_tds",
+      label: "GST TDS (₹)",
+      align: "right",
+      render: (val) => `₹${parseFloat(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    },
+    {
+      key: "it_tds",
+      label: "Income Tax TDS (₹)",
+      align: "right",
+      render: (val) => `₹${parseFloat(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    },
+    {
       key: "status",
       label: "Status",
       render: (val) => (
@@ -275,10 +475,13 @@ const CustomerInvoicesPage = () => {
       align: "right",
       render: (_, invoice) => (
         <div className="flex justify-end gap-2">
-          <button onClick={() => handleViewInvoice(invoice)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all">
+          <button onClick={() => handleViewInvoice(invoice)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all" title="View">
             <Eye size={14} />
           </button>
-          <button onClick={() => generateInvoicePDF(invoice.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all">
+          <button onClick={() => handleEditInvoice(invoice)} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-all" title="Edit">
+            <Edit size={14} />
+          </button>
+          <button onClick={() => generateInvoicePDF(invoice.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all" title="Download PDF">
             <Download size={14} />
           </button>
         </div>

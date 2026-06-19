@@ -142,7 +142,10 @@ const getPurchaseOrderById = async (req, res) => {
 
     const [rows] = await db.query(
       `
-            SELECT po.*, v.name as vendor_name, v.email as vendor_email, q.quotation_number,
+            SELECT po.*, v.name as vendor_name, v.email as vendor_email, 
+            v.gstin as vendor_gstin, v.state as vendor_state, 
+            v.address as vendor_address, v.city as vendor_city, v.pincode as vendor_pincode,
+            q.quotation_number,
             rc.id as root_card_id, rc.project_name as root_card_project_name
             FROM purchase_orders po
             LEFT JOIN vendors v ON po.vendor_id = v.id
@@ -1232,7 +1235,7 @@ const createPurchaseReceipt = async (req, res) => {
 
 const getPurchaseReceipts = async (req, res) => {
   try {
-    const { root_card_id } = req.query;
+    const { root_card_id, purchase_order_id } = req.query;
     let query = `
             SELECT g.*, v.name as vendor_name, po.po_number,
             rc.id as root_card_id, rc.project_name as root_card_project_name
@@ -1249,6 +1252,11 @@ const getPurchaseReceipts = async (req, res) => {
     if (root_card_id) {
       query += " AND (q.root_card_id = ? OR po.project_id = ?)";
       params.push(root_card_id, root_card_id);
+    }
+
+    if (purchase_order_id) {
+      query += " AND g.purchase_order_id = ?";
+      params.push(purchase_order_id);
     }
 
     query += " ORDER BY g.created_at DESC";
@@ -1287,7 +1295,9 @@ const getPurchaseReceiptById = async (req, res) => {
 
     const [items] = await db.query(
       `
-            SELECT gri.*, poi.item_group, qi.common_document_path, qi.rejected_document_path
+            SELECT gri.*, poi.item_group, poi.rate as po_rate, poi.rate_per_kg as po_rate_per_kg,
+                   poi.material_grade, poi.make, poi.remark,
+                   qi.common_document_path, qi.rejected_document_path
             FROM grn_items gri
             LEFT JOIN purchase_order_items poi ON gri.po_item_id = poi.id
             LEFT JOIN quality_inspections qi ON qi.grn_id = gri.grn_id AND qi.po_item_id = gri.po_item_id

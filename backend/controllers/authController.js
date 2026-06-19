@@ -65,6 +65,11 @@ const login = async (req, res) => {
 
     const user = users[0];
 
+    // Block inactive users from logging in
+    if (user.status === 'inactive') {
+      return res.status(403).json({ message: 'Your account has been deactivated. Please contact your administrator.' });
+    }
+
     // Block individual employees from logging in
     if (user.role === 'employee') {
       return res.status(403).json({ message: 'Individual employees do not have access to the portal. Please contact your department manager.' });

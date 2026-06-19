@@ -132,6 +132,17 @@ model customer_invoices {
   status                 customer_invoices_status? @default(PENDING)
   created_at             DateTime?                 @default(now()) @db.Timestamp(0)
   updated_at             DateTime?                 @default(now()) @db.Timestamp(0)
+  customer_address       String?                   @db.Text
+  customer_state_code    String?                   @db.VarChar(10)
+  customer_gstin         String?                   @db.VarChar(50)
+  gst_tds                Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  it_tds                 Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  challan_number         String?                   @db.VarChar(50)
+  challan_date           DateTime?                 @db.Date
+  po_number              String?                   @db.VarChar(50)
+  po_date                DateTime?                 @db.Date
+  transporter            String?                   @db.VarChar(100)
+  lr_number              String?                   @db.VarChar(50)
   customer_invoice_items customer_invoice_items[]
   customer_payments      customer_payments[]
 }

@@ -22,6 +22,7 @@ import {
 import axios from "../../utils/api";
 import Swal from "sweetalert2";
 import toastUtils from "../../utils/toastUtils";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const PurchaseOrderEditMR = () => {
   const { id } = useParams();
@@ -36,6 +37,7 @@ const PurchaseOrderEditMR = () => {
     order_date: "",
     expected_delivery_date: "",
     vendor_id: "",
+    quotation_id: "",
     items: [],
     shipping_address: "",
     incoterm: "EXW - Ex Works",
@@ -400,20 +402,26 @@ const PurchaseOrderEditMR = () => {
                 </div>
               </div>
               <div className="p-6">
-                <label className="block text-xs  text-slate-500   mb-2 flex items-center gap-1">
-                  Select Supplier <span className="text-red-500">*</span>
-                </label>
-                <select 
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-xs  focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer"
+                <SearchableSelect
+                  label={
+                    <span>
+                      Select Supplier <span className="text-red-500">*</span>
+                    </span>
+                  }
                   value={formData.vendor_id}
-                  onChange={(e) => setFormData({...formData, vendor_id: e.target.value})}
-                  required
-                >
-                  <option value="">Search by name or code...</option>
-                  {vendors.map(v => (
-                    <option key={v.id} value={v.id}>{v.name} - {v.vendor_code || v.id}</option>
-                  ))}
-                </select>
+                  onChange={(val) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      vendor_id: val,
+                    }));
+                  }}
+                  disabled={!!formData.quotation_id}
+                  placeholder="Search by name or code..."
+                  options={vendors.map((v) => ({
+                    value: v.id,
+                    label: `${v.name}${v.vendor_code ? ` - ${v.vendor_code}` : ""}`,
+                  }))}
+                />
               </div>
             </section>
 
