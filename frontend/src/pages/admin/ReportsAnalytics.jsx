@@ -47,7 +47,7 @@ ChartJS.register(
 );
 
 const ReportsAnalytics = () => {
-  const [selectedReport, setSelectedReport] = useState('overview');
+  const [selectedReport, setSelectedReport] = useState('projects');
   const [dateRange, setDateRange] = useState({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
@@ -63,7 +63,7 @@ const ReportsAnalytics = () => {
       departments: []
     },
     projects: [],
-    departments: [],
+    departments: { projects: [], selectedProject: null },
     vendors: [],
     inventory: {
       totalItems: 0,
@@ -72,7 +72,9 @@ const ReportsAnalytics = () => {
       lowStockItems: 0,
       items: []
     },
-    employees: []
+    employees: [],
+    'operator-logs': [],
+    'project-manhours': []
   });
   const [loading, setLoading] = useState(false);
   const [employeeReportModalOpen, setEmployeeReportModalOpen] = useState(false);
@@ -83,6 +85,9 @@ const ReportsAnalytics = () => {
     start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
   });
+
+  const [selectedProjectId, setSelectedProjectId] = useState('');
+  const [projectSearch, setProjectSearch] = useState('');
 
   const handleOpenEmployeeReport = (employee) => {
     setSelectedEmployeeForReport(employee);
@@ -116,12 +121,14 @@ const ReportsAnalytics = () => {
   const fetchReportData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/reports/${selectedReport}`, {
-        params: {
-          start: dateRange.start,
-          end: dateRange.end
-        }
-      });
+      const params = {
+        start: dateRange.start,
+        end: dateRange.end
+      };
+      if (selectedReport === 'departments') {
+        params.projectId = selectedProjectId;
+      }
+      const response = await axios.get(`/reports/${selectedReport}`, { params });
       
       setReportData(prev => ({
         ...prev,
@@ -132,7 +139,7 @@ const ReportsAnalytics = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedReport, dateRange]);
+  }, [selectedReport, dateRange, selectedProjectId]);
 
   useEffect(() => {
     fetchReportData();
@@ -362,6 +369,146 @@ const ReportsAnalytics = () => {
     },
   ];
 
+  const operatorLogsColumns = [
+    {
+      key: 'work_date',
+      label: 'Date',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+    },
+    {
+      key: 'operator_name',
+      label: 'Operator',
+      sortable: true,
+    },
+    {
+      key: 'project_code',
+      label: 'Project Code',
+      sortable: true,
+      render: (value, row) => value || `PRJ-${row.root_card_id}`,
+    },
+    {
+      key: 'project_name',
+      label: 'Project Name',
+      sortable: true,
+    },
+    {
+      key: 'operation_name',
+      label: 'Operation',
+      sortable: true,
+    },
+    {
+      key: 'actual_hours',
+      label: 'Hours',
+      sortable: true,
+      render: (value) => `${parseFloat(value || 0).toFixed(2)} hrs`,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
+          value === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+          value === 'In Progress' ? 'bg-blue-100 text-blue-700' :
+          value === 'Partially Completed' ? 'bg-sky-100 text-sky-700' :
+          value === 'Delayed' ? 'bg-red-100 text-red-700' :
+          value === 'On Hold' ? 'bg-rose-100 text-rose-700' :
+          'bg-slate-100 text-slate-700'
+        }`}>
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: 'remarks',
+      label: 'Remarks',
+      sortable: false,
+      render: (value) => <span className="text-xs text-slate-500 max-w-[200px] truncate block" title={value}>{value || '-'}</span>
+    }
+  ];
+
+  const projectManhoursColumns = [
+    {
+      key: 'project_code',
+      label: 'Project Code',
+      sortable: true,
+      render: (value, row) => value || `PRJ-${row.root_card_id}`,
+    },
+    {
+      key: 'project_name',
+      label: 'Project Name',
+      sortable: true,
+    },
+    {
+      key: 'total_hours',
+      label: 'Total Manhours',
+      sortable: true,
+      render: (value) => (
+        <span className="font-semibold text-blue-600">
+          {parseFloat(value || 0).toFixed(2)} hrs
+        </span>
+      ),
+    },
+    {
+      key: 'total_logs',
+      label: 'Work Logs Count',
+      sortable: true,
+    },
+    {
+      key: 'project_status',
+      label: 'Project Status',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
+          value === 'Completed' || value === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' :
+          value === 'Active' || value === 'PRODUCTION_IN_PROGRESS' || value === 'Production' ? 'bg-blue-100 text-blue-700' :
+          'bg-amber-100 text-amber-700'
+        }`}>
+          {value}
+        </span>
+      ),
+    },
+  ];
+
+  const projectTimelineSelectionColumns = [
+    {
+      key: 'project_code',
+      label: 'Project Code',
+      sortable: true,
+      render: (value, row) => value || `PRJ-${row.id}`,
+    },
+    {
+      key: 'project_name',
+      label: 'Project Name',
+      sortable: true,
+    },
+    {
+      key: 'hasTimelines',
+      label: 'Timeline Configured',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
+          value ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+        }`}>
+          {value ? 'Active' : 'Not Set'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Action',
+      render: (_, row) => (
+        <button
+          onClick={() => setSelectedProjectId(row.id)}
+          className="px-2 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 text-[10px] font-medium rounded transition-colors cursor-pointer"
+        >
+          View Timeline
+        </button>
+      ),
+    },
+  ];
+
   const exportReport = (format) => {
     const data = JSON.stringify(reportData[selectedReport], null, 2);
     const element = document.createElement('a');
@@ -375,12 +522,13 @@ const ReportsAnalytics = () => {
   };
 
   const reportTabs = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'projects', label: 'Projects', icon: Briefcase },
     { id: 'departments', label: 'Departments', icon: Building2 },
     { id: 'vendors', label: 'Vendors', icon: Truck },
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'employees', label: 'Employees', icon: Users },
+    { id: 'operator-logs', label: 'Operator Logs', icon: FileText },
+    { id: 'project-manhours', label: 'Project Manhours', icon: Clock },
   ];
 
   return (
@@ -458,136 +606,7 @@ const ReportsAnalytics = () => {
         </div>
       ) : (
         <>
-          {selectedReport === 'overview' && (
-        <div className="space-y-2">
-          {/* Key Metrics */}
-          <div>
-            <h2 className="text-md   mb-4">Key Performance Indicators</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { label: 'Projects Completed', value: reportData?.overview?.completedProjects || 0, icon: CheckCircle2, color: 'blue', change: '+15% vs last month' },
-                { label: 'On-Time Delivery', value: `${reportData?.overview?.onTimeDelivery || 0}%`, icon: Clock, color: 'emerald', change: 'Target: 95%' },
-                { label: 'Revenue Generated', value: `₹${(reportData?.overview?.totalRevenue || 0).toLocaleString()}`, icon: TrendingUp, color: 'cyan', change: 'This period' },
-                { label: 'Active Alerts', value: reportData?.overview?.activeAlerts || 0, icon: AlertTriangle, color: 'amber', change: 'Requires attention' },
-              ].map((metric, idx) => {
-                const Icon = metric.icon;
-                const colorBg = { blue: 'bg-blue-50', emerald: 'bg-emerald-50', cyan: 'bg-cyan-50', amber: 'bg-amber-50' }[metric.color];
-                const colorIcon = { blue: 'text-blue-600', emerald: 'text-emerald-600', cyan: 'text-cyan-600', amber: 'text-amber-600' }[metric.color];
-                const colorText = { blue: 'text-blue-600', emerald: 'text-emerald-600', cyan: 'text-cyan-600', amber: 'text-amber-600' }[metric.color];
-                return (
-                  <Card key={idx} className=" transition-shadow border border-slate-100">
-                    <div className="p-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-xs  text-slate-500   mb-1">{metric.label}</p>
-                          <p className="text-xl  ">{metric.value}</p>
-                          <p className={`text-xs ${colorText} mt-2 `}>{metric.change}</p>
-                        </div>
-                        <div className={`${colorBg} p-3 rounded flex-shrink-0`}>
-                          <Icon className={`w-3 h-3 ${colorIcon}`} />
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
 
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2  transition-shadow border border-slate-100">
-              <div className="border-b border-slate-100 pb-4">
-                <div className="flex items-center text-xs gap-2 text-lg">
-                  <div className="p-2 bg-blue-50 rounded">
-                    <TrendingUp className="w-3 h-3 text-blue-600" />
-                  </div>
-                  <span>Project Status Trend</span>
-                </div>
-              </div>
-              <div className="p-2">
-                <div className="h-64 px-4">
-                  {reportData.overview?.monthlyTrends?.length > 0 ? (
-                    <Line
-                      data={{
-                        labels: reportData.overview.monthlyTrends.map(m => m.month),
-                        datasets: [
-                          {
-                            label: "Projects Completed",
-                            data: reportData.overview.monthlyTrends.map(m => m.count),
-                            borderColor: "#3b82f6",
-                            backgroundColor: "rgba(59, 130, 246, 0.05)",
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 4,
-                          },
-                        ],
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: { display: false },
-                        },
-                        scales: {
-                          y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 },
-                            grid: { color: "rgba(0,0,0,0.05)" }
-                          },
-                          x: {
-                            grid: { display: false }
-                          }
-                        },
-                      }}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-12">
-                      <TrendingUp className="w-12 h-12 text-slate-300 mb-3" />
-                      <h6 className="text-slate-500  mb-1">No Data Available</h6>
-                      <p className="text-slate-500 text-xs">No project completion data for the selected period</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-
-            <Card className=" transition-shadow border border-slate-100">
-              <div className="border-b border-slate-100 pb-4">
-                <div className="flex items-center text-xs gap-2 text-lg">
-                  <div className="p-2 bg-emerald-50 rounded">
-                    <Building2 className="w-3 h-3 text-emerald-600" />
-                  </div>
-                  <span>Department Performance</span>
-                </div>
-              </div>
-              <div className="p-2 space-y-4">
-                {(reportData?.overview?.departments?.length > 0 ? reportData.overview.departments : [
-                  { name: 'Engineering', avgEfficiency: 95 },
-                  { name: 'Production', avgEfficiency: 88 },
-                  { name: 'Quality', avgEfficiency: 97 },
-                  { name: 'Procurement', avgEfficiency: 92 },
-                ]).map((dept, idx) => {
-                  const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-cyan-500', 'bg-amber-500', 'bg-purple-500', 'bg-indigo-500'];
-                  const color = colors[idx % colors.length];
-                  return (
-                    <div key={idx}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs  text-slate-700">{dept.name}</span>
-                        <span className="text-xs  ">{dept.avgEfficiency}%</span>
-                      </div>
-                      <div className="w-full bg-slate-200 rounded  h-2">
-                        <div className={`${color} h-2 rounded `} style={{width: `${dept.avgEfficiency}%`}}></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Card>
-          </div>
-        </div>
-      )}
 
       {selectedReport === 'projects' && (
         <div className=" transition-shadow border border-slate-100">
@@ -612,64 +631,151 @@ const ReportsAnalytics = () => {
 
       {selectedReport === 'departments' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-md font-semibold text-slate-800">Department Productivity</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(reportData?.departments || []).map((dept, index) => (
-              <Card key={index} className="overflow-hidden border border-slate-100 hover:shadow-md transition-shadow">
-                <div className="bg-slate-50/50 border-b border-slate-100 p-3">
-                  <h4 className="text-sm  text-slate-700 capitalize flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-blue-600" />
-                    {dept.name.replace(/_/g, ' ')}
-                  </h4>
-                </div>
-                <div className="p-4 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-[10px]  tracking-wider text-slate-500 font-semibold">Team Size</p>
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-blue-50 rounded-md">
-                          <Users className="w-3.5 h-3.5 text-blue-600" />
-                        </div>
-                        <span className="text-lg  text-slate-800">{dept.totalUsers}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-1 text-right">
-                      <p className="text-[10px]  tracking-wider text-slate-500 font-semibold">Output</p>
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="text-lg  text-slate-800">{dept.completedTasks}</span>
-                        <div className="p-1.5 bg-emerald-50 rounded-md">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        </div>
-                      </div>
-                    </div>
+          {selectedProjectId ? (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={() => setSelectedProjectId('')}
+                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors cursor-pointer"
+                >
+                  <span>←</span> Back to Projects list
+                </button>
+              </div>
+
+              {/* Project Summary Header */}
+              <Card className="p-4 border border-slate-100 bg-slate-50/50">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider block">Project Code</span>
+                    <span className="text-sm font-medium text-slate-800 block mt-1">
+                      {reportData.departments.selectedProject?.project_code || `PRJ-${reportData.departments.selectedProject?.id}`}
+                    </span>
                   </div>
-                  
-                  <div className="pt-2">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-[10px]  tracking-wider text-slate-500 font-semibold">Efficiency</p>
-                      <span className={`text-xs  ${
-                        dept.avgEfficiency >= 90 ? 'text-emerald-600' : 
-                        dept.avgEfficiency >= 75 ? 'text-blue-600' : 'text-amber-600'
-                      }`}>
-                        {dept.avgEfficiency}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          dept.avgEfficiency >= 90 ? 'bg-emerald-500' : 
-                          dept.avgEfficiency >= 75 ? 'bg-blue-500' : 'bg-amber-500'
-                        }`}
-                        style={{ width: `${dept.avgEfficiency}%` }}
-                      />
-                    </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider block">Project Name</span>
+                    <span className="text-sm font-medium text-slate-800 block mt-1">
+                      {reportData.departments.selectedProject?.project_name}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider block">Current Status</span>
+                    <span className={`inline-block px-2 py-0.5 mt-1 rounded text-[10px] font-medium ${
+                      reportData.departments.selectedProject?.project_status === 'Completed' || reportData.departments.selectedProject?.project_status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' :
+                      'bg-blue-100 text-blue-700'
+                    }`}>
+                      {reportData.departments.selectedProject?.project_status}
+                    </span>
                   </div>
                 </div>
               </Card>
-            ))}
-          </div>
+
+              {/* Department Table */}
+              <Card className="border border-slate-100">
+                <div className="border-b border-slate-100 pb-3 p-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <Building2 className="w-4 h-4 text-blue-600" />
+                    Department Timeline Performance
+                  </div>
+                </div>
+                <div className="p-2">
+                  <DataTable
+                    columns={[
+                      {
+                        key: 'department',
+                        label: 'Department',
+                        sortable: true,
+                        render: (value) => (
+                          <div className="font-medium text-slate-800 capitalize">
+                            {value === 'Design' ? 'Design Engineer' : value}
+                          </div>
+                        )
+                      },
+                      {
+                        key: 'startDate',
+                        label: 'Assigned Date',
+                        sortable: true,
+                        render: (value) => value ? new Date(value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'
+                      },
+                      {
+                        key: 'endDate',
+                        label: 'Deadline Date',
+                        sortable: true,
+                        render: (value) => value ? new Date(value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'
+                      },
+                      {
+                        key: 'completedDate',
+                        label: 'Completed Date',
+                        sortable: true,
+                        render: (value) => value ? new Date(value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'
+                      },
+                      {
+                        key: 'status',
+                        label: 'Timeline Status',
+                        sortable: true,
+                        render: (value) => (
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
+                            value === 'Completed On Time' ? 'bg-emerald-100 text-emerald-700' :
+                            value === 'Completed with Delay' ? 'bg-amber-100 text-amber-700' :
+                            value === 'Pending (On Time)' ? 'bg-blue-100 text-blue-700' :
+                            value === 'Overdue' ? 'bg-red-100 text-red-700' :
+                            'bg-slate-100 text-slate-700'
+                          }`}>
+                            {value}
+                          </span>
+                        )
+                      },
+                      {
+                        key: 'delayDays',
+                        label: 'Delay Status',
+                        sortable: true,
+                        render: (value, row) => {
+                          if (row.status === 'Completed with Delay') {
+                            return <span className="text-amber-600 font-semibold">{value} days delay</span>;
+                          } else if (row.status === 'Overdue') {
+                            return <span className="text-red-600 font-semibold">{value} days overdue</span>;
+                          }
+                          return <span className="text-slate-400">-</span>;
+                        }
+                      }
+                    ]}
+                    data={reportData.departments?.selectedProject?.timelineReport || []}
+                    striped={true}
+                    hover={true}
+                  />
+                </div>
+              </Card>
+            </div>
+          ) : (
+            <div className="space-y-4 border border-slate-100 rounded p-4 bg-white">
+              {/* Search and Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-800">Project Timeline Performance</h3>
+                  <p className="text-xs text-slate-500 font-normal">Select a project from the table below to view detailed timeline performance by department.</p>
+                </div>
+                <div className="w-full sm:w-64">
+                  <input
+                    type="text"
+                    placeholder="Search project name or code..."
+                    value={projectSearch}
+                    onChange={(e) => setProjectSearch(e.target.value)}
+                    className="w-full p-2 text-xs bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-normal"
+                  />
+                </div>
+              </div>
+
+              {/* Projects Table */}
+              <DataTable
+                columns={projectTimelineSelectionColumns}
+                data={(reportData.departments?.projects || []).filter(p => 
+                  p.project_name.toLowerCase().includes(projectSearch.toLowerCase()) || 
+                  (p.project_code || '').toLowerCase().includes(projectSearch.toLowerCase())
+                )}
+                striped={true}
+                hover={true}
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -747,6 +853,48 @@ const ReportsAnalytics = () => {
             <DataTable
               columns={employeeColumns}
               data={reportData?.employees || []}
+              striped={true}
+              hover={true}
+            />
+          </div>
+        </Card>
+      )}
+
+      {selectedReport === 'operator-logs' && (
+        <Card className=" transition-shadow border border-slate-100">
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center text-xs gap-2 text-lg">
+              <div className="p-2 bg-blue-50 rounded">
+                <FileText className="w-3 h-3 text-blue-600" />
+              </div>
+              <span>Operator Daily Work Logs Report</span>
+            </div>
+          </div>
+          <div className="p-2">
+            <DataTable
+              columns={operatorLogsColumns}
+              data={reportData?.['operator-logs'] || []}
+              striped={true}
+              hover={true}
+            />
+          </div>
+        </Card>
+      )}
+
+      {selectedReport === 'project-manhours' && (
+        <Card className=" transition-shadow border border-slate-100">
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center text-xs gap-2 text-lg">
+              <div className="p-2 bg-blue-50 rounded">
+                <Clock className="w-3 h-3 text-blue-600" />
+              </div>
+              <span>Project Manhours Consumed Report</span>
+            </div>
+          </div>
+          <div className="p-2">
+            <DataTable
+              columns={projectManhoursColumns}
+              data={reportData?.['project-manhours'] || []}
               striped={true}
               hover={true}
             />

@@ -138,52 +138,132 @@ const getProjectsReport = async (req, res) => {
 };
 
 const getDepartmentsReport = async (req, res) => {
+  const { projectId } = req.query;
   try {
-    const [taskStats] = await db.query(`
-      SELECT 
-        d.id as deptId,
-        d.name as deptName,
-        COUNT(t.id) as totalTasks,
-        COUNT(CASE WHEN LOWER(t.status) = 'completed' THEN 1 END) as completedTasks
-      FROM (
-        SELECT 1 as id, 'Admin' as name UNION 
-        SELECT 2 as id, 'Design Engineer' as name UNION 
-        SELECT 3 as id, 'Production' as name UNION 
-        SELECT 4 as id, 'Procurement' as name UNION 
-        SELECT 5 as id, 'Quality' as name UNION 
-        SELECT 6 as id, 'Inventory' as name UNION 
-        SELECT 7 as id, 'Accountant' as name
-      ) d
-      LEFT JOIN department_tasks t ON d.id = t.department_id
-      GROUP BY d.id, d.name
+    // 1. Fetch all projects to populate select dropdown on frontend
+    const [projects] = await db.query(`
+      SELECT id, project_code, project_name, timelines 
+      FROM root_cards 
+      ORDER BY created_at DESC
     `);
 
-    const [userStats] = await db.query(`
-      SELECT department as name, COUNT(*) as count 
-      FROM users 
-      WHERE department IS NOT NULL AND department != '' 
-      GROUP BY department
-    `);
+    let selectedProjectDetails = null;
 
-    const userMap = {};
-    userStats.forEach(u => {
-      const standardized = u.name.replace(/_/g, ' ').toLowerCase();
-      userMap[standardized] = u.count;
+    if (projectId) {
+      const [projRows] = await db.query(`
+        SELECT id, project_code, project_name, timelines, status 
+        FROM root_cards 
+        WHERE id = ?
+      `, [projectId]);
+
+      if (projRows.length > 0) {
+        const project = projRows[0];
+        let timelinesObj = project.timelines;
+        if (timelinesObj && typeof timelinesObj === 'string') {
+          try {
+            timelinesObj = JSON.parse(timelinesObj);
+          } catch (e) {
+            timelinesObj = null;
+          }
+        }
+
+        const stepKeyMap = {
+          Design: 'design_engineering',
+          Production: 'production',
+          Procurement: 'procurement',
+          Inventory: 'inventory',
+          Quality: 'quality'
+        };
+
+        // Query step statuses for this root card
+        const [steps] = await db.query(`
+          SELECT step_key, status, updated_at 
+          FROM root_card_steps 
+          WHERE root_card_id = ?
+        `, [projectId]);
+
+        const stepMap = {};
+        steps.forEach(s => {
+          stepMap[s.step_key] = {
+            status: s.status,
+            completed_date: s.updated_at
+          };
+        });
+
+        const departments = ['Design', 'Production', 'Procurement', 'Inventory', 'Quality'];
+        const timelineReport = departments.map(dept => {
+          const stepKey = stepKeyMap[dept];
+          const stepInfo = stepMap[stepKey] || { status: 'pending', completed_date: null };
+          
+          const dates = (timelinesObj && timelinesObj[dept]) ? timelinesObj[dept] : null;
+          
+          let status = 'Not Assigned';
+          let delayDays = 0;
+
+          if (dates && dates.endDate) {
+            const end = new Date(dates.endDate);
+            end.setHours(23, 59, 59, 999); // end of the target day
+
+            if (stepInfo.status === 'completed' || stepInfo.status === 'Completed') {
+              const compDate = new Date(stepInfo.completed_date);
+              if (compDate <= end) {
+                status = 'Completed On Time';
+              } else {
+                status = 'Completed with Delay';
+                delayDays = Math.ceil((compDate.getTime() - end.getTime()) / (1000 * 3600 * 24));
+              }
+            } else {
+              // Not completed yet
+              const today = new Date();
+              if (today > end) {
+                status = 'Overdue';
+                delayDays = Math.ceil((today.getTime() - end.getTime()) / (1000 * 3600 * 24));
+              } else {
+                status = 'Pending (On Time)';
+              }
+            }
+          }
+
+          return {
+            department: dept,
+            startDate: dates ? dates.startDate : null,
+            endDate: dates ? dates.endDate : null,
+            completedDate: (stepInfo.status === 'completed' || stepInfo.status === 'Completed') ? stepInfo.completed_date : null,
+            status,
+            delayDays
+          };
+        });
+
+        selectedProjectDetails = {
+          id: project.id,
+          project_code: project.project_code,
+          project_name: project.project_name,
+          project_status: project.status,
+          timelineReport
+        };
+      }
+    }
+
+    res.json({
+      projects: projects.map(p => {
+        let hasTimelines = false;
+        if (p.timelines) {
+          try {
+            const t = typeof p.timelines === 'string' ? JSON.parse(p.timelines) : p.timelines;
+            hasTimelines = Object.keys(t || {}).length > 0;
+          } catch (e) {
+            hasTimelines = false;
+          }
+        }
+        return {
+          id: p.id,
+          project_code: p.project_code,
+          project_name: p.project_name,
+          hasTimelines
+        };
+      }),
+      selectedProject: selectedProjectDetails
     });
-
-    const departments = taskStats.map(d => {
-      const stdName = d.deptName.toLowerCase();
-      const totalUsers = userMap[stdName] || userMap[d.deptName.replace(/ /g, '_').toLowerCase()] || 0;
-      const avgEfficiency = d.totalTasks > 0 ? Math.round((d.completedTasks / d.totalTasks) * 100) : 100;
-      return {
-        name: d.deptName,
-        totalUsers,
-        completedTasks: d.completedTasks,
-        avgEfficiency
-      };
-    });
-
-    res.json(departments);
   } catch (error) {
     console.error('Error fetching departments report:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -503,6 +583,63 @@ const getDesignEngineerReport = async (req, res) => {
   }
 };
 
+const getOperatorLogsReport = async (req, res) => {
+  const { start, end } = req.query;
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        dpu.id,
+        dpu.work_date,
+        dpu.operator_name,
+        dpu.operation_name,
+        dpu.actual_hours,
+        dpu.qty_completed,
+        dpu.scrap_qty,
+        dpu.status,
+        dpu.remarks,
+        rc.project_code,
+        rc.project_name,
+        rc.id as root_card_id
+      FROM daily_production_updates dpu
+      LEFT JOIN root_cards rc ON dpu.root_card_id = rc.id
+      WHERE dpu.work_date BETWEEN ? AND ?
+      ORDER BY dpu.work_date DESC, dpu.id DESC
+    `, [start, end]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching operator logs report:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const getProjectManhoursReport = async (req, res) => {
+  const { start, end } = req.query;
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        rc.id as root_card_id,
+        rc.project_code,
+        rc.project_name,
+        rc.status as project_status,
+        COALESCE(SUM(dpu.actual_hours), 0) as total_hours,
+        COUNT(dpu.id) as total_logs,
+        COALESCE(SUM(dpu.qty_completed), 0) as total_qty,
+        COALESCE(SUM(dpu.scrap_qty), 0) as total_scrap
+      FROM root_cards rc
+      JOIN daily_production_updates dpu ON rc.id = dpu.root_card_id
+      WHERE dpu.work_date BETWEEN ? AND ?
+      GROUP BY rc.id, rc.project_code, rc.project_name, rc.status
+      ORDER BY total_hours DESC
+    `, [start, end]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching project manhours report:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   getOverviewReport,
   getProjectsReport,
@@ -513,5 +650,8 @@ module.exports = {
   getEmployeePerformance,
   getEmployeeDailyReports,
   getEmployeeWorkingHours,
-  getDesignEngineerReport
+  getDesignEngineerReport,
+  getOperatorLogsReport,
+  getProjectManhoursReport
 };
+
