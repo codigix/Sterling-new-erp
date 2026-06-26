@@ -427,41 +427,127 @@ const getInventoryReport = async (req, res) => {
 };
 
 const getEmployeesReport = async (req, res) => {
+  const { start, end } = req.query;
   try {
-    const [employeesList] = await db.query(`
+    let employeesQuery = `
       SELECT 
         u.id,
         u.full_name as name,
         u.department,
+        u.department_id,
         u.designation,
-        COUNT(dpu.id) as totalTasks,
-        COUNT(CASE WHEN dpu.status = 'Completed' THEN 1 END) as completedTasks,
-        COALESCE(SUM(dpu.qty_completed), 0) as totalQtyCompleted,
-        COALESCE(SUM(dpu.scrap_qty), 0) as totalScrap,
-        COALESCE(SUM(dpu.actual_hours), 0) as totalHours
+        (SELECT COUNT(*) FROM department_tasks WHERE department_id = u.department_id ${start && end ? 'AND assignment_date BETWEEN ? AND ?' : ''}) as totalTasks,
+        (SELECT COUNT(*) FROM department_tasks WHERE department_id = u.department_id AND status = 'Completed' ${start && end ? 'AND assignment_date BETWEEN ? AND ?' : ''}) as completedTasks,
+        (SELECT COUNT(*) FROM department_tasks WHERE department_id = u.department_id AND status = 'Completed' AND (completed_date IS NULL OR DATE(completed_date) <= due_date) ${start && end ? 'AND assignment_date BETWEEN ? AND ?' : ''}) as onTimeTasks
       FROM users u
-      LEFT JOIN daily_production_updates dpu ON u.id = dpu.operator_id
-      WHERE u.role = 'employee' OR (u.department IS NOT NULL AND LOWER(u.department) != 'admin')
-      GROUP BY u.id, u.full_name, u.department, u.designation
-    `);
+      WHERE u.role != 'employee'
+      GROUP BY u.id, u.full_name, u.department, u.department_id, u.designation, u.role
+    `;
+    const params = start && end ? [start, end, start, end, start, end] : [];
+    const [employeesList] = await db.query(employeesQuery, params);
+
+    // 1. Fetch all root cards and steps to calculate project timeline stats
+    const [rootCards] = await db.query('SELECT id, timelines FROM root_cards');
+    const [steps] = await db.query('SELECT root_card_id, step_key, status, updated_at FROM root_card_steps');
+
+    const stepMap = {};
+    steps.forEach(s => {
+      if (!stepMap[s.root_card_id]) {
+        stepMap[s.root_card_id] = {};
+      }
+      stepMap[s.root_card_id][s.step_key] = {
+        status: s.status,
+        completed_date: s.updated_at
+      };
+    });
+
+    const DEPT_TIMELINE_MAP = {
+      2: { timelineKey: 'Design', stepKey: 'design_engineering' },
+      3: { timelineKey: 'Production', stepKey: 'production' },
+      4: { timelineKey: 'Procurement', stepKey: 'procurement' },
+      5: { timelineKey: 'Quality', stepKey: 'quality' },
+      6: { timelineKey: 'Inventory', stepKey: 'inventory' }
+    };
+
+    const timelineStats = {
+      2: { total: 0, completed: 0, onTime: 0 },
+      3: { total: 0, completed: 0, onTime: 0 },
+      4: { total: 0, completed: 0, onTime: 0 },
+      5: { total: 0, completed: 0, onTime: 0 },
+      6: { total: 0, completed: 0, onTime: 0 }
+    };
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    rootCards.forEach(rc => {
+      if (!rc.timelines) return;
+      let timelinesObj = rc.timelines;
+      if (typeof timelinesObj === 'string') {
+        try {
+          timelinesObj = JSON.parse(timelinesObj);
+        } catch (e) {
+          return;
+        }
+      }
+
+      Object.keys(DEPT_TIMELINE_MAP).forEach(deptId => {
+        const { timelineKey, stepKey } = DEPT_TIMELINE_MAP[deptId];
+        const dates = timelinesObj[timelineKey];
+        if (dates && dates.endDate) {
+          // Date filter if provided
+          if (start && end) {
+            try {
+              const milestoneDate = dates.startDate || dates.endDate;
+              const milestoneDateStr = new Date(milestoneDate).toISOString().split('T')[0];
+              if (milestoneDateStr < start || milestoneDateStr > end) return;
+            } catch (e) {
+              return;
+            }
+          }
+
+          timelineStats[deptId].total++;
+
+          const stepInfo = (stepMap[rc.id] && stepMap[rc.id][stepKey]) || { status: 'pending', completed_date: null };
+          const isCompleted = stepInfo.status === 'completed' || stepInfo.status === 'Completed';
+          const endD = new Date(dates.endDate);
+          endD.setHours(23, 59, 59, 999);
+
+          if (isCompleted) {
+            timelineStats[deptId].completed++;
+            const compDate = new Date(stepInfo.completed_date);
+            if (compDate <= endD) {
+              timelineStats[deptId].onTime++;
+            }
+          } else {
+            if (today <= endD) {
+              timelineStats[deptId].onTime++;
+            }
+          }
+        }
+      });
+    });
 
     const employees = employeesList.map(e => {
-      const totalTasks = e.totalTasks || 0;
-      const completedTasks = e.completedTasks || 0;
-      const efficiency = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 100;
+      const tasksTotal = e.totalTasks || 0;
+      const tasksCompleted = e.completedTasks || 0;
+      const tasksOnTime = e.onTimeTasks || 0;
 
-      // Quality Score (1.0 to 5.0) based on scrap rate
-      const scrap = parseFloat(e.totalScrap || 0);
-      const completed = parseFloat(e.totalQtyCompleted || 0);
-      const totalQty = completed + scrap;
-      const scrapRate = totalQty > 0 ? (scrap / totalQty) : 0;
-      const qualityScore = parseFloat(Math.max(1.0, 5.0 - (scrapRate * 5.0)).toFixed(1));
+      const tStats = timelineStats[e.department_id] || { total: 0, completed: 0, onTime: 0 };
+      
+      const totalDeliverables = tasksTotal + tStats.total;
+      const completedDeliverables = tasksCompleted + tStats.completed;
+      const onTimeDeliverables = tasksOnTime + tStats.onTime;
 
-      // Attendance % based on logged hours
-      const hours = parseFloat(e.totalHours || 0);
-      const attendance = hours > 0 ? Math.min(100, Math.round(90 + (hours / 10))) : 95;
-
-      // Performance Rating: overall average rating
+      const efficiency = totalDeliverables > 0 
+        ? Math.round((completedDeliverables / totalDeliverables) * 100) 
+        : 100;
+      
+      const onTimeRate = completedDeliverables > 0 
+        ? (onTimeDeliverables / completedDeliverables) 
+        : 1.0;
+      
+      const qualityScore = parseFloat(Math.max(1.0, 5.0 - ((1.0 - onTimeRate) * 4)).toFixed(1));
       const rating = parseFloat((((efficiency / 20) + qualityScore) / 2).toFixed(1));
 
       return {
@@ -469,10 +555,14 @@ const getEmployeesReport = async (req, res) => {
         name: e.name,
         department: e.department || 'N/A',
         designation: e.designation || 'N/A',
-        tasksCompleted: completedTasks,
+        tasksTotal,
+        tasksCompleted,
+        tasksOnTime,
+        timelinesTotal: tStats.total,
+        timelinesCompleted: tStats.completed,
+        timelinesOnTime: tStats.onTime,
         efficiency,
         qualityScore,
-        attendance,
         rating
       };
     });
@@ -524,23 +614,191 @@ const getEmployeePerformance = async (req, res) => {
 
 const getEmployeeDailyReports = async (req, res) => {
   const { id } = req.params;
+  const { start, end } = req.query;
   try {
-    const [reports] = await db.query(`
-      SELECT 
-        dpu.*,
-        dpu.qty_completed as quantity_produced,
-        dpu.scrap_qty as rejection_quantity,
-        rc.project_name,
-        rc.project_code,
-        rc.id as root_card_number
-      FROM daily_production_updates dpu
-      LEFT JOIN root_cards rc ON dpu.root_card_id = rc.id
-      WHERE dpu.operator_id = ?
-      ORDER BY dpu.work_date DESC, dpu.created_at DESC
-      LIMIT 50
-    `, [id]);
+    const [users] = await db.query('SELECT role, department_id FROM users WHERE id = ?', [id]);
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-    res.json(reports);
+    const user = users[0];
+
+    if (user.role === 'employee') {
+      let query = `
+        SELECT 
+          dpu.id,
+          dpu.work_date,
+          dpu.qty_completed as quantity_produced,
+          dpu.scrap_qty as rejection_quantity,
+          dpu.actual_hours,
+          dpu.operation_name,
+          dpu.status,
+          rc.project_name,
+          rc.project_code,
+          rc.id as root_card_number
+        FROM daily_production_updates dpu
+        LEFT JOIN root_cards rc ON dpu.root_card_id = rc.id
+        WHERE dpu.operator_id = ?
+      `;
+      const params = [id];
+
+      if (start && end) {
+        query += ` AND dpu.work_date BETWEEN ? AND ?`;
+        params.push(start, end);
+      }
+
+      query += ` ORDER BY dpu.work_date DESC, dpu.created_at DESC`;
+      const [reports] = await db.query(query, params);
+      res.json(reports);
+    } else {
+      // 1. Fetch department tasks
+      let taskQuery = `
+        SELECT 
+          t.id,
+          t.task_code,
+          t.title,
+          t.description,
+          t.priority,
+          t.assignment_date as date,
+          t.due_date,
+          t.completed_date,
+          t.status
+        FROM department_tasks t
+        WHERE t.department_id = ?
+      `;
+      const taskParams = [user.department_id || 0];
+
+      if (start && end) {
+        taskQuery += ` AND t.assignment_date BETWEEN ? AND ?`;
+        taskParams.push(start, end);
+      }
+
+      taskQuery += ` ORDER BY t.assignment_date DESC`;
+      const [tasks] = await db.query(taskQuery, taskParams);
+
+      const mappedTasks = tasks.map(task => {
+        const isCompleted = task.status === 'Completed' || task.status === 'COMPLETED';
+        let delayStatus = 'On Time';
+        if (isCompleted && task.completed_date) {
+          const due = new Date(task.due_date);
+          const comp = new Date(task.completed_date);
+          if (comp > due) {
+            delayStatus = 'Delayed';
+          }
+        } else if (!isCompleted) {
+          const today = new Date();
+          const due = new Date(task.due_date);
+          if (today > due) {
+            delayStatus = 'Overdue';
+          } else {
+            delayStatus = 'Pending';
+          }
+        }
+
+        return {
+          id: `task-${task.id}`,
+          work_date: task.date,
+          project_code: task.task_code || 'N/A',
+          project_name: task.title,
+          operation_name: `[Task] ${task.description || 'N/A'}`,
+          qty_completed: isCompleted ? 1 : 0,
+          scrap_qty: 0,
+          actual_hours: 0,
+          status: task.status,
+          delay_status: delayStatus
+        };
+      });
+
+      // 2. Fetch project timelines and map them
+      const DEPT_TIMELINE_MAP = {
+        2: { timelineKey: 'Design', stepKey: 'design_engineering' },
+        3: { timelineKey: 'Production', stepKey: 'production' },
+        4: { timelineKey: 'Procurement', stepKey: 'procurement' },
+        5: { timelineKey: 'Quality', stepKey: 'quality' },
+        6: { timelineKey: 'Inventory', stepKey: 'inventory' }
+      };
+
+      const timelineInfo = DEPT_TIMELINE_MAP[user.department_id];
+      const mappedTimelines = [];
+
+      if (timelineInfo) {
+        const { timelineKey, stepKey } = timelineInfo;
+        const [rootCards] = await db.query('SELECT id, project_code, project_name, timelines FROM root_cards');
+        const [steps] = await db.query('SELECT root_card_id, status, updated_at FROM root_card_steps WHERE step_key = ?', [stepKey]);
+
+        const stepLookup = {};
+        steps.forEach(s => {
+          stepLookup[s.root_card_id] = {
+            status: s.status,
+            completed_date: s.updated_at
+          };
+        });
+
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+
+        rootCards.forEach(rc => {
+          if (!rc.timelines) return;
+          let timelinesObj = rc.timelines;
+          if (typeof timelinesObj === 'string') {
+            try {
+              timelinesObj = JSON.parse(timelinesObj);
+            } catch (e) {
+              return;
+            }
+          }
+
+          const dates = timelinesObj[timelineKey];
+          if (dates && dates.endDate) {
+            // Apply date filters if provided
+            if (start && end) {
+              try {
+                const startDate = dates.startDate || dates.endDate;
+                const startDateStr = new Date(startDate).toISOString().split('T')[0];
+                if (startDateStr < start || startDateStr > end) return;
+              } catch (e) {
+                return;
+              }
+            }
+
+            const stepDetail = stepLookup[rc.id] || { status: 'pending', completed_date: null };
+            const isCompleted = stepDetail.status === 'completed' || stepDetail.status === 'Completed';
+            const deadline = new Date(dates.endDate);
+            deadline.setHours(23, 59, 59, 999);
+
+            let delayStatus = 'On Time';
+            if (isCompleted) {
+              const compDate = new Date(stepDetail.completed_date);
+              if (compDate > deadline) {
+                delayStatus = 'Delayed';
+              }
+            } else {
+              if (today > deadline) {
+                delayStatus = 'Overdue';
+              } else {
+                delayStatus = 'Pending';
+              }
+            }
+
+            mappedTimelines.push({
+              id: `timeline-${rc.id}`,
+              work_date: dates.startDate || dates.endDate,
+              project_code: rc.project_code || `PRJ-${rc.id}`,
+              project_name: rc.project_name,
+              operation_name: `[Timeline Milestone] Department Stage: ${timelineKey}`,
+              qty_completed: isCompleted ? 1 : 0,
+              scrap_qty: 0,
+              actual_hours: 0,
+              status: isCompleted ? 'Completed' : 'Pending',
+              delay_status: delayStatus
+            });
+          }
+        });
+      }
+
+      const mergedList = [...mappedTasks, ...mappedTimelines].sort((a, b) => new Date(b.work_date) - new Date(a.work_date));
+      res.json(mergedList);
+    }
   } catch (error) {
     console.error('Error fetching employee daily reports:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -551,29 +809,165 @@ const getEmployeeWorkingHours = async (req, res) => {
   const { id } = req.params;
   const { start, end } = req.query;
   try {
-    const [rows] = await db.query(`
-      SELECT 
-        work_date as date,
-        SUM(actual_hours) as total_hours,
-        COUNT(id) as production_count
-      FROM daily_production_updates
-      WHERE operator_id = ?
-      AND work_date BETWEEN ? AND ?
-      GROUP BY work_date
-      ORDER BY work_date DESC
-    `, [id, start, end]);
+    const [users] = await db.query('SELECT role, department_id FROM users WHERE id = ?', [id]);
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-    const [total] = await db.query(`
-      SELECT SUM(actual_hours) as total_hours
-      FROM daily_production_updates
-      WHERE operator_id = ?
-      AND work_date BETWEEN ? AND ?
-    `, [id, start, end]);
+    const user = users[0];
 
-    res.json({
-      daily: rows,
-      total_hours: total[0].total_hours || 0
-    });
+    if (user.role === 'employee') {
+      const [rows] = await db.query(`
+        SELECT 
+          work_date as date,
+          SUM(actual_hours) as total_hours,
+          COUNT(id) as production_count
+        FROM daily_production_updates
+        WHERE operator_id = ?
+        AND work_date BETWEEN ? AND ?
+        GROUP BY work_date
+        ORDER BY work_date DESC
+      `, [id, start, end]);
+
+      const [total] = await db.query(`
+        SELECT SUM(actual_hours) as total_hours
+        FROM daily_production_updates
+        WHERE operator_id = ?
+        AND work_date BETWEEN ? AND ?
+      `, [id, start, end]);
+
+      res.json({
+        daily: rows,
+        total_hours: total[0].total_hours || 0
+      });
+    } else {
+      const [tasks] = await db.query(`
+        SELECT 
+          assignment_date as date,
+          COUNT(*) as task_count,
+          SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed_count
+        FROM department_tasks
+        WHERE department_id = ?
+        AND assignment_date BETWEEN ? AND ?
+        GROUP BY assignment_date
+        ORDER BY assignment_date DESC
+      `, [user.department_id || 0, start, end]);
+
+      const DEPT_TIMELINE_MAP = {
+        2: { timelineKey: 'Design', stepKey: 'design_engineering' },
+        3: { timelineKey: 'Production', stepKey: 'production' },
+        4: { timelineKey: 'Procurement', stepKey: 'procurement' },
+        5: { timelineKey: 'Quality', stepKey: 'quality' },
+        6: { timelineKey: 'Inventory', stepKey: 'inventory' }
+      };
+
+      const timelineInfo = DEPT_TIMELINE_MAP[user.department_id];
+      const dailyMap = {};
+
+      tasks.forEach(t => {
+        const dateStr = new Date(t.date).toISOString().split('T')[0];
+        dailyMap[dateStr] = {
+          task_count: t.task_count,
+          completed_count: t.completed_count
+        };
+      });
+
+      let totalTimelines = 0;
+      let completedTimelines = 0;
+      let onTimeTimelines = 0;
+
+      if (timelineInfo) {
+        const { timelineKey, stepKey } = timelineInfo;
+        const [rootCards] = await db.query('SELECT id, timelines FROM root_cards');
+        const [steps] = await db.query('SELECT root_card_id, status, updated_at FROM root_card_steps WHERE step_key = ?', [stepKey]);
+
+        const stepLookup = {};
+        steps.forEach(s => {
+          stepLookup[s.root_card_id] = {
+            status: s.status,
+            completed_date: s.updated_at
+          };
+        });
+
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+
+        rootCards.forEach(rc => {
+          if (!rc.timelines) return;
+          let timelinesObj = rc.timelines;
+          if (typeof timelinesObj === 'string') {
+            try {
+              timelinesObj = JSON.parse(timelinesObj);
+            } catch (e) {
+              return;
+            }
+          }
+
+          const dates = timelinesObj[timelineKey];
+          if (dates && dates.endDate) {
+            const dateStr = new Date(dates.startDate || dates.endDate).toISOString().split('T')[0];
+            if (dateStr >= start && dateStr <= end) {
+              totalTimelines++;
+              const stepDetail = stepLookup[rc.id] || { status: 'pending', completed_date: null };
+              const isCompleted = stepDetail.status === 'completed' || stepDetail.status === 'Completed';
+              if (isCompleted) {
+                completedTimelines++;
+              }
+
+              // On-time check
+              const deadline = new Date(dates.endDate);
+              deadline.setHours(23, 59, 59, 999);
+              if (isCompleted) {
+                const compDate = new Date(stepDetail.completed_date);
+                if (compDate <= deadline) {
+                  onTimeTimelines++;
+                }
+              } else {
+                if (today <= deadline) {
+                  onTimeTimelines++;
+                }
+              }
+
+              if (!dailyMap[dateStr]) {
+                dailyMap[dateStr] = { task_count: 0, completed_count: 0 };
+              }
+              dailyMap[dateStr].task_count++;
+              if (isCompleted) {
+                dailyMap[dateStr].completed_count++;
+              }
+            }
+          }
+        });
+      }
+
+      const dailyArray = Object.keys(dailyMap).map(dateStr => ({
+        date: dateStr,
+        total_hours: dailyMap[dateStr].task_count * 8, 
+        production_count: dailyMap[dateStr].completed_count
+      })).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const [totalTasks] = await db.query(`
+        SELECT COUNT(*) as total_tasks, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed_tasks
+        FROM department_tasks
+        WHERE department_id = ?
+        AND assignment_date BETWEEN ? AND ?
+      `, [user.department_id || 0, start, end]);
+
+      const tasksTotal = totalTasks[0].total_tasks || 0;
+      const tasksCompleted = totalTasks[0].completed_tasks || 0;
+
+      res.json({
+        daily: dailyArray,
+        total_hours: (tasksTotal + totalTimelines) * 8,
+        total_tasks: tasksTotal + totalTimelines,
+        completed_tasks: tasksCompleted + completedTimelines,
+        tasksTotal,
+        tasksCompleted,
+        timelinesTotal: totalTimelines,
+        timelinesCompleted: completedTimelines,
+        timelinesOnTime: onTimeTimelines
+      });
+    }
   } catch (error) {
     console.error('Error fetching employee working hours:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
