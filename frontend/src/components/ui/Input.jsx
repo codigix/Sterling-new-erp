@@ -47,7 +47,7 @@ const Input = ({
           {...props}
         />
         {rightIcon && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs pointer-events-none text-slate-400">
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400">
             {rightIcon}
           </div>
         )}
