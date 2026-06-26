@@ -105,42 +105,9 @@ const getOverviewReport = async (req, res) => {
 };
 
 const getProjectsReport = async (req, res) => {
-  const { start, end } = req.query;
-  try {
-    const [projects] = await db.query(`
-      SELECT 
-        id, 
-        project_name as name, 
-        status, 
-        COALESCE(
-          (SELECT (COUNT(CASE WHEN status = 'completed' THEN 1 END) * 100 / COUNT(*)) 
-           FROM root_card_steps WHERE root_card_id = root_cards.id), 
-          0
-        ) as progress,
-        created_at as startDate,
-        delivery_date as expectedCompletion,
-        CASE 
-          WHEN status IN ('COMPLETED', 'READY_FOR_DELIVERY', 'DELIVERED', 'Completed') THEN 
-            CASE WHEN DATE(updated_at) <= delivery_date THEN 1 ELSE 0 END
-          ELSE 
-            CASE WHEN CURDATE() <= delivery_date THEN 1 ELSE 0 END
-        END as onTime
-      FROM root_cards
-      WHERE created_at BETWEEN ? AND ?
-      ORDER BY created_at DESC
-    `, [start, end]);
-
-    res.json(projects);
-  } catch (error) {
-    console.error('Error fetching projects report:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
-const getDepartmentsReport = async (req, res) => {
   const { projectId } = req.query;
   try {
-    // 1. Fetch all projects to populate select dropdown on frontend
+    // 1. Fetch all projects to populate select dropdown/table on frontend
     const [projects] = await db.query(`
       SELECT id, project_code, project_name, timelines 
       FROM root_cards 
@@ -265,7 +232,84 @@ const getDepartmentsReport = async (req, res) => {
       selectedProject: selectedProjectDetails
     });
   } catch (error) {
-    console.error('Error fetching departments report:', error);
+    console.error('Error fetching projects report:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const getDepartmentsReport = async (req, res) => {
+  try {
+    const [tasks] = await db.query(`
+      SELECT t.*, u.full_name as assignedByName
+      FROM department_tasks t
+      LEFT JOIN users u ON t.assigned_by = u.id
+      ORDER BY t.assignment_date DESC, t.id DESC
+    `);
+
+    const DEPARTMENT_MAP = {
+      1: 'Admin',
+      2: 'Design Engineer',
+      3: 'Production',
+      4: 'Procurement',
+      5: 'Quality',
+      6: 'Inventory',
+      7: 'Accountant'
+    };
+
+    let totalTasks = tasks.length;
+    let completedTasks = 0;
+    let pendingTasks = 0;
+    let overdueTasks = 0;
+    let onTimeCompleted = 0;
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    const processedTasks = tasks.map(task => {
+      const deptName = DEPARTMENT_MAP[task.department_id] || 'Unknown';
+      let delayDays = 0;
+
+      const isCompleted = task.status === 'Completed' || task.status === 'COMPLETED';
+      const dueDate = new Date(task.due_date);
+      dueDate.setHours(23, 59, 59, 999);
+
+      if (isCompleted) {
+        completedTasks++;
+        const completedDate = task.completed_date ? new Date(task.completed_date) : new Date(task.updated_at);
+        if (completedDate > dueDate) {
+          delayDays = Math.ceil((completedDate.getTime() - dueDate.getTime()) / (1000 * 3600 * 24));
+        } else {
+          onTimeCompleted++;
+        }
+      } else {
+        pendingTasks++;
+        if (today > dueDate) {
+          overdueTasks++;
+          delayDays = Math.ceil((today.getTime() - dueDate.getTime()) / (1000 * 3600 * 24));
+        }
+      }
+
+      return {
+        ...task,
+        department_name: deptName,
+        delay_days: delayDays
+      };
+    });
+
+    const onTimeRate = completedTasks > 0 ? Math.round((onTimeCompleted / completedTasks) * 100) : 100;
+
+    res.json({
+      tasks: processedTasks,
+      summary: {
+        totalTasks,
+        completedTasks,
+        pendingTasks,
+        overdueTasks,
+        onTimeRate
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching departments task report:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getMe, forgotPassword, resetPassword, verifyResetToken } = require('../controllers/authController');
+const { register, login, getMe, forgotPassword, resetPassword, verifyResetToken, changePassword } = require('../controllers/authController');
 const auth = require('../middleware/authMiddleware');
 
 // @route   POST api/auth/register
@@ -26,5 +26,9 @@ router.post('/reset-password', resetPassword);
 // @route   GET api/auth/verify-reset-token/:token
 // @desc    Verify reset token validity
 router.get('/verify-reset-token/:token', verifyResetToken);
+
+// @route   PUT api/auth/change-password
+// @desc    Change logged-in user password
+router.put('/change-password', auth, changePassword);
 
 module.exports = router;

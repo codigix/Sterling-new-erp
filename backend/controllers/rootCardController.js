@@ -850,61 +850,35 @@ const updateRootCardTimelines = async (req, res) => {
 };
 
 const getNextProjectCode = async (req, res) => {
-  const { projectName } = req.query;
-
-  if (!projectName) {
-    return res.status(400).json({ message: 'projectName query parameter is required' });
-  }
-
   try {
-    // Generate initials from the project name
-    const words = projectName.trim().split(/\s+/);
-    let initials = "";
-    if (words.length > 1) {
-      initials = words.map(word => word[0]).join("").toUpperCase();
-    } else {
-      initials = projectName.trim().substring(0, 3).toUpperCase();
-    }
-
-    // Filter out non-alphanumeric characters from initials to keep the code clean
-    initials = initials.replace(/[^A-Z0-9]/g, '');
-    if (!initials) {
-      initials = "PRJ";
-    }
-
-    // Determine current financial year (April 1st to March 31st)
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0-indexed (0 = Jan, 11 = Dec)
+    // Query database to get all current project codes
+    const [rows] = await db.query('SELECT project_code FROM root_cards');
     
-    let fyStart, fyEnd;
-    if (currentMonth >= 3) { // April or later
-      fyStart = currentYear;
-      fyEnd = currentYear + 1;
-    } else { // Jan, Feb, March
-      fyStart = currentYear - 1;
-      fyEnd = currentYear;
+    const serials = new Set();
+    for (const row of rows) {
+      const code = row.project_code;
+      if (!code) continue;
+      
+      // Match only purely numeric project codes (ignoring legacy codes with prefixes)
+      const match = code.trim().match(/^\d+$/);
+      if (match) {
+        const val = parseInt(match[0], 10);
+        if (!isNaN(val)) {
+          serials.add(val);
+        }
+      }
     }
-    
-    const fyStr = `${String(fyStart).substring(2)}-${String(fyEnd).substring(2)}`; // e.g. "26-27"
 
-    // Query database to count how many project codes have been created in this financial year.
-    const searchPattern = `%/${fyStr}/%`;
-    const [rows] = await db.query(
-      'SELECT COUNT(*) as count FROM root_cards WHERE project_code LIKE ?',
-      [searchPattern]
-    );
-    const count = rows[0].count || 0;
-    const nextSeq = count + 1;
+    // Find the smallest missing positive integer starting from 1
+    let nextSeq = 1;
+    while (serials.has(nextSeq)) {
+      nextSeq++;
+    }
     const serial = String(nextSeq).padStart(3, '0');
-
-    const nextProjectCode = `${initials}/${fyStr}/${serial}`;
 
     res.json({
       success: true,
-      projectCode: nextProjectCode,
-      initials,
-      fy: fyStr,
+      projectCode: serial,
       sequence: nextSeq
     });
   } catch (error) {

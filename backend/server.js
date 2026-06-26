@@ -21,6 +21,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const productionRoutes = require('./routes/productionRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 const { startTimelineAlerts } = require('./utils/timelineAlerts');
+const { startFinancialRemindersScheduler } = require('./utils/financialRemindersScheduler');
 const reportRoutes = require('./routes/reportRoutes');
 const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
 const accountingRoutes = require('./routes/accountingRoutes');
@@ -142,4 +143,6 @@ app.listen(PORT, () => {
   startEmailMonitor();
   // Start checking timeline deadlines
   startTimelineAlerts();
+  // Start checking financial dashboard reminders
+  startFinancialRemindersScheduler();
 });

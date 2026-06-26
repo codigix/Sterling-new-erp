@@ -1039,7 +1039,11 @@ module.exports = {
   getProjectDocuments,
   createProjectDocument,
   updateProjectDocument,
-  deleteProjectDocument
+  deleteProjectDocument,
+  getReminders,
+  createReminder,
+  deleteReminder,
+  getDashboardStats
 };
 
 async function getProjectDocuments(req, res) {
@@ -1195,6 +1199,192 @@ async function deleteProjectDocument(req, res) {
     res.json({ success: true, message: "Document deleted successfully" });
   } catch (error) {
     console.error("Error deleting project document:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+async function getReminders(req, res) {
+  try {
+    const [rows] = await db.query(
+      'SELECT id, title, description, DATE_FORMAT(reminder_date, "%Y-%m-%d") as reminder_date, email, is_triggered, created_at FROM financial_reminders ORDER BY reminder_date ASC'
+    );
+    res.json({ success: true, reminders: rows });
+  } catch (error) {
+    console.error("Error fetching financial reminders:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+async function createReminder(req, res) {
+  try {
+    const { title, description, reminder_date, email } = req.body;
+    if (!title || !reminder_date || !email) {
+      return res.status(400).json({ success: false, message: "Title, date, and email are required" });
+    }
+
+    await db.query(
+      'INSERT INTO financial_reminders (title, description, reminder_date, email) VALUES (?, ?, ?, ?)',
+      [title, description || '', reminder_date, email]
+    );
+
+    res.status(201).json({ success: true, message: "Reminder set successfully" });
+  } catch (error) {
+    console.error("Error creating financial reminder:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+async function deleteReminder(req, res) {
+  try {
+    const { id } = req.params;
+    const [result] = await db.query('DELETE FROM financial_reminders WHERE id = ?', [id]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Reminder not found" });
+    }
+
+    res.json({ success: true, message: "Reminder deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting financial reminder:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+async function getDashboardStats(req, res) {
+  try {
+    const now = new Date();
+    
+    // Date boundaries
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
+    // Format dates for SQL
+    const formatDate = (d) => d.toISOString().split('T')[0];
+    
+    const tms = formatDate(thisMonthStart);
+    const tme = formatDate(thisMonthEnd);
+    const lms = formatDate(lastMonthStart);
+    const lme = formatDate(lastMonthEnd);
+
+    // 1. Total Receivable (Current Outstanding Customer Invoices)
+    const [[receivableRow]] = await db.query(
+      "SELECT COALESCE(SUM(balance_amount), 0) as total FROM customer_invoices WHERE status != 'CANCELLED'"
+    );
+    const totalReceivable = parseFloat(receivableRow.total);
+
+    // Receivable Change (New customer invoices this month vs last month)
+    const [[receivableThisMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(grand_total), 0) as total FROM customer_invoices WHERE status != 'CANCELLED' AND invoice_date BETWEEN ? AND ?",
+      [tms, tme]
+    );
+    const [[receivableLastMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(grand_total), 0) as total FROM customer_invoices WHERE status != 'CANCELLED' AND invoice_date BETWEEN ? AND ?",
+      [lms, lme]
+    );
+    const recThisMonth = parseFloat(receivableThisMonthRow.total);
+    const recLastMonth = parseFloat(receivableLastMonthRow.total);
+    const recChangePercent = recLastMonth > 0 ? ((recThisMonth - recLastMonth) / recLastMonth) * 100 : 0;
+
+    // 2. Total Payable (Current Outstanding Vendor Invoices)
+    const [[payableRow]] = await db.query(
+      "SELECT COALESCE(SUM(balance_amount), 0) as total FROM vendor_invoices WHERE status != 'CANCELLED'"
+    );
+    const totalPayable = parseFloat(payableRow.total);
+
+    // Payable Change (New vendor invoices this month vs last month)
+    const [[payableThisMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(grand_total), 0) as total FROM vendor_invoices WHERE status != 'CANCELLED' AND invoice_date BETWEEN ? AND ?",
+      [tms, tme]
+    );
+    const [[payableLastMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(grand_total), 0) as total FROM vendor_invoices WHERE status != 'CANCELLED' AND invoice_date BETWEEN ? AND ?",
+      [lms, lme]
+    );
+    const payThisMonth = parseFloat(payableThisMonthRow.total);
+    const payLastMonth = parseFloat(payableLastMonthRow.total);
+    const payChangePercent = payLastMonth > 0 ? ((payThisMonth - payLastMonth) / payLastMonth) * 100 : 0;
+
+    // 3. Current Cash (Total customer payments - Total vendor payments)
+    const [[custPaymentsRow]] = await db.query(
+      "SELECT COALESCE(SUM(amount_received), 0) as total FROM customer_payments WHERE status != 'CANCELLED'"
+    );
+    const [[vendPaymentsRow]] = await db.query(
+      "SELECT COALESCE(SUM(amount_paid), 0) as total FROM vendor_payments WHERE status != 'CANCELLED'"
+    );
+    const totalCustPayments = parseFloat(custPaymentsRow.total);
+    const totalVendPayments = parseFloat(vendPaymentsRow.total);
+    const currentCash = totalCustPayments - totalVendPayments;
+
+    // Cash flow this month
+    const [[custPayThisMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(amount_received), 0) as total FROM customer_payments WHERE status != 'CANCELLED' AND received_date BETWEEN ? AND ?",
+      [tms, tme]
+    );
+    const [[vendPayThisMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(amount_paid), 0) as total FROM vendor_payments WHERE status != 'CANCELLED' AND payment_date BETWEEN ? AND ?",
+      [tms, tme]
+    );
+    const cashInThisMonth = parseFloat(custPayThisMonthRow.total);
+    const cashOutThisMonth = parseFloat(vendPayThisMonthRow.total);
+    const cashFlowThisMonth = cashInThisMonth - cashOutThisMonth;
+
+    // Cash flow last month
+    const [[custPayLastMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(amount_received), 0) as total FROM customer_payments WHERE status != 'CANCELLED' AND received_date BETWEEN ? AND ?",
+      [lms, lme]
+    );
+    const [[vendPayLastMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(amount_paid), 0) as total FROM vendor_payments WHERE status != 'CANCELLED' AND payment_date BETWEEN ? AND ?",
+      [lms, lme]
+    );
+    const cashInLastMonth = parseFloat(custPayLastMonthRow.total);
+    const cashOutLastMonth = parseFloat(vendPayLastMonthRow.total);
+    const cashFlowLastMonth = cashInLastMonth - cashOutLastMonth;
+    const cashChangePercent = cashFlowLastMonth > 0 ? ((cashFlowThisMonth - cashFlowLastMonth) / cashFlowLastMonth) * 100 : 0;
+
+    // 4. Monthly Revenue (Sum of customer invoices grand_total for this month)
+    const [[revenueThisMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(grand_total), 0) as total FROM customer_invoices WHERE status != 'CANCELLED' AND invoice_date BETWEEN ? AND ?",
+      [tms, tme]
+    );
+    const [[revenueLastMonthRow]] = await db.query(
+      "SELECT COALESCE(SUM(grand_total), 0) as total FROM customer_invoices WHERE status != 'CANCELLED' AND invoice_date BETWEEN ? AND ?",
+      [lms, lme]
+    );
+    const revenueThisMonth = parseFloat(revenueThisMonthRow.total);
+    const revenueLastMonth = parseFloat(revenueLastMonthRow.total);
+    const revChangePercent = revenueLastMonth > 0 ? ((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100 : 0;
+
+    res.json({
+      success: true,
+      stats: {
+        receivable: {
+          value: totalReceivable,
+          change: (recChangePercent >= 0 ? "+" : "") + recChangePercent.toFixed(1) + "%",
+          positive: recChangePercent >= 0
+        },
+        payable: {
+          value: totalPayable,
+          change: (payChangePercent >= 0 ? "+" : "") + payChangePercent.toFixed(1) + "%",
+          positive: payChangePercent < 0 // A decrease in payable is a positive trend
+        },
+        cash: {
+          value: currentCash,
+          change: (cashChangePercent >= 0 ? "+" : "") + cashChangePercent.toFixed(1) + "%",
+          positive: cashChangePercent >= 0
+        },
+        revenue: {
+          value: revenueThisMonth,
+          change: (revChangePercent >= 0 ? "+" : "") + revChangePercent.toFixed(1) + "%",
+          positive: revChangePercent >= 0
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching accounting dashboard stats:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 }

@@ -87,4 +87,12 @@ router.put("/project-documents/:id", (req, res, next) => {
 }, accountingController.updateProjectDocument);
 router.delete("/project-documents/:id", accountingController.deleteProjectDocument);
 
+// Dashboard Stats Route
+router.get("/dashboard-stats", accountingController.getDashboardStats);
+
+// Reminder Routes
+router.get("/reminders", accountingController.getReminders);
+router.post("/reminders", accountingController.createReminder);
+router.delete("/reminders/:id", accountingController.deleteReminder);
+
 module.exports = router;
