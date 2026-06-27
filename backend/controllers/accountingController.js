@@ -1043,7 +1043,8 @@ module.exports = {
   getReminders,
   createReminder,
   deleteReminder,
-  getDashboardStats
+  getDashboardStats,
+  calculateInitialReminderDate
 };
 
 async function getProjectDocuments(req, res) {
@@ -1203,12 +1204,116 @@ async function deleteProjectDocument(req, res) {
   }
 }
 
+function calculateInitialReminderDate(recurrence, day, month, selectedDate) {
+  if (recurrence === 'once') {
+    return selectedDate;
+  }
+  
+  // Get "today" in local components, but map it to a UTC date representing today at midnight UTC
+  const now = new Date();
+  const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const targetDate = todayUTC; // targetDate is today
+
+  if (recurrence === 'monthly') {
+    let year = targetDate.getUTCFullYear();
+    let m = targetDate.getUTCMonth(); // 0-11
+    
+    const maxDays = new Date(Date.UTC(year, m + 1, 0)).getUTCDate();
+    const candidateDay = Math.min(day || 1, maxDays);
+    const candidateDate = new Date(Date.UTC(year, m, candidateDay));
+    
+    if (candidateDate >= targetDate) {
+      return candidateDate.toISOString().split('T')[0];
+    } else {
+      m += 1;
+      if (m > 11) {
+        m = 0;
+        year += 1;
+      }
+      const maxDaysNext = new Date(Date.UTC(year, m + 1, 0)).getUTCDate();
+      const targetDayNext = Math.min(day || 1, maxDaysNext);
+      return new Date(Date.UTC(year, m, targetDayNext)).toISOString().split('T')[0];
+    }
+  }
+
+  if (recurrence === 'yearly') {
+    let year = targetDate.getUTCFullYear();
+    const targetMonth = (month || 1) - 1; // 0-based
+    
+    const maxDays = new Date(Date.UTC(year, targetMonth + 1, 0)).getUTCDate();
+    const targetDay = Math.min(day || 1, maxDays);
+    const candidateDate = new Date(Date.UTC(year, targetMonth, targetDay));
+    
+    if (candidateDate >= targetDate) {
+      return candidateDate.toISOString().split('T')[0];
+    } else {
+      year += 1;
+      const maxDaysNext = new Date(Date.UTC(year, targetMonth + 1, 0)).getUTCDate();
+      const targetDayNext = Math.min(day || 1, maxDaysNext);
+      return new Date(Date.UTC(year, targetMonth, targetDayNext)).toISOString().split('T')[0];
+    }
+  }
+
+  return selectedDate;
+}
+
 async function getReminders(req, res) {
   try {
-    const [rows] = await db.query(
-      'SELECT id, title, description, DATE_FORMAT(reminder_date, "%Y-%m-%d") as reminder_date, email, is_triggered, created_at FROM financial_reminders ORDER BY reminder_date ASC'
-    );
-    res.json({ success: true, reminders: rows });
+    const { search, recurrence, is_triggered, sortBy, sortOrder, page, limit } = req.query;
+    
+    let query = `
+      SELECT id, title, description, DATE_FORMAT(reminder_date, "%Y-%m-%d") as reminder_date, 
+             email, recurrence, recurrence_day, recurrence_month, is_triggered, created_at 
+      FROM financial_reminders 
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (search) {
+      query += " AND (title LIKE ? OR description LIKE ? OR email LIKE ?)";
+      const searchVal = `%${search}%`;
+      params.push(searchVal, searchVal, searchVal);
+    }
+
+    if (recurrence) {
+      query += " AND recurrence = ?";
+      params.push(recurrence);
+    }
+
+    if (is_triggered !== undefined && is_triggered !== '') {
+      query += " AND is_triggered = ?";
+      params.push(parseInt(is_triggered));
+    }
+
+    // Sorting
+    const safeSortColumns = ['title', 'reminder_date', 'email', 'recurrence', 'is_triggered', 'created_at'];
+    const effectiveSortBy = safeSortColumns.includes(sortBy) ? sortBy : 'reminder_date';
+    const effectiveSortOrder = sortOrder && sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    query += ` ORDER BY ${effectiveSortBy} ${effectiveSortOrder}`;
+
+    // Total count before pagination
+    let countQuery = `SELECT COUNT(*) as count FROM (${query}) as subquery`;
+    const [[countResult]] = await db.query(countQuery, params);
+    const total = countResult.count;
+
+    // Pagination
+    if (page && limit) {
+      const pageNum = parseInt(page);
+      const limitNum = parseInt(limit);
+      const offset = (pageNum - 1) * limitNum;
+      query += " LIMIT ? OFFSET ?";
+      params.push(limitNum, offset);
+    }
+
+    const [rows] = await db.query(query, params);
+    
+    res.json({ 
+      success: true, 
+      reminders: rows, 
+      total,
+      page: page ? parseInt(page) : 1,
+      limit: limit ? parseInt(limit) : rows.length
+    });
   } catch (error) {
     console.error("Error fetching financial reminders:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -1217,14 +1322,29 @@ async function getReminders(req, res) {
 
 async function createReminder(req, res) {
   try {
-    const { title, description, reminder_date, email } = req.body;
-    if (!title || !reminder_date || !email) {
-      return res.status(400).json({ success: false, message: "Title, date, and email are required" });
+    const { title, description, reminder_date, email, recurrence, recurrence_day, recurrence_month } = req.body;
+    if (!title || !email || (!reminder_date && recurrence === 'once') || (recurrence === 'monthly' && !recurrence_day) || (recurrence === 'yearly' && (!recurrence_day || !recurrence_month))) {
+      return res.status(400).json({ success: false, message: "Missing required reminder fields" });
     }
 
+    const finalReminderDate = calculateInitialReminderDate(
+      recurrence || 'once',
+      recurrence_day ? parseInt(recurrence_day) : null,
+      recurrence_month ? parseInt(recurrence_month) : null,
+      reminder_date
+    );
+
     await db.query(
-      'INSERT INTO financial_reminders (title, description, reminder_date, email) VALUES (?, ?, ?, ?)',
-      [title, description || '', reminder_date, email]
+      'INSERT INTO financial_reminders (title, description, reminder_date, email, recurrence, recurrence_day, recurrence_month) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [
+        title,
+        description || '',
+        finalReminderDate,
+        email,
+        recurrence || 'once',
+        recurrence_day ? parseInt(recurrence_day) : null,
+        recurrence_month ? parseInt(recurrence_month) : null
+      ]
     );
 
     res.status(201).json({ success: true, message: "Reminder set successfully" });

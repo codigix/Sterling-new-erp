@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import RoleDashboardLayout from "../../components/layout/RoleDashboardLayout";
 import {
@@ -18,6 +18,7 @@ import {
   FolderOpen,
   Bell,
   Trash2,
+  Eye,
   Plus,
   Calendar,
   Mail,
@@ -29,6 +30,7 @@ import { toast } from "react-toastify";
 import Modal, { ModalBody, ModalFooter } from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import DataTable from "../../components/ui/DataTable/DataTable";
 
 const PurchaseOrderPage = lazy(() => import("../inventory/PurchaseOrderPage"));
 const UniversalRootCardsPage = lazy(() => import("../shared/UniversalRootCardsPage"));
@@ -50,12 +52,26 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedReminder, setSelectedReminder] = useState(null);
+
+  const formatDateDMY = (dateStr) => {
+    if (!dateStr) return '-';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  };
 
   // Form states
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [reminderDate, setReminderDate] = useState('');
   const [email, setEmail] = useState('');
+  const [recurrence, setRecurrence] = useState('once');
+  const [recurrenceDay, setRecurrenceDay] = useState('1');
+  const [recurrenceMonth, setRecurrenceMonth] = useState('1');
 
   const fetchReminders = async () => {
     try {
@@ -84,19 +100,28 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
 
   const handleAddReminder = async (e) => {
     e.preventDefault();
-    if (!title || !reminderDate || !email) {
-      toast.warning("Title, Date, and Email are required");
+    if (!title || !email) {
+      toast.warning("Title and Email are required");
+      return;
+    }
+    if (recurrence === 'once' && !reminderDate) {
+      toast.warning("Reminder Date is required");
       return;
     }
 
     try {
       setSubmitting(true);
-      const response = await axios.post("/accounting/reminders", {
+      const payload = {
         title,
         description,
-        reminder_date: reminderDate,
-        email
-      });
+        email,
+        recurrence,
+        recurrence_day: recurrence !== 'once' ? parseInt(recurrenceDay) : undefined,
+        recurrence_month: recurrence === 'yearly' ? parseInt(recurrenceMonth) : undefined,
+        reminder_date: recurrence === 'once' ? reminderDate : undefined
+      };
+
+      const response = await axios.post("/accounting/reminders", payload);
 
       if (response.data.success) {
         toast.success("Reminder set successfully");
@@ -106,6 +131,9 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
         setDescription('');
         setReminderDate('');
         setEmail(user?.email || '');
+        setRecurrence('once');
+        setRecurrenceDay('1');
+        setRecurrenceMonth('1');
         // Reload list
         fetchReminders();
       }
@@ -131,6 +159,99 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
       toast.error("Failed to delete reminder");
     }
   };
+  const columns = useMemo(() => [
+    {
+      key: "title",
+      label: "Title",
+      sortable: true,
+      render: (value) => (
+        <span className="font-semibold text-slate-950 dark:text-white text-xs">
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "recurrence",
+      label: "Recurrence",
+      sortable: true,
+      render: (value, row) => {
+        const getRecurrenceText = (r) => {
+          if (!r.recurrence || r.recurrence === 'once') return 'One-Time';
+          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          const getOrdinal = (n) => {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+          };
+          if (r.recurrence === 'monthly') return `Monthly (${getOrdinal(r.recurrence_day)})`;
+          if (r.recurrence === 'yearly') {
+            const mName = monthNames[r.recurrence_month - 1] || '';
+            return `Yearly (${mName} ${getOrdinal(r.recurrence_day)})`;
+          }
+          return 'One-Time';
+        };
+        return (
+          <span className={`px-2 py-0.5 rounded text-[10px] font-medium inline-block ${
+            row.recurrence === 'monthly' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/20 dark:text-indigo-400' :
+            row.recurrence === 'yearly' ? 'bg-purple-50 text-purple-700 dark:bg-purple-950/20 dark:text-purple-400' :
+            'bg-slate-100 text-slate-600 dark:bg-slate-800/40 dark:text-slate-400'
+          }`}>
+            {getRecurrenceText(row)}
+          </span>
+        );
+      },
+    },
+    {
+      key: "reminder_date",
+      label: "Next Trigger Date",
+      sortable: true,
+      render: (value) => (
+        <span className="font-mono font-medium text-xs text-slate-750 dark:text-slate-200">
+          {formatDateDMY(value)}
+        </span>
+      ),
+    },
+    {
+      key: "is_triggered",
+      label: "Status",
+      sortable: true,
+      render: (value) => (
+        <span className={`px-2 py-0.5 rounded text-[10px] font-bold inline-block ${
+          value
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+            : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+        }`}>
+          {value ? 'Triggered' : 'Pending'}
+        </span>
+      ),
+    },
+    {
+      key: "id",
+      label: "Actions",
+      sortable: false,
+      render: (value, row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => {
+              setSelectedReminder(row);
+              setViewModalOpen(true);
+            }}
+            className="p-1 hover:bg-blue-50 dark:hover:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded transition-colors cursor-pointer inline-flex items-center justify-center"
+            title="View details"
+          >
+            <Eye size={14} />
+          </button>
+          <button
+            onClick={() => handleDeleteReminder(value)}
+            className="p-1 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 rounded transition-colors cursor-pointer inline-flex items-center justify-center"
+            title="Delete reminder"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ),
+    },
+  ], [reminders]);
 
   // Triggered reminders are those that have is_triggered = 1
   const activeAlerts = reminders.filter(r => r.is_triggered === 1);
@@ -217,6 +338,9 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
                 setDescription('');
                 setReminderDate('');
                 setEmail(user?.email || '');
+                setRecurrence('once');
+                setRecurrenceDay('1');
+                setRecurrenceMonth('1');
                 setModalOpen(true);
               }}
               variant="primary"
@@ -226,61 +350,21 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
               Set Reminder
             </Button>
           </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center py-10">
-              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-            </div>
-          ) : reminders.length === 0 ? (
-            <div className="text-center py-10 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
-              <Info className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm">No reminders set yet.</p>
-              <p className="text-slate-400 text-xs mt-1">Set a reminder to receive email and dashboard alerts on configured dates.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 font-bold bg-slate-50/50 dark:bg-slate-900/50">
-                    <th className="py-2 px-3">Title</th>
-                    <th className="py-2 px-3">Description</th>
-                    <th className="py-2 px-3">Reminder Date</th>
-                    <th className="py-2 px-3">Email Target</th>
-                    <th className="py-2 px-3 text-center">Status</th>
-                    <th className="py-2 px-3 text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                  {reminders.map((reminder) => (
-                    <tr key={reminder.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                      <td className="py-2 px-3 font-semibold text-slate-950 dark:text-white">{reminder.title}</td>
-                      <td className="py-2 px-3 max-w-[150px] truncate" title={reminder.description}>{reminder.description || '-'}</td>
-                      <td className="py-2 px-3 font-mono font-medium">{reminder.reminder_date}</td>
-                      <td className="py-2 px-3 text-slate-500">{reminder.email}</td>
-                      <td className="py-2 px-3 text-center">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          reminder.is_triggered
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                            : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
-                        }`}>
-                          {reminder.is_triggered ? 'Triggered' : 'Pending'}
-                        </span>
-                      </td>
-                      <td className="py-2 px-3 text-center">
-                        <button
-                          onClick={() => handleDeleteReminder(reminder.id)}
-                          className="p-1 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 rounded transition-colors cursor-pointer"
-                          title="Delete reminder"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <DataTable
+            columns={columns}
+            data={reminders}
+            loading={loading}
+            sortable={true}
+            striped={true}
+            hover={true}
+            showSearch={true}
+            searchPlaceholder="Search reminders..."
+            emptyMessage="No reminders set yet. Set a reminder to receive email and dashboard alerts on configured dates."
+            pagination={true}
+            pageSize={5}
+            pageSizeOptions={[5, 10, 25]}
+            className="border-none bg-transparent"
+          />
         </div>
 
         {/* Alerts panel (1/3 col) */}
@@ -302,7 +386,7 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
                     {alert.description || 'Scheduled reminder reached.'}
                   </p>
                   <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1 font-mono">
-                    Date: {alert.reminder_date} · Sent to: {alert.email}
+                    Date: {formatDateDMY(alert.reminder_date)} · Sent to: {alert.email}
                   </p>
                 </div>
               </div>
@@ -383,13 +467,21 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Reminder Date"
-                type="date"
-                value={reminderDate}
-                onChange={(e) => setReminderDate(e.target.value)}
-                required
-              />
+              <div className="flex flex-col gap-1 text-left">
+                <label className="block text-xs font-semibold text-slate-750 mb-1 dark:text-slate-300">
+                  Recurrence
+                </label>
+                <select
+                  value={recurrence}
+                  onChange={(e) => setRecurrence(e.target.value)}
+                  className="w-full border border-slate-200 dark:border-slate-800 rounded p-2 text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-9"
+                >
+                  <option value="once">One-Time</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+
               <Input
                 label="Notification Email"
                 type="email"
@@ -399,6 +491,87 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
                 required
               />
             </div>
+
+            {/* Recurrence Specific Inputs */}
+            {recurrence === 'once' && (
+              <Input
+                label="Reminder Date"
+                type="date"
+                value={reminderDate}
+                onChange={(e) => setReminderDate(e.target.value)}
+                required
+              />
+            )}
+
+            {recurrence === 'monthly' && (
+              <div className="flex flex-col gap-1 text-left">
+                <label className="block text-xs font-semibold text-slate-750 mb-1 dark:text-slate-300">
+                  Day of Month
+                </label>
+                <select
+                  value={recurrenceDay}
+                  onChange={(e) => setRecurrenceDay(e.target.value)}
+                  className="w-full border border-slate-200 dark:border-slate-800 rounded p-2 text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-9"
+                >
+                  {Array.from({ length: 31 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {recurrence === 'yearly' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1 text-left">
+                  <label className="block text-xs font-semibold text-slate-750 mb-1 dark:text-slate-300">
+                    Month
+                  </label>
+                  <select
+                    value={recurrenceMonth}
+                    onChange={(e) => setRecurrenceMonth(e.target.value)}
+                    className="w-full border border-slate-200 dark:border-slate-800 rounded p-2 text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-9"
+                  >
+                    {[
+                      { val: '1', name: 'January' },
+                      { val: '2', name: 'February' },
+                      { val: '3', name: 'March' },
+                      { val: '4', name: 'April' },
+                      { val: '5', name: 'May' },
+                      { val: '6', name: 'June' },
+                      { val: '7', name: 'July' },
+                      { val: '8', name: 'August' },
+                      { val: '9', name: 'September' },
+                      { val: '10', name: 'October' },
+                      { val: '11', name: 'November' },
+                      { val: '12', name: 'December' }
+                    ].map(m => (
+                      <option key={m.val} value={m.val}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1 text-left">
+                  <label className="block text-xs font-semibold text-slate-750 mb-1 dark:text-slate-300">
+                    Day of Month
+                  </label>
+                  <select
+                    value={recurrenceDay}
+                    onChange={(e) => setRecurrenceDay(e.target.value)}
+                    className="w-full border border-slate-200 dark:border-slate-800 rounded p-2 text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 h-9"
+                  >
+                    {Array.from({ length: 31 }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </ModalBody>
           <ModalFooter className="flex justify-end gap-3 bg-slate-50 dark:bg-slate-900/50">
             <Button
@@ -418,6 +591,100 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
             </Button>
           </ModalFooter>
         </form>
+      </Modal>
+
+      {/* View Reminder Modal */}
+      <Modal
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setSelectedReminder(null);
+        }}
+        title="Reminder Details"
+        size="default"
+      >
+        {selectedReminder && (
+          <>
+            <ModalBody className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded border border-slate-100 dark:border-slate-700/50">
+                  <span className="text-[10px] text-slate-400 font-medium">Title</span>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1">
+                    {selectedReminder.title}
+                  </p>
+                </div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded border border-slate-100 dark:border-slate-700/50">
+                  <span className="text-[10px] text-slate-400 font-medium">Status</span>
+                  <p className="mt-1">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold inline-block ${
+                      selectedReminder.is_triggered
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                        : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+                    }`}>
+                      {selectedReminder.is_triggered ? 'Triggered' : 'Pending'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded border border-slate-100 dark:border-slate-700/50">
+                <span className="text-[10px] text-slate-400 font-medium">Message / Description</span>
+                <p className="text-xs text-slate-750 dark:text-slate-300 mt-1 whitespace-pre-wrap leading-relaxed">
+                  {selectedReminder.description || 'No description provided.'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded border border-slate-100 dark:border-slate-700/50">
+                  <span className="text-[10px] text-slate-400 font-medium">Recurrence</span>
+                  <p className="text-xs font-semibold text-slate-900 dark:text-white mt-1">
+                    {(() => {
+                      const r = selectedReminder;
+                      if (!r.recurrence || r.recurrence === 'once') return 'One-Time';
+                      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                      const getOrdinal = (n) => {
+                        const s = ["th", "st", "nd", "rd"];
+                        const v = n % 100;
+                        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+                      };
+                      if (r.recurrence === 'monthly') return `Monthly (${getOrdinal(r.recurrence_day)})`;
+                      if (r.recurrence === 'yearly') {
+                        const mName = monthNames[r.recurrence_month - 1] || '';
+                        return `Yearly (${mName} ${getOrdinal(r.recurrence_day)})`;
+                      }
+                      return 'One-Time';
+                    })()}
+                  </p>
+                </div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded border border-slate-100 dark:border-slate-700/50">
+                  <span className="text-[10px] text-slate-400 font-medium">Next Trigger Date</span>
+                  <p className="text-xs font-mono font-medium text-slate-900 dark:text-white mt-1">
+                    {formatDateDMY(selectedReminder.reminder_date)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded border border-slate-100 dark:border-slate-700/50">
+                <span className="text-[10px] text-slate-400 font-medium">Notification Email Target</span>
+                <p className="text-xs font-medium text-slate-900 dark:text-white mt-1">
+                  {selectedReminder.email}
+                </p>
+              </div>
+            </ModalBody>
+            <ModalFooter className="flex justify-end bg-slate-50 dark:bg-slate-900/50">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setViewModalOpen(false);
+                  setSelectedReminder(null);
+                }}
+              >
+                Close
+              </Button>
+            </ModalFooter>
+          </>
+        )}
       </Modal>
     </div>
   );
