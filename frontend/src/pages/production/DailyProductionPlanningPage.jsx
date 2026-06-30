@@ -1565,12 +1565,70 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
     {
       key: "item_details",
       label: "Item Details",
-      render: (value, entry) => (
-        <div>
-          <p className="text-xs font-medium text-slate-900 dark:text-white">{entry.item_name}</p>
-          <p className="text-[10px] text-slate-400">{entry.item_code}</p>
-        </div>
-      )
+      render: (value, entry) => {
+        const serialNum = entry.full_data?.selectedSerial || entry.serial_number;
+        let originalDimsStr = "";
+        
+        // 1. Try to find the original dimensions from materials state
+        if (materials && Array.isArray(materials)) {
+          let found = false;
+          for (const m of materials) {
+            if (m.items && Array.isArray(m.items)) {
+              for (const it of m.items) {
+                const foundSerial = it.serials?.find(s => s.serial_number === serialNum);
+                if (foundSerial) {
+                  const rawDims = {
+                    l: Number(foundSerial.length) || Number(it.length) || 0,
+                    w: Number(foundSerial.width) || Number(foundSerial.side1) || Number(foundSerial.side_s1) || Number(foundSerial.side_s) || Number(it.width) || Number(it.side1) || 0,
+                    t: Number(foundSerial.thickness) || Number(it.thickness) || 0,
+                    h: Number(foundSerial.height) || Number(foundSerial.side2) || Number(foundSerial.side_s2) || Number(it.height) || Number(it.side2) || 0,
+                    d: Number(foundSerial.diameter) || Number(it.diameter) || 0,
+                    od: Number(foundSerial.outer_diameter) || Number(it.outer_diameter) || 0,
+                    tw: Number(foundSerial.web_thickness) || Number(it.web_thickness) || 0,
+                    tf: Number(foundSerial.flange_thickness) || Number(it.flange_thickness) || 0,
+                    side1: Number(foundSerial.side1) || Number(it.side1) || 0,
+                    side2: Number(foundSerial.side2) || Number(it.side2) || 0
+                  };
+                  originalDimsStr = formatDimensionString(entry.item_group, rawDims);
+                  found = true;
+                  break;
+                }
+              }
+            }
+            if (found) break;
+          }
+        }
+        
+        // 2. Fallback to parsing from item_name if serial is not found in current materials list
+        if (!originalDimsStr && entry.item_name) {
+          const name = entry.item_name;
+          const group = (entry.item_group || "").toUpperCase();
+          if (group.includes("ROUND") && !group.includes("PIPE") && !group.includes("TUBE")) {
+            const match = name.match(/(?:Dia\.?|Ø)\s*(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)/i);
+            if (match) originalDimsStr = `Ø${parseFloat(match[1])} x ${parseFloat(match[2])}`;
+          }
+          if (!originalDimsStr) {
+            const match3 = name.match(/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)/);
+            if (match3) originalDimsStr = `${parseFloat(match3[1])}x${parseFloat(match3[2])}x${parseFloat(match3[3])}`;
+          }
+          if (!originalDimsStr) {
+            const match2 = name.match(/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)/);
+            if (match2) originalDimsStr = `${parseFloat(match2[1])}x${parseFloat(match2[2])}`;
+          }
+        }
+        
+        // 3. Fallback to item_code if parsing also fails
+        if (!originalDimsStr) {
+          originalDimsStr = entry.item_code;
+        }
+
+        return (
+          <div>
+            <p className="text-xs font-medium text-slate-900 dark:text-white">{entry.item_name}</p>
+            <p className="text-[10px] text-slate-400">{originalDimsStr}</p>
+          </div>
+        );
+      }
     },
     {
       key: "st_code",
@@ -1663,25 +1721,42 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
         // Use a composite key because different items can share same item_code (e.g. GEN-SIZE)
         const itemKey = `${item.item_name || item.material_name}_${item.item_code}`;
         if (item && item.item_code && !items.has(itemKey)) {
+          const resolvedGroup = item.item_group || (() => {
+             const name = (item.item_name || item.material_name || "").toUpperCase();
+             if (name.includes("SQUARE TUBE") || name.includes("RECTANGULAR TUBE")) return "SQUARE / RECT TUBE";
+             if (name.includes("PIPE") || name.includes("TUBE")) return "PIPE / TUBE";
+             if (name.includes("SQUARE BAR") || name.includes("SQ BAR")) return "SQUARE BAR";
+             if (name.includes("ROUND BAR")) return "ROUND BAR";
+             if (name.includes("FLAT BAR") || name.includes("RECTANGULAR BAR")) return "RECTANGULAR BAR";
+             if (name.includes("ROUND") || name.includes("BAR")) return "ROUND / BAR";
+             if (name.includes("ANGLE")) return "ANGLE";
+             if (name.includes("CHANNEL")) return "CHANNEL";
+             if (name.includes("BEAM")) return "BEAM";
+             if (name.includes("BLOCK")) return "BLOCK";
+             return "PLATE / SHEET";
+          })();
+
+          const firstSerial = (item.serials && item.serials[0]) || {};
+          const rawDims = {
+            l: Number(firstSerial.length) || Number(item.length) || 0,
+            w: Number(firstSerial.width) || Number(firstSerial.side1) || Number(firstSerial.side_s1) || Number(firstSerial.side_s) || Number(item.width) || Number(item.side1) || 0,
+            t: Number(firstSerial.thickness) || Number(item.thickness) || 0,
+            h: Number(firstSerial.height) || Number(firstSerial.side2) || Number(firstSerial.side_s2) || Number(item.height) || Number(item.side2) || 0,
+            d: Number(firstSerial.diameter) || Number(item.diameter) || 0,
+            od: Number(firstSerial.outer_diameter) || Number(item.outer_diameter) || 0,
+            tw: Number(firstSerial.web_thickness) || Number(item.web_thickness) || 0,
+            tf: Number(firstSerial.flange_thickness) || Number(item.flange_thickness) || 0,
+            side1: Number(firstSerial.side1) || Number(item.side1) || 0,
+            side2: Number(firstSerial.side2) || Number(item.side2) || 0
+          };
+          const dimString = formatDimensionString(resolvedGroup, rawDims);
+
           items.set(itemKey, {
             value: itemKey, // Use key as value for selection
             item_code: item.item_code,
-            label: `${item.item_name || item.material_name} (${item.item_code})`,
+            label: `${item.item_name || item.material_name} (${dimString})`,
             item_name: item.item_name || item.material_name,
-            item_group: item.item_group || (() => {
-               const name = (item.item_name || item.material_name || "").toUpperCase();
-               if (name.includes("SQUARE TUBE") || name.includes("RECTANGULAR TUBE")) return "SQUARE / RECT TUBE";
-               if (name.includes("PIPE") || name.includes("TUBE")) return "PIPE / TUBE";
-               if (name.includes("SQUARE BAR") || name.includes("SQ BAR")) return "SQUARE BAR";
-               if (name.includes("ROUND BAR")) return "ROUND BAR";
-               if (name.includes("FLAT BAR") || name.includes("RECTANGULAR BAR")) return "RECTANGULAR BAR";
-               if (name.includes("ROUND") || name.includes("BAR")) return "ROUND / BAR";
-               if (name.includes("ANGLE")) return "ANGLE";
-               if (name.includes("CHANNEL")) return "CHANNEL";
-               if (name.includes("BEAM")) return "BEAM";
-               if (name.includes("BLOCK")) return "BLOCK";
-               return "PLATE / SHEET";
-            })(),
+            item_group: resolvedGroup,
             material_grade: item.material_grade || "N/A"
           });
         }
@@ -2528,7 +2603,12 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                             const group = selectedItemGroup;
                             
                             // For square items, ensure both dimensions are populated if only one is found
-                            const rawW = Number(sel.dims.w) || (group.includes("SQUARE") ? Number(sel.dims.h) : 0);
+                            let rawW = Number(sel.dims.w) || (group.includes("SQUARE") ? Number(sel.dims.h) : 0);
+                            if (group.includes("ROUND") && !group.includes("PIPE") && !group.includes("TUBE")) {
+                              rawW = Number(sel.dims.d) || rawW;
+                            } else if ((group.includes("PIPE") || group.includes("TUBE")) && !group.includes("SQUARE") && !group.includes("RECT")) {
+                              rawW = Number(sel.dims.od) || rawW;
+                            }
                             const rawH = Number(sel.dims.h) || (group.includes("SQUARE") ? Number(sel.dims.w) : 0);
 
                             setCuttingForm(prev => ({
