@@ -4,6 +4,12 @@ const fs = require("fs");
 const path = require("path");
 const { downloadMissingAttachmentFromEmail } = require("../utils/attachmentDownloader");
 
+// Helper to sanitize project names for folder creation
+const sanitizeFolderName = (name) => {
+  if (!name) return 'unknown';
+  return name.replace(/[^a-zA-Z0-9\s-_]/g, '_').trim().replace(/\s+/g, '_');
+};
+
 // Helpers for fallback/placeholder files when files reside on production but not locally
 const getDummyPDF = (filename) => {
   const cleanFilename = filename.replace(/[()]/g, '_');
@@ -694,19 +700,34 @@ const sendPurchaseOrderEmail = async (req, res) => {
 
     // Save PDF to disk if provided
     if (pdfBuffer) {
-      const uploadDir = path.join(
-        __dirname,
-        "..",
-        "uploads",
-        "purchase_orders",
-      );
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      // Find project details
+      const [pos] = await db.query('SELECT project_id FROM purchase_orders WHERE id = ?', [id]);
+      const rootCardId = pos.length > 0 ? pos[0].project_id : null;
+      let projectName = 'unknown';
+      let effectiveId = rootCardId;
+
+      if (rootCardId) {
+        const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ?', [rootCardId]);
+        if (cards.length > 0) {
+          projectName = cards[0].project_name;
+          effectiveId = cards[0].id;
+        }
+      }
+
+      const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+      const sanitizedProjectName = sanitizeFolderName(projectName);
+      const relativeFolder = effectiveId
+        ? `purchase_orders/${effectiveId}_${sanitizedProjectName}`
+        : `purchase_orders`;
+      const targetDir = path.join(uploadsDir, relativeFolder);
+
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
       }
 
       const safeFileName = `outgoing_${communicationId}_${Date.now()}_${filename.replace(/[^a-z0-9.]/gi, "_")}`;
-      const filePath = path.join(uploadDir, safeFileName);
-      const relativePath = `uploads/purchase_orders/${safeFileName}`;
+      const filePath = path.join(targetDir, safeFileName);
+      const relativePath = `${relativeFolder}/${safeFileName}`;
 
       fs.writeFileSync(filePath, pdfBuffer);
 
@@ -800,27 +821,18 @@ const downloadAttachment = async (req, res) => {
 
     // Normalize path slashes for the current OS
     const normalizedPath = originalPath.replace(/[\\/]/g, path.sep);
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const projectRoot = path.resolve(__dirname, "..");
 
     // Try multiple possible locations
-    const projectRoot = path.resolve(__dirname, "..");
     const possiblePaths = [
       path.isAbsolute(normalizedPath)
         ? normalizedPath
-        : path.join(projectRoot, normalizedPath),
-      path.resolve(projectRoot, "..", normalizedPath), // Try one level up just in case
-      path.join(projectRoot, "uploads", path.basename(normalizedPath)), // Try directly in uploads
-      path.join(
-        projectRoot,
-        "uploads",
-        "purchase_orders",
-        path.basename(normalizedPath),
-      ), // Try in PO subfolder
-      path.join(
-        projectRoot,
-        "uploads",
-        "quotations",
-        path.basename(normalizedPath),
-      ), // Try in Quotation subfolder
+        : path.join(uploadsDir, normalizedPath.replace(/^uploads[\\/]/, '')),
+      path.join(uploadsDir, path.basename(normalizedPath)),
+      path.join(uploadsDir, 'purchase_orders', path.basename(normalizedPath)),
+      path.join(projectRoot, normalizedPath),
+      path.resolve(projectRoot, "..", normalizedPath),
     ];
 
     let finalPath = null;
@@ -872,15 +884,38 @@ const uploadInvoice = async (req, res) => {
 
     const { isFullReceipt } = req.body;
 
-    for (const file of files) {
-      // Normalize path to be relative to the backend directory
-      // This makes the database more portable across different environments
-      let relativePathToStore = file.path;
-      const projectRoot = path.join(__dirname, "..");
+    // Fetch project details associated with this purchase order
+    const [pos] = await connection.query('SELECT project_id FROM purchase_orders WHERE id = ?', [id]);
+    const rootCardId = pos.length > 0 ? pos[0].project_id : null;
+    let projectName = 'unknown';
+    let effectiveId = rootCardId;
 
-      if (path.isAbsolute(file.path)) {
-        relativePathToStore = path.relative(projectRoot, file.path);
+    if (rootCardId) {
+      const [cards] = await connection.query('SELECT id, project_name FROM root_cards WHERE id = ?', [rootCardId]);
+      if (cards.length > 0) {
+        projectName = cards[0].project_name;
+        effectiveId = cards[0].id;
       }
+    }
+
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const sanitizedProjectName = sanitizeFolderName(projectName);
+    const relativeFolder = effectiveId
+      ? `delivery_challans/${effectiveId}_${sanitizedProjectName}`
+      : `delivery_challans`;
+    const targetDir = path.join(uploadsDir, relativeFolder);
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    for (const file of files) {
+      // Move file from root uploadsDir to project-specific folder
+      const oldPath = path.join(uploadsDir, file.filename);
+      const newPath = path.join(targetDir, file.filename);
+      fs.renameSync(oldPath, newPath);
+
+      const relativePathToStore = `${relativeFolder}/${file.filename}`;
 
       await connection.query(
         `INSERT INTO purchase_order_attachments 

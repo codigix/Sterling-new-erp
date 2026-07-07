@@ -18,9 +18,7 @@ const auth = require('../middleware/authMiddleware');
 // Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // If UPLOAD_PATH is absolute, path.resolve will use it directly.
-    // If it's relative, it will join it with the project backend directory.
-    cb(null, path.resolve(__dirname, '../', process.env.UPLOAD_PATH || 'uploads/'));
+    cb(null, path.resolve(process.env.UPLOAD_PATH));
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);

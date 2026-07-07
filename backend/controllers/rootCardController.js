@@ -1,5 +1,13 @@
 const db = require('../config/db');
 const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+
+// Helper to sanitize project names for folder creation
+const sanitizeFolderName = (name) => {
+  if (!name) return 'unknown';
+  return name.replace(/[^a-zA-Z0-9\s-_]/g, '_').trim().replace(/\s+/g, '_');
+};
 
 const createRootCard = async (req, res) => {
   const {
@@ -341,12 +349,13 @@ const deleteRootCard = async (req, res) => {
     await connection.beginTransaction();
 
     // Find internal ID first
-    const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    const [cards] = await connection.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       await connection.rollback();
       return res.status(404).json({ message: 'Root Card not found' });
     }
     const internalId = cards[0].id;
+    const projectName = cards[0].project_name;
 
     // 1. Delete associated inspections
     await connection.query('DELETE FROM project_inspections WHERE root_card_id = ?', [internalId]);
@@ -360,6 +369,15 @@ const deleteRootCard = async (req, res) => {
     }
 
     await connection.commit();
+
+    // Clean up physical project directory inside design_drawings (drawings, QAPs, ATPs, revisions)
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const sanitizedProjectName = sanitizeFolderName(projectName);
+    const projectDir = path.join(uploadsDir, `design_drawings/${internalId}_${sanitizedProjectName}`);
+    if (fs.existsSync(projectDir)) {
+      fs.rmSync(projectDir, { recursive: true, force: true });
+    }
+
     res.json({ message: 'Root Card deleted successfully' });
   } catch (error) {
     if (connection) await connection.rollback();
@@ -561,15 +579,31 @@ const uploadQAP = async (req, res) => {
   }
 
   try {
-    // Resolve internal ID if public_id is provided
-    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    // Resolve internal ID and fetch project_name if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
+      // Clean up uploaded files if root card not found
+      files.forEach(file => {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, file.filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      });
       return res.status(404).json({ message: 'Root Card not found' });
     }
     const internalId = cards[0].id;
+    const projectName = cards[0].project_name;
+
+    // Determine project subdirectory path inside design_drawings
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const sanitizedProjectName = sanitizeFolderName(projectName);
+    const relativeFolder = `design_drawings/${internalId}_${sanitizedProjectName}/qap_and_atp`;
+    const targetDir = path.join(uploadsDir, relativeFolder);
+
+    // Create directory recursively if it does not exist
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
 
     // We can either update a column if it exists, or update the quality step data
-    // Let's update the quality step data for consistency with how other steps work
     const [existingStep] = await db.query(
       'SELECT step_data FROM root_card_steps WHERE root_card_id = ? AND step_key = ?',
       [internalId, 'quality']
@@ -584,10 +618,16 @@ const uploadQAP = async (req, res) => {
       stepData.qap_files = [];
     }
 
-    // Add all uploaded files to the list
+    // Move files to target directory and add relative path to the list
     files.forEach(file => {
+      const oldPath = path.join(uploadsDir, file.filename);
+      const newPath = path.join(targetDir, file.filename);
+      fs.renameSync(oldPath, newPath);
+
+      const storedPath = `${relativeFolder}/${file.filename}`;
+
       stepData.qap_files.push({
-        path: file.filename,
+        path: storedPath,
         uploaded_at: new Date(),
         uploaded_by: req.user?.id,
         original_name: file.originalname
@@ -596,7 +636,7 @@ const uploadQAP = async (req, res) => {
 
     // For legacy support, keep the last one in the main column if needed
     const lastFile = files[files.length - 1];
-    stepData.qap_path = lastFile.filename;
+    stepData.qap_path = `${relativeFolder}/${lastFile.filename}`;
     stepData.qap_uploaded_at = new Date();
     stepData.qap_uploaded_by = req.user?.id;
 
@@ -615,6 +655,11 @@ const uploadQAP = async (req, res) => {
       qapFiles: stepData.qap_files
     });
   } catch (error) {
+    // Clean up uploaded files in case of error
+    files.forEach(file => {
+      const tempPath = path.resolve(process.env.UPLOAD_PATH, file.filename);
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    });
     console.error('Error uploading QAP:', error);
     res.status(500).json({ message: 'Server error' });
   }
@@ -629,12 +674,29 @@ const uploadATP = async (req, res) => {
   }
 
   try {
-    // Resolve internal ID if public_id is provided
-    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    // Resolve internal ID and fetch project_name if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
+      // Clean up uploaded files if root card not found
+      files.forEach(file => {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, file.filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      });
       return res.status(404).json({ message: 'Root Card not found' });
     }
     const internalId = cards[0].id;
+    const projectName = cards[0].project_name;
+
+    // Determine project subdirectory path inside design_drawings
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const sanitizedProjectName = sanitizeFolderName(projectName);
+    const relativeFolder = `design_drawings/${internalId}_${sanitizedProjectName}/qap_and_atp`;
+    const targetDir = path.join(uploadsDir, relativeFolder);
+
+    // Create directory recursively if it does not exist
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
 
     const [existingStep] = await db.query(
       'SELECT step_data FROM root_card_steps WHERE root_card_id = ? AND step_key = ?',
@@ -650,10 +712,16 @@ const uploadATP = async (req, res) => {
       stepData.atp_files = [];
     }
 
-    // Add all uploaded files to the list
+    // Move files to target directory and add relative path to the list
     files.forEach(file => {
+      const oldPath = path.join(uploadsDir, file.filename);
+      const newPath = path.join(targetDir, file.filename);
+      fs.renameSync(oldPath, newPath);
+
+      const storedPath = `${relativeFolder}/${file.filename}`;
+
       stepData.atp_files.push({
-        path: file.filename,
+        path: storedPath,
         uploaded_at: new Date(),
         uploaded_by: req.user?.id,
         original_name: file.originalname
@@ -661,7 +729,7 @@ const uploadATP = async (req, res) => {
     });
 
     const lastFile = files[files.length - 1];
-    stepData.atp_path = lastFile.filename;
+    stepData.atp_path = `${relativeFolder}/${lastFile.filename}`;
     stepData.atp_uploaded_at = new Date();
     stepData.atp_uploaded_by = req.user?.id;
 
@@ -680,6 +748,11 @@ const uploadATP = async (req, res) => {
       atpFiles: stepData.atp_files
     });
   } catch (error) {
+    // Clean up uploaded files in case of error
+    files.forEach(file => {
+      const tempPath = path.resolve(process.env.UPLOAD_PATH, file.filename);
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    });
     console.error('Error uploading ATP:', error);
     res.status(500).json({ message: 'Server error' });
   }

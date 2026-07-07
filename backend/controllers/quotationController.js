@@ -6,6 +6,12 @@ const pdf = require('pdf-parse');
 const crypto = require('crypto');
 const { downloadMissingAttachmentFromEmail } = require('../utils/attachmentDownloader');
 
+// Helper to sanitize project names for folder creation
+const sanitizeFolderName = (name) => {
+  if (!name) return 'unknown';
+  return name.replace(/[^a-zA-Z0-9\s-_]/g, '_').trim().replace(/\s+/g, '_');
+};
+
 const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
 
 // Helpers for fallback/placeholder files when files reside on production but not locally
@@ -78,18 +84,17 @@ const resolveFilePath = (storedPath) => {
   
   // Normalize path separators to ensure cross-platform compatibility
   const normalizedPath = storedPath.replace(/[\\/]/g, path.sep);
-  
-  // Resolve absolute path starting from the backend root
+  const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
   const projectRoot = path.resolve(__dirname, '..');
   
   const possiblePaths = [
     path.isAbsolute(normalizedPath)
       ? normalizedPath
-      : path.join(projectRoot, normalizedPath),
-    path.resolve(projectRoot, '..', normalizedPath), // Try one level up
-    path.join(projectRoot, 'uploads', path.basename(normalizedPath)), // Try directly in uploads
-    path.join(projectRoot, 'uploads', 'purchase_orders', path.basename(normalizedPath)), // Try PO subfolder
-    path.join(projectRoot, 'uploads', 'quotations', path.basename(normalizedPath)) // Try Quotation subfolder
+      : path.join(uploadsDir, normalizedPath.replace(/^uploads[\\/]/, '')),
+    path.join(uploadsDir, path.basename(normalizedPath)),
+    path.join(uploadsDir, 'quotations', path.basename(normalizedPath)),
+    path.join(projectRoot, normalizedPath),
+    path.resolve(projectRoot, '..', normalizedPath)
   ];
 
   for (const p of possiblePaths) {
@@ -926,13 +931,42 @@ const updateQuotationStatus = async (req, res) => {
     try {
         let query = 'UPDATE quotations SET status = ?';
         const params = [status];
+        let dbPath = null;
 
         if (file) {
-            const uploadDir = (process.env.UPLOAD_PATH || 'uploads').replace(/\/$/, '').replace(/\\$/, '');
-            // Always use forward slashes for database paths for cross-platform consistency
-            const relativePath = `${uploadDir}/${file.filename}`;
+            // Find project details associated with this quotation
+            const [quotes] = await db.query('SELECT root_card_id FROM quotations WHERE id = ?', [id]);
+            const rootCardId = quotes.length > 0 ? quotes[0].root_card_id : null;
+            let projectName = 'unknown';
+            let effectiveId = rootCardId;
+
+            if (rootCardId) {
+                const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ?', [rootCardId]);
+                if (cards.length > 0) {
+                    projectName = cards[0].project_name;
+                    effectiveId = cards[0].id;
+                }
+            }
+
+            const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+            const sanitizedProjectName = sanitizeFolderName(projectName);
+            const relativeFolder = effectiveId
+                ? `quotations/${effectiveId}_${sanitizedProjectName}`
+                : `quotations`;
+            const targetDir = path.join(uploadsDir, relativeFolder);
+
+            if (!fs.existsSync(targetDir)) {
+                fs.mkdirSync(targetDir, { recursive: true });
+            }
+
+            // Move the file from uploads base path to project subfolder
+            const oldPath = path.join(uploadsDir, file.filename);
+            const newPath = path.join(targetDir, file.filename);
+            fs.renameSync(oldPath, newPath);
+
+            dbPath = `${relativeFolder}/${file.filename}`;
             query += ', received_quotation_path = ?';
-            params.push(relativePath);
+            params.push(dbPath);
         }
 
         query += ' WHERE id = ?';
@@ -941,7 +975,7 @@ const updateQuotationStatus = async (req, res) => {
         await db.query(query, params);
         res.json({ 
             message: 'Status updated successfully',
-            received_quotation_path: file ? path.join(process.env.UPLOAD_PATH || 'uploads', file.filename) : null
+            received_quotation_path: dbPath
         });
     } catch (error) {
         console.error('Error updating quotation status:', error);

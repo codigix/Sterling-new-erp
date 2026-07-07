@@ -8,7 +8,6 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  BarChart3,
 } from 'lucide-react';
 
 // Dashboard
@@ -19,9 +18,6 @@ import DesignDrawingManagement from '../../pages/design-engineer/DesignDrawingMa
 
 // QAP Review
 import DesignQAPReviewPage from '../../pages/design-engineer/DesignQAPReviewPage';
-
-// Reports
-import DesignEngineerReportsPage from '../../pages/design-engineer/DesignEngineerReportsPage';
 
 // Notifications
 import NotificationsPage from '../../pages/notifications/NotificationsPage';
@@ -57,11 +53,6 @@ const navigationItems = [
     title: 'QAP Review',
     path: '/design-engineer/qap-review',
     icon: CheckCircle,
-  },
-  {
-    title: 'Reports',
-    path: '/design-engineer/reports',
-    icon: BarChart3,
   },
   {
     title: 'Notifications',
@@ -120,9 +111,6 @@ const DesignEngineerLayout = () => {
         
         {/* Department Tasks Route */}
         <Route path="tasks/assigned" element={<DepartmentPortalTasksPage />} />
-        
-        {/* Reports Route */}
-        <Route path="reports" element={<DesignEngineerReportsPage />} />
         
         {/* Notifications Route */}
         <Route path="notifications" element={<NotificationsPage />} />

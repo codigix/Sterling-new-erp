@@ -2,6 +2,12 @@ const db = require('../config/db');
 const path = require('path');
 const fs = require('fs');
 
+// Helper to sanitize project names for folder creation
+const sanitizeFolderName = (name) => {
+  if (!name) return 'unknown';
+  return name.replace(/[^a-zA-Z0-9\s-_]/g, '_').trim().replace(/\s+/g, '_');
+};
+
 // Upload a new drawing
 exports.uploadDrawing = async (req, res) => {
   try {
@@ -11,15 +17,41 @@ exports.uploadDrawing = async (req, res) => {
     const { root_card_id, name, type, description } = req.body;
     const created_by = req.user.id;
     
-    // Resolve internal ID if public_id is provided
-    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
-    const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
+    // Resolve internal ID and fetch project name if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+    
+    if (cards.length === 0) {
+      if (req.file) {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, req.file.filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      }
+      return res.status(404).json({ success: false, message: 'Root card not found' });
+    }
+    
+    const effectiveId = cards[0].id;
+    const projectName = cards[0].project_name;
 
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    const file_path = req.file.filename;
+    // Determine target project directory inside design_drawings
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const sanitizedProjectName = sanitizeFolderName(projectName);
+    const relativeFolder = `design_drawings/${effectiveId}_${sanitizedProjectName}`;
+    const targetDir = path.join(uploadsDir, relativeFolder);
+
+    // Create folder automatically if it doesn't exist
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    // Move file from root uploadsDir to project-specific folder
+    const oldPath = path.join(uploadsDir, req.file.filename);
+    const newPath = path.join(targetDir, req.file.filename);
+    fs.renameSync(oldPath, newPath);
+
+    const file_path = `${relativeFolder}/${req.file.filename}`;
     const initialStatus = type === 'Final Approved Drawing' ? 'Approved' : 'Pending Review';
 
     const [result] = await db.query(
@@ -34,6 +66,10 @@ exports.uploadDrawing = async (req, res) => {
       drawingId: result.insertId 
     });
   } catch (error) {
+    if (req.file) {
+      const tempPath = path.resolve(process.env.UPLOAD_PATH, req.file.filename);
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    }
     console.error('Error uploading drawing:', error);
     res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
@@ -60,14 +96,38 @@ exports.createRevision = async (req, res) => {
     );
 
     if (docs.length === 0) {
+      const tempPath = path.resolve(process.env.UPLOAD_PATH, req.file.filename);
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
       return res.status(404).json({ success: false, message: 'Parent document not found' });
     }
 
     const doc = docs[0];
     const new_version = doc.last_version + 1;
-    const file_path = req.file.filename;
 
-    // Set all previous versions to 'Rejected' (or 'Obsolete' but user said Rejected)
+    // Fetch root card project details
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ?', [doc.root_card_id]);
+    const projectName = cards.length > 0 ? cards[0].project_name : 'unknown';
+    const effectiveId = cards.length > 0 ? cards[0].id : doc.root_card_id;
+
+    // Determine target project directory inside design_drawings
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const sanitizedProjectName = sanitizeFolderName(projectName);
+    const relativeFolder = `design_drawings/${effectiveId}_${sanitizedProjectName}`;
+    const targetDir = path.join(uploadsDir, relativeFolder);
+
+    // Create folder automatically if it doesn't exist
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    // Move file from root uploadsDir to project-specific folder
+    const oldPath = path.join(uploadsDir, req.file.filename);
+    const newPath = path.join(targetDir, req.file.filename);
+    fs.renameSync(oldPath, newPath);
+
+    const file_path = `${relativeFolder}/${req.file.filename}`;
+
+    // Set all previous versions to 'Rejected' (or 'Obsolete')
     await db.query(
       `UPDATE design_documents 
        SET status = 'Rejected', reviewer_comment = 'Auto-rejected by new revision' 
@@ -87,6 +147,10 @@ exports.createRevision = async (req, res) => {
       documentId: result.insertId 
     });
   } catch (error) {
+    if (req.file) {
+      const tempPath = path.resolve(process.env.UPLOAD_PATH, req.file.filename);
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    }
     console.error('Error creating revision:', error);
     res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
@@ -277,6 +341,8 @@ exports.deleteDrawing = async (req, res) => {
     const { id } = req.params;
     const { deleteAll } = req.query;
 
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+
     if (deleteAll === 'true') {
       // Find the parent_id if it's a revision, or use the id if it's the parent
       const [parentDoc] = await db.query(
@@ -292,7 +358,7 @@ exports.deleteDrawing = async (req, res) => {
 
       // Get all file paths to delete physical files
       const [allDocs] = await db.query(
-        'SELECT file_path FROM design_documents WHERE id = ? OR parent_id = ?',
+        'SELECT file_path, dwg_path, step_path FROM design_documents WHERE id = ? OR parent_id = ?',
         [parentId, parentId]
       );
 
@@ -305,8 +371,19 @@ exports.deleteDrawing = async (req, res) => {
       // Delete physical files
       allDocs.forEach(doc => {
         if (doc.file_path) {
-          const fileName = path.basename(doc.file_path);
-          const fullPath = path.join(process.env.UPLOAD_PATH || 'uploads', fileName);
+          const fullPath = path.join(uploadsDir, doc.file_path);
+          if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+          }
+        }
+        if (doc.dwg_path) {
+          const fullPath = path.join(uploadsDir, doc.dwg_path);
+          if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+          }
+        }
+        if (doc.step_path) {
+          const fullPath = path.join(uploadsDir, doc.step_path);
           if (fs.existsSync(fullPath)) {
             fs.unlinkSync(fullPath);
           }
@@ -317,21 +394,32 @@ exports.deleteDrawing = async (req, res) => {
     }
 
     // Original single delete logic
-    const [docs] = await db.query('SELECT file_path FROM design_documents WHERE id = ?', [id]);
+    const [docs] = await db.query('SELECT file_path, dwg_path, step_path FROM design_documents WHERE id = ?', [id]);
     
     if (docs.length === 0) {
       return res.status(404).json({ success: false, message: 'Drawing not found' });
     }
 
-    const filePath = docs[0].file_path;
+    const doc = docs[0];
 
     // Delete from database
     await db.query('DELETE FROM design_documents WHERE id = ?', [id]);
 
     // Delete physical file
-    if (filePath) {
-      const fileName = path.basename(filePath);
-      const fullPath = path.join(process.env.UPLOAD_PATH || 'uploads', fileName);
+    if (doc.file_path) {
+      const fullPath = path.join(uploadsDir, doc.file_path);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
+    }
+    if (doc.dwg_path) {
+      const fullPath = path.join(uploadsDir, doc.dwg_path);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
+    }
+    if (doc.step_path) {
+      const fullPath = path.join(uploadsDir, doc.step_path);
       if (fs.existsSync(fullPath)) {
         fs.unlinkSync(fullPath);
       }
@@ -355,26 +443,70 @@ exports.uploadTechnicalFiles = async (req, res) => {
     }
 
     // Check if drawing exists and is approved
-    const [docs] = await db.query('SELECT status FROM design_documents WHERE id = ?', [id]);
+    const [docs] = await db.query('SELECT status, root_card_id FROM design_documents WHERE id = ?', [id]);
     if (docs.length === 0) {
+      // Clean up uploaded files
+      if (files.dwg_file) {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, files.dwg_file[0].filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      }
+      if (files.step_file) {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, files.step_file[0].filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      }
       return res.status(404).json({ success: false, message: 'Drawing not found' });
     }
 
     if (docs[0].status !== 'Approved') {
+      // Clean up uploaded files
+      if (files.dwg_file) {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, files.dwg_file[0].filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      }
+      if (files.step_file) {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, files.step_file[0].filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      }
       return res.status(400).json({ success: false, message: 'Technical files can only be uploaded for approved drawings' });
+    }
+
+    const rootCardId = docs[0].root_card_id;
+
+    // Fetch project details for folder path
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ?', [rootCardId]);
+    const projectName = cards.length > 0 ? cards[0].project_name : 'unknown';
+    const effectiveId = cards.length > 0 ? cards[0].id : rootCardId;
+
+    // Determine target project directory inside design_drawings
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const sanitizedProjectName = sanitizeFolderName(projectName);
+    const relativeFolder = `design_drawings/${effectiveId}_${sanitizedProjectName}`;
+    const targetDir = path.join(uploadsDir, relativeFolder);
+
+    // Create folder automatically if it doesn't exist
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
     }
 
     const updates = [];
     const values = [];
 
     if (files.dwg_file) {
+      const oldPath = path.join(uploadsDir, files.dwg_file[0].filename);
+      const newPath = path.join(targetDir, files.dwg_file[0].filename);
+      fs.renameSync(oldPath, newPath);
+
       updates.push('dwg_path = ?');
-      values.push(files.dwg_file[0].filename);
+      values.push(`${relativeFolder}/${files.dwg_file[0].filename}`);
     }
 
     if (files.step_file) {
+      const oldPath = path.join(uploadsDir, files.step_file[0].filename);
+      const newPath = path.join(targetDir, files.step_file[0].filename);
+      fs.renameSync(oldPath, newPath);
+
       updates.push('step_path = ?');
-      values.push(files.step_file[0].filename);
+      values.push(`${relativeFolder}/${files.step_file[0].filename}`);
     }
 
     values.push(id);
@@ -386,6 +518,16 @@ exports.uploadTechnicalFiles = async (req, res) => {
 
     res.json({ success: true, message: 'Technical files uploaded successfully' });
   } catch (error) {
+    if (files) {
+      if (files.dwg_file) {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, files.dwg_file[0].filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      }
+      if (files.step_file) {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, files.step_file[0].filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      }
+    }
     console.error('Error uploading technical files:', error);
     res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }

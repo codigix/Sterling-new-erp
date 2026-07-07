@@ -4,9 +4,15 @@ const db = require('../config/db');
 const fs = require('fs');
 const path = require('path');
 
-const UPLOAD_BASE = process.env.UPLOAD_PATH || 'uploads';
-const UPLOADS_DIR_QUOTES = path.resolve(__dirname, '..', UPLOAD_BASE, 'quotations');
-const UPLOADS_DIR_POS = path.resolve(__dirname, '..', UPLOAD_BASE, 'purchase_orders');
+const UPLOAD_BASE = path.resolve(process.env.UPLOAD_PATH);
+const UPLOADS_DIR_QUOTES = path.join(UPLOAD_BASE, 'quotations');
+const UPLOADS_DIR_POS = path.join(UPLOAD_BASE, 'purchase_orders');
+
+// Helper to sanitize project names for folder creation
+const sanitizeFolderName = (name) => {
+  if (!name) return 'unknown';
+  return name.replace(/[^a-zA-Z0-9\s-_]/g, '_').trim().replace(/\s+/g, '_');
+};
 
 // Ensure uploads directories exist
 [UPLOADS_DIR_QUOTES, UPLOADS_DIR_POS].forEach(dir => {
@@ -97,14 +103,21 @@ const monitorReplies = async () => {
                         const isPO = referenceNumber.startsWith('PO-');
                         console.log(`Found possible reply for: ${referenceNumber}`);
 
-                        // Find reference in DB
+                        // Find reference in DB and fetch project_id or root_card_id
                         let refId;
+                        let rootCardId = null;
                         if (isPO) {
-                            const [pos] = await db.query('SELECT id FROM purchase_orders WHERE po_number = ?', [referenceNumber]);
-                            if (pos.length > 0) refId = pos[0].id;
+                            const [pos] = await db.query('SELECT id, project_id FROM purchase_orders WHERE po_number = ?', [referenceNumber]);
+                            if (pos.length > 0) {
+                                refId = pos[0].id;
+                                rootCardId = pos[0].project_id;
+                            }
                         } else {
-                            const [quotes] = await db.query('SELECT id FROM quotations WHERE quotation_number = ?', [referenceNumber]);
-                            if (quotes.length > 0) refId = quotes[0].id;
+                            const [quotes] = await db.query('SELECT id, root_card_id FROM quotations WHERE quotation_number = ?', [referenceNumber]);
+                            if (quotes.length > 0) {
+                                refId = quotes[0].id;
+                                rootCardId = quotes[0].root_card_id;
+                            }
                         }
 
                         if (refId) {
@@ -155,17 +168,38 @@ const monitorReplies = async () => {
                                 const communicationId = commResult.insertId;
                                 console.log(`Saved vendor reply for ${referenceNumber} (ID: ${communicationId})`);
 
-                                // 2. Handle attachments
-                                if (parsed.attachments && parsed.attachments.length > 0) {
-                                    const attachTableName = isPO ? 'purchase_order_communication_attachments' : 'quotation_communication_attachments';
-                                    const uploadDir = isPO ? UPLOADS_DIR_POS : UPLOADS_DIR_QUOTES;
-                                    const uploadPath = isPO ? 'uploads/purchase_orders/' : 'uploads/quotations/';
+                                 // 2. Handle attachments
+                                 if (parsed.attachments && parsed.attachments.length > 0) {
+                                     const attachTableName = isPO ? 'purchase_order_communication_attachments' : 'quotation_communication_attachments';
+                                     
+                                     // Resolve project folder
+                                     let projectName = 'unknown';
+                                     let effectiveId = rootCardId;
+                                     if (rootCardId) {
+                                         const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ?', [rootCardId]);
+                                         if (cards.length > 0) {
+                                             projectName = cards[0].project_name;
+                                             effectiveId = cards[0].id;
+                                         }
+                                     }
 
-                                    for (const attachment of parsed.attachments) {
-                                        const fileName = attachment.filename || `attachment_${Date.now()}`;
-                                        const safeFileName = `${communicationId}_${Date.now()}_${fileName.replace(/[^a-z0-9.]/gi, '_')}`;
-                                        const filePath = path.join(uploadDir, safeFileName);
-                                        const relativePath = path.join(UPLOAD_BASE, isPO ? 'purchase_orders' : 'quotations', safeFileName).replace(/\\/g, '/');
+                                     const sanitizedProjectName = sanitizeFolderName(projectName);
+                                     const folderName = isPO ? 'purchase_orders' : 'quotations';
+                                     const relativeFolder = effectiveId
+                                         ? `${folderName}/${effectiveId}_${sanitizedProjectName}`
+                                         : folderName;
+                                     
+                                     const targetDir = path.join(UPLOAD_BASE, relativeFolder);
+
+                                     if (!fs.existsSync(targetDir)) {
+                                         fs.mkdirSync(targetDir, { recursive: true });
+                                     }
+
+                                     for (const attachment of parsed.attachments) {
+                                         const fileName = attachment.filename || `attachment_${Date.now()}`;
+                                         const safeFileName = `${communicationId}_${Date.now()}_${fileName.replace(/[^a-z0-9.]/gi, '_')}`;
+                                         const filePath = path.join(targetDir, safeFileName);
+                                         const relativePath = `${relativeFolder}/${safeFileName}`;
 
                                         try {
                                             fs.writeFileSync(filePath, attachment.content);

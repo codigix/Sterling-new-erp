@@ -1,4 +1,12 @@
 const db = require('../config/db');
+const fs = require('fs');
+const path = require('path');
+
+// Helper to sanitize project names for folder creation
+const sanitizeFolderName = (name) => {
+  if (!name) return 'unknown';
+  return name.replace(/[^a-zA-Z0-9\s-_]/g, '_').trim().replace(/\s+/g, '_');
+};
 
 exports.getQualityTasks = async (req, res) => {
   try {
@@ -173,9 +181,49 @@ exports.addProjectInspection = async (req, res) => {
 exports.updateProjectInspection = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-  const document_path = req.file ? req.file.path.split('uploads')[1] : req.body.document_path;
   
   try {
+    let document_path = req.body.document_path;
+
+    if (req.file) {
+      // Fetch project details associated with this project inspection
+      const [inspections] = await db.query('SELECT root_card_id, status, phase FROM project_inspections WHERE id = ?', [id]);
+      const rootCardId = inspections.length > 0 ? inspections[0].root_card_id : null;
+      let projectName = 'unknown';
+      let effectiveId = rootCardId;
+
+      if (rootCardId) {
+        const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ?', [rootCardId]);
+        if (cards.length > 0) {
+          projectName = cards[0].project_name;
+          effectiveId = cards[0].id;
+        }
+      }
+
+      // Determine subfolder based on phase
+      const phase = inspections.length > 0 ? inspections[0].phase : 1;
+      const subFolder = phase === 2 ? 'phase_2_tests' : 'phase_1_tests';
+
+      const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+      const sanitizedProjectName = sanitizeFolderName(projectName);
+      const relativeFolder = effectiveId
+        ? `production_qc/${effectiveId}_${sanitizedProjectName}/${subFolder}`
+        : `production_qc/${subFolder}`;
+      const targetDir = path.join(uploadsDir, relativeFolder);
+
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
+
+      // Move the file from uploads root to project subfolder
+      const oldPath = path.join(uploadsDir, req.file.filename);
+      const newPath = path.join(targetDir, req.file.filename);
+      fs.renameSync(oldPath, newPath);
+
+      // Return path relative to UPLOAD_PATH (formatted with leading slash for client matching)
+      document_path = `/${relativeFolder}/${req.file.filename}`;
+    }
+
     let query = 'UPDATE project_inspections SET updated_at = CURRENT_TIMESTAMP';
     const params = [];
     if (status) {
@@ -192,6 +240,10 @@ exports.updateProjectInspection = async (req, res) => {
     await db.query(query, params);
     res.json({ success: true, message: 'Inspection updated successfully', document_path });
   } catch (error) {
+    if (req.file) {
+      const tempPath = path.resolve(process.env.UPLOAD_PATH, req.file.filename);
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    }
     console.error('Error updating project inspection:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
@@ -200,6 +252,16 @@ exports.updateProjectInspection = async (req, res) => {
 exports.deleteProjectInspection = async (req, res) => {
   const { id } = req.params;
   try {
+    const [inspections] = await db.query('SELECT document_path FROM project_inspections WHERE id = ?', [id]);
+    if (inspections.length > 0 && inspections[0].document_path) {
+      const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+      const cleanPath = inspections[0].document_path.replace(/^\/+/, '');
+      const filePath = path.join(uploadsDir, cleanPath);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
     await db.query('DELETE FROM project_inspections WHERE id = ?', [id]);
     res.json({ success: true, message: 'Inspection deleted successfully' });
   } catch (error) {
@@ -1001,17 +1063,6 @@ exports.updateOutsourceStatus = async (req, res) => {
 exports.submitOutsourceResults = async (req, res) => {
     let { grn_id, po_item_id, inspection_type, results, remarks, common_document_path, rejected_document_path } = req.body;
     
-    // Process uploaded files from req.files (using upload.any())
-    if (req.files && req.files.length > 0) {
-        req.files.forEach(file => {
-            if (file.fieldname === 'common_doc' || file.fieldname === 'accepted_doc') {
-                common_document_path = file.filename;
-            } else if (file.fieldname === 'rejected_doc') {
-                rejected_document_path = file.filename;
-            }
-        });
-    }
-
     // Ensure numeric IDs and handle "undefined" strings from frontend
     const gid = (grn_id && grn_id !== 'undefined') ? parseInt(grn_id) : null;
     const pid = (po_item_id && po_item_id !== 'undefined') ? parseInt(po_item_id) : null;
@@ -1039,6 +1090,53 @@ exports.submitOutsourceResults = async (req, res) => {
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
+
+        // Process uploaded files from req.files (using upload.any())
+        if (req.files && req.files.length > 0) {
+            let rootCardId = null;
+            let projectName = 'unknown';
+            const [grns] = await connection.query(`
+                SELECT rc.id, rc.project_name 
+                FROM grns g
+                JOIN purchase_orders po ON g.purchase_order_id = po.id
+                JOIN root_cards rc ON po.project_id = rc.id
+                WHERE g.id = ?
+            `, [gid]);
+
+            if (grns.length > 0) {
+                rootCardId = grns[0].id;
+                projectName = grns[0].project_name;
+            }
+
+            const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+            const sanitizedProjectName = sanitizeFolderName(projectName);
+
+            for (const file of req.files) {
+                const isAccepted = file.fieldname === 'common_doc' || file.fieldname === 'accepted_doc';
+                const subFolder = isAccepted ? 'accepted_documents' : 'rejected_documents';
+                const relativeFolder = rootCardId
+                    ? `quality_documents/${rootCardId}_${sanitizedProjectName}/${subFolder}`
+                    : `quality_documents/${subFolder}`;
+                const targetDir = path.join(uploadsDir, relativeFolder);
+
+                if (!fs.existsSync(targetDir)) {
+                    fs.mkdirSync(targetDir, { recursive: true });
+                }
+
+                // Move file from uploads root to project subfolder
+                const oldPath = path.join(uploadsDir, file.filename);
+                const newPath = path.join(targetDir, file.filename);
+                fs.renameSync(oldPath, newPath);
+
+                const dbPath = `${relativeFolder}/${file.filename}`;
+
+                if (isAccepted) {
+                    common_document_path = dbPath;
+                } else if (file.fieldname === 'rejected_doc') {
+                    rejected_document_path = dbPath;
+                }
+            }
+        }
 
         // 1. Create or update inspection header for this specific item
         // Note: Using po_item_id in the unique constraint

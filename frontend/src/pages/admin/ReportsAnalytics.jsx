@@ -847,9 +847,18 @@ const ReportsAnalytics = () => {
     }, 800);
   };
 
+  const loadImage = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+    });
+  };
+
   const handleExportEmployeesToPDF = () => {
     setExportingPDF(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const canvas = document.createElement('canvas');
         canvas.width = 400;
@@ -893,20 +902,40 @@ const ReportsAnalytics = () => {
 
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        doc.setFillColor(30, 41, 59); // Slate 800
-        doc.rect(0, 0, 210, 35, 'F');
-        
-        doc.setTextColor(255, 255, 255);
+        // Header with Logo
+        try {
+          const logo = await loadImage("/logo.png");
+          doc.addImage(logo, "PNG", 15, 5, 21, 21);
+        } catch (error) {
+          console.warn("Logo not found or failed to load:", error);
+        }
+
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(16);
+        doc.setTextColor(30, 41, 59);
+        doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", 43, 13);
+        doc.setFontSize(8);
+        doc.setFont("Helvetica", "normal");
+        doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", 43, 18);
+        doc.setFont("Helvetica", "italic");
+        doc.text("Transforming Ideas Into Reality With Trusted Engineering Solutions", 43, 23);
+
+        // Corporate blue line
+        doc.setDrawColor(30, 50, 140);
+        doc.setLineWidth(1);
+        doc.line(15, 27, 195, 27);
+
+        // Document title & metadata
         doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(18);
-        doc.text('STERLING ERP', 15, 15);
-        
+        doc.setFontSize(11);
+        doc.setTextColor(30, 41, 59);
+        doc.text('DEPARTMENT USERS PERFORMANCE REPORT', 15, 34);
+
         doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.text('Department Users Performance Report', 15, 22);
-        doc.text(`Date Generated: ${new Date().toLocaleDateString('en-IN')}`, 15, 28);
+        doc.setFontSize(8);
+        doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 140, 31);
         if (dateRange.start && dateRange.end) {
-          doc.text(`Period: ${formatDate(dateRange.start)} - ${formatDate(dateRange.end)}`, 140, 15);
+          doc.text(`Period: ${formatDate(dateRange.start)} - ${formatDate(dateRange.end)}`, 140, 35);
         }
 
         doc.setTextColor(30, 41, 59);
@@ -1060,25 +1089,44 @@ const ReportsAnalytics = () => {
   const handleExportIndividualEmployeeToPDF = () => {
     if (!selectedEmployeeForReport) return;
     setExportingIndividualPDF(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const isOperator = selectedEmployeeForReport.role === 'employee';
         const doc = new jsPDF('p', 'mm', 'a4');
 
-        // Header block
-        doc.setFillColor(30, 41, 59); // Slate 800
-        doc.rect(0, 0, 210, 35, 'F');
+        // Header with Logo
+        try {
+          const logo = await loadImage("/logo.png");
+          doc.addImage(logo, "PNG", 15, 5, 21, 21);
+        } catch (error) {
+          console.warn("Logo not found or failed to load:", error);
+        }
 
-        doc.setTextColor(255, 255, 255);
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(16);
+        doc.setTextColor(30, 41, 59);
+        doc.text("STERLING TECHNO - SYSTEMS PVT. LTD.", 43, 13);
+        doc.setFontSize(8);
+        doc.setFont("Helvetica", "normal");
+        doc.text("CIN NO: U29254PN2012PTC142669 | AN ISO 9001:2015 COMPANY", 43, 18);
+        doc.setFont("Helvetica", "italic");
+        doc.text("Transforming Ideas Into Reality With Trusted Engineering Solutions", 43, 23);
+
+        // Corporate blue line
+        doc.setDrawColor(30, 50, 140);
+        doc.setLineWidth(1);
+        doc.line(15, 27, 195, 27);
+
+        // Document title & metadata
         doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(18);
-        doc.text('STERLING ERP', 15, 14);
+        doc.setFontSize(11);
+        doc.setTextColor(30, 41, 59);
+        doc.text('INDIVIDUAL PERFORMANCE REPORT', 15, 34);
 
         doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.text('Individual Performance Report', 15, 21);
-        doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, 15, 27);
-        doc.text(`Period: ${formatDate(employeeDateRange.start)} - ${formatDate(employeeDateRange.end)}`, 140, 14);
+        doc.setFontSize(8);
+        doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 140, 31);
+        doc.text(`Period: ${formatDate(employeeDateRange.start)} - ${formatDate(employeeDateRange.end)}`, 140, 35);
 
         // Employee Info Section
         doc.setTextColor(30, 41, 59);
