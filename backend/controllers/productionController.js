@@ -10,7 +10,7 @@ exports.getRootCards = async (req, res) => {
       SELECT rc.* 
       FROM root_cards rc
       WHERE rc.status IN (
-        'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 
+        'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 
         'Released', 'Production', 'Partially Completed', 'MATERIAL_PLANNING', 
         'PURCHASE_ORDER_RELEASED', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 
         'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED',
@@ -773,8 +773,8 @@ exports.sendFabricationToQC = async (req, res) => {
     // 3. Notify Quality
     const notificationTitle = currentPhase === 1 ? 'Fabrication Ready for QC' : 'Painting & Finishing Ready for QC';
     const notificationMsg = currentPhase === 1
-      ? `Fabrication operations are complete for Project ${projectName} (${internalId}). The project is now ready for quality testing before Painting and Finishing.`
-      : `Painting and Finishing operations are complete for Project ${projectName} (${internalId}). The project is now ready for final quality inspection.`;
+      ? `Fabrication operations are complete for Project ${projectName}. The project is now ready for quality testing before Painting and Finishing.`
+      : `Painting and Finishing operations are complete for Project ${projectName}. The project is now ready for final quality inspection.`;
 
     await connection.query(
       `INSERT INTO notifications (department, title, message, type, link) 

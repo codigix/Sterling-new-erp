@@ -62,7 +62,7 @@ const DesignEngineerDashboard = () => {
       ]);
 
       const tasks = tasksResponse.data || [];
-      const rootCards = rootCardsResponse.data.rootCards || [];
+      const rootCards = (rootCardsResponse.data.rootCards || []).filter(rc => rc.status !== 'RC_CREATED');
       const drawingsList = drawingsResponse.data.drawings || [];
       
       setDepartmentTasks(tasks);

@@ -86,7 +86,7 @@ const checkTimelineDeadlines = async () => {
           else if (role === 'Inventory') link = '/department/inventory/root-cards';
           else if (role === 'Quality') link = '/department/quality/root-cards';
 
-          const message = `Deadline for Project "${rc.project_name}" (Route Card ${rc.id}) ${deptKey} department is approaching. Target end date: ${dates.endDate}. Please complete the required steps.`;
+          const message = `Deadline for Project "${rc.project_name}" ${deptKey} department is approaching. Target end date: ${dates.endDate}. Please complete the required steps.`;
 
           await db.query(
             'INSERT INTO notifications (department, title, message, type, link) VALUES (?, ?, ?, ?, ?)',

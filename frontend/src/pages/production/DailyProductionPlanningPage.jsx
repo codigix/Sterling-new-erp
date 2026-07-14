@@ -3215,7 +3215,7 @@ const DailyProductionPlanningPage = () => {
       // Format projects for SearchableSelect
       const formattedProjects = (projectsRes.data.rootCards || projectsRes.data).map(rc => ({
         value: rc.id,
-        label: `${rc.project_name || rc.title} (${rc.id})`,
+        label: rc.project_code ? `${rc.project_name || rc.title} (${rc.project_code})` : (rc.project_name || rc.title || 'N/A'),
         id: rc.id,
         name: rc.project_name || rc.title,
         ref: rc.id,

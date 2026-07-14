@@ -391,7 +391,7 @@ const ProductionQCPage = () => {
           </div>
           <div>
             <p className="text-xs  text-slate-900 ">{val}</p>
-            <p className="text-xs text-slate-400 font-mono">{row.id}</p>
+            <p className="text-xs text-slate-400 font-mono">{row.project_code || 'N/A'}</p>
           </div>
         </div>
       )

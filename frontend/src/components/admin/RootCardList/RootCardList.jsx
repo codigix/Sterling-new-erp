@@ -40,6 +40,31 @@ const RootCardList = ({
 
   const isAdmin = user?.role?.toLowerCase() === 'admin';
 
+  const getUserTimelineDept = () => {
+    if (!user) return null;
+    const role = (user.role || "").toLowerCase();
+    const dept = (user.department || "").toLowerCase();
+
+    if (role.includes("design") || role.includes("engineering") || dept.includes("design") || dept.includes("engineering")) {
+      return "Design";
+    }
+    if (role.includes("production") || dept.includes("production")) {
+      return "Production";
+    }
+    if (role.includes("procurement") || dept.includes("procurement")) {
+      return "Procurement";
+    }
+    if (role.includes("inventory") || dept.includes("inventory")) {
+      return "Inventory";
+    }
+    if (role.includes("quality") || role.includes("qc") || dept.includes("quality") || dept.includes("qc")) {
+      return "Quality";
+    }
+    return null;
+  };
+
+  const userTimelineDept = getUserTimelineDept();
+
   const formatDate = (value) => {
     if (!value) return '-';
     const d = new Date(value);
@@ -110,6 +135,7 @@ const RootCardList = ({
 
   const handleTimelineSubmit = async (e) => {
     e.preventDefault();
+    if (!isAdmin) return;
     const cardId = selectedCardForTimeline.id;
     try {
       setLoading(true);
@@ -357,14 +383,14 @@ const RootCardList = ({
                 <Edit2 className="w-3 h-3 text-green-600" />
               </button>
             )}
-            {!isAccountantView && isAdmin && (
+            {!isAccountantView && (isAdmin || (hasTimeline && userTimelineDept)) && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedCardForTimeline(row);
                   setIsTimelineModalOpen(true);
                 }}
-                title={row.timelines ? "View/Edit Timelines" : "Assign Timelines"}
+                title={isAdmin ? (row.timelines ? "View/Edit Timelines" : "Assign Timelines") : "View Timeline"}
                 className="p-1 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded transition"
               >
                 <Calendar className="w-3 h-3 text-indigo-600" />
@@ -569,7 +595,7 @@ const RootCardList = ({
                     Department Timelines
                   </h3>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    Set schedule for <strong className="text-slate-700 dark:text-slate-300">{selectedCardForTimeline.project_name}</strong> ({selectedCardForTimeline.id})
+                    Set schedule for <strong className="text-slate-700 dark:text-slate-300">{selectedCardForTimeline.project_name}</strong> ({selectedCardForTimeline.project_code || 'N/A'})
                   </p>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5 text-[10px] text-slate-500 dark:text-slate-400">
                     <span className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
@@ -602,36 +628,40 @@ const RootCardList = ({
                   <div>End Date</div>
                 </div>
 
-                {Object.keys(timelineForm).map((dept) => (
-                  <div key={dept} className="grid grid-cols-3 gap-4 items-center py-2 border-b border-slate-50 dark:border-slate-800/40">
-                    <div className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                      {dept}
+                {Object.keys(timelineForm)
+                  .filter((dept) => isAdmin || dept === userTimelineDept)
+                  .map((dept) => (
+                    <div key={dept} className="grid grid-cols-3 gap-4 items-center py-2 border-b border-slate-50 dark:border-slate-800/40">
+                      <div className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                        {dept}
+                      </div>
+                      <div>
+                        <input
+                          type="date"
+                          value={timelineForm[dept].startDate}
+                          disabled={!isAdmin}
+                          onChange={(e) => setTimelineForm({
+                            ...timelineForm,
+                            [dept]: { ...timelineForm[dept], startDate: e.target.value }
+                          })}
+                          className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="date"
+                          value={timelineForm[dept].endDate}
+                          disabled={!isAdmin}
+                          onChange={(e) => setTimelineForm({
+                            ...timelineForm,
+                            [dept]: { ...timelineForm[dept], endDate: e.target.value }
+                          })}
+                          className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60 disabled:cursor-not-allowed"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <input
-                        type="date"
-                        value={timelineForm[dept].startDate}
-                        onChange={(e) => setTimelineForm({
-                          ...timelineForm,
-                          [dept]: { ...timelineForm[dept], startDate: e.target.value }
-                        })}
-                        className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="date"
-                        value={timelineForm[dept].endDate}
-                        onChange={(e) => setTimelineForm({
-                          ...timelineForm,
-                          [dept]: { ...timelineForm[dept], endDate: e.target.value }
-                        })}
-                        className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      />
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
 
               {/* Modal Footer */}
@@ -644,14 +674,16 @@ const RootCardList = ({
                   }}
                   className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all rounded text-xs"
                 >
-                  Cancel
+                  {isAdmin ? 'Cancel' : 'Close'}
                 </Button>
-                <Button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-all rounded text-xs"
-                >
-                  Save & Notify Departments
-                </Button>
+                {isAdmin && (
+                  <Button
+                    type="submit"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-all rounded text-xs"
+                  >
+                    Save & Notify Departments
+                  </Button>
+                )}
               </div>
             </form>
           </div>

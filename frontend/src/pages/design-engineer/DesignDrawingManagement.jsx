@@ -26,6 +26,7 @@ import { getServerUrl, downloadFile } from "../../utils/fileUtils";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import DataTable from "../../components/ui/DataTable/DataTable";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const DesignDrawingManagement = () => {
   const [searchParams] = useSearchParams();
@@ -637,20 +638,20 @@ const DesignDrawingManagement = () => {
               </button>
             </div>
             <div className="flex items-center gap-2 min-w-[200px]">
-              <select
-                value={rootCardId}
-                onChange={(e) => setRootCardId(e.target.value)}
-                className="text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none w-full"
-              >
-                <option value="">All Route Cards</option>
-                {rootCards.map(rc => {
+              <SearchableSelect
+                placeholder="All Projects"
+                options={rootCards.map(rc => {
                   const baseName = rc.project_name || rc.po_number || "";
                   const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
-                  return (
-                    <option key={rc.id} value={rc.id}>{displayName || baseName || rc.id}</option>
-                  );
+                  return {
+                    value: rc.id,
+                    label: displayName || baseName || rc.project_code || 'N/A'
+                  };
                 })}
-              </select>
+                value={rootCardId}
+                onChange={(val) => setRootCardId(val)}
+                className="w-full text-xs"
+              />
             </div>
           </div>
         }
@@ -664,7 +665,7 @@ const DesignDrawingManagement = () => {
       {/* Upload Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 w-full max-w-md max-h-[70vh] overflow-scroll rounded  border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md max-h-[90vh] overflow-y-auto rounded border border-slate-200 dark:border-slate-700">
             <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <h3 className="text-lg text-slate-900 dark:text-white">
                 {isRevision ? `Create Revision for ${formData.name} (v${selectedDoc.version + 1})` : "Upload New Drawing"}
@@ -675,21 +676,20 @@ const DesignDrawingManagement = () => {
               {!isRevision && (
                 <div>
                   <label className="block text-xs  text-slate-700 dark:text-slate-300 mb-1">Route Card (Project)</label>
-                  <select
-                    required
-                    value={formData.root_card_id || rootCardId}
-                    onChange={(e) => setFormData({ ...formData, root_card_id: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2 text-xs outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Route Card...</option>
-                    {rootCards.map(rc => {
+                  <SearchableSelect
+                    placeholder="Select Route Card..."
+                    options={rootCards.map(rc => {
                       const baseName = rc.project_name || rc.po_number || "";
                       const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
-                      return (
-                        <option key={rc.id} value={rc.id}>{displayName || baseName || rc.id}</option>
-                      );
+                      return {
+                        value: rc.id,
+                        label: displayName || baseName || rc.id
+                      };
                     })}
-                  </select>
+                    value={formData.root_card_id || rootCardId}
+                    onChange={(val) => setFormData({ ...formData, root_card_id: val })}
+                    className="w-full text-xs"
+                  />
                 </div>
               )}
               <div>

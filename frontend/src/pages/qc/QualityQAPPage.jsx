@@ -42,8 +42,9 @@ const QualityQAPPage = () => {
         const response = await axios.get('/root-cards', {
           params: { includeSteps: true }
         });
-        // Show all root cards as requested by user
-        setRootCards(response.data.rootCards || []);
+        // Show all active root cards (excluding RC_CREATED)
+        const cards = response.data.rootCards || [];
+        setRootCards(cards.filter(rc => rc.status !== 'RC_CREATED'));
       } catch (error) {
         console.error('Error fetching root cards:', error);
         showError("Failed to load pending route cards");
@@ -151,7 +152,6 @@ const QualityQAPPage = () => {
         <div className="flex flex-col">
           <span className="text-xs  text-slate-900">{val}</span>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] ">{row.root_card_number}</span>
             <span className="text-[10px] text-slate-400">{row.project_code}</span>
           </div>
         </div>
@@ -436,8 +436,8 @@ const QualityQAPPage = () => {
                     <p className="font-medium text-slate-700 dark:text-slate-300">{viewModalData.rc.project_name}</p>
                   </div>
                   <div>
-                    <p className="text-slate-500">Route Card No.</p>
-                    <p className="font-medium text-slate-700 dark:text-slate-300">{viewModalData.rc.root_card_number}</p>
+                    <p className="text-slate-500">Project Code</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-300">{viewModalData.rc.project_code || 'N/A'}</p>
                   </div>
                 </div>
               </div>

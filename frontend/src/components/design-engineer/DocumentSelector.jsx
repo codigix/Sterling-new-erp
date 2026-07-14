@@ -262,7 +262,7 @@ const DocumentSelector = ({ documentType, title, description }) => {
 
       <div className="bg-white rounded  p-6 mb-8">
         <label className="block text-sm  text-gray-700 mb-3">
-          Select Route Card *
+          Select Project *
         </label>
         <select
           value={selectedRootCard?.id || ''}
@@ -270,14 +270,14 @@ const DocumentSelector = ({ documentType, title, description }) => {
           disabled={loading}
           className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
         >
-          <option value="">-- Choose a Route Card --</option>
+          <option value="">-- Choose a Project --</option>
           {rootCards.map((card) => {
             const baseName = card.project_name || card.po_number || "";
             // Remove RC-XXXX pattern from the start of the string if it exists
             const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
             return (
               <option key={card.id} value={card.id}>
-                {displayName || baseName || `Route Card ${card.id}`} {card.customer ? `(${card.customer})` : ''}
+                {displayName || baseName || `Project ${card.project_code || 'N/A'}`} {card.customer ? `(${card.customer})` : ''}
               </option>
             );
           })}

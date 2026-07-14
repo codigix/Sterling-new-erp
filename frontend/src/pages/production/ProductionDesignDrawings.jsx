@@ -17,6 +17,7 @@ import {
 import axios from "../../utils/api";
 import { getServerUrl, downloadFile } from "../../utils/fileUtils";
 import DataTable from "../../components/ui/DataTable/DataTable";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 
 const ProductionDesignDrawings = () => {
   const [searchParams] = useSearchParams();
@@ -254,22 +255,21 @@ const ProductionDesignDrawings = () => {
             className="w-full pl-10 pr-4 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-green-500 outline-none transition-all"
           />
         </div>
-        <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-          <select
-            value={rootCardId}
-            onChange={(e) => setRootCardId(e.target.value)}
-            className="w-full pl-10 pr-4 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-green-500 outline-none appearance-none cursor-pointer transition-all"
-          >
-            <option value="">All Projects (Route Cards)</option>
-            {rootCards.map(rc => {
+        <div className="relative min-w-[200px]">
+          <SearchableSelect
+            placeholder="All Projects"
+            options={rootCards.map(rc => {
               const baseName = rc.project_name || rc.po_number || "";
               const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
-              return (
-                <option key={rc.id} value={rc.id}>{displayName || baseName || rc.id}</option>
-              );
+              return {
+                value: rc.id,
+                label: displayName || baseName || rc.project_code || 'N/A'
+              };
             })}
-          </select>
+            value={rootCardId}
+            onChange={(val) => setRootCardId(val)}
+            className="w-full text-xs"
+          />
         </div>
       </div>
 

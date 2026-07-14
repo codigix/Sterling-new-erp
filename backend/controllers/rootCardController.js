@@ -67,7 +67,7 @@ const createRootCard = async (req, res) => {
     // Send notifications to departments
     const roles = ['Design Engineer', 'Production', 'Procurement', 'Quality', 'Inventory'];
     const title = 'New Root Card Created';
-    const message = `A new root card ${randomId} has been created for project: ${projectName}. Please check your root cards tab.`;
+    const message = `A new root card has been created for project: ${projectName}. Please check your root cards tab.`;
 
     try {
       for (const role of roles) {
@@ -423,7 +423,7 @@ const sendToDesignEngineering = async (req, res) => {
     );
 
     const title = 'Design Engineering Phase Started';
-    const message = `Root Card ${internalId} for project "${projectName}" has been sent for Design Engineering. Please start uploading design drawings.`;
+    const message = `Project "${projectName}" has been sent for Design Engineering. Please start uploading design drawings.`;
 
     // Send notification to Design Engineering role
     await db.query(
@@ -457,7 +457,7 @@ const sendToProduction = async (req, res) => {
     );
 
     const title = 'BOM Preparation Started';
-    const message = `Root Card ${internalId} for project "${projectName}" has been sent for Production (BOM Preparation). All approved drawings and QAP are now available.`;
+    const message = `Project "${projectName}" has been sent for Production (BOM Preparation). All approved drawings and QAP are now available.`;
 
     // Send notification to Production department
     await db.query(
@@ -521,7 +521,7 @@ const sendToQuality = async (req, res) => {
     );
 
     const title = 'QAP Upload Required';
-    const message = `Root Card ${internalId} for project "${projectName}" has been sent for QAP upload by Quality department.`;
+    const message = `Project "${projectName}" has been sent for QAP upload by Quality department.`;
 
     // Send notification to Quality department
     await db.query(
@@ -555,7 +555,7 @@ const returnToDesignEngineering = async (req, res) => {
     );
 
     const title = 'QAP Uploaded - Ready for Production Hand-off';
-    const message = `Quality department has uploaded the QAP for Root Card ${internalId} ("${projectName}"). Please review and send to Production.`;
+    const message = `Quality department has uploaded the QAP for "${projectName}". Please review and send to Production.`;
 
     // Send notification to Design Engineering
     await db.query(
@@ -760,7 +760,7 @@ const uploadATP = async (req, res) => {
 
 const getAllRootCardRequirements = async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM root_cards');
+    const [rows] = await db.query("SELECT * FROM root_cards WHERE status != 'RC_CREATED'");
     res.json({ success: true, data: rows });
   } catch (error) {
     console.error('Error fetching root card requirements:', error);
@@ -823,11 +823,12 @@ const updateRootCardStatus = async (req, res) => {
 
   try {
     // Resolve internal ID if public_id is provided
-    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       return res.status(404).json({ message: 'Root Card not found' });
     }
     const internalId = cards[0].id;
+    const projectName = cards[0].project_name;
 
     const [result] = await db.query(
       'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
@@ -840,7 +841,7 @@ const updateRootCardStatus = async (req, res) => {
 
     // Send notification to relevant department based on status
     let department = '';
-    let message = `Root Card ${internalId} status has been updated to ${status.replace(/_/g, ' ')}.`;
+    let message = `Status for project "${projectName}" has been updated to ${status.replace(/_/g, ' ')}.`;
     let link = `/admin/root-cards/${id}?mode=view`;
 
     if (status === 'DESIGN_IN_PROGRESS') department = 'Design Engineer';
@@ -899,7 +900,7 @@ const updateRootCardTimelines = async (req, res) => {
       const role = departmentRoleMap[deptKey];
       if (role && dates && dates.startDate && dates.endDate) {
         const title = 'Project Timeline Assigned';
-        const message = `Timeline for Project "${projectName}" (Route Card ${internalId}) has been assigned. Start: ${dates.startDate}, End: ${dates.endDate}.`;
+        const message = `Timeline for Project "${projectName}" has been assigned. Start: ${dates.startDate}, End: ${dates.endDate}.`;
         
         let link = '/';
         if (role === 'Design Engineer') link = '/design-engineer/root-cards';

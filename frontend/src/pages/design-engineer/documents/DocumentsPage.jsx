@@ -314,7 +314,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
 
         <div className="bg-white dark:bg-slate-800 rounded p-4 border border-slate-200 dark:border-slate-700">
           <label className="block text-sm  text-slate-700 dark:text-slate-300 mb-2">
-            Select Route Card
+            Select Project
           </label>
           <div className="relative">
             <button
@@ -323,9 +323,9 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
             >
               <span>
                 {selectedRootCard ? (
-                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Route Card ${selectedRootCard.id}`).replace(/^RC-\d{4}\s*[-:]\s*/i, '') || 
-                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Route Card ${selectedRootCard.id}`)
-                ) : "Select a route card"}
+                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Project ${selectedRootCard.project_code || 'N/A'}`).replace(/^RC-\d{4}\s*[-:]\s*/i, '') || 
+                  (selectedRootCard.title || selectedRootCard.project_name || selectedRootCard.po_number || `Project ${selectedRootCard.project_code || 'N/A'}`)
+                ) : "Select a Project"}
               </span>
               <ChevronDown size={15} />
             </button>
@@ -349,7 +349,7 @@ const DocumentsPage = ({ defaultTab = "raw-designs" }) => {
                         }}
                         className="w-full text-left p-2 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-600 first:border-t-0"
                       >
-                        {displayName || baseName || `Route Card ${rc.id}`}
+                        {displayName || baseName || `Project ${rc.project_code || 'N/A'}`}
                       </button>
                     );
                   })

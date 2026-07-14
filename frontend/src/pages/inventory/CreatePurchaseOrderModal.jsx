@@ -347,7 +347,8 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
   const fetchProjects = async () => {
     try {
       const response = await axios.get("/root-cards");
-      setProjects(response.data.rootCards || response.data.projects || response.data || []);
+      const cards = response.data.rootCards || response.data.projects || response.data || [];
+      setProjects(cards.filter(rc => rc.status !== 'RC_CREATED'));
     } catch (error) {
       console.error("Error fetching projects:", error);
     }

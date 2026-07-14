@@ -176,7 +176,7 @@ const EngineeringTasksPage = () => {
 
       <div className="mb-6">
         <label className="block text-sm   dark: mb-2">
-          Select Route Card
+          Select Project
         </label>
         <select
           value={selectedRootCard || ''}
@@ -189,7 +189,7 @@ const EngineeringTasksPage = () => {
             const displayName = baseName.replace(/^RC-\d{4}\s*[-:]\s*/i, '');
             return (
               <option key={order.id} value={order.id}>
-                {displayName || baseName || `Route Card ${order.id}`}
+                {displayName || baseName || `Project ${order.project_code || 'N/A'}`}
               </option>
             );
           })}

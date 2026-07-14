@@ -559,7 +559,7 @@ const ReportsAnalytics = () => {
       key: 'project_code',
       label: 'Project Code',
       sortable: true,
-      render: (value, row) => value || `PRJ-${row.id}`,
+      render: (value) => value || 'N/A',
     },
     {
       key: 'project_name',
