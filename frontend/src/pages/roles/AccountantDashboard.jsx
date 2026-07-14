@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
-import { Link, Routes, Route, Navigate } from "react-router-dom";
+import { Link, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import RoleDashboardLayout from "../../components/layout/RoleDashboardLayout";
 import {
   BarChart3,
@@ -45,9 +45,11 @@ const CustomerInvoicesPage = lazy(() => import("../accounting/CustomerInvoicesPa
 const PaymentTrackingPage = lazy(() => import("../accounting/PaymentTrackingPage"));
 const LedgerEntriesPage = lazy(() => import("../accounting/LedgerEntriesPage"));
 const ProjectDocumentsPage = lazy(() => import("../accounting/ProjectDocumentsPage"));
+const NotificationsPage = lazy(() => import("../notifications/NotificationsPage"));
 
 const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -256,6 +258,58 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
   // Triggered reminders are those that have is_triggered = 1
   const activeAlerts = reminders.filter(r => r.is_triggered === 1);
 
+  const combinedAlerts = useMemo(() => {
+    const remindersAlerts = activeAlerts.map(alert => ({
+      id: `reminder-${alert.id}`,
+      type: 'reminder',
+      title: alert.title,
+      description: alert.description || 'Scheduled reminder reached.',
+      date: alert.reminder_date,
+      email: alert.email,
+      raw: alert
+    }));
+
+    const staticAlertsList = [
+      {
+        id: 'static-bills',
+        type: 'static',
+        title: 'Outstanding Bills',
+        description: '5 bills pending payment',
+        path: '/accountant/payable/bill-payments',
+        color: 'yellow'
+      },
+      {
+        id: 'static-invoices',
+        type: 'static',
+        title: 'Overdue Invoices',
+        description: '3 invoices overdue',
+        path: '/accountant/receivable/payment-tracking',
+        color: 'amber'
+      },
+      {
+        id: 'static-budget',
+        type: 'static',
+        title: 'Budget Alert',
+        description: 'Travel budget at 85%',
+        path: '/accountant/ledger/entries',
+        color: 'blue'
+      }
+    ];
+
+    return [...remindersAlerts, ...staticAlertsList];
+  }, [activeAlerts]);
+
+  const recentAlerts = useMemo(() => combinedAlerts.slice(0, 5), [combinedAlerts]);
+
+  const handleAlertClick = (alert) => {
+    if (alert.type === 'static') {
+      navigate(alert.path);
+    } else if (alert.type === 'reminder') {
+      setSelectedReminder(alert.raw);
+      setViewModalOpen(true);
+    }
+  };
+
   return (
     <div className="space-y-4 p-4 text-left">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -368,73 +422,81 @@ const DashboardContent = ({ stats, dateRange, setDateRange, handleExport }) => {
         </div>
 
         {/* Alerts panel (1/3 col) */}
-        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4 space-y-4">
+        <div className="bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-4 space-y-4 flex flex-col h-full">
           <h2 className="text-md font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Bell size={18} className="text-red-500" />
             Alerts
           </h2>
-          <div className="space-y-3 max-h-[350px] overflow-auto">
-            {/* Custom Triggered Reminders */}
-            {activeAlerts.map(alert => (
-              <div key={alert.id} className="flex gap-3 p-3 bg-red-50 dark:bg-red-950/30 border-l-4 border-red-500 rounded text-left">
-                <Bell size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-red-900 dark:text-red-300 text-xs font-bold">
-                    {alert.title}
-                  </p>
-                  <p className="text-[10px] text-red-700 dark:text-red-400 mt-0.5">
-                    {alert.description || 'Scheduled reminder reached.'}
-                  </p>
-                  <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1 font-mono">
-                    Date: {formatDateDMY(alert.reminder_date)} · Sent to: {alert.email}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {/* Static Alerts */}
-            <div className="flex gap-3 p-3 bg-yellow-50 dark:bg-yellow-950/20 border-l-4 border-yellow-500 rounded text-left">
-              <TrendingUp
-                size={20}
-                className="text-yellow-600 flex-shrink-0 mt-0.5"
-              />
-              <div>
-                <p className="font-semibold text-yellow-900 dark:text-yellow-300 text-xs font-bold">
-                  Outstanding Bills
-                </p>
-                <p className="text-[10px] text-yellow-700 dark:text-yellow-400 mt-0.5">
-                  5 bills pending payment
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-3 p-3 bg-amber-50 dark:bg-amber-950/20 border-l-4 border-amber-500 rounded text-left">
-              <TrendingUp
-                size={20}
-                className="text-amber-600 flex-shrink-0 mt-0.5"
-              />
-              <div>
-                <p className="font-semibold text-amber-900 dark:text-amber-300 text-xs font-bold">
-                  Overdue Invoices
-                </p>
-                <p className="text-[10px] text-amber-700 dark:text-amber-400 mt-0.5">
-                  3 invoices overdue
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-3 p-3 bg-blue-50 dark:bg-blue-950/20 border-l-4 border-blue-500 rounded text-left">
-              <TrendingUp
-                size={20}
-                className="text-blue-600 flex-shrink-0 mt-0.5"
-              />
-              <div>
-                <p className="font-semibold text-blue-900 dark:text-blue-300 text-xs font-bold">
-                  Budget Alert
-                </p>
-                <p className="text-[10px] text-blue-700 dark:text-blue-400 mt-0.5">
-                  Travel budget at 85%
-                </p>
-              </div>
-            </div>
+          <div className="space-y-3 overflow-y-auto flex-1 pr-1" style={{ maxHeight: '350px' }}>
+            {recentAlerts.map(alert => {
+              if (alert.type === 'reminder') {
+                return (
+                  <div 
+                    key={alert.id} 
+                    onClick={() => handleAlertClick(alert)}
+                    className="flex gap-3 p-3 bg-red-50 dark:bg-red-950/30 border-l-4 border-red-500 rounded text-left cursor-pointer hover:bg-red-100/50 dark:hover:bg-red-950/50 transition-colors"
+                  >
+                    <Bell size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-red-900 dark:text-red-300 text-xs font-bold">
+                        {alert.title}
+                      </p>
+                      <p className="text-[10px] text-red-700 dark:text-red-400 mt-0.5">
+                        {alert.description}
+                      </p>
+                      <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1 font-mono">
+                        Date: {formatDateDMY(alert.date)} · Sent to: {alert.email}
+                      </p>
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div 
+                    key={alert.id}
+                    onClick={() => handleAlertClick(alert)}
+                    className={`flex gap-3 p-3 border-l-4 rounded text-left cursor-pointer transition-colors ${
+                      alert.color === 'yellow' ? 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-500 hover:bg-yellow-100/50 dark:hover:bg-yellow-950/40' :
+                      alert.color === 'amber' ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-500 hover:bg-amber-100/50 dark:hover:bg-amber-950/40' :
+                      'bg-blue-50 dark:bg-blue-950/20 border-blue-500 hover:bg-blue-100/50 dark:hover:bg-blue-950/40'
+                    }`}
+                  >
+                    <TrendingUp
+                      size={20}
+                      className={
+                        alert.color === 'yellow' ? 'text-yellow-600 flex-shrink-0 mt-0.5' :
+                        alert.color === 'amber' ? 'text-amber-600 flex-shrink-0 mt-0.5' :
+                        'text-blue-600 flex-shrink-0 mt-0.5'
+                      }
+                    />
+                    <div>
+                      <p className={`font-semibold text-xs font-bold ${
+                        alert.color === 'yellow' ? 'text-yellow-900 dark:text-yellow-300' :
+                        alert.color === 'amber' ? 'text-amber-900 dark:text-amber-300' :
+                        'text-blue-900 dark:text-blue-300'
+                      }`}>
+                        {alert.title}
+                      </p>
+                      <p className={`text-[10px] mt-0.5 ${
+                        alert.color === 'yellow' ? 'text-yellow-750 dark:text-yellow-400' :
+                        alert.color === 'amber' ? 'text-amber-750 dark:text-amber-400' :
+                        'text-blue-750 dark:text-blue-400'
+                      }`}>
+                        {alert.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+            })}
+          </div>
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-700 text-center">
+            <Link 
+              to="/accountant/notifications" 
+              className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-350 font-medium inline-flex items-center gap-1 hover:underline"
+            >
+              View All Alerts
+            </Link>
           </div>
         </div>
       </div>
@@ -728,6 +790,11 @@ const AccountantDashboard = () => {
       icon: LayoutDashboard,
     },
     {
+      title: "Notifications",
+      path: "/accountant/notifications",
+      icon: Bell,
+    },
+    {
       title: "Route Cards",
       path: "/accountant/root-cards",
       icon: Layers,
@@ -854,6 +921,10 @@ const AccountantDashboard = () => {
                 handleExport={handleExport}
               />
             }
+          />
+          <Route
+            path="/notifications"
+            element={<NotificationsPage />}
           />
           <Route
             path="/project-documents"
