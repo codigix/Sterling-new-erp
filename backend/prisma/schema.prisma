@@ -6,14 +6,6 @@ datasource db {
   provider = "mysql"
 }
 
-model migrations_history {
-  id          Int       @id @default(autoincrement())
-  filename    String    @unique(map: "filename") @db.VarChar(255)
-  executed_at DateTime? @default(now()) @db.Timestamp(0)
-
-  @@map("_migrations_history")
-}
-
 model bom_materials {
   id               Int       @id @default(autoincrement())
   bom_id           Int
@@ -159,6 +151,8 @@ model customer_payments {
   notes             String?                   @db.Text
   status            customer_payments_status? @default(COMPLETED)
   created_at        DateTime?                 @default(now()) @db.Timestamp(0)
+  gst_tds           Decimal?                  @default(0.00) @db.Decimal(15, 2)
+  it_tds            Decimal?                  @default(0.00) @db.Decimal(15, 2)
   customer_invoices customer_invoices?        @relation(fields: [invoice_id], references: [id], onUpdate: NoAction, map: "customer_payments_ibfk_1")
 
   @@index([invoice_id], map: "invoice_id")
@@ -245,6 +239,8 @@ model department_tasks {
   assigned_by     Int?
   created_at      DateTime?                  @default(now()) @db.Timestamp(0)
   updated_at      DateTime?                  @default(now()) @db.Timestamp(0)
+  completed_date  DateTime?                  @db.DateTime(0)
+  task_code       String?                    @db.VarChar(50)
   users           users?                     @relation(fields: [assigned_by], references: [id], onUpdate: NoAction, map: "department_tasks_ibfk_1")
 
   @@index([assigned_by], map: "assigned_by")
@@ -618,7 +614,6 @@ model outward_challan_items {
   available_qty        Decimal?               @db.Decimal(15, 6)
   dispatch_qty         Decimal?               @db.Decimal(15, 6)
   uom                  String?                @db.VarChar(20)
-  rate                 Decimal?               @default(0.00) @db.Decimal(15, 2)
   outward_challans     outward_challans?      @relation(fields: [challan_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "outward_challan_items_ibfk_1")
   vendor_invoice_items vendor_invoice_items[]
 
@@ -818,6 +813,7 @@ model quality_final_report_items {
   material_name                   String?                           @db.VarChar(255)
   item_code                       String?                           @db.VarChar(100)
   item_group                      String?                           @db.VarChar(255)
+  material_grade                  String?                           @db.VarChar(100)
   material_id                     Int?
   received_qty                    Decimal?                          @db.Decimal(15, 3)
   unit                            String?                           @db.VarChar(50)
@@ -1125,12 +1121,13 @@ model root_cards {
   documents            Json?
   notes                String?                @db.Text
   project_scope        Json?
-  timelines            Json?
   created_at           DateTime?              @default(now()) @db.Timestamp(0)
   updated_at           DateTime?              @default(now()) @db.Timestamp(0)
+  timelines            Json?
   boms                 boms[]
   design_documents     design_documents[]
   material_requests    material_requests[]
+  project_documents    project_documents[]
   purchase_orders      purchase_orders[]
   quotations           quotations[]
   root_card_operations root_card_operations[]
@@ -1248,11 +1245,13 @@ model users {
   role_id                                              Int?
   department_id                                        Int?
   actions                                              String?                      @db.Text
-  test_field                                           String?                      @db.VarChar(100)
+  prisma_test_sync                                     String?                      @db.VarChar(100)
+  status                                               String?                      @default("active") @db.VarChar(20)
   department_tasks                                     department_tasks[]
   design_documents_design_documents_created_byTousers  design_documents[]           @relation("design_documents_created_byTousers")
   design_documents_design_documents_reviewer_idTousers design_documents[]           @relation("design_documents_reviewer_idTousers")
   notifications                                        notifications[]
+  password_reset_requests                              password_reset_requests[]
   purchase_order_attachments                           purchase_order_attachments[]
   quality_inspections                                  quality_inspections[]
 }
@@ -1305,16 +1304,16 @@ model vendor_invoices {
   created_at           DateTime?               @default(now()) @db.Timestamp(0)
   updated_at           DateTime?               @default(now()) @db.Timestamp(0)
   vendor_invoice_items vendor_invoice_items[]
-  outward_challans     outward_challans?       @relation(fields: [outward_challan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_4")
   purchase_orders      purchase_orders?        @relation(fields: [purchase_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_1")
   vendors              vendors                 @relation(fields: [vendor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_2")
   root_cards           root_cards?             @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_3")
+  outward_challans     outward_challans?       @relation(fields: [outward_challan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendor_invoices_ibfk_4")
   vendor_payments      vendor_payments[]
 
   @@index([project_id], map: "project_id")
   @@index([purchase_order_id], map: "purchase_order_id")
   @@index([vendor_id], map: "vendor_id")
-  @@index([outward_challan_id], map: "fk_vendor_invoices_outward_challan")
+  @@index([outward_challan_id], map: "outward_challan_id")
 }
 
 model vendor_payments {
@@ -1393,6 +1392,50 @@ model audit_logs {
   ip_address String?            @db.VarChar(45)
   status     audit_logs_status? @default(success)
   created_at DateTime?          @default(now()) @db.Timestamp(0)
+}
+
+model financial_reminders {
+  id               Int       @id @default(autoincrement())
+  title            String    @db.VarChar(255)
+  description      String?   @db.Text
+  reminder_date    DateTime  @db.Date
+  email            String    @db.VarChar(255)
+  recurrence       String?   @default("once") @db.VarChar(50)
+  recurrence_day   Int?
+  recurrence_month Int?
+  is_triggered     Boolean?  @default(false)
+  created_at       DateTime? @default(now()) @db.Timestamp(0)
+  updated_at       DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model password_reset_requests {
+  id         Int                             @id @default(autoincrement())
+  user_id    Int
+  username   String                          @db.VarChar(255)
+  full_name  String                          @db.VarChar(255)
+  email      String                          @db.VarChar(255)
+  token      String?                         @unique(map: "token") @db.VarChar(255)
+  expires_at DateTime?                       @db.Timestamp(0)
+  status     password_reset_requests_status? @default(PENDING)
+  created_at DateTime?                       @default(now()) @db.Timestamp(0)
+  updated_at DateTime?                       @default(now()) @db.Timestamp(0)
+  users      users                           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "password_reset_requests_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model project_documents {
+  id            Int        @id @default(autoincrement())
+  project_id    String     @db.VarChar(50)
+  document_name String     @db.VarChar(255)
+  file_path     String     @db.VarChar(255)
+  file_name     String     @db.VarChar(255)
+  uploaded_by   Int?
+  created_at    DateTime?  @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?  @default(now()) @db.Timestamp(0)
+  root_cards    root_cards @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "project_documents_ibfk_1")
+
+  @@index([project_id], map: "project_id")
 }
 
 enum operations_type {
@@ -1642,4 +1685,11 @@ enum audit_logs_status {
   success
   warning
   error
+}
+
+enum password_reset_requests_status {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
 }
