@@ -37,7 +37,7 @@ jobs:
 
       - name: Restart Backend
         run: |
-          pm2 restart all
+          pm2 restart sterling-backend
 
       - name: Reload Nginx
         run: |
