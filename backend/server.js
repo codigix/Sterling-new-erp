@@ -42,8 +42,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(morgan('dev'));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use('/api/uploads', express.static(path.resolve(process.env.UPLOAD_PATH)));
 app.use('/uploads', express.static(path.resolve(process.env.UPLOAD_PATH)));
 
@@ -137,7 +137,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   // Start monitoring vendor email replies
   startEmailMonitor();
@@ -146,3 +146,6 @@ app.listen(PORT, () => {
   // Start checking financial dashboard reminders
   startFinancialRemindersScheduler();
 });
+
+// Set timeout to 10 minutes (600,000 ms) for large file uploads
+server.timeout = 10 * 60 * 1000;
