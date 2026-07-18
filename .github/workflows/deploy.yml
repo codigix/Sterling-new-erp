@@ -2,47 +2,51 @@ name: Sterling ERP CI/CD
 
 on:
   push:
-    branches: [ production-branch ]
+    branches:
+      - production-branch
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Pull Latest Code
+        run: |
+          cd /var/www/Sterling-new-erp
+          git pull origin production-branch
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Install Frontend Dependencies
+        run: |
+          cd /var/www/Sterling-new-erp/frontend
+          npm install
 
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd /var/www/Sterling-new-erp
-            
-            # 1. Pull latest changes
-            git pull origin production-branch
-            
-            # 2. Update Frontend
-            echo "Updating Frontend..."
-            cd frontend
-            npm install
-            npm run build
-            
-            # 3. Update Backend
-            echo "Updating Backend..."
-            cd ../backend
-            npm install
-            npx prisma generate
-            npx prisma migrate deploy
-            
-            # 4. Restart Process
-            echo "Restarting PM2 process..."
-            pm2 restart sterling
-            
-            echo "Deployment Successful!"
+      - name: Install Backend Dependencies
+        run: |
+          cd /var/www/Sterling-new-erp/backend
+          npm install
+
+      - name: Generate Prisma Client
+        run: |
+          cd /var/www/Sterling-new-erp/backend
+          npx prisma generate
+
+      - name: Apply Database Migrations
+        run: |
+          cd /var/www/Sterling-new-erp/backend
+          npx prisma migrate deploy
+
+      - name: Restart Backend
+        run: |
+          pm2 restart sterling
+
+      - name: Reload Nginx
+        run: |
+          sudo nginx -s reload
+
+      - name: Verify PM2 Status
+        run: |
+          pm2 status
+
+      - name: Deployment Successful
+        run: |
+          echo "✅ Sterling ERP deployed successfully."
