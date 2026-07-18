@@ -9,6 +9,9 @@ jobs:
   deploy:
     runs-on: self-hosted
 
+    env:
+      NODE_OPTIONS: --max-old-space-size=3072
+
     steps:
       - name: Pull Latest Code
         run: |
@@ -16,10 +19,11 @@ jobs:
           cd /var/www/Sterling-new-erp
           git pull origin production-branch
 
-      - name: Install Frontend Dependencies
+      - name: Install & Build Frontend
         run: |
           cd /var/www/Sterling-new-erp/frontend
           npm ci
+          npm run build
 
       - name: Install Backend Dependencies
         run: |
