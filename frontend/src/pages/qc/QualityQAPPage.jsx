@@ -42,9 +42,10 @@ const QualityQAPPage = () => {
         const response = await axios.get('/root-cards', {
           params: { includeSteps: true }
         });
-        // Show all active root cards (excluding RC_CREATED)
+        // Show all active root cards (excluding pre-quality statuses)
         const cards = response.data.rootCards || [];
-        setRootCards(cards.filter(rc => rc.status !== 'RC_CREATED'));
+        const preQualityStatuses = ['RC_CREATED', 'pending', 'DESIGN_IN_PROGRESS'];
+        setRootCards(cards.filter(rc => rc.status && !preQualityStatuses.includes(rc.status)));
       } catch (error) {
         console.error('Error fetching root cards:', error);
         showError("Failed to load pending route cards");

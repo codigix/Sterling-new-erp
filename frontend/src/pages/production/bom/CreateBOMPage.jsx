@@ -578,6 +578,25 @@ const CreateBOMPage = () => {
         const { rootCard, designEngineering } =
           await loadRootCardContext(rootCardId);
 
+        const preProductionStatuses = [
+          'pending',
+          'RC_CREATED',
+          'DESIGN_IN_PROGRESS',
+          'QUALITY_QAP_PENDING',
+          'DESIGN_QAP_REVIEW',
+          'DESIGN_APPROVED'
+        ];
+        if (rootCard.status && preProductionStatuses.includes(rootCard.status)) {
+          Swal.fire({
+            icon: "warning",
+            title: "Validation Error",
+            text: "This Route Card has not been sent to the Production Department by the Design Engineer yet. You cannot create a BOM for it.",
+          });
+          setBomData(initialBOMState);
+          setLoadingMaterials(false);
+          return;
+        }
+
         const designData = designEngineering || { bomData: [], operations: [] };
 
         // Auto-fill product info
@@ -713,14 +732,22 @@ const CreateBOMPage = () => {
     [],
   );
 
-  const rootCardOptions = useMemo(
-    () =>
-      (Array.isArray(rootCards) ? rootCards : []).map((rc) => ({
+  const rootCardOptions = useMemo(() => {
+    const preProductionStatuses = [
+      'pending',
+      'RC_CREATED',
+      'DESIGN_IN_PROGRESS',
+      'QUALITY_QAP_PENDING',
+      'DESIGN_QAP_REVIEW',
+      'DESIGN_APPROVED'
+    ];
+    return (Array.isArray(rootCards) ? rootCards : [])
+      .filter((rc) => rc.status && !preProductionStatuses.includes(rc.status))
+      .map((rc) => ({
         label: rc.project_name || rc.customer || rc.title || "N/A",
         value: rc.id,
-      })),
-    [rootCards],
-  );
+      }));
+  }, [rootCards]);
 
   const handleSave = useCallback(async () => {
     if (!bomData.productInfo.rootCardId) {
@@ -730,6 +757,27 @@ const CreateBOMPage = () => {
         text: "Please select a Route Card",
       });
       return;
+    }
+
+    // Check status of selected route card
+    const selectedRootCard = rootCards.find(rc => rc.id === bomData.productInfo.rootCardId);
+    if (selectedRootCard) {
+      const preProductionStatuses = [
+        'pending',
+        'RC_CREATED',
+        'DESIGN_IN_PROGRESS',
+        'QUALITY_QAP_PENDING',
+        'DESIGN_QAP_REVIEW',
+        'DESIGN_APPROVED'
+      ];
+      if (preProductionStatuses.includes(selectedRootCard.status)) {
+        Swal.fire({
+          icon: "error",
+          title: "Validation Error",
+          text: "This Route Card has not been sent to the Production Department by the Design Engineer yet. You cannot create a BOM for it.",
+        });
+        return;
+      }
     }
 
     try {

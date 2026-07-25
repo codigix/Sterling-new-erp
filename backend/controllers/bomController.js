@@ -30,11 +30,33 @@ const createBOM = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    // Resolve internal ID if public_id is provided
+    // Resolve internal ID and check status if public_id is provided
     let effectiveRootCardId = productInfo.rootCardId;
     if (effectiveRootCardId) {
-      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [effectiveRootCardId, effectiveRootCardId]);
-      if (cards.length > 0) effectiveRootCardId = cards[0].id;
+      const [cards] = await connection.query('SELECT id, status FROM root_cards WHERE id = ? OR public_id = ?', [effectiveRootCardId, effectiveRootCardId]);
+      if (cards.length > 0) {
+        effectiveRootCardId = cards[0].id;
+        const preProductionStatuses = [
+          'pending',
+          'RC_CREATED',
+          'DESIGN_IN_PROGRESS',
+          'QUALITY_QAP_PENDING',
+          'DESIGN_QAP_REVIEW',
+          'DESIGN_APPROVED'
+        ];
+        if (preProductionStatuses.includes(cards[0].status)) {
+          await connection.rollback();
+          return res.status(400).json({
+            message: 'This Route Card has not been sent to the Production Department by the Design Engineer yet. You cannot create a BOM for it.'
+          });
+        }
+      } else {
+        await connection.rollback();
+        return res.status(404).json({ message: 'Route Card not found' });
+      }
+    } else {
+      await connection.rollback();
+      return res.status(400).json({ message: 'Route Card ID is required to create a BOM' });
     }
 
     // Generate public_id for secure routing
@@ -184,11 +206,33 @@ const updateBOM = async (req, res) => {
     }
     const internalBomId = bomLookup[0].id;
 
-    // Resolve internal ID if public_id is provided
+    // Resolve internal ID and check status if public_id is provided
     let effectiveRootCardId = productInfo.rootCardId;
     if (effectiveRootCardId) {
-      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [effectiveRootCardId, effectiveRootCardId]);
-      if (cards.length > 0) effectiveRootCardId = cards[0].id;
+      const [cards] = await connection.query('SELECT id, status FROM root_cards WHERE id = ? OR public_id = ?', [effectiveRootCardId, effectiveRootCardId]);
+      if (cards.length > 0) {
+        effectiveRootCardId = cards[0].id;
+        const preProductionStatuses = [
+          'pending',
+          'RC_CREATED',
+          'DESIGN_IN_PROGRESS',
+          'QUALITY_QAP_PENDING',
+          'DESIGN_QAP_REVIEW',
+          'DESIGN_APPROVED'
+        ];
+        if (preProductionStatuses.includes(cards[0].status)) {
+          await connection.rollback();
+          return res.status(400).json({
+            message: 'This Route Card has not been sent to the Production Department by the Design Engineer yet. You cannot create a BOM for it.'
+          });
+        }
+      } else {
+        await connection.rollback();
+        return res.status(404).json({ message: 'Route Card not found' });
+      }
+    } else {
+      await connection.rollback();
+      return res.status(400).json({ message: 'Route Card ID is required to update a BOM' });
     }
 
     const [updateResult] = await connection.query(

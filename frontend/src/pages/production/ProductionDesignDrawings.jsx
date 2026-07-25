@@ -25,6 +25,7 @@ const ProductionDesignDrawings = () => {
   const [rootCards, setRootCards] = useState([]);
   const [drawings, setDrawings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'list'
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -72,6 +73,7 @@ const ProductionDesignDrawings = () => {
   const fetchDrawings = async () => {
     try {
       setLoading(true);
+      setError("");
       const url = rootCardId 
         ? `/design-drawings/root-card/${rootCardId}`
         : `/design-drawings`;
@@ -94,6 +96,7 @@ const ProductionDesignDrawings = () => {
       ));
     } catch (error) {
       console.error("Failed to fetch drawings:", error);
+      setError(error.response?.data?.message || "Failed to fetch drawings");
     } finally {
       setLoading(false);
     }
@@ -277,6 +280,12 @@ const ProductionDesignDrawings = () => {
         <div className="p-4 text-center text-slate-500">
           <Loader2 className="animate-spin inline-block mb-2" size={15} />
           <p>Loading drawings...</p>
+        </div>
+      ) : error ? (
+        <div className="p-6 text-center bg-red-50 dark:bg-red-900/10 rounded border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 flex flex-col items-center gap-2">
+          <AlertCircle size={24} className="text-red-500" />
+          <h3 className="font-semibold text-sm">Access Restricted</h3>
+          <p className="text-xs">{error}</p>
         </div>
       ) : drawings.length === 0 ? (
         <div className="p-4 text-center bg-white dark:bg-slate-800 rounded border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-500">

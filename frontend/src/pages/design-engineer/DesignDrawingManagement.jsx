@@ -548,7 +548,7 @@ const DesignDrawingManagement = () => {
 
                 {index === 0 && rev.type !== 'Final Approved Drawing' && (
                   <div className="flex items-center gap-2">
-                    {rev.status === 'Approved' && !rev.dwg_path && !rev.step_path && (
+                    {rev.status === 'Approved' && (!rev.dwg_path || !rev.step_path) && (
                       <button 
                         onClick={() => {
                           setSelectedDoc(rev);

@@ -579,8 +579,8 @@ const uploadQAP = async (req, res) => {
   }
 
   try {
-    // Resolve internal ID and fetch project_name if public_id is provided
-    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    // Resolve internal ID, status and fetch project_name if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name, status FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       // Clean up uploaded files if root card not found
       files.forEach(file => {
@@ -591,6 +591,17 @@ const uploadQAP = async (req, res) => {
     }
     const internalId = cards[0].id;
     const projectName = cards[0].project_name;
+    const currentStatus = cards[0].status;
+
+    // Reject if the route card has not been sent to Quality
+    const preQualityStatuses = ['RC_CREATED', 'pending', 'DESIGN_IN_PROGRESS'];
+    if (preQualityStatuses.includes(currentStatus)) {
+      files.forEach(file => {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, file.filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      });
+      return res.status(403).json({ message: 'Access Denied: This Route Card has not been sent to the Quality Department yet.' });
+    }
 
     // Determine project subdirectory path inside design_drawings
     const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
@@ -674,8 +685,8 @@ const uploadATP = async (req, res) => {
   }
 
   try {
-    // Resolve internal ID and fetch project_name if public_id is provided
-    const [cards] = await db.query('SELECT id, project_name FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    // Resolve internal ID, status and fetch project_name if public_id is provided
+    const [cards] = await db.query('SELECT id, project_name, status FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       // Clean up uploaded files if root card not found
       files.forEach(file => {
@@ -686,6 +697,17 @@ const uploadATP = async (req, res) => {
     }
     const internalId = cards[0].id;
     const projectName = cards[0].project_name;
+    const currentStatus = cards[0].status;
+
+    // Reject if the route card has not been sent to Quality
+    const preQualityStatuses = ['RC_CREATED', 'pending', 'DESIGN_IN_PROGRESS'];
+    if (preQualityStatuses.includes(currentStatus)) {
+      files.forEach(file => {
+        const tempPath = path.resolve(process.env.UPLOAD_PATH, file.filename);
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      });
+      return res.status(403).json({ message: 'Access Denied: This Route Card has not been sent to the Quality Department yet.' });
+    }
 
     // Determine project subdirectory path inside design_drawings
     const uploadsDir = path.resolve(process.env.UPLOAD_PATH);

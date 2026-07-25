@@ -271,9 +271,33 @@ exports.getRootCardDrawings = async (req, res) => {
     const { rootCardId } = req.params;
     const isProduction = req.user && (req.user.role?.toLowerCase().includes('production') || req.user.department?.toLowerCase() === 'production');
 
-    // Resolve internal ID if public_id is provided
-    const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [rootCardId, rootCardId]);
-    const effectiveId = cards.length > 0 ? cards[0].id : rootCardId;
+    // Resolve internal ID and check status if public_id is provided
+    const [cards] = await db.query('SELECT id, status FROM root_cards WHERE id = ? OR public_id = ?', [rootCardId, rootCardId]);
+    
+    if (cards.length === 0) {
+      return res.status(404).json({ success: false, message: 'Route Card not found' });
+    }
+
+    const effectiveId = cards[0].id;
+    const currentStatus = cards[0].status;
+
+    // Production can only see drawings if Route Card has been sent to Production
+    if (isProduction) {
+      const preProductionStatuses = [
+        'pending',
+        'RC_CREATED',
+        'DESIGN_IN_PROGRESS',
+        'QUALITY_QAP_PENDING',
+        'DESIGN_QAP_REVIEW',
+        'DESIGN_APPROVED'
+      ];
+      if (currentStatus && preProductionStatuses.includes(currentStatus)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access Denied: The Design Engineer has not sent this Route Card to the Production Department yet.'
+        });
+      }
+    }
 
     let query = `
       SELECT d.*, u.full_name as created_by_name, r.full_name as reviewer_name,
