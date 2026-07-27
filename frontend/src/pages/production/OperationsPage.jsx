@@ -12,8 +12,6 @@ import {
   X,
   Save,
   Wrench,
-  Factory,
-  Truck,
   Loader2
 } from "lucide-react";
 import DataTable from "../../components/ui/DataTable/DataTable";
@@ -59,34 +57,6 @@ const CreateOperationModal = ({ isOpen, onClose, onSave, loading }) => {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs  text-slate-400  ">Type</label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, type: "In-house" })}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded text-xs    border transition-all ${
-                    formData.type === "In-house"
-                      ? "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 text-indigo-600"
-                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500"
-                  }`}
-                >
-                  <Factory size={14} /> In-house
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, type: "Outsource" })}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded text-xs    border transition-all ${
-                    formData.type === "Outsource"
-                      ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-600"
-                      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500"
-                  }`}
-                >
-                  <Truck size={14} /> Outsource
-                </button>
-              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -197,22 +167,7 @@ const OperationsPage = () => {
         </div>
       ),
     },
-    {
-      header: "Type",
-      accessor: "type",
-      render: (value) => (
-        <span
-          className={`px-2.5 py-1 text-xs rounded border flex items-center gap-1.5 w-fit ${
-            value === "In-house"
-              ? "bg-blue-100 text-blue-700 border-blue-200"
-              : "bg-amber-100 text-amber-700 border-amber-200"
-          }`}
-        >
-          {value === "In-house" ? <Factory size={10} /> : <Truck size={10} />}
-          {value}
-        </span>
-      ),
-    },
+
     {
       header: "Description",
       accessor: "description",
