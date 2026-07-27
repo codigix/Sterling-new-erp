@@ -1233,7 +1233,7 @@ model stock_ledger {
 model users {
   id                                                   Int                          @id @default(autoincrement())
   full_name                                            String                       @db.VarChar(255)
-  email                                                String                       @unique(map: "email") @db.VarChar(255)
+  email                                                String?                      @unique(map: "email") @db.VarChar(255)
   password                                             String                       @db.VarChar(255)
   department                                           String?                      @default("Production") @db.VarChar(50)
   role                                                 String?                      @default("employee") @db.VarChar(50)

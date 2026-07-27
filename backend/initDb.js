@@ -13,7 +13,7 @@ const initDb = async () => {
       CREATE TABLE users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         full_name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE,
+        email VARCHAR(255) NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
         department VARCHAR(50) DEFAULT 'Production',
         role VARCHAR(50) DEFAULT 'employee',

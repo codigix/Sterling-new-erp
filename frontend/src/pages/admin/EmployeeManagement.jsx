@@ -293,7 +293,7 @@ const EmployeeManagement = () => {
       sortable: true,
       render: (value) => (
         <span className="text-slate-500 dark:text-slate-400 text-sm">
-          {value}
+          {value || "-"}
         </span>
       ),
     },
@@ -528,7 +528,7 @@ const EmployeeManagement = () => {
 
                   <div className="mt-4">
                     <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 text-left ml-0.5">
-                      Email Address <span className="text-red-500">*</span>
+                      Email Address {activeTab === "system_users" && <span className="text-red-500">*</span>}
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -537,8 +537,8 @@ const EmployeeManagement = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        required
-                        placeholder="john.doe@sterling.com"
+                        required={activeTab === "system_users"}
+                        placeholder={activeTab === "system_users" ? "john.doe@sterling.com" : "john.doe@sterling.com (Optional)"}
                         className="w-full pl-10 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                       />
                     </div>

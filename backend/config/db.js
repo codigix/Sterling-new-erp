@@ -27,6 +27,13 @@ const pool = mysql.createPool({
       console.log("Added 'timelines' column to 'root_cards' table.");
     }
 
+    // Ensure email column in users table is nullable
+    const [userColumns] = await connection.query("SHOW COLUMNS FROM users LIKE 'email'");
+    if (userColumns.length > 0 && userColumns[0].Null === 'NO') {
+      await connection.query("ALTER TABLE users MODIFY COLUMN email VARCHAR(255) NULL DEFAULT NULL");
+      console.log("Updated 'email' column in 'users' table to be nullable.");
+    }
+
     // Check/Create project_documents table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS project_documents (

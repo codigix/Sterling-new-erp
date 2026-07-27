@@ -151,12 +151,6 @@ const createEmployee = async (req, res) => {
   const { firstName, lastName, email, department, departmentId, isLoginUser, password, status, designation } = req.body;
 
   try {
-    // Check if user exists
-    const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (existingUsers.length > 0) {
-      return res.status(400).json({ message: 'User with this email already exists' });
-    }
-
     let userRole = 'employee';
     let userRoleId = 2; // Default Employee role in roles table
     let loginId = null;
@@ -196,6 +190,19 @@ const createEmployee = async (req, res) => {
       finalPassword = Math.random().toString(36) + Math.random().toString(36);
     }
 
+    let finalEmail = email;
+    if (!isLoginUser && (!email || email.trim() === '')) {
+      finalEmail = null;
+    }
+
+    // Check if user exists
+    if (finalEmail && finalEmail.trim() !== '') {
+      const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [finalEmail]);
+      if (existingUsers.length > 0) {
+        return res.status(400).json({ message: 'User with this email already exists' });
+      }
+    }
+
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(finalPassword, salt);
@@ -205,7 +212,7 @@ const createEmployee = async (req, res) => {
     const [result] = await db.query(
       `INSERT INTO users (full_name, first_name, last_name, email, password, designation, department, department_id, role, role_id, login_id, actions, status) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [fullName, firstName, lastName, email, hashedPassword, designation || null, department, departmentId, userRole, userRoleId, loginId, '[]', status || 'active']
+      [fullName, firstName, lastName, finalEmail, hashedPassword, designation || null, department, departmentId, userRole, userRoleId, loginId, '[]', status || 'active']
     );
 
     const auditAction = isLoginUser ? 'Create Login User' : 'Create Employee';
@@ -272,12 +279,25 @@ const updateEmployee = async (req, res) => {
       }
     }
 
+    let finalEmail = email;
+    if (!isLoginUser && (!email || email.trim() === '')) {
+      finalEmail = null;
+    }
+
+    // Check if email already exists for another user
+    if (finalEmail && finalEmail.trim() !== '') {
+      const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ? AND id != ?', [finalEmail, id]);
+      if (existingUsers.length > 0) {
+        return res.status(400).json({ message: 'User with this email already exists' });
+      }
+    }
+
     let query = `
       UPDATE users 
       SET full_name = ?, first_name = ?, last_name = ?, email = ?, 
           department = ?, department_id = ?, role = ?, role_id = ?, login_id = ?, status = ?, designation = ?
     `;
-    const params = [fullName, firstName, lastName, email, department, departmentId, userRole, userRoleId, loginId, status || 'active', designation || null];
+    const params = [fullName, firstName, lastName, finalEmail, department, departmentId, userRole, userRoleId, loginId, status || 'active', designation || null];
 
     if (password && password.trim() !== '') {
       const salt = await bcrypt.genSalt(10);
