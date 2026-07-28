@@ -8,101 +8,102 @@ const { downloadMissingAttachmentFromEmail } = require('../utils/attachmentDownl
 
 // Helper to sanitize project names for folder creation
 const sanitizeFolderName = (name) => {
-  if (!name) return 'unknown';
-  return name.replace(/[^a-zA-Z0-9\s-_]/g, '_').trim().replace(/\s+/g, '_');
+    if (!name) return 'unknown';
+    return name.replace(/[^a-zA-Z0-9\s-_]/g, '_').trim().replace(/\s+/g, '_');
 };
 
 const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Helpers for fallback/placeholder files when files reside on production but not locally
 const getDummyPDF = (filename) => {
-  const cleanFilename = filename.replace(/[()]/g, '_');
-  const bodyParts = [
-    `%PDF-1.4\n`,
-    `1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`,
-    `2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n`,
-    `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> >>\nendobj\n`
-  ];
-  
-  const contentStream = 
-    `BT\n/F1 12 Tf\n50 750 Td\n(This is a placeholder for a missing local file:) Tj\n` +
-    `0 -20 Td\n(${cleanFilename}) Tj\n` +
-    `0 -40 Td\n(The database references a file uploaded on production that does not exist locally.) Tj\n` +
-    `0 -20 Td\n(A placeholder PDF is served here to prevent breaking your local flow.) Tj\n` +
-    `ET\n`;
-    
-  bodyParts.push(`4 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}endstream\nendobj\n`);
-  
-  // Calculate offsets
-  const offsets = [];
-  let currentOffset = 0;
-  for (let i = 0; i < bodyParts.length; i++) {
-    offsets.push(currentOffset);
-    currentOffset += Buffer.byteLength(bodyParts[i], 'utf8');
-  }
-  
-  const xrefOffset = currentOffset;
-  let xref = `xref\n0 5\n0000000000 65535 f\n`;
-  for (let i = 0; i < offsets.length; i++) {
-    xref += `${String(offsets[i]).padStart(10, '0')} 00000 n\n`;
-  }
-  
-  const trailer = `trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-  
-  return Buffer.from(bodyParts.join('') + xref + trailer, 'utf8');
+    const cleanFilename = filename.replace(/[()]/g, '_');
+    const bodyParts = [
+        `%PDF-1.4\n`,
+        `1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`,
+        `2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n`,
+        `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> >>\nendobj\n`
+    ];
+
+    const contentStream =
+        `BT\n/F1 12 Tf\n50 750 Td\n(This is a placeholder for a missing local file:) Tj\n` +
+        `0 -20 Td\n(${cleanFilename}) Tj\n` +
+        `0 -40 Td\n(The database references a file uploaded on production that does not exist locally.) Tj\n` +
+        `0 -20 Td\n(A placeholder PDF is served here to prevent breaking your local flow.) Tj\n` +
+        `ET\n`;
+
+    bodyParts.push(`4 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}endstream\nendobj\n`);
+
+    // Calculate offsets
+    const offsets = [];
+    let currentOffset = 0;
+    for (let i = 0; i < bodyParts.length; i++) {
+        offsets.push(currentOffset);
+        currentOffset += Buffer.byteLength(bodyParts[i], 'utf8');
+    }
+
+    const xrefOffset = currentOffset;
+    let xref = `xref\n0 5\n0000000000 65535 f\n`;
+    for (let i = 0; i < offsets.length; i++) {
+        xref += `${String(offsets[i]).padStart(10, '0')} 00000 n\n`;
+    }
+
+    const trailer = `trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+
+    return Buffer.from(bodyParts.join('') + xref + trailer, 'utf8');
 };
 
 const getDummySVG = (filename) => {
-  return Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">` +
-    `<rect width="100%" height="100%" fill="#f3f4f6"/>` +
-    `<text x="20" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Missing File Placeholder</text>` +
-    `<text x="20" y="90" font-family="sans-serif" font-size="12" fill="#4b5563">${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}</text>` +
-    `<text x="20" y="130" font-family="sans-serif" font-size="12" fill="#6b7280">File is stored on the production server.</text>` +
-    `</svg>`
-  );
+    return Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">` +
+        `<rect width="100%" height="100%" fill="#f3f4f6"/>` +
+        `<text x="20" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Missing File Placeholder</text>` +
+        `<text x="20" y="90" font-family="sans-serif" font-size="12" fill="#4b5563">${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}</text>` +
+        `<text x="20" y="130" font-family="sans-serif" font-size="12" fill="#6b7280">File is stored on the production server.</text>` +
+        `</svg>`
+    );
 };
 
 const getPlaceholderFile = (filename) => {
-  const ext = path.extname(filename).toLowerCase();
-  if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'].includes(ext)) {
+    const ext = path.extname(filename).toLowerCase();
+    if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'].includes(ext)) {
+        return {
+            content: getDummySVG(filename),
+            contentType: 'image/svg+xml',
+            filename: filename.endsWith('.svg') ? filename : filename + '.svg'
+        };
+    }
     return {
-      content: getDummySVG(filename),
-      contentType: 'image/svg+xml',
-      filename: filename.endsWith('.svg') ? filename : filename + '.svg'
+        content: getDummyPDF(filename),
+        contentType: 'application/pdf',
+        filename: filename
     };
-  }
-  return {
-    content: getDummyPDF(filename),
-    contentType: 'application/pdf',
-    filename: filename
-  };
 };
 
 const resolveFilePath = (storedPath) => {
-  if (!storedPath) return null;
-  
-  // Normalize path separators to ensure cross-platform compatibility
-  const normalizedPath = storedPath.replace(/[\\/]/g, path.sep);
-  const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
-  const projectRoot = path.resolve(__dirname, '..');
-  
-  const possiblePaths = [
-    path.isAbsolute(normalizedPath)
-      ? normalizedPath
-      : path.join(uploadsDir, normalizedPath.replace(/^uploads[\\/]/, '')),
-    path.join(uploadsDir, path.basename(normalizedPath)),
-    path.join(uploadsDir, 'quotations', path.basename(normalizedPath)),
-    path.join(projectRoot, normalizedPath),
-    path.resolve(projectRoot, '..', normalizedPath)
-  ];
+    if (!storedPath) return null;
 
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-      return p;
+    // Normalize path separators to ensure cross-platform compatibility
+    const normalizedPath = storedPath.replace(/[\\/]/g, path.sep);
+    const uploadsDir = path.resolve(process.env.UPLOAD_PATH);
+    const projectRoot = path.resolve(__dirname, '..');
+
+    const possiblePaths = [
+        path.isAbsolute(normalizedPath)
+            ? normalizedPath
+            : path.join(uploadsDir, normalizedPath.replace(/^uploads[\\/]/, '')),
+        path.join(uploadsDir, path.basename(normalizedPath)),
+        path.join(uploadsDir, 'quotations', path.basename(normalizedPath)),
+        path.join(projectRoot, normalizedPath),
+        path.resolve(projectRoot, '..', normalizedPath)
+    ];
+
+    for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+            return p;
+        }
     }
-  }
-  return null;
+    return null;
 };
 
 
@@ -139,7 +140,7 @@ const getQuotations = async (req, res) => {
             // Resolve internal ID if public_id is provided
             const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
             const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
-            
+
             query += " AND (q.root_card_id = ? OR mr.root_card_id = ?)";
             params.push(effectiveId, effectiveId);
         }
@@ -234,12 +235,12 @@ const createQuotation = async (req, res) => {
         while (!isUnique) {
             const randomSuffix = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit random number
             quotationNumber = `${prefix}-${year}-${randomSuffix}`;
-            
+
             const [existing] = await connection.query(
                 'SELECT id FROM quotations WHERE quotation_number = ?',
                 [quotationNumber]
             );
-            
+
             if (existing.length === 0) {
                 isUnique = true;
             }
@@ -421,19 +422,25 @@ const getVendorCategories = async (req, res) => {
 };
 
 const createVendor = async (req, res) => {
-    const { 
+    const {
         name, email, address, category, vendor_type, status,
         contact_person_name, designation, mobile_number, city, state, pincode,
         vendor_code, gstin
     } = req.body;
-    
+
+    if (!email || !email.trim()) {
+        return res.status(400).json({ message: 'Email address is required' });
+    }
+    if (!EMAIL_REGEX.test(email.trim())) {
+        return res.status(400).json({ message: 'Invalid email address format' });
+    }
     if (!gstin || !gstin.trim()) {
         return res.status(400).json({ message: 'GST number is required' });
     }
     if (!GST_REGEX.test(gstin.trim())) {
         return res.status(400).json({ message: 'Invalid GST number format' });
     }
-    
+
     try {
         // Generate Vendor Code if not provided
         let vCode = vendor_code;
@@ -462,7 +469,7 @@ const createVendor = async (req, res) => {
                 city, state, pincode, gstin
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                name, email || '', address || '', category || '', 
+                name, email.trim(), address || '', category || '',
                 vendor_type || 'material_supplier', status || 'active',
                 vCode, contact_person_name || '', designation || '', mobile_number || '',
                 city || '', state || '', pincode || '', gstin || ''
@@ -487,12 +494,18 @@ const createVendor = async (req, res) => {
 
 const updateVendor = async (req, res) => {
     const { id } = req.params;
-    const { 
+    const {
         name, email, address, category, vendor_type, status,
-        vendor_code, contact_person_name, designation, mobile_number, 
+        vendor_code, contact_person_name, designation, mobile_number,
         city, state, pincode, gstin
     } = req.body;
 
+    if (!email || !email.trim()) {
+        return res.status(400).json({ message: 'Email address is required' });
+    }
+    if (!EMAIL_REGEX.test(email.trim())) {
+        return res.status(400).json({ message: 'Invalid email address format' });
+    }
     if (!gstin || !gstin.trim()) {
         return res.status(400).json({ message: 'GST number is required' });
     }
@@ -509,9 +522,9 @@ const updateVendor = async (req, res) => {
                 pincode = ?, gstin = ?
             WHERE id = ?`,
             [
-                name, email, address, category, 
-                vendor_type, status, vendor_code, contact_person_name, 
-                designation, mobile_number, city, state, 
+                name, email.trim(), address, category,
+                vendor_type, status, vendor_code, contact_person_name,
+                designation, mobile_number, city, state,
                 pincode, gstin, id
             ]
         );
@@ -554,7 +567,7 @@ const analyzeQuotation = async (req, res) => {
 
         const items = JSON.parse(req.body.items || '[]');
         console.log('Number of items to analyze:', items.length);
-        
+
         const filePath = req.file.path;
         const fileExtension = path.extname(req.file.originalname).toLowerCase();
 
@@ -563,25 +576,25 @@ const analyzeQuotation = async (req, res) => {
         if (fileExtension === '.pdf') {
             console.log('Parsing PDF file...');
             const dataBuffer = fs.readFileSync(filePath);
-            
+
             try {
                 // Try with custom pagerender first for better column detection
                 const options = {
-                    pagerender: function(pageData) {
+                    pagerender: function (pageData) {
                         return pageData.getTextContent()
-                        .then(function(textContent) {
-                            let lastY, text = '';
-                            for (let item of textContent.items) {
-                                if (lastY == item.transform[5] || !lastY){
-                                    text += ' ' + item.str;
+                            .then(function (textContent) {
+                                let lastY, text = '';
+                                for (let item of textContent.items) {
+                                    if (lastY == item.transform[5] || !lastY) {
+                                        text += ' ' + item.str;
+                                    }
+                                    else {
+                                        text += '\n' + item.str;
+                                    }
+                                    lastY = item.transform[5];
                                 }
-                                else{
-                                    text += '\n' + item.str;
-                                }    
-                                lastY = item.transform[5];
-                            }
-                            return text;
-                        });
+                                return text;
+                            });
                     }
                 };
                 const data = await pdf(dataBuffer, options);
@@ -595,9 +608,9 @@ const analyzeQuotation = async (req, res) => {
                 } catch (fallbackError) {
                     console.error('All PDF parsing attempts failed:', fallbackError.message);
                     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-                    return res.status(422).json({ 
+                    return res.status(422).json({
                         message: 'The PDF document appears to be malformed or protected. Please try another file or enter data manually.',
-                        error: fallbackError.message 
+                        error: fallbackError.message
                     });
                 }
             }
@@ -609,13 +622,13 @@ const analyzeQuotation = async (req, res) => {
         }
 
         console.log('Extracted Text length:', extractedText.length);
-        
+
         // Detect column order from headers if possible
         let rateBeforeWeight = false; // Default: Weight then Rate
         const lowerText = extractedText.toLowerCase();
         const rateIdx = lowerText.indexOf('rate');
         const weightIdx = lowerText.indexOf('weight');
-        
+
         if (rateIdx !== -1 && weightIdx !== -1 && rateIdx < weightIdx) {
             rateBeforeWeight = true;
             console.log('Detected column order: Rate before Weight');
@@ -650,12 +663,12 @@ const analyzeQuotation = async (req, res) => {
             // Step 1: Find all lines containing parts of the item name
             const targetWords = targetName.split(' ').filter(w => w.length > 1);
             let candidates = [];
-            
+
             for (let i = 0; i < lines.length; i++) {
                 const line = normalize(lines[i]);
                 const matchCount = targetWords.filter(word => line.includes(word)).length;
                 const score = matchCount / targetWords.length;
-                
+
                 if (score > 0.3) {
                     candidates.push({ lineIdx: i, score });
                 }
@@ -671,11 +684,11 @@ const analyzeQuotation = async (req, res) => {
                     let foundMath = false;
                     // Combine current line and next few lines to ensure we get the full row data
                     const contextText = lines.slice(startIdx, startIdx + 6).join(' ');
-                    
+
                     // Extract all numbers
                     const numberMatches = contextText.match(/\d+(?:,\d{3})*(?:\.\d+)?/g) || [];
                     const numbers = numberMatches.map(n => parseFloat(n.replace(/,/g, '')));
-                    
+
                     // Filter out numbers that are part of the dimensions in the item name
                     const dimensions = item.item_name.match(/\d+/g) || [];
                     const filteredNumbers = numbers.filter(n => !dimensions.some(d => parseFloat(d) === n));
@@ -685,12 +698,12 @@ const analyzeQuotation = async (req, res) => {
                     // 1. Precise Table Row Pattern Matching
                     // Looking for: [Qty] [Any Text/Unit] [Weight] [Rate] [Amount]
                     const qtyIdx = numbers.findIndex(n => Math.abs(n - knownQty) < 0.01);
-                    
+
                     if (qtyIdx !== -1 && numbers.length > qtyIdx + 2) {
                         const wCandidate = numbers[qtyIdx + (rateBeforeWeight ? 2 : 1)];
                         const rCandidate = numbers[qtyIdx + (rateBeforeWeight ? 1 : 2)];
                         const a = numbers[qtyIdx + 3] || 0;
-                        
+
                         // Verification: w * r should be very close to a
                         // This confirms we have the right columns
                         if (a > 0 && Math.abs((wCandidate * rCandidate) - a) < (a * 0.05 + 10)) {
@@ -714,9 +727,9 @@ const analyzeQuotation = async (req, res) => {
                                 const n1 = filteredNumbers[i];
                                 const n2 = filteredNumbers[j];
                                 const prod = n1 * n2;
-                                
+
                                 // Check if any OTHER number matches this product (Amount)
-                                const totalIdx = filteredNumbers.findIndex((n, idx) => 
+                                const totalIdx = filteredNumbers.findIndex((n, idx) =>
                                     idx !== i && idx !== j && Math.abs(n - prod) < (prod * 0.02 + 5)
                                 );
 
@@ -781,9 +794,9 @@ const analyzeQuotation = async (req, res) => {
         // Cleanup temp file
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
 
-        res.json({ 
+        res.json({
             items: updatedItems,
-            total_amount: totalAmount 
+            total_amount: totalAmount
         });
 
     } catch (error) {
@@ -809,7 +822,7 @@ const getCommunications = async (req, res) => {
             ORDER BY qc.created_at DESC
         `;
         const [rows] = await db.query(query, [id]);
-        
+
         // Fetch attachments for each communication
         for (let row of rows) {
             const [attachments] = await db.query(
@@ -818,10 +831,10 @@ const getCommunications = async (req, res) => {
             );
             row.attachments = attachments;
         }
-        
+
         // Mark all as read when viewed
         await db.query('UPDATE quotation_communications SET is_read = TRUE WHERE quotation_id = ? AND sender_id IS NULL', [id]);
-        
+
         res.json(rows);
     } catch (error) {
         console.error('Error fetching communications:', error);
@@ -859,7 +872,7 @@ const downloadAttachment = async (req, res) => {
 
         res.setHeader('Content-Type', attachment.mime_type);
         res.setHeader('Content-Disposition', `attachment; filename="${attachment.file_name}"`);
-        
+
         const fileStream = fs.createReadStream(filePath);
         fileStream.pipe(res);
     } catch (error) {
@@ -875,9 +888,9 @@ const sendQuotationEmail = async (req, res) => {
 
     try {
         console.log(`Sending email to: ${email}`);
-        
+
         const attachments = [];
-        
+
         // Handle file upload from multipart/form-data
         if (file) {
             attachments.push({
@@ -889,7 +902,7 @@ const sendQuotationEmail = async (req, res) => {
             setTimeout(() => {
                 if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
             }, 1000);
-        } 
+        }
         // Fallback to legacy base64 if no file provided
         else if (pdfBase64) {
             const base64Data = pdfBase64.split(',')[1] || pdfBase64;
@@ -915,10 +928,10 @@ const sendQuotationEmail = async (req, res) => {
         res.status(200).json({ success: true, message: 'Email sent successfully' });
     } catch (error) {
         console.error('Email Error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Failed to send email', 
-            error: error.message 
+        res.status(500).json({
+            success: false,
+            message: 'Failed to send email',
+            error: error.message
         });
     }
 };
@@ -973,7 +986,7 @@ const updateQuotationStatus = async (req, res) => {
         params.push(id);
 
         await db.query(query, params);
-        res.json({ 
+        res.json({
             message: 'Status updated successfully',
             received_quotation_path: dbPath
         });
@@ -987,14 +1000,14 @@ const downloadReceivedQuotation = async (req, res) => {
     const { id } = req.params;
     try {
         const [rows] = await db.query('SELECT received_quotation_path FROM quotations WHERE id = ?', [id]);
-        
+
         if (rows.length === 0 || !rows[0].received_quotation_path) {
             return res.status(404).json({ message: 'Quotation file not found' });
         }
 
         const filePath = resolveFilePath(rows[0].received_quotation_path);
         const fileName = path.basename(rows[0].received_quotation_path);
-        
+
         if (!filePath) {
             console.warn(`Quotation PDF ${fileName} not found on server disk. Serving fallback placeholder.`);
             const fallback = getPlaceholderFile(fileName);
@@ -1005,7 +1018,7 @@ const downloadReceivedQuotation = async (req, res) => {
 
         res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
         res.setHeader('Content-Type', 'application/pdf');
-        
+
         const fileStream = fs.createReadStream(filePath);
         fileStream.pipe(res);
     } catch (error) {
@@ -1019,10 +1032,10 @@ const deleteQuotation = async (req, res) => {
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-        
+
         // Delete items first (due to foreign key constraints if any)
         await connection.query('DELETE FROM quotation_items WHERE quotation_id = ?', [id]);
-        
+
         // Delete communications and their attachments
         const [comms] = await connection.query('SELECT id FROM quotation_communications WHERE quotation_id = ?', [id]);
         for (const comm of comms) {
@@ -1036,10 +1049,10 @@ const deleteQuotation = async (req, res) => {
             await connection.query('DELETE FROM quotation_communication_attachments WHERE communication_id = ?', [comm.id]);
         }
         await connection.query('DELETE FROM quotation_communications WHERE quotation_id = ?', [id]);
-        
+
         // Delete quotation
         await connection.query('DELETE FROM quotations WHERE id = ?', [id]);
-        
+
         await connection.commit();
         res.json({ message: 'Quotation deleted successfully' });
     } catch (error) {
@@ -1054,7 +1067,7 @@ const deleteQuotation = async (req, res) => {
 const createBOMVersionFromQuotation = async (connection, rootCardId, quotationItems) => {
     try {
         console.log(`BOM Versioning check started for Root Card ID: ${rootCardId}`);
-        
+
         if (!rootCardId) {
             console.log('BOM Versioning skipped: No Root Card ID provided');
             return;
@@ -1062,11 +1075,11 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
 
         // 1. Check if any item has vendor_item_name or dimensions that are actually different
         const itemsWithAlternatives = (quotationItems || []).filter(item => {
-            const hasDifferentName = item.vendor_item_name && 
-                item.vendor_item_name.trim() !== '' && 
+            const hasDifferentName = item.vendor_item_name &&
+                item.vendor_item_name.trim() !== '' &&
                 item.vendor_item_name.trim().toLowerCase() !== (item.item_name || "").trim().toLowerCase();
-            
-            const hasDifferentDimensions = 
+
+            const hasDifferentDimensions =
                 (item.vendor_length !== null && item.vendor_length !== undefined && parseFloat(item.vendor_length) !== parseFloat(item.length)) ||
                 (item.vendor_width !== null && item.vendor_width !== undefined && parseFloat(item.vendor_width) !== parseFloat(item.width)) ||
                 (item.vendor_thickness !== null && item.vendor_thickness !== undefined && parseFloat(item.vendor_thickness) !== parseFloat(item.thickness)) ||
@@ -1079,9 +1092,9 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
 
             return hasDifferentName || hasDifferentDimensions;
         });
-        
+
         console.log(`Found ${itemsWithAlternatives.length} items with different vendor details among ${quotationItems?.length || 0} items`);
-        
+
         if (itemsWithAlternatives.length === 0) {
             console.log('No different vendor details found. Skipping BOM versioning.');
             return;
@@ -1121,7 +1134,7 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
         if (baseBomNumber.includes('-V')) {
             baseBomNumber = baseBomNumber.split('-V')[0];
         }
-        
+
         // Find the latest version number for this base BOM number
         const [lastBom] = await connection.query(
             'SELECT bom_number FROM boms WHERE bom_number LIKE ? ORDER BY bom_number DESC LIMIT 1',
@@ -1139,7 +1152,7 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
             }
         }
         const newBomNumber = `${baseBomNumber}-V${nextVersion}`;
-        
+
         console.log(`Generating new BOM version: ${newBomNumber} (Base: ${baseBomNumber})`);
 
         // Generate public_id for secure routing
@@ -1171,14 +1184,14 @@ const createBOMVersionFromQuotation = async (connection, rootCardId, quotationIt
         // 6. Copy and update materials
         const [originalMaterials] = await connection.query('SELECT * FROM bom_materials WHERE bom_id = ?', [currentBom.id]);
         console.log(`Copying ${originalMaterials.length} materials to new BOM...`);
-        
+
         const newMaterialValues = originalMaterials.map(m => {
             // Check if this material matches any quotation item with alternative
             // Use fuzzy matching (trim and lowercase)
-            const alternative = itemsWithAlternatives.find(aq => 
+            const alternative = itemsWithAlternatives.find(aq =>
                 (aq.item_name || "").trim().toLowerCase() === (m.item_name || "").trim().toLowerCase()
             );
-            
+
             if (alternative) {
                 console.log(`Updating material in BOM Revision: "${m.item_name}" -> "${alternative.vendor_item_name}"`);
             }

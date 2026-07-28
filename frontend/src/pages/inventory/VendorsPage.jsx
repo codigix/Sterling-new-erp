@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   Truck,
   Plus,
@@ -57,6 +57,54 @@ const VendorsPage = () => {
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
+    }));
+  };
+
+  const [categorySearch, setCategorySearch] = useState("");
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const categoryRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (categoryRef.current && !categoryRef.current.contains(event.target)) {
+        setShowCategoryDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleCategoryInputKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const val = categorySearch.trim();
+      if (val && !(Array.isArray(formData.category) && formData.category.includes(val))) {
+        setFormData((prev) => ({
+          ...prev,
+          category: [...(Array.isArray(prev.category) ? prev.category : []), val],
+        }));
+        setCategorySearch("");
+      }
+    }
+  };
+
+  const handleSelectCategory = (cat) => {
+    if (!(Array.isArray(formData.category) && formData.category.includes(cat))) {
+      setFormData((prev) => ({
+        ...prev,
+        category: [...(Array.isArray(prev.category) ? prev.category : []), cat],
+      }));
+    }
+    setCategorySearch("");
+    setShowCategoryDropdown(false);
+  };
+
+  const handleRemoveCategory = (catToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      category: (Array.isArray(prev.category) ? prev.category : []).filter(
+        (c) => c !== catToRemove
+      ),
     }));
   };
 
@@ -233,6 +281,15 @@ const VendorsPage = () => {
       toastUtils.warning("Vendor name is required");
       return;
     }
+    if (!formData.email || !formData.email.trim()) {
+      toastUtils.warning("Email is required");
+      return;
+    }
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!EMAIL_REGEX.test(formData.email.trim())) {
+      toastUtils.warning("Please enter a valid email address");
+      return;
+    }
     if (!formData.gstin.trim()) {
       toastUtils.warning("GST Number is required");
       return;
@@ -262,6 +319,15 @@ const VendorsPage = () => {
     e.preventDefault();
     if (!formData.name.trim()) {
       toastUtils.warning("Vendor name is required");
+      return;
+    }
+    if (!formData.email || !formData.email.trim()) {
+      toastUtils.warning("Email is required");
+      return;
+    }
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!EMAIL_REGEX.test(formData.email.trim())) {
+      toastUtils.warning("Please enter a valid email address");
       return;
     }
     if (!formData.gstin.trim()) {
@@ -446,13 +512,13 @@ const VendorsPage = () => {
               </button>
             </div>
             <form onSubmit={editingVendor ? handleUpdateVendor : handleAddVendor} className="overflow-y-auto flex-1 p-4 space-y-4">
-              <div className="border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
-                <button type="button" onClick={() => toggleSection("basic")} className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <div className="border border-slate-200 dark:border-slate-700 rounded">
+                <button type="button" onClick={() => toggleSection("basic")} className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors rounded-t">
                   <div className="flex items-center gap-2 text-slate-900 dark:text-white text-xs"><Building2 size={15} className="text-blue-500" />Basic Information</div>
                   {expandedSections.basic ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                 </button>
                 {expandedSections.basic && (
-                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200 rounded-b">
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Vendor Code</label>
                       <input type="text" name="vendor_code" value={formData.vendor_code} disabled className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-900 text-blue-600" />
@@ -480,24 +546,83 @@ const VendorsPage = () => {
                       <label className="block text-xs text-slate-500 mb-1">GST Number *</label>
                       <input type="text" name="gstin" value={formData.gstin} onChange={handleFormChange} required placeholder="Enter GST number" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" maxLength={20} />
                     </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs text-slate-500 mb-1">Vendor Category</label>
-                      <div className="flex flex-wrap gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900">
-                        {VENDOR_CATEGORIES.map(cat => (
-                          <button key={cat} type="button" onClick={() => { const current = Array.isArray(formData.category) ? formData.category : []; const updated = current.includes(cat) ? current.filter(c => c !== cat) : [...current, cat]; setFormData(prev => ({ ...prev, category: updated })); }} className={`p-1.5 text-xs rounded transition-all ${Array.isArray(formData.category) && formData.category.includes(cat) ? "bg-blue-600 text-white shadow-blue-500/20" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200"}`}>{cat}</button>
-                        ))}
+                    <div ref={categoryRef}>
+                      <label className="block text-xs text-slate-500 mb-1">Vendor Category (Type to search/add)</label>
+                      <div className="relative">
+                        <div className={`w-full border rounded bg-white dark:bg-slate-700 transition-all duration-200 flex items-center flex-wrap gap-1.5 p-1.5 min-h-[38px] ${showCategoryDropdown ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-slate-600'}`}>
+                          {Array.isArray(formData.category) && formData.category.map(cat => (
+                            <span key={cat} className="bg-blue-600 dark:bg-blue-700 text-white text-[11px] rounded flex items-center gap-1 whitespace-nowrap px-2 py-0.5 font-medium shadow-sm">
+                              {cat}
+                              <button type="button" onClick={() => handleRemoveCategory(cat)} className="hover:text-red-200 focus:outline-none ml-0.5">
+                                <X size={12} />
+                              </button>
+                            </span>
+                          ))}
+                          <input
+                            type="text"
+                            value={categorySearch}
+                            onChange={(e) => { setCategorySearch(e.target.value); setShowCategoryDropdown(true); }}
+                            onFocus={() => setShowCategoryDropdown(true)}
+                            onKeyDown={handleCategoryInputKeyDown}
+                            placeholder={Array.isArray(formData.category) && formData.category.length > 0 ? "" : "Select or type category..."}
+                            className="flex-1 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none placeholder:text-slate-400 p-0.5 border-none outline-none min-w-[120px]"
+                          />
+                        </div>
+
+                        {showCategoryDropdown && (
+                          <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-lg z-50 py-1">
+                            {(() => {
+                              const allAvailableCategories = Array.from(new Set([...VENDOR_CATEGORIES, ...categories]));
+                              const filteredCategories = allAvailableCategories.filter(cat => 
+                                cat.toLowerCase().includes(categorySearch.toLowerCase()) &&
+                                !(Array.isArray(formData.category) && formData.category.includes(cat))
+                              );
+
+                              return (
+                                <>
+                                  {filteredCategories.map(cat => (
+                                    <button
+                                      key={cat}
+                                      type="button"
+                                      onClick={() => handleSelectCategory(cat)}
+                                      className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-900 dark:text-slate-100 transition-colors"
+                                    >
+                                      {cat}
+                                    </button>
+                                  ))}
+                                  
+                                  {categorySearch.trim() && !allAvailableCategories.some(c => c.toLowerCase() === categorySearch.trim().toLowerCase()) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSelectCategory(categorySearch.trim())}
+                                      className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-750 text-blue-600 dark:text-blue-400 border-t border-slate-200 dark:border-slate-750 font-medium transition-colors"
+                                    >
+                                      + Add "{categorySearch.trim()}"
+                                    </button>
+                                  )}
+
+                                  {filteredCategories.length === 0 && !categorySearch.trim() && (
+                                    <div className="px-3 py-2 text-xs text-slate-400 text-center">
+                                      All categories selected
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 )}
               </div>
-              <div className="border border-slate-200 dark:border-slate-700 rounded overflow-hidden">
-                <button type="button" onClick={() => toggleSection("contact")} className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <div className="border border-slate-200 dark:border-slate-700 rounded">
+                <button type="button" onClick={() => toggleSection("contact")} className="w-full p-2 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors rounded-t">
                   <div className="flex items-center gap-2 text-slate-900 dark:text-white text-xs"><UserCheck size={15} className="text-emerald-500" />Contact & Address Information</div>
                   {expandedSections.contact ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                 </button>
                 {expandedSections.contact && (
-                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-slate-800 animate-in slide-in-from-top-2 duration-200 rounded-b">
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Contact Person</label>
                       <input type="text" name="contact_person_name" value={formData.contact_person_name} onChange={handleFormChange} placeholder="Full Name" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
@@ -507,8 +632,8 @@ const VendorsPage = () => {
                       <input type="text" name="mobile_number" value={formData.mobile_number} onChange={handleFormChange} placeholder="+91 XXXXXXXXXX" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Email</label>
-                      <input type="email" name="email" value={formData.email} onChange={handleFormChange} placeholder="vendor@example.com" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
+                      <label className="block text-xs text-slate-500 mb-1">Email *</label>
+                      <input type="email" name="email" value={formData.email} onChange={handleFormChange} required placeholder="vendor@example.com" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" />
                     </div>
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">City</label>

@@ -352,16 +352,25 @@ const QuotationsPage = ({ defaultTab }) => {
   const isExpired = (validUntil) => {
     if (!validUntil) return false;
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const expiry = new Date(validUntil);
+    expiry.setHours(0, 0, 0, 0);
+    
     return expiry < today;
   };
 
   const getDaysValid = (validUntil) => {
     if (!validUntil) return "N/A";
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const expiry = new Date(validUntil);
-    const days = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
-    return days > 0 ? days : 0;
+    expiry.setHours(0, 0, 0, 0);
+    
+    const diffTime = expiry - today;
+    const days = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    return days >= 0 ? days : 0;
   };
 
   const formatCurrency = (value) => {
@@ -919,8 +928,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const handleCreatePOFromQuote = (quote) => {
     if (isExpired(quote.valid_until) && !quote.is_processed) {
-      toast.error("This quotation has expired. You cannot create a PO against an expired quotation.");
-      return;
+      toast.warning("Proceeding with an expired quotation.");
     }
     navigate("/department/procurement/purchase-orders", { 
       state: { quotation: quote } 
@@ -929,8 +937,7 @@ const QuotationsPage = ({ defaultTab }) => {
 
   const handleRecordResponse = (quote) => {
     if (isExpired(quote.valid_until) && !quote.is_processed) {
-      toast.error("This RFQ has expired. You cannot record a response against an expired RFQ.");
-      return;
+      toast.warning("Proceeding with an expired RFQ.");
     }
     setInitialData({
       vendor_id: quote.vendor_id,
@@ -1058,6 +1065,8 @@ const QuotationsPage = ({ defaultTab }) => {
               >
                 {isExpired(value)
                   ? "Expired"
+                  : getDaysValid(value) === 0
+                  ? "Valid today"
                   : getDaysValid(value) + " days valid"}
               </p>
             )}
