@@ -655,22 +655,6 @@ const CreatePurchaseOrderModal = ({ isOpen, onClose, source, type, onPOCreated, 
       }
     }
 
-    if (formData.quotation_id && formData.quotation_date) {
-      const quoteDate = new Date(formData.quotation_date).toISOString().split('T')[0];
-      
-      if (poDate < quoteDate) {
-        toastUtils.warning(`PO date cannot be before Quotation date (${quoteDate})`);
-        return;
-      }
-
-      if (formData.quotation_valid_until) {
-        const validUntil = new Date(formData.quotation_valid_until).toISOString().split('T')[0];
-        if (poDate > validUntil) {
-          toastUtils.warning(`PO date cannot be after Quotation validity date (${validUntil})`);
-          return;
-        }
-      }
-    }
 
     setSubmitting(true);
     try {
