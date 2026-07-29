@@ -199,7 +199,11 @@ const updateBOM = async (req, res) => {
     }
 
     // Resolve internal BOM ID if public_id is provided
-    const [bomLookup] = await connection.query('SELECT id FROM boms WHERE id = ? OR public_id = ?', [bomId, bomId]);
+    const isNumericId = /^\d+$/.test(bomId);
+    const [bomLookup] = await connection.query(
+      `SELECT id FROM boms WHERE ${isNumericId ? 'id' : 'public_id'} = ?`,
+      [bomId]
+    );
     if (bomLookup.length === 0) {
       await connection.rollback();
       return res.status(404).json({ message: 'BOM not found' });
@@ -371,12 +375,13 @@ const getBOMById = async (req, res) => {
       }
     }
 
+    const isNumericId = /^\d+$/.test(bomId);
     const [bomRows] = await db.query(`
       SELECT b.*, rc.project_name, rc.project_code, rc.po_number, rc.quantity
       FROM boms b
       JOIN root_cards rc ON b.root_card_id = rc.id
-      WHERE b.id = ? OR b.public_id = ?
-    `, [bomId, bomId]);
+      WHERE ${isNumericId ? 'b.id' : 'b.public_id'} = ?
+    `, [bomId]);
 
     if (bomRows.length === 0) {
       return res.status(404).json({ message: 'BOM not found' });
@@ -472,7 +477,11 @@ const deleteBOM = async (req, res) => {
       } catch (e) {}
     }
 
-    const [result] = await db.query('DELETE FROM boms WHERE id = ? OR public_id = ?', [bomId, bomId]);
+    const isNumericId = /^\d+$/.test(bomId);
+    const [result] = await db.query(
+      `DELETE FROM boms WHERE ${isNumericId ? 'id' : 'public_id'} = ?`,
+      [bomId]
+    );
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'BOM not found' });
     }
