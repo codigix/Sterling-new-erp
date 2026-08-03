@@ -98,6 +98,8 @@ app.use('/api/procurement/portal/quotes', quotationRoutes);
 // Multi-path registration for Vendors
 app.use('/api/department/procurement/vendors', quotationRoutes);
 app.use('/api/department/inventory/vendors', quotationRoutes);
+app.use('/api/department/production/vendors', quotationRoutes);
+app.use('/api/inventory/vendors', quotationRoutes);
 
 // New Production Flow Routes
 app.use('/api/production', productionRoutes);

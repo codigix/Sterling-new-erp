@@ -349,11 +349,31 @@ const getQuotationStats = async (req, res) => {
     }
 };
 
+const getDepartmentFilter = (req) => {
+    if (req.query.department) {
+        return req.query.department;
+    }
+    if (req.baseUrl && req.baseUrl.includes('/production/')) {
+        return 'production';
+    }
+    if (req.baseUrl && req.baseUrl.includes('/procurement/')) {
+        return 'procurement';
+    }
+    return null;
+};
+
 const getVendors = async (req, res) => {
     try {
         const { search, category, status } = req.query;
+        const department = getDepartmentFilter(req);
+
         let query = 'SELECT * FROM vendors WHERE 1=1';
         const params = [];
+
+        if (department) {
+            query += ' AND department = ?';
+            params.push(department);
+        }
 
         if (search) {
             query += ' AND (name LIKE ? OR email LIKE ? OR phone LIKE ?)';
@@ -397,14 +417,40 @@ const getVendorById = async (req, res) => {
 
 const getVendorStats = async (req, res) => {
     try {
-        const [stats] = await db.query(`
+        const department = getDepartmentFilter(req);
+        let query = `
             SELECT 
                 COUNT(*) as totalVendors,
                 SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as activeVendors,
                 AVG(rating) as averageRating
             FROM vendors
-        `);
-        res.json(stats[0] || { totalVendors: 0, activeVendors: 0, averageRating: 0 });
+        `;
+        const params = [];
+        if (department) {
+            query += ` WHERE department = ?`;
+            params.push(department);
+        }
+
+        const [stats] = await db.query(query, params);
+
+        // Compute global next vendor code across all vendors
+        const [lastVendor] = await db.query(
+            'SELECT vendor_code FROM vendors WHERE vendor_code LIKE "VEN-%" ORDER BY id DESC LIMIT 1'
+        );
+        let nextNum = 1;
+        if (lastVendor.length > 0 && lastVendor[0].vendor_code) {
+            const parts = lastVendor[0].vendor_code.split('-');
+            if (parts.length >= 2) {
+                const lastNum = parseInt(parts[1]);
+                if (!isNaN(lastNum)) {
+                    nextNum = lastNum + 1;
+                }
+            }
+        }
+        const result = stats[0] || { totalVendors: 0, activeVendors: 0, averageRating: 0 };
+        result.nextVendorCode = `VEN-${nextNum.toString().padStart(4, '0')}`;
+
+        res.json(result);
     } catch (error) {
         console.error('Error fetching vendor stats:', error);
         res.status(500).json({ message: 'Server error' });
@@ -413,7 +459,14 @@ const getVendorStats = async (req, res) => {
 
 const getVendorCategories = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT DISTINCT category FROM vendors WHERE category IS NOT NULL AND category != ""');
+        const department = getDepartmentFilter(req);
+        let query = 'SELECT DISTINCT category FROM vendors WHERE category IS NOT NULL AND category != ""';
+        const params = [];
+        if (department) {
+            query += ' AND department = ?';
+            params.push(department);
+        }
+        const [rows] = await db.query(query, params);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching vendor categories:', error);
@@ -425,8 +478,10 @@ const createVendor = async (req, res) => {
     const {
         name, email, address, category, vendor_type, status,
         contact_person_name, designation, mobile_number, city, state, pincode,
-        vendor_code, gstin
+        vendor_code, gstin, department
     } = req.body;
+
+    const targetDepartment = department || getDepartmentFilter(req) || 'procurement';
 
     if (!email || !email.trim()) {
         return res.status(400).json({ message: 'Email address is required' });
@@ -442,14 +497,24 @@ const createVendor = async (req, res) => {
     }
 
     try {
-        // Generate Vendor Code if not provided
-        let vCode = vendor_code;
-        if (!vCode) {
+        // Ensure Vendor Code is 100% unique globally across all departments
+        let vCode = vendor_code ? vendor_code.trim() : null;
+
+        // Check if vCode is missing OR already exists in DB
+        let isCodeTaken = false;
+        if (vCode) {
+            const [existingCode] = await db.query('SELECT id FROM vendors WHERE vendor_code = ?', [vCode]);
+            if (existingCode.length > 0) {
+                isCodeTaken = true;
+            }
+        }
+
+        if (!vCode || isCodeTaken) {
             const [lastVendor] = await db.query(
-                'SELECT vendor_code FROM vendors WHERE vendor_code LIKE "VEN-%" ORDER BY vendor_code DESC LIMIT 1'
+                'SELECT vendor_code FROM vendors WHERE vendor_code LIKE "VEN-%" ORDER BY id DESC LIMIT 1'
             );
             let nextNum = 1;
-            if (lastVendor.length > 0) {
+            if (lastVendor.length > 0 && lastVendor[0].vendor_code) {
                 const lastCode = lastVendor[0].vendor_code;
                 const parts = lastCode.split('-');
                 if (parts.length >= 2) {
@@ -466,16 +531,16 @@ const createVendor = async (req, res) => {
             `INSERT INTO vendors (
                 name, email, address, category, vendor_type, status,
                 vendor_code, contact_person_name, designation, mobile_number, 
-                city, state, pincode, gstin
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                city, state, pincode, gstin, department
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name, email.trim(), address || '', category || '',
                 vendor_type || 'material_supplier', status || 'active',
                 vCode, contact_person_name || '', designation || '', mobile_number || '',
-                city || '', state || '', pincode || '', gstin || ''
+                city || '', state || '', pincode || '', gstin || '', targetDepartment
             ]
         );
-        res.status(201).json({ message: 'Vendor created successfully', id: result.insertId, vendor_code: vCode });
+        res.status(201).json({ message: 'Vendor created successfully', id: result.insertId, vendor_code: vCode, department: targetDepartment });
     } catch (error) {
         console.error('Error creating vendor:', error);
         if (error.code === 'ER_DUP_ENTRY') {
@@ -497,7 +562,7 @@ const updateVendor = async (req, res) => {
     const {
         name, email, address, category, vendor_type, status,
         vendor_code, contact_person_name, designation, mobile_number,
-        city, state, pincode, gstin
+        city, state, pincode, gstin, department
     } = req.body;
 
     if (!email || !email.trim()) {
@@ -514,20 +579,27 @@ const updateVendor = async (req, res) => {
     }
 
     try {
-        await db.query(
-            `UPDATE vendors SET 
-                name = ?, email = ?, address = ?, category = ?, 
-                vendor_type = ?, status = ?, vendor_code = ?, contact_person_name = ?, 
-                designation = ?, mobile_number = ?, city = ?, state = ?, 
-                pincode = ?, gstin = ?
-            WHERE id = ?`,
-            [
-                name, email.trim(), address, category,
-                vendor_type, status, vendor_code, contact_person_name,
-                designation, mobile_number, city, state,
-                pincode, gstin, id
-            ]
-        );
+        let updateQuery = `UPDATE vendors SET 
+            name = ?, email = ?, address = ?, category = ?, 
+            vendor_type = ?, status = ?, vendor_code = ?, contact_person_name = ?, 
+            designation = ?, mobile_number = ?, city = ?, state = ?, 
+            pincode = ?, gstin = ?`;
+        const params = [
+            name, email.trim(), address, category,
+            vendor_type, status, vendor_code, contact_person_name,
+            designation, mobile_number, city, state,
+            pincode, gstin
+        ];
+
+        if (department) {
+            updateQuery += `, department = ?`;
+            params.push(department);
+        }
+
+        updateQuery += ` WHERE id = ?`;
+        params.push(id);
+
+        await db.query(updateQuery, params);
         res.json({ message: 'Vendor updated successfully' });
     } catch (error) {
         console.error('Error updating vendor:', error);

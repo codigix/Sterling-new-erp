@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Truck,
   Plus,
@@ -21,6 +22,11 @@ import DataTable from "../../components/ui/DataTable/DataTable";
 const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
 
 const VendorsPage = () => {
+  const location = useLocation();
+  const isProduction = location.pathname.includes("/production");
+  const currentDepartment = isProduction ? "production" : "procurement";
+  const apiBasePath = isProduction ? "department/production/vendors" : "department/procurement/vendors";
+
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({});
@@ -123,9 +129,10 @@ const VendorsPage = () => {
       setLoading(true);
       const params = new URLSearchParams();
       if (query) params.append("search", query);
+      params.append("department", currentDepartment);
 
       const response = await axios.get(
-        `department/procurement/vendors?${params}`
+        `${apiBasePath}?${params}`
       );
       setVendors(response.data);
       setError(null);
@@ -135,21 +142,21 @@ const VendorsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [apiBasePath, currentDepartment]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await axios.get(`department/procurement/vendors/stats`);
+      const response = await axios.get(`${apiBasePath}/stats?department=${currentDepartment}`);
       setStats(response.data);
     } catch (err) {
       console.error("Error fetching stats:", err);
     }
-  }, []);
+  }, [apiBasePath, currentDepartment]);
 
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(
-        `department/procurement/vendors/categories`
+        `${apiBasePath}/categories?department=${currentDepartment}`
       );
       let uniqueCategories = new Set();
       response.data.forEach((item) => {
@@ -169,7 +176,7 @@ const VendorsPage = () => {
     } catch (err) {
       console.error("Error fetching categories:", err);
     }
-  }, []);
+  }, [apiBasePath, currentDepartment]);
 
   useEffect(() => {
     fetchVendors();
@@ -179,7 +186,7 @@ const VendorsPage = () => {
 
   const fetchVendorById = async (id) => {
     try {
-      const response = await axios.get(`department/procurement/vendors/${id}`);
+      const response = await axios.get(`${apiBasePath}/${id}`);
       return response.data;
     } catch (err) {
       console.error("Error fetching vendor details:", err);
@@ -209,7 +216,7 @@ const VendorsPage = () => {
       city: "",
       state: "",
       pincode: "",
-      category: [],
+      category: isProduction ? "" : [],
       vendor_type: "material_supplier",
       status: "active",
       contact_person_name: "",
@@ -226,9 +233,9 @@ const VendorsPage = () => {
   const handleOpenAddModal = async () => {
     resetForm();
     try {
-      const response = await axios.get("department/procurement/vendors/stats");
-      const nextNum = (response.data.totalVendors + 1).toString().padStart(4, "0");
-      setFormData(prev => ({ ...prev, vendor_code: `VEN-${nextNum}` }));
+      const response = await axios.get(`${apiBasePath}/stats?department=${currentDepartment}`);
+      const code = response.data.nextVendorCode || `VEN-${((response.data.totalVendors || 0) + 1).toString().padStart(4, "0")}`;
+      setFormData(prev => ({ ...prev, vendor_code: code }));
     } catch (err) {
       console.error("Error generating vendor code:", err);
     }
@@ -238,12 +245,23 @@ const VendorsPage = () => {
   const handleEditVendor = async (vendor) => {
     const vendorData = await fetchVendorById(vendor.id);
     if (vendorData) {
-      let parsedCategory = [];
-      try {
-        parsedCategory = JSON.parse(vendorData.category);
-        if (!Array.isArray(parsedCategory)) parsedCategory = [vendorData.category];
-      } catch (e) {
-        parsedCategory = vendorData.category ? [vendorData.category] : [];
+      let parsedCategory = isProduction ? (vendorData.category || "") : [];
+      if (!isProduction) {
+        try {
+          parsedCategory = JSON.parse(vendorData.category);
+          if (!Array.isArray(parsedCategory)) parsedCategory = [vendorData.category];
+        } catch (e) {
+          parsedCategory = vendorData.category ? [vendorData.category] : [];
+        }
+      } else {
+        if (typeof parsedCategory === 'string') {
+          try {
+            const arr = JSON.parse(parsedCategory);
+            if (Array.isArray(arr)) parsedCategory = arr.join(", ");
+          } catch (e) {
+            // Keep plain string
+          }
+        }
       }
 
       setEditingVendor(vendorData);
@@ -300,8 +318,16 @@ const VendorsPage = () => {
     }
     setSubmitting(true);
     try {
-      const payload = { ...formData, category: JSON.stringify(formData.category) };
-      await axios.post(`department/procurement/vendors`, payload);
+      const categoryPayload = isProduction
+        ? (typeof formData.category === 'string' ? formData.category : JSON.stringify(formData.category))
+        : JSON.stringify(formData.category);
+
+      const payload = { 
+        ...formData, 
+        department: currentDepartment,
+        category: categoryPayload
+      };
+      await axios.post(apiBasePath, payload);
       setShowAddModal(false);
       resetForm();
       fetchVendors();
@@ -340,8 +366,16 @@ const VendorsPage = () => {
     }
     setSubmitting(true);
     try {
-      const payload = { ...formData, category: JSON.stringify(formData.category) };
-      await axios.put(`department/procurement/vendors/${editingVendor.id}`, payload);
+      const categoryPayload = isProduction
+        ? (typeof formData.category === 'string' ? formData.category : JSON.stringify(formData.category))
+        : JSON.stringify(formData.category);
+
+      const payload = { 
+        ...formData, 
+        department: currentDepartment,
+        category: categoryPayload
+      };
+      await axios.put(`${apiBasePath}/${editingVendor.id}`, payload);
       setShowEditModal(false);
       setEditingVendor(null);
       resetForm();
@@ -359,7 +393,7 @@ const VendorsPage = () => {
   const handleDeleteVendor = async (id) => {
     if (window.confirm("Are you sure you want to delete this vendor?")) {
       try {
-        await axios.delete(`department/procurement/vendors/${id}`);
+        await axios.delete(`${apiBasePath}/${id}`);
         toastUtils.success("Vendor deleted successfully");
         fetchVendors();
         fetchStats();
@@ -546,73 +580,87 @@ const VendorsPage = () => {
                       <label className="block text-xs text-slate-500 mb-1">GST Number *</label>
                       <input type="text" name="gstin" value={formData.gstin} onChange={handleFormChange} required placeholder="Enter GST number" className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none" maxLength={20} />
                     </div>
-                    <div ref={categoryRef}>
-                      <label className="block text-xs text-slate-500 mb-1">Vendor Category (Type to search/add)</label>
-                      <div className="relative">
-                        <div className={`w-full border rounded bg-white dark:bg-slate-700 transition-all duration-200 flex items-center flex-wrap gap-1.5 p-1.5 min-h-[38px] ${showCategoryDropdown ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-slate-600'}`}>
-                          {Array.isArray(formData.category) && formData.category.map(cat => (
-                            <span key={cat} className="bg-blue-600 dark:bg-blue-700 text-white text-[11px] rounded flex items-center gap-1 whitespace-nowrap px-2 py-0.5 font-medium shadow-sm">
-                              {cat}
-                              <button type="button" onClick={() => handleRemoveCategory(cat)} className="hover:text-red-200 focus:outline-none ml-0.5">
-                                <X size={12} />
-                              </button>
-                            </span>
-                          ))}
-                          <input
-                            type="text"
-                            value={categorySearch}
-                            onChange={(e) => { setCategorySearch(e.target.value); setShowCategoryDropdown(true); }}
-                            onFocus={() => setShowCategoryDropdown(true)}
-                            onKeyDown={handleCategoryInputKeyDown}
-                            placeholder={Array.isArray(formData.category) && formData.category.length > 0 ? "" : "Select or type category..."}
-                            className="flex-1 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none placeholder:text-slate-400 p-0.5 border-none outline-none min-w-[120px]"
-                          />
-                        </div>
-
-                        {showCategoryDropdown && (
-                          <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-lg z-50 py-1">
-                            {(() => {
-                              const allAvailableCategories = Array.from(new Set([...VENDOR_CATEGORIES, ...categories]));
-                              const filteredCategories = allAvailableCategories.filter(cat => 
-                                cat.toLowerCase().includes(categorySearch.toLowerCase()) &&
-                                !(Array.isArray(formData.category) && formData.category.includes(cat))
-                              );
-
-                              return (
-                                <>
-                                  {filteredCategories.map(cat => (
-                                    <button
-                                      key={cat}
-                                      type="button"
-                                      onClick={() => handleSelectCategory(cat)}
-                                      className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-900 dark:text-slate-100 transition-colors"
-                                    >
-                                      {cat}
-                                    </button>
-                                  ))}
-                                  
-                                  {categorySearch.trim() && !allAvailableCategories.some(c => c.toLowerCase() === categorySearch.trim().toLowerCase()) && (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleSelectCategory(categorySearch.trim())}
-                                      className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-750 text-blue-600 dark:text-blue-400 border-t border-slate-200 dark:border-slate-750 font-medium transition-colors"
-                                    >
-                                      + Add "{categorySearch.trim()}"
-                                    </button>
-                                  )}
-
-                                  {filteredCategories.length === 0 && !categorySearch.trim() && (
-                                    <div className="px-3 py-2 text-xs text-slate-400 text-center">
-                                      All categories selected
-                                    </div>
-                                  )}
-                                </>
-                              );
-                            })()}
-                          </div>
-                        )}
+                    {isProduction ? (
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1">Vendor Category</label>
+                        <input
+                          type="text"
+                          name="category"
+                          value={typeof formData.category === 'string' ? formData.category : (Array.isArray(formData.category) ? formData.category.join(", ") : "")}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
+                          placeholder="Select or type category..."
+                          className="w-full p-2 text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 focus:border-blue-500 outline-none text-slate-900 dark:text-white"
+                        />
                       </div>
-                    </div>
+                    ) : (
+                      <div ref={categoryRef}>
+                        <label className="block text-xs text-slate-500 mb-1">Vendor Category (Type to search/add)</label>
+                        <div className="relative">
+                          <div className={`w-full border rounded bg-white dark:bg-slate-700 transition-all duration-200 flex items-center flex-wrap gap-1.5 p-1.5 min-h-[38px] ${showCategoryDropdown ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-slate-600'}`}>
+                            {Array.isArray(formData.category) && formData.category.map(cat => (
+                              <span key={cat} className="bg-blue-600 dark:bg-blue-700 text-white text-[11px] rounded flex items-center gap-1 whitespace-nowrap px-2 py-0.5 font-medium shadow-sm">
+                                {cat}
+                                <button type="button" onClick={() => handleRemoveCategory(cat)} className="hover:text-red-200 focus:outline-none ml-0.5">
+                                  <X size={12} />
+                                </button>
+                              </span>
+                            ))}
+                            <input
+                              type="text"
+                              value={categorySearch}
+                              onChange={(e) => { setCategorySearch(e.target.value); setShowCategoryDropdown(true); }}
+                              onFocus={() => setShowCategoryDropdown(true)}
+                              onKeyDown={handleCategoryInputKeyDown}
+                              placeholder={Array.isArray(formData.category) && formData.category.length > 0 ? "" : "Select or type category..."}
+                              className="flex-1 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none placeholder:text-slate-400 p-0.5 border-none outline-none min-w-[120px]"
+                            />
+                          </div>
+
+                          {showCategoryDropdown && (
+                            <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-lg z-50 py-1">
+                              {(() => {
+                                const allAvailableCategories = Array.from(new Set([...VENDOR_CATEGORIES, ...categories]));
+                                const filteredCategories = allAvailableCategories.filter(cat => 
+                                  cat.toLowerCase().includes(categorySearch.toLowerCase()) &&
+                                  !(Array.isArray(formData.category) && formData.category.includes(cat))
+                                );
+
+                                return (
+                                  <>
+                                    {filteredCategories.map(cat => (
+                                      <button
+                                        key={cat}
+                                        type="button"
+                                        onClick={() => handleSelectCategory(cat)}
+                                        className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-900 dark:text-slate-100 transition-colors"
+                                      >
+                                        {cat}
+                                      </button>
+                                    ))}
+                                    
+                                    {categorySearch.trim() && !allAvailableCategories.some(c => c.toLowerCase() === categorySearch.trim().toLowerCase()) && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSelectCategory(categorySearch.trim())}
+                                        className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-750 text-blue-600 dark:text-blue-400 border-t border-slate-200 dark:border-slate-750 font-medium transition-colors"
+                                      >
+                                        + Add "{categorySearch.trim()}"
+                                      </button>
+                                    )}
+
+                                    {filteredCategories.length === 0 && !categorySearch.trim() && (
+                                      <div className="px-3 py-2 text-xs text-slate-400 text-center">
+                                        All categories selected
+                                      </div>
+                                    )}
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

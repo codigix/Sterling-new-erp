@@ -104,7 +104,15 @@ const pool = mysql.createPool({
         console.log("Backfill complete.");
       }
     }
-    
+
+    // Check/Add department column to vendors table
+    const [vendorDeptCol] = await connection.query("SHOW COLUMNS FROM vendors LIKE 'department'");
+    if (vendorDeptCol.length === 0) {
+      await connection.query("ALTER TABLE vendors ADD COLUMN department VARCHAR(50) NULL DEFAULT 'procurement'");
+      await connection.query("UPDATE vendors SET department = 'procurement' WHERE department IS NULL OR department = ''");
+      console.log("Added 'department' column to 'vendors' table and initialized default to 'procurement'.");
+    }
+
     connection.release();
   } catch (error) {
     console.error('Error connecting or running schema update:', error.message);

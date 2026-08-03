@@ -1367,6 +1367,7 @@ model vendors {
   average_lead_time                       Int?                          @default(0)
   preferred_vendor                        Boolean?                      @default(false)
   notes                                   String?                       @db.Text
+  department                              String?                       @default("procurement") @db.VarChar(50)
   grns_grns_vendor_idTovendors            grns[]                        @relation("grns_vendor_idTovendors")
   grns_grns_inspection_vendor_idTovendors grns[]                        @relation("grns_inspection_vendor_idTovendors")
   purchase_orders                         purchase_orders[]
