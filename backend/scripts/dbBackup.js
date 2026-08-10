@@ -26,7 +26,7 @@ const getBackupDirectory = () => {
 };
 
 /**
- * Formats a Date object into YYYY-MM-DD_HH-mm-ss string.
+ * Formats a Date object into DD-MM-YYYY_HH-mm-ss string.
  */
 const formatDateTime = (date = new Date()) => {
   const pad = (num) => String(num).padStart(2, '0');
@@ -36,7 +36,7 @@ const formatDateTime = (date = new Date()) => {
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
   const seconds = pad(date.getSeconds());
-  return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+  return `${day}-${month}-${year}_${hours}-${minutes}-${seconds}`;
 };
 
 /**
