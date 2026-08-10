@@ -20,7 +20,10 @@ const {
   getPasswordResetRequests,
   approvePasswordResetRequest,
   rejectPasswordResetRequest,
-  sendResetLinkEmail
+  sendResetLinkEmail,
+  triggerDatabaseBackup,
+  getDatabaseBackups,
+  downloadDatabaseBackup
 } = require('../controllers/adminController');
 const auth = require('../middleware/authMiddleware');
 
@@ -104,4 +107,17 @@ router.post('/password-reset-requests/:id/reject', auth, rejectPasswordResetRequ
 // @desc    Send password reset link email
 router.post('/password-reset-requests/:id/send-email', auth, sendResetLinkEmail);
 
+// @route   POST api/admin/database/backup
+// @desc    Trigger manual database backup
+router.post('/database/backup', auth, triggerDatabaseBackup);
+
+// @route   GET api/admin/database/backups
+// @desc    Get list of database backup files
+router.get('/database/backups', auth, getDatabaseBackups);
+
+// @route   GET api/admin/database/backups/download/:filename
+// @desc    Download a specific database backup file
+router.get('/database/backups/download/:filename', auth, downloadDatabaseBackup);
+
 module.exports = router;
+

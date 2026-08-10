@@ -22,6 +22,7 @@ const productionRoutes = require('./routes/productionRoutes');
 const { startEmailMonitor } = require('./utils/emailMonitor');
 const { startTimelineAlerts } = require('./utils/timelineAlerts');
 const { startFinancialRemindersScheduler } = require('./utils/financialRemindersScheduler');
+const { startDbBackupScheduler } = require('./utils/dbBackupScheduler');
 const reportRoutes = require('./routes/reportRoutes');
 const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
 const accountingRoutes = require('./routes/accountingRoutes');
@@ -147,7 +148,10 @@ const server = app.listen(PORT, () => {
   startTimelineAlerts();
   // Start checking financial dashboard reminders
   startFinancialRemindersScheduler();
+  // Start daily database backup scheduler
+  startDbBackupScheduler();
 });
 
 // Set timeout to 10 minutes (600,000 ms) for large file uploads
 server.timeout = 10 * 60 * 1000;
+

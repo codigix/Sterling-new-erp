@@ -813,7 +813,75 @@ const getDeptProgressByProject = async (req, res) => {
   }
 };
 
+const { runDatabaseBackup, getBackupDirectory } = require('../scripts/dbBackup');
+const fs = require('fs');
+const path = require('path');
 
+const triggerDatabaseBackup = async (req, res) => {
+  try {
+    const result = await runDatabaseBackup();
+    await logAudit(
+      req.user?.fullName || 'Admin',
+      'Database Backup',
+      'system',
+      `Manual database backup created: ${result.fileName} (${result.fileSizeMB} MB)`,
+      req.ip,
+      'success'
+    );
+    res.json({ message: 'Database backup completed successfully', data: result });
+  } catch (error) {
+    console.error('Error running manual database backup:', error);
+    res.status(500).json({ message: 'Database backup failed', error: error.message });
+  }
+};
+
+const getDatabaseBackups = async (req, res) => {
+  try {
+    const backupDir = getBackupDirectory();
+    if (!fs.existsSync(backupDir)) {
+      return res.json({ backups: [] });
+    }
+
+    const files = fs.readdirSync(backupDir);
+    const backups = files
+      .filter(file => file.endsWith('.sql'))
+      .map(file => {
+        const filePath = path.join(backupDir, file);
+        const stats = fs.statSync(filePath);
+        return {
+          fileName: file,
+          fileSizeMB: (stats.size / (1024 * 1024)).toFixed(2),
+          sizeBytes: stats.size,
+          createdAt: stats.birthtime,
+          modifiedAt: stats.mtime
+        };
+      })
+      .sort((a, b) => b.modifiedAt - a.modifiedAt);
+
+    res.json({ backups });
+  } catch (error) {
+    console.error('Error fetching database backups:', error);
+    res.status(500).json({ message: 'Failed to fetch database backups', error: error.message });
+  }
+};
+
+const downloadDatabaseBackup = async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const sanitizedFilename = path.basename(filename);
+    const backupDir = getBackupDirectory();
+    const filePath = path.join(backupDir, sanitizedFilename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: 'Backup file not found' });
+    }
+
+    res.download(filePath, sanitizedFilename);
+  } catch (error) {
+    console.error('Error downloading database backup:', error);
+    res.status(500).json({ message: 'Failed to download backup file', error: error.message });
+  }
+};
 
 module.exports = {
   getDashboardStats,
@@ -835,5 +903,9 @@ module.exports = {
   getPasswordResetRequests,
   approvePasswordResetRequest,
   rejectPasswordResetRequest,
-  sendResetLinkEmail
+  sendResetLinkEmail,
+  triggerDatabaseBackup,
+  getDatabaseBackups,
+  downloadDatabaseBackup
 };
+
