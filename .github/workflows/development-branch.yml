@@ -1,37 +1,48 @@
-name: Sterling ERP Development Deploy
+name: Sterling ERP CI/CD
 
 on:
   push:
-    branches: [ "development-branch" ]
+    branches: [ development-branch ]
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-      # 1. Manually pull the code into your specific directory
-      - name: Pull latest code
-        run: |
-          cd /var/www/Sterling-new-erp
-          git pull origin development-branch
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 2. Update Frontend
-      - name: Update Frontend
-        run: |
-          cd /var/www/Sterling-new-erp/frontend
-          npm install
-          npm run build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      # 3. Update Backend & Prisma
-      - name: Update Backend & Database
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          cd /var/www/Sterling-new-erp/backend
-          npm install
-          npx prisma generate
-          npx prisma migrate deploy
-
-      # 4. Restart
-      - name: Restart Application
-        run: |
-          pm2 restart all
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/Sterling-new-erp
+            
+            # 1. Pull latest changes
+            git pull origin development-branch
+            
+            # 2. Update Frontend
+            echo "Updating Frontend..."
+            cd frontend
+            npm install
+            npm run build
+            
+            # 3. Update Backend
+            echo "Updating Backend..."
+            cd ../backend
+            npm install
+            npx prisma generate
+            npx prisma migrate deploy
+            
+            # 4. Restart Process
+            echo "Restarting PM2 process..."
+            pm2 restart sterling
+            
+            echo "Deployment Successful!"
