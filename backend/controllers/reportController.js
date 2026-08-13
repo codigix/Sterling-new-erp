@@ -1054,6 +1054,13 @@ const getOperatorLogsReport = async (req, res) => {
 const getProjectManhoursReport = async (req, res) => {
   const { start, end } = req.query;
   try {
+    let dateWhere = '';
+    let params = [];
+    if (start && end) {
+      dateWhere = 'WHERE dpu.work_date BETWEEN ? AND ?';
+      params = [start, end];
+    }
+
     const [rows] = await db.query(`
       SELECT 
         rc.id as root_card_id,
@@ -1066,14 +1073,139 @@ const getProjectManhoursReport = async (req, res) => {
         COALESCE(SUM(dpu.scrap_qty), 0) as total_scrap
       FROM root_cards rc
       JOIN daily_production_updates dpu ON rc.id = dpu.root_card_id
-      WHERE dpu.work_date BETWEEN ? AND ?
+      ${dateWhere}
       GROUP BY rc.id, rc.project_code, rc.project_name, rc.status
       ORDER BY total_hours DESC
-    `, [start, end]);
+    `, params);
 
-    res.json(rows);
+    if (rows.length === 0) {
+      return res.json([]);
+    }
+
+    await ensureHourlyRateColumn();
+
+    // Fetch operator breakdown per project
+    const [operatorRows] = await db.query(`
+      SELECT 
+        dpu.root_card_id,
+        dpu.operator_id,
+        COALESCE(u.full_name, dpu.operator_name, 'Unknown Operator') as operator_name,
+        u.department,
+        u.designation,
+        COALESCE(u.hourly_rate, 0) as hourly_rate,
+        COALESCE(SUM(dpu.actual_hours), 0) as total_hours,
+        COUNT(dpu.id) as total_logs,
+        COALESCE(SUM(dpu.qty_completed), 0) as total_qty,
+        COALESCE(SUM(dpu.scrap_qty), 0) as total_scrap,
+        GROUP_CONCAT(DISTINCT COALESCE(dpu.operation_name, 'General') SEPARATOR ', ') as operations,
+        MAX(dpu.work_date) as last_work_date
+      FROM daily_production_updates dpu
+      LEFT JOIN users u ON dpu.operator_id = u.id
+      ${dateWhere}
+      GROUP BY dpu.root_card_id, dpu.operator_id, COALESCE(u.full_name, dpu.operator_name, 'Unknown Operator'), u.department, u.designation, COALESCE(u.hourly_rate, 0)
+      ORDER BY total_hours DESC
+    `, params);
+
+    // Fetch individual work logs per project
+    const [logRows] = await db.query(`
+      SELECT 
+        dpu.id,
+        dpu.root_card_id,
+        dpu.work_date,
+        dpu.operator_id,
+        COALESCE(u.full_name, dpu.operator_name, 'Unknown Operator') as operator_name,
+        dpu.operation_name,
+        dpu.actual_hours,
+        dpu.qty_completed,
+        dpu.scrap_qty,
+        dpu.status,
+        dpu.remarks
+      FROM daily_production_updates dpu
+      LEFT JOIN users u ON dpu.operator_id = u.id
+      ${dateWhere}
+      ORDER BY dpu.work_date DESC, dpu.id DESC
+    `, params);
+
+    const operatorMap = {};
+    operatorRows.forEach(op => {
+      const key = String(op.root_card_id);
+      if (!operatorMap[key]) {
+        operatorMap[key] = [];
+      }
+      operatorMap[key].push(op);
+    });
+
+    const logMap = {};
+    logRows.forEach(log => {
+      const key = String(log.root_card_id);
+      if (!logMap[key]) {
+        logMap[key] = [];
+      }
+      logMap[key].push(log);
+    });
+
+    const result = rows.map(project => {
+      const key = String(project.root_card_id);
+      return {
+        ...project,
+        operators: operatorMap[key] || [],
+        work_logs: logMap[key] || []
+      };
+    });
+
+    res.json(result);
   } catch (error) {
     console.error('Error fetching project manhours report:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const ensureHourlyRateColumn = async () => {
+  try {
+    const [cols] = await db.query("SHOW COLUMNS FROM users LIKE 'hourly_rate'");
+    if (cols.length === 0) {
+      await db.query("ALTER TABLE users ADD COLUMN hourly_rate DECIMAL(10, 2) DEFAULT 0.00");
+    }
+  } catch (err) {
+    console.error('Error checking/adding hourly_rate column to users table:', err);
+  }
+};
+
+const updateOperatorRates = async (req, res) => {
+  try {
+    const { rates } = req.body;
+    if (!rates) {
+      return res.status(400).json({ message: 'Rates data is required' });
+    }
+
+    await ensureHourlyRateColumn();
+
+    let rateEntries = [];
+    if (Array.isArray(rates)) {
+      rateEntries = rates;
+    } else {
+      rateEntries = Object.entries(rates).map(([key, hourly_rate]) => {
+        const parts = String(key).split('_');
+        const operator_id = parts.length > 1 ? parts[1] : parts[0];
+        return {
+          operator_id: parseInt(operator_id, 10),
+          hourly_rate: parseFloat(hourly_rate || 0)
+        };
+      });
+    }
+
+    for (const entry of rateEntries) {
+      const rate = parseFloat(entry.hourly_rate || 0);
+      if (entry.operator_id && !isNaN(entry.operator_id)) {
+        await db.query('UPDATE users SET hourly_rate = ? WHERE id = ?', [rate, entry.operator_id]);
+      } else if (entry.operator_name) {
+        await db.query('UPDATE users SET hourly_rate = ? WHERE full_name = ?', [rate, entry.operator_name]);
+      }
+    }
+
+    res.json({ message: 'Operator rates updated successfully' });
+  } catch (error) {
+    console.error('Error updating operator rates:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -1090,6 +1222,7 @@ module.exports = {
   getEmployeeWorkingHours,
   getDesignEngineerReport,
   getOperatorLogsReport,
-  getProjectManhoursReport
+  getProjectManhoursReport,
+  updateOperatorRates
 };
 

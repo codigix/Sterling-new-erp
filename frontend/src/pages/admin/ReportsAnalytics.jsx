@@ -40,6 +40,9 @@ import {
   Filter,
   FileSpreadsheet,
   Eye,
+  ChevronDown,
+  Edit3,
+  Save,
 } from 'lucide-react';
 
 ChartJS.register(
@@ -57,7 +60,30 @@ ChartJS.register(
 );
 
 const ReportsAnalytics = () => {
-  const [selectedReport, setSelectedReport] = useState('projects');
+  const [selectedReport, setSelectedReport] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const tabFromUrl = params.get('tab');
+      if (tabFromUrl) return tabFromUrl;
+      const savedTab = localStorage.getItem('admin_selected_report');
+      if (savedTab) return savedTab;
+    } catch (e) {
+      console.error('Error reading saved tab:', e);
+    }
+    return 'projects';
+  });
+
+  const handleSelectReport = (tabId) => {
+    setSelectedReport(tabId);
+    try {
+      localStorage.setItem('admin_selected_report', tabId);
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tabId);
+      window.history.replaceState({}, '', url.toString());
+    } catch (e) {
+      console.error('Error saving selected tab:', e);
+    }
+  };
   const [dateRange, setDateRange] = useState({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
@@ -98,6 +124,25 @@ const ReportsAnalytics = () => {
   const [employeeDailyReports, setEmployeeDailyReports] = useState([]);
   const [employeeDailyReportsLoading, setEmployeeDailyReportsLoading] = useState(false);
   const [employeeModalTab, setEmployeeModalTab] = useState('working-hours');
+  const [operatorRates, setOperatorRates] = useState({});
+  const [editingProjectMap, setEditingProjectMap] = useState({});
+  const [savingRates, setSavingRates] = useState(false);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+
+  useEffect(() => {
+    if (reportData && reportData['project-manhours']) {
+      const initialRates = {};
+      reportData['project-manhours'].forEach(project => {
+        if (project.operators) {
+          project.operators.forEach(op => {
+            const key = `${project.root_card_id}_${op.operator_id}`;
+            initialRates[key] = op.hourly_rate !== undefined && op.hourly_rate !== null ? String(op.hourly_rate) : '0';
+          });
+        }
+      });
+      setOperatorRates(prev => ({ ...initialRates, ...prev }));
+    }
+  }, [reportData]);
 
   const [selectedProjectId, setSelectedProjectId] = useState('');
   const [projectSearch, setProjectSearch] = useState('');
@@ -190,6 +235,58 @@ const ReportsAnalytics = () => {
   useEffect(() => {
     fetchReportData();
   }, [fetchReportData]);
+
+  const handleSaveRates = async (rootCardId) => {
+    try {
+      setSavingRates(true);
+      const projectList = reportData?.['project-manhours'] || [];
+      const project = projectList.find(p => String(p.root_card_id) === String(rootCardId));
+      if (!project || !project.operators) return;
+
+      const payload = project.operators.map(op => {
+        const rateKey = `${rootCardId}_${op.operator_id}`;
+        return {
+          operator_id: op.operator_id,
+          operator_name: op.operator_name,
+          hourly_rate: parseFloat(operatorRates[rateKey] || 0)
+        };
+      });
+
+      await axios.post('/reports/operator-rates', { rates: payload });
+
+      setReportData(prev => {
+        const currentProjects = prev['project-manhours'] || [];
+        const updatedProjects = currentProjects.map(p => {
+          if (String(p.root_card_id) === String(rootCardId)) {
+            const updatedOperators = (p.operators || []).map(op => {
+              const rateKey = `${rootCardId}_${op.operator_id}`;
+              return {
+                ...op,
+                hourly_rate: parseFloat(operatorRates[rateKey] || 0)
+              };
+            });
+            return {
+              ...p,
+              operators: updatedOperators
+            };
+          }
+          return p;
+        });
+        return {
+          ...prev,
+          'project-manhours': updatedProjects
+        };
+      });
+
+      setEditingProjectMap(prev => ({ ...prev, [rootCardId]: false }));
+      setSaveSuccessMsg('Operator rates saved to database successfully!');
+      setTimeout(() => setSaveSuccessMsg(''), 3500);
+    } catch (err) {
+      console.error('Failed to save operator rates:', err);
+    } finally {
+      setSavingRates(false);
+    }
+  };
 
   const departmentTaskColumns = [
     {
@@ -553,6 +650,216 @@ const ReportsAnalytics = () => {
       ),
     },
   ];
+
+  const renderProjectManhoursDetail = (row) => {
+    const operators = row.operators || [];
+    const logs = row.work_logs || [];
+    const projectTotalHours = parseFloat(row.total_hours || 0);
+
+    const isEditing = !!editingProjectMap[row.root_card_id];
+
+    const totalProjectCost = operators.reduce((sum, op) => {
+      const rateKey = `${row.root_card_id}_${op.operator_id}`;
+      const rate = parseFloat(operatorRates[rateKey] ?? op.hourly_rate ?? 0);
+      const hours = parseFloat(op.total_hours || 0);
+      return sum + (hours * rate);
+    }, 0);
+
+    return (
+      <div className="p-4 bg-slate-50/80 border-t border-b border-indigo-100/60 rounded-b space-y-4 text-left">
+        {saveSuccessMsg && (
+          <div className="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg flex items-center justify-between shadow-sm animate-fade-in">
+            <span className="font-medium">{saveSuccessMsg}</span>
+          </div>
+        )}
+
+        {/* Header & Quick Metrics */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
+              <Users className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold text-slate-800">
+                Operator Breakdown: {row.project_name} ({row.project_code || `PRJ-${row.root_card_id}`})
+              </h4>
+              <p className="text-[11px] text-slate-500">
+                {isEditing ? 'Editing rate per hour for operators below' : 'Click Edit Rates to adjust operator hourly rates'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <div className="px-3 py-1 bg-slate-100 rounded text-slate-700 font-medium flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-slate-500" />
+              <span>Operators: <strong className="text-slate-900">{operators.length}</strong></span>
+            </div>
+            <div className="px-3 py-1 bg-blue-50 rounded text-blue-700 font-medium flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-blue-600" />
+              <span>Total Manhours: <strong className="text-blue-900">{projectTotalHours.toFixed(2)} hrs</strong></span>
+            </div>
+            <div className="px-3 py-1 bg-amber-50 rounded text-amber-800 font-medium flex items-center gap-1.5 border border-amber-200/60">
+              <span>Total Costing: <strong className="text-amber-900">₹{totalProjectCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        {/* Operator Summary Table */}
+        {operators.length === 0 ? (
+          <div className="p-4 text-center text-xs text-slate-400 bg-white rounded border border-slate-200 italic">
+            No operator details found for this project.
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+            <div className="px-4 py-2 bg-slate-100/70 border-b border-slate-200 text-xs font-medium text-slate-700 flex justify-between items-center">
+              <span className="font-semibold text-slate-800">Operator Manhours & Operations Costing</span>
+              <div className="flex items-center gap-2">
+                {!isEditing ? (
+                  <button
+                    onClick={() => setEditingProjectMap(prev => ({ ...prev, [row.root_card_id]: true }))}
+                    className="px-2.5 py-1 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer border border-indigo-200/60"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit Rates</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleSaveRates(row.root_card_id)}
+                      disabled={savingRates}
+                      className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      <span>{savingRates ? 'Saving...' : 'Save Rates'}</span>
+                    </button>
+                    <button
+                      onClick={() => setEditingProjectMap(prev => ({ ...prev, [row.root_card_id]: false }))}
+                      className="px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs font-medium transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th className="p-2.5 pl-4">Operator Name</th>
+                    <th className="p-2.5">Operation</th>
+                    <th className="p-2.5 text-right">Working Hours</th>
+                    <th className="p-2.5 text-right w-36">Rate / Hr (₹)</th>
+                    <th className="p-2.5 pr-4 text-right">Costing (₹)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {operators.map((op, opIdx) => {
+                    const opHours = parseFloat(op.total_hours || 0);
+                    const rateKey = `${row.root_card_id}_${op.operator_id}`;
+                    const rateVal = operatorRates[rateKey] ?? (op.hourly_rate !== undefined && op.hourly_rate !== null ? String(op.hourly_rate) : '0');
+                    const rateNum = parseFloat(rateVal || 0);
+                    const opCost = opHours * rateNum;
+
+                    return (
+                      <tr key={op.operator_id || `op-${opIdx}`} className="hover:bg-indigo-50/20 transition-colors">
+                        <td className="p-2.5 pl-4 font-semibold text-slate-800 flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold">
+                            {(op.operator_name || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <span className="capitalize">{op.operator_name || 'Unknown Operator'}</span>
+                        </td>
+                        <td className="p-2.5 text-slate-600">
+                          <div className="flex flex-wrap gap-1">
+                            {(op.operations ? op.operations.split(',') : ['Production']).map((task, tIdx) => (
+                              <span key={tIdx} className="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-normal">
+                                {task.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="p-2.5 text-right font-semibold text-blue-600">
+                          {opHours.toFixed(2)} hrs
+                        </td>
+                        <td className="p-2.5 text-right">
+                          <div className="inline-flex items-center gap-1">
+                            <span className="text-slate-400 text-xs">₹</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              placeholder="0"
+                              disabled={!isEditing}
+                              value={rateVal}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setOperatorRates(prev => ({
+                                  ...prev,
+                                  [rateKey]: val
+                                }));
+                              }}
+                              className={`w-24 px-2 py-1 rounded text-right text-xs transition-all font-medium ${
+                                isEditing
+                                  ? 'bg-white border-2 border-indigo-500 text-slate-900 shadow-sm focus:ring-2 focus:ring-indigo-500/20 outline-none'
+                                  : 'bg-slate-50 border border-slate-200 text-slate-700 cursor-not-allowed'
+                              }`}
+                            />
+                          </div>
+                        </td>
+                        <td className="p-2.5 pr-4 text-right font-bold text-slate-800">
+                          ₹{opCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot className="bg-slate-100/80 font-semibold border-t-2 border-slate-200">
+                  <tr>
+                    <td colSpan={2} className="p-3 pl-4 text-slate-700 uppercase text-[11px] tracking-wider">
+                      Total Project Costing Summary
+                    </td>
+                    <td className="p-3 text-right text-blue-700 font-bold">
+                      {projectTotalHours.toFixed(2)} hrs
+                    </td>
+                    <td className="p-3 text-right text-slate-400 text-xs italic">
+                      -
+                    </td>
+                    <td className="p-3 pr-4 text-right text-emerald-700 font-extrabold text-sm">
+                      ₹{totalProjectCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {isEditing && (
+              <div className="p-3 bg-indigo-50/70 border-t border-indigo-100 flex items-center justify-between">
+                <span className="text-xs text-indigo-700 font-medium">
+                  Enter operator hourly rates above and click Save Rates to persist to database.
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setEditingProjectMap(prev => ({ ...prev, [row.root_card_id]: false }))}
+                    className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded text-xs font-medium transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleSaveRates(row.root_card_id)}
+                    disabled={savingRates}
+                    className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{savingRates ? 'Saving Rates...' : 'Save Rates'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const projectTimelineSelectionColumns = [
     {
@@ -1379,7 +1686,7 @@ const ReportsAnalytics = () => {
             <button
               key={tab.id}
               onClick={() => {
-                setSelectedReport(tab.id);
+                handleSelectReport(tab.id);
                 setSelectedProjectId('');
                 setFilterDepartment('all');
                 setFilterStatus('all');
@@ -1907,6 +2214,8 @@ const ReportsAnalytics = () => {
               data={reportData?.['project-manhours'] || []}
               striped={true}
               hover={true}
+              rowKey="root_card_id"
+              renderRowDetail={renderProjectManhoursDetail}
             />
           </div>
         </Card>

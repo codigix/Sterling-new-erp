@@ -12,7 +12,8 @@ const {
   getEmployeeWorkingHours,
   getDesignEngineerReport,
   getOperatorLogsReport,
-  getProjectManhoursReport
+  getProjectManhoursReport,
+  updateOperatorRates
 } = require('../controllers/reportController');
 const auth = require('../middleware/authMiddleware');
 
@@ -25,6 +26,7 @@ router.get('/employees', auth, getEmployeesReport);
 router.get('/design-engineer', auth, getDesignEngineerReport);
 router.get('/operator-logs', auth, getOperatorLogsReport);
 router.get('/project-manhours', auth, getProjectManhoursReport);
+router.post('/operator-rates', auth, updateOperatorRates);
 router.get('/employees/:id/performance', auth, getEmployeePerformance);
 router.get('/employees/:id/daily-reports', auth, getEmployeeDailyReports);
 router.get('/employees/:id/working-hours', auth, getEmployeeWorkingHours);

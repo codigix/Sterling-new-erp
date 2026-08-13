@@ -10,8 +10,8 @@ const { getOperatorLogsReport, getProjectManhoursReport } = require('../controll
     
     const req = {
       query: {
-        start: '2026-05-21',
-        end: '2026-06-20'
+        start: '2026-01-01',
+        end: '2026-12-31'
       }
     };
     
