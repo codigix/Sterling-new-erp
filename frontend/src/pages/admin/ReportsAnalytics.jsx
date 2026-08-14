@@ -631,11 +631,6 @@ const ReportsAnalytics = () => {
       ),
     },
     {
-      key: 'total_logs',
-      label: 'Work Logs Count',
-      sortable: true,
-    },
-    {
       key: 'project_status',
       label: 'Project Status',
       sortable: true,
@@ -747,7 +742,6 @@ const ReportsAnalytics = () => {
                 <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider border-b border-slate-200">
                   <tr>
                     <th className="p-2.5 pl-4">Operator Name</th>
-                    <th className="p-2.5">Operation</th>
                     <th className="p-2.5 text-right">Working Hours</th>
                     <th className="p-2.5 text-right w-36">Rate / Hr (₹)</th>
                     <th className="p-2.5 pr-4 text-right">Costing (₹)</th>
@@ -768,15 +762,6 @@ const ReportsAnalytics = () => {
                             {(op.operator_name || 'U').charAt(0).toUpperCase()}
                           </div>
                           <span className="capitalize">{op.operator_name || 'Unknown Operator'}</span>
-                        </td>
-                        <td className="p-2.5 text-slate-600">
-                          <div className="flex flex-wrap gap-1">
-                            {(op.operations ? op.operations.split(',') : ['Production']).map((task, tIdx) => (
-                              <span key={tIdx} className="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-normal">
-                                {task.trim()}
-                              </span>
-                            ))}
-                          </div>
                         </td>
                         <td className="p-2.5 text-right font-semibold text-blue-600">
                           {opHours.toFixed(2)} hrs
@@ -815,7 +800,7 @@ const ReportsAnalytics = () => {
                 </tbody>
                 <tfoot className="bg-slate-100/80 font-semibold border-t-2 border-slate-200">
                   <tr>
-                    <td colSpan={2} className="p-3 pl-4 text-slate-700 uppercase text-[11px] tracking-wider">
+                    <td colSpan={1} className="p-3 pl-4 text-slate-700 uppercase text-[11px] tracking-wider">
                       Total Project Costing Summary
                     </td>
                     <td className="p-3 text-right text-blue-700 font-bold">
