@@ -27,11 +27,14 @@ const reportRoutes = require('./routes/reportRoutes');
 const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
 const accountingRoutes = require('./routes/accountingRoutes');
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const app = express();
 
 // Middleware
 app.use(helmet({
   crossOriginResourcePolicy: false, // Allow serving images/files
+  contentSecurityPolicy: false,     // Allow Swagger UI scripts & styles
 }));
 app.use(cors({
   origin: [
@@ -47,6 +50,27 @@ app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use('/api/uploads', express.static(path.resolve(process.env.UPLOAD_PATH)));
 app.use('/uploads', express.static(path.resolve(process.env.UPLOAD_PATH)));
+
+// API Documentation (OpenAPI 3.0 / Swagger UI)
+app.get('/api/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Sterling ERP - API Reference & Explorer',
+  customCss: `
+    .swagger-ui .topbar { display: none }
+    .swagger-ui .info { margin: 24px 0 16px; }
+    .swagger-ui .info .title { font-size: 28px; color: #0f172a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .swagger-ui .opblock-tag { font-size: 18px; font-weight: 600; border-bottom: 1px solid #e2e8f0; margin-bottom: 8px; }
+  `,
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    docExpansion: 'none',
+    filter: true,
+  }
+}));
 
 // Routes
 app.use('/api/design-drawings', designDrawingRoutes);
