@@ -1,5 +1,11 @@
+require('dotenv').config();
 const swaggerJsDoc = require('swagger-jsdoc');
 const path = require('path');
+
+// Determine base URL dynamically from .env
+const apiBaseUrl = process.env.API_BASE_URL || (process.env.NODE_ENV === 'production' 
+  ? 'https://sterlignerp.codigixinfotech.com' 
+  : `http://localhost:${process.env.PORT || 5001}`);
 
 const swaggerOptions = {
   definition: {
@@ -29,16 +35,12 @@ To test authenticated endpoints:
     },
     servers: [
       {
+        url: apiBaseUrl,
+        description: `Configured Server (${process.env.NODE_ENV === 'production' ? 'Production' : 'Local Development'})`,
+      },
+      {
         url: '/',
-        description: 'Current Host (Auto-detects production or local server)',
-      },
-      {
-        url: 'https://sterlignerp.codigixinfotech.com',
-        description: 'Live Production Server',
-      },
-      {
-        url: 'http://localhost:5001',
-        description: 'Local Backend Server (Port 5001)',
+        description: 'Current Host (Relative Path)',
       },
     ],
     components: {
