@@ -29,12 +29,16 @@ To test authenticated endpoints:
     },
     servers: [
       {
-        url: 'http://localhost:5001',
-        description: 'Local Backend Server (Port 5001)',
+        url: '/',
+        description: 'Current Host (Auto-detects production or local server)',
       },
       {
-        url: 'http://localhost:5000',
-        description: 'Alternate Local Server (Port 5000)',
+        url: 'https://sterlignerp.codigixinfotech.com',
+        description: 'Live Production Server',
+      },
+      {
+        url: 'http://localhost:5001',
+        description: 'Local Backend Server (Port 5001)',
       },
     ],
     components: {

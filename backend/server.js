@@ -51,12 +51,35 @@ app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use('/api/uploads', express.static(path.resolve(process.env.UPLOAD_PATH)));
 app.use('/uploads', express.static(path.resolve(process.env.UPLOAD_PATH)));
 
+// Middleware to protect API docs on production
+const docsAuth = (req, res, next) => {
+  if (process.env.NODE_ENV !== 'production') {
+    return next(); // Free access on localhost / development
+  }
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Basic ')) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Sterling ERP API Documentation"');
+    return res.status(401).send('Authentication required to view API documentation in production');
+  }
+  const credentials = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+  const user = credentials[0];
+  const pass = credentials[1];
+  const expectedUser = process.env.DOCS_USER || 'admin';
+  const expectedPass = process.env.DOCS_PASSWORD || 'Sterling@Docs2024';
+
+  if (user === expectedUser && pass === expectedPass) {
+    return next();
+  }
+  res.setHeader('WWW-Authenticate', 'Basic realm="Sterling ERP API Documentation"');
+  return res.status(401).send('Invalid credentials');
+};
+
 // API Documentation (OpenAPI 3.0 / Swagger UI)
-app.get('/api/docs.json', (req, res) => {
+app.get('/api/docs.json', docsAuth, (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+app.use('/api/docs', docsAuth, swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'Sterling ERP - API Reference & Explorer',
   customCss: `
     .swagger-ui .topbar { display: none }
