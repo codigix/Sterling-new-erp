@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../utils/api";
 import CreateStockEntryModal from "./CreateStockEntryModal";
+import AddManualMaterialModal from "./AddManualMaterialModal";
 import { renderDimensions } from "../../utils/dimensionUtils";
 import DataTable from "../../components/ui/DataTable/DataTable";
 import {
@@ -183,6 +184,7 @@ const StockEntriesPage = () => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddMaterialModalOpen, setIsAddMaterialModalOpen] = useState(false);
   const [expandedEntry, setExpandedEntry] = useState(null);
   const [expandedItem, setExpandedItem] = useState(null);
 
@@ -210,12 +212,20 @@ const StockEntriesPage = () => {
         title="Stock Entries"
         titleIcon={<TrendingUp size={16} />}
         titleExtra={
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs transition-all shadow-sm"
-          >
-            <Plus size={14} /> Create Entry
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsAddMaterialModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-medium transition-all shadow-sm active:scale-95"
+            >
+              <Plus size={14} /> Add Raw Material
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs transition-all shadow-sm"
+            >
+              <Plus size={14} /> Create Entry
+            </button>
+          </div>
         }
         data={entries}
         loading={loading}
@@ -312,6 +322,12 @@ const StockEntriesPage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onEntryCreated={fetchStockEntries}
+      />
+
+      <AddManualMaterialModal
+        isOpen={isAddMaterialModalOpen}
+        onClose={() => setIsAddMaterialModalOpen(false)}
+        onSuccess={fetchStockEntries}
       />
     </div>
   );

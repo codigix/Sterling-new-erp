@@ -21,9 +21,11 @@ import {
   ChevronDown,
   ChevronUp,
   Boxes,
+  Plus,
 } from "lucide-react";
 
 import toastUtils from "../../utils/toastUtils";
+import AddManualMaterialModal from "./AddManualMaterialModal";
 
 const SerialDetailTable = ({ item }) => {
   if (!item.serials || item.serials.length === 0) {
@@ -105,6 +107,7 @@ const StockBalancePage = () => {
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedItem, setExpandedItem] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     fetchMaterials();
@@ -218,14 +221,23 @@ const StockBalancePage = () => {
         title="Inventory Ledger"
         titleIcon={<Warehouse size={15} />}
         titleExtra={
-          <div className="w-48 sm:w-56 text-left">
-            <SearchableSelect
-              options={categoryOptions}
-              value={categoryQuery || "all"}
-              onChange={(val) => setCategoryQuery(val || "all")}
-              placeholder="Search Category..."
-              allowCustom={true}
-            />
+          <div className="flex items-center gap-2.5">
+            <div className="w-48 sm:w-56 text-left">
+              <SearchableSelect
+                options={categoryOptions}
+                value={categoryQuery || "all"}
+                onChange={(val) => setCategoryQuery(val || "all")}
+                placeholder="Search Category..."
+                allowCustom={true}
+              />
+            </div>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-medium transition-all shadow-sm active:scale-95 whitespace-nowrap"
+            >
+              <Plus size={14} />
+              <span>Add Material</span>
+            </button>
           </div>
         }
         data={filteredStockData}
@@ -355,6 +367,12 @@ const StockBalancePage = () => {
               </div>
             )}
             emptyMessage="No stock found. Verify your filters or search terms"
+          />
+
+          <AddManualMaterialModal
+            isOpen={isAddModalOpen}
+            onClose={() => setIsAddModalOpen(false)}
+            onSuccess={fetchMaterials}
           />
         </div>
       );

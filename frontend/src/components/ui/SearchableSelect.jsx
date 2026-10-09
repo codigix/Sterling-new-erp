@@ -14,7 +14,9 @@ const SearchableSelect = ({
   allowCustom = false,
   name,
   id,
-  'aria-label': ariaLabel
+  'aria-label': ariaLabel,
+  portalZIndex = 100050,
+  usePortal = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,12 +38,16 @@ const SearchableSelect = ({
     setSearchTerm(desiredTerm);
   }, [value, options, allowCustom, selectedOption]);
 
-  const filteredOptions = options.filter(option =>
-    (option?.label || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOptions = options.filter(option => {
+    if (!searchTerm) return true;
+    if (isOpen && selectedOption && searchTerm.trim().toLowerCase() === (selectedOption.label || '').trim().toLowerCase()) {
+      return true;
+    }
+    return (option?.label || '').toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   useLayoutEffect(() => {
-    if (isOpen && wrapperRef.current) {
+    if (usePortal && isOpen && wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
       const availableHeight = window.innerHeight - rect.bottom;
       const dropdownHeight = 240; // max-h-60 is 240px
@@ -50,7 +56,7 @@ const SearchableSelect = ({
         position: 'fixed',
         left: `${rect.left}px`,
         width: `${rect.width}px`,
-        zIndex: 9999,
+        zIndex: portalZIndex || 100050,
       };
 
       if (availableHeight < dropdownHeight && rect.top > dropdownHeight) {
@@ -63,12 +69,15 @@ const SearchableSelect = ({
 
       setDropdownStyle(style);
     }
-  }, [isOpen]);
+  }, [isOpen, usePortal, portalZIndex]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target) && 
-          dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        wrapperRef.current && 
+        !wrapperRef.current.contains(event.target) && 
+        (!dropdownRef.current || !dropdownRef.current.contains(event.target))
+      ) {
         setIsOpen(false);
         
         if (allowCustom && searchTerm && !options.find(opt => opt.label === searchTerm)) {
@@ -76,33 +85,16 @@ const SearchableSelect = ({
         } else if (selectedOption) {
           setSearchTerm(selectedOption.label);
         } else if (!value) {
-           setSearchTerm('');
+          setSearchTerm('');
         }
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    
-    const handleScroll = (event) => {
-      if (isOpen && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    
-    const handleResize = () => {
-      if (isOpen) {
-        setIsOpen(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, true);
-    window.addEventListener('resize', handleResize);
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll, true);
-      window.removeEventListener('resize', handleResize);
     };
-  }, [selectedOption, value, allowCustom, searchTerm, options, onChange, isOpen]);
+  }, [selectedOption, value, allowCustom, searchTerm, options, onChange]);
 
   const handleSelect = (option) => {
     onChange(option.value);
@@ -137,10 +129,62 @@ const SearchableSelect = ({
     }
   };
 
+  const renderDropdownContent = () => (
+    <div className="overflow-y-auto flex-1 py-1 modal-body-scroll">
+      {filteredOptions.length > 0 ? (
+        filteredOptions.map((option, index) => (
+          <div
+            key={option.value || `option-${index}`}
+            onClick={() => handleSelect(option)}
+            className={`
+              p-2 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors
+              ${String(value) === String(option.value) ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-700 dark:text-slate-300'}
+            `}
+          >
+            <div className="flex flex-col">
+              <span>{option.label}</span>
+              {option.subLabel && (
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {option.subLabel}
+                </span>
+              )}
+            </div>
+          </div>
+        ))
+      ) : allowCustom && searchTerm ? (
+        <div
+          onClick={() => {
+            onChange(searchTerm);
+            setIsOpen(false);
+          }}
+          className="p-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 text-blue-600 dark:text-blue-400 italic border-t border-slate-100 dark:border-slate-700"
+        >
+          Use custom: "{searchTerm}"
+        </div>
+      ) : (
+        <div className="px-4 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+          No results found for "{searchTerm}"
+        </div>
+      )}
+      
+      {allowCustom && searchTerm && filteredOptions.length > 0 && !filteredOptions.some(opt => opt.label?.toLowerCase() === searchTerm.toLowerCase()) && (
+        <div
+          onClick={() => {
+            onChange(searchTerm);
+            setIsOpen(false);
+          }}
+          className="p-2 text-sm cursor-pointer border-t border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-blue-600 dark:text-blue-400 italic"
+        >
+          Use custom: "{searchTerm}"
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className={`relative ${className}`} ref={wrapperRef}>
       {label && (
-        <label htmlFor={inputId} className="block text-xs  text-slate-900 dark:text-slate-100 mb-1  ">
+        <label htmlFor={inputId} className="block text-xs text-slate-900 dark:text-slate-100 mb-1">
           {label}
         </label>
       )}
@@ -198,63 +242,26 @@ const SearchableSelect = ({
         </div>
       </div>
 
-      {isOpen && !disabled && createPortal(
-        <div 
-          ref={dropdownRef}
-          style={dropdownStyle}
-          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded  max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
-        >
-          <div className="overflow-y-auto flex-1 py-1 modal-body-scroll">
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option, index) => (
-                <div
-                  key={option.value || `option-${index}`}
-                  onClick={() => handleSelect(option)}
-                  className={`
-                    p-2 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors
-                    ${String(value) === String(option.value) ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 ' : 'text-slate-700 dark:text-slate-300'}
-                  `}
-                >
-                  <div className="flex flex-col">
-                    <span>{option.label}</span>
-                    {option.subLabel && (
-                      <span className="text-xs text-slate-500 dark:text-slate-400  ">
-                        {option.subLabel}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : allowCustom && searchTerm ? (
-              <div
-                onClick={() => {
-                  onChange(searchTerm);
-                  setIsOpen(false);
-                }}
-                className="p-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 text-blue-600 dark:text-blue-400  italic border-t border-slate-100 dark:border-slate-700"
-              >
-                Use custom: "{searchTerm}"
-              </div>
-            ) : (
-              <div className="px-4 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-                No results found for "{searchTerm}"
-              </div>
-            )}
-            
-            {allowCustom && searchTerm && filteredOptions.length > 0 && !filteredOptions.some(opt => opt.label?.toLowerCase() === searchTerm.toLowerCase()) && (
-              <div
-                onClick={() => {
-                  onChange(searchTerm);
-                  setIsOpen(false);
-                }}
-                className="p-2 text-sm cursor-pointer border-t border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-blue-600 dark:text-blue-400  italic"
-              >
-                Use custom: "{searchTerm}"
-              </div>
-            )}
+      {isOpen && !disabled && (
+        usePortal ? (
+          createPortal(
+            <div 
+              ref={dropdownRef}
+              style={dropdownStyle}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-2xl max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
+            >
+              {renderDropdownContent()}
+            </div>,
+            document.body
+          )
+        ) : (
+          <div 
+            ref={dropdownRef}
+            className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-2xl max-h-60 overflow-hidden flex flex-col z-[500] animate-in fade-in duration-100"
+          >
+            {renderDropdownContent()}
           </div>
-        </div>,
-        document.body
+        )
       )}
       
       {error && <p className="mt-1 text-xs text-red-500 ">{error}</p>}
