@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const db = require('./config/db');
@@ -27,11 +29,14 @@ const reportRoutes = require('./routes/reportRoutes');
 const departmentTaskRoutes = require('./routes/departmentTaskRoutes');
 const accountingRoutes = require('./routes/accountingRoutes');
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const app = express();
 
 // Middleware
 app.use(helmet({
   crossOriginResourcePolicy: false, // Allow serving images/files
+  contentSecurityPolicy: false,     // Allow Swagger UI scripts & styles
 }));
 app.use(cors({
   origin: [
@@ -47,6 +52,108 @@ app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use('/api/uploads', express.static(path.resolve(process.env.UPLOAD_PATH)));
 app.use('/uploads', express.static(path.resolve(process.env.UPLOAD_PATH)));
+
+// Middleware to allow any logged-in user or active ERP user to access API docs
+const docsAuth = async (req, res, next) => {
+  if (process.env.NODE_ENV !== 'production') {
+    return next(); // Free access on localhost / development
+  }
+
+  const jwtSecret = process.env.JWT_SECRET || 'sterling_secret';
+
+  // 1. Check if token is passed via query param (?token=... or ?auth=...)
+  const queryToken = req.query.token || req.query.auth;
+  if (queryToken) {
+    try {
+      jwt.verify(queryToken, jwtSecret);
+      return next();
+    } catch (e) {
+      // Continue to other checks
+    }
+  }
+
+  // 2. Check if user is logged into the ERP via cookie
+  const cookieHeader = req.headers.cookie;
+  if (cookieHeader) {
+    const match = cookieHeader.match(/(^|;\s*)token=([^;]*)/);
+    if (match) {
+      const cookieToken = decodeURIComponent(match[2]);
+      try {
+        jwt.verify(cookieToken, jwtSecret);
+        return next();
+      } catch (e) {
+        // Continue to other checks
+      }
+    }
+  }
+
+  // 3. Check Authorization header (Bearer or Basic)
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    // Check Bearer JWT token
+    if (authHeader.startsWith('Bearer ')) {
+      const bearerToken = authHeader.split(' ')[1];
+      try {
+        jwt.verify(bearerToken, jwtSecret);
+        return next();
+      } catch (e) {
+        // Continue
+      }
+    }
+
+    // Check Basic Auth (Email and Password entered in the browser sign-in popup)
+    if (authHeader.startsWith('Basic ')) {
+      try {
+        const credentials = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+        const email = credentials[0];
+        const password = credentials.slice(1).join(':');
+
+        // Check fallback docs credentials
+        const expectedUser = process.env.DOCS_USER || 'admin';
+        const expectedPass = process.env.DOCS_PASSWORD || 'Sterling@Docs2024';
+        if (email === expectedUser && password === expectedPass) {
+          return next();
+        }
+
+        // Check against real active users in the database
+        const [users] = await db.query('SELECT * FROM users WHERE email = ? AND status != "inactive"', [email]);
+        if (users && users.length > 0) {
+          const isMatch = await bcrypt.compare(password, users[0].password);
+          if (isMatch) {
+            return next();
+          }
+        }
+      } catch (err) {
+        console.error('Docs auth error:', err);
+      }
+    }
+  }
+
+  // Not authenticated: prompt user with browser Sign-in dialog
+  res.setHeader('WWW-Authenticate', 'Basic realm="Sterling ERP - Log in with your ERP email and password"');
+  return res.status(401).send('Please log in with your Sterling ERP email and password to view API documentation.');
+};
+
+// API Documentation (OpenAPI 3.0 / Swagger UI)
+app.get('/api/docs.json', docsAuth, (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+app.use('/api/docs', docsAuth, swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Sterling ERP - API Reference & Explorer',
+  customCss: `
+    .swagger-ui .topbar { display: none }
+    .swagger-ui .info { margin: 24px 0 16px; }
+    .swagger-ui .info .title { font-size: 28px; color: #0f172a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .swagger-ui .opblock-tag { font-size: 18px; font-weight: 600; border-bottom: 1px solid #e2e8f0; margin-bottom: 8px; }
+  `,
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    docExpansion: 'none',
+    filter: true,
+  }
+}));
 
 // Routes
 app.use('/api/design-drawings', designDrawingRoutes);

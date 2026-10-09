@@ -91,6 +91,14 @@ const login = async (req, res) => {
 
     await logAudit(user.full_name, 'User Login', 'auth', `${user.full_name} logged in successfully`, req.ip, 'success');
 
+    // Set token cookie for browser session (seamless access to API docs & media)
+    res.cookie('token', token, {
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production'
+    });
+
     res.json({
       token,
       user: {
