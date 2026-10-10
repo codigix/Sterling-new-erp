@@ -113,6 +113,33 @@ const pool = mysql.createPool({
       console.log("Added 'department' column to 'vendors' table and initialized default to 'procurement'.");
     }
 
+    // Ensure manual stock inventory columns and nullability exist
+    try {
+      const [serialsTable] = await connection.query("SHOW TABLES LIKE 'inventory_serials'");
+      if (serialsTable.length > 0) {
+        await connection.query("ALTER TABLE inventory_serials MODIFY COLUMN purchase_order_id INT NULL DEFAULT NULL");
+        await connection.query("ALTER TABLE inventory_serials MODIFY COLUMN item_id INT NULL DEFAULT NULL");
+        await connection.query("ALTER TABLE inventory_serials MODIFY COLUMN grn_id INT NULL DEFAULT NULL");
+
+        const [issuedCol] = await connection.query("SHOW COLUMNS FROM inventory_serials LIKE 'issued_in_entry_id'");
+        if (issuedCol.length === 0) {
+          await connection.query("ALTER TABLE inventory_serials ADD COLUMN issued_in_entry_id INT NULL DEFAULT NULL");
+        }
+      }
+
+      const [stockItemsTable] = await connection.query("SHOW TABLES LIKE 'stock_entry_items'");
+      if (stockItemsTable.length > 0) {
+        await connection.query("ALTER TABLE stock_entry_items MODIFY COLUMN material_id INT NULL DEFAULT NULL");
+      }
+
+      const [stockEntriesTable] = await connection.query("SHOW TABLES LIKE 'stock_entries'");
+      if (stockEntriesTable.length > 0) {
+        await connection.query("ALTER TABLE stock_entries MODIFY COLUMN grn_id INT NULL DEFAULT NULL");
+      }
+    } catch (manualStockErr) {
+      console.warn("Manual stock schema check notice:", manualStockErr.message);
+    }
+
     connection.release();
   } catch (error) {
     console.error('Error connecting or running schema update:', error.message);
