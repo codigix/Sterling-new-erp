@@ -47,7 +47,8 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
     if (!project?.id) return;
     try {
       setLoading(true);
-      const response = await axios.get(`/qc/production/inspections/${project.id}?phase=${project.current_phase || 1}`);
+      const phaseNum = Number(project.current_phase) || 1;
+      const response = await axios.get(`/qc/production/inspections/${project.id}?phase=${phaseNum}`);
       if (response.data.success) {
         setInspections(response.data.inspections || []);
       }
@@ -56,11 +57,13 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
     } finally {
       setLoading(false);
     }
-  }, [project?.id]);
+  }, [project?.id, project?.current_phase]);
 
   useEffect(() => {
     if (isOpen && project) {
       fetchInspections();
+    } else {
+      setInspections([]);
     }
   }, [isOpen, project, fetchInspections]);
 
@@ -68,15 +71,17 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
     if (!newInspection.trim()) return;
     try {
       setAdding(true);
+      const phaseNum = Number(project.current_phase) || 1;
       const response = await axios.post("/qc/production/inspections", {
         root_card_id: project.id,
         inspection_name: newInspection.trim(),
-        phase: project.current_phase || 1
+        phase: phaseNum
       });
       if (response.data.success) {
         toast.success("Inspection test added");
         setNewInspection("");
         fetchInspections();
+        if (onRefresh) onRefresh();
       }
     } catch (error) {
       showError("Failed to add test");
@@ -92,6 +97,7 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
       if (response.data.success) {
         toast.success(`Test marked as ${status}`);
         fetchInspections();
+        if (onRefresh) onRefresh();
       }
     } catch (error) {
       showError("Failed to update status");
@@ -111,6 +117,7 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
       if (response.data.success) {
         toast.success("Report uploaded successfully");
         fetchInspections();
+        if (onRefresh) onRefresh();
       }
     } catch (error) {
       showError("Failed to upload report");
@@ -138,6 +145,7 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
       await axios.delete(`/qc/production/inspections/${id}`);
       toast.success("Test removed successfully");
       fetchInspections();
+      if (onRefresh) onRefresh();
     } catch (error) {
       showError("Failed to delete test");
     }
@@ -152,8 +160,15 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
       <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-2 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
           <div>
-            <h2 className="text-sm  text-slate-900 dark:text-white  ">
+            <h2 className="text-sm text-slate-900 dark:text-white flex items-center gap-2">
               Project Testing & Inspection
+              <span className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
+                (Number(project?.current_phase) === 2) 
+                  ? 'bg-purple-100 text-purple-700 border border-purple-200' 
+                  : 'bg-blue-100 text-blue-700 border border-blue-200'
+              }`}>
+                Phase {project?.current_phase || 1}
+              </span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               {project?.project_name} ({project?.id})
@@ -539,8 +554,12 @@ const ProductionQCPage = () => {
 
       {/* Testing Modal */}
       <TestingModal 
+        key={activeProject ? `${activeProject.id}-phase-${activeProject.current_phase}` : 'empty-modal'}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setActiveProject(null);
+        }}
         project={activeProject}
         onRefresh={fetchTasks}
         onFinalApprove={handleFinalApprove}

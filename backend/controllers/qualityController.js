@@ -146,9 +146,14 @@ exports.getProjectInspections = async (req, res) => {
     let query = 'SELECT * FROM project_inspections WHERE root_card_id = ?';
     const params = [effectiveId];
     
-    if (phase) {
-      query += ' AND phase = ?';
-      params.push(phase);
+    if (phase !== undefined && phase !== null && phase !== '') {
+      const phaseNum = parseInt(phase, 10);
+      if (phaseNum === 1) {
+        query += ' AND (phase = 1 OR phase IS NULL)';
+      } else {
+        query += ' AND phase = ?';
+        params.push(phaseNum);
+      }
     }
     
     query += ' ORDER BY created_at ASC';
@@ -167,9 +172,10 @@ exports.addProjectInspection = async (req, res) => {
     const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
     const effectiveId = cards.length > 0 ? cards[0].id : root_card_id;
 
+    const phaseNum = parseInt(phase, 10) || 1;
     const [result] = await db.query(
       'INSERT INTO project_inspections (root_card_id, inspection_name, phase, status) VALUES (?, ?, ?, ?)',
-      [effectiveId, inspection_name, phase || 1, 'Pending']
+      [effectiveId, inspection_name, phaseNum, 'Pending']
     );
     res.json({ success: true, id: result.insertId, message: 'Inspection added successfully' });
   } catch (error) {

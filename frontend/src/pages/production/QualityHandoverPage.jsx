@@ -27,7 +27,8 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
     if (!project?.projectId) return;
     try {
       setLoading(true);
-      const response = await axios.get(`/qc/production/inspections/${project.projectId}?phase=${project.handoverPhase || 1}`);
+      const phaseNum = Number(project.handoverPhase) || 1;
+      const response = await axios.get(`/qc/production/inspections/${project.projectId}?phase=${phaseNum}`);
       if (response.data.success) {
         setInspections(response.data.inspections || []);
       }
@@ -41,6 +42,8 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
   useEffect(() => {
     if (isOpen && project) {
       fetchInspections();
+    } else {
+      setInspections([]);
     }
   }, [isOpen, project, fetchInspections]);
 
@@ -51,8 +54,15 @@ const ViewTestsModal = ({ isOpen, onClose, project }) => {
       <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
           <div>
-            <h2 className="text-sm  text-slate-900 dark:text-white  tracking-tight">
+            <h2 className="text-sm text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
               Quality Testing & Reports
+              <span className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
+                (Number(project?.handoverPhase) === 2) 
+                  ? 'bg-purple-100 text-purple-700 border border-purple-200' 
+                  : 'bg-blue-100 text-blue-700 border border-blue-200'
+              }`}>
+                Phase {project?.handoverPhase || 1}
+              </span>
             </h2>
             <p className="text-[10px] text-slate-500 mt-0.5">
               {project?.project_name || project?.title} ({project?.projectId})
@@ -419,6 +429,7 @@ const QualityHandoverPage = () => {
           />
           
           <ViewTestsModal 
+            key={activeProject ? `${activeProject.projectId || activeProject.id}-phase-${activeProject.handoverPhase}` : 'empty-view-modal'}
             isOpen={isModalOpen} 
             onClose={() => {
               setIsModalOpen(false);
