@@ -346,8 +346,7 @@ exports.deleteDailyPlan = async (req, res) => {
       }
     }
 
-    // 4. Check if we need to cleanup inspections for affected projects and phases
-    // If a phase now has ANY non-completed operation, we clear inspections for THAT phase
+    // 4. Check if we need to reset root card status if a phase has incomplete operations and was pending QC
     const affectedProjects = [...new Set(assignments.map(a => a.root_card_id).filter(Boolean))];
     for (const rcId of affectedProjects) {
       const projPhases = [...new Set(assignments.filter(a => a.root_card_id === rcId).map(a => a.phase).filter(Boolean))];
@@ -359,17 +358,15 @@ exports.deleteDailyPlan = async (req, res) => {
         );
         
         if (incompleteOps[0].count > 0) {
-          // If any operation in this phase is not completed, clear inspections for this phase
-          await connection.query('DELETE FROM project_inspections WHERE root_card_id = ? AND phase = ?', [rcId, phase]);
-          
-          // Reset root card status if it was in a QC status for this phase
-          const qcStatusToReset = phase === 1 
-            ? ['DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'Production completed and send to Quality fot QC', 'send to production for complete final produciton'] 
-            : ['PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'final Prodcution completed and send to quality for final qc', 'Redy for Dispatch'];
+          // Note: Never delete project_inspections here. Quality test reports and records must remain permanent.
+          // Reset root card status only if it was in an unapproved QC pending status for this phase
+          const qcPendingStatus = phase === 1 
+            ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC'] 
+            : ['PHASE_2_QC_PENDING', 'final Prodcution completed and send to quality for final qc'];
           await connection.query(
             `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
              WHERE id = ? AND status IN (?)`,
-            [rcId, qcStatusToReset]
+            [rcId, qcPendingStatus]
           );
         }
       }
@@ -487,7 +484,7 @@ exports.deleteAssignment = async (req, res) => {
       }
     }
 
-    // 5. Cleanup inspections if project phase has any incomplete operations now
+    // 5. Reset root card status only if phase is now incomplete and was pending QC
     if (root_card_id && phase) {
       const [incompleteOps] = await connection.query(
         "SELECT COUNT(*) as count FROM root_card_operations WHERE root_card_id = ? AND phase = ? AND status != 'Completed'",
@@ -495,15 +492,15 @@ exports.deleteAssignment = async (req, res) => {
       );
       
       if (incompleteOps[0].count > 0) {
-        // If phase is now incomplete, clear inspections for this phase
-        await connection.query('DELETE FROM project_inspections WHERE root_card_id = ? AND phase = ?', [root_card_id, phase]);
-        
-        // Reset root card status if it was in a QC status for this phase
-        const qcStatusToReset = phase === 1 ? ['DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED'] : ['PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED'];
+        // Note: Never delete project_inspections here. Quality test reports and records must remain permanent.
+        // Reset root card status only if it was in an unapproved QC pending status for this phase
+        const qcPendingStatus = phase === 1 
+          ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC'] 
+          : ['PHASE_2_QC_PENDING', 'final Prodcution completed and send to quality for final qc'];
         await connection.query(
           `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
            WHERE id = ? AND status IN (?)`,
-          [root_card_id, qcStatusToReset]
+          [root_card_id, qcPendingStatus]
         );
       }
     }
@@ -1524,25 +1521,22 @@ exports.deleteProductionOperation = async (req, res) => {
       [root_card_id]
     );
 
-    // If ALL operations for the project are deleted, or all operations for this phase are deleted
-    // we should clean up the inspections for that phase/project
+    // If ALL operations for the project or phase are deleted, reset pending QC status
+    // Note: Never delete project_inspections here. Quality test reports and records must remain permanent.
     if (remainingOps[0].count === 0 || allRemainingOps[0].count === 0) {
-      await connection.query('DELETE FROM project_inspections WHERE root_card_id = ? AND phase = ?', [root_card_id, phase]);
-      
-      // Also reset root card status if it was in a QC status
-      const qcStatusToReset = phase === 1 
-        ? ['DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'Production completed and send to Quality fot QC', 'send to production for complete final produciton'] 
-        : ['PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'final Prodcution completed and send to quality for final qc', 'Redy for Dispatch'];
+      const qcPendingStatus = phase === 1 
+        ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC'] 
+        : ['PHASE_2_QC_PENDING', 'final Prodcution completed and send to quality for final qc'];
       
       await connection.query(
         `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
          WHERE id = ? AND status IN (?)`,
-        [root_card_id, qcStatusToReset]
+        [root_card_id, qcPendingStatus]
       );
     }
 
     await connection.commit();
-    res.json({ success: true, message: 'Operation deleted successfully and QC data cleaned up if necessary' });
+    res.json({ success: true, message: 'Operation deleted successfully' });
   } catch (error) {
     if (connection) await connection.rollback();
     console.error('Error deleting production operation:', error);
