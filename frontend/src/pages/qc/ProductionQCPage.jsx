@@ -165,29 +165,28 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
         </div>
 
         <div className="p-2 overflow-y-auto flex-1 space-y-6">
-          {!isQCApproved && (
-            <div className="bg-blue-50/30 dark:bg-blue-900/10 p-4 rounded border border-blue-100/50 dark:border-blue-900/30">
-              <h4 className="text-xs  text-blue-600  tracking-widest mb-3">Define New Test</h4>
-              <div className="flex gap-2">
-                <input 
-                  type="text"
-                  placeholder="e.g. Dimensional Check, Visual, DP Test..."
-                  className="flex-1 p-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded outline-none focus:ring-2 focus:ring-blue-500"
-                  value={newInspection}
-                  onChange={(e) => setNewInspection(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddInspection()}
-                />
-                <button 
-                  onClick={handleAddInspection}
-                  disabled={adding || !newInspection}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 text-xs "
-                >
-                  {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-                  Add Test
-                </button>
-              </div>
+          {/* Define New Test - Always available */}
+          <div className="bg-blue-50/30 dark:bg-blue-900/10 p-4 rounded border border-blue-100/50 dark:border-blue-900/30">
+            <h4 className="text-xs  text-blue-600  tracking-widest mb-3">Define New Test</h4>
+            <div className="flex gap-2">
+              <input 
+                type="text"
+                placeholder="e.g. Dimensional Check, Visual, DP Test..."
+                className="flex-1 p-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded outline-none focus:ring-2 focus:ring-blue-500"
+                value={newInspection}
+                onChange={(e) => setNewInspection(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAddInspection()}
+              />
+              <button 
+                onClick={handleAddInspection}
+                disabled={adding || !newInspection}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2 text-xs "
+              >
+                {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                Add Test
+              </button>
             </div>
-          )}
+          </div>
 
           <div className="space-y-3">
             <h4 className="text-xs  text-slate-500  tracking-widest">Added Tests</h4>
@@ -221,51 +220,47 @@ const TestingModal = ({ isOpen, onClose, project, onRefresh, onFinalApprove }) =
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      {!isQCApproved && (
-                        <>
-                          {insp.status === 'Approved' && (
-                            <label className="p-1.5 text-slate-500 hover:text-blue-600 border border-slate-200 dark:border-slate-700 rounded cursor-pointer transition-colors" title="Upload Report">
-                              <input type="file" className="hidden" onChange={(e) => handleFileUpload(insp.id, e.target.files[0])} />
-                              <Upload size={14} />
-                            </label>
-                          )}
-                          
-                          {insp.status === 'Pending' ? (
-                            <div className="flex items-center gap-1">
-                              <button 
-                                onClick={() => handleStatusUpdate(insp.id, 'Approved')}
-                                disabled={updatingId === insp.id}
-                                className="p-1.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-1 text-xs "
-                                title="Accept Test"
-                              >
-                                {updatingId === insp.id ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
-                                Accept
-                              </button>
-                              <button 
-                                onClick={() => handleStatusUpdate(insp.id, 'Rejected')}
-                                disabled={updatingId === insp.id}
-                                className="p-1.5 bg-rose-50 text-rose-600 border border-rose-100 rounded hover:bg-rose-600 hover:text-white transition-all flex items-center gap-1 text-xs "
-                                title="Reject Test"
-                              >
-                                {updatingId === insp.id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
-                                Reject
-                              </button>
-                            </div>
-                          ) : (
-                            <button 
-                              onClick={() => handleStatusUpdate(insp.id, 'Pending')}
-                              className="p-1.5 bg-amber-50 text-amber-600 border border-amber-100 rounded hover:bg-amber-600 hover:text-white transition-all"
-                              title="Revert to Pending"
-                            >
-                              <RefreshCw size={14} />
-                            </button>
-                          )}
-                          
-                          <button onClick={() => handleDelete(insp.id)} className="p-1.5 text-slate-400 hover:text-rose-500 border border-slate-200 dark:border-slate-700 rounded transition-colors">
-                            <Trash2 size={14} />
-                          </button>
-                        </>
+                      {insp.status === 'Approved' && (
+                        <label className="p-1.5 text-slate-500 hover:text-blue-600 border border-slate-200 dark:border-slate-700 rounded cursor-pointer transition-colors" title="Upload Report">
+                          <input type="file" className="hidden" onChange={(e) => handleFileUpload(insp.id, e.target.files[0])} />
+                          <Upload size={14} />
+                        </label>
                       )}
+                      
+                      {insp.status === 'Pending' ? (
+                        <div className="flex items-center gap-1">
+                          <button 
+                            onClick={() => handleStatusUpdate(insp.id, 'Approved')}
+                            disabled={updatingId === insp.id}
+                            className="p-1.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-1 text-xs "
+                            title="Accept Test"
+                          >
+                            {updatingId === insp.id ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+                            Accept
+                          </button>
+                          <button 
+                            onClick={() => handleStatusUpdate(insp.id, 'Rejected')}
+                            disabled={updatingId === insp.id}
+                            className="p-1.5 bg-rose-50 text-rose-600 border border-rose-100 rounded hover:bg-rose-600 hover:text-white transition-all flex items-center gap-1 text-xs "
+                            title="Reject Test"
+                          >
+                            {updatingId === insp.id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
+                            Reject
+                          </button>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => handleStatusUpdate(insp.id, 'Pending')}
+                          className="p-1.5 bg-amber-50 text-amber-600 border border-amber-100 rounded hover:bg-amber-600 hover:text-white transition-all"
+                          title="Revert to Pending"
+                        >
+                          <RefreshCw size={14} />
+                        </button>
+                      )}
+                      
+                      <button onClick={() => handleDelete(insp.id)} className="p-1.5 text-slate-400 hover:text-rose-500 border border-slate-200 dark:border-slate-700 rounded transition-colors">
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </div>
                 ))}
